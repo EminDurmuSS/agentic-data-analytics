@@ -1,0 +1,15 @@
+{
+  "dataset_id": "housing_credit_market_controls_v1",
+  "description": "Gunluk piyasa kontrol serilerini ay ve ceyrek sonu gozlemine hizalama kurallari.",
+  "quarterly_to_monthly": "quarter_end_only",
+  "role_policies": {
+    "alternative_asset": {
+      "temporal_semantics": "market_close",
+      "subperiod_aggregation": "last"
+    },
+    "equity_market": {
+      "temporal_semantics": "market_close_index",
+      "subperiod_aggregation": "last"
+    }
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "status": "complete",
+  "validation_level": "HTTP and schema checks; requested period/group and source units still need export metadata verification.",
+  "expected_requests": 1122,
+  "successful_requests": 1122,
+  "rows": 33965,
+  "missing_requests": 0,
+  "first_failure": null,
+  "notes": [
+    "HTTP200 alone is not data validation.",
+    "No filling, no TLS bypass, no claim of bank-scope equivalence with TCMB."
+  ]
+}

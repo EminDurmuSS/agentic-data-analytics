@@ -1,0 +1,31 @@
+{
+  "status": "validated",
+  "diagnosis": "validated_bddk_weekly_html_table",
+  "source_url": "https://www.bddk.org.tr/BultenHaftalik/",
+  "sha256_uncompressed": "d7fa0250358eddb2e5c47c705a64e37df314b7b3108c85c93793deff34de97e6",
+  "compressed_bytes": 14807,
+  "uncompressed_bytes": 193766,
+  "served_from_cache": true,
+  "completed_at_utc": "2026-09-07T21:41:59.478621+00:00",
+  "table_id": 291,
+  "table_name": "Menkul Degerler",
+  "group_code": 10001,
+  "group_name": "Sektor",
+  "period_id": 375,
+  "observation_date": "2021-03-05",
+  "week_number": 9,
+  "source_period_label": "Mart/05 (9. Hafta)",
+  "source_date_heading": "Tarih: 5 Mart 2021 Cuma | Birim: Milyon TL",
+  "source_date_parsed": "2021-03-05",
+  "headers": [
+    "",
+    "Menkul Değerler",
+    "TP",
+    "YP",
+    "TOPLAM"
+  ],
+  "rows": 13,
+  "max_cells_per_row": 5,
+  "unit_heading": "Milyon TL",
+  "date_heading_normalized": "tarih: 5 mart 2021 cuma | birim: milyon tl"
+}

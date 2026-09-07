@@ -1,0 +1,32 @@
+{
+  "status": "complete_with_source_gaps",
+  "expected_periods": 22,
+  "published_periods": 21,
+  "source_gap_periods": [
+    "2026-06"
+  ],
+  "failed_periods": [],
+  "validated_attachment_count": 63,
+  "formats": [
+    "xls",
+    "pdf",
+    "docx"
+  ],
+  "category_fetch": {
+    "started_at_utc": "2026-09-07T21:48:21.567378+00:00",
+    "completed_at_utc": "2026-09-07T21:48:21.928678+00:00",
+    "requested_url": "https://www.tbb.org.tr/istatistiki-raporlar/11237",
+    "final_url": "https://www.tbb.org.tr/istatistiki-raporlar/11237",
+    "http_status": 200,
+    "content_type": "text/html; charset=utf-8",
+    "bytes": 159419,
+    "sha256": "d3cf4409ea7a7a08ec64077266ff3c4b5f2530b6818ae1ef5e417aa63f841791",
+    "attempt": 1,
+    "tls_verification": true
+  },
+  "limits": [
+    "TBB reports are quarterly and do not provide monthly disbursement flows.",
+    "A missing source publication is recorded and never imputed.",
+    "Reporting-bank coverage can vary and must be retained as metadata."
+  ]
+}

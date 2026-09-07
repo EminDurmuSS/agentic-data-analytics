@@ -1,0 +1,14 @@
+{
+  "expected_rows": 78,
+  "actual_rows": 78,
+  "target_rows": 66,
+  "warmup_rows": 12,
+  "missing_periods": [],
+  "extra_periods": [],
+  "duplicate_period_count": 0,
+  "missing_values": [],
+  "non_integer_values": [],
+  "total_equals_first_plus_second_failures": [],
+  "total_equals_mortgage_plus_other": "Other is derived as total minus mortgage, so this is an algebraic identity, not an independent source validation.",
+  "month_flow_evidence": "Official frequency AYLIK, unit Adet, aggregation sum, period reference described in TUİK revision explanation; 2020-01=120066, 2020-02=125409 (monthly period values, not YTD)."
+}

@@ -1,0 +1,12 @@
+{
+  "url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/categories/withDatagroups/type=json",
+  "method": "GET",
+  "http_status": 200,
+  "content_type": "application/json;charset=UTF-8",
+  "downloaded_utc": "2026-09-07T17:35:40.288151+00:00",
+  "sha256": "7276b3f0daa7ac9ae8a235fbb2012768e3eca4f4d032f0cb998e0deab3728527",
+  "bytes": 725539,
+  "root_type": "list",
+  "root_items": 154,
+  "auth": "public frontend GET; no credentials/cookies"
+}

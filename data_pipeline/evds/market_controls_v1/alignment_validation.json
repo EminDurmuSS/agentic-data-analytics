@@ -1,0 +1,19 @@
+{
+  "status": "passed",
+  "dataset_id": "housing_credit_market_controls_v1",
+  "series_count": 2,
+  "monthly_period_count": 78,
+  "quarterly_period_count": 26,
+  "monthly_audit_rows": 156,
+  "quarterly_audit_rows": 52,
+  "quarterly_series_month_rows": 0,
+  "quarterly_series_filled_into_intermediate_months": 0,
+  "policy_file": "market_controls_alignment_v1.json",
+  "quality_policy": [
+    "Every aggregation method is selected through an explicit analytical role policy.",
+    "Quarterly observations appear only in quarter-end months in the monthly panel.",
+    "Flow variables are summed; rates and survey measures are averaged; period-end levels use the last value.",
+    "Every panel value has an audit row with source, non-null and missing observation counts.",
+    "No interpolation, forward fill or backward fill is applied."
+  ]
+}

@@ -1,0 +1,29 @@
+{
+  "status": "validated",
+  "series_code": "TP.PKAUO.S04.C.U",
+  "frequency": "AYLIK",
+  "aggregation": "last",
+  "chunk_start": "2020-01-01",
+  "chunk_end": "2026-06-30",
+  "request_file": "raw/TP_PKAUO_S04_C_U_2020-01-01_2026-06-30_request.json",
+  "request_sha256": "c8b982a9bfb16f49714f0a148d50b7821fdcaf23d37209b801f825d4797047d3",
+  "response_file": "raw/TP_PKAUO_S04_C_U_2020-01-01_2026-06-30_response.json.gz",
+  "response_sha256": "982bb3cc4394b436fc753df108be5c261f7a013fd2140b25767c3d369e65af15",
+  "served_from_cache": true,
+  "http_status": 200,
+  "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "content_type": "application/json;charset=UTF-8",
+  "bytes": 11122,
+  "sha256": "982bb3cc4394b436fc753df108be5c261f7a013fd2140b25767c3d369e65af15",
+  "transport": "curl",
+  "tls_verification": true,
+  "response_total_count": 78,
+  "retained_rows": 78,
+  "outside_requested_range_rows": 0,
+  "series_names": {
+    "TP_PKAUO_S04_C_U": "İlk Toplantı İçin TCMB Politika Faiz Oranı Beklentisi (%)"
+  },
+  "frequency_conversion": {
+    "TP.PKAUO.S04.C.U": true
+  }
+}

@@ -1,0 +1,31 @@
+{
+  "status": "validated",
+  "diagnosis": "validated_bddk_weekly_html_table",
+  "source_url": "https://www.bddk.org.tr/BultenHaftalik/",
+  "sha256_uncompressed": "97a03e884cd64d204e3f82139402c82628fc6781dbdbb1b4e6ff44963db915f3",
+  "compressed_bytes": 14501,
+  "uncompressed_bytes": 190867,
+  "served_from_cache": true,
+  "completed_at_utc": "2026-09-07T21:41:51.222675+00:00",
+  "table_id": 290,
+  "table_name": "Takipteki Alacaklar",
+  "group_code": 10001,
+  "group_name": "Sektor",
+  "period_id": 470,
+  "observation_date": "2022-12-30",
+  "week_number": 52,
+  "source_period_label": "Aralık/30 (52. Hafta)",
+  "source_date_heading": "Tarih: 30 Aralık 2022 Cuma | Birim: Milyon TL",
+  "source_date_parsed": "2022-12-30",
+  "headers": [
+    "",
+    "Takipteki Alacaklar",
+    "TP",
+    "YP",
+    "TOPLAM"
+  ],
+  "rows": 12,
+  "max_cells_per_row": 5,
+  "unit_heading": "Milyon TL",
+  "date_heading_normalized": "tarih: 30 aralik 2022 cuma | birim: milyon tl"
+}

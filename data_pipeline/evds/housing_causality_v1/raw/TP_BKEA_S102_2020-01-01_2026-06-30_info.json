@@ -1,0 +1,29 @@
+{
+  "status": "validated",
+  "series_code": "TP.BKEA.S102",
+  "frequency": "ÜÇ AYLIK",
+  "aggregation": "last",
+  "chunk_start": "2020-01-01",
+  "chunk_end": "2026-06-30",
+  "request_file": "raw/TP_BKEA_S102_2020-01-01_2026-06-30_request.json",
+  "request_sha256": "24d3f325e7fe58db9841e6977bff09078925ef7dcf1709ebf5ecf520b819d851",
+  "response_file": "raw/TP_BKEA_S102_2020-01-01_2026-06-30_response.json.gz",
+  "response_sha256": "401bc3f09ab550894c6a4310c02e7d5fa7bfe917c7b6e9860bb07f20b9837910",
+  "served_from_cache": true,
+  "http_status": 200,
+  "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "content_type": "application/json;charset=UTF-8",
+  "bytes": 4456,
+  "sha256": "401bc3f09ab550894c6a4310c02e7d5fa7bfe917c7b6e9860bb07f20b9837910",
+  "transport": "curl",
+  "tls_verification": true,
+  "response_total_count": 26,
+  "retained_rows": 26,
+  "outside_requested_range_rows": 0,
+  "series_names": {
+    "TP_BKEA_S102": "16.8. (Krediler Üzerindeki Vergi ve Benzeri Yükler)_ Geçen üç ayda, bu faktör konut alım kredisi talebini ne yönde etkiledi?"
+  },
+  "frequency_conversion": {
+    "TP.BKEA.S102": true
+  }
+}

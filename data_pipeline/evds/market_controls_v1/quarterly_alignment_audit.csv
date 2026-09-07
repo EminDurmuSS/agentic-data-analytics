@@ -1,0 +1,53 @@
+﻿target_period,series_code,analysis_column,series_name_tr,role,native_frequency,target_frequency,aggregation,value,source_observation_count,non_null_observation_count,missing_observation_count,first_source_period,last_source_period,source_period_end_max
+2020Q1,TP.ALTINPIYASA.KAP05,TP_ALTINPIYASA_KAP05,Altın - Kapanış Fiyatı  - TL/gr,alternative_asset,İŞ GÜNÜ,quarterly,last,297.5,65,1,64,2020-01-01,2020-03-31,2020-03-31
+2020Q1,TP.MK.F.BILESIK,TP_MK_F_BILESIK,"(FİYAT) BİST 100 Endeks (XU100), Kapanış Fiyatlarına Göre (Ocak 1986=0,01)",equity_market,İŞ GÜNÜ,quarterly,last,896.44,65,64,1,2020-01-01,2020-03-31,2020-03-31
+2020Q2,TP.ALTINPIYASA.KAP05,TP_ALTINPIYASA_KAP05,Altın - Kapanış Fiyatı  - TL/gr,alternative_asset,İŞ GÜNÜ,quarterly,last,381.0,65,4,61,2020-04-01,2020-06-30,2020-06-30
+2020Q2,TP.MK.F.BILESIK,TP_MK_F_BILESIK,"(FİYAT) BİST 100 Endeks (XU100), Kapanış Fiyatlarına Göre (Ocak 1986=0,01)",equity_market,İŞ GÜNÜ,quarterly,last,1165.25,65,60,5,2020-04-01,2020-06-30,2020-06-30
+2020Q3,TP.ALTINPIYASA.KAP05,TP_ALTINPIYASA_KAP05,Altın - Kapanış Fiyatı  - TL/gr,alternative_asset,İŞ GÜNÜ,quarterly,last,390.0,66,1,65,2020-07-01,2020-09-30,2020-09-30
+2020Q3,TP.MK.F.BILESIK,TP_MK_F_BILESIK,"(FİYAT) BİST 100 Endeks (XU100), Kapanış Fiyatlarına Göre (Ocak 1986=0,01)",equity_market,İŞ GÜNÜ,quarterly,last,1145.24,66,63,3,2020-07-01,2020-09-30,2020-09-30
+2020Q4,TP.ALTINPIYASA.KAP05,TP_ALTINPIYASA_KAP05,Altın - Kapanış Fiyatı  - TL/gr,alternative_asset,İŞ GÜNÜ,quarterly,last,456.0,66,5,61,2020-10-01,2020-12-31,2020-12-31
+2020Q4,TP.MK.F.BILESIK,TP_MK_F_BILESIK,"(FİYAT) BİST 100 Endeks (XU100), Kapanış Fiyatlarına Göre (Ocak 1986=0,01)",equity_market,İŞ GÜNÜ,quarterly,last,1476.72,66,65,1,2020-10-01,2020-12-31,2020-12-31
+2021Q1,TP.ALTINPIYASA.KAP05,TP_ALTINPIYASA_KAP05,Altın - Kapanış Fiyatı  - TL/gr,alternative_asset,İŞ GÜNÜ,quarterly,last,452.3,64,5,59,2021-01-01,2021-03-31,2021-03-31
+2021Q1,TP.MK.F.BILESIK,TP_MK_F_BILESIK,"(FİYAT) BİST 100 Endeks (XU100), Kapanış Fiyatlarına Göre (Ocak 1986=0,01)",equity_market,İŞ GÜNÜ,quarterly,last,1391.73,64,63,1,2021-01-01,2021-03-31,2021-03-31
+2021Q2,TP.ALTINPIYASA.KAP05,TP_ALTINPIYASA_KAP05,Altın - Kapanış Fiyatı  - TL/gr,alternative_asset,İŞ GÜNÜ,quarterly,last,505.0,65,4,61,2021-04-01,2021-06-30,2021-06-30
+2021Q2,TP.MK.F.BILESIK,TP_MK_F_BILESIK,"(FİYAT) BİST 100 Endeks (XU100), Kapanış Fiyatlarına Göre (Ocak 1986=0,01)",equity_market,İŞ GÜNÜ,quarterly,last,1356.34,65,61,4,2021-04-01,2021-06-30,2021-06-30
+2021Q3,TP.ALTINPIYASA.KAP05,TP_ALTINPIYASA_KAP05,Altın - Kapanış Fiyatı  - TL/gr,alternative_asset,İŞ GÜNÜ,quarterly,last,495.0,66,3,63,2021-07-01,2021-09-30,2021-09-30
+2021Q3,TP.MK.F.BILESIK,TP_MK_F_BILESIK,"(FİYAT) BİST 100 Endeks (XU100), Kapanış Fiyatlarına Göre (Ocak 1986=0,01)",equity_market,İŞ GÜNÜ,quarterly,last,1406.39,66,60,6,2021-07-01,2021-09-30,2021-09-30
+2021Q4,TP.ALTINPIYASA.KAP05,TP_ALTINPIYASA_KAP05,Altın - Kapanış Fiyatı  - TL/gr,alternative_asset,İŞ GÜNÜ,quarterly,last,776.0,66,9,57,2021-10-01,2021-12-31,2021-12-31
+2021Q4,TP.MK.F.BILESIK,TP_MK_F_BILESIK,"(FİYAT) BİST 100 Endeks (XU100), Kapanış Fiyatlarına Göre (Ocak 1986=0,01)",equity_market,İŞ GÜNÜ,quarterly,last,1857.65,66,65,1,2021-10-01,2021-12-31,2021-12-31
+2022Q1,TP.ALTINPIYASA.KAP05,TP_ALTINPIYASA_KAP05,Altın - Kapanış Fiyatı  - TL/gr,alternative_asset,İŞ GÜNÜ,quarterly,last,886.0,64,32,32,2022-01-03,2022-03-31,2022-03-31
+2022Q1,TP.MK.F.BILESIK,TP_MK_F_BILESIK,"(FİYAT) BİST 100 Endeks (XU100), Kapanış Fiyatlarına Göre (Ocak 1986=0,01)",equity_market,İŞ GÜNÜ,quarterly,last,2233.3,64,64,0,2022-01-03,2022-03-31,2022-03-31
+2022Q2,TP.ALTINPIYASA.KAP05,TP_ALTINPIYASA_KAP05,Altın - Kapanış Fiyatı  - TL/gr,alternative_asset,İŞ GÜNÜ,quarterly,last,966.0,65,31,34,2022-04-01,2022-06-30,2022-06-30
+2022Q2,TP.MK.F.BILESIK,TP_MK_F_BILESIK,"(FİYAT) BİST 100 Endeks (XU100), Kapanış Fiyatlarına Göre (Ocak 1986=0,01)",equity_market,İŞ GÜNÜ,quarterly,last,2405.36,65,61,4,2022-04-01,2022-06-30,2022-06-30
+2022Q3,TP.ALTINPIYASA.KAP05,TP_ALTINPIYASA_KAP05,Altın - Kapanış Fiyatı  - TL/gr,alternative_asset,İŞ GÜNÜ,quarterly,last,973.0,66,21,45,2022-07-01,2022-09-30,2022-09-30
+2022Q3,TP.MK.F.BILESIK,TP_MK_F_BILESIK,"(FİYAT) BİST 100 Endeks (XU100), Kapanış Fiyatlarına Göre (Ocak 1986=0,01)",equity_market,İŞ GÜNÜ,quarterly,last,3179.99,66,62,4,2022-07-01,2022-09-30,2022-09-30
+2022Q4,TP.ALTINPIYASA.KAP05,TP_ALTINPIYASA_KAP05,Altın - Kapanış Fiyatı  - TL/gr,alternative_asset,İŞ GÜNÜ,quarterly,last,1086.0,65,16,49,2022-10-03,2022-12-30,2022-12-30
+2022Q4,TP.MK.F.BILESIK,TP_MK_F_BILESIK,"(FİYAT) BİST 100 Endeks (XU100), Kapanış Fiyatlarına Göre (Ocak 1986=0,01)",equity_market,İŞ GÜNÜ,quarterly,last,5509.16,65,65,0,2022-10-03,2022-12-30,2022-12-30
+2023Q1,TP.ALTINPIYASA.KAP05,TP_ALTINPIYASA_KAP05,Altın - Kapanış Fiyatı  - TL/gr,alternative_asset,İŞ GÜNÜ,quarterly,last,1198.0,65,11,54,2023-01-02,2023-03-31,2023-03-31
+2023Q1,TP.MK.F.BILESIK,TP_MK_F_BILESIK,"(FİYAT) BİST 100 Endeks (XU100), Kapanış Fiyatlarına Göre (Ocak 1986=0,01)",equity_market,İŞ GÜNÜ,quarterly,last,4812.93,65,60,5,2023-01-02,2023-03-31,2023-03-31
+2023Q2,TP.ALTINPIYASA.KAP05,TP_ALTINPIYASA_KAP05,Altın - Kapanış Fiyatı  - TL/gr,alternative_asset,İŞ GÜNÜ,quarterly,last,1280.0,65,10,55,2023-04-03,2023-06-30,2023-06-30
+2023Q2,TP.MK.F.BILESIK,TP_MK_F_BILESIK,"(FİYAT) BİST 100 Endeks (XU100), Kapanış Fiyatlarına Göre (Ocak 1986=0,01)",equity_market,İŞ GÜNÜ,quarterly,last,5759.11,65,59,6,2023-04-03,2023-06-30,2023-06-30
+2023Q3,TP.ALTINPIYASA.KAP05,TP_ALTINPIYASA_KAP05,Altın - Kapanış Fiyatı  - TL/gr,alternative_asset,İŞ GÜNÜ,quarterly,last,1675.0,65,5,60,2023-07-03,2023-09-29,2023-09-29
+2023Q3,TP.MK.F.BILESIK,TP_MK_F_BILESIK,"(FİYAT) BİST 100 Endeks (XU100), Kapanış Fiyatlarına Göre (Ocak 1986=0,01)",equity_market,İŞ GÜNÜ,quarterly,last,8334.94,65,64,1,2023-07-03,2023-09-29,2023-09-29
+2023Q4,TP.ALTINPIYASA.KAP05,TP_ALTINPIYASA_KAP05,Altın - Kapanış Fiyatı  - TL/gr,alternative_asset,İŞ GÜNÜ,quarterly,last,1975.0,65,22,43,2023-10-02,2023-12-29,2023-12-29
+2023Q4,TP.MK.F.BILESIK,TP_MK_F_BILESIK,"(FİYAT) BİST 100 Endeks (XU100), Kapanış Fiyatlarına Göre (Ocak 1986=0,01)",equity_market,İŞ GÜNÜ,quarterly,last,7470.18,65,65,0,2023-10-02,2023-12-29,2023-12-29
+2024Q1,TP.ALTINPIYASA.KAP05,TP_ALTINPIYASA_KAP05,Altın - Kapanış Fiyatı  - TL/gr,alternative_asset,İŞ GÜNÜ,quarterly,last,2250.0,65,6,59,2024-01-01,2024-03-29,2024-03-29
+2024Q1,TP.MK.F.BILESIK,TP_MK_F_BILESIK,"(FİYAT) BİST 100 Endeks (XU100), Kapanış Fiyatlarına Göre (Ocak 1986=0,01)",equity_market,İŞ GÜNÜ,quarterly,last,9142.4,65,64,1,2024-01-01,2024-03-29,2024-03-29
+2024Q2,TP.ALTINPIYASA.KAP05,TP_ALTINPIYASA_KAP05,Altın - Kapanış Fiyatı  - TL/gr,alternative_asset,İŞ GÜNÜ,quarterly,last,2388.0,65,7,58,2024-04-01,2024-06-28,2024-06-28
+2024Q2,TP.MK.F.BILESIK,TP_MK_F_BILESIK,"(FİYAT) BİST 100 Endeks (XU100), Kapanış Fiyatlarına Göre (Ocak 1986=0,01)",equity_market,İŞ GÜNÜ,quarterly,last,10647.91,65,57,8,2024-04-01,2024-06-28,2024-06-28
+2024Q3,TP.ALTINPIYASA.KAP05,TP_ALTINPIYASA_KAP05,Altın - Kapanış Fiyatı  - TL/gr,alternative_asset,İŞ GÜNÜ,quarterly,last,2806.0,66,7,59,2024-07-01,2024-09-30,2024-09-30
+2024Q3,TP.MK.F.BILESIK,TP_MK_F_BILESIK,"(FİYAT) BİST 100 Endeks (XU100), Kapanış Fiyatlarına Göre (Ocak 1986=0,01)",equity_market,İŞ GÜNÜ,quarterly,last,9665.78,66,64,2,2024-07-01,2024-09-30,2024-09-30
+2024Q4,TP.ALTINPIYASA.KAP05,TP_ALTINPIYASA_KAP05,Altın - Kapanış Fiyatı  - TL/gr,alternative_asset,İŞ GÜNÜ,quarterly,last,2960.0,66,9,57,2024-10-01,2024-12-31,2024-12-31
+2024Q4,TP.MK.F.BILESIK,TP_MK_F_BILESIK,"(FİYAT) BİST 100 Endeks (XU100), Kapanış Fiyatlarına Göre (Ocak 1986=0,01)",equity_market,İŞ GÜNÜ,quarterly,last,9830.56,66,65,1,2024-10-01,2024-12-31,2024-12-31
+2025Q1,TP.ALTINPIYASA.KAP05,TP_ALTINPIYASA_KAP05,Altın - Kapanış Fiyatı  - TL/gr,alternative_asset,İŞ GÜNÜ,quarterly,last,3750.0,64,5,59,2025-01-01,2025-03-31,2025-03-31
+2025Q1,TP.MK.F.BILESIK,TP_MK_F_BILESIK,"(FİYAT) BİST 100 Endeks (XU100), Kapanış Fiyatlarına Göre (Ocak 1986=0,01)",equity_market,İŞ GÜNÜ,quarterly,last,9659.48,64,62,2,2025-01-01,2025-03-31,2025-03-31
+2025Q2,TP.ALTINPIYASA.KAP05,TP_ALTINPIYASA_KAP05,Altın - Kapanış Fiyatı  - TL/gr,alternative_asset,İŞ GÜNÜ,quarterly,last,4150.0,65,1,64,2025-04-01,2025-06-30,2025-06-30
+2025Q2,TP.MK.F.BILESIK,TP_MK_F_BILESIK,"(FİYAT) BİST 100 Endeks (XU100), Kapanış Fiyatlarına Göre (Ocak 1986=0,01)",equity_market,İŞ GÜNÜ,quarterly,last,9948.51,65,59,6,2025-04-01,2025-06-30,2025-06-30
+2025Q3,TP.ALTINPIYASA.KAP05,TP_ALTINPIYASA_KAP05,Altın - Kapanış Fiyatı  - TL/gr,alternative_asset,İŞ GÜNÜ,quarterly,last,4404.0,66,2,64,2025-07-01,2025-09-30,2025-09-30
+2025Q3,TP.MK.F.BILESIK,TP_MK_F_BILESIK,"(FİYAT) BİST 100 Endeks (XU100), Kapanış Fiyatlarına Göre (Ocak 1986=0,01)",equity_market,İŞ GÜNÜ,quarterly,last,11012.12,66,65,1,2025-07-01,2025-09-30,2025-09-30
+2025Q4,TP.ALTINPIYASA.KAP05,TP_ALTINPIYASA_KAP05,Altın - Kapanış Fiyatı  - TL/gr,alternative_asset,İŞ GÜNÜ,quarterly,last,5750.0,66,1,65,2025-10-01,2025-12-31,2025-12-31
+2025Q4,TP.MK.F.BILESIK,TP_MK_F_BILESIK,"(FİYAT) BİST 100 Endeks (XU100), Kapanış Fiyatlarına Göre (Ocak 1986=0,01)",equity_market,İŞ GÜNÜ,quarterly,last,11261.52,66,65,1,2025-10-01,2025-12-31,2025-12-31
+2026Q1,TP.ALTINPIYASA.KAP05,TP_ALTINPIYASA_KAP05,Altın - Kapanış Fiyatı  - TL/gr,alternative_asset,İŞ GÜNÜ,quarterly,last,,64,0,64,2026-01-01,2026-03-31,2026-03-31
+2026Q1,TP.MK.F.BILESIK,TP_MK_F_BILESIK,"(FİYAT) BİST 100 Endeks (XU100), Kapanış Fiyatlarına Göre (Ocak 1986=0,01)",equity_market,İŞ GÜNÜ,quarterly,last,12790.98,64,62,2,2026-01-01,2026-03-31,2026-03-31
+2026Q2,TP.ALTINPIYASA.KAP05,TP_ALTINPIYASA_KAP05,Altın - Kapanış Fiyatı  - TL/gr,alternative_asset,İŞ GÜNÜ,quarterly,last,,65,0,65,2026-04-01,2026-06-30,2026-06-30
+2026Q2,TP.MK.F.BILESIK,TP_MK_F_BILESIK,"(FİYAT) BİST 100 Endeks (XU100), Kapanış Fiyatlarına Göre (Ocak 1986=0,01)",equity_market,İŞ GÜNÜ,quarterly,last,14121.83,65,59,6,2026-04-01,2026-06-30,2026-06-30

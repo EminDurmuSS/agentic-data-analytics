@@ -1,0 +1,77 @@
+﻿table_no,table_name,measure_code,measure_label,unit,source_unit_label,value_semantics,native_frequency,source
+1,Krediler,GayrinakdiKrediler,Gayrinakdi Krediler,thousand_try,Bin TL,period_end_stock,quarterly,BDDK FinTurk
+1,Krediler,NakdiKrediler,Nakdi Krediler,thousand_try,Bin TL,period_end_stock,quarterly,BDDK FinTurk
+1,Krediler,TakiptekiAlacaklar,Takipteki Alacaklar,thousand_try,Bin TL,period_end_stock,quarterly,BDDK FinTurk
+1,Krediler,ToplamNakdiKrediler,Toplam Nakdi Krediler,thousand_try,Bin TL,period_end_stock,quarterly,BDDK FinTurk
+2,Mevduat,DigerMevduat,Diğer Mevduat,thousand_try,Bin TL,period_end_stock,quarterly,BDDK FinTurk
+2,Mevduat,DigerMevduatDovizTevdiatHesabi,Diğer Mevduat (DTH),thousand_try,Bin TL,period_end_stock,quarterly,BDDK FinTurk
+2,Mevduat,DigerMevduatTurkLirasi,Diğer Mevduat (TL),thousand_try,Bin TL,period_end_stock,quarterly,BDDK FinTurk
+2,Mevduat,TasarrufMevduati,Tasarruf Mevduatı,thousand_try,Bin TL,period_end_stock,quarterly,BDDK FinTurk
+2,Mevduat,TasarrufMevduatiDovizTevdiatHesabi,Tasarruf Mevduatı (DTH),thousand_try,Bin TL,period_end_stock,quarterly,BDDK FinTurk
+2,Mevduat,TasarrufMevduatiTurkLirasi,Tasarruf Mevduatı (TL),thousand_try,Bin TL,period_end_stock,quarterly,BDDK FinTurk
+2,Mevduat,ToplamMevduat,Toplam Mevduat,thousand_try,Bin TL,period_end_stock,quarterly,BDDK FinTurk
+3,Bireysel Bankacilik,BireyselKrediKartlari,Bireysel Kredi Kartları,thousand_try,Bin TL,period_end_stock,quarterly,BDDK FinTurk
+3,Bireysel Bankacilik,DigerTuketiciKredileri,Diğer Tüketici Kredileri,thousand_try,Bin TL,period_end_stock,quarterly,BDDK FinTurk
+3,Bireysel Bankacilik,KonutKredisi,Konut Kredisi,thousand_try,Bin TL,period_end_stock,quarterly,BDDK FinTurk
+3,Bireysel Bankacilik,KrediliMevduatHesabi,Kredili Mevduat Hesabı,thousand_try,Bin TL,period_end_stock,quarterly,BDDK FinTurk
+3,Bireysel Bankacilik,TakiptekiDigerTuketiciKredileri,Takipteki Diğer Tüketici Kredileri,thousand_try,Bin TL,period_end_stock,quarterly,BDDK FinTurk
+3,Bireysel Bankacilik,TakiptekiKonutKredisi,Takipteki Konut Kredisi,thousand_try,Bin TL,period_end_stock,quarterly,BDDK FinTurk
+3,Bireysel Bankacilik,TakiptekiTasitKredisi,Takipteki Taşıt Kredisi,thousand_try,Bin TL,period_end_stock,quarterly,BDDK FinTurk
+3,Bireysel Bankacilik,TasitKredisi,Taşıt Kredisi,thousand_try,Bin TL,period_end_stock,quarterly,BDDK FinTurk
+4,Secilmis Sektorel Krediler,Denizcilik,Denizcilik,thousand_try,Bin TL,period_end_stock,quarterly,BDDK FinTurk
+4,Secilmis Sektorel Krediler,Enerji,Enerji,thousand_try,Bin TL,period_end_stock,quarterly,BDDK FinTurk
+4,Secilmis Sektorel Krediler,FinansalKuruluslar,Finansal Kuruluşlar,thousand_try,Bin TL,period_end_stock,quarterly,BDDK FinTurk
+4,Secilmis Sektorel Krediler,GayrinakdiDenizcilik,Gayrinakdi Denizcilik,thousand_try,Bin TL,period_end_stock,quarterly,BDDK FinTurk
+4,Secilmis Sektorel Krediler,GayrinakdiEnerji,Gayrinakdi Enerji,thousand_try,Bin TL,period_end_stock,quarterly,BDDK FinTurk
+4,Secilmis Sektorel Krediler,GayrinakdiFinansalKuruluslar,Gayrinakdi Finansal Kuruluşlar,thousand_try,Bin TL,period_end_stock,quarterly,BDDK FinTurk
+4,Secilmis Sektorel Krediler,GayrinakdiGidaMesrubatveTutun,Gayrinakdi Gıda Meşrubat ve Tütün,thousand_try,Bin TL,period_end_stock,quarterly,BDDK FinTurk
+4,Secilmis Sektorel Krediler,GayrinakdiInsaat,Gayrinakdi İnşaat,thousand_try,Bin TL,period_end_stock,quarterly,BDDK FinTurk
+4,Secilmis Sektorel Krediler,GayrinakdiMetalveIslenmisMaden,Gayrinakdi Metal ve İşlenmiş Maden,thousand_try,Bin TL,period_end_stock,quarterly,BDDK FinTurk
+4,Secilmis Sektorel Krediler,GayrinakdiTekstilveTekstilUrunleri,Gayrinakdi Tekstil ve Tekstil Ürünleri,thousand_try,Bin TL,period_end_stock,quarterly,BDDK FinTurk
+4,Secilmis Sektorel Krediler,GayrinakdiToptanTicaretveKomisyonculuk,Gayrinakdi Toptan Ticaret ve Komisyonculuk,thousand_try,Bin TL,period_end_stock,quarterly,BDDK FinTurk
+4,Secilmis Sektorel Krediler,GayrinakdiTurizm,Gayrinakdi Turizm,thousand_try,Bin TL,period_end_stock,quarterly,BDDK FinTurk
+4,Secilmis Sektorel Krediler,GayrinakdiZiraatveBalikcilik,Gayrinakdi Ziraat ve Balıkçılık,thousand_try,Bin TL,period_end_stock,quarterly,BDDK FinTurk
+4,Secilmis Sektorel Krediler,GidaMesrubatveTutun,Gıda Meşrubat ve Tütün,thousand_try,Bin TL,period_end_stock,quarterly,BDDK FinTurk
+4,Secilmis Sektorel Krediler,Insaat,İnşaat,thousand_try,Bin TL,period_end_stock,quarterly,BDDK FinTurk
+4,Secilmis Sektorel Krediler,MetalveIslenmisMaden,Metal ve İşlenmiş Maden,thousand_try,Bin TL,period_end_stock,quarterly,BDDK FinTurk
+4,Secilmis Sektorel Krediler,TakiptekiDenizcilik,Takipteki Denizcilik,thousand_try,Bin TL,period_end_stock,quarterly,BDDK FinTurk
+4,Secilmis Sektorel Krediler,TakiptekiEnerji,Takipteki Enerji,thousand_try,Bin TL,period_end_stock,quarterly,BDDK FinTurk
+4,Secilmis Sektorel Krediler,TakiptekiFinansalKuruluslar,Takipteki Finansal Kuruluşlar,thousand_try,Bin TL,period_end_stock,quarterly,BDDK FinTurk
+4,Secilmis Sektorel Krediler,TakiptekiGidaMesrubatveTutun,Takipteki Gıda Meşrubat ve Tütün,thousand_try,Bin TL,period_end_stock,quarterly,BDDK FinTurk
+4,Secilmis Sektorel Krediler,TakiptekiInsaat,Takipteki İnşaat,thousand_try,Bin TL,period_end_stock,quarterly,BDDK FinTurk
+4,Secilmis Sektorel Krediler,TakiptekiKrediKartlari,Takipteki Kredi Kartları,thousand_try,Bin TL,period_end_stock,quarterly,BDDK FinTurk
+4,Secilmis Sektorel Krediler,TakiptekiMetalveIslenmisMaden,Takipteki Metal ve İşlenmiş Maden,thousand_try,Bin TL,period_end_stock,quarterly,BDDK FinTurk
+4,Secilmis Sektorel Krediler,TakiptekiTekstilveTekstilUrunleri,Takipteki Tekstil ve Tekstil Ürünleri,thousand_try,Bin TL,period_end_stock,quarterly,BDDK FinTurk
+4,Secilmis Sektorel Krediler,TakiptekiToptanTicaretveKomisyonculuk,Takipteki Toptan Ticaret ve Komisyonculuk,thousand_try,Bin TL,period_end_stock,quarterly,BDDK FinTurk
+4,Secilmis Sektorel Krediler,TakiptekiTurizm,Takipteki Turizm,thousand_try,Bin TL,period_end_stock,quarterly,BDDK FinTurk
+4,Secilmis Sektorel Krediler,TakiptekiZiraatveBalikcilik,Takipteki Ziraat ve Balıkçılık,thousand_try,Bin TL,period_end_stock,quarterly,BDDK FinTurk
+4,Secilmis Sektorel Krediler,TekstilveTekstilUrunleri,Tekstil ve Tekstil Ürünleri,thousand_try,Bin TL,period_end_stock,quarterly,BDDK FinTurk
+4,Secilmis Sektorel Krediler,ToptanTicaretveKomisyonculuk,Toptan Ticaret ve Komisyonculuk,thousand_try,Bin TL,period_end_stock,quarterly,BDDK FinTurk
+4,Secilmis Sektorel Krediler,Turizm,Turizm,thousand_try,Bin TL,period_end_stock,quarterly,BDDK FinTurk
+4,Secilmis Sektorel Krediler,ZiraatveBalikcilik,Ziraat ve Balıkçılık,thousand_try,Bin TL,period_end_stock,quarterly,BDDK FinTurk
+5,Oranlar,DenizcilikKrediPerformansOrani,Denizcilik Kredi Performans Oranı,percent,%,ratio,quarterly,BDDK FinTurk
+5,Oranlar,DigerTuketiciKredileriPerformansOrani,Diğer Tüketici Kredileri Performans Oranı,percent,%,ratio,quarterly,BDDK FinTurk
+5,Oranlar,EnerjiKrediPerformansOrani,Enerji Kredi Performans Oranı,percent,%,ratio,quarterly,BDDK FinTurk
+5,Oranlar,FinansalKuruluslarKrediPerformansOrani,Finansal Kuruluşlar Kredi Performans Oranı,percent,%,ratio,quarterly,BDDK FinTurk
+5,Oranlar,GidaMesrubatveTutunKrediPerformansOrani,Gıda Meşrubat ve Tütün Kredi Performans Oranı,percent,%,ratio,quarterly,BDDK FinTurk
+5,Oranlar,InsaatKrediPerformansOrani,İnşaat Kredi Performans Oranı,percent,%,ratio,quarterly,BDDK FinTurk
+5,Oranlar,KonutKredisiPerformansOrani,Konut Kredisi Performans Oranı,percent,%,ratio,quarterly,BDDK FinTurk
+5,Oranlar,MetalveIslenmisMadenKrediPerformansOrani,Metal ve İşlenmiş Maden Kredi Performans Oranı,percent,%,ratio,quarterly,BDDK FinTurk
+5,Oranlar,TakiptekiAlacaklarToplamNakdiKrediOrani,Takipteki Alacaklar Toplam Nakdi Kredi Oranı,percent,%,ratio,quarterly,BDDK FinTurk
+5,Oranlar,TasitKredisiPerformansOrani,Taşıt Kredisi Performans Oranı,percent,%,ratio,quarterly,BDDK FinTurk
+5,Oranlar,TekstilveTekstilUrunleriKrediPerformansOrani,Tekstil ve Tekstil Ürünleri Kredi Performans Oranı,percent,%,ratio,quarterly,BDDK FinTurk
+5,Oranlar,ToplamNakdiKrediTasarrufMevduatiOrani,Toplam Nakdi Kredi Tasarruf Mevduatı Oranı,percent,%,ratio,quarterly,BDDK FinTurk
+5,Oranlar,ToplamNakdiKrediToplamMevduatOrani,Toplam Nakdi Kredi Toplam Mevduat Oranı,percent,%,ratio,quarterly,BDDK FinTurk
+5,Oranlar,ToptanTicaretveKomisyonculukKrediPerformansOrani,Toptan Ticaret ve Komisyonculuk Kredi Performans Oranı,percent,%,ratio,quarterly,BDDK FinTurk
+5,Oranlar,TurizmKrediPerformansOrani,Turizm Kredi Performans Oranı,percent,%,ratio,quarterly,BDDK FinTurk
+5,Oranlar,ZiraatveBalikcilikKrediPerformansOrani,Ziraat ve Balıkçılık Kredi Performans Oran,percent,%,ratio,quarterly,BDDK FinTurk
+6,Subeler ve Nufusa Gore Dagilim,KisiBasiNakdiKredi,Kişi Başı Nakdi Kredi,try_per_person,TL / kisi,per_capita_or_density,quarterly,BDDK FinTurk
+6,Subeler ve Nufusa Gore Dagilim,KisiBasiTakiptekiAlacak,Kişi Başı Takipteki Alacak,try_per_person,TL / kisi,per_capita_or_density,quarterly,BDDK FinTurk
+6,Subeler ve Nufusa Gore Dagilim,KisiBasiTasarrufMevduati,Kişi Başı Tasarruf Mevduatı,try_per_person,TL / kisi,per_capita_or_density,quarterly,BDDK FinTurk
+6,Subeler ve Nufusa Gore Dagilim,KisiBasiToplamMevduat,Kişi Başı Toplam Mevduat,try_per_person,TL / kisi,per_capita_or_density,quarterly,BDDK FinTurk
+6,Subeler ve Nufusa Gore Dagilim,SubeSayisi,Yurtiçi Şube Sayısı,count,Adet,count,quarterly,BDDK FinTurk
+6,Subeler ve Nufusa Gore Dagilim,SubeyeDusenNufus,Şubeye Düşen Nüfus,people_per_branch,Kisi / sube,per_capita_or_density,quarterly,BDDK FinTurk
+7,Altin Kredileri ve Altin Mevduati,AltinDepoGercek,Altın Mevduatı-Gerçek Kişi,thousand_try,Bin TL,period_end_stock,quarterly,BDDK FinTurk
+7,Altin Kredileri ve Altin Mevduati,AltinDepoToplam,Toplam Altın Mevduatı,thousand_try,Bin TL,period_end_stock,quarterly,BDDK FinTurk
+7,Altin Kredileri ve Altin Mevduati,AltinDepoTuzel,Altın Mevduatı-Tüzel Kişi,thousand_try,Bin TL,period_end_stock,quarterly,BDDK FinTurk
+7,Altin Kredileri ve Altin Mevduati,AltinKredi,Altın Kredileri,thousand_try,Bin TL,period_end_stock,quarterly,BDDK FinTurk

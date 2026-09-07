@@ -1,0 +1,32 @@
+{
+  "status": "validated",
+  "series_code": "TP.BK.TR",
+  "frequency": "ÜÇ AYLIK",
+  "aggregation": "avg",
+  "chunk_start": "2020-01-01",
+  "chunk_end": "2026-06-30",
+  "request_file": "raw/TP_BK_TR_2020-01-01_2026-06-30_request.json",
+  "request_sha256": "7bed018239cec9df0d868b09b2371cc5bf29db8919b29b39c00360b457f11dfc",
+  "response_file": "raw/TP_BK_TR_2020-01-01_2026-06-30_response.json.gz",
+  "response_sha256": "72445b87a186cfa5fa2d937665620c4b2ab09fc2b51c781190474bc0a0678487",
+  "served_from_cache": false,
+  "http_status": 200,
+  "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "content_type": "application/json;charset=UTF-8",
+  "url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "started_at_utc": "2026-09-07T21:47:10.984069+00:00",
+  "completed_at_utc": "2026-09-07T21:47:11.435587+00:00",
+  "bytes": 4168,
+  "sha256": "72445b87a186cfa5fa2d937665620c4b2ab09fc2b51c781190474bc0a0678487",
+  "transport": "curl",
+  "tls_verification": true,
+  "response_total_count": 26,
+  "retained_rows": 26,
+  "outside_requested_range_rows": 0,
+  "series_names": {
+    "TP_BK_TR": "Türkiye Konut Birim Kiraları"
+  },
+  "frequency_conversion": {
+    "TP.BK.TR": true
+  }
+}

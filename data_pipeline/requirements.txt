@@ -1,0 +1,10 @@
+pandas==2.2.3
+numpy==2.3.5
+pyarrow==25.0.1
+matplotlib==3.10.8
+nbformat==5.11.1
+requests==2.32.5
+beautifulsoup4==4.13.4
+pypdf==6.18.0
+xlrd>=2.0,<3
+duckdb>=1.1,<2

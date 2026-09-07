@@ -1,0 +1,35 @@
+{
+  "dataset_id": "housing_credit_causality_controls_v1",
+  "description": "Konut kredisi ek kontrol serileri icin frekans hizalama kurallari.",
+  "quarterly_to_monthly": "quarter_end_only",
+  "role_policies": {
+    "policy_rate_actual": {
+      "temporal_semantics": "rate",
+      "subperiod_aggregation": "last"
+    },
+    "global_policy_rate": {
+      "temporal_semantics": "rate",
+      "subperiod_aggregation": "last"
+    },
+    "housing_completion": {
+      "temporal_semantics": "flow",
+      "subperiod_aggregation": "sum"
+    },
+    "activity_control": {
+      "temporal_semantics": "quarterly_index",
+      "subperiod_aggregation": "last"
+    },
+    "consumption_control": {
+      "temporal_semantics": "quarterly_index",
+      "subperiod_aggregation": "last"
+    },
+    "alternative_asset": {
+      "temporal_semantics": "price_level",
+      "subperiod_aggregation": "last"
+    },
+    "housing_rent_level": {
+      "temporal_semantics": "quarterly_price_level",
+      "subperiod_aggregation": "last"
+    }
+  }
+}

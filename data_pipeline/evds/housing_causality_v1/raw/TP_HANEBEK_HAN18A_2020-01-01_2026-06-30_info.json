@@ -1,0 +1,29 @@
+{
+  "status": "validated",
+  "series_code": "TP.HANEBEK.HAN18A",
+  "frequency": "AYLIK",
+  "aggregation": "avg",
+  "chunk_start": "2020-01-01",
+  "chunk_end": "2026-06-30",
+  "request_file": "raw/TP_HANEBEK_HAN18A_2020-01-01_2026-06-30_request.json",
+  "request_sha256": "93a3f63be3aa79ad2bf3326416b17727bff67ba6767f99dbb3030061bd89740d",
+  "response_file": "raw/TP_HANEBEK_HAN18A_2020-01-01_2026-06-30_response.json.gz",
+  "response_sha256": "6370851aad67ae4b14c268dd6abcc344dd8b439a4d9f127a4c66f4b569e13167",
+  "served_from_cache": true,
+  "http_status": 200,
+  "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "content_type": "application/json;charset=UTF-8",
+  "bytes": 11207,
+  "sha256": "6370851aad67ae4b14c268dd6abcc344dd8b439a4d9f127a4c66f4b569e13167",
+  "transport": "curl",
+  "tls_verification": true,
+  "response_total_count": 78,
+  "retained_rows": 78,
+  "outside_requested_range_rows": 0,
+  "series_names": {
+    "TP_HANEBEK_HAN18A": "SORU_18. Gelecek 12 ay sonunda konut fiyatlarının yıllık yüzde kaç artacağını/azalacağını bekliyorsunuz? (ORTALAMA)"
+  },
+  "frequency_conversion": {
+    "TP.HANEBEK.HAN18A": true
+  }
+}

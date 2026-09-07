@@ -1,0 +1,32 @@
+{
+  "status": "validated",
+  "series_code": "TP.BK.ANKARA",
+  "frequency": "ÜÇ AYLIK",
+  "aggregation": "avg",
+  "chunk_start": "2020-01-01",
+  "chunk_end": "2026-06-30",
+  "request_file": "raw/TP_BK_ANKARA_2020-01-01_2026-06-30_request.json",
+  "request_sha256": "142f8c8c97d847b29dd8a6a3c833a1f4d25b63370c007728dd0570b768834929",
+  "response_file": "raw/TP_BK_ANKARA_2020-01-01_2026-06-30_response.json.gz",
+  "response_sha256": "354bd8699b3162e3e1efe0dfa9c334826afda03c7d845cfbc9e2fa5759061af3",
+  "served_from_cache": false,
+  "http_status": 200,
+  "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "content_type": "application/json;charset=UTF-8",
+  "url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "started_at_utc": "2026-09-07T21:47:12.480077+00:00",
+  "completed_at_utc": "2026-09-07T21:47:12.956855+00:00",
+  "bytes": 4274,
+  "sha256": "354bd8699b3162e3e1efe0dfa9c334826afda03c7d845cfbc9e2fa5759061af3",
+  "transport": "curl",
+  "tls_verification": true,
+  "response_total_count": 26,
+  "retained_rows": 26,
+  "outside_requested_range_rows": 0,
+  "series_names": {
+    "TP_BK_ANKARA": "Ankara Konut Birim Kiraları"
+  },
+  "frequency_conversion": {
+    "TP.BK.ANKARA": true
+  }
+}

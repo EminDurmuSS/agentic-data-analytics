@@ -1,0 +1,29 @@
+{
+  "status": "validated",
+  "series_code": "TP.TIG08",
+  "frequency": "AYLIK",
+  "aggregation": "last",
+  "chunk_start": "2020-01-01",
+  "chunk_end": "2026-06-30",
+  "request_file": "raw/TP_TIG08_2020-01-01_2026-06-30_request.json",
+  "request_sha256": "8444a840407a22a0a5c63d90bedcd57ca97fa31ab067441ec2641a84765449a4",
+  "response_file": "raw/TP_TIG08_2020-01-01_2026-06-30_response.json.gz",
+  "response_sha256": "f586e1c5a5d32c11575c66cf1424910816dd92970d638f20e1af688b37a7f197",
+  "served_from_cache": true,
+  "http_status": 200,
+  "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "content_type": "application/json;charset=UTF-8",
+  "bytes": 11486,
+  "sha256": "f586e1c5a5d32c11575c66cf1424910816dd92970d638f20e1af688b37a7f197",
+  "transport": "curl",
+  "tls_verification": true,
+  "response_total_count": 78,
+  "retained_rows": 78,
+  "outside_requested_range_rows": 0,
+  "series_names": {
+    "TP_TIG08": "8.İşsizlik oranı (%)"
+  },
+  "frequency_conversion": {
+    "TP.TIG08": true
+  }
+}

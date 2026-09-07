@@ -1,0 +1,29 @@
+{
+  "status": "validated",
+  "series_code": "TP.TSANAYMT2021.Y1",
+  "frequency": "AYLIK",
+  "aggregation": "avg",
+  "chunk_start": "2020-01-01",
+  "chunk_end": "2026-06-30",
+  "request_file": "raw/TP_TSANAYMT2021_Y1_2020-01-01_2026-06-30_request.json",
+  "request_sha256": "7e7e97a41b5efca02a8c9e3b4cf0f74a3becea3daaaab631f886f893a4919d9b",
+  "response_file": "raw/TP_TSANAYMT2021_Y1_2020-01-01_2026-06-30_response.json.gz",
+  "response_sha256": "bf69cfe1c042d8d96b990d69b9e5897d6eba1caa2806781a2edff1d1cba94ef9",
+  "served_from_cache": true,
+  "http_status": 200,
+  "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "content_type": "application/json;charset=UTF-8",
+  "bytes": 12472,
+  "sha256": "bf69cfe1c042d8d96b990d69b9e5897d6eba1caa2806781a2edff1d1cba94ef9",
+  "transport": "curl",
+  "tls_verification": true,
+  "response_total_count": 78,
+  "retained_rows": 78,
+  "outside_requested_range_rows": 0,
+  "series_names": {
+    "TP_TSANAYMT2021_Y1": "Toplam sanayi"
+  },
+  "frequency_conversion": {
+    "TP.TSANAYMT2021.Y1": true
+  }
+}

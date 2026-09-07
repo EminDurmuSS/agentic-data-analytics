@@ -1,0 +1,31 @@
+{
+  "status": "validated",
+  "diagnosis": "validated_bddk_weekly_html_table",
+  "source_url": "https://www.bddk.org.tr/BultenHaftalik/",
+  "sha256_uncompressed": "6511b704ba8e4f43e1707be602f0d510b654b667f11ce847c34998847b2f4f66",
+  "compressed_bytes": 15350,
+  "uncompressed_bytes": 203901,
+  "served_from_cache": true,
+  "completed_at_utc": "2026-09-07T21:41:44.650505+00:00",
+  "table_id": 289,
+  "table_name": "Krediler",
+  "group_code": 10001,
+  "group_name": "Sektor",
+  "period_id": 443,
+  "observation_date": "2022-06-24",
+  "week_number": 25,
+  "source_period_label": "Haziran/24 (25. Hafta)",
+  "source_date_heading": "Tarih: 24 Haziran 2022 Cuma | Birim: Milyon TL",
+  "source_date_parsed": "2022-06-24",
+  "headers": [
+    "",
+    "Krediler",
+    "TP",
+    "YP",
+    "TOPLAM"
+  ],
+  "rows": 20,
+  "max_cells_per_row": 5,
+  "unit_heading": "Milyon TL",
+  "date_heading_normalized": "tarih: 24 haziran 2022 cuma | birim: milyon tl"
+}

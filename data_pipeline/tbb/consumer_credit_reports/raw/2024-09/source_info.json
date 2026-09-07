@@ -1,0 +1,77 @@
+{
+  "period": "2024-09",
+  "status": "validated",
+  "list_url": "https://www.tbb.org.tr/istatistiki-raporlar-liste/11265?rapor_donemi=11279&ay=9",
+  "report_url": "https://www.tbb.org.tr/istatistiki-raporlar/2024-eylul-tuketici-kredileri-ve-konut-kredileri",
+  "list_fetch": {
+    "started_at_utc": "2026-09-07T21:48:28.859328+00:00",
+    "completed_at_utc": "2026-09-07T21:48:28.980275+00:00",
+    "requested_url": "https://www.tbb.org.tr/istatistiki-raporlar-liste/11265?rapor_donemi=11279&ay=9",
+    "final_url": "https://www.tbb.org.tr/istatistiki-raporlar-liste/11265?rapor_donemi=11279&ay=9",
+    "http_status": 200,
+    "content_type": "text/html; charset=utf-8",
+    "bytes": 98941,
+    "sha256": "fd313d2e25ac9a7e5ed0b219f18bd35dec116219965b648fff66bab8eb4c34ed",
+    "attempt": 1,
+    "tls_verification": true
+  },
+  "report_fetch": {
+    "started_at_utc": "2026-09-07T21:48:29.004988+00:00",
+    "completed_at_utc": "2026-09-07T21:48:29.039636+00:00",
+    "requested_url": "https://www.tbb.org.tr/istatistiki-raporlar/2024-eylul-tuketici-kredileri-ve-konut-kredileri",
+    "final_url": "https://www.tbb.org.tr/istatistiki-raporlar/2024-eylul-tuketici-kredileri-ve-konut-kredileri",
+    "http_status": 200,
+    "content_type": "text/html; charset=utf-8",
+    "bytes": 98913,
+    "sha256": "4e32b78da95135a3b8d20598e90fbd97bf7adba74ad1a9c9b428fb68566da1bd",
+    "attempt": 1,
+    "tls_verification": true
+  },
+  "attachments": {
+    "xls": {
+      "url": "https://www.tbb.org.tr/download/node/51420/field_raporlar_ekler/281054",
+      "title": "Tuketici_Kredileri_Raporu-Eylul_2024.xls",
+      "declared_content_type": "application/vnd.ms-excel",
+      "requested_url": "https://www.tbb.org.tr/download/node/51420/field_raporlar_ekler/281054",
+      "final_url": "https://www.tbb.org.tr/download/node/51420/field_raporlar_ekler/281054",
+      "http_status": null,
+      "content_type": "application/vnd.ms-excel",
+      "bytes": 167424,
+      "sha256": "b63db3030b2795883f5a266022c641ae71a7824394949e000e9e6f8c705f3829",
+      "attempt": 0,
+      "tls_verification": true,
+      "local_file": "raw/2024-09/consumer_credit_report.xls",
+      "served_from_cache": true
+    },
+    "pdf": {
+      "url": "https://www.tbb.org.tr/download/node/51420/field_raporlar_ekler/281052",
+      "title": "Tuketici_Kredileri-Eylul_2024.pdf",
+      "declared_content_type": "application/pdf",
+      "requested_url": "https://www.tbb.org.tr/download/node/51420/field_raporlar_ekler/281052",
+      "final_url": "https://www.tbb.org.tr/download/node/51420/field_raporlar_ekler/281052",
+      "http_status": null,
+      "content_type": "application/pdf",
+      "bytes": 376267,
+      "sha256": "a5a6e15b0193b0e47ffe96c9b5517f131ee53992f8e2c0c1222faeeb11dbbd28",
+      "attempt": 0,
+      "tls_verification": true,
+      "local_file": "raw/2024-09/consumer_credit_report.pdf",
+      "served_from_cache": true
+    },
+    "docx": {
+      "url": "https://www.tbb.org.tr/download/node/51420/field_raporlar_ekler/281053",
+      "title": "Tuketici_Kredileri-Eylul_2024.docx",
+      "declared_content_type": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+      "requested_url": "https://www.tbb.org.tr/download/node/51420/field_raporlar_ekler/281053",
+      "final_url": "https://www.tbb.org.tr/download/node/51420/field_raporlar_ekler/281053",
+      "http_status": null,
+      "content_type": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+      "bytes": 182026,
+      "sha256": "8b75bf1026e6a82d90ba2e7ab9dab039d6f7cfdc634e401b2068960eec23759a",
+      "attempt": 0,
+      "tls_verification": true,
+      "local_file": "raw/2024-09/consumer_credit_report.docx",
+      "served_from_cache": true
+    }
+  }
+}

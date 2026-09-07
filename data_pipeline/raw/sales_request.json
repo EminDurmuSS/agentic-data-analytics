@@ -1,0 +1,16 @@
+{
+  "type": "json",
+  "series": "TP.AKONUTSAT1.KTRTOPLAM-TP.AKONUTSAT2.KTRTOPLAM-TP.AKONUTSAT3.KTRTOPLAM-TP.AKONUTSAT4.KTRTOPLAM",
+  "aggregationTypes": "sum-sum-sum-sum",
+  "formulas": "0-0-0-0",
+  "startDate": "01-01-2020",
+  "endDate": "30-06-2026",
+  "frequency": "5",
+  "decimalSeperator": ".",
+  "decimal": "0",
+  "dateFormat": "0",
+  "lang": "tr",
+  "ozelFormuller": [],
+  "groupSeperator": false,
+  "isRaporSayfasi": false
+}

@@ -1,0 +1,31 @@
+{
+  "dataset_id": "housing_credit_causality_v1",
+  "description": "Farkli EVDS frekanslarini aylik ve ceyreklik analiz panellerine kayipsiz ve ileri bilgi sizintisi olmadan hizalama kurallari.",
+  "quarterly_to_monthly": "quarter_end_only",
+  "role_policies": {
+    "housing_price_outcome": {"temporal_semantics": "index", "subperiod_aggregation": "last"},
+    "price_deflator": {"temporal_semantics": "index", "subperiod_aggregation": "last"},
+    "credit_price": {"temporal_semantics": "rate", "subperiod_aggregation": "mean"},
+    "funding_alternative": {"temporal_semantics": "rate", "subperiod_aggregation": "mean"},
+    "monetary_conditions": {"temporal_semantics": "rate", "subperiod_aggregation": "mean"},
+    "macro_control": {"temporal_semantics": "level", "subperiod_aggregation": "mean"},
+    "housing_market_outcome": {"temporal_semantics": "flow", "subperiod_aggregation": "sum"},
+    "demand_control": {"temporal_semantics": "index", "subperiod_aggregation": "mean"},
+    "housing_demand_expectation": {"temporal_semantics": "survey_index", "subperiod_aggregation": "mean"},
+    "activity_control": {"temporal_semantics": "index", "subperiod_aggregation": "mean"},
+    "labor_market_control": {"temporal_semantics": "rate", "subperiod_aggregation": "mean"},
+    "inflation_expectation": {"temporal_semantics": "survey_rate", "subperiod_aggregation": "mean"},
+    "policy_rate_expectation": {"temporal_semantics": "survey_rate", "subperiod_aggregation": "mean"},
+    "activity_expectation": {"temporal_semantics": "survey_index", "subperiod_aggregation": "mean"},
+    "housing_price_expectation": {"temporal_semantics": "survey_rate", "subperiod_aggregation": "mean"},
+    "housing_supply": {"temporal_semantics": "flow", "subperiod_aggregation": "sum"},
+    "housing_price_level": {"temporal_semantics": "period_end_level", "subperiod_aggregation": "last"},
+    "credit_supply": {"temporal_semantics": "quarterly_survey", "subperiod_aggregation": "last"},
+    "credit_supply_driver": {"temporal_semantics": "quarterly_survey", "subperiod_aggregation": "last"},
+    "credit_terms": {"temporal_semantics": "quarterly_survey", "subperiod_aggregation": "last"},
+    "credit_demand": {"temporal_semantics": "quarterly_survey", "subperiod_aggregation": "last"},
+    "credit_demand_driver": {"temporal_semantics": "quarterly_survey", "subperiod_aggregation": "last"},
+    "credit_supply_expectation": {"temporal_semantics": "quarterly_survey", "subperiod_aggregation": "last"},
+    "credit_demand_expectation": {"temporal_semantics": "quarterly_survey", "subperiod_aggregation": "last"}
+  }
+}

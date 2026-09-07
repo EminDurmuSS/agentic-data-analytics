@@ -1,0 +1,28 @@
+[
+  {
+    "filename": "bdkk_10656_20230824.pdf",
+    "url": "https://www.bddk.gov.tr/Mevzuat/DokumanGetir/1191",
+    "retrieved_at_utc": "2026-09-07T17:31:31.831637+00:00",
+    "error": "HTTP Error 502: Bad Gateway"
+  },
+  {
+    "filename": "bdkk_10525_20230224.pdf",
+    "url": "https://www.bddk.gov.tr/Mevzuat/DokumanGetir/1164",
+    "retrieved_at_utc": "2026-09-07T17:31:31.832920+00:00",
+    "error": "HTTP Error 502: Bad Gateway"
+  },
+  {
+    "filename": "bdkk_11364_20260129.pdf",
+    "url": "https://www.bddk.gov.tr/Mevzuat/DokumanGetir/1327",
+    "retrieved_at_utc": "2026-09-07T17:31:31.833380+00:00",
+    "error": "HTTP Error 502: Bad Gateway"
+  },
+  {
+    "filename": "kfe_method_change.pdf",
+    "url": "https://www.tcmb.gov.tr/wps/wcm/connect/e7fe7b68-74a3-4162-ae3b-bbf40d0b26fd/KFE-Uygulama-Degisiklikleri.pdf?MOD=AJPERES",
+    "retrieved_at_utc": "2026-09-07T17:31:31.834486+00:00",
+    "status": 200,
+    "content_type": "application/pdf",
+    "bytes": 281528
+  }
+]

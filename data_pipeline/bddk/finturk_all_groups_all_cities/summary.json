@@ -1,0 +1,23 @@
+{
+  "status": "complete",
+  "expected_requests": 154,
+  "successful_requests": 154,
+  "period_count": 22,
+  "table_count": 7,
+  "group_count": 7,
+  "rows_by_table": {
+    "1": 12628,
+    "2": 10824,
+    "3": 12628,
+    "4": 12628,
+    "5": 12474,
+    "6": 12474,
+    "7": 10828
+  },
+  "total_rows": 84484,
+  "limits": [
+    "FinTurk is quarterly, not monthly.",
+    "Missing institution-city combinations are preserved as absent and are not filled.",
+    "Source tables have different schemas and are stored separately."
+  ]
+}

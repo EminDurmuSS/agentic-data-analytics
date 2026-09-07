@@ -1,0 +1,16 @@
+{
+  "type": "json",
+  "series": "TP.KM.B10-TP.KM.B12-TP.KM.B13-TP.KM.B14-TP.KM.A10-TP.KM.A12-TP.KM.A13-TP.KM.A14-TP.KB.KRE09-TP.KB.KRE11-TP.KB.KRE12-TP.KB.KRE13",
+  "aggregationTypes": "last-last-last-last-last-last-last-last-last-last-last-last",
+  "formulas": "0-0-0-0-0-0-0-0-0-0-0-0",
+  "startDate": "01-01-2020",
+  "endDate": "30-06-2026",
+  "frequency": "5",
+  "decimalSeperator": ".",
+  "decimal": "8",
+  "dateFormat": "0",
+  "lang": "tr",
+  "ozelFormuller": [],
+  "groupSeperator": false,
+  "isRaporSayfasi": false
+}

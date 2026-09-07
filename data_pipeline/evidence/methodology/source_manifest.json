@@ -1,0 +1,82 @@
+[
+  {
+    "filename": "kfe_metadata.pdf",
+    "url": "https://www.tcmb.gov.tr/wps/wcm/connect/b4628fa9-11a7-4426-aee6-dae67fc56200/KFE-Metaveri.pdf?MOD=AJPERES",
+    "retrieved_at_utc": "2026-09-07T17:31:47.908966+00:00",
+    "status": 200,
+    "content_type": "application/pdf",
+    "final_url": "https://www.tcmb.gov.tr/wps/wcm/connect/b4628fa9-11a7-4426-aee6-dae67fc56200/KFE-Metaveri.pdf?MOD=AJPERES",
+    "bytes": 217222,
+    "sha256": "21c3df13c19409556d9d57bea719090da3c795bdcc05007a7b5bf300d981aa5b"
+  },
+  {
+    "filename": "kfe_changes.pdf",
+    "url": "https://www.tcmb.gov.tr/wps/wcm/connect/e7fe7b68-74a3-4162-ae3b-bbf40d0b26fd/KFE-Uygulama-Degisiklikleri.pdf?CACHEID=ROOTWORKSPACE-e7fe7b68-74a3-4162-ae3b-bbf40d0b26fd-pNGpxCX&MOD=AJPERES",
+    "retrieved_at_utc": "2026-09-07T17:31:47.909621+00:00",
+    "status": 200,
+    "content_type": "application/pdf",
+    "final_url": "https://www.tcmb.gov.tr/wps/wcm/connect/e7fe7b68-74a3-4162-ae3b-bbf40d0b26fd/KFE-Uygulama-Degisiklikleri.pdf?CACHEID=ROOTWORKSPACE-e7fe7b68-74a3-4162-ae3b-bbf40d0b26fd-pNGpxCX&MOD=AJPERES",
+    "bytes": 281528,
+    "sha256": "b9cd3f9141bc67b9c34f0874e34c0acbe665c29e7e27ac94857799a66df41b2d"
+  },
+  {
+    "filename": "housing_rate_metadata.pdf",
+    "url": "https://www.tcmb.gov.tr/wps/wcm/connect/33e09fa9-51fb-412f-b38d-0b7cdbaea493/Metaveri_Kredi_Ag%C4%B1rl%C4%B1kl%C4%B1_T%C3%BCrkce.pdf?CACHEID=ROOTWORKSPACE-33e09fa9-51fb-412f-b38d-0b7cdbaea493-pTj0rnn&MOD=AJPERES",
+    "retrieved_at_utc": "2026-09-07T17:31:47.910045+00:00",
+    "status": 200,
+    "content_type": "application/pdf",
+    "final_url": "https://www.tcmb.gov.tr/wps/wcm/connect/33e09fa9-51fb-412f-b38d-0b7cdbaea493/Metaveri_Kredi_Ag%C4%B1rl%C4%B1kl%C4%B1_T%C3%BCrkce.pdf?CACHEID=ROOTWORKSPACE-33e09fa9-51fb-412f-b38d-0b7cdbaea493-pTj0rnn&MOD=AJPERES",
+    "bytes": 641648,
+    "sha256": "7960487d75511250b16cadeb0438f844920d93769c4fe07c393a0a26faf43196"
+  },
+  {
+    "filename": "housing_rate_changes.pdf",
+    "url": "https://www.tcmb.gov.tr/wps/wcm/connect/85c6d28a-d4c0-4df2-8c13-e05e111984ff/Uygulama%2BDe%C4%9Fi%C5%9Fiklikleri_FaizIst_Kredi.pdf?CACHEID=ROOTWORKSPACE-85c6d28a-d4c0-4df2-8c13-e05e111984ff-pku1hVJ&MOD=AJPERES",
+    "retrieved_at_utc": "2026-09-07T17:31:47.910515+00:00",
+    "status": 200,
+    "content_type": "application/pdf",
+    "final_url": "https://www.tcmb.gov.tr/wps/wcm/connect/85c6d28a-d4c0-4df2-8c13-e05e111984ff/Uygulama%2BDe%C4%9Fi%C5%9Fiklikleri_FaizIst_Kredi.pdf?CACHEID=ROOTWORKSPACE-85c6d28a-d4c0-4df2-8c13-e05e111984ff-pku1hVJ&MOD=AJPERES",
+    "bytes": 33495,
+    "sha256": "fca4b8fd49d3bfe5f2eb0e78377cb4f6d7123aac62d5290c7acacba7308e597e"
+  },
+  {
+    "filename": "housing_rate_revision.pdf",
+    "url": "https://www.tcmb.gov.tr/wps/wcm/connect/3bcdf883-96d8-4395-9048-d948e6981eab/Revizyon%2BPolitikas%C4%B1.pdf?CACHEID=ROOTWORKSPACE-3bcdf883-96d8-4395-9048-d948e6981eab-pkTRZUO&MOD=AJPERES",
+    "retrieved_at_utc": "2026-09-07T17:31:57.308470+00:00",
+    "status": 200,
+    "content_type": "application/pdf",
+    "final_url": "https://www.tcmb.gov.tr/wps/wcm/connect/3bcdf883-96d8-4395-9048-d948e6981eab/Revizyon%2BPolitikas%C4%B1.pdf?CACHEID=ROOTWORKSPACE-3bcdf883-96d8-4395-9048-d948e6981eab-pkTRZUO&MOD=AJPERES",
+    "bytes": 31453,
+    "sha256": "f8d604895d2e992e268c424ebd0cffedb930ac8d920a4090f205def1dbe59ee4"
+  },
+  {
+    "filename": "cpi_rebase_announcement.pdf",
+    "url": "https://www.tuik.gov.tr/media/announcements/TUFE_Duyuru30102025.pdf",
+    "retrieved_at_utc": "2026-09-07T17:31:57.957476+00:00",
+    "status": 200,
+    "content_type": "application/pdf",
+    "final_url": "https://www.tuik.gov.tr/media/announcements/TUFE_Duyuru30102025.pdf",
+    "bytes": 370470,
+    "sha256": "cf8ade4acef86e34b2c82424d0f6d4e2e2d07993149107e8a7bc25c7d9358037"
+  },
+  {
+    "filename": "kfe_latest_report.pdf",
+    "url": "https://www.tcmb.gov.tr/wps/wcm/connect/8bbac42a-c854-4c58-8b0c-e7e55c35ec2d/KFE.pdf?CACHEID=ROOTWORKSPACE-8bbac42a-c854-4c58-8b0c-e7e55c35ec2d-q0jGUg5&MOD=AJPERES",
+    "retrieved_at_utc": "2026-09-07T17:31:58.131839+00:00",
+    "status": 200,
+    "content_type": "application/pdf",
+    "final_url": "https://www.tcmb.gov.tr/wps/wcm/connect/8bbac42a-c854-4c58-8b0c-e7e55c35ec2d/KFE.pdf?CACHEID=ROOTWORKSPACE-8bbac42a-c854-4c58-8b0c-e7e55c35ec2d-q0jGUg5&MOD=AJPERES",
+    "bytes": 877486,
+    "sha256": "c68421fe6639f84f28f041ca0afd9d516c44e4d52ca2750bc9c362dd5c8eaf9a"
+  },
+  {
+    "filename": "cpi_official_changes.html",
+    "url": "https://www.tcmb.gov.tr/wps/wcm/connect/TR/TCMB%2BTR/Main%2BMenu/Istatistikler/Enflasyon%2BVerileri/Tuketici%2BFiyatlari",
+    "retrieved_at_utc": "2026-09-07T17:31:58.830926+00:00",
+    "status": 200,
+    "content_type": "text/html; charset=UTF-8",
+    "final_url": "https://www.tcmb.gov.tr/wps/wcm/connect/TR/TCMB%2BTR/Main%2BMenu/Istatistikler/Enflasyon%2BVerileri/Tuketici%2BFiyatlari",
+    "bytes": 95910,
+    "sha256": "b6f1d64b4039bd0c37630bb30c712037775deeb0ae5c7ecabd2d164c3b524b21"
+  }
+]

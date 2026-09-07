@@ -1,0 +1,1413 @@
+{
+  "audited_at_utc": "2026-09-07T17:39:10.066657+00:00",
+  "n_identity_checks": 234,
+  "n_passed": 234,
+  "max_abs_residual": 0.0,
+  "definition": "consumer=house+automobile+needs_other; excludes individualcards despite A14 catalogparent",
+  "all_months": [
+    {
+      "month": "2020-01",
+      "group": "deposit",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2020-01",
+      "group": "development",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2020-01",
+      "group": "participation",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2020-02",
+      "group": "deposit",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2020-02",
+      "group": "development",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2020-02",
+      "group": "participation",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2020-03",
+      "group": "deposit",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2020-03",
+      "group": "development",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2020-03",
+      "group": "participation",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2020-04",
+      "group": "deposit",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2020-04",
+      "group": "development",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2020-04",
+      "group": "participation",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2020-05",
+      "group": "deposit",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2020-05",
+      "group": "development",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2020-05",
+      "group": "participation",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2020-06",
+      "group": "deposit",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2020-06",
+      "group": "development",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2020-06",
+      "group": "participation",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2020-07",
+      "group": "deposit",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2020-07",
+      "group": "development",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2020-07",
+      "group": "participation",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2020-08",
+      "group": "deposit",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2020-08",
+      "group": "development",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2020-08",
+      "group": "participation",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2020-09",
+      "group": "deposit",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2020-09",
+      "group": "development",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2020-09",
+      "group": "participation",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2020-10",
+      "group": "deposit",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2020-10",
+      "group": "development",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2020-10",
+      "group": "participation",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2020-11",
+      "group": "deposit",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2020-11",
+      "group": "development",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2020-11",
+      "group": "participation",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2020-12",
+      "group": "deposit",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2020-12",
+      "group": "development",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2020-12",
+      "group": "participation",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2021-01",
+      "group": "deposit",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2021-01",
+      "group": "development",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2021-01",
+      "group": "participation",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2021-02",
+      "group": "deposit",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2021-02",
+      "group": "development",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2021-02",
+      "group": "participation",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2021-03",
+      "group": "deposit",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2021-03",
+      "group": "development",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2021-03",
+      "group": "participation",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2021-04",
+      "group": "deposit",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2021-04",
+      "group": "development",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2021-04",
+      "group": "participation",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2021-05",
+      "group": "deposit",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2021-05",
+      "group": "development",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2021-05",
+      "group": "participation",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2021-06",
+      "group": "deposit",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2021-06",
+      "group": "development",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2021-06",
+      "group": "participation",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2021-07",
+      "group": "deposit",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2021-07",
+      "group": "development",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2021-07",
+      "group": "participation",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2021-08",
+      "group": "deposit",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2021-08",
+      "group": "development",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2021-08",
+      "group": "participation",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2021-09",
+      "group": "deposit",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2021-09",
+      "group": "development",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2021-09",
+      "group": "participation",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2021-10",
+      "group": "deposit",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2021-10",
+      "group": "development",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2021-10",
+      "group": "participation",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2021-11",
+      "group": "deposit",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2021-11",
+      "group": "development",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2021-11",
+      "group": "participation",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2021-12",
+      "group": "deposit",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2021-12",
+      "group": "development",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2021-12",
+      "group": "participation",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2022-01",
+      "group": "deposit",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2022-01",
+      "group": "development",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2022-01",
+      "group": "participation",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2022-02",
+      "group": "deposit",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2022-02",
+      "group": "development",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2022-02",
+      "group": "participation",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2022-03",
+      "group": "deposit",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2022-03",
+      "group": "development",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2022-03",
+      "group": "participation",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2022-04",
+      "group": "deposit",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2022-04",
+      "group": "development",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2022-04",
+      "group": "participation",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2022-05",
+      "group": "deposit",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2022-05",
+      "group": "development",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2022-05",
+      "group": "participation",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2022-06",
+      "group": "deposit",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2022-06",
+      "group": "development",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2022-06",
+      "group": "participation",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2022-07",
+      "group": "deposit",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2022-07",
+      "group": "development",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2022-07",
+      "group": "participation",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2022-08",
+      "group": "deposit",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2022-08",
+      "group": "development",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2022-08",
+      "group": "participation",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2022-09",
+      "group": "deposit",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2022-09",
+      "group": "development",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2022-09",
+      "group": "participation",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2022-10",
+      "group": "deposit",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2022-10",
+      "group": "development",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2022-10",
+      "group": "participation",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2022-11",
+      "group": "deposit",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2022-11",
+      "group": "development",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2022-11",
+      "group": "participation",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2022-12",
+      "group": "deposit",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2022-12",
+      "group": "development",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2022-12",
+      "group": "participation",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2023-01",
+      "group": "deposit",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2023-01",
+      "group": "development",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2023-01",
+      "group": "participation",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2023-02",
+      "group": "deposit",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2023-02",
+      "group": "development",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2023-02",
+      "group": "participation",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2023-03",
+      "group": "deposit",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2023-03",
+      "group": "development",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2023-03",
+      "group": "participation",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2023-04",
+      "group": "deposit",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2023-04",
+      "group": "development",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2023-04",
+      "group": "participation",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2023-05",
+      "group": "deposit",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2023-05",
+      "group": "development",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2023-05",
+      "group": "participation",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2023-06",
+      "group": "deposit",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2023-06",
+      "group": "development",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2023-06",
+      "group": "participation",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2023-07",
+      "group": "deposit",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2023-07",
+      "group": "development",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2023-07",
+      "group": "participation",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2023-08",
+      "group": "deposit",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2023-08",
+      "group": "development",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2023-08",
+      "group": "participation",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2023-09",
+      "group": "deposit",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2023-09",
+      "group": "development",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2023-09",
+      "group": "participation",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2023-10",
+      "group": "deposit",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2023-10",
+      "group": "development",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2023-10",
+      "group": "participation",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2023-11",
+      "group": "deposit",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2023-11",
+      "group": "development",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2023-11",
+      "group": "participation",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2023-12",
+      "group": "deposit",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2023-12",
+      "group": "development",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2023-12",
+      "group": "participation",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2024-01",
+      "group": "deposit",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2024-01",
+      "group": "development",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2024-01",
+      "group": "participation",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2024-02",
+      "group": "deposit",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2024-02",
+      "group": "development",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2024-02",
+      "group": "participation",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2024-03",
+      "group": "deposit",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2024-03",
+      "group": "development",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2024-03",
+      "group": "participation",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2024-04",
+      "group": "deposit",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2024-04",
+      "group": "development",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2024-04",
+      "group": "participation",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2024-05",
+      "group": "deposit",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2024-05",
+      "group": "development",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2024-05",
+      "group": "participation",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2024-06",
+      "group": "deposit",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2024-06",
+      "group": "development",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2024-06",
+      "group": "participation",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2024-07",
+      "group": "deposit",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2024-07",
+      "group": "development",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2024-07",
+      "group": "participation",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2024-08",
+      "group": "deposit",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2024-08",
+      "group": "development",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2024-08",
+      "group": "participation",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2024-09",
+      "group": "deposit",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2024-09",
+      "group": "development",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2024-09",
+      "group": "participation",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2024-10",
+      "group": "deposit",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2024-10",
+      "group": "development",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2024-10",
+      "group": "participation",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2024-11",
+      "group": "deposit",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2024-11",
+      "group": "development",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2024-11",
+      "group": "participation",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2024-12",
+      "group": "deposit",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2024-12",
+      "group": "development",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2024-12",
+      "group": "participation",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2025-01",
+      "group": "deposit",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2025-01",
+      "group": "development",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2025-01",
+      "group": "participation",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2025-02",
+      "group": "deposit",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2025-02",
+      "group": "development",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2025-02",
+      "group": "participation",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2025-03",
+      "group": "deposit",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2025-03",
+      "group": "development",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2025-03",
+      "group": "participation",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2025-04",
+      "group": "deposit",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2025-04",
+      "group": "development",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2025-04",
+      "group": "participation",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2025-05",
+      "group": "deposit",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2025-05",
+      "group": "development",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2025-05",
+      "group": "participation",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2025-06",
+      "group": "deposit",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2025-06",
+      "group": "development",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2025-06",
+      "group": "participation",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2025-07",
+      "group": "deposit",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2025-07",
+      "group": "development",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2025-07",
+      "group": "participation",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2025-08",
+      "group": "deposit",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2025-08",
+      "group": "development",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2025-08",
+      "group": "participation",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2025-09",
+      "group": "deposit",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2025-09",
+      "group": "development",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2025-09",
+      "group": "participation",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2025-10",
+      "group": "deposit",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2025-10",
+      "group": "development",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2025-10",
+      "group": "participation",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2025-11",
+      "group": "deposit",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2025-11",
+      "group": "development",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2025-11",
+      "group": "participation",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2025-12",
+      "group": "deposit",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2025-12",
+      "group": "development",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2025-12",
+      "group": "participation",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2026-01",
+      "group": "deposit",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2026-01",
+      "group": "development",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2026-01",
+      "group": "participation",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2026-02",
+      "group": "deposit",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2026-02",
+      "group": "development",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2026-02",
+      "group": "participation",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2026-03",
+      "group": "deposit",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2026-03",
+      "group": "development",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2026-03",
+      "group": "participation",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2026-04",
+      "group": "deposit",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2026-04",
+      "group": "development",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2026-04",
+      "group": "participation",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2026-05",
+      "group": "deposit",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2026-05",
+      "group": "development",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2026-05",
+      "group": "participation",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2026-06",
+      "group": "deposit",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2026-06",
+      "group": "development",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    },
+    {
+      "month": "2026-06",
+      "group": "participation",
+      "consumer_minus_components_thousand_try": 0.0,
+      "pass": true
+    }
+  ]
+}

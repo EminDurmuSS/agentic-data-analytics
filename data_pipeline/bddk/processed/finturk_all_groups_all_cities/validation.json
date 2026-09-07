@@ -1,0 +1,182 @@
+{
+  "status": "passed",
+  "source_download_status": "complete",
+  "period_count": 22,
+  "table_count": 7,
+  "requested_group_count": 7,
+  "source_file_count": 154,
+  "source_row_count": 84484,
+  "measurement_row_count": 936512,
+  "missing_measurement_count": 30892,
+  "column_dictionary_count": 76,
+  "tables": {
+    "1": {
+      "table_name": "Krediler",
+      "rows": 12628,
+      "measurement_rows": 50512,
+      "measure_count": 4,
+      "period_count": 22,
+      "city_count": 82,
+      "group_count": 7,
+      "groups_present": [
+        10001,
+        10002,
+        10003,
+        10004,
+        10005,
+        10006,
+        10007
+      ],
+      "missing_measurements": 0,
+      "min_rows_per_source_table": 574,
+      "max_rows_per_source_table": 574,
+      "schema_sha256": "963eea549966fdd7fa1d4646156300d1129c9300b28a4084cfe0f515ed0d4279"
+    },
+    "2": {
+      "table_name": "Mevduat",
+      "rows": 10824,
+      "measurement_rows": 75768,
+      "measure_count": 7,
+      "period_count": 22,
+      "city_count": 82,
+      "group_count": 6,
+      "groups_present": [
+        10001,
+        10002,
+        10004,
+        10005,
+        10006,
+        10007
+      ],
+      "missing_measurements": 0,
+      "min_rows_per_source_table": 492,
+      "max_rows_per_source_table": 492,
+      "schema_sha256": "7c1deb4281c1f74ce2416f114017c1a37f5d52d093d064ebfa089a69f3141c7c"
+    },
+    "3": {
+      "table_name": "Bireysel Bankacilik",
+      "rows": 12628,
+      "measurement_rows": 101024,
+      "measure_count": 8,
+      "period_count": 22,
+      "city_count": 82,
+      "group_count": 7,
+      "groups_present": [
+        10001,
+        10002,
+        10003,
+        10004,
+        10005,
+        10006,
+        10007
+      ],
+      "missing_measurements": 0,
+      "min_rows_per_source_table": 574,
+      "max_rows_per_source_table": 574,
+      "schema_sha256": "9e0fc2f4fe2049570b0c233e6a3638a8d97247c82cf71c4fd201eb38782dad2f"
+    },
+    "4": {
+      "table_name": "Secilmis Sektorel Krediler",
+      "rows": 12628,
+      "measurement_rows": 391468,
+      "measure_count": 31,
+      "period_count": 22,
+      "city_count": 82,
+      "group_count": 7,
+      "groups_present": [
+        10001,
+        10002,
+        10003,
+        10004,
+        10005,
+        10006,
+        10007
+      ],
+      "missing_measurements": 0,
+      "min_rows_per_source_table": 574,
+      "max_rows_per_source_table": 574,
+      "schema_sha256": "ec0563e6b81ffb98329b975313f80bb811e25b2868ee5402a91cd31624502f15"
+    },
+    "5": {
+      "table_name": "Oranlar",
+      "rows": 12474,
+      "measurement_rows": 199584,
+      "measure_count": 16,
+      "period_count": 22,
+      "city_count": 81,
+      "group_count": 7,
+      "groups_present": [
+        10001,
+        10002,
+        10003,
+        10004,
+        10005,
+        10006,
+        10007
+      ],
+      "missing_measurements": 24672,
+      "min_rows_per_source_table": 567,
+      "max_rows_per_source_table": 567,
+      "schema_sha256": "6eb25a7b1ee981470f1f9a5369a8fec2fd4ef9a5cef8043c8faaebaf7d1affcf"
+    },
+    "6": {
+      "table_name": "Subeler ve Nufusa Gore Dagilim",
+      "rows": 12474,
+      "measurement_rows": 74844,
+      "measure_count": 6,
+      "period_count": 22,
+      "city_count": 81,
+      "group_count": 7,
+      "groups_present": [
+        10001,
+        10002,
+        10003,
+        10004,
+        10005,
+        10006,
+        10007
+      ],
+      "missing_measurements": 6220,
+      "min_rows_per_source_table": 567,
+      "max_rows_per_source_table": 567,
+      "schema_sha256": "aa60f7dfd3b9ab11907dea5ca14209d1b9d1a44a900dd407bb2f5d34cc53ddf6"
+    },
+    "7": {
+      "table_name": "Altin Kredileri ve Altin Mevduati",
+      "rows": 10828,
+      "measurement_rows": 43312,
+      "measure_count": 4,
+      "period_count": 22,
+      "city_count": 82,
+      "group_count": 7,
+      "groups_present": [
+        10001,
+        10002,
+        10003,
+        10004,
+        10005,
+        10006,
+        10007
+      ],
+      "missing_measurements": 0,
+      "min_rows_per_source_table": 492,
+      "max_rows_per_source_table": 493,
+      "schema_sha256": "6084d73e7447d1cf5d09b9f72e71efece98e282683eca1a2f62fa2e8193a9e5b"
+    }
+  },
+  "additive_checks": [
+    "ToplamNakdiKrediler = NakdiKrediler + TakiptekiAlacaklar",
+    "TasarrufMevduati = TL + DTH",
+    "DigerMevduat = TL + DTH",
+    "ToplamMevduat = TasarrufMevduati + DigerMevduat",
+    "AltinDepoToplam = AltinDepoGercek + AltinDepoTuzel"
+  ],
+  "quality_policy": [
+    "Every raw response is hash-checked against its validated request record.",
+    "Different source table schemas remain separate in wide outputs.",
+    "A generic long measurement table is produced without inventing missing rows.",
+    "Missing values remain null and are never converted to zero.",
+    "FinTurk values are quarterly period-end observations, not monthly flows.",
+    "Source row counts, absent group-city combinations and schema changes are reported."
+  ]
+}

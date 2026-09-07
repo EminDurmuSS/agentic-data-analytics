@@ -1,0 +1,277 @@
+{
+  "status": "passed",
+  "source_series": 25,
+  "native_observations_with_warmup": 2211,
+  "target_months": 66,
+  "warmup_months": 12,
+  "source_nulls": 0,
+  "duplicate_keys": 0,
+  "target_columns": 59,
+  "source_sales_identity_matches": 78,
+  "consumer_component_identity_matches": {
+    "deposit": 78,
+    "development_investment": 78,
+    "participation": 78
+  },
+  "weekly_target_observations": 287,
+  "checks": [
+    {
+      "series_code": "TP.KFE.TR",
+      "raw_rows": 78,
+      "kept_rows": 78,
+      "dropped_outside_period": [],
+      "missing": 0,
+      "duplicates": 0,
+      "first": "2020-01-01",
+      "last": "2026-06-01"
+    },
+    {
+      "series_code": "TP.KFE.TR10",
+      "raw_rows": 78,
+      "kept_rows": 78,
+      "dropped_outside_period": [],
+      "missing": 0,
+      "duplicates": 0,
+      "first": "2020-01-01",
+      "last": "2026-06-01"
+    },
+    {
+      "series_code": "TP.KFE.TR51",
+      "raw_rows": 78,
+      "kept_rows": 78,
+      "dropped_outside_period": [],
+      "missing": 0,
+      "duplicates": 0,
+      "first": "2020-01-01",
+      "last": "2026-06-01"
+    },
+    {
+      "series_code": "TP.KFE.TR31",
+      "raw_rows": 78,
+      "kept_rows": 78,
+      "dropped_outside_period": [],
+      "missing": 0,
+      "duplicates": 0,
+      "first": "2020-01-01",
+      "last": "2026-06-01"
+    },
+    {
+      "series_code": "TP.TUKFIY2025.GENEL",
+      "raw_rows": 78,
+      "kept_rows": 78,
+      "dropped_outside_period": [],
+      "missing": 0,
+      "duplicates": 0,
+      "first": "2020-01-01",
+      "last": "2026-06-01"
+    },
+    {
+      "series_code": "TP.KTF12",
+      "raw_rows": 340,
+      "kept_rows": 339,
+      "dropped_outside_period": [
+        "03-07-2026"
+      ],
+      "missing": 0,
+      "duplicates": 0,
+      "first": "2020-01-03",
+      "last": "2026-06-26"
+    },
+    {
+      "series_code": "TP.AKONUTSAT1.KTRTOPLAM",
+      "raw_rows": 78,
+      "kept_rows": 78,
+      "dropped_outside_period": [],
+      "missing": 0,
+      "duplicates": 0,
+      "first": "2020-01-01",
+      "last": "2026-06-01"
+    },
+    {
+      "series_code": "TP.AKONUTSAT2.KTRTOPLAM",
+      "raw_rows": 78,
+      "kept_rows": 78,
+      "dropped_outside_period": [],
+      "missing": 0,
+      "duplicates": 0,
+      "first": "2020-01-01",
+      "last": "2026-06-01"
+    },
+    {
+      "series_code": "TP.AKONUTSAT3.KTRTOPLAM",
+      "raw_rows": 78,
+      "kept_rows": 78,
+      "dropped_outside_period": [],
+      "missing": 0,
+      "duplicates": 0,
+      "first": "2020-01-01",
+      "last": "2026-06-01"
+    },
+    {
+      "series_code": "TP.AKONUTSAT4.KTRTOPLAM",
+      "raw_rows": 78,
+      "kept_rows": 78,
+      "dropped_outside_period": [],
+      "missing": 0,
+      "duplicates": 0,
+      "first": "2020-01-01",
+      "last": "2026-06-01"
+    },
+    {
+      "series_code": "TP.KM.B10",
+      "raw_rows": 78,
+      "kept_rows": 78,
+      "dropped_outside_period": [],
+      "missing": 0,
+      "duplicates": 0,
+      "first": "2020-01-01",
+      "last": "2026-06-01"
+    },
+    {
+      "series_code": "TP.KM.B11",
+      "raw_rows": 78,
+      "kept_rows": 78,
+      "dropped_outside_period": [],
+      "missing": 0,
+      "duplicates": 0,
+      "first": "2020-01-01",
+      "last": "2026-06-01"
+    },
+    {
+      "series_code": "TP.KM.B12",
+      "raw_rows": 78,
+      "kept_rows": 78,
+      "dropped_outside_period": [],
+      "missing": 0,
+      "duplicates": 0,
+      "first": "2020-01-01",
+      "last": "2026-06-01"
+    },
+    {
+      "series_code": "TP.KM.B13",
+      "raw_rows": 78,
+      "kept_rows": 78,
+      "dropped_outside_period": [],
+      "missing": 0,
+      "duplicates": 0,
+      "first": "2020-01-01",
+      "last": "2026-06-01"
+    },
+    {
+      "series_code": "TP.KM.B14",
+      "raw_rows": 78,
+      "kept_rows": 78,
+      "dropped_outside_period": [],
+      "missing": 0,
+      "duplicates": 0,
+      "first": "2020-01-01",
+      "last": "2026-06-01"
+    },
+    {
+      "series_code": "TP.KM.A10",
+      "raw_rows": 78,
+      "kept_rows": 78,
+      "dropped_outside_period": [],
+      "missing": 0,
+      "duplicates": 0,
+      "first": "2020-01-01",
+      "last": "2026-06-01"
+    },
+    {
+      "series_code": "TP.KM.A11",
+      "raw_rows": 78,
+      "kept_rows": 78,
+      "dropped_outside_period": [],
+      "missing": 0,
+      "duplicates": 0,
+      "first": "2020-01-01",
+      "last": "2026-06-01"
+    },
+    {
+      "series_code": "TP.KM.A12",
+      "raw_rows": 78,
+      "kept_rows": 78,
+      "dropped_outside_period": [],
+      "missing": 0,
+      "duplicates": 0,
+      "first": "2020-01-01",
+      "last": "2026-06-01"
+    },
+    {
+      "series_code": "TP.KM.A13",
+      "raw_rows": 78,
+      "kept_rows": 78,
+      "dropped_outside_period": [],
+      "missing": 0,
+      "duplicates": 0,
+      "first": "2020-01-01",
+      "last": "2026-06-01"
+    },
+    {
+      "series_code": "TP.KM.A14",
+      "raw_rows": 78,
+      "kept_rows": 78,
+      "dropped_outside_period": [],
+      "missing": 0,
+      "duplicates": 0,
+      "first": "2020-01-01",
+      "last": "2026-06-01"
+    },
+    {
+      "series_code": "TP.KB.KRE09",
+      "raw_rows": 78,
+      "kept_rows": 78,
+      "dropped_outside_period": [],
+      "missing": 0,
+      "duplicates": 0,
+      "first": "2020-01-01",
+      "last": "2026-06-01"
+    },
+    {
+      "series_code": "TP.KB.KRE10",
+      "raw_rows": 78,
+      "kept_rows": 78,
+      "dropped_outside_period": [],
+      "missing": 0,
+      "duplicates": 0,
+      "first": "2020-01-01",
+      "last": "2026-06-01"
+    },
+    {
+      "series_code": "TP.KB.KRE11",
+      "raw_rows": 78,
+      "kept_rows": 78,
+      "dropped_outside_period": [],
+      "missing": 0,
+      "duplicates": 0,
+      "first": "2020-01-01",
+      "last": "2026-06-01"
+    },
+    {
+      "series_code": "TP.KB.KRE12",
+      "raw_rows": 78,
+      "kept_rows": 78,
+      "dropped_outside_period": [],
+      "missing": 0,
+      "duplicates": 0,
+      "first": "2020-01-01",
+      "last": "2026-06-01"
+    },
+    {
+      "series_code": "TP.KB.KRE13",
+      "raw_rows": 78,
+      "kept_rows": 78,
+      "dropped_outside_period": [],
+      "missing": 0,
+      "duplicates": 0,
+      "first": "2020-01-01",
+      "last": "2026-06-01"
+    }
+  ],
+  "limits": [
+    "Not every historical rate/KFE/credit/sales point was matched to a second publication.",
+    "Current-vintage data, not historical release-time data.",
+    "TCMB credit statistics are not BDDK bulletin exports.",
+    "Stock change is not new lending; co-occurrence is not causality."
+  ]
+}

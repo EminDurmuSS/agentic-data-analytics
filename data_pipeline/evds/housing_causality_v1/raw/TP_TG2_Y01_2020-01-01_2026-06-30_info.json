@@ -1,0 +1,29 @@
+{
+  "status": "validated",
+  "series_code": "TP.TG2.Y01",
+  "frequency": "AYLIK",
+  "aggregation": "avg",
+  "chunk_start": "2020-01-01",
+  "chunk_end": "2026-06-30",
+  "request_file": "raw/TP_TG2_Y01_2020-01-01_2026-06-30_request.json",
+  "request_sha256": "0e8de4d24d2a9e9aab71946c31d6a041379fa58f6fe18754aa460819337a339c",
+  "response_file": "raw/TP_TG2_Y01_2020-01-01_2026-06-30_response.json.gz",
+  "response_sha256": "9c037cdb77e3bfa3042b50eb96c087647ee89e331baa66a526e8130983d9cce3",
+  "served_from_cache": true,
+  "http_status": 200,
+  "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "content_type": "application/json;charset=UTF-8",
+  "bytes": 11730,
+  "sha256": "9c037cdb77e3bfa3042b50eb96c087647ee89e331baa66a526e8130983d9cce3",
+  "transport": "curl",
+  "tls_verification": true,
+  "response_total_count": 78,
+  "retained_rows": 78,
+  "outside_requested_range_rows": 0,
+  "series_names": {
+    "TP_TG2_Y01": "Tüketici Güven Endeksi"
+  },
+  "frequency_conversion": {
+    "TP.TG2.Y01": true
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "type": "json",
+  "series": "TP.KTF12",
+  "aggregationTypes": "avg",
+  "formulas": "0",
+  "startDate": "01-01-2024",
+  "endDate": "31-12-2024",
+  "frequency": "3",
+  "decimalSeperator": ".",
+  "decimal": "8",
+  "dateFormat": "0",
+  "lang": "tr",
+  "ozelFormuller": [],
+  "groupSeperator": false,
+  "isRaporSayfasi": false
+}

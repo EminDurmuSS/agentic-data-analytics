@@ -1,0 +1,47 @@
+{
+  "status": "passed_with_expected_scope_differences",
+  "quarter_count": 22,
+  "coverage_start": "2021-03",
+  "coverage_end": "2026-06",
+  "finturk_domestic_vs_bddk_pct": {
+    "count": 22,
+    "minimum": 0.0003475003680924284,
+    "maximum": 0.013165779382484337,
+    "mean": 0.004089759176369739,
+    "maximum_absolute": 0.013165779382484337
+  },
+  "finturk_all_geographies_vs_bddk_pct": {
+    "count": 22,
+    "minimum": 0.3415863412448001,
+    "maximum": 0.8174742150983606,
+    "mean": 0.7064882086582848,
+    "maximum_absolute": 0.8174742150983606
+  },
+  "tbb_reporting_banks_vs_bddk_pct": {
+    "count": 21,
+    "minimum": -9.917163731597135,
+    "maximum": -6.811904537373906,
+    "mean": -8.693326254774915,
+    "maximum_absolute": 9.917163731597135
+  },
+  "evds_vs_bddk_quarter_end_pct": {
+    "count": 22,
+    "minimum": -0.10600738943704897,
+    "maximum": 0.0333202513161537,
+    "mean": -0.046133460521728425,
+    "maximum_absolute": 0.10600738943704897
+  },
+  "monthly_evds_bddk_scope_review_periods": [
+    "2025-08"
+  ],
+  "known_source_gaps": [
+    "TBB 2026-06 report is not published in the source snapshot."
+  ],
+  "interpretation": [
+    "FinTurk values are converted from thousand TRY to million TRY before comparison.",
+    "The sum of 81 domestic provinces closely reconciles to the BDDK monthly sector total.",
+    "FinTurk YURT DIŞI is retained separately and is not silently mixed into the domestic comparison.",
+    "TBB covers the banks listed in each report and is expected to be below the BDDK sector total.",
+    "Cross-source differences are scope diagnostics, not automatic evidence that one source is wrong."
+  ]
+}

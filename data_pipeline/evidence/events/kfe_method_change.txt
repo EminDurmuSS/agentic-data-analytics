@@ -1,0 +1,208 @@
+KONUT FİYAT ENDEKSLERİNE 
+İLİŞKİN UYGULAMA 
+DEĞİŞİKLİKLERİ 
+ 
+VERİ YÖNETİŞİMİ VE İSTATİSTİK  
+GENEL MÜDÜRLÜĞÜ 
+ANKETLER VE ENDEKSLER 
+MÜDÜRLÜĞÜ
+
+Konut Fiyat Endekslerine İlişkin Uygulama Değişiklikleri 1    
+ 
+ 
+Konut Fiyat Endeksi (KFE) Hesaplamasına İlişkin 
+Uygulama Değişiklikleri 
+2010-2012 Dönemi Uygulamaları 
+Türkiye geneli için 2010-2012 dönemine ilişkin olarak hesaplanan KFE, 73 ilde değerlemesi yapılan tüm 
+konutların verilerini içermektedir. Artvin, Bartın, Bingöl, Burdur, Düzce, Gümüşhane, Kilis, Tunceli illerinden 
+yeterli sayıda veri gelmemesi nedeniyle bu iller kapsam dışında bırakılmıştır. 
+2013 Yılı Uygulama Değişiklikleri  
+Veri sayısının yeterli olduğu Düzce ili de hesaplamaya dahil edilerek KFE, 74 ilde değerlemesi yapılan tüm 
+konutların verileri kullanılarak oluşturulmuştur.  
+2014 Yılı Uygulama Değişiklikleri  
+Veri sayısının yeterli olduğu Artvin, Bartın ve Burdur hesaplamaya dahil edilirken, yeterli sayıda veri 
+gelmeyen Bayburt, Siirt ve Şırnak hesaplamadan çıkarılarak KFE, 74 ilde değerlemesi yapılan tüm konutların 
+verileri kullanılarak oluşturulmuştur.  
+2010-2013 döneminde TRC3 düzeyine ilişkin endeks hesaplamasına, Batman, Mardin, Siirt ve Şırnak 
+illerindeki değerlemesi yapılan tüm konutların verileri dahil edilirken, 2014 yılından itibaren TRC3 düzeyine 
+ilişkin endeks, veri sayısının yeterli olduğu Batman ve Mardin illeri için hesaplanan ortanca birim fiyatların 
+ağırlıklandırılması ile hesaplanmıştır.     
+2010-2013 döneminde TRA1 düzeyine ilişkin endeks hesaplamasına, Erzurum, Erzincan ve Bayburt 
+illerindeki değerlemesi yapılan tüm konutların verileri dahil edilirken, 2014 yılından itibaren TRA1 düzeyine 
+ilişkin endeks, veri sayısının yeterli olduğu Erzurum ve Erzincan illeri için hesaplanan ortanca birim fiyatların 
+ağırlıklandırılması ile hesaplanmıştır.     
+Büyükşehir Belediyesi Kanunu Kapsamında Yapılan Değişiklikler  
+6 Aralık 2012 tarih ve 6360 sayılı “On Üç İlde Büyükşehir Belediyesi ve Yirmi Altı İlçe Kurulması ile Bazı Kanun 
+ve Kanun Hükmünde Kararnamelerde Değişiklik Yapılmasına Dair Kanun” ile Aydın, Balıkesir, Denizli, Hatay, 
+Malatya, Manisa, Kahramanmaraş, Mardin, Muğla, Tekirdağ, Trabzon, Şanlıurfa ve Van illeri büyükşehir 
+olmuştur. Daha sonra 22 Mart 2013 tarihli Kanun ile Ordu ili de büyükşehir olmuştur. KFE ve YKFE’ye ilişkin 
+coğrafi bölgeler, yapılan değişiklikler çerçevesinde Ocak 2014 verilerinden başlamak üzere yeniden 
+düzenlenmiştir.  
+2016 Yılı Uygulama Değişiklikleri  
+KFE, 2016 yılı Ocak ayından itibaren konutların gözlemlenebilen özelliklerine bağlı kalite etkisinden 
+arındırılmış fiyat değişimlerini izlemek amacıyla oluşturulan Hedonik Konut Fiyat Endeksi ile birlikte 
+yayımlanmaya başlanmıştır.  
+Veri sayısının yeterli olduğu Kilis ili de hesaplamaya dahil edilerek KFE, 75 ilde değerlemesi yapılan tüm 
+konutların verileri kullanılarak oluşturulmuştur.  
+2017 Yılı Uygulama Değişiklikleri  
+Veri sayısının yeterli olduğu Siirt ili de hesaplamaya dahil edilerek KFE, 76 ilde değerlemesi yapılan tüm 
+konutların verileri kullanılarak oluşturulmuştur. 
+2018 Yılı Uygulama Değişiklikleri  
+2010-2017 döneminde TRA2 düzeyine ilişkin endeks hesaplamasına, Ağrı, Ardahan, Kars ve Iğdır illerindeki 
+değerlemesi yapılan tüm konutların verileri dahil edilirken, 2018 yılından itibaren TRA2 düzeyine ilişkin
+
+Konut Fiyat Endekslerine İlişkin Uygulama Değişiklikleri 2    
+ 
+ 
+endeks, veri sayısının yeterli olduğu Ağrı, Iğdır ve Kars illeri için hesaplanan ortanca birim fiyatların 
+ağırlıklandırılması ile hesaplanmıştır. 
+2019 Yılı Uygulama Değişiklikleri  
+KFE, veri sayısının yeterli olmadığı Kilis ilinin çıkarılmasıyla 75 ilde değerlemesi yapılan tüm konutların 
+verileri kullanılarak oluşturulmuştur. TRA2 düzeyine ait endeksin hesaplanmasına Ağrı, Ardahan, Kars ve 
+Iğdır illerindeki değerlemesi yapılan tüm konutların verileri dahil edilmiştir. 
+KFE, 2019 yılı Şubat ayından itibaren hedonik regresyon yöntemiyle hesaplanmaya başlanmış ve baz yılı 
+2017 olacak şekilde değiştirilmiştir. Bu kapsamda, eski yöntem olan tabakalanmış ortanca fiyat yöntemiyle 
+hesaplanan endeks sonlandırılmıştır. 
+Hesaplamada ağırlık olarak Tapu ve Kadastro Genel Müdürlüğü (TKGM) kayıtlarındaki konut satış adetleri ile 
+Türkiye Cumhuriyet Merkez Bankası (TCMB) veri setindeki ortalama konut değerleri kullanılmaya 
+başlanmıştır. 
+2023 Yılı Uygulama Değişiklikleri  
+2010-2022 döneminde TRB2 düzeyine ilişkin endeks hesaplamasına, Bitlis, Hakkâri, Muş ve Van illerindeki 
+değerlemesi yapılan tüm konutların verileri dahil edilirken, 2023 yılından itibaren TRB2 düzeyine ilişkin 
+endeks, veri sayısının yeterli olduğu Bitlis, Muş ve Van illeri için hesaplanan endekslerin ağırlıklandırılması ile 
+hesaplanmıştır. 
+2019-2022 döneminde TRA2 düzeyine ilişkin endeks hesaplamasına, Ağrı, Ardahan, Kars ve Iğdır illerindeki 
+değerlemesi yapılan tüm konutların verileri dahil edilirken, 2023 yılından itibaren TRA2 düzeyine ilişkin 
+endeks, veri sayısının yeterli olduğu Ağrı, Iğdır ve Kars illeri için hesaplanan endekslerin ağırlıklandırılması ile 
+hesaplanmıştır.  
+Veri sayısının yeterli olmadığı Ardahan ve Hakkâri illeri çıkarılarak ve veri sayısının yeterli olduğu Bingöl ili 
+hesaplamaya dahil edilerek KFE, 74 ilde değerlemesi yapılan tüm konutların verileri kullanılarak 
+oluşturulmuştur. 
+2024 Yılı Uygulama Değişiklikleri  
+2024 yılı Temmuz ayı yayını ile birlikte analiz için kullanılan veri setinde, modellerde, regresyon 
+düzeylerinde, ağırlıklandırma yaklaşımında ve yayın kırılımında revizyon yapılmıştır. 3 aylık hareketli veri seti 
+yerine aylık veri seti kullanılmaya başlanmıştır. Böylece yayın süresi t+45 günden t+15 güne düşmüştür. 
+KFE, 81 ilde değerlemesi yapılan tüm konutların verileri kullanılarak oluşturulmaya başlanmış olup, yayın 
+kırılımı “Türkiye, 13 düzey-2 ve 6 düzey-1 bölgesi” olarak güncellenmiştir. Ayrıca, daha önce sadece 3 büyük 
+il için yayımlanan ortanca konut birim m2 fiyatları, veri sayısının yeterli olduğu tüm iller için çeyreklik 
+frekansta yayımlanmaya başlanmıştır. 
+Hesaplamada ağırlık olarak Türkiye İstatistik Kurumu (TÜİK) tarafından yayımlanan hanehalkı sayısı ile TCMB 
+veri setindeki ortalama konut değerleri kullanılmaya başlanmıştır. 
+KFE, veri seti 2010 yılından itibaren dörder yıllık dönemlere bölünerek ilgili dönemin başlangıç yılı baz 
+dönem olacak şekilde üretilmiştir. Tüm seri 2023 yılı baz olacak şekilde hesaplanmıştır. 
+Yeni Konutlar Fiyat Endeksi (YKFE) Hesaplamasına İlişkin 
+Uygulama Değişiklikleri  
+2010-2012 Dönemi Uygulamaları  
+2010-2012 dönemine ilişkin YKFE’nin hesaplanmasında analiz için yeterli veri geldiği gözlenen 26 ilde 
+(Adana, Ankara, Antalya, Aydın, Balıkesir, Bursa, Çanakkale, Çorum, Denizli, Diyarbakır, Eskişehir, Gaziantep, 
+Hatay, İstanbul, İzmir, Kahramanmaraş, Kayseri, Kocaeli, Konya, Malatya, Manisa, Mersin, Muğla, Sakarya, 
+Samsun, Tekirdağ) değerlemesi yapılan yeni konutlara ilişkin veriler kullanılmıştır.
+
+Konut Fiyat Endekslerine İlişkin Uygulama Değişiklikleri 3    
+ 
+ 
+2013 Yılı Uygulama Değişiklikleri  
+Veri sayısının yeterli olduğu Ordu, Osmaniye ve Yalova illeri de hesaplamaya dahil edilerek YKFE, 29 ilde 
+değerlemesi yapılan yeni konutların verileri kullanılarak oluşturulmuştur. 
+2014 Yılı Uygulama Değişiklikleri  
+Veri sayısının yeterli olduğu Bolu, Edirne, Elazığ, Erzurum, Kırklareli, Kütahya, Şanlıurfa ve Trabzon illeri de 
+hesaplamaya dahil edilerek YKFE, 37 ilde değerlemesi yapılan yeni konutların verileri kullanılarak 
+oluşturulmuştur.  
+2015 Yılı Uygulama Değişiklikleri  
+Veri sayısının yeterli olduğu Afyonkarahisar, Amasya, Bilecik, Düzce, Karabük, Kırıkkale, Sivas ve Tokat illeri 
+de hesaplamaya dahil edilerek YKFE, 45 ilde değerlemesi yapılan yeni konutların verileri kullanılarak 
+oluşturulmuştur.  
+2016 Yılı Uygulama Değişiklikleri  
+Veri sayısının yeterli olduğu Adıyaman, Kastamonu ve Zonguldak illeri de hesaplamaya dahil edilerek YKFE, 
+48 ilde değerlemesi yapılan yeni konutların verileri kullanılarak oluşturulmuştur.  
+2017 Yılı Uygulama Değişiklikleri  
+Veri sayısının yeterli olduğu Aksaray, Karaman ve Uşak illeri de hesaplamaya dahil edilerek YKFE, 51 ilde 
+değerlemesi yapılan yeni konutların verileri kullanılarak oluşturulmuştur.  
+2018 Yılı Uygulama Değişiklikleri  
+Veri sayısının yeterli olduğu Bartın, Burdur, Isparta, Mardin, Niğde ve Sinop illeri de hesaplamaya dahil 
+edilerek YKFE, 57 ilde değerlemesi yapılan yeni konutların verileri kullanılarak oluşturulmuştur.  
+2019 Yılı Uygulama Değişiklikleri  
+Veri sayısının yeterli olduğu Giresun ve Van illeri hesaplamaya dahil edilirken, yeterli sayıda veri 
+bulunmayan Karaman ve Mardin illeri hesaplamadan çıkarılarak YKFE, 57 ilde değerlemesi yapılan yeni 
+konutların verileri kullanılarak oluşturulmuştur. 
+YKFE, 2019 yılı Şubat ayından itibaren konutların gözlemlenebilen özelliklerine bağlı kalite etkisinden 
+arındırılmış fiyat değişimlerini izlemek amacıyla daha gelişmiş bir yöntem olan hedonik regresyon 
+yöntemiyle hesaplanmaya başlanmış ve baz yılı 2017 olarak değiştirilmiştir. Bu kapsamda, eski yöntem olan 
+tabakalanmış ortanca fiyat yöntemiyle hesaplanan endeks sonlandırılmıştır. 
+Hesaplamada ağırlık olarak TÜİK tarafından derlenmekte olan son iki yılda verilen yapı kullanma izin 
+belgeleri ile TCMB veri setindeki ortalama konut değerleri kullanılmaya başlanmıştır. 
+2021 Yılı Uygulama Değişiklikleri  
+Veri sayısının yeterli olmadığı Bartın ili hesaplamadan çıkarılarak YKFE, 56 ilde değerlemesi yapılan yeni 
+konutların verileri kullanılarak oluşturulmuştur. 
+2022 Yılı Uygulama Değişiklikleri  
+Veri sayısının yeterli olmadığı Burdur ve Sinop illeri hesaplamadan çıkarılarak YKFE, 54 ilde değerlemesi 
+yapılan yeni konutların verileri kullanılarak oluşturulmuştur.
+
+Konut Fiyat Endekslerine İlişkin Uygulama Değişiklikleri 4    
+ 
+ 
+2023 Yılı Uygulama Değişiklikleri  
+Veri sayısının yeterli olmadığı Karabük, Niğde ve Yalova illeri hesaplamadan çıkarılarak YKFE, 51 ilde 
+değerlemesi yapılan yeni konutların verileri kullanılarak oluşturulmuştur. 
+2024 Yılı Uygulama Değişiklikleri  
+2024 yılı Temmuz ayı yayını ile birlikte analiz için kullanılan veri setinde, modellerde, regresyon 
+düzeylerinde, ağırlıklandırma yaklaşımında ve yayın kırılımında revizyon yapılmıştır. 3 aylık hareketli veri seti 
+yerine aylık veri seti kullanılmaya başlanmıştır. Böylece yayın süresi t+45 günden t+15 güne düşmüştür. 
+YKFE, 81 ilde değerlemesi yapılan yeni konutların verileri kullanılarak oluşturulmaya başlanmış olup, yayın 
+kırılımı ise sadece Türkiye olarak güncellenmiştir. 
+Hesaplamada ağırlık olarak TÜİK tarafından yayımlanan hanehalkı sayısı ile TCMB veri setindeki ortalama 
+konut değerleri kullanılmaya başlanmıştır. 
+YKFE, veri seti 2010 yılından itibaren dörder yıllık dönemlere bölünerek ilgili dönemin başlangıç yılı baz 
+dönem olacak şekilde üretilmiştir. Tüm seri 2023 yılı baz olacak şekilde hesaplanmıştır. 
+Yeni Olmayan Konutlar Fiyat Endeksi (YOKFE) 
+Hesaplamasına İlişkin Uygulama Değişiklikleri 
+2017 Yılı Uygulamaları 
+Veri sayısının yeterli olduğu 76 ilde değerlemesi yapılan konutlardan, yapım yılı son iki yıldan (içinde 
+bulunulan yıl ve bir önceki yıl) önce olan konutların değerleme raporları esas alınarak oluşturulan “Yeni 
+Olmayan Konutlar Fiyat Endeksi (YOKFE)” yayımlanmaya başlanmıştır. Bayburt, Bingöl, Gümüşhane, Tunceli 
+ve Şırnak illerinden yeterli sayıda veri gelmemesi nedeniyle bu iller kapsam dışında bırakılmıştır. 
+2018 Yılı Uygulama Değişiklikleri  
+2010-2017 döneminde TRA2 düzeyine ilişkin endeks, Ağrı, Ardahan, Kars ve Iğdır illerine ait veriler 
+toplulaştırılarak hesaplanırken, 2018 yılından itibaren veri sayısının yeterli olduğu Ağrı, Iğdır ve Kars illeri için 
+ayrı ayrı hesaplanan ortanca birim fiyatların ağırlıklandırılması ile hesaplanmıştır. 
+2019 Yılı Uygulama Değişiklikleri  
+YOKFE, veri sayısının yeterli olmadığı Kilis ilinin çıkarılmasıyla 75 ilde değerlemesi yapılan ilgili konutların 
+verileri kullanılarak oluşturulmuştur. TRA2 düzeyine ait endeksin hesaplanmasında Ağrı, Ardahan, Kars ve 
+Iğdır illerindeki değerlemesi yapılan yeni olmayan konutların verileri dahil edilmiştir. 
+YOKFE, 2019 yıl Şubat ayından itibaren konutların gözlemlenebilen özelliklerine bağlı kalite etkisinden 
+arındırılmış fiyat değişimlerini izlemek amacıyla daha gelişmiş bir yöntem olan hedonik regresyon 
+yöntemiyle hesaplanmaya başlanmış ve baz yılı 2017 olarak değiştirilmiştir. Bu kapsamda, eski yöntem olan 
+tabakalanmış ortanca fiyat yöntemiyle hesaplanan endeks sonlandırılmıştır. 
+Hesaplamada ağırlık olarak TKGM kayıtlarındaki konut satış adetleri ile TCMB veri setindeki ortalama konut 
+değerleri kullanılmaya başlanmıştır. 
+2023 Yılı Uygulama Değişiklikleri  
+2010-2022 döneminde TRB2 düzeyine ilişkin endeks, Bitlis, Hakkâri, Muş ve Van illerine ait veriler 
+toplulaştırılarak hesaplanırken, 2023 yılından itibaren veri sayısının yeterli olduğu Bitlis, Muş ve Van illeri için 
+ayrı ayrı hesaplanan endekslerin ağırlıklandırılması ile hesaplanmıştır.
+
+Konut Fiyat Endekslerine İlişkin Uygulama Değişiklikleri 5    
+ 
+ 
+2019-2022 döneminde TRA2 düzeyine ilişkin endeks, Ağrı, Ardahan, Kars ve Iğdır illerine ait veriler 
+toplulaştırılarak hesaplanırken, 2023 yılından itibaren veri sayısının yeterli olduğu Ağrı, Iğdır ve Kars illeri için 
+ayrı ayrı hesaplanan endekslerin ağırlıklandırılması ile hesaplanmıştır. 
+YOKFE, veri sayısının yeterli olmadığı Ardahan ve Hakkâri illeri çıkarılarak ve veri sayısının yeterli olduğu 
+Bingöl ili hesaplamaya dahil edilerek 74 ilde değerlemesi yapılan yeni olmayan konutların verileri 
+kullanılarak oluşturulmuştur.  
+2024 Yılı Uygulama Değişiklikleri  
+2024 yılı Temmuz ayı yayını ile birlikte analiz için kullanılan veri setinde, modellerde, regresyon 
+düzeylerinde, ağırlıklandırma yaklaşımında ve yayın kırılımında revizyon yapılmıştır. 3 aylık hareketli veri seti 
+yerine aylık veri seti kullanılmaya başlanmıştır. Böylece yayın süresi t+45 günden t+15 güne düşmüştür. 
+YOKFE, 81 ilde değerlemesi yapılan yeni olmayan konutların verileri kullanılarak oluşturulmaya başlanmış 
+olup, yayın kırılımı sadece Türkiye olarak güncellenmiştir.  
+Hesaplamada ağırlık olarak TÜİK tarafından yayımlanan hanehalkı sayısı ile TCMB veri setindeki ortalama 
+konut değerleri kullanılmaya başlanmıştır. 
+YOKFE, veri seti 2010 yılından itibaren dörder yıllık dönemlere bölünerek ilgili dönemin başlangıç yılı baz 
+dönem olacak şekilde üretilmiştir. Tüm seri 2023 yılı baz olacak şekilde hesaplanmıştır. 
+Yeni Kiracı Kira Endeksi (YKKE) Hesaplamasına İlişkin 
+Uygulama Değişiklikleri  
+2026 Yılı Uygulamaları 
+YKKE, 81 ilde değerlemesi yapılan tüm konutların verileri ile yayın kırılımı “Türkiye, 13 düzey-2 ve 6 düzey-1 
+bölgesi” olarak 17 Şubat 2026 tarihinde aylık frekansta yayımlanmaya başlanmıştır. Ayrıca, değerlemesi 
+yapılan konutların birim m2 kiraları, veri sayısının yeterli olduğu tüm iller için çeyreklik frekansta 
+yayımlanmaya başlanmıştır.

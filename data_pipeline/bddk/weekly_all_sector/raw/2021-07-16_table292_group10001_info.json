@@ -1,0 +1,31 @@
+{
+  "status": "validated",
+  "diagnosis": "validated_bddk_weekly_html_table",
+  "source_url": "https://www.bddk.org.tr/BultenHaftalik/",
+  "sha256_uncompressed": "01f6a3d945f612c3bd9116869e264b859a6170a26180d4b32043372573c90596",
+  "compressed_bytes": 14563,
+  "uncompressed_bytes": 189967,
+  "served_from_cache": true,
+  "completed_at_utc": "2026-09-07T21:42:07.928023+00:00",
+  "table_id": 292,
+  "table_name": "Mevduat",
+  "group_code": 10001,
+  "group_name": "Sektor",
+  "period_id": 394,
+  "observation_date": "2021-07-16",
+  "week_number": 28,
+  "source_period_label": "Temmuz/16 (28. Hafta)",
+  "source_date_heading": "Tarih: 16 Temmuz 2021 Cuma | Birim: Milyon TL",
+  "source_date_parsed": "2021-07-16",
+  "headers": [
+    "",
+    "Mevduat",
+    "TP",
+    "YP",
+    "TOPLAM"
+  ],
+  "rows": 11,
+  "max_cells_per_row": 5,
+  "unit_heading": "Milyon TL",
+  "date_heading_normalized": "tarih: 16 temmuz 2021 cuma | birim: milyon tl"
+}

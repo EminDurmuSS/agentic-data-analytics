@@ -1,0 +1,29 @@
+{
+  "status": "validated",
+  "series_code": "TP.DK.USD.A.YTL",
+  "frequency": "GÜNLÜK",
+  "aggregation": "avg",
+  "chunk_start": "2025-01-01",
+  "chunk_end": "2025-12-31",
+  "request_file": "raw/TP_DK_USD_A_YTL_2025-01-01_2025-12-31_request.json",
+  "request_sha256": "13a546781b1dcc71daa9b7c2dd444732e660a904dc527fc2a17fc43ce346804c",
+  "response_file": "raw/TP_DK_USD_A_YTL_2025-01-01_2025-12-31_response.json.gz",
+  "response_sha256": "c48eae0e8ae881df1178ffcd5adb041df3fa204ea400195bec165b9229d95f0e",
+  "served_from_cache": true,
+  "http_status": 200,
+  "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "content_type": "application/json;charset=UTF-8",
+  "bytes": 58114,
+  "sha256": "c48eae0e8ae881df1178ffcd5adb041df3fa204ea400195bec165b9229d95f0e",
+  "transport": "curl",
+  "tls_verification": true,
+  "response_total_count": 365,
+  "retained_rows": 365,
+  "outside_requested_range_rows": 0,
+  "series_names": {
+    "TP_DK_USD_A_YTL": "(USD)  ABD  Doları  (Döviz  Alış)"
+  },
+  "frequency_conversion": {
+    "TP.DK.USD.A.YTL": true
+  }
+}

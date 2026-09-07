@@ -1,0 +1,29 @@
+{
+  "status": "validated",
+  "series_code": "TP.KTF12",
+  "frequency": "HAFTALIK(CUMA)",
+  "aggregation": "avg",
+  "chunk_start": "2020-01-01",
+  "chunk_end": "2020-12-31",
+  "request_file": "raw/TP_KTF12_2020-01-01_2020-12-31_request.json",
+  "request_sha256": "2655662cd2d1c042556226b02a52752df19c009cc890401236b310951e78975a",
+  "response_file": "raw/TP_KTF12_2020-01-01_2020-12-31_response.json.gz",
+  "response_sha256": "92b2b78ce582c15d23c932b0b4979186087b89ac9c4d3ace42a5d0dfb7addadf",
+  "served_from_cache": true,
+  "http_status": 200,
+  "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "content_type": "application/json;charset=UTF-8",
+  "bytes": 9668,
+  "sha256": "92b2b78ce582c15d23c932b0b4979186087b89ac9c4d3ace42a5d0dfb7addadf",
+  "transport": "curl",
+  "tls_verification": true,
+  "response_total_count": 53,
+  "retained_rows": 52,
+  "outside_requested_range_rows": 1,
+  "series_names": {
+    "TP_KTF12": "Konut Kredisi (TL, Akım, %)"
+  },
+  "frequency_conversion": {
+    "TP.KTF12": true
+  }
+}

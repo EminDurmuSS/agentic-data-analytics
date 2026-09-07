@@ -1,0 +1,13 @@
+{
+  "endpoint": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "dataset_id": "housing_credit_causality_controls_v1",
+  "manifest_file": "housing_causality_controls_v1.json",
+  "manifest_sha256": "6204c81e20ac20edfc7991d521d4fafbeaef7a9b4fcc575d976a6b9310eefe97",
+  "catalog_file": "evds_series_catalog.parquet",
+  "catalog_sha256": "ccdd130fb752defb99a295857b56e61b088f8c49708722f9b6e303f454e576da",
+  "start_date": "2020-01-01",
+  "end_date": "2026-06-30",
+  "series_count": 11,
+  "transport": "curl",
+  "tls_verification": true
+}

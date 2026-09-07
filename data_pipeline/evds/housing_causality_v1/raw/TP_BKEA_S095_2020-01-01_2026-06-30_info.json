@@ -1,0 +1,29 @@
+{
+  "status": "validated",
+  "series_code": "TP.BKEA.S095",
+  "frequency": "ÜÇ AYLIK",
+  "aggregation": "last",
+  "chunk_start": "2020-01-01",
+  "chunk_end": "2026-06-30",
+  "request_file": "raw/TP_BKEA_S095_2020-01-01_2026-06-30_request.json",
+  "request_sha256": "dd606f64b2e8ec4dd823d2dcfcd900605b20f760f9e55ade7e4d71a7fbba2a4f",
+  "response_file": "raw/TP_BKEA_S095_2020-01-01_2026-06-30_response.json.gz",
+  "response_sha256": "be3c2c6abd4eec7b716485b73748793e37aa16008f5137209c2ccb0a9c7e979c",
+  "served_from_cache": true,
+  "http_status": 200,
+  "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "content_type": "application/json;charset=UTF-8",
+  "bytes": 4458,
+  "sha256": "be3c2c6abd4eec7b716485b73748793e37aa16008f5137209c2ccb0a9c7e979c",
+  "transport": "curl",
+  "tls_verification": true,
+  "response_total_count": 26,
+  "retained_rows": 26,
+  "outside_requested_range_rows": 0,
+  "series_names": {
+    "TP_BKEA_S095": "16.1. (Konut Piyasasına İlişkin Beklentiler)_ Geçen üç ayda, bu faktör konut alım kredisi talebini ne yönde etkiledi?"
+  },
+  "frequency_conversion": {
+    "TP.BKEA.S095": true
+  }
+}

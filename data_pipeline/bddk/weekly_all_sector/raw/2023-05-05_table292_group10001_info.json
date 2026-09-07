@@ -1,0 +1,31 @@
+{
+  "status": "validated",
+  "diagnosis": "validated_bddk_weekly_html_table",
+  "source_url": "https://www.bddk.org.tr/BultenHaftalik/",
+  "sha256_uncompressed": "385e7c54083686c71530b883c79386ecd3c69a712bcab03a7a576ab61a47b18d",
+  "compressed_bytes": 14678,
+  "uncompressed_bytes": 191488,
+  "served_from_cache": true,
+  "completed_at_utc": "2026-09-07T21:42:09.958672+00:00",
+  "table_id": 292,
+  "table_name": "Mevduat",
+  "group_code": 10001,
+  "group_name": "Sektor",
+  "period_id": 488,
+  "observation_date": "2023-05-05",
+  "week_number": 18,
+  "source_period_label": "Mayıs/05 (18. Hafta)",
+  "source_date_heading": "Tarih: 5 Mayıs 2023 Cuma | Birim: Milyon TL",
+  "source_date_parsed": "2023-05-05",
+  "headers": [
+    "",
+    "Mevduat",
+    "TP",
+    "YP",
+    "TOPLAM"
+  ],
+  "rows": 12,
+  "max_cells_per_row": 5,
+  "unit_heading": "Milyon TL",
+  "date_heading_normalized": "tarih: 5 mayis 2023 cuma | birim: milyon tl"
+}

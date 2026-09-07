@@ -1,0 +1,34 @@
+{
+  "start": "2021-01",
+  "end": "2026-06",
+  "period_count": 66,
+  "tables": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17
+  ],
+  "groups": [
+    10001
+  ],
+  "reporting_currency": "TL",
+  "host": "www.bddk.org.tr",
+  "transport": "curl",
+  "scope": "BDDK monthly public tables; not weekly or FinTurk",
+  "unit_policy": "Preserve source columns and jqGrid identifiers; labels/units stay in raw Json. Validate table-specific units against export metadata.",
+  "tls_verification": true,
+  "contract_source": "https://github.com/obakis/rbrsa/blob/main/R/fetch_bddk.R"
+}

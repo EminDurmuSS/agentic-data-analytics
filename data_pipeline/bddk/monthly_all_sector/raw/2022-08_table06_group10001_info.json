@@ -1,0 +1,61 @@
+{
+  "started_at_utc": "2026-09-07T20:46:10.109308+00:00",
+  "completed_at_utc": "2026-09-07T20:46:10.370356+00:00",
+  "url": "https://www.bddk.org.tr/BultenAylik/tr/Home/BasitRaporGetir",
+  "final_url": "https://www.bddk.org.tr/BultenAylik/tr/Home/BasitRaporGetir",
+  "method": "POST",
+  "transport": "curl",
+  "http_status": 200,
+  "content_type": "application/json; charset=utf-8",
+  "sha256": "22f446463b737b1a7234e11f8448cf016d3d0d1d33cd0d95541d077cad64b5b7",
+  "bytes": 4408,
+  "error": "",
+  "diagnosis": "validated_bddk_table",
+  "tls_verification": true,
+  "period": "2022-08",
+  "table_no": 6,
+  "group_code": 10001,
+  "form": [
+    [
+      "tabloNo",
+      "6"
+    ],
+    [
+      "yil",
+      "2022"
+    ],
+    [
+      "ay",
+      "8"
+    ],
+    [
+      "paraBirimi",
+      "TL"
+    ],
+    [
+      "taraf",
+      "10001"
+    ]
+  ],
+  "attempt": 2,
+  "attempt_history": [
+    {
+      "attempt": 1,
+      "http_status": null,
+      "diagnosis": "network_or_transport_failure",
+      "error": "curl: (28) Failed to connect to www.bddk.org.tr port 443 after 15006 ms: Timeout was reached\n",
+      "bytes": 0
+    },
+    {
+      "attempt": 2,
+      "http_status": 200,
+      "diagnosis": "http_success_pending_data_validation",
+      "error": "",
+      "bytes": 4408
+    }
+  ],
+  "status": "validated",
+  "rows": 8,
+  "duplicate_display_orders": [],
+  "served_from_cache": false
+}

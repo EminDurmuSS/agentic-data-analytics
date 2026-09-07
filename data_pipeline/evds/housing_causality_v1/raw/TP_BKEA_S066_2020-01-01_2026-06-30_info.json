@@ -1,0 +1,29 @@
+{
+  "status": "validated",
+  "series_code": "TP.BKEA.S066",
+  "frequency": "ÜÇ AYLIK",
+  "aggregation": "last",
+  "chunk_start": "2020-01-01",
+  "chunk_end": "2026-06-30",
+  "request_file": "raw/TP_BKEA_S066_2020-01-01_2026-06-30_request.json",
+  "request_sha256": "61a60b138024cd3c0044e7f274ede46292b9ddce4d6f352c3f939ef8265f81e9",
+  "response_file": "raw/TP_BKEA_S066_2020-01-01_2026-06-30_response.json.gz",
+  "response_sha256": "e7c31de06ecafc2acb4e8a7a6a457f89b31e5d7816d158b5b9aac0026ca5d389",
+  "served_from_cache": true,
+  "http_status": 200,
+  "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "content_type": "application/json;charset=UTF-8",
+  "bytes": 4488,
+  "sha256": "e7c31de06ecafc2acb4e8a7a6a457f89b31e5d7816d158b5b9aac0026ca5d389",
+  "transport": "curl",
+  "tls_verification": true,
+  "response_total_count": 26,
+  "retained_rows": 26,
+  "outside_requested_range_rows": 0,
+  "series_names": {
+    "TP_BKEA_S066": "10.3. (Teminat İhtiyacı)_ Geçen üç ayda, konut alım kredisi taleplerinin onaylanmasında Bankanız koşul ve kuralları ne yönde değişti?"
+  },
+  "frequency_conversion": {
+    "TP.BKEA.S066": true
+  }
+}

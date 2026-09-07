@@ -1,0 +1,26 @@
+[
+  {
+    "filename": "cb_ir2022iii.pdf",
+    "url": "https://tcmb.gov.tr/wps/wcm/connect/5d6d752d-ef72-4d2a-afd6-a132c2f6d7b9/enftemmuz22_iii_tam.pdf?MOD=AJPERES",
+    "retrieved_at_utc": "2026-09-07T17:32:30.871710+00:00",
+    "status": 200,
+    "content_type": "application/pdf",
+    "bytes": 2437456
+  },
+  {
+    "filename": "cb_ir2024i_box2_4.pdf",
+    "url": "https://www.tcmb.gov.tr/wps/wcm/connect/ee67cf46-654c-449a-8acc-d8bbcca93f45/Kutu_2_4_2024_i.pdf?MOD=AJPERES",
+    "retrieved_at_utc": "2026-09-07T17:32:30.872467+00:00",
+    "status": 200,
+    "content_type": "application/pdf",
+    "bytes": 125449
+  },
+  {
+    "filename": "cb_fsr2025may.pdf",
+    "url": "https://www.tcmb.gov.tr/wps/wcm/connect/72d745d3-f8b1-404d-bc65-04b9469084f3/Tam%2BMetin.pdf?MOD=AJPERES",
+    "retrieved_at_utc": "2026-09-07T17:32:30.872982+00:00",
+    "status": 200,
+    "content_type": "application/pdf",
+    "bytes": 2584407
+  }
+]

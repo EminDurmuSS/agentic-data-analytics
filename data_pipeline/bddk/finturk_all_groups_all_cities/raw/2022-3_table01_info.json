@@ -1,0 +1,61 @@
+{
+  "started_at_utc": "2026-09-07T21:05:02.500157+00:00",
+  "completed_at_utc": "2026-09-07T21:05:03.227618+00:00",
+  "url": "https://www.bddk.org.tr/BultenFinturk/tr/Home/VeriGetir",
+  "final_url": "https://www.bddk.org.tr/BultenFinturk/tr/Home/VeriGetir",
+  "http_status": 200,
+  "content_type": "application/json; charset=utf-8",
+  "bytes": 45284,
+  "sha256": "964869846ca27d4890977d06e01d4cc6eb05c7ec1ece6da9627d54e0bf6c30c5",
+  "error": "",
+  "transport": "curl",
+  "tls_verification": true,
+  "attempt": 1,
+  "status": "validated",
+  "diagnosis": "validated_bddk_finturk_table",
+  "period": "2022-3",
+  "table_no": 1,
+  "table_name": "Krediler",
+  "requested_groups": [
+    10001,
+    10002,
+    10003,
+    10004,
+    10005,
+    10006,
+    10007
+  ],
+  "served_from_cache": false,
+  "compressed_bytes": 13731,
+  "columns": [
+    "EftKodu",
+    "Yil",
+    "Ay",
+    "Sehir",
+    "Grup",
+    "ToplamNakdiKrediler",
+    "NakdiKrediler",
+    "TakiptekiAlacaklar",
+    "GayrinakdiKrediler"
+  ],
+  "column_labels": [
+    "Eftodu",
+    "Yıl",
+    "Ay",
+    "Şehir",
+    "Grup",
+    "Toplam Nakdi Krediler",
+    "Nakdi Krediler",
+    "Takipteki Alacaklar",
+    "Gayrinakdi Krediler"
+  ],
+  "rows": 574,
+  "identity_columns": [
+    "EftKodu",
+    "Yil",
+    "Ay",
+    "Sehir",
+    "Grup"
+  ],
+  "warning": null
+}

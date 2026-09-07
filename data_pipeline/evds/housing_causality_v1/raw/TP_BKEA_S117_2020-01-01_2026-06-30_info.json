@@ -1,0 +1,29 @@
+{
+  "status": "validated",
+  "series_code": "TP.BKEA.S117",
+  "frequency": "ÜÇ AYLIK",
+  "aggregation": "last",
+  "chunk_start": "2020-01-01",
+  "chunk_end": "2026-06-30",
+  "request_file": "raw/TP_BKEA_S117_2020-01-01_2026-06-30_request.json",
+  "request_sha256": "a63713bf1ba853faf4956d8a0d0e3935ca8641e8e41ad9cc1db8e2b8c879e150",
+  "response_file": "raw/TP_BKEA_S117_2020-01-01_2026-06-30_response.json.gz",
+  "response_sha256": "0498d03ce4e26e9b826aaeb4b17de75464ccc7096309294ab95c59eeb3bc9836",
+  "served_from_cache": true,
+  "http_status": 200,
+  "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "content_type": "application/json;charset=UTF-8",
+  "bytes": 4510,
+  "sha256": "0498d03ce4e26e9b826aaeb4b17de75464ccc7096309294ab95c59eeb3bc9836",
+  "transport": "curl",
+  "tls_verification": true,
+  "response_total_count": 26,
+  "retained_rows": 26,
+  "outside_requested_range_rows": 0,
+  "series_names": {
+    "TP_BKEA_S117": "19.1. (Konut Alım Kredileri)_ Gelecek üç ayda, bireysel kredilerin onaylanmasında uygulanan Bankanız kredi standartlarının ne yönde değişeceğini bekliyorsunuz?"
+  },
+  "frequency_conversion": {
+    "TP.BKEA.S117": true
+  }
+}

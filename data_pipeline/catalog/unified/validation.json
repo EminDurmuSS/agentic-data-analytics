@@ -1,0 +1,46 @@
+{
+  "status": "passed",
+  "data_readiness_status": "core_sources_complete",
+  "asset_count": 44,
+  "metric_count": 55457,
+  "queryable_metric_count": 2819,
+  "metadata_only_metric_count": 52638,
+  "metrics_by_source_system": {
+    "BDDK_FINTURK": 76,
+    "BDDK_MONTHLY": 2108,
+    "BDDK_WEEKLY": 517,
+    "TBB_REPORTS": 60,
+    "TCMB_EVDS": 52696
+  },
+  "assets_by_source_system": {
+    "BDDK_FINTURK": 8,
+    "BDDK_MONTHLY": 18,
+    "BDDK_WEEKLY": 2,
+    "CROSS_SOURCE_QUALITY": 1,
+    "OFFICIAL_DOCUMENTS": 1,
+    "TBB_REPORTS": 4,
+    "TCMB_EVDS": 10
+  },
+  "selected_evds_observation_series": 60,
+  "weekly_bddk": {
+    "status": "complete",
+    "completed": 2574,
+    "expected": 2574,
+    "progress_percent": 100.0
+  },
+  "duplicate_asset_ids": 0,
+  "duplicate_metric_ids": 0,
+  "absolute_asset_paths": 0,
+  "missing_asset_files": [],
+  "missing_required_datasets": [],
+  "known_source_gaps": [
+    "TBB 2026-06 consumer credit report is not published in the source snapshot."
+  ],
+  "quality_policy": [
+    "Metadata-only series are never presented as locally available observations.",
+    "Stock, flow, ratio, count and survey semantics remain separate.",
+    "Resampling requires an explicit metric policy; unsafe generic aggregation is not assigned.",
+    "All local paths are repository-relative.",
+    "Known source gaps remain explicit and are not imputed."
+  ]
+}

@@ -1,0 +1,52 @@
+{
+  "endpoint": "https://www.bddk.org.tr/BultenFinturk/tr/Home/VeriGetir",
+  "start": "2021-3",
+  "end": "2026-6",
+  "periods": [
+    "2021-3",
+    "2021-6",
+    "2021-9",
+    "2021-12",
+    "2022-3",
+    "2022-6",
+    "2022-9",
+    "2022-12",
+    "2023-3",
+    "2023-6",
+    "2023-9",
+    "2023-12",
+    "2024-3",
+    "2024-6",
+    "2024-9",
+    "2024-12",
+    "2025-3",
+    "2025-6",
+    "2025-9",
+    "2025-12",
+    "2026-3",
+    "2026-6"
+  ],
+  "tables": {
+    "1": "Krediler",
+    "2": "Mevduat",
+    "3": "Bireysel Bankacilik",
+    "4": "Secilmis Sektorel Krediler",
+    "5": "Oranlar",
+    "6": "Subeler ve Nufusa Gore Dagilim",
+    "7": "Altin Kredileri ve Altin Mevduati"
+  },
+  "groups": {
+    "10001": "SEKTOR",
+    "10002": "MEVDUAT",
+    "10003": "KALKINMA VE YATIRIM",
+    "10004": "KATILIM",
+    "10005": "YABANCI",
+    "10006": "KAMU",
+    "10007": "YERLI OZEL"
+  },
+  "cities": "HEPSI, meaning every province and YURT DISI in the public UI",
+  "native_frequency": "quarterly",
+  "raw_format": "gzip-compressed source JSON",
+  "transport": "curl",
+  "tls_verification": true
+}

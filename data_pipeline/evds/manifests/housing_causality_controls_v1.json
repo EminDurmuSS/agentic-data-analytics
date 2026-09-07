@@ -1,0 +1,63 @@
+{
+  "dataset_id": "housing_credit_causality_controls_v1",
+  "description": "Konut kredisi analizinde politika, reel faaliyet, tamamlanan konut arzi ve alternatif yatirim kanallarini kontrol etmek icin dar EVDS ek paketi.",
+  "start_date": "2020-01-01",
+  "end_date": "2026-06-30",
+  "series": [
+    {
+      "series_code": "TP.BISPOLFAIZ.TUR",
+      "role": "policy_rate_actual",
+      "reason": "Turkiye gerceklesen merkez bankasi politika faizi"
+    },
+    {
+      "series_code": "TP.BISPOLFAIZ.USA",
+      "role": "global_policy_rate",
+      "reason": "ABD politika faizi ile dis finansal kosullari kontrol etmek"
+    },
+    {
+      "series_code": "TP.BISPOLFAIZ.XM",
+      "role": "global_policy_rate",
+      "reason": "Euro Bolgesi politika faizi ile dis finansal kosullari kontrol etmek"
+    },
+    {
+      "series_code": "TP.IN.KL2.TOPLAM.TOP.D",
+      "role": "housing_completion",
+      "reason": "Yapi kullanma izin belgesi alan toplam daire sayisi"
+    },
+    {
+      "series_code": "TP.GSYIH60.HY.B1GQ",
+      "role": "activity_control",
+      "reason": "Mevsim etkisinden arindirilmis reel GSYIH"
+    },
+    {
+      "series_code": "TP.GSYIH60.HY.P311",
+      "role": "consumption_control",
+      "reason": "Mevsim etkisinden arindirilmis reel hanehalki tuketimi"
+    },
+    {
+      "series_code": "TP.MK.KUL.YTL",
+      "role": "alternative_asset",
+      "reason": "Konut ve mevduata alternatif yatirim kanali olarak TL gram altin fiyati"
+    },
+    {
+      "series_code": "TP.BK.TR",
+      "role": "housing_rent_level",
+      "reason": "Turkiye konut birim kirasi"
+    },
+    {
+      "series_code": "TP.BK.ISTANBUL",
+      "role": "housing_rent_level",
+      "reason": "Istanbul konut birim kirasi"
+    },
+    {
+      "series_code": "TP.BK.ANKARA",
+      "role": "housing_rent_level",
+      "reason": "Ankara konut birim kirasi"
+    },
+    {
+      "series_code": "TP.BK.IZMIR",
+      "role": "housing_rent_level",
+      "reason": "Izmir konut birim kirasi"
+    }
+  ]
+}

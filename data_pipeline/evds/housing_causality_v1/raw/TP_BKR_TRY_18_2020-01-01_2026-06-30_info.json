@@ -1,0 +1,29 @@
+{
+  "status": "validated",
+  "series_code": "TP.BKR.TRY.18",
+  "frequency": "AYLIK",
+  "aggregation": "avg",
+  "chunk_start": "2020-01-01",
+  "chunk_end": "2026-06-30",
+  "request_file": "raw/TP_BKR_TRY_18_2020-01-01_2026-06-30_request.json",
+  "request_sha256": "f6d9d53889a92aa2409a3fd6588ab7f17883ddc28a416e1c66bd599221a4426a",
+  "response_file": "raw/TP_BKR_TRY_18_2020-01-01_2026-06-30_response.json.gz",
+  "response_sha256": "6b2118163e2496c6c05cb25e12aeeaa5a32072ee555533d768f1fb856e9650a3",
+  "served_from_cache": true,
+  "http_status": 200,
+  "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "content_type": "application/json;charset=UTF-8",
+  "bytes": 11979,
+  "sha256": "6b2118163e2496c6c05cb25e12aeeaa5a32072ee555533d768f1fb856e9650a3",
+  "transport": "curl",
+  "tls_verification": true,
+  "response_total_count": 78,
+  "retained_rows": 78,
+  "outside_requested_range_rows": 0,
+  "series_names": {
+    "TP_BKR_TRY_18": "Konut Kredisi (TL, Stok, %)"
+  },
+  "frequency_conversion": {
+    "TP.BKR.TRY.18": true
+  }
+}

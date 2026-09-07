@@ -1,0 +1,43 @@
+{
+  "status": "passed_with_source_gaps",
+  "expected_periods": 22,
+  "parsed_workbooks": 21,
+  "parsed_periods": [
+    "2021-03",
+    "2021-06",
+    "2021-09",
+    "2021-12",
+    "2022-03",
+    "2022-06",
+    "2022-09",
+    "2022-12",
+    "2023-03",
+    "2023-06",
+    "2023-09",
+    "2023-12",
+    "2024-03",
+    "2024-06",
+    "2024-09",
+    "2024-12",
+    "2025-03",
+    "2025-06",
+    "2025-09",
+    "2025-12",
+    "2026-03"
+  ],
+  "source_gap_periods": [
+    "2026-06"
+  ],
+  "derived_metric_rows": 252,
+  "housing_quarter_rows": 21,
+  "reporting_bank_rows": 679,
+  "preserved_nonempty_workbook_cells": 43373,
+  "duplicate_metric_keys": 0,
+  "quality_policy": [
+    "Quarterly disbursement flow and end-period balance are separate measures.",
+    "Only the target quarter from each source workbook is used in the derived table.",
+    "Product totals and TP plus YP currency totals are validated.",
+    "Every non-empty workbook cell is preserved in a lossless long-form table.",
+    "Missing source publications are recorded and are not imputed."
+  ]
+}

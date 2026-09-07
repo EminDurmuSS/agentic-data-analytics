@@ -1,0 +1,29 @@
+{
+  "status": "validated",
+  "series_code": "TP.AKONUTSAT4.KTRTOPLAM",
+  "frequency": "AYLIK",
+  "aggregation": "sum",
+  "chunk_start": "2020-01-01",
+  "chunk_end": "2026-06-30",
+  "request_file": "raw/TP_AKONUTSAT4_KTRTOPLAM_2020-01-01_2026-06-30_request.json",
+  "request_sha256": "01b77c3c71600e7c1eff634f2b03a93a6e767bfa5ab45dcb22c08328e8f8a548",
+  "response_file": "raw/TP_AKONUTSAT4_KTRTOPLAM_2020-01-01_2026-06-30_response.json.gz",
+  "response_sha256": "839c4c5ecb6691c937f90f170c0fbc314d5acaa9d3e630d7ebf8a950cac5e914",
+  "served_from_cache": true,
+  "http_status": 200,
+  "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "content_type": "application/json;charset=UTF-8",
+  "bytes": 13315,
+  "sha256": "839c4c5ecb6691c937f90f170c0fbc314d5acaa9d3e630d7ebf8a950cac5e914",
+  "transport": "curl",
+  "tls_verification": true,
+  "response_total_count": 78,
+  "retained_rows": 78,
+  "outside_requested_range_rows": 0,
+  "series_names": {
+    "TP_AKONUTSAT4_KTRTOPLAM": "Türkiye_Konut_İkinci El Satışlar"
+  },
+  "frequency_conversion": {
+    "TP.AKONUTSAT4.KTRTOPLAM": true
+  }
+}

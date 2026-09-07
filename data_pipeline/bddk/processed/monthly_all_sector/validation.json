@@ -1,0 +1,307 @@
+{
+  "status": "passed",
+  "source_download_status": "complete",
+  "period_count": 66,
+  "table_count": 17,
+  "group_count": 1,
+  "source_file_count": 1122,
+  "total_rows": 33965,
+  "tables": {
+    "1": {
+      "table_name": "Bilanco",
+      "rows": 4092,
+      "periods": 66,
+      "groups": [
+        10001
+      ],
+      "min_rows_per_source_table": 62,
+      "max_rows_per_source_table": 62,
+      "source_units": [
+        "milyon TL"
+      ],
+      "schema_version_count": 1,
+      "schema_sha256_values": [
+        "ec8a7d104628cb1c34102e16420fc2f3afbace3962f84e472060465f6252d85a"
+      ]
+    },
+    "2": {
+      "table_name": "Kar Zarar",
+      "rows": 3498,
+      "periods": 66,
+      "groups": [
+        10001
+      ],
+      "min_rows_per_source_table": 53,
+      "max_rows_per_source_table": 53,
+      "source_units": [
+        "milyon TL"
+      ],
+      "schema_version_count": 1,
+      "schema_sha256_values": [
+        "ec8a7d104628cb1c34102e16420fc2f3afbace3962f84e472060465f6252d85a"
+      ]
+    },
+    "3": {
+      "table_name": "Krediler",
+      "rows": 1296,
+      "periods": 66,
+      "groups": [
+        10001
+      ],
+      "min_rows_per_source_table": 18,
+      "max_rows_per_source_table": 20,
+      "source_units": [
+        "milyon TL"
+      ],
+      "schema_version_count": 1,
+      "schema_sha256_values": [
+        "92ad04a67e7977aaa4fcbb5c5ed2c54b8c682fc53a673740c8bb48d0a2316eb0"
+      ]
+    },
+    "4": {
+      "table_name": "Tuketici Kredileri",
+      "rows": 2706,
+      "periods": 66,
+      "groups": [
+        10001
+      ],
+      "min_rows_per_source_table": 41,
+      "max_rows_per_source_table": 41,
+      "source_units": [
+        "milyon TL"
+      ],
+      "schema_version_count": 1,
+      "schema_sha256_values": [
+        "ec8a7d104628cb1c34102e16420fc2f3afbace3962f84e472060465f6252d85a"
+      ]
+    },
+    "5": {
+      "table_name": "Sektorel Kredi Dagilimi",
+      "rows": 4620,
+      "periods": 66,
+      "groups": [
+        10001
+      ],
+      "min_rows_per_source_table": 70,
+      "max_rows_per_source_table": 70,
+      "source_units": [
+        "bin TL"
+      ],
+      "schema_version_count": 1,
+      "schema_sha256_values": [
+        "24207d654abad992654215f9b76cd14ccb1bdd389ed51f0e999649a2c5749910"
+      ]
+    },
+    "6": {
+      "table_name": "KOBI Kredileri",
+      "rows": 528,
+      "periods": 66,
+      "groups": [
+        10001
+      ],
+      "min_rows_per_source_table": 8,
+      "max_rows_per_source_table": 8,
+      "source_units": [
+        "milyon TL"
+      ],
+      "schema_version_count": 1,
+      "schema_sha256_values": [
+        "cf6b5200e4ba592e0ae5685aa6835a3188e9e556c90247403733c856ce4f7c45"
+      ]
+    },
+    "7": {
+      "table_name": "Sendikasyon Sekuritizasyon Kredileri",
+      "rows": 198,
+      "periods": 66,
+      "groups": [
+        10001
+      ],
+      "min_rows_per_source_table": 3,
+      "max_rows_per_source_table": 3,
+      "source_units": [
+        "milyon TL"
+      ],
+      "schema_version_count": 1,
+      "schema_sha256_values": [
+        "ec8a7d104628cb1c34102e16420fc2f3afbace3962f84e472060465f6252d85a"
+      ]
+    },
+    "8": {
+      "table_name": "Menkul Kiymetler",
+      "rows": 1874,
+      "periods": 66,
+      "groups": [
+        10001
+      ],
+      "min_rows_per_source_table": 27,
+      "max_rows_per_source_table": 29,
+      "source_units": [
+        "milyon TL"
+      ],
+      "schema_version_count": 1,
+      "schema_sha256_values": [
+        "ec8a7d104628cb1c34102e16420fc2f3afbace3962f84e472060465f6252d85a"
+      ]
+    },
+    "9": {
+      "table_name": "Mevduat Turler Itibariyla",
+      "rows": 1716,
+      "periods": 66,
+      "groups": [
+        10001
+      ],
+      "min_rows_per_source_table": 26,
+      "max_rows_per_source_table": 26,
+      "source_units": [
+        "milyon TL"
+      ],
+      "schema_version_count": 1,
+      "schema_sha256_values": [
+        "20a68dc8d03881ea296d2a048482ab11043fb1225e830a5838745447bc1798f8"
+      ]
+    },
+    "10": {
+      "table_name": "Mevduat Vade Itibariyla",
+      "rows": 1584,
+      "periods": 66,
+      "groups": [
+        10001
+      ],
+      "min_rows_per_source_table": 24,
+      "max_rows_per_source_table": 24,
+      "source_units": [
+        "milyon TL"
+      ],
+      "schema_version_count": 1,
+      "schema_sha256_values": [
+        "2a5829ba80a2673a4659297a253d989f9278b7c0387728601cb4a4e667cd7961"
+      ]
+    },
+    "11": {
+      "table_name": "Likidite Durumu",
+      "rows": 2904,
+      "periods": 66,
+      "groups": [
+        10001
+      ],
+      "min_rows_per_source_table": 44,
+      "max_rows_per_source_table": 44,
+      "source_units": [
+        "milyon TL"
+      ],
+      "schema_version_count": 1,
+      "schema_sha256_values": [
+        "55a86230b02c5065811d7b537e6bed0af1cab48fc05cd8e92a3165c6a95cf902"
+      ]
+    },
+    "12": {
+      "table_name": "Sermaye Yeterliligi",
+      "rows": 2019,
+      "periods": 66,
+      "groups": [
+        10001
+      ],
+      "min_rows_per_source_table": 28,
+      "max_rows_per_source_table": 31,
+      "source_units": [
+        "milyon TL"
+      ],
+      "schema_version_count": 1,
+      "schema_sha256_values": [
+        "f3302e58e63ba3698a0099a7c037393b519ff7ac4171c6ca50e2d478fcbec607"
+      ]
+    },
+    "13": {
+      "table_name": "Yabanci Para Pozisyonu",
+      "rows": 726,
+      "periods": 66,
+      "groups": [
+        10001
+      ],
+      "min_rows_per_source_table": 11,
+      "max_rows_per_source_table": 11,
+      "source_units": [
+        "milyon TL"
+      ],
+      "schema_version_count": 1,
+      "schema_sha256_values": [
+        "f3302e58e63ba3698a0099a7c037393b519ff7ac4171c6ca50e2d478fcbec607"
+      ]
+    },
+    "14": {
+      "table_name": "Bilanco Disi Islemler",
+      "rows": 3432,
+      "periods": 66,
+      "groups": [
+        10001
+      ],
+      "min_rows_per_source_table": 52,
+      "max_rows_per_source_table": 52,
+      "source_units": [
+        "milyon TL"
+      ],
+      "schema_version_count": 1,
+      "schema_sha256_values": [
+        "ec8a7d104628cb1c34102e16420fc2f3afbace3962f84e472060465f6252d85a"
+      ]
+    },
+    "15": {
+      "table_name": "Rasyolar",
+      "rows": 2112,
+      "periods": 66,
+      "groups": [
+        10001
+      ],
+      "min_rows_per_source_table": 32,
+      "max_rows_per_source_table": 32,
+      "source_units": [
+        null
+      ],
+      "schema_version_count": 1,
+      "schema_sha256_values": [
+        "fbfd9490c85b849c51b5367dc4e2acc98b8e2b5728dc71f431d70db3b32effb4"
+      ]
+    },
+    "16": {
+      "table_name": "Diger Bilgiler",
+      "rows": 462,
+      "periods": 66,
+      "groups": [
+        10001
+      ],
+      "min_rows_per_source_table": 7,
+      "max_rows_per_source_table": 7,
+      "source_units": [
+        null
+      ],
+      "schema_version_count": 1,
+      "schema_sha256_values": [
+        "d14ec9f7b01d1675b890be7793e7c632e3438bcd63b936ae88520a74ee6ec08b"
+      ]
+    },
+    "17": {
+      "table_name": "Yurt Disi Sube Rasyolari",
+      "rows": 198,
+      "periods": 66,
+      "groups": [
+        10001
+      ],
+      "min_rows_per_source_table": 3,
+      "max_rows_per_source_table": 3,
+      "source_units": [
+        null
+      ],
+      "schema_version_count": 1,
+      "schema_sha256_values": [
+        "fbfd9490c85b849c51b5367dc4e2acc98b8e2b5728dc71f431d70db3b32effb4"
+      ]
+    }
+  },
+  "quality_policy": [
+    "Changing row counts and schemas are reported, not silently coerced.",
+    "BasitSira is treated as display order, not as a globally unique key.",
+    "Tables without a period in the source caption are validated against the signed request-info record.",
+    "No missing values are imputed.",
+    "Each output row retains source file, source hash, caption and unit."
+  ]
+}

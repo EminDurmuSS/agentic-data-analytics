@@ -1,0 +1,61 @@
+{
+  "started_at_utc": "2026-09-07T21:05:23.518746+00:00",
+  "completed_at_utc": "2026-09-07T21:05:23.795676+00:00",
+  "url": "https://www.bddk.org.tr/BultenFinturk/tr/Home/VeriGetir",
+  "final_url": "https://www.bddk.org.tr/BultenFinturk/tr/Home/VeriGetir",
+  "http_status": 200,
+  "content_type": "application/json; charset=utf-8",
+  "bytes": 35673,
+  "sha256": "50c9887d8ca97a7aaba9457b840e3a058fa36ddb7e30b2d5d409fd3d5b85d87f",
+  "error": "",
+  "transport": "curl",
+  "tls_verification": true,
+  "attempt": 1,
+  "status": "validated",
+  "diagnosis": "validated_bddk_finturk_table",
+  "period": "2022-9",
+  "table_no": 7,
+  "table_name": "Altin Kredileri ve Altin Mevduati",
+  "requested_groups": [
+    10001,
+    10002,
+    10003,
+    10004,
+    10005,
+    10006,
+    10007
+  ],
+  "served_from_cache": false,
+  "compressed_bytes": 10159,
+  "columns": [
+    "EftKodu",
+    "Yil",
+    "Ay",
+    "Sehir",
+    "Grup",
+    "AltinKredi",
+    "AltinDepoGercek",
+    "AltinDepoTuzel",
+    "AltinDepoToplam"
+  ],
+  "column_labels": [
+    "Eftodu",
+    "Yıl",
+    "Ay",
+    "Şehir",
+    "Grup",
+    "Altın Kredileri",
+    "Altın Mevduatı-Gerçek Kişi",
+    "Altın Mevduatı-Tüzel Kişi",
+    "Toplam Altın Mevduatı"
+  ],
+  "rows": 492,
+  "identity_columns": [
+    "EftKodu",
+    "Yil",
+    "Ay",
+    "Sehir",
+    "Grup"
+  ],
+  "warning": null
+}

@@ -1,0 +1,66 @@
+[
+  {
+    "file": "bddk_10249.pdf",
+    "bytes": 292201,
+    "sha256": "260dc5cf76585c7951acacafb1567a0e8a674354f69b90bd7f5fd79356b5c8d2",
+    "page_count": 2,
+    "extracted_text_file": "bddk_10249.txt",
+    "extracted_text_sha256": "30ca2566b4d3c957512517fda226653c76ddabc2d14f5a045ce22889c4b42e05"
+  },
+  {
+    "file": "bddk_10525.pdf",
+    "bytes": 569144,
+    "sha256": "576428218ff01cbd7528f26258654ac191f40ebf1c9f219ab981745e639f022e",
+    "page_count": 2,
+    "extracted_text_file": "bddk_10525.txt",
+    "extracted_text_sha256": "94e7599f8d1a1d82592c4c90b66972bb9679aec841d2da0f2729843522089504"
+  },
+  {
+    "file": "bddk_10656.pdf",
+    "bytes": 212223,
+    "sha256": "02459477c68c45f275c6740c41039e9b106443384a57318ef56735227fa163ec",
+    "page_count": 1,
+    "extracted_text_file": "bddk_10656.txt",
+    "extracted_text_sha256": "2f23e550ca8c0c227ac24afe19625e2f0be457f9d553ea72cc11717838d129e8"
+  },
+  {
+    "file": "bddk_11364.pdf",
+    "bytes": 138980,
+    "sha256": "785d8b3b499f54a059930d031dcc7a598b6d2234f0871025d4176e4946802543",
+    "page_count": 1,
+    "extracted_text_file": "bddk_11364.txt",
+    "extracted_text_sha256": "f7a9c0c3afdfc6db5a2e26508de39a9350b581bba6c8fa93994bf80be6565331"
+  },
+  {
+    "file": "cb_fsr2025may.pdf",
+    "bytes": 2584407,
+    "sha256": "de9bcced0c4dd954705fbc117fcaa25117df3d363996ca52b20d0789a4ca976e",
+    "page_count": 85,
+    "extracted_text_file": "cb_fsr2025may.txt",
+    "extracted_text_sha256": "380c32d55d6e9aac8d34ba890e1c253bf45e46ed0dbcce347d571e570ee81feb"
+  },
+  {
+    "file": "cb_ir2022iii.pdf",
+    "bytes": 2437456,
+    "sha256": "f080d3a3e07c3b2532f72a66065ed093f4ef2da06d63aaa20699b01f4e37cd88",
+    "page_count": 71,
+    "extracted_text_file": "cb_ir2022iii.txt",
+    "extracted_text_sha256": "cc8f9ddc4c9793d935b41e43967c658438de5f251379c373e5f291f9271f6a35"
+  },
+  {
+    "file": "cb_ir2024i_box2_4.pdf",
+    "bytes": 125449,
+    "sha256": "d1ad02c29d4f02a7d659f43713019c4d3804483714d7c76d8673486efad05656",
+    "page_count": 5,
+    "extracted_text_file": "cb_ir2024i_box2_4.txt",
+    "extracted_text_sha256": "9ea0f37b73ec5083fe5a010888fc82627e1f787780152ab40aa6f9f023b22110"
+  },
+  {
+    "file": "kfe_method_change.pdf",
+    "bytes": 281528,
+    "sha256": "b9cd3f9141bc67b9c34f0874e34c0acbe665c29e7e27ac94857799a66df41b2d",
+    "page_count": 6,
+    "extracted_text_file": "kfe_method_change.txt",
+    "extracted_text_sha256": "d13e0cca392eb83b1a7fa08b0de7d5b445cb211c8c6650d40970f63e4da869ca"
+  }
+]

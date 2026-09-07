@@ -1,0 +1,32 @@
+{
+  "status": "validated",
+  "series_code": "TP.ALTINPIYASA.KAP05",
+  "frequency": "İŞ GÜNÜ",
+  "aggregation": "last",
+  "chunk_start": "2021-01-01",
+  "chunk_end": "2021-12-31",
+  "request_file": "raw/TP_ALTINPIYASA_KAP05_2021-01-01_2021-12-31_request.json",
+  "request_sha256": "d9d5a629f64fb57b2bdfa8af3e6be470908c5ac33436e0076a53ea7ef58b3307",
+  "response_file": "raw/TP_ALTINPIYASA_KAP05_2021-01-01_2021-12-31_response.json.gz",
+  "response_sha256": "e69b7aa54fc893ee8dd8c619b3f3ff7e77c6d6443d694192801bc52b6ba43b7d",
+  "served_from_cache": false,
+  "http_status": 200,
+  "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "content_type": "application/json;charset=UTF-8",
+  "url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "started_at_utc": "2026-09-07T21:51:49.953795+00:00",
+  "completed_at_utc": "2026-09-07T21:51:50.579683+00:00",
+  "bytes": 40150,
+  "sha256": "e69b7aa54fc893ee8dd8c619b3f3ff7e77c6d6443d694192801bc52b6ba43b7d",
+  "transport": "curl",
+  "tls_verification": true,
+  "response_total_count": 261,
+  "retained_rows": 261,
+  "outside_requested_range_rows": 0,
+  "series_names": {
+    "TP_ALTINPIYASA_KAP05": "Altın - Kapanış Fiyatı  - TL/gr"
+  },
+  "frequency_conversion": {
+    "TP.ALTINPIYASA.KAP05": true
+  }
+}

@@ -1,0 +1,32 @@
+{
+  "status": "validated",
+  "series_code": "TP.BK.IZMIR",
+  "frequency": "ÜÇ AYLIK",
+  "aggregation": "avg",
+  "chunk_start": "2020-01-01",
+  "chunk_end": "2026-06-30",
+  "request_file": "raw/TP_BK_IZMIR_2020-01-01_2026-06-30_request.json",
+  "request_sha256": "f52c69a8d2742c4e5d0c41bb7f65ebdbe7594e50fc46f83b038fb26d9d21f787",
+  "response_file": "raw/TP_BK_IZMIR_2020-01-01_2026-06-30_response.json.gz",
+  "response_sha256": "ed698e2787e8f82a5176c8c9e12d2c8b39bc6ce304cde916562eec3367e2f590",
+  "served_from_cache": false,
+  "http_status": 200,
+  "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "content_type": "application/json;charset=UTF-8",
+  "url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "started_at_utc": "2026-09-07T21:47:13.263204+00:00",
+  "completed_at_utc": "2026-09-07T21:47:13.532437+00:00",
+  "bytes": 4251,
+  "sha256": "ed698e2787e8f82a5176c8c9e12d2c8b39bc6ce304cde916562eec3367e2f590",
+  "transport": "curl",
+  "tls_verification": true,
+  "response_total_count": 26,
+  "retained_rows": 26,
+  "outside_requested_range_rows": 0,
+  "series_names": {
+    "TP_BK_IZMIR": "İzmir Konut Birim Kiraları"
+  },
+  "frequency_conversion": {
+    "TP.BK.IZMIR": true
+  }
+}

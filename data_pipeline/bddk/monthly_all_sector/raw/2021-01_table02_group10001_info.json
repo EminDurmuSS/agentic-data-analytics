@@ -1,0 +1,44 @@
+{
+  "started_at_utc": "2026-09-07T20:38:36.285115+00:00",
+  "completed_at_utc": "2026-09-07T20:38:36.511895+00:00",
+  "url": "https://www.bddk.org.tr/BultenAylik/tr/Home/BasitRaporGetir",
+  "final_url": "https://www.bddk.org.tr/BultenAylik/tr/Home/BasitRaporGetir",
+  "method": "POST",
+  "transport": "curl",
+  "http_status": 200,
+  "content_type": "application/json; charset=utf-8",
+  "sha256": "e1543a827dc412bfcb61a7493038d9b80098c8da158bccc8b1e17275f94cdf18",
+  "bytes": 6272,
+  "error": "",
+  "diagnosis": "validated_bddk_table",
+  "tls_verification": true,
+  "period": "2021-01",
+  "table_no": 2,
+  "group_code": 10001,
+  "form": [
+    [
+      "tabloNo",
+      "2"
+    ],
+    [
+      "yil",
+      "2021"
+    ],
+    [
+      "ay",
+      "1"
+    ],
+    [
+      "paraBirimi",
+      "TL"
+    ],
+    [
+      "taraf",
+      "10001"
+    ]
+  ],
+  "status": "validated",
+  "rows": 53,
+  "served_from_cache": true,
+  "duplicate_display_orders": []
+}

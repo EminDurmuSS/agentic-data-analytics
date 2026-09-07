@@ -1,0 +1,31 @@
+{
+  "status": "validated",
+  "diagnosis": "validated_bddk_weekly_html_table",
+  "source_url": "https://www.bddk.org.tr/BultenHaftalik/",
+  "sha256_uncompressed": "e48c5962fb0a1db3b1709651acc23c2c5255aa3b8a834b9ef8e48f39643da266",
+  "compressed_bytes": 15140,
+  "uncompressed_bytes": 196850,
+  "served_from_cache": false,
+  "completed_at_utc": "2026-09-07T21:45:43.770679+00:00",
+  "table_id": 293,
+  "table_name": "Diger Bilanco Kalemleri",
+  "group_code": 10001,
+  "group_name": "Sektor",
+  "period_id": 621,
+  "observation_date": "2025-11-21",
+  "week_number": 47,
+  "source_period_label": "Kasım/21 (47. Hafta)",
+  "source_date_heading": "Tarih: 21 Kasım 2025 Cuma | Birim: Milyon TL",
+  "source_date_parsed": "2025-11-21",
+  "headers": [
+    "",
+    "Diğer Bilanço Kalemleri",
+    "TP",
+    "YP",
+    "TOPLAM"
+  ],
+  "rows": 16,
+  "max_cells_per_row": 5,
+  "unit_heading": "Milyon TL",
+  "date_heading_normalized": "tarih: 21 kasim 2025 cuma | birim: milyon tl"
+}

@@ -1,0 +1,32 @@
+{
+  "status": "validated",
+  "series_code": "TP.IN.KL2.TOPLAM.TOP.D",
+  "frequency": "AYLIK",
+  "aggregation": "sum",
+  "chunk_start": "2020-01-01",
+  "chunk_end": "2026-06-30",
+  "request_file": "raw/TP_IN_KL2_TOPLAM_TOP_D_2020-01-01_2026-06-30_request.json",
+  "request_sha256": "608f02776bb6ec22e46680c53d6dca89428b1e31cf2eae18175aaf16e825fdea",
+  "response_file": "raw/TP_IN_KL2_TOPLAM_TOP_D_2020-01-01_2026-06-30_response.json.gz",
+  "response_sha256": "f747c9df2ba39808f82a5ec45b839dabd3d83f7788c16548099126e03b3c54b6",
+  "served_from_cache": false,
+  "http_status": 200,
+  "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "content_type": "application/json;charset=UTF-8",
+  "url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "started_at_utc": "2026-09-07T21:47:06.741612+00:00",
+  "completed_at_utc": "2026-09-07T21:47:07.711932+00:00",
+  "bytes": 13196,
+  "sha256": "f747c9df2ba39808f82a5ec45b839dabd3d83f7788c16548099126e03b3c54b6",
+  "transport": "curl",
+  "tls_verification": true,
+  "response_total_count": 78,
+  "retained_rows": 78,
+  "outside_requested_range_rows": 0,
+  "series_names": {
+    "TP_IN_KL2_TOPLAM_TOP_D": "(Toplam) Binalar (Daire Sayısı)"
+  },
+  "frequency_conversion": {
+    "TP.IN.KL2.TOPLAM.TOP.D": true
+  }
+}

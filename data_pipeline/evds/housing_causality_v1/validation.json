@@ -1,0 +1,28 @@
+{
+  "status": "passed",
+  "dataset_id": "housing_credit_causality_v1",
+  "series_count": 47,
+  "request_count": 71,
+  "observation_count": 6852,
+  "non_null_observation_count": 5903,
+  "missing_observation_count": 949,
+  "first_period_start": "2020-01-01",
+  "last_period_end": "2026-06-30",
+  "frequency_counts": {
+    "ÜÇ AYLIK": 24,
+    "AYLIK": 19,
+    "HAFTALIK(CUMA)": 2,
+    "İŞ GÜNÜ": 1,
+    "GÜNLÜK": 1
+  },
+  "series_with_no_observations": [],
+  "series_with_no_non_null_observations": [],
+  "quality_policy": [
+    "Series must exist uniquely in the downloaded EVDS metadata catalog.",
+    "High-frequency series are requested in annual chunks to avoid silent row limits.",
+    "Response totalCount must equal the returned item count for every request.",
+    "Observations outside the requested interval are filtered locally and reported.",
+    "Null source observations remain null and are never converted to zero.",
+    "Every observation retains request and response files with SHA-256 hashes."
+  ]
+}

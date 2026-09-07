@@ -1,0 +1,29 @@
+{
+  "status": "validated",
+  "series_code": "TP.TRY.MT06",
+  "frequency": "HAFTALIK(CUMA)",
+  "aggregation": "avg",
+  "chunk_start": "2020-01-01",
+  "chunk_end": "2020-12-31",
+  "request_file": "raw/TP_TRY_MT06_2020-01-01_2020-12-31_request.json",
+  "request_sha256": "afd87f1942b34d8c7ed0bf4465c8f7aa9000b7a5068cdda765c3a977b07c44c1",
+  "response_file": "raw/TP_TRY_MT06_2020-01-01_2020-12-31_response.json.gz",
+  "response_sha256": "fb3235bc0cd98010fa8e410d4e149b5719a09c52b6c7310d436234231e30b932",
+  "served_from_cache": true,
+  "http_status": 200,
+  "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "content_type": "application/json;charset=UTF-8",
+  "bytes": 9788,
+  "sha256": "fb3235bc0cd98010fa8e410d4e149b5719a09c52b6c7310d436234231e30b932",
+  "transport": "curl",
+  "tls_verification": true,
+  "response_total_count": 53,
+  "retained_rows": 52,
+  "outside_requested_range_rows": 1,
+  "series_names": {
+    "TP_TRY_MT06": "Toplam (TL Mevduat, Akım, %)"
+  },
+  "frequency_conversion": {
+    "TP.TRY.MT06": true
+  }
+}

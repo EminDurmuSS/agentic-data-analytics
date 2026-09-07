@@ -1,0 +1,29 @@
+{
+  "status": "validated",
+  "series_code": "TP.PKAUO.S01.E.U",
+  "frequency": "AYLIK",
+  "aggregation": "last",
+  "chunk_start": "2020-01-01",
+  "chunk_end": "2026-06-30",
+  "request_file": "raw/TP_PKAUO_S01_E_U_2020-01-01_2026-06-30_request.json",
+  "request_sha256": "c777c3c5cce72fe0859a06a504d5d940bc7d2b72956be228b512d0bc0d8c496e",
+  "response_file": "raw/TP_PKAUO_S01_E_U_2020-01-01_2026-06-30_response.json.gz",
+  "response_sha256": "3940dcca28e09b9523aca8274a8fa14f65536e51e34f463baca3fe8217b5b1b1",
+  "served_from_cache": true,
+  "http_status": 200,
+  "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "content_type": "application/json;charset=UTF-8",
+  "bytes": 12268,
+  "sha256": "3940dcca28e09b9523aca8274a8fa14f65536e51e34f463baca3fe8217b5b1b1",
+  "transport": "curl",
+  "tls_verification": true,
+  "response_total_count": 78,
+  "retained_rows": 78,
+  "outside_requested_range_rows": 0,
+  "series_names": {
+    "TP_PKAUO_S01_E_U": "12 Ay Sonrasının Yıllık TÜFE Beklentisi (% Değişim)"
+  },
+  "frequency_conversion": {
+    "TP.PKAUO.S01.E.U": true
+  }
+}

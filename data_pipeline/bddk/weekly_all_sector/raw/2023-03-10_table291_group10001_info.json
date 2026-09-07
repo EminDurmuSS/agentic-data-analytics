@@ -1,0 +1,31 @@
+{
+  "status": "validated",
+  "diagnosis": "validated_bddk_weekly_html_table",
+  "source_url": "https://www.bddk.org.tr/BultenHaftalik/",
+  "sha256_uncompressed": "0eee16d61efcde2c44fc20cacd7be6b7bd37eac73604a3be332f0fbf10b4a1cc",
+  "compressed_bytes": 14801,
+  "uncompressed_bytes": 193931,
+  "served_from_cache": true,
+  "completed_at_utc": "2026-09-07T21:42:01.624193+00:00",
+  "table_id": 291,
+  "table_name": "Menkul Degerler",
+  "group_code": 10001,
+  "group_name": "Sektor",
+  "period_id": 480,
+  "observation_date": "2023-03-10",
+  "week_number": 10,
+  "source_period_label": "Mart/10 (10. Hafta)",
+  "source_date_heading": "Tarih: 10 Mart 2023 Cuma | Birim: Milyon TL",
+  "source_date_parsed": "2023-03-10",
+  "headers": [
+    "",
+    "Menkul Değerler",
+    "TP",
+    "YP",
+    "TOPLAM"
+  ],
+  "rows": 13,
+  "max_cells_per_row": 5,
+  "unit_heading": "Milyon TL",
+  "date_heading_normalized": "tarih: 10 mart 2023 cuma | birim: milyon tl"
+}

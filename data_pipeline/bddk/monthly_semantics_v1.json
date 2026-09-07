@@ -1,0 +1,38 @@
+{
+  "policy_id": "bddk_monthly_semantics_v1",
+  "description": "BDDK aylık sektör tablolarını stok, kümülatif akım, oran ve adet olarak güvenli biçimde sınıflandıran dönüşüm politikası.",
+  "scope": {
+    "start": "2021-01",
+    "end": "2026-06",
+    "group_code": 10001
+  },
+  "evidence_policy": {
+    "source_values_are_preserved": true,
+    "table_2_semantics": "high_confidence_inference",
+    "table_2_basis": [
+      "Kaynak tablo Kar Zarar gelir tablosudur.",
+      "Kalemler yıl içinde birikmekte ve her ocak ayında yeni yıllık dönem için yeniden başlamaktadır.",
+      "İndirilen kaynak metadata alanında kümülatif etiketi bulunmadığı için çıkarım açıkça işaretlenir."
+    ],
+    "unsafe_automatic_aggregation": false
+  },
+  "tables": {
+    "1": {"source_semantics": "period_end_level", "analysis_semantics": "period_end_level", "transformation": "identity", "quarterly_aggregation": "last", "confidence": "high"},
+    "2": {"source_semantics": "year_to_date_cumulative_flow", "analysis_semantics": "monthly_flow", "transformation": "difference_within_calendar_year", "quarterly_aggregation": "sum", "confidence": "high_inferred"},
+    "3": {"source_semantics": "period_end_level", "analysis_semantics": "period_end_level", "transformation": "identity", "quarterly_aggregation": "last", "confidence": "high"},
+    "4": {"source_semantics": "period_end_stock", "analysis_semantics": "period_end_stock", "transformation": "identity", "quarterly_aggregation": "last", "confidence": "high"},
+    "5": {"source_semantics": "period_end_stock", "analysis_semantics": "period_end_stock", "transformation": "identity", "quarterly_aggregation": "last", "confidence": "high"},
+    "6": {"source_semantics": "period_end_stock", "analysis_semantics": "period_end_stock", "transformation": "identity", "quarterly_aggregation": "last", "confidence": "high"},
+    "7": {"source_semantics": "period_end_stock", "analysis_semantics": "period_end_stock", "transformation": "identity", "quarterly_aggregation": "last", "confidence": "medium"},
+    "8": {"source_semantics": "period_end_stock", "analysis_semantics": "period_end_stock", "transformation": "identity", "quarterly_aggregation": "last", "confidence": "high"},
+    "9": {"source_semantics": "period_end_stock", "analysis_semantics": "period_end_stock", "transformation": "identity", "quarterly_aggregation": "last", "confidence": "high"},
+    "10": {"source_semantics": "period_end_stock", "analysis_semantics": "period_end_stock", "transformation": "identity", "quarterly_aggregation": "last", "confidence": "high"},
+    "11": {"source_semantics": "period_end_level", "analysis_semantics": "period_end_level", "transformation": "identity", "quarterly_aggregation": "last", "confidence": "medium"},
+    "12": {"source_semantics": "period_end_level", "analysis_semantics": "period_end_level", "transformation": "identity", "quarterly_aggregation": "last", "confidence": "medium"},
+    "13": {"source_semantics": "period_end_level", "analysis_semantics": "period_end_level", "transformation": "identity", "quarterly_aggregation": "last", "confidence": "high"},
+    "14": {"source_semantics": "period_end_stock", "analysis_semantics": "period_end_stock", "transformation": "identity", "quarterly_aggregation": "last", "confidence": "high"},
+    "15": {"source_semantics": "ratio", "analysis_semantics": "ratio", "transformation": "identity", "quarterly_aggregation": "last", "confidence": "high"},
+    "16": {"source_semantics": "count", "analysis_semantics": "count", "transformation": "identity", "quarterly_aggregation": "last", "confidence": "high"},
+    "17": {"source_semantics": "ratio", "analysis_semantics": "ratio", "transformation": "identity", "quarterly_aggregation": "last", "confidence": "high"}
+  }
+}

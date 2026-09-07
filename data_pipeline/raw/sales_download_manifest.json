@@ -1,0 +1,17 @@
+{
+  "url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "method": "POST",
+  "http_status": 200,
+  "content_type": "application/json;charset=UTF-8",
+  "downloaded_utc": "2026-09-07T17:31:44.968467+00:00",
+  "sha256": "86c4f4eae07b50833cdd8fe1432eb228906fc127c57d9c3d3fd6029851a1aec5",
+  "total_count": 78,
+  "rows": 78,
+  "series_codes": [
+    "TP.AKONUTSAT1.KTRTOPLAM",
+    "TP.AKONUTSAT2.KTRTOPLAM",
+    "TP.AKONUTSAT3.KTRTOPLAM",
+    "TP.AKONUTSAT4.KTRTOPLAM"
+  ],
+  "auth": "No key, credentials, or cookies. Public frontend query."
+}

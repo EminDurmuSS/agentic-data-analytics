@@ -1,0 +1,18 @@
+{
+  "dataset_id": "housing_credit_market_controls_v1",
+  "description": "Konut ve mevduata alternatif yerel yatirim kanallarini izlemek icin dar EVDS piyasa kontrol paketi.",
+  "start_date": "2020-01-01",
+  "end_date": "2026-06-30",
+  "series": [
+    {
+      "series_code": "TP.ALTINPIYASA.KAP05",
+      "role": "alternative_asset",
+      "reason": "BIST Altin Piyasasi is gunu TL gram altin kapanis fiyati"
+    },
+    {
+      "series_code": "TP.MK.F.BILESIK",
+      "role": "equity_market",
+      "reason": "BIST 100 is gunu kapanis fiyat endeksi"
+    }
+  ]
+}

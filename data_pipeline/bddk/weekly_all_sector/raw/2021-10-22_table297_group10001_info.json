@@ -1,0 +1,29 @@
+{
+  "status": "validated",
+  "diagnosis": "validated_bddk_weekly_html_table",
+  "source_url": "https://www.bddk.org.tr/BultenHaftalik/",
+  "sha256_uncompressed": "ce1a906539146dfe36bca2a17edb7ae5427747290af1106c359a8e774b5a34b0",
+  "compressed_bytes": 14024,
+  "uncompressed_bytes": 183147,
+  "served_from_cache": false,
+  "completed_at_utc": "2026-09-07T22:10:48.314836+00:00",
+  "table_id": 297,
+  "table_name": "Yabanci Para Pozisyonu",
+  "group_code": 10001,
+  "group_name": "Sektor",
+  "period_id": 408,
+  "observation_date": "2021-10-22",
+  "week_number": 42,
+  "source_period_label": "Ekim/22 (42. Hafta)",
+  "source_date_heading": "Tarih: 22 Ekim 2021 Cuma | Birim: Milyon TL",
+  "source_date_parsed": "2021-10-22",
+  "headers": [
+    "",
+    "Yabancı Para Pozisyonu",
+    "TOPLAM"
+  ],
+  "rows": 10,
+  "max_cells_per_row": 3,
+  "unit_heading": "Milyon TL",
+  "date_heading_normalized": "tarih: 22 ekim 2021 cuma | birim: milyon tl"
+}

@@ -1,0 +1,29 @@
+{
+  "status": "validated",
+  "series_code": "TP.BKEA.S065",
+  "frequency": "ÜÇ AYLIK",
+  "aggregation": "last",
+  "chunk_start": "2020-01-01",
+  "chunk_end": "2026-06-30",
+  "request_file": "raw/TP_BKEA_S065_2020-01-01_2026-06-30_request.json",
+  "request_sha256": "eb7c2a3ca2ffbf57d4feaaf2ffefce85da3637e8cdef7222a8325fb47193004f",
+  "response_file": "raw/TP_BKEA_S065_2020-01-01_2026-06-30_response.json.gz",
+  "response_sha256": "371b8246160366353c11315076d38b141b74e1fe434bb021e1d298d93ec5e65e",
+  "served_from_cache": true,
+  "http_status": 200,
+  "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "content_type": "application/json;charset=UTF-8",
+  "bytes": 4552,
+  "sha256": "371b8246160366353c11315076d38b141b74e1fe434bb021e1d298d93ec5e65e",
+  "transport": "curl",
+  "tls_verification": true,
+  "response_total_count": 26,
+  "retained_rows": 26,
+  "outside_requested_range_rows": 0,
+  "series_names": {
+    "TP_BKEA_S065": "10.2. (Bankanızın Daha Riskli Krediler Üzerindeki Kar Marjı)_ Geçen üç ayda, konut alım kredisi taleplerinin onaylanmasında Bankanız koşul ve kuralları ne yönde değişti?"
+  },
+  "frequency_conversion": {
+    "TP.BKEA.S065": true
+  }
+}

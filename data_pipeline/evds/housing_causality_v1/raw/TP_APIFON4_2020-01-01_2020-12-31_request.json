@@ -1,0 +1,16 @@
+{
+  "type": "json",
+  "series": "TP.APIFON4",
+  "aggregationTypes": "last",
+  "formulas": "0",
+  "startDate": "01-01-2020",
+  "endDate": "31-12-2020",
+  "frequency": "2",
+  "decimalSeperator": ".",
+  "decimal": "8",
+  "dateFormat": "0",
+  "lang": "tr",
+  "ozelFormuller": [],
+  "groupSeperator": false,
+  "isRaporSayfasi": false
+}

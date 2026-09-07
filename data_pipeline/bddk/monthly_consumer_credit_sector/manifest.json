@@ -1,0 +1,2840 @@
+[
+  {
+    "started_at_utc": "2026-09-07T20:12:24.077882+00:00",
+    "completed_at_utc": "2026-09-07T20:12:24.443517+00:00",
+    "url": "https://www.bddk.org.tr/BultenAylik/tr/Home/BasitRaporGetir",
+    "final_url": "https://www.bddk.org.tr/BultenAylik/tr/Home/BasitRaporGetir",
+    "method": "POST",
+    "transport": "curl",
+    "http_status": 200,
+    "content_type": "application/json; charset=utf-8",
+    "sha256": "6605014865fa8af9297552b75edb05b35c024d1e84a61d9422c4cdb3e9f272a4",
+    "bytes": 5546,
+    "error": "",
+    "diagnosis": "validated_bddk_table",
+    "tls_verification": true,
+    "period": "2021-01",
+    "table_no": 4,
+    "group_code": 10001,
+    "form": [
+      [
+        "tabloNo",
+        "4"
+      ],
+      [
+        "yil",
+        "2021"
+      ],
+      [
+        "ay",
+        "1"
+      ],
+      [
+        "paraBirimi",
+        "TL"
+      ],
+      [
+        "taraf",
+        "10001"
+      ]
+    ],
+    "status": "validated",
+    "rows": 41,
+    "served_from_cache": true
+  },
+  {
+    "started_at_utc": "2026-09-07T20:12:24.850041+00:00",
+    "completed_at_utc": "2026-09-07T20:12:25.143227+00:00",
+    "url": "https://www.bddk.org.tr/BultenAylik/tr/Home/BasitRaporGetir",
+    "final_url": "https://www.bddk.org.tr/BultenAylik/tr/Home/BasitRaporGetir",
+    "method": "POST",
+    "transport": "curl",
+    "http_status": 200,
+    "content_type": "application/json; charset=utf-8",
+    "sha256": "cf2f0cc91bb4af4eca475f71006385b7ac487dd58b3ffde234408ebfe074b3bc",
+    "bytes": 5546,
+    "error": "",
+    "diagnosis": "validated_bddk_table",
+    "tls_verification": true,
+    "period": "2021-02",
+    "table_no": 4,
+    "group_code": 10001,
+    "form": [
+      [
+        "tabloNo",
+        "4"
+      ],
+      [
+        "yil",
+        "2021"
+      ],
+      [
+        "ay",
+        "2"
+      ],
+      [
+        "paraBirimi",
+        "TL"
+      ],
+      [
+        "taraf",
+        "10001"
+      ]
+    ],
+    "status": "validated",
+    "rows": 41,
+    "served_from_cache": true
+  },
+  {
+    "started_at_utc": "2026-09-07T20:12:25.549237+00:00",
+    "completed_at_utc": "2026-09-07T20:12:26.479275+00:00",
+    "url": "https://www.bddk.org.tr/BultenAylik/tr/Home/BasitRaporGetir",
+    "final_url": "https://www.bddk.org.tr/BultenAylik/tr/Home/BasitRaporGetir",
+    "method": "POST",
+    "transport": "curl",
+    "http_status": 200,
+    "content_type": "application/json; charset=utf-8",
+    "sha256": "cb6d5cdaa41874f301de807de2775b5a49ceab62fc67f10e43f1fe5c961a1354",
+    "bytes": 5546,
+    "error": "",
+    "diagnosis": "validated_bddk_table",
+    "tls_verification": true,
+    "period": "2021-03",
+    "table_no": 4,
+    "group_code": 10001,
+    "form": [
+      [
+        "tabloNo",
+        "4"
+      ],
+      [
+        "yil",
+        "2021"
+      ],
+      [
+        "ay",
+        "3"
+      ],
+      [
+        "paraBirimi",
+        "TL"
+      ],
+      [
+        "taraf",
+        "10001"
+      ]
+    ],
+    "status": "validated",
+    "rows": 41,
+    "served_from_cache": true
+  },
+  {
+    "started_at_utc": "2026-09-07T20:12:26.883396+00:00",
+    "completed_at_utc": "2026-09-07T20:12:27.122381+00:00",
+    "url": "https://www.bddk.org.tr/BultenAylik/tr/Home/BasitRaporGetir",
+    "final_url": "https://www.bddk.org.tr/BultenAylik/tr/Home/BasitRaporGetir",
+    "method": "POST",
+    "transport": "curl",
+    "http_status": 200,
+    "content_type": "application/json; charset=utf-8",
+    "sha256": "efbcca0736ed547ec22a4afbd5badb772f3249e4eaf358542ff046f0a12fe31f",
+    "bytes": 5546,
+    "error": "",
+    "diagnosis": "validated_bddk_table",
+    "tls_verification": true,
+    "period": "2021-04",
+    "table_no": 4,
+    "group_code": 10001,
+    "form": [
+      [
+        "tabloNo",
+        "4"
+      ],
+      [
+        "yil",
+        "2021"
+      ],
+      [
+        "ay",
+        "4"
+      ],
+      [
+        "paraBirimi",
+        "TL"
+      ],
+      [
+        "taraf",
+        "10001"
+      ]
+    ],
+    "status": "validated",
+    "rows": 41,
+    "served_from_cache": true
+  },
+  {
+    "started_at_utc": "2026-09-07T20:12:27.528709+00:00",
+    "completed_at_utc": "2026-09-07T20:12:27.999523+00:00",
+    "url": "https://www.bddk.org.tr/BultenAylik/tr/Home/BasitRaporGetir",
+    "final_url": "https://www.bddk.org.tr/BultenAylik/tr/Home/BasitRaporGetir",
+    "method": "POST",
+    "transport": "curl",
+    "http_status": 200,
+    "content_type": "application/json; charset=utf-8",
+    "sha256": "c7758fe671475983bd589b18d02d8a14048d57a9b9084c05d02e43dbac867774",
+    "bytes": 5548,
+    "error": "",
+    "diagnosis": "validated_bddk_table",
+    "tls_verification": true,
+    "period": "2021-05",
+    "table_no": 4,
+    "group_code": 10001,
+    "form": [
+      [
+        "tabloNo",
+        "4"
+      ],
+      [
+        "yil",
+        "2021"
+      ],
+      [
+        "ay",
+        "5"
+      ],
+      [
+        "paraBirimi",
+        "TL"
+      ],
+      [
+        "taraf",
+        "10001"
+      ]
+    ],
+    "status": "validated",
+    "rows": 41,
+    "served_from_cache": true
+  },
+  {
+    "started_at_utc": "2026-09-07T20:12:28.404658+00:00",
+    "completed_at_utc": "2026-09-07T20:12:28.676105+00:00",
+    "url": "https://www.bddk.org.tr/BultenAylik/tr/Home/BasitRaporGetir",
+    "final_url": "https://www.bddk.org.tr/BultenAylik/tr/Home/BasitRaporGetir",
+    "method": "POST",
+    "transport": "curl",
+    "http_status": 200,
+    "content_type": "application/json; charset=utf-8",
+    "sha256": "d6e8666a368717d645c422c2115f8a1e3c7575707f8ee1f7c1e71750ebeb543e",
+    "bytes": 5551,
+    "error": "",
+    "diagnosis": "validated_bddk_table",
+    "tls_verification": true,
+    "period": "2021-06",
+    "table_no": 4,
+    "group_code": 10001,
+    "form": [
+      [
+        "tabloNo",
+        "4"
+      ],
+      [
+        "yil",
+        "2021"
+      ],
+      [
+        "ay",
+        "6"
+      ],
+      [
+        "paraBirimi",
+        "TL"
+      ],
+      [
+        "taraf",
+        "10001"
+      ]
+    ],
+    "status": "validated",
+    "rows": 41,
+    "served_from_cache": true
+  },
+  {
+    "started_at_utc": "2026-09-07T20:12:29.082090+00:00",
+    "completed_at_utc": "2026-09-07T20:12:29.430760+00:00",
+    "url": "https://www.bddk.org.tr/BultenAylik/tr/Home/BasitRaporGetir",
+    "final_url": "https://www.bddk.org.tr/BultenAylik/tr/Home/BasitRaporGetir",
+    "method": "POST",
+    "transport": "curl",
+    "http_status": 200,
+    "content_type": "application/json; charset=utf-8",
+    "sha256": "67a1e18d82b861a8e560c19c921837b69bbd7c49f53615b1ba9bf89102f93222",
+    "bytes": 5549,
+    "error": "",
+    "diagnosis": "validated_bddk_table",
+    "tls_verification": true,
+    "period": "2021-07",
+    "table_no": 4,
+    "group_code": 10001,
+    "form": [
+      [
+        "tabloNo",
+        "4"
+      ],
+      [
+        "yil",
+        "2021"
+      ],
+      [
+        "ay",
+        "7"
+      ],
+      [
+        "paraBirimi",
+        "TL"
+      ],
+      [
+        "taraf",
+        "10001"
+      ]
+    ],
+    "status": "validated",
+    "rows": 41,
+    "served_from_cache": true
+  },
+  {
+    "started_at_utc": "2026-09-07T20:12:29.836946+00:00",
+    "completed_at_utc": "2026-09-07T20:12:30.182247+00:00",
+    "url": "https://www.bddk.org.tr/BultenAylik/tr/Home/BasitRaporGetir",
+    "final_url": "https://www.bddk.org.tr/BultenAylik/tr/Home/BasitRaporGetir",
+    "method": "POST",
+    "transport": "curl",
+    "http_status": 200,
+    "content_type": "application/json; charset=utf-8",
+    "sha256": "8810f8d1d039cad3297326cf9958943f5f3b8876862928890d9a5d0590a3c3e1",
+    "bytes": 5549,
+    "error": "",
+    "diagnosis": "validated_bddk_table",
+    "tls_verification": true,
+    "period": "2021-08",
+    "table_no": 4,
+    "group_code": 10001,
+    "form": [
+      [
+        "tabloNo",
+        "4"
+      ],
+      [
+        "yil",
+        "2021"
+      ],
+      [
+        "ay",
+        "8"
+      ],
+      [
+        "paraBirimi",
+        "TL"
+      ],
+      [
+        "taraf",
+        "10001"
+      ]
+    ],
+    "status": "validated",
+    "rows": 41,
+    "served_from_cache": true
+  },
+  {
+    "started_at_utc": "2026-09-07T20:12:30.588102+00:00",
+    "completed_at_utc": "2026-09-07T20:12:30.815149+00:00",
+    "url": "https://www.bddk.org.tr/BultenAylik/tr/Home/BasitRaporGetir",
+    "final_url": "https://www.bddk.org.tr/BultenAylik/tr/Home/BasitRaporGetir",
+    "method": "POST",
+    "transport": "curl",
+    "http_status": 200,
+    "content_type": "application/json; charset=utf-8",
+    "sha256": "7e8b7c062a5f5ac615f8612712dc72c2b488d73b8c212da0db6b14114cf28235",
+    "bytes": 5548,
+    "error": "",
+    "diagnosis": "validated_bddk_table",
+    "tls_verification": true,
+    "period": "2021-09",
+    "table_no": 4,
+    "group_code": 10001,
+    "form": [
+      [
+        "tabloNo",
+        "4"
+      ],
+      [
+        "yil",
+        "2021"
+      ],
+      [
+        "ay",
+        "9"
+      ],
+      [
+        "paraBirimi",
+        "TL"
+      ],
+      [
+        "taraf",
+        "10001"
+      ]
+    ],
+    "status": "validated",
+    "rows": 41,
+    "served_from_cache": true
+  },
+  {
+    "started_at_utc": "2026-09-07T20:12:31.219698+00:00",
+    "completed_at_utc": "2026-09-07T20:12:31.694361+00:00",
+    "url": "https://www.bddk.org.tr/BultenAylik/tr/Home/BasitRaporGetir",
+    "final_url": "https://www.bddk.org.tr/BultenAylik/tr/Home/BasitRaporGetir",
+    "method": "POST",
+    "transport": "curl",
+    "http_status": 200,
+    "content_type": "application/json; charset=utf-8",
+    "sha256": "7ff2a220ed4c558c39c1b9139be746d75f3cf69d7d62b12f2ee3481e830ee92b",
+    "bytes": 5552,
+    "error": "",
+    "diagnosis": "validated_bddk_table",
+    "tls_verification": true,
+    "period": "2021-10",
+    "table_no": 4,
+    "group_code": 10001,
+    "form": [
+      [
+        "tabloNo",
+        "4"
+      ],
+      [
+        "yil",
+        "2021"
+      ],
+      [
+        "ay",
+        "10"
+      ],
+      [
+        "paraBirimi",
+        "TL"
+      ],
+      [
+        "taraf",
+        "10001"
+      ]
+    ],
+    "status": "validated",
+    "rows": 41,
+    "served_from_cache": true
+  },
+  {
+    "started_at_utc": "2026-09-07T20:12:32.096683+00:00",
+    "completed_at_utc": "2026-09-07T20:12:32.335070+00:00",
+    "url": "https://www.bddk.org.tr/BultenAylik/tr/Home/BasitRaporGetir",
+    "final_url": "https://www.bddk.org.tr/BultenAylik/tr/Home/BasitRaporGetir",
+    "method": "POST",
+    "transport": "curl",
+    "http_status": 200,
+    "content_type": "application/json; charset=utf-8",
+    "sha256": "c8a3cf916819ba556635f911b1bb097067019498c10fc48ed877320755ef214c",
+    "bytes": 5555,
+    "error": "",
+    "diagnosis": "validated_bddk_table",
+    "tls_verification": true,
+    "period": "2021-11",
+    "table_no": 4,
+    "group_code": 10001,
+    "form": [
+      [
+        "tabloNo",
+        "4"
+      ],
+      [
+        "yil",
+        "2021"
+      ],
+      [
+        "ay",
+        "11"
+      ],
+      [
+        "paraBirimi",
+        "TL"
+      ],
+      [
+        "taraf",
+        "10001"
+      ]
+    ],
+    "status": "validated",
+    "rows": 41,
+    "served_from_cache": true
+  },
+  {
+    "started_at_utc": "2026-09-07T20:12:32.740570+00:00",
+    "completed_at_utc": "2026-09-07T20:12:32.964538+00:00",
+    "url": "https://www.bddk.org.tr/BultenAylik/tr/Home/BasitRaporGetir",
+    "final_url": "https://www.bddk.org.tr/BultenAylik/tr/Home/BasitRaporGetir",
+    "method": "POST",
+    "transport": "curl",
+    "http_status": 200,
+    "content_type": "application/json; charset=utf-8",
+    "sha256": "b215e8121a57889b25922b175a1810d533171b062009609a710dc55fdae59de9",
+    "bytes": 5555,
+    "error": "",
+    "diagnosis": "validated_bddk_table",
+    "tls_verification": true,
+    "period": "2021-12",
+    "table_no": 4,
+    "group_code": 10001,
+    "form": [
+      [
+        "tabloNo",
+        "4"
+      ],
+      [
+        "yil",
+        "2021"
+      ],
+      [
+        "ay",
+        "12"
+      ],
+      [
+        "paraBirimi",
+        "TL"
+      ],
+      [
+        "taraf",
+        "10001"
+      ]
+    ],
+    "status": "validated",
+    "rows": 41,
+    "served_from_cache": true
+  },
+  {
+    "started_at_utc": "2026-09-07T20:12:33.372198+00:00",
+    "completed_at_utc": "2026-09-07T20:12:33.771700+00:00",
+    "url": "https://www.bddk.org.tr/BultenAylik/tr/Home/BasitRaporGetir",
+    "final_url": "https://www.bddk.org.tr/BultenAylik/tr/Home/BasitRaporGetir",
+    "method": "POST",
+    "transport": "curl",
+    "http_status": 200,
+    "content_type": "application/json; charset=utf-8",
+    "sha256": "2ef80cdd143482aeb2a973112a8131cb1baf562d5e65511f61361d0fe50d6505",
+    "bytes": 5550,
+    "error": "",
+    "diagnosis": "validated_bddk_table",
+    "tls_verification": true,
+    "period": "2022-01",
+    "table_no": 4,
+    "group_code": 10001,
+    "form": [
+      [
+        "tabloNo",
+        "4"
+      ],
+      [
+        "yil",
+        "2022"
+      ],
+      [
+        "ay",
+        "1"
+      ],
+      [
+        "paraBirimi",
+        "TL"
+      ],
+      [
+        "taraf",
+        "10001"
+      ]
+    ],
+    "status": "validated",
+    "rows": 41,
+    "served_from_cache": true
+  },
+  {
+    "started_at_utc": "2026-09-07T20:12:34.174647+00:00",
+    "completed_at_utc": "2026-09-07T20:12:34.400621+00:00",
+    "url": "https://www.bddk.org.tr/BultenAylik/tr/Home/BasitRaporGetir",
+    "final_url": "https://www.bddk.org.tr/BultenAylik/tr/Home/BasitRaporGetir",
+    "method": "POST",
+    "transport": "curl",
+    "http_status": 200,
+    "content_type": "application/json; charset=utf-8",
+    "sha256": "59d3b8b9662ad6aaa9e9fbfcdcc1d3a9ea88d129b7c929c9053d155db1208b32",
+    "bytes": 5554,
+    "error": "",
+    "diagnosis": "validated_bddk_table",
+    "tls_verification": true,
+    "period": "2022-02",
+    "table_no": 4,
+    "group_code": 10001,
+    "form": [
+      [
+        "tabloNo",
+        "4"
+      ],
+      [
+        "yil",
+        "2022"
+      ],
+      [
+        "ay",
+        "2"
+      ],
+      [
+        "paraBirimi",
+        "TL"
+      ],
+      [
+        "taraf",
+        "10001"
+      ]
+    ],
+    "status": "validated",
+    "rows": 41,
+    "served_from_cache": true
+  },
+  {
+    "started_at_utc": "2026-09-07T20:12:34.807135+00:00",
+    "completed_at_utc": "2026-09-07T20:12:35.051277+00:00",
+    "url": "https://www.bddk.org.tr/BultenAylik/tr/Home/BasitRaporGetir",
+    "final_url": "https://www.bddk.org.tr/BultenAylik/tr/Home/BasitRaporGetir",
+    "method": "POST",
+    "transport": "curl",
+    "http_status": 200,
+    "content_type": "application/json; charset=utf-8",
+    "sha256": "9cc8402857a23b7c6526a3e3bea880e9b358fb36382151a83ae7194406863c02",
+    "bytes": 5558,
+    "error": "",
+    "diagnosis": "validated_bddk_table",
+    "tls_verification": true,
+    "period": "2022-03",
+    "table_no": 4,
+    "group_code": 10001,
+    "form": [
+      [
+        "tabloNo",
+        "4"
+      ],
+      [
+        "yil",
+        "2022"
+      ],
+      [
+        "ay",
+        "3"
+      ],
+      [
+        "paraBirimi",
+        "TL"
+      ],
+      [
+        "taraf",
+        "10001"
+      ]
+    ],
+    "status": "validated",
+    "rows": 41,
+    "served_from_cache": true
+  },
+  {
+    "started_at_utc": "2026-09-07T20:12:35.457422+00:00",
+    "completed_at_utc": "2026-09-07T20:12:35.721823+00:00",
+    "url": "https://www.bddk.org.tr/BultenAylik/tr/Home/BasitRaporGetir",
+    "final_url": "https://www.bddk.org.tr/BultenAylik/tr/Home/BasitRaporGetir",
+    "method": "POST",
+    "transport": "curl",
+    "http_status": 200,
+    "content_type": "application/json; charset=utf-8",
+    "sha256": "a1b6eb5c03d2d0bf283712d64554c358a2a3b2169708383e0b4177f18d220559",
+    "bytes": 5556,
+    "error": "",
+    "diagnosis": "validated_bddk_table",
+    "tls_verification": true,
+    "period": "2022-04",
+    "table_no": 4,
+    "group_code": 10001,
+    "form": [
+      [
+        "tabloNo",
+        "4"
+      ],
+      [
+        "yil",
+        "2022"
+      ],
+      [
+        "ay",
+        "4"
+      ],
+      [
+        "paraBirimi",
+        "TL"
+      ],
+      [
+        "taraf",
+        "10001"
+      ]
+    ],
+    "status": "validated",
+    "rows": 41,
+    "served_from_cache": true
+  },
+  {
+    "started_at_utc": "2026-09-07T20:12:36.124285+00:00",
+    "completed_at_utc": "2026-09-07T20:12:36.448257+00:00",
+    "url": "https://www.bddk.org.tr/BultenAylik/tr/Home/BasitRaporGetir",
+    "final_url": "https://www.bddk.org.tr/BultenAylik/tr/Home/BasitRaporGetir",
+    "method": "POST",
+    "transport": "curl",
+    "http_status": 200,
+    "content_type": "application/json; charset=utf-8",
+    "sha256": "865c344a90be5b2fae2065455ad7677c2ee502db7352acc35ac4e50c28be0989",
+    "bytes": 5559,
+    "error": "",
+    "diagnosis": "validated_bddk_table",
+    "tls_verification": true,
+    "period": "2022-05",
+    "table_no": 4,
+    "group_code": 10001,
+    "form": [
+      [
+        "tabloNo",
+        "4"
+      ],
+      [
+        "yil",
+        "2022"
+      ],
+      [
+        "ay",
+        "5"
+      ],
+      [
+        "paraBirimi",
+        "TL"
+      ],
+      [
+        "taraf",
+        "10001"
+      ]
+    ],
+    "status": "validated",
+    "rows": 41,
+    "served_from_cache": true
+  },
+  {
+    "started_at_utc": "2026-09-07T20:12:36.855043+00:00",
+    "completed_at_utc": "2026-09-07T20:12:37.067677+00:00",
+    "url": "https://www.bddk.org.tr/BultenAylik/tr/Home/BasitRaporGetir",
+    "final_url": "https://www.bddk.org.tr/BultenAylik/tr/Home/BasitRaporGetir",
+    "method": "POST",
+    "transport": "curl",
+    "http_status": 200,
+    "content_type": "application/json; charset=utf-8",
+    "sha256": "b6134cfbf8066776288510a56aa25d297055d7a8b572303b9a149c535903d63b",
+    "bytes": 5559,
+    "error": "",
+    "diagnosis": "validated_bddk_table",
+    "tls_verification": true,
+    "period": "2022-06",
+    "table_no": 4,
+    "group_code": 10001,
+    "form": [
+      [
+        "tabloNo",
+        "4"
+      ],
+      [
+        "yil",
+        "2022"
+      ],
+      [
+        "ay",
+        "6"
+      ],
+      [
+        "paraBirimi",
+        "TL"
+      ],
+      [
+        "taraf",
+        "10001"
+      ]
+    ],
+    "status": "validated",
+    "rows": 41,
+    "served_from_cache": true
+  },
+  {
+    "started_at_utc": "2026-09-07T20:12:37.474290+00:00",
+    "completed_at_utc": "2026-09-07T20:12:37.689604+00:00",
+    "url": "https://www.bddk.org.tr/BultenAylik/tr/Home/BasitRaporGetir",
+    "final_url": "https://www.bddk.org.tr/BultenAylik/tr/Home/BasitRaporGetir",
+    "method": "POST",
+    "transport": "curl",
+    "http_status": 200,
+    "content_type": "application/json; charset=utf-8",
+    "sha256": "be2907f85e72469c6b5d25dbf47713d0aaf897d5bf2a0f0d0e12845204eba655",
+    "bytes": 5562,
+    "error": "",
+    "diagnosis": "validated_bddk_table",
+    "tls_verification": true,
+    "period": "2022-07",
+    "table_no": 4,
+    "group_code": 10001,
+    "form": [
+      [
+        "tabloNo",
+        "4"
+      ],
+      [
+        "yil",
+        "2022"
+      ],
+      [
+        "ay",
+        "7"
+      ],
+      [
+        "paraBirimi",
+        "TL"
+      ],
+      [
+        "taraf",
+        "10001"
+      ]
+    ],
+    "status": "validated",
+    "rows": 41,
+    "served_from_cache": true
+  },
+  {
+    "started_at_utc": "2026-09-07T20:12:38.095122+00:00",
+    "completed_at_utc": "2026-09-07T20:12:38.344271+00:00",
+    "url": "https://www.bddk.org.tr/BultenAylik/tr/Home/BasitRaporGetir",
+    "final_url": "https://www.bddk.org.tr/BultenAylik/tr/Home/BasitRaporGetir",
+    "method": "POST",
+    "transport": "curl",
+    "http_status": 200,
+    "content_type": "application/json; charset=utf-8",
+    "sha256": "7fcf51680c01e1f5d97ca6a2e3235f43052f1b381d7d9ab5277bdc77f1944afa",
+    "bytes": 5562,
+    "error": "",
+    "diagnosis": "validated_bddk_table",
+    "tls_verification": true,
+    "period": "2022-08",
+    "table_no": 4,
+    "group_code": 10001,
+    "form": [
+      [
+        "tabloNo",
+        "4"
+      ],
+      [
+        "yil",
+        "2022"
+      ],
+      [
+        "ay",
+        "8"
+      ],
+      [
+        "paraBirimi",
+        "TL"
+      ],
+      [
+        "taraf",
+        "10001"
+      ]
+    ],
+    "status": "validated",
+    "rows": 41,
+    "served_from_cache": true
+  },
+  {
+    "started_at_utc": "2026-09-07T20:12:38.751106+00:00",
+    "completed_at_utc": "2026-09-07T20:12:39.019562+00:00",
+    "url": "https://www.bddk.org.tr/BultenAylik/tr/Home/BasitRaporGetir",
+    "final_url": "https://www.bddk.org.tr/BultenAylik/tr/Home/BasitRaporGetir",
+    "method": "POST",
+    "transport": "curl",
+    "http_status": 200,
+    "content_type": "application/json; charset=utf-8",
+    "sha256": "e0f8c7c4719a28cbe1a0ad430435f2964b5e6c05bcc3ce36a3836ab9856fbd97",
+    "bytes": 5563,
+    "error": "",
+    "diagnosis": "validated_bddk_table",
+    "tls_verification": true,
+    "period": "2022-09",
+    "table_no": 4,
+    "group_code": 10001,
+    "form": [
+      [
+        "tabloNo",
+        "4"
+      ],
+      [
+        "yil",
+        "2022"
+      ],
+      [
+        "ay",
+        "9"
+      ],
+      [
+        "paraBirimi",
+        "TL"
+      ],
+      [
+        "taraf",
+        "10001"
+      ]
+    ],
+    "status": "validated",
+    "rows": 41,
+    "served_from_cache": true
+  },
+  {
+    "started_at_utc": "2026-09-07T20:12:39.426984+00:00",
+    "completed_at_utc": "2026-09-07T20:12:39.627149+00:00",
+    "url": "https://www.bddk.org.tr/BultenAylik/tr/Home/BasitRaporGetir",
+    "final_url": "https://www.bddk.org.tr/BultenAylik/tr/Home/BasitRaporGetir",
+    "method": "POST",
+    "transport": "curl",
+    "http_status": 200,
+    "content_type": "application/json; charset=utf-8",
+    "sha256": "6c3375af4c5f2bc87b65c42e244c4a4efe0b03f7ef3e5727b0499e5ef2634d06",
+    "bytes": 5565,
+    "error": "",
+    "diagnosis": "validated_bddk_table",
+    "tls_verification": true,
+    "period": "2022-10",
+    "table_no": 4,
+    "group_code": 10001,
+    "form": [
+      [
+        "tabloNo",
+        "4"
+      ],
+      [
+        "yil",
+        "2022"
+      ],
+      [
+        "ay",
+        "10"
+      ],
+      [
+        "paraBirimi",
+        "TL"
+      ],
+      [
+        "taraf",
+        "10001"
+      ]
+    ],
+    "status": "validated",
+    "rows": 41,
+    "served_from_cache": true
+  },
+  {
+    "started_at_utc": "2026-09-07T20:12:40.034746+00:00",
+    "completed_at_utc": "2026-09-07T20:12:40.224614+00:00",
+    "url": "https://www.bddk.org.tr/BultenAylik/tr/Home/BasitRaporGetir",
+    "final_url": "https://www.bddk.org.tr/BultenAylik/tr/Home/BasitRaporGetir",
+    "method": "POST",
+    "transport": "curl",
+    "http_status": 200,
+    "content_type": "application/json; charset=utf-8",
+    "sha256": "86eba435e976dbdcee33c46c92805c0321fdbcd5508b60c19fe1d68c62528290",
+    "bytes": 5571,
+    "error": "",
+    "diagnosis": "validated_bddk_table",
+    "tls_verification": true,
+    "period": "2022-11",
+    "table_no": 4,
+    "group_code": 10001,
+    "form": [
+      [
+        "tabloNo",
+        "4"
+      ],
+      [
+        "yil",
+        "2022"
+      ],
+      [
+        "ay",
+        "11"
+      ],
+      [
+        "paraBirimi",
+        "TL"
+      ],
+      [
+        "taraf",
+        "10001"
+      ]
+    ],
+    "status": "validated",
+    "rows": 41,
+    "served_from_cache": true
+  },
+  {
+    "started_at_utc": "2026-09-07T20:12:40.629672+00:00",
+    "completed_at_utc": "2026-09-07T20:12:40.737469+00:00",
+    "url": "https://www.bddk.org.tr/BultenAylik/tr/Home/BasitRaporGetir",
+    "final_url": "https://www.bddk.org.tr/BultenAylik/tr/Home/BasitRaporGetir",
+    "method": "POST",
+    "transport": "curl",
+    "http_status": 200,
+    "content_type": "application/json; charset=utf-8",
+    "sha256": "3e359828b9553204505766c98e9a3ded08dcfa297f348069985798e44eafb176",
+    "bytes": 5576,
+    "error": "",
+    "diagnosis": "validated_bddk_table",
+    "tls_verification": true,
+    "period": "2022-12",
+    "table_no": 4,
+    "group_code": 10001,
+    "form": [
+      [
+        "tabloNo",
+        "4"
+      ],
+      [
+        "yil",
+        "2022"
+      ],
+      [
+        "ay",
+        "12"
+      ],
+      [
+        "paraBirimi",
+        "TL"
+      ],
+      [
+        "taraf",
+        "10001"
+      ]
+    ],
+    "status": "validated",
+    "rows": 41,
+    "served_from_cache": true
+  },
+  {
+    "started_at_utc": "2026-09-07T20:12:41.139621+00:00",
+    "completed_at_utc": "2026-09-07T20:12:41.218439+00:00",
+    "url": "https://www.bddk.org.tr/BultenAylik/tr/Home/BasitRaporGetir",
+    "final_url": "https://www.bddk.org.tr/BultenAylik/tr/Home/BasitRaporGetir",
+    "method": "POST",
+    "transport": "curl",
+    "http_status": 200,
+    "content_type": "application/json; charset=utf-8",
+    "sha256": "17d4421878f5a59751269347b24a1da84b8116fadcc9bf97d452bfefb69e54ba",
+    "bytes": 5573,
+    "error": "",
+    "diagnosis": "validated_bddk_table",
+    "tls_verification": true,
+    "period": "2023-01",
+    "table_no": 4,
+    "group_code": 10001,
+    "form": [
+      [
+        "tabloNo",
+        "4"
+      ],
+      [
+        "yil",
+        "2023"
+      ],
+      [
+        "ay",
+        "1"
+      ],
+      [
+        "paraBirimi",
+        "TL"
+      ],
+      [
+        "taraf",
+        "10001"
+      ]
+    ],
+    "status": "validated",
+    "rows": 41,
+    "served_from_cache": true
+  },
+  {
+    "started_at_utc": "2026-09-07T20:12:41.625170+00:00",
+    "completed_at_utc": "2026-09-07T20:12:41.728935+00:00",
+    "url": "https://www.bddk.org.tr/BultenAylik/tr/Home/BasitRaporGetir",
+    "final_url": "https://www.bddk.org.tr/BultenAylik/tr/Home/BasitRaporGetir",
+    "method": "POST",
+    "transport": "curl",
+    "http_status": 200,
+    "content_type": "application/json; charset=utf-8",
+    "sha256": "7e31e2e9124658900c90dc2a8ac1be8a3c3ca8429361d4d7cdbd484317e3d8b7",
+    "bytes": 5572,
+    "error": "",
+    "diagnosis": "validated_bddk_table",
+    "tls_verification": true,
+    "period": "2023-02",
+    "table_no": 4,
+    "group_code": 10001,
+    "form": [
+      [
+        "tabloNo",
+        "4"
+      ],
+      [
+        "yil",
+        "2023"
+      ],
+      [
+        "ay",
+        "2"
+      ],
+      [
+        "paraBirimi",
+        "TL"
+      ],
+      [
+        "taraf",
+        "10001"
+      ]
+    ],
+    "status": "validated",
+    "rows": 41,
+    "served_from_cache": true
+  },
+  {
+    "started_at_utc": "2026-09-07T20:12:42.136066+00:00",
+    "completed_at_utc": "2026-09-07T20:12:42.221891+00:00",
+    "url": "https://www.bddk.org.tr/BultenAylik/tr/Home/BasitRaporGetir",
+    "final_url": "https://www.bddk.org.tr/BultenAylik/tr/Home/BasitRaporGetir",
+    "method": "POST",
+    "transport": "curl",
+    "http_status": 200,
+    "content_type": "application/json; charset=utf-8",
+    "sha256": "1626e7cc5ec94730ed6809857b92c403bc362659b703a825fb536150b282cc88",
+    "bytes": 5576,
+    "error": "",
+    "diagnosis": "validated_bddk_table",
+    "tls_verification": true,
+    "period": "2023-03",
+    "table_no": 4,
+    "group_code": 10001,
+    "form": [
+      [
+        "tabloNo",
+        "4"
+      ],
+      [
+        "yil",
+        "2023"
+      ],
+      [
+        "ay",
+        "3"
+      ],
+      [
+        "paraBirimi",
+        "TL"
+      ],
+      [
+        "taraf",
+        "10001"
+      ]
+    ],
+    "status": "validated",
+    "rows": 41,
+    "served_from_cache": true
+  },
+  {
+    "started_at_utc": "2026-09-07T20:12:42.623549+00:00",
+    "completed_at_utc": "2026-09-07T20:12:42.698886+00:00",
+    "url": "https://www.bddk.org.tr/BultenAylik/tr/Home/BasitRaporGetir",
+    "final_url": "https://www.bddk.org.tr/BultenAylik/tr/Home/BasitRaporGetir",
+    "method": "POST",
+    "transport": "curl",
+    "http_status": 200,
+    "content_type": "application/json; charset=utf-8",
+    "sha256": "7c4bf36375cbd53978913de16a67d712135b42139de29df19bdd41613255426d",
+    "bytes": 5579,
+    "error": "",
+    "diagnosis": "validated_bddk_table",
+    "tls_verification": true,
+    "period": "2023-04",
+    "table_no": 4,
+    "group_code": 10001,
+    "form": [
+      [
+        "tabloNo",
+        "4"
+      ],
+      [
+        "yil",
+        "2023"
+      ],
+      [
+        "ay",
+        "4"
+      ],
+      [
+        "paraBirimi",
+        "TL"
+      ],
+      [
+        "taraf",
+        "10001"
+      ]
+    ],
+    "status": "validated",
+    "rows": 41,
+    "served_from_cache": true
+  },
+  {
+    "started_at_utc": "2026-09-07T20:12:43.104541+00:00",
+    "completed_at_utc": "2026-09-07T20:12:43.293405+00:00",
+    "url": "https://www.bddk.org.tr/BultenAylik/tr/Home/BasitRaporGetir",
+    "final_url": "https://www.bddk.org.tr/BultenAylik/tr/Home/BasitRaporGetir",
+    "method": "POST",
+    "transport": "curl",
+    "http_status": 200,
+    "content_type": "application/json; charset=utf-8",
+    "sha256": "872cd2fd7b615926434cbc3b0cdcd66c49ca54e451de09642200b8494894b98d",
+    "bytes": 5581,
+    "error": "",
+    "diagnosis": "validated_bddk_table",
+    "tls_verification": true,
+    "period": "2023-05",
+    "table_no": 4,
+    "group_code": 10001,
+    "form": [
+      [
+        "tabloNo",
+        "4"
+      ],
+      [
+        "yil",
+        "2023"
+      ],
+      [
+        "ay",
+        "5"
+      ],
+      [
+        "paraBirimi",
+        "TL"
+      ],
+      [
+        "taraf",
+        "10001"
+      ]
+    ],
+    "status": "validated",
+    "rows": 41,
+    "served_from_cache": true
+  },
+  {
+    "started_at_utc": "2026-09-07T20:12:43.699639+00:00",
+    "completed_at_utc": "2026-09-07T20:12:43.983809+00:00",
+    "url": "https://www.bddk.org.tr/BultenAylik/tr/Home/BasitRaporGetir",
+    "final_url": "https://www.bddk.org.tr/BultenAylik/tr/Home/BasitRaporGetir",
+    "method": "POST",
+    "transport": "curl",
+    "http_status": 200,
+    "content_type": "application/json; charset=utf-8",
+    "sha256": "75ff19885a4ccbef66193c374ea916533c5624a421c7a1729ad4e1d901d45912",
+    "bytes": 5580,
+    "error": "",
+    "diagnosis": "validated_bddk_table",
+    "tls_verification": true,
+    "period": "2023-06",
+    "table_no": 4,
+    "group_code": 10001,
+    "form": [
+      [
+        "tabloNo",
+        "4"
+      ],
+      [
+        "yil",
+        "2023"
+      ],
+      [
+        "ay",
+        "6"
+      ],
+      [
+        "paraBirimi",
+        "TL"
+      ],
+      [
+        "taraf",
+        "10001"
+      ]
+    ],
+    "status": "validated",
+    "rows": 41,
+    "served_from_cache": true
+  },
+  {
+    "started_at_utc": "2026-09-07T20:12:44.389594+00:00",
+    "completed_at_utc": "2026-09-07T20:12:44.637215+00:00",
+    "url": "https://www.bddk.org.tr/BultenAylik/tr/Home/BasitRaporGetir",
+    "final_url": "https://www.bddk.org.tr/BultenAylik/tr/Home/BasitRaporGetir",
+    "method": "POST",
+    "transport": "curl",
+    "http_status": 200,
+    "content_type": "application/json; charset=utf-8",
+    "sha256": "9c59b43ddf9fa143b34a4bcd0f0b8bc5fabd786210b34fa876b354531ac7240a",
+    "bytes": 5582,
+    "error": "",
+    "diagnosis": "validated_bddk_table",
+    "tls_verification": true,
+    "period": "2023-07",
+    "table_no": 4,
+    "group_code": 10001,
+    "form": [
+      [
+        "tabloNo",
+        "4"
+      ],
+      [
+        "yil",
+        "2023"
+      ],
+      [
+        "ay",
+        "7"
+      ],
+      [
+        "paraBirimi",
+        "TL"
+      ],
+      [
+        "taraf",
+        "10001"
+      ]
+    ],
+    "status": "validated",
+    "rows": 41,
+    "served_from_cache": true
+  },
+  {
+    "started_at_utc": "2026-09-07T20:12:45.041342+00:00",
+    "completed_at_utc": "2026-09-07T20:12:45.311869+00:00",
+    "url": "https://www.bddk.org.tr/BultenAylik/tr/Home/BasitRaporGetir",
+    "final_url": "https://www.bddk.org.tr/BultenAylik/tr/Home/BasitRaporGetir",
+    "method": "POST",
+    "transport": "curl",
+    "http_status": 200,
+    "content_type": "application/json; charset=utf-8",
+    "sha256": "f15dc58e46fb2cba8f0f537cca8d0cc93445a64ee6e6d4770fc4c584b542584e",
+    "bytes": 5582,
+    "error": "",
+    "diagnosis": "validated_bddk_table",
+    "tls_verification": true,
+    "period": "2023-08",
+    "table_no": 4,
+    "group_code": 10001,
+    "form": [
+      [
+        "tabloNo",
+        "4"
+      ],
+      [
+        "yil",
+        "2023"
+      ],
+      [
+        "ay",
+        "8"
+      ],
+      [
+        "paraBirimi",
+        "TL"
+      ],
+      [
+        "taraf",
+        "10001"
+      ]
+    ],
+    "status": "validated",
+    "rows": 41,
+    "served_from_cache": true
+  },
+  {
+    "started_at_utc": "2026-09-07T20:12:45.716350+00:00",
+    "completed_at_utc": "2026-09-07T20:12:45.926893+00:00",
+    "url": "https://www.bddk.org.tr/BultenAylik/tr/Home/BasitRaporGetir",
+    "final_url": "https://www.bddk.org.tr/BultenAylik/tr/Home/BasitRaporGetir",
+    "method": "POST",
+    "transport": "curl",
+    "http_status": 200,
+    "content_type": "application/json; charset=utf-8",
+    "sha256": "ea9b6aa6f2d13d5f5cdfd370360e91683854231b3b2666036851f43194d380b0",
+    "bytes": 5582,
+    "error": "",
+    "diagnosis": "validated_bddk_table",
+    "tls_verification": true,
+    "period": "2023-09",
+    "table_no": 4,
+    "group_code": 10001,
+    "form": [
+      [
+        "tabloNo",
+        "4"
+      ],
+      [
+        "yil",
+        "2023"
+      ],
+      [
+        "ay",
+        "9"
+      ],
+      [
+        "paraBirimi",
+        "TL"
+      ],
+      [
+        "taraf",
+        "10001"
+      ]
+    ],
+    "status": "validated",
+    "rows": 41,
+    "served_from_cache": true
+  },
+  {
+    "started_at_utc": "2026-09-07T20:12:46.332990+00:00",
+    "completed_at_utc": "2026-09-07T20:12:46.554782+00:00",
+    "url": "https://www.bddk.org.tr/BultenAylik/tr/Home/BasitRaporGetir",
+    "final_url": "https://www.bddk.org.tr/BultenAylik/tr/Home/BasitRaporGetir",
+    "method": "POST",
+    "transport": "curl",
+    "http_status": 200,
+    "content_type": "application/json; charset=utf-8",
+    "sha256": "342e5ad30190a6f6a64d398be773c7dffd450639594471295ac3fb8534d9e0a5",
+    "bytes": 5585,
+    "error": "",
+    "diagnosis": "validated_bddk_table",
+    "tls_verification": true,
+    "period": "2023-10",
+    "table_no": 4,
+    "group_code": 10001,
+    "form": [
+      [
+        "tabloNo",
+        "4"
+      ],
+      [
+        "yil",
+        "2023"
+      ],
+      [
+        "ay",
+        "10"
+      ],
+      [
+        "paraBirimi",
+        "TL"
+      ],
+      [
+        "taraf",
+        "10001"
+      ]
+    ],
+    "status": "validated",
+    "rows": 41,
+    "served_from_cache": true
+  },
+  {
+    "started_at_utc": "2026-09-07T20:12:46.961165+00:00",
+    "completed_at_utc": "2026-09-07T20:12:47.258121+00:00",
+    "url": "https://www.bddk.org.tr/BultenAylik/tr/Home/BasitRaporGetir",
+    "final_url": "https://www.bddk.org.tr/BultenAylik/tr/Home/BasitRaporGetir",
+    "method": "POST",
+    "transport": "curl",
+    "http_status": 200,
+    "content_type": "application/json; charset=utf-8",
+    "sha256": "1b241ce4db87da4b6e82568c08abd22bec1e02ef393f8d58027bbf17d17429d2",
+    "bytes": 5585,
+    "error": "",
+    "diagnosis": "validated_bddk_table",
+    "tls_verification": true,
+    "period": "2023-11",
+    "table_no": 4,
+    "group_code": 10001,
+    "form": [
+      [
+        "tabloNo",
+        "4"
+      ],
+      [
+        "yil",
+        "2023"
+      ],
+      [
+        "ay",
+        "11"
+      ],
+      [
+        "paraBirimi",
+        "TL"
+      ],
+      [
+        "taraf",
+        "10001"
+      ]
+    ],
+    "status": "validated",
+    "rows": 41,
+    "served_from_cache": true
+  },
+  {
+    "started_at_utc": "2026-09-07T20:12:47.663322+00:00",
+    "completed_at_utc": "2026-09-07T20:12:47.950897+00:00",
+    "url": "https://www.bddk.org.tr/BultenAylik/tr/Home/BasitRaporGetir",
+    "final_url": "https://www.bddk.org.tr/BultenAylik/tr/Home/BasitRaporGetir",
+    "method": "POST",
+    "transport": "curl",
+    "http_status": 200,
+    "content_type": "application/json; charset=utf-8",
+    "sha256": "c1caad6e7b9fb9ea015fdae426c4ef6ea9dc77ddc975fc7346357e3a9de2e386",
+    "bytes": 5585,
+    "error": "",
+    "diagnosis": "validated_bddk_table",
+    "tls_verification": true,
+    "period": "2023-12",
+    "table_no": 4,
+    "group_code": 10001,
+    "form": [
+      [
+        "tabloNo",
+        "4"
+      ],
+      [
+        "yil",
+        "2023"
+      ],
+      [
+        "ay",
+        "12"
+      ],
+      [
+        "paraBirimi",
+        "TL"
+      ],
+      [
+        "taraf",
+        "10001"
+      ]
+    ],
+    "status": "validated",
+    "rows": 41,
+    "served_from_cache": true
+  },
+  {
+    "started_at_utc": "2026-09-07T20:12:48.357154+00:00",
+    "completed_at_utc": "2026-09-07T20:12:48.549574+00:00",
+    "url": "https://www.bddk.org.tr/BultenAylik/tr/Home/BasitRaporGetir",
+    "final_url": "https://www.bddk.org.tr/BultenAylik/tr/Home/BasitRaporGetir",
+    "method": "POST",
+    "transport": "curl",
+    "http_status": 200,
+    "content_type": "application/json; charset=utf-8",
+    "sha256": "9c5b723a2dfc980e5ef85302fb580718bf1c8b85a9848f68f95846d72da51a2c",
+    "bytes": 5587,
+    "error": "",
+    "diagnosis": "validated_bddk_table",
+    "tls_verification": true,
+    "period": "2024-01",
+    "table_no": 4,
+    "group_code": 10001,
+    "form": [
+      [
+        "tabloNo",
+        "4"
+      ],
+      [
+        "yil",
+        "2024"
+      ],
+      [
+        "ay",
+        "1"
+      ],
+      [
+        "paraBirimi",
+        "TL"
+      ],
+      [
+        "taraf",
+        "10001"
+      ]
+    ],
+    "status": "validated",
+    "rows": 41,
+    "served_from_cache": true
+  },
+  {
+    "started_at_utc": "2026-09-07T20:12:48.956043+00:00",
+    "completed_at_utc": "2026-09-07T20:12:49.145133+00:00",
+    "url": "https://www.bddk.org.tr/BultenAylik/tr/Home/BasitRaporGetir",
+    "final_url": "https://www.bddk.org.tr/BultenAylik/tr/Home/BasitRaporGetir",
+    "method": "POST",
+    "transport": "curl",
+    "http_status": 200,
+    "content_type": "application/json; charset=utf-8",
+    "sha256": "92618e9a7f522d371871fd7e82fe704c80da30713b8e936a82aa0c6efd13095f",
+    "bytes": 5589,
+    "error": "",
+    "diagnosis": "validated_bddk_table",
+    "tls_verification": true,
+    "period": "2024-02",
+    "table_no": 4,
+    "group_code": 10001,
+    "form": [
+      [
+        "tabloNo",
+        "4"
+      ],
+      [
+        "yil",
+        "2024"
+      ],
+      [
+        "ay",
+        "2"
+      ],
+      [
+        "paraBirimi",
+        "TL"
+      ],
+      [
+        "taraf",
+        "10001"
+      ]
+    ],
+    "status": "validated",
+    "rows": 41,
+    "served_from_cache": true
+  },
+  {
+    "started_at_utc": "2026-09-07T20:12:49.549817+00:00",
+    "completed_at_utc": "2026-09-07T20:12:49.753983+00:00",
+    "url": "https://www.bddk.org.tr/BultenAylik/tr/Home/BasitRaporGetir",
+    "final_url": "https://www.bddk.org.tr/BultenAylik/tr/Home/BasitRaporGetir",
+    "method": "POST",
+    "transport": "curl",
+    "http_status": 200,
+    "content_type": "application/json; charset=utf-8",
+    "sha256": "854b7e26848ac3601903e71c7ffbe9851845b4fd5084398cdd06b8e1619d5e58",
+    "bytes": 5588,
+    "error": "",
+    "diagnosis": "validated_bddk_table",
+    "tls_verification": true,
+    "period": "2024-03",
+    "table_no": 4,
+    "group_code": 10001,
+    "form": [
+      [
+        "tabloNo",
+        "4"
+      ],
+      [
+        "yil",
+        "2024"
+      ],
+      [
+        "ay",
+        "3"
+      ],
+      [
+        "paraBirimi",
+        "TL"
+      ],
+      [
+        "taraf",
+        "10001"
+      ]
+    ],
+    "status": "validated",
+    "rows": 41,
+    "served_from_cache": true
+  },
+  {
+    "started_at_utc": "2026-09-07T20:12:50.162230+00:00",
+    "completed_at_utc": "2026-09-07T20:12:50.404312+00:00",
+    "url": "https://www.bddk.org.tr/BultenAylik/tr/Home/BasitRaporGetir",
+    "final_url": "https://www.bddk.org.tr/BultenAylik/tr/Home/BasitRaporGetir",
+    "method": "POST",
+    "transport": "curl",
+    "http_status": 200,
+    "content_type": "application/json; charset=utf-8",
+    "sha256": "996a4d676a70d305f92b623b28d9d52ba9c48eca5925cd7ef4fa035b6a674875",
+    "bytes": 5583,
+    "error": "",
+    "diagnosis": "validated_bddk_table",
+    "tls_verification": true,
+    "period": "2024-04",
+    "table_no": 4,
+    "group_code": 10001,
+    "form": [
+      [
+        "tabloNo",
+        "4"
+      ],
+      [
+        "yil",
+        "2024"
+      ],
+      [
+        "ay",
+        "4"
+      ],
+      [
+        "paraBirimi",
+        "TL"
+      ],
+      [
+        "taraf",
+        "10001"
+      ]
+    ],
+    "status": "validated",
+    "rows": 41,
+    "served_from_cache": true
+  },
+  {
+    "started_at_utc": "2026-09-07T20:12:50.812435+00:00",
+    "completed_at_utc": "2026-09-07T20:12:51.102263+00:00",
+    "url": "https://www.bddk.org.tr/BultenAylik/tr/Home/BasitRaporGetir",
+    "final_url": "https://www.bddk.org.tr/BultenAylik/tr/Home/BasitRaporGetir",
+    "method": "POST",
+    "transport": "curl",
+    "http_status": 200,
+    "content_type": "application/json; charset=utf-8",
+    "sha256": "1361808aa8f80f509f78e5f7006cf75b52374949c18ab36a34a028fb7a9152ed",
+    "bytes": 5584,
+    "error": "",
+    "diagnosis": "validated_bddk_table",
+    "tls_verification": true,
+    "period": "2024-05",
+    "table_no": 4,
+    "group_code": 10001,
+    "form": [
+      [
+        "tabloNo",
+        "4"
+      ],
+      [
+        "yil",
+        "2024"
+      ],
+      [
+        "ay",
+        "5"
+      ],
+      [
+        "paraBirimi",
+        "TL"
+      ],
+      [
+        "taraf",
+        "10001"
+      ]
+    ],
+    "status": "validated",
+    "rows": 41,
+    "served_from_cache": true
+  },
+  {
+    "started_at_utc": "2026-09-07T20:12:51.505287+00:00",
+    "completed_at_utc": "2026-09-07T20:12:51.707712+00:00",
+    "url": "https://www.bddk.org.tr/BultenAylik/tr/Home/BasitRaporGetir",
+    "final_url": "https://www.bddk.org.tr/BultenAylik/tr/Home/BasitRaporGetir",
+    "method": "POST",
+    "transport": "curl",
+    "http_status": 200,
+    "content_type": "application/json; charset=utf-8",
+    "sha256": "db8e505fbfac674119e97bb8133587adbeae9673fa311e1ef1fb893d3582a285",
+    "bytes": 5585,
+    "error": "",
+    "diagnosis": "validated_bddk_table",
+    "tls_verification": true,
+    "period": "2024-06",
+    "table_no": 4,
+    "group_code": 10001,
+    "form": [
+      [
+        "tabloNo",
+        "4"
+      ],
+      [
+        "yil",
+        "2024"
+      ],
+      [
+        "ay",
+        "6"
+      ],
+      [
+        "paraBirimi",
+        "TL"
+      ],
+      [
+        "taraf",
+        "10001"
+      ]
+    ],
+    "status": "validated",
+    "rows": 41,
+    "served_from_cache": true
+  },
+  {
+    "started_at_utc": "2026-09-07T20:12:52.115482+00:00",
+    "completed_at_utc": "2026-09-07T20:12:52.283954+00:00",
+    "url": "https://www.bddk.org.tr/BultenAylik/tr/Home/BasitRaporGetir",
+    "final_url": "https://www.bddk.org.tr/BultenAylik/tr/Home/BasitRaporGetir",
+    "method": "POST",
+    "transport": "curl",
+    "http_status": 200,
+    "content_type": "application/json; charset=utf-8",
+    "sha256": "88709491a215e4de68429f124d32b8599922b3f5e0ce80a7071846c82b78daed",
+    "bytes": 5589,
+    "error": "",
+    "diagnosis": "validated_bddk_table",
+    "tls_verification": true,
+    "period": "2024-07",
+    "table_no": 4,
+    "group_code": 10001,
+    "form": [
+      [
+        "tabloNo",
+        "4"
+      ],
+      [
+        "yil",
+        "2024"
+      ],
+      [
+        "ay",
+        "7"
+      ],
+      [
+        "paraBirimi",
+        "TL"
+      ],
+      [
+        "taraf",
+        "10001"
+      ]
+    ],
+    "status": "validated",
+    "rows": 41,
+    "served_from_cache": true
+  },
+  {
+    "started_at_utc": "2026-09-07T20:12:52.690768+00:00",
+    "completed_at_utc": "2026-09-07T20:12:52.892872+00:00",
+    "url": "https://www.bddk.org.tr/BultenAylik/tr/Home/BasitRaporGetir",
+    "final_url": "https://www.bddk.org.tr/BultenAylik/tr/Home/BasitRaporGetir",
+    "method": "POST",
+    "transport": "curl",
+    "http_status": 200,
+    "content_type": "application/json; charset=utf-8",
+    "sha256": "2b863fc89fabd1848a55332e854dff66655a2007c0313f8b46668fa0d1190d18",
+    "bytes": 5589,
+    "error": "",
+    "diagnosis": "validated_bddk_table",
+    "tls_verification": true,
+    "period": "2024-08",
+    "table_no": 4,
+    "group_code": 10001,
+    "form": [
+      [
+        "tabloNo",
+        "4"
+      ],
+      [
+        "yil",
+        "2024"
+      ],
+      [
+        "ay",
+        "8"
+      ],
+      [
+        "paraBirimi",
+        "TL"
+      ],
+      [
+        "taraf",
+        "10001"
+      ]
+    ],
+    "status": "validated",
+    "rows": 41,
+    "served_from_cache": true
+  },
+  {
+    "started_at_utc": "2026-09-07T20:12:53.299964+00:00",
+    "completed_at_utc": "2026-09-07T20:12:53.548757+00:00",
+    "url": "https://www.bddk.org.tr/BultenAylik/tr/Home/BasitRaporGetir",
+    "final_url": "https://www.bddk.org.tr/BultenAylik/tr/Home/BasitRaporGetir",
+    "method": "POST",
+    "transport": "curl",
+    "http_status": 200,
+    "content_type": "application/json; charset=utf-8",
+    "sha256": "67490e46cb312714a301e8b99847fa35a7f3c274c982697da56f374b45d7e2bb",
+    "bytes": 5589,
+    "error": "",
+    "diagnosis": "validated_bddk_table",
+    "tls_verification": true,
+    "period": "2024-09",
+    "table_no": 4,
+    "group_code": 10001,
+    "form": [
+      [
+        "tabloNo",
+        "4"
+      ],
+      [
+        "yil",
+        "2024"
+      ],
+      [
+        "ay",
+        "9"
+      ],
+      [
+        "paraBirimi",
+        "TL"
+      ],
+      [
+        "taraf",
+        "10001"
+      ]
+    ],
+    "status": "validated",
+    "rows": 41,
+    "served_from_cache": true
+  },
+  {
+    "started_at_utc": "2026-09-07T20:12:53.956655+00:00",
+    "completed_at_utc": "2026-09-07T20:12:54.382570+00:00",
+    "url": "https://www.bddk.org.tr/BultenAylik/tr/Home/BasitRaporGetir",
+    "final_url": "https://www.bddk.org.tr/BultenAylik/tr/Home/BasitRaporGetir",
+    "method": "POST",
+    "transport": "curl",
+    "http_status": 200,
+    "content_type": "application/json; charset=utf-8",
+    "sha256": "120bcecb1e6bcca252b08b1cc5cf1974a9171e9b06d1ed7e980b6cd0b13224cf",
+    "bytes": 5590,
+    "error": "",
+    "diagnosis": "validated_bddk_table",
+    "tls_verification": true,
+    "period": "2024-10",
+    "table_no": 4,
+    "group_code": 10001,
+    "form": [
+      [
+        "tabloNo",
+        "4"
+      ],
+      [
+        "yil",
+        "2024"
+      ],
+      [
+        "ay",
+        "10"
+      ],
+      [
+        "paraBirimi",
+        "TL"
+      ],
+      [
+        "taraf",
+        "10001"
+      ]
+    ],
+    "status": "validated",
+    "rows": 41,
+    "served_from_cache": true
+  },
+  {
+    "started_at_utc": "2026-09-07T20:12:54.790741+00:00",
+    "completed_at_utc": "2026-09-07T20:12:54.992625+00:00",
+    "url": "https://www.bddk.org.tr/BultenAylik/tr/Home/BasitRaporGetir",
+    "final_url": "https://www.bddk.org.tr/BultenAylik/tr/Home/BasitRaporGetir",
+    "method": "POST",
+    "transport": "curl",
+    "http_status": 200,
+    "content_type": "application/json; charset=utf-8",
+    "sha256": "67a5a5d75d2fd673daa93383739a408ab1006d3277224d22423d989492ebbb96",
+    "bytes": 5595,
+    "error": "",
+    "diagnosis": "validated_bddk_table",
+    "tls_verification": true,
+    "period": "2024-11",
+    "table_no": 4,
+    "group_code": 10001,
+    "form": [
+      [
+        "tabloNo",
+        "4"
+      ],
+      [
+        "yil",
+        "2024"
+      ],
+      [
+        "ay",
+        "11"
+      ],
+      [
+        "paraBirimi",
+        "TL"
+      ],
+      [
+        "taraf",
+        "10001"
+      ]
+    ],
+    "status": "validated",
+    "rows": 41,
+    "served_from_cache": true
+  },
+  {
+    "started_at_utc": "2026-09-07T20:12:55.396034+00:00",
+    "completed_at_utc": "2026-09-07T20:12:55.774046+00:00",
+    "url": "https://www.bddk.org.tr/BultenAylik/tr/Home/BasitRaporGetir",
+    "final_url": "https://www.bddk.org.tr/BultenAylik/tr/Home/BasitRaporGetir",
+    "method": "POST",
+    "transport": "curl",
+    "http_status": 200,
+    "content_type": "application/json; charset=utf-8",
+    "sha256": "ef4cef4615f7f24ad371a5d4b82038a4b20e73b71f63d76ce1515b6a4ebc110f",
+    "bytes": 5595,
+    "error": "",
+    "diagnosis": "validated_bddk_table",
+    "tls_verification": true,
+    "period": "2024-12",
+    "table_no": 4,
+    "group_code": 10001,
+    "form": [
+      [
+        "tabloNo",
+        "4"
+      ],
+      [
+        "yil",
+        "2024"
+      ],
+      [
+        "ay",
+        "12"
+      ],
+      [
+        "paraBirimi",
+        "TL"
+      ],
+      [
+        "taraf",
+        "10001"
+      ]
+    ],
+    "status": "validated",
+    "rows": 41,
+    "served_from_cache": true
+  },
+  {
+    "started_at_utc": "2026-09-07T20:12:56.180489+00:00",
+    "completed_at_utc": "2026-09-07T20:12:56.459162+00:00",
+    "url": "https://www.bddk.org.tr/BultenAylik/tr/Home/BasitRaporGetir",
+    "final_url": "https://www.bddk.org.tr/BultenAylik/tr/Home/BasitRaporGetir",
+    "method": "POST",
+    "transport": "curl",
+    "http_status": 200,
+    "content_type": "application/json; charset=utf-8",
+    "sha256": "9daf24a30215dfdce3c23ce0dce981b797b5523fb5ba2a07f0d821f8f281a217",
+    "bytes": 5594,
+    "error": "",
+    "diagnosis": "validated_bddk_table",
+    "tls_verification": true,
+    "period": "2025-01",
+    "table_no": 4,
+    "group_code": 10001,
+    "form": [
+      [
+        "tabloNo",
+        "4"
+      ],
+      [
+        "yil",
+        "2025"
+      ],
+      [
+        "ay",
+        "1"
+      ],
+      [
+        "paraBirimi",
+        "TL"
+      ],
+      [
+        "taraf",
+        "10001"
+      ]
+    ],
+    "status": "validated",
+    "rows": 41,
+    "served_from_cache": true
+  },
+  {
+    "started_at_utc": "2026-09-07T20:12:56.862268+00:00",
+    "completed_at_utc": "2026-09-07T20:12:57.220249+00:00",
+    "url": "https://www.bddk.org.tr/BultenAylik/tr/Home/BasitRaporGetir",
+    "final_url": "https://www.bddk.org.tr/BultenAylik/tr/Home/BasitRaporGetir",
+    "method": "POST",
+    "transport": "curl",
+    "http_status": 200,
+    "content_type": "application/json; charset=utf-8",
+    "sha256": "3410c1a8d7602053b897daa9f1db83d6505ff8af6c4ffc91bba48349966a05ac",
+    "bytes": 5598,
+    "error": "",
+    "diagnosis": "validated_bddk_table",
+    "tls_verification": true,
+    "period": "2025-02",
+    "table_no": 4,
+    "group_code": 10001,
+    "form": [
+      [
+        "tabloNo",
+        "4"
+      ],
+      [
+        "yil",
+        "2025"
+      ],
+      [
+        "ay",
+        "2"
+      ],
+      [
+        "paraBirimi",
+        "TL"
+      ],
+      [
+        "taraf",
+        "10001"
+      ]
+    ],
+    "status": "validated",
+    "rows": 41,
+    "served_from_cache": true
+  },
+  {
+    "started_at_utc": "2026-09-07T20:12:57.628446+00:00",
+    "completed_at_utc": "2026-09-07T20:12:58.036323+00:00",
+    "url": "https://www.bddk.org.tr/BultenAylik/tr/Home/BasitRaporGetir",
+    "final_url": "https://www.bddk.org.tr/BultenAylik/tr/Home/BasitRaporGetir",
+    "method": "POST",
+    "transport": "curl",
+    "http_status": 200,
+    "content_type": "application/json; charset=utf-8",
+    "sha256": "643db470cff4c6c6290ddd9f023d1699f9942406f025430bf6e49d5921659984",
+    "bytes": 5598,
+    "error": "",
+    "diagnosis": "validated_bddk_table",
+    "tls_verification": true,
+    "period": "2025-03",
+    "table_no": 4,
+    "group_code": 10001,
+    "form": [
+      [
+        "tabloNo",
+        "4"
+      ],
+      [
+        "yil",
+        "2025"
+      ],
+      [
+        "ay",
+        "3"
+      ],
+      [
+        "paraBirimi",
+        "TL"
+      ],
+      [
+        "taraf",
+        "10001"
+      ]
+    ],
+    "status": "validated",
+    "rows": 41,
+    "served_from_cache": true
+  },
+  {
+    "started_at_utc": "2026-09-07T20:12:58.442513+00:00",
+    "completed_at_utc": "2026-09-07T20:12:58.792424+00:00",
+    "url": "https://www.bddk.org.tr/BultenAylik/tr/Home/BasitRaporGetir",
+    "final_url": "https://www.bddk.org.tr/BultenAylik/tr/Home/BasitRaporGetir",
+    "method": "POST",
+    "transport": "curl",
+    "http_status": 200,
+    "content_type": "application/json; charset=utf-8",
+    "sha256": "2b0d24bac00e6dcba14570730f950f00fb008635da54e6c7ed084ced8a485775",
+    "bytes": 5599,
+    "error": "",
+    "diagnosis": "validated_bddk_table",
+    "tls_verification": true,
+    "period": "2025-04",
+    "table_no": 4,
+    "group_code": 10001,
+    "form": [
+      [
+        "tabloNo",
+        "4"
+      ],
+      [
+        "yil",
+        "2025"
+      ],
+      [
+        "ay",
+        "4"
+      ],
+      [
+        "paraBirimi",
+        "TL"
+      ],
+      [
+        "taraf",
+        "10001"
+      ]
+    ],
+    "status": "validated",
+    "rows": 41,
+    "served_from_cache": true
+  },
+  {
+    "started_at_utc": "2026-09-07T20:12:59.199419+00:00",
+    "completed_at_utc": "2026-09-07T20:12:59.586991+00:00",
+    "url": "https://www.bddk.org.tr/BultenAylik/tr/Home/BasitRaporGetir",
+    "final_url": "https://www.bddk.org.tr/BultenAylik/tr/Home/BasitRaporGetir",
+    "method": "POST",
+    "transport": "curl",
+    "http_status": 200,
+    "content_type": "application/json; charset=utf-8",
+    "sha256": "9018478affd371c9774d366a829b444b12529a64a1cee44e62766db2bf8c5044",
+    "bytes": 5600,
+    "error": "",
+    "diagnosis": "validated_bddk_table",
+    "tls_verification": true,
+    "period": "2025-05",
+    "table_no": 4,
+    "group_code": 10001,
+    "form": [
+      [
+        "tabloNo",
+        "4"
+      ],
+      [
+        "yil",
+        "2025"
+      ],
+      [
+        "ay",
+        "5"
+      ],
+      [
+        "paraBirimi",
+        "TL"
+      ],
+      [
+        "taraf",
+        "10001"
+      ]
+    ],
+    "status": "validated",
+    "rows": 41,
+    "served_from_cache": true
+  },
+  {
+    "started_at_utc": "2026-09-07T20:12:59.995443+00:00",
+    "completed_at_utc": "2026-09-07T20:13:00.366909+00:00",
+    "url": "https://www.bddk.org.tr/BultenAylik/tr/Home/BasitRaporGetir",
+    "final_url": "https://www.bddk.org.tr/BultenAylik/tr/Home/BasitRaporGetir",
+    "method": "POST",
+    "transport": "curl",
+    "http_status": 200,
+    "content_type": "application/json; charset=utf-8",
+    "sha256": "032ee7ac0ba0a64880549c24ae3cace69451f0513cdaaf0725acd41b6a093769",
+    "bytes": 5602,
+    "error": "",
+    "diagnosis": "validated_bddk_table",
+    "tls_verification": true,
+    "period": "2025-06",
+    "table_no": 4,
+    "group_code": 10001,
+    "form": [
+      [
+        "tabloNo",
+        "4"
+      ],
+      [
+        "yil",
+        "2025"
+      ],
+      [
+        "ay",
+        "6"
+      ],
+      [
+        "paraBirimi",
+        "TL"
+      ],
+      [
+        "taraf",
+        "10001"
+      ]
+    ],
+    "status": "validated",
+    "rows": 41,
+    "served_from_cache": true
+  },
+  {
+    "started_at_utc": "2026-09-07T20:13:00.774517+00:00",
+    "completed_at_utc": "2026-09-07T20:13:01.116331+00:00",
+    "url": "https://www.bddk.org.tr/BultenAylik/tr/Home/BasitRaporGetir",
+    "final_url": "https://www.bddk.org.tr/BultenAylik/tr/Home/BasitRaporGetir",
+    "method": "POST",
+    "transport": "curl",
+    "http_status": 200,
+    "content_type": "application/json; charset=utf-8",
+    "sha256": "ad4f39695bdd41dc2d46254dd4e43899dca63715bd242af0e2a9a51876c270f1",
+    "bytes": 5603,
+    "error": "",
+    "diagnosis": "validated_bddk_table",
+    "tls_verification": true,
+    "period": "2025-07",
+    "table_no": 4,
+    "group_code": 10001,
+    "form": [
+      [
+        "tabloNo",
+        "4"
+      ],
+      [
+        "yil",
+        "2025"
+      ],
+      [
+        "ay",
+        "7"
+      ],
+      [
+        "paraBirimi",
+        "TL"
+      ],
+      [
+        "taraf",
+        "10001"
+      ]
+    ],
+    "status": "validated",
+    "rows": 41,
+    "served_from_cache": true
+  },
+  {
+    "started_at_utc": "2026-09-07T20:13:01.520268+00:00",
+    "completed_at_utc": "2026-09-07T20:13:01.766694+00:00",
+    "url": "https://www.bddk.org.tr/BultenAylik/tr/Home/BasitRaporGetir",
+    "final_url": "https://www.bddk.org.tr/BultenAylik/tr/Home/BasitRaporGetir",
+    "method": "POST",
+    "transport": "curl",
+    "http_status": 200,
+    "content_type": "application/json; charset=utf-8",
+    "sha256": "2bec6cfe0f1c224468b257ee39341f3599a51d736c55fc0bff23449bfa97e306",
+    "bytes": 5604,
+    "error": "",
+    "diagnosis": "validated_bddk_table",
+    "tls_verification": true,
+    "period": "2025-08",
+    "table_no": 4,
+    "group_code": 10001,
+    "form": [
+      [
+        "tabloNo",
+        "4"
+      ],
+      [
+        "yil",
+        "2025"
+      ],
+      [
+        "ay",
+        "8"
+      ],
+      [
+        "paraBirimi",
+        "TL"
+      ],
+      [
+        "taraf",
+        "10001"
+      ]
+    ],
+    "status": "validated",
+    "rows": 41,
+    "served_from_cache": true
+  },
+  {
+    "started_at_utc": "2026-09-07T20:13:02.170125+00:00",
+    "completed_at_utc": "2026-09-07T20:13:02.459540+00:00",
+    "url": "https://www.bddk.org.tr/BultenAylik/tr/Home/BasitRaporGetir",
+    "final_url": "https://www.bddk.org.tr/BultenAylik/tr/Home/BasitRaporGetir",
+    "method": "POST",
+    "transport": "curl",
+    "http_status": 200,
+    "content_type": "application/json; charset=utf-8",
+    "sha256": "bf64a3112150b035530236a292518c6dc43c321fde74a7e64dd70998d4fc2ebc",
+    "bytes": 5608,
+    "error": "",
+    "diagnosis": "validated_bddk_table",
+    "tls_verification": true,
+    "period": "2025-09",
+    "table_no": 4,
+    "group_code": 10001,
+    "form": [
+      [
+        "tabloNo",
+        "4"
+      ],
+      [
+        "yil",
+        "2025"
+      ],
+      [
+        "ay",
+        "9"
+      ],
+      [
+        "paraBirimi",
+        "TL"
+      ],
+      [
+        "taraf",
+        "10001"
+      ]
+    ],
+    "status": "validated",
+    "rows": 41,
+    "served_from_cache": true
+  },
+  {
+    "started_at_utc": "2026-09-07T20:13:02.866626+00:00",
+    "completed_at_utc": "2026-09-07T20:13:03.224313+00:00",
+    "url": "https://www.bddk.org.tr/BultenAylik/tr/Home/BasitRaporGetir",
+    "final_url": "https://www.bddk.org.tr/BultenAylik/tr/Home/BasitRaporGetir",
+    "method": "POST",
+    "transport": "curl",
+    "http_status": 200,
+    "content_type": "application/json; charset=utf-8",
+    "sha256": "189aa3fc0956baf1fb716b5b163ea29b28923e94d8a35f482b1467be8ca2346c",
+    "bytes": 5614,
+    "error": "",
+    "diagnosis": "validated_bddk_table",
+    "tls_verification": true,
+    "period": "2025-10",
+    "table_no": 4,
+    "group_code": 10001,
+    "form": [
+      [
+        "tabloNo",
+        "4"
+      ],
+      [
+        "yil",
+        "2025"
+      ],
+      [
+        "ay",
+        "10"
+      ],
+      [
+        "paraBirimi",
+        "TL"
+      ],
+      [
+        "taraf",
+        "10001"
+      ]
+    ],
+    "status": "validated",
+    "rows": 41,
+    "served_from_cache": true
+  },
+  {
+    "started_at_utc": "2026-09-07T20:13:03.632790+00:00",
+    "completed_at_utc": "2026-09-07T20:13:03.863291+00:00",
+    "url": "https://www.bddk.org.tr/BultenAylik/tr/Home/BasitRaporGetir",
+    "final_url": "https://www.bddk.org.tr/BultenAylik/tr/Home/BasitRaporGetir",
+    "method": "POST",
+    "transport": "curl",
+    "http_status": 200,
+    "content_type": "application/json; charset=utf-8",
+    "sha256": "1f36d20b46142c274d7680dfe208652927722031493b3af25c9ddde230f7a4aa",
+    "bytes": 5617,
+    "error": "",
+    "diagnosis": "validated_bddk_table",
+    "tls_verification": true,
+    "period": "2025-11",
+    "table_no": 4,
+    "group_code": 10001,
+    "form": [
+      [
+        "tabloNo",
+        "4"
+      ],
+      [
+        "yil",
+        "2025"
+      ],
+      [
+        "ay",
+        "11"
+      ],
+      [
+        "paraBirimi",
+        "TL"
+      ],
+      [
+        "taraf",
+        "10001"
+      ]
+    ],
+    "status": "validated",
+    "rows": 41,
+    "served_from_cache": true
+  },
+  {
+    "started_at_utc": "2026-09-07T20:13:04.270916+00:00",
+    "completed_at_utc": "2026-09-07T20:13:04.558781+00:00",
+    "url": "https://www.bddk.org.tr/BultenAylik/tr/Home/BasitRaporGetir",
+    "final_url": "https://www.bddk.org.tr/BultenAylik/tr/Home/BasitRaporGetir",
+    "method": "POST",
+    "transport": "curl",
+    "http_status": 200,
+    "content_type": "application/json; charset=utf-8",
+    "sha256": "4aac645c936103632bed640c86ded24e42011b9ff874e210be74bb75289f6996",
+    "bytes": 5611,
+    "error": "",
+    "diagnosis": "validated_bddk_table",
+    "tls_verification": true,
+    "period": "2025-12",
+    "table_no": 4,
+    "group_code": 10001,
+    "form": [
+      [
+        "tabloNo",
+        "4"
+      ],
+      [
+        "yil",
+        "2025"
+      ],
+      [
+        "ay",
+        "12"
+      ],
+      [
+        "paraBirimi",
+        "TL"
+      ],
+      [
+        "taraf",
+        "10001"
+      ]
+    ],
+    "status": "validated",
+    "rows": 41,
+    "served_from_cache": true
+  },
+  {
+    "started_at_utc": "2026-09-07T20:13:04.964938+00:00",
+    "completed_at_utc": "2026-09-07T20:13:05.344768+00:00",
+    "url": "https://www.bddk.org.tr/BultenAylik/tr/Home/BasitRaporGetir",
+    "final_url": "https://www.bddk.org.tr/BultenAylik/tr/Home/BasitRaporGetir",
+    "method": "POST",
+    "transport": "curl",
+    "http_status": 200,
+    "content_type": "application/json; charset=utf-8",
+    "sha256": "11b0fb192dee21c9571e1945c22fd63042364a16c710b62055acca5b741c3925",
+    "bytes": 5619,
+    "error": "",
+    "diagnosis": "validated_bddk_table",
+    "tls_verification": true,
+    "period": "2026-01",
+    "table_no": 4,
+    "group_code": 10001,
+    "form": [
+      [
+        "tabloNo",
+        "4"
+      ],
+      [
+        "yil",
+        "2026"
+      ],
+      [
+        "ay",
+        "1"
+      ],
+      [
+        "paraBirimi",
+        "TL"
+      ],
+      [
+        "taraf",
+        "10001"
+      ]
+    ],
+    "status": "validated",
+    "rows": 41,
+    "served_from_cache": true
+  },
+  {
+    "started_at_utc": "2026-09-07T20:13:05.752980+00:00",
+    "completed_at_utc": "2026-09-07T20:13:05.999323+00:00",
+    "url": "https://www.bddk.org.tr/BultenAylik/tr/Home/BasitRaporGetir",
+    "final_url": "https://www.bddk.org.tr/BultenAylik/tr/Home/BasitRaporGetir",
+    "method": "POST",
+    "transport": "curl",
+    "http_status": 200,
+    "content_type": "application/json; charset=utf-8",
+    "sha256": "0541d4924199841c785289c0d6f0bf78515b6d2e44c0352eddeca06feac3e4ad",
+    "bytes": 5618,
+    "error": "",
+    "diagnosis": "validated_bddk_table",
+    "tls_verification": true,
+    "period": "2026-02",
+    "table_no": 4,
+    "group_code": 10001,
+    "form": [
+      [
+        "tabloNo",
+        "4"
+      ],
+      [
+        "yil",
+        "2026"
+      ],
+      [
+        "ay",
+        "2"
+      ],
+      [
+        "paraBirimi",
+        "TL"
+      ],
+      [
+        "taraf",
+        "10001"
+      ]
+    ],
+    "status": "validated",
+    "rows": 41,
+    "served_from_cache": true
+  },
+  {
+    "started_at_utc": "2026-09-07T20:13:06.407018+00:00",
+    "completed_at_utc": "2026-09-07T20:13:06.702588+00:00",
+    "url": "https://www.bddk.org.tr/BultenAylik/tr/Home/BasitRaporGetir",
+    "final_url": "https://www.bddk.org.tr/BultenAylik/tr/Home/BasitRaporGetir",
+    "method": "POST",
+    "transport": "curl",
+    "http_status": 200,
+    "content_type": "application/json; charset=utf-8",
+    "sha256": "88a28dc35ff088c3d3e1c6ceff85842e33487a665a5dba02653363edb0fa63a8",
+    "bytes": 5622,
+    "error": "",
+    "diagnosis": "validated_bddk_table",
+    "tls_verification": true,
+    "period": "2026-03",
+    "table_no": 4,
+    "group_code": 10001,
+    "form": [
+      [
+        "tabloNo",
+        "4"
+      ],
+      [
+        "yil",
+        "2026"
+      ],
+      [
+        "ay",
+        "3"
+      ],
+      [
+        "paraBirimi",
+        "TL"
+      ],
+      [
+        "taraf",
+        "10001"
+      ]
+    ],
+    "status": "validated",
+    "rows": 41,
+    "served_from_cache": true
+  },
+  {
+    "started_at_utc": "2026-09-07T20:13:07.104729+00:00",
+    "completed_at_utc": "2026-09-07T20:13:07.519188+00:00",
+    "url": "https://www.bddk.org.tr/BultenAylik/tr/Home/BasitRaporGetir",
+    "final_url": "https://www.bddk.org.tr/BultenAylik/tr/Home/BasitRaporGetir",
+    "method": "POST",
+    "transport": "curl",
+    "http_status": 200,
+    "content_type": "application/json; charset=utf-8",
+    "sha256": "b80b129ab66ceae541de6e1f60c5edb79cb582db9729df482081d96a3a0a5ad2",
+    "bytes": 5625,
+    "error": "",
+    "diagnosis": "validated_bddk_table",
+    "tls_verification": true,
+    "period": "2026-04",
+    "table_no": 4,
+    "group_code": 10001,
+    "form": [
+      [
+        "tabloNo",
+        "4"
+      ],
+      [
+        "yil",
+        "2026"
+      ],
+      [
+        "ay",
+        "4"
+      ],
+      [
+        "paraBirimi",
+        "TL"
+      ],
+      [
+        "taraf",
+        "10001"
+      ]
+    ],
+    "status": "validated",
+    "rows": 41,
+    "served_from_cache": true
+  },
+  {
+    "started_at_utc": "2026-09-07T20:13:07.927364+00:00",
+    "completed_at_utc": "2026-09-07T20:13:08.229366+00:00",
+    "url": "https://www.bddk.org.tr/BultenAylik/tr/Home/BasitRaporGetir",
+    "final_url": "https://www.bddk.org.tr/BultenAylik/tr/Home/BasitRaporGetir",
+    "method": "POST",
+    "transport": "curl",
+    "http_status": 200,
+    "content_type": "application/json; charset=utf-8",
+    "sha256": "2136139e5dbbca4e46aa12feb17aae229b4995a017b76326a2b6347035b7d5a2",
+    "bytes": 5631,
+    "error": "",
+    "diagnosis": "validated_bddk_table",
+    "tls_verification": true,
+    "period": "2026-05",
+    "table_no": 4,
+    "group_code": 10001,
+    "form": [
+      [
+        "tabloNo",
+        "4"
+      ],
+      [
+        "yil",
+        "2026"
+      ],
+      [
+        "ay",
+        "5"
+      ],
+      [
+        "paraBirimi",
+        "TL"
+      ],
+      [
+        "taraf",
+        "10001"
+      ]
+    ],
+    "status": "validated",
+    "rows": 41,
+    "served_from_cache": true
+  },
+  {
+    "started_at_utc": "2026-09-07T20:13:08.638773+00:00",
+    "completed_at_utc": "2026-09-07T20:13:08.802705+00:00",
+    "url": "https://www.bddk.org.tr/BultenAylik/tr/Home/BasitRaporGetir",
+    "final_url": "https://www.bddk.org.tr/BultenAylik/tr/Home/BasitRaporGetir",
+    "method": "POST",
+    "transport": "curl",
+    "http_status": 200,
+    "content_type": "application/json; charset=utf-8",
+    "sha256": "b4f6191652c3424d10cbd3ebb8dd939c4f98593eff65495b7db01519660ee4f2",
+    "bytes": 5626,
+    "error": "",
+    "diagnosis": "validated_bddk_table",
+    "tls_verification": true,
+    "period": "2026-06",
+    "table_no": 4,
+    "group_code": 10001,
+    "form": [
+      [
+        "tabloNo",
+        "4"
+      ],
+      [
+        "yil",
+        "2026"
+      ],
+      [
+        "ay",
+        "6"
+      ],
+      [
+        "paraBirimi",
+        "TL"
+      ],
+      [
+        "taraf",
+        "10001"
+      ]
+    ],
+    "status": "validated",
+    "rows": 41,
+    "served_from_cache": true
+  }
+]

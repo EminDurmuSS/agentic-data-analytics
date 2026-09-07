@@ -1,0 +1,31 @@
+{
+  "status": "validated",
+  "diagnosis": "validated_bddk_weekly_html_table",
+  "source_url": "https://www.bddk.org.tr/BultenHaftalik/",
+  "sha256_uncompressed": "5db18b1126428387b2e32c9efd1865adcf741b7cdb38534c5c3196abcb780eec",
+  "compressed_bytes": 15144,
+  "uncompressed_bytes": 196817,
+  "served_from_cache": false,
+  "completed_at_utc": "2026-09-07T21:44:20.526381+00:00",
+  "table_id": 293,
+  "table_name": "Diger Bilanco Kalemleri",
+  "group_code": 10001,
+  "group_name": "Sektor",
+  "period_id": 572,
+  "observation_date": "2024-12-13",
+  "week_number": 50,
+  "source_period_label": "Aralık/13 (50. Hafta)",
+  "source_date_heading": "Tarih: 13 Aralık 2024 Cuma | Birim: Milyon TL",
+  "source_date_parsed": "2024-12-13",
+  "headers": [
+    "",
+    "Diğer Bilanço Kalemleri",
+    "TP",
+    "YP",
+    "TOPLAM"
+  ],
+  "rows": 16,
+  "max_cells_per_row": 5,
+  "unit_heading": "Milyon TL",
+  "date_heading_normalized": "tarih: 13 aralik 2024 cuma | birim: milyon tl"
+}

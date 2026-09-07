@@ -1,0 +1,32 @@
+{
+  "status": "validated",
+  "series_code": "TP.BISPOLFAIZ.TUR",
+  "frequency": "AYLIK",
+  "aggregation": "last",
+  "chunk_start": "2020-01-01",
+  "chunk_end": "2026-06-30",
+  "request_file": "raw/TP_BISPOLFAIZ_TUR_2020-01-01_2026-06-30_request.json",
+  "request_sha256": "0917023e74e221815333401e570c26eba812304833eeecf669784e0240da5e30",
+  "response_file": "raw/TP_BISPOLFAIZ_TUR_2020-01-01_2026-06-30_response.json.gz",
+  "response_sha256": "c1ea2ac930e57a1919fcbe640ea5d2bb46a2832f455ac2d49c728e1949123b7b",
+  "served_from_cache": false,
+  "http_status": 200,
+  "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "content_type": "application/json;charset=UTF-8",
+  "url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "started_at_utc": "2026-09-07T21:47:01.908561+00:00",
+  "completed_at_utc": "2026-09-07T21:47:04.309415+00:00",
+  "bytes": 12325,
+  "sha256": "c1ea2ac930e57a1919fcbe640ea5d2bb46a2832f455ac2d49c728e1949123b7b",
+  "transport": "curl",
+  "tls_verification": true,
+  "response_total_count": 78,
+  "retained_rows": 78,
+  "outside_requested_range_rows": 0,
+  "series_names": {
+    "TP_BISPOLFAIZ_TUR": "Türkiye (TUR) Merkez Bankası Politika Faiz Oranı"
+  },
+  "frequency_conversion": {
+    "TP.BISPOLFAIZ.TUR": true
+  }
+}

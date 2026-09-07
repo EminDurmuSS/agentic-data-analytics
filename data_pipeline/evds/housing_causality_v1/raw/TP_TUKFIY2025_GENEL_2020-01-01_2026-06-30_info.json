@@ -1,0 +1,29 @@
+{
+  "status": "validated",
+  "series_code": "TP.TUKFIY2025.GENEL",
+  "frequency": "AYLIK",
+  "aggregation": "avg",
+  "chunk_start": "2020-01-01",
+  "chunk_end": "2026-06-30",
+  "request_file": "raw/TP_TUKFIY2025_GENEL_2020-01-01_2026-06-30_request.json",
+  "request_sha256": "ace65cec667f8cbfe5b1ce8ee08ad3218c8e249fdc7d0b8a7a56ea1c61a75108",
+  "response_file": "raw/TP_TUKFIY2025_GENEL_2020-01-01_2026-06-30_response.json.gz",
+  "response_sha256": "1623d15ca20bfd54e31b5f4eb494a1b3c25a4d82423d79ee6c2dfd3fd6e8faa7",
+  "served_from_cache": true,
+  "http_status": 200,
+  "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "content_type": "application/json;charset=UTF-8",
+  "bytes": 12459,
+  "sha256": "1623d15ca20bfd54e31b5f4eb494a1b3c25a4d82423d79ee6c2dfd3fd6e8faa7",
+  "transport": "curl",
+  "tls_verification": true,
+  "response_total_count": 78,
+  "retained_rows": 78,
+  "outside_requested_range_rows": 0,
+  "series_names": {
+    "TP_TUKFIY2025_GENEL": "Genel Endeks"
+  },
+  "frequency_conversion": {
+    "TP.TUKFIY2025.GENEL": true
+  }
+}

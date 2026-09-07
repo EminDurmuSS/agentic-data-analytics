@@ -1,0 +1,29 @@
+{
+  "status": "validated",
+  "series_code": "TP.TG2.Y19",
+  "frequency": "AYLIK",
+  "aggregation": "avg",
+  "chunk_start": "2020-01-01",
+  "chunk_end": "2026-06-30",
+  "request_file": "raw/TP_TG2_Y19_2020-01-01_2026-06-30_request.json",
+  "request_sha256": "0895444c58c7e76cce45d97f0b4f56d55252774d3e2a3070f773b532790a43d0",
+  "response_file": "raw/TP_TG2_Y19_2020-01-01_2026-06-30_response.json.gz",
+  "response_sha256": "9de2e6b34803fcd0cef6d248fcd0e8a6d9c48c736df0924cec32824f132fa7de",
+  "served_from_cache": true,
+  "http_status": 200,
+  "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "content_type": "application/json;charset=UTF-8",
+  "bytes": 11754,
+  "sha256": "9de2e6b34803fcd0cef6d248fcd0e8a6d9c48c736df0924cec32824f132fa7de",
+  "transport": "curl",
+  "tls_verification": true,
+  "response_total_count": 78,
+  "retained_rows": 78,
+  "outside_requested_range_rows": 0,
+  "series_names": {
+    "TP_TG2_Y19": "Gelecek on iki aydaki konut satın alma veya inşa ettirme ihtimali beklentisi"
+  },
+  "frequency_conversion": {
+    "TP.TG2.Y19": true
+  }
+}

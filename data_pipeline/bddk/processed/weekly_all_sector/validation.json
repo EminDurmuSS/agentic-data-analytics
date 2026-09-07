@@ -1,0 +1,150 @@
+{
+  "status": "passed",
+  "source_download_status": "complete",
+  "source_page_count": 2574,
+  "period_count": 286,
+  "table_count": 9,
+  "group_count": 1,
+  "measurement_row_count": 147154,
+  "wide_row_count": 50958,
+  "missing_measurement_count": 514,
+  "metric_codes_with_label_changes": [
+    "291:10",
+    "291:2",
+    "291:3",
+    "291:4",
+    "291:5",
+    "291:6",
+    "291:7",
+    "291:8",
+    "291:9"
+  ],
+  "currency_total_check": {
+    "checked_rows": 47584,
+    "maximum_absolute_rounding_difference": 1.0
+  },
+  "tables": {
+    "289": {
+      "table_name": "Krediler",
+      "source_pages": 286,
+      "measurement_rows": 18342,
+      "metric_codes": 22,
+      "metric_label_variants": 18,
+      "min_source_rows": 20,
+      "max_source_rows": 22,
+      "schema_versions": 1
+    },
+    "290": {
+      "table_name": "Takipteki Alacaklar",
+      "source_pages": 286,
+      "measurement_rows": 10296,
+      "metric_codes": 12,
+      "metric_label_variants": 12,
+      "min_source_rows": 12,
+      "max_source_rows": 12,
+      "schema_versions": 1
+    },
+    "291": {
+      "table_name": "Menkul Degerler",
+      "source_pages": 286,
+      "measurement_rows": 11154,
+      "metric_codes": 13,
+      "metric_label_variants": 14,
+      "min_source_rows": 13,
+      "max_source_rows": 13,
+      "schema_versions": 1
+    },
+    "292": {
+      "table_name": "Mevduat",
+      "source_pages": 286,
+      "measurement_rows": 10122,
+      "metric_codes": 12,
+      "metric_label_variants": 8,
+      "min_source_rows": 11,
+      "max_source_rows": 12,
+      "schema_versions": 1
+    },
+    "293": {
+      "table_name": "Diger Bilanco Kalemleri",
+      "source_pages": 286,
+      "measurement_rows": 13728,
+      "metric_codes": 16,
+      "metric_label_variants": 14,
+      "min_source_rows": 16,
+      "max_source_rows": 16,
+      "schema_versions": 1
+    },
+    "294": {
+      "table_name": "Bilanco Disi Islemler",
+      "source_pages": 286,
+      "measurement_rows": 3432,
+      "metric_codes": 4,
+      "metric_label_variants": 4,
+      "min_source_rows": 4,
+      "max_source_rows": 4,
+      "schema_versions": 1
+    },
+    "295": {
+      "table_name": "Bankalarda Saklanan Menkul Degerler - 1",
+      "source_pages": 286,
+      "measurement_rows": 38610,
+      "metric_codes": 45,
+      "metric_label_variants": 17,
+      "min_source_rows": 45,
+      "max_source_rows": 45,
+      "schema_versions": 1
+    },
+    "296": {
+      "table_name": "Bankalarda Saklanan Menkul Degerler - 2",
+      "source_pages": 286,
+      "measurement_rows": 38610,
+      "metric_codes": 45,
+      "metric_label_variants": 17,
+      "min_source_rows": 45,
+      "max_source_rows": 45,
+      "schema_versions": 1
+    },
+    "297": {
+      "table_name": "Yabanci Para Pozisyonu",
+      "source_pages": 286,
+      "measurement_rows": 2860,
+      "metric_codes": 10,
+      "metric_label_variants": 10,
+      "min_source_rows": 10,
+      "max_source_rows": 10,
+      "schema_versions": 1
+    }
+  },
+  "requested_scope": {
+    "source_url": "https://www.bddk.org.tr/BultenHaftalik/",
+    "start": "2021-01-01",
+    "end": "2026-06-30",
+    "period_count": 286,
+    "tables": {
+      "289": "Krediler",
+      "290": "Takipteki Alacaklar",
+      "291": "Menkul Degerler",
+      "292": "Mevduat",
+      "293": "Diger Bilanco Kalemleri",
+      "294": "Bilanco Disi Islemler",
+      "295": "Bankalarda Saklanan Menkul Degerler - 1",
+      "296": "Bankalarda Saklanan Menkul Degerler - 2",
+      "297": "Yabanci Para Pozisyonu"
+    },
+    "groups": {
+      "10001": "Sektor"
+    },
+    "currency": "TL",
+    "raw_format": "gzip-compressed source HTML",
+    "normalized_format": "lossless long-form cell CSV",
+    "transport": "curl",
+    "tls_verification": true
+  },
+  "quality_policy": [
+    "Every HTML source page is reparsed and hash-checked.",
+    "Source sequence and labels are preserved instead of guessed from row position.",
+    "Turkish thousands and decimal formatting is normalized without filling missing cells.",
+    "TRY plus FX totals are checked with a one-million-TL rounding tolerance.",
+    "Metric label and schema changes remain visible in the catalogs."
+  ]
+}

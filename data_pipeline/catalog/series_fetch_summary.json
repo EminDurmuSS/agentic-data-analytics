@@ -1,0 +1,15 @@
+{
+  "target_groups": 676,
+  "attempted_groups": 676,
+  "successful_groups": 676,
+  "failed_groups": [],
+  "unattempted_groups": [],
+  "series_catalog_rows": 52696,
+  "bytes_downloaded": 21707806,
+  "elapsed_seconds": 131.2,
+  "stopped_by_budget_or_http": false,
+  "observations_downloaded": 0,
+  "scope": "Public frontend category/group list and per-group series metadata only",
+  "already_cached_groups": 66,
+  "attempted_this_run": 610
+}

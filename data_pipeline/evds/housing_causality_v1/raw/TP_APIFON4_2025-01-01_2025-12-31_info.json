@@ -1,0 +1,29 @@
+{
+  "status": "validated",
+  "series_code": "TP.APIFON4",
+  "frequency": "İŞ GÜNÜ",
+  "aggregation": "last",
+  "chunk_start": "2025-01-01",
+  "chunk_end": "2025-12-31",
+  "request_file": "raw/TP_APIFON4_2025-01-01_2025-12-31_request.json",
+  "request_sha256": "d0449489f467546e810f8015d5f25b580b800f9439ccbaa38c789f20d3717342",
+  "response_file": "raw/TP_APIFON4_2025-01-01_2025-12-31_response.json.gz",
+  "response_sha256": "a9ea13459df0dd86709225ce7e64fec6b44f095c248d2d6355722396f90b6c83",
+  "served_from_cache": true,
+  "http_status": 200,
+  "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "content_type": "application/json;charset=UTF-8",
+  "bytes": 41624,
+  "sha256": "a9ea13459df0dd86709225ce7e64fec6b44f095c248d2d6355722396f90b6c83",
+  "transport": "curl",
+  "tls_verification": true,
+  "response_total_count": 261,
+  "retained_rows": 261,
+  "outside_requested_range_rows": 0,
+  "series_names": {
+    "TP_APIFON4": "TCMB Ağırlıklı Ortalama Fonlama Maliyeti"
+  },
+  "frequency_conversion": {
+    "TP.APIFON4": true
+  }
+}

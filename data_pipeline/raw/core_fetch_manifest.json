@@ -1,0 +1,80 @@
+[
+  {
+    "name": "core_kfe_tr",
+    "series_code": "TP.KFE.TR",
+    "method": "POST",
+    "url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+    "request_file": "core_kfe_tr_request.json",
+    "response_file": "core_kfe_tr.json",
+    "retrieved_at_utc": "2026-09-07T17:32:05.857877+00:00",
+    "http_status": 200,
+    "sha256": "eb35980b3c91f1861c1069d1a673074b95fc2168ce2752615858e48d314c2726",
+    "raw_rows": 78,
+    "access_route": "Anonymous official public website query; not the documented API"
+  },
+  {
+    "name": "core_kfe_istanbul",
+    "series_code": "TP.KFE.TR10",
+    "method": "POST",
+    "url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+    "request_file": "core_kfe_istanbul_request.json",
+    "response_file": "core_kfe_istanbul.json",
+    "retrieved_at_utc": "2026-09-07T17:32:17.584614+00:00",
+    "http_status": 200,
+    "sha256": "93dc318f3bed37174bf32fa59c3148704aa11c08064e893ff18e82125b7fa7e4",
+    "raw_rows": 78,
+    "access_route": "Anonymous official public website query; not the documented API"
+  },
+  {
+    "name": "core_kfe_ankara",
+    "series_code": "TP.KFE.TR51",
+    "method": "POST",
+    "url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+    "request_file": "core_kfe_ankara_request.json",
+    "response_file": "core_kfe_ankara.json",
+    "retrieved_at_utc": "2026-09-07T17:32:25.961820+00:00",
+    "http_status": 200,
+    "sha256": "522e0f3fdf9174a83df7b3ba2f97570f1f1faf9767fc9a3658d5d0a7e6702ec8",
+    "raw_rows": 78,
+    "access_route": "Anonymous official public website query; not the documented API"
+  },
+  {
+    "name": "core_kfe_izmir",
+    "series_code": "TP.KFE.TR31",
+    "method": "POST",
+    "url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+    "request_file": "core_kfe_izmir_request.json",
+    "response_file": "core_kfe_izmir.json",
+    "retrieved_at_utc": "2026-09-07T17:32:37.483351+00:00",
+    "http_status": 200,
+    "sha256": "590bf513634dd599754538483b6478930ce5df208fa6f300fabd10ef07282c13",
+    "raw_rows": 78,
+    "access_route": "Anonymous official public website query; not the documented API"
+  },
+  {
+    "name": "core_cpi",
+    "series_code": "TP.TUKFIY2025.GENEL",
+    "method": "POST",
+    "url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+    "request_file": "core_cpi_request.json",
+    "response_file": "core_cpi.json",
+    "retrieved_at_utc": "2026-09-07T17:32:45.528478+00:00",
+    "http_status": 200,
+    "sha256": "1623d15ca20bfd54e31b5f4eb494a1b3c25a4d82423d79ee6c2dfd3fd6e8faa7",
+    "raw_rows": 78,
+    "access_route": "Anonymous official public website query; not the documented API"
+  },
+  {
+    "name": "core_rate",
+    "series_code": "TP.KTF12",
+    "method": "POST",
+    "url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+    "request_file": "core_rate_request.json",
+    "response_file": "core_rate.json",
+    "retrieved_at_utc": "2026-09-07T17:32:53.650652+00:00",
+    "http_status": 200,
+    "sha256": "6e945aea073760e7f48e698ccd34a19f493f50648d3df16cfa723c670ae81ec3",
+    "raw_rows": 340,
+    "access_route": "Anonymous official public website query; not the documented API"
+  }
+]

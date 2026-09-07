@@ -1,0 +1,61 @@
+column,unit,kind,formula_or_aggregation,sources
+month,YYYY-MM,period_key,Reference month; not publication date,calendar
+kfe_tr_index2023,index_2023_100,index,unchanged monthly level,TP.KFE.TR
+kfe_istanbul_index2023,index_2023_100,index,unchanged monthly level,TP.KFE.TR10
+kfe_ankara_index2023,index_2023_100,index,unchanged monthly level,TP.KFE.TR51
+kfe_izmir_index2023,index_2023_100,index,unchanged monthly level,TP.KFE.TR31
+cpi_index2025,index_2025_100,index,unchanged monthly level,TP.TUKFIY2025.GENEL
+housing_rate_annual_pct_weekly_mean,annual_effective_percent,derived_rate,mean of published weekly annual effective rates within calendar month; not volume-weighted monthly rate,TP.KTF12
+housing_rate_annual_pct_last,annual_effective_percent,derived_rate,last of published weekly annual effective rates within calendar month; not volume-weighted monthly rate,TP.KTF12
+housing_rate_annual_pct_min,annual_effective_percent,derived_rate,min of published weekly annual effective rates within calendar month; not volume-weighted monthly rate,TP.KTF12
+housing_rate_annual_pct_max,annual_effective_percent,derived_rate,max of published weekly annual effective rates within calendar month; not volume-weighted monthly rate,TP.KTF12
+housing_rate_week_count,count,coverage,count Fridays in month,TP.KTF12
+housing_rate_last_observation_date,YYYY-MM-DD,observation_date,"last published observation date within month, not release date",TP.KTF12
+housing_sales_total_count,count,flow,unchanged monthly level,TP.AKONUTSAT1.KTRTOPLAM
+housing_sales_mortgaged_count,count,flow,unchanged monthly level,TP.AKONUTSAT2.KTRTOPLAM
+housing_sales_first_hand_count,count,flow,unchanged monthly level,TP.AKONUTSAT3.KTRTOPLAM
+housing_sales_second_hand_count,count,flow,unchanged monthly level,TP.AKONUTSAT4.KTRTOPLAM
+consumer_credit_deposit_stock_million_tl,million_TRY,stock,raw value / 1000,TP.KM.B10
+housing_credit_deposit_stock_million_tl,million_TRY,stock,raw value / 1000,TP.KM.B11
+vehicle_credit_deposit_stock_million_tl,million_TRY,stock,raw value / 1000,TP.KM.B12
+needs_other_credit_deposit_stock_million_tl,million_TRY,stock,raw value / 1000,TP.KM.B13
+cards_credit_deposit_stock_million_tl,million_TRY,stock,raw value / 1000,TP.KM.B14
+consumer_credit_development_investment_stock_million_tl,million_TRY,stock,raw value / 1000,TP.KM.A10
+housing_credit_development_investment_stock_million_tl,million_TRY,stock,raw value / 1000,TP.KM.A11
+vehicle_credit_development_investment_stock_million_tl,million_TRY,stock,raw value / 1000,TP.KM.A12
+needs_other_credit_development_investment_stock_million_tl,million_TRY,stock,raw value / 1000,TP.KM.A13
+cards_credit_development_investment_stock_million_tl,million_TRY,stock,raw value / 1000,TP.KM.A14
+consumer_credit_participation_stock_million_tl,million_TRY,stock,raw value / 1000,TP.KB.KRE09
+housing_credit_participation_stock_million_tl,million_TRY,stock,raw value / 1000,TP.KB.KRE10
+vehicle_credit_participation_stock_million_tl,million_TRY,stock,raw value / 1000,TP.KB.KRE11
+needs_other_credit_participation_stock_million_tl,million_TRY,stock,raw value / 1000,TP.KB.KRE12
+cards_credit_participation_stock_million_tl,million_TRY,stock,raw value / 1000,TP.KB.KRE13
+housing_sales_other_count_derived,count,derived_flow,total - mortgaged,TP.AKONUTSAT1.KTRTOPLAM;TP.AKONUTSAT2.KTRTOPLAM
+mortgage_sales_share_pct,percent,share,100 * mortgaged / total,housing_sales_mortgaged_count;housing_sales_total_count
+first_hand_sales_share_pct,percent,share,100 * first_hand / total,housing_sales_first_hand_count;housing_sales_total_count
+housing_credit_three_groups_stock_million_tl,million_TRY,derived_stock,sum three mutually exclusive bank groups; never sum across months,housing_credit_deposit_stock_million_tl;housing_credit_development_investment_stock_million_tl;housing_credit_participation_stock_million_tl
+consumer_credit_three_groups_stock_million_tl,million_TRY,derived_stock,sum three mutually exclusive bank groups; never sum across months,consumer_credit_deposit_stock_million_tl;consumer_credit_development_investment_stock_million_tl;consumer_credit_participation_stock_million_tl
+vehicle_credit_three_groups_stock_million_tl,million_TRY,derived_stock,sum three mutually exclusive bank groups; never sum across months,vehicle_credit_deposit_stock_million_tl;vehicle_credit_development_investment_stock_million_tl;vehicle_credit_participation_stock_million_tl
+needs_other_credit_three_groups_stock_million_tl,million_TRY,derived_stock,sum three mutually exclusive bank groups; never sum across months,needs_other_credit_deposit_stock_million_tl;needs_other_credit_development_investment_stock_million_tl;needs_other_credit_participation_stock_million_tl
+cards_credit_three_groups_stock_million_tl,million_TRY,derived_stock,sum three mutually exclusive bank groups; never sum across months,cards_credit_deposit_stock_million_tl;cards_credit_development_investment_stock_million_tl;cards_credit_participation_stock_million_tl
+housing_credit_ex_participation_stock_million_tl,million_TRY,derived_stock,deposit + development/investment; domestic branches; TRY+FX countervalue,TP.KM.B11;TP.KM.A11
+housing_credit_real_jan2021_million_tl,million_TRY_at_Jan2021_prices,real_stock,nominal_stock * CPI_Jan2021 / CPI_t,housing_credit_three_groups_stock_million_tl;cpi_index2025
+kfe_tr_real_jan2021_100,index_Jan2021_100,real_index,100 * (KFE_t / national_CPI_t) / (KFE_Jan2021 / national_CPI_Jan2021),kfe_tr_index2023;cpi_index2025
+kfe_istanbul_real_jan2021_100,index_Jan2021_100,real_index,100 * (KFE_t / national_CPI_t) / (KFE_Jan2021 / national_CPI_Jan2021),kfe_istanbul_index2023;cpi_index2025
+kfe_ankara_real_jan2021_100,index_Jan2021_100,real_index,100 * (KFE_t / national_CPI_t) / (KFE_Jan2021 / national_CPI_Jan2021),kfe_ankara_index2023;cpi_index2025
+kfe_izmir_real_jan2021_100,index_Jan2021_100,real_index,100 * (KFE_t / national_CPI_t) / (KFE_Jan2021 / national_CPI_Jan2021),kfe_izmir_index2023;cpi_index2025
+cpi_mom_pct,percent,growth,100 * (value_t / value_t_minus_1 - 1); no missing-value fill,cpi_index2025
+cpi_yoy_pct,percent,growth,100 * (value_t / value_t_minus_12 - 1); no missing-value fill,cpi_index2025
+kfe_tr_mom_pct,percent,growth,100 * (value_t / value_t_minus_1 - 1); no missing-value fill,kfe_tr_index2023
+kfe_tr_yoy_pct,percent,growth,100 * (value_t / value_t_minus_12 - 1); no missing-value fill,kfe_tr_index2023
+housing_credit_nominal_mom_pct,percent,growth,100 * (value_t / value_t_minus_1 - 1); no missing-value fill,housing_credit_three_groups_stock_million_tl
+housing_credit_nominal_yoy_pct,percent,growth,100 * (value_t / value_t_minus_12 - 1); no missing-value fill,housing_credit_three_groups_stock_million_tl
+housing_credit_real_mom_pct,percent,growth,100 * (value_t / value_t_minus_1 - 1); no missing-value fill,housing_credit_real_jan2021_million_tl
+housing_credit_real_yoy_pct,percent,growth,100 * (value_t / value_t_minus_12 - 1); no missing-value fill,housing_credit_real_jan2021_million_tl
+housing_sales_total_mom_pct,percent,growth,100 * (value_t / value_t_minus_1 - 1); no missing-value fill,housing_sales_total_count
+housing_sales_total_yoy_pct,percent,growth,100 * (value_t / value_t_minus_12 - 1); no missing-value fill,housing_sales_total_count
+housing_sales_mortgaged_mom_pct,percent,growth,100 * (value_t / value_t_minus_1 - 1); no missing-value fill,housing_sales_mortgaged_count
+housing_sales_mortgaged_yoy_pct,percent,growth,100 * (value_t / value_t_minus_12 - 1); no missing-value fill,housing_sales_mortgaged_count
+housing_credit_net_stock_change_million_tl,million_TRY,net_stock_change,stock_t - stock_t_minus_1; NOT new lending,housing_credit_three_groups_stock_million_tl
+housing_rate_change_pp,percentage_points,rate_change,monthly_mean_t - monthly_mean_t_minus_1,housing_rate_annual_pct_weekly_mean
+rate_down_real_stock_not_up,boolean,descriptive_flag,rate_change_pp < 0 AND real_stock_mom_pct <= 0; NOT causal estimate,housing_rate_change_pp;housing_credit_real_mom_pct

@@ -1,0 +1,29 @@
+{
+  "status": "validated",
+  "series_code": "TP.BKEA.S064",
+  "frequency": "ÜÇ AYLIK",
+  "aggregation": "last",
+  "chunk_start": "2020-01-01",
+  "chunk_end": "2026-06-30",
+  "request_file": "raw/TP_BKEA_S064_2020-01-01_2026-06-30_request.json",
+  "request_sha256": "6168d0cc1f4388844f63898c3abb119c6a91ee6389d9605fe9b162ab5e34c37d",
+  "response_file": "raw/TP_BKEA_S064_2020-01-01_2026-06-30_response.json.gz",
+  "response_sha256": "1eeb7af33f4431e43fdc295959a0d2aa42e8e1cdc00234e4efa6468d7d89508f",
+  "served_from_cache": true,
+  "http_status": 200,
+  "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "content_type": "application/json;charset=UTF-8",
+  "bytes": 4552,
+  "sha256": "1eeb7af33f4431e43fdc295959a0d2aa42e8e1cdc00234e4efa6468d7d89508f",
+  "transport": "curl",
+  "tls_verification": true,
+  "response_total_count": 26,
+  "retained_rows": 26,
+  "outside_requested_range_rows": 0,
+  "series_names": {
+    "TP_BKEA_S064": "10.1. (Bankanızın Ortalama Krediler Üzerindeki Kar Marjı)_ Geçen üç ayda, konut alım kredisi taleplerinin onaylanmasında Bankanız koşul ve kuralları ne yönde değişti?"
+  },
+  "frequency_conversion": {
+    "TP.BKEA.S064": true
+  }
+}

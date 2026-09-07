@@ -1,0 +1,29 @@
+{
+  "status": "validated",
+  "series_code": "TP.BKEA.S061",
+  "frequency": "ÜÇ AYLIK",
+  "aggregation": "last",
+  "chunk_start": "2020-01-01",
+  "chunk_end": "2026-06-30",
+  "request_file": "raw/TP_BKEA_S061_2020-01-01_2026-06-30_request.json",
+  "request_sha256": "e3960bbebb0cc4d58adf8e4902b94413100bfd434b3fce31ff66536f45bb8294",
+  "response_file": "raw/TP_BKEA_S061_2020-01-01_2026-06-30_response.json.gz",
+  "response_sha256": "13f4da58164aba5d42088eccf91443b95bd1f97561052a31de1e07096f414443",
+  "served_from_cache": true,
+  "http_status": 200,
+  "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "content_type": "application/json;charset=UTF-8",
+  "bytes": 4474,
+  "sha256": "13f4da58164aba5d42088eccf91443b95bd1f97561052a31de1e07096f414443",
+  "transport": "curl",
+  "tls_verification": true,
+  "response_total_count": 26,
+  "retained_rows": 26,
+  "outside_requested_range_rows": 0,
+  "series_names": {
+    "TP_BKEA_S061": "9.3. (Banka Dışı Mali Kesimin Rekabeti)_ Geçen üç ayda, bu faktör konut kredilerine ilişkin Bankanız kredi standartlarını ne yönde etkiledi?"
+  },
+  "frequency_conversion": {
+    "TP.BKEA.S061": true
+  }
+}

@@ -1,0 +1,2061 @@
+[
+  {
+    "status": "validated",
+    "series_code": "TP.KFE.TR",
+    "frequency": "AYLIK",
+    "aggregation": "avg",
+    "chunk_start": "2020-01-01",
+    "chunk_end": "2026-06-30",
+    "request_file": "raw/TP_KFE_TR_2020-01-01_2026-06-30_request.json",
+    "request_sha256": "34b7b57c805b0c636c5d9392f97710de36c7cc0a399e2a042e3f00ccecc89e94",
+    "response_file": "raw/TP_KFE_TR_2020-01-01_2026-06-30_response.json.gz",
+    "response_sha256": "eb35980b3c91f1861c1069d1a673074b95fc2168ce2752615858e48d314c2726",
+    "served_from_cache": true,
+    "http_status": 200,
+    "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+    "content_type": "application/json;charset=UTF-8",
+    "bytes": 11723,
+    "sha256": "eb35980b3c91f1861c1069d1a673074b95fc2168ce2752615858e48d314c2726",
+    "transport": "curl",
+    "tls_verification": true,
+    "response_total_count": 78,
+    "retained_rows": 78,
+    "outside_requested_range_rows": 0,
+    "series_names": {
+      "TP_KFE_TR": "Konut Fiyat Endeksi (KFE)"
+    },
+    "frequency_conversion": {
+      "TP.KFE.TR": true
+    }
+  },
+  {
+    "status": "validated",
+    "series_code": "TP.KFE.TR10",
+    "frequency": "AYLIK",
+    "aggregation": "avg",
+    "chunk_start": "2020-01-01",
+    "chunk_end": "2026-06-30",
+    "request_file": "raw/TP_KFE_TR10_2020-01-01_2026-06-30_request.json",
+    "request_sha256": "9c3e27317fd20812212e4d5d28c8f997400a6bdc157212d7cc978886081fb63f",
+    "response_file": "raw/TP_KFE_TR10_2020-01-01_2026-06-30_response.json.gz",
+    "response_sha256": "93dc318f3bed37174bf32fa59c3148704aa11c08064e893ff18e82125b7fa7e4",
+    "served_from_cache": true,
+    "http_status": 200,
+    "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+    "content_type": "application/json;charset=UTF-8",
+    "bytes": 11867,
+    "sha256": "93dc318f3bed37174bf32fa59c3148704aa11c08064e893ff18e82125b7fa7e4",
+    "transport": "curl",
+    "tls_verification": true,
+    "response_total_count": 78,
+    "retained_rows": 78,
+    "outside_requested_range_rows": 0,
+    "series_names": {
+      "TP_KFE_TR10": "TR10 (İstanbul)"
+    },
+    "frequency_conversion": {
+      "TP.KFE.TR10": true
+    }
+  },
+  {
+    "status": "validated",
+    "series_code": "TP.KFE.TR51",
+    "frequency": "AYLIK",
+    "aggregation": "avg",
+    "chunk_start": "2020-01-01",
+    "chunk_end": "2026-06-30",
+    "request_file": "raw/TP_KFE_TR51_2020-01-01_2026-06-30_request.json",
+    "request_sha256": "3d3daae73bc29bca78405293e72d0f862d4bf5dbe892902975637460e4d8050b",
+    "response_file": "raw/TP_KFE_TR51_2020-01-01_2026-06-30_response.json.gz",
+    "response_sha256": "522e0f3fdf9174a83df7b3ba2f97570f1f1faf9767fc9a3658d5d0a7e6702ec8",
+    "served_from_cache": true,
+    "http_status": 200,
+    "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+    "content_type": "application/json;charset=UTF-8",
+    "bytes": 11861,
+    "sha256": "522e0f3fdf9174a83df7b3ba2f97570f1f1faf9767fc9a3658d5d0a7e6702ec8",
+    "transport": "curl",
+    "tls_verification": true,
+    "response_total_count": 78,
+    "retained_rows": 78,
+    "outside_requested_range_rows": 0,
+    "series_names": {
+      "TP_KFE_TR51": "TR51 (Ankara)"
+    },
+    "frequency_conversion": {
+      "TP.KFE.TR51": true
+    }
+  },
+  {
+    "status": "validated",
+    "series_code": "TP.KFE.TR31",
+    "frequency": "AYLIK",
+    "aggregation": "avg",
+    "chunk_start": "2020-01-01",
+    "chunk_end": "2026-06-30",
+    "request_file": "raw/TP_KFE_TR31_2020-01-01_2026-06-30_request.json",
+    "request_sha256": "341adede03d4e7df0d4921f17a1d3f36aa6a9408f5db5591ca44aae363680ba0",
+    "response_file": "raw/TP_KFE_TR31_2020-01-01_2026-06-30_response.json.gz",
+    "response_sha256": "590bf513634dd599754538483b6478930ce5df208fa6f300fabd10ef07282c13",
+    "served_from_cache": true,
+    "http_status": 200,
+    "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+    "content_type": "application/json;charset=UTF-8",
+    "bytes": 11861,
+    "sha256": "590bf513634dd599754538483b6478930ce5df208fa6f300fabd10ef07282c13",
+    "transport": "curl",
+    "tls_verification": true,
+    "response_total_count": 78,
+    "retained_rows": 78,
+    "outside_requested_range_rows": 0,
+    "series_names": {
+      "TP_KFE_TR31": "TR31 (İzmir)"
+    },
+    "frequency_conversion": {
+      "TP.KFE.TR31": true
+    }
+  },
+  {
+    "status": "validated",
+    "series_code": "TP.TUKFIY2025.GENEL",
+    "frequency": "AYLIK",
+    "aggregation": "avg",
+    "chunk_start": "2020-01-01",
+    "chunk_end": "2026-06-30",
+    "request_file": "raw/TP_TUKFIY2025_GENEL_2020-01-01_2026-06-30_request.json",
+    "request_sha256": "ace65cec667f8cbfe5b1ce8ee08ad3218c8e249fdc7d0b8a7a56ea1c61a75108",
+    "response_file": "raw/TP_TUKFIY2025_GENEL_2020-01-01_2026-06-30_response.json.gz",
+    "response_sha256": "1623d15ca20bfd54e31b5f4eb494a1b3c25a4d82423d79ee6c2dfd3fd6e8faa7",
+    "served_from_cache": true,
+    "http_status": 200,
+    "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+    "content_type": "application/json;charset=UTF-8",
+    "bytes": 12459,
+    "sha256": "1623d15ca20bfd54e31b5f4eb494a1b3c25a4d82423d79ee6c2dfd3fd6e8faa7",
+    "transport": "curl",
+    "tls_verification": true,
+    "response_total_count": 78,
+    "retained_rows": 78,
+    "outside_requested_range_rows": 0,
+    "series_names": {
+      "TP_TUKFIY2025_GENEL": "Genel Endeks"
+    },
+    "frequency_conversion": {
+      "TP.TUKFIY2025.GENEL": true
+    }
+  },
+  {
+    "status": "validated",
+    "series_code": "TP.KTF12",
+    "frequency": "HAFTALIK(CUMA)",
+    "aggregation": "avg",
+    "chunk_start": "2020-01-01",
+    "chunk_end": "2020-12-31",
+    "request_file": "raw/TP_KTF12_2020-01-01_2020-12-31_request.json",
+    "request_sha256": "2655662cd2d1c042556226b02a52752df19c009cc890401236b310951e78975a",
+    "response_file": "raw/TP_KTF12_2020-01-01_2020-12-31_response.json.gz",
+    "response_sha256": "92b2b78ce582c15d23c932b0b4979186087b89ac9c4d3ace42a5d0dfb7addadf",
+    "served_from_cache": true,
+    "http_status": 200,
+    "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+    "content_type": "application/json;charset=UTF-8",
+    "bytes": 9668,
+    "sha256": "92b2b78ce582c15d23c932b0b4979186087b89ac9c4d3ace42a5d0dfb7addadf",
+    "transport": "curl",
+    "tls_verification": true,
+    "response_total_count": 53,
+    "retained_rows": 52,
+    "outside_requested_range_rows": 1,
+    "series_names": {
+      "TP_KTF12": "Konut Kredisi (TL, Akım, %)"
+    },
+    "frequency_conversion": {
+      "TP.KTF12": true
+    }
+  },
+  {
+    "status": "validated",
+    "series_code": "TP.KTF12",
+    "frequency": "HAFTALIK(CUMA)",
+    "aggregation": "avg",
+    "chunk_start": "2021-01-01",
+    "chunk_end": "2021-12-31",
+    "request_file": "raw/TP_KTF12_2021-01-01_2021-12-31_request.json",
+    "request_sha256": "13deeae58ef314ea62a1898db9e732fca963020fe024873095eceb8fecfe363e",
+    "response_file": "raw/TP_KTF12_2021-01-01_2021-12-31_response.json.gz",
+    "response_sha256": "961f2d7fb59faefd1ddcb384617596df4715a6a602bfc3b051ccd67a771be853",
+    "served_from_cache": true,
+    "http_status": 200,
+    "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+    "content_type": "application/json;charset=UTF-8",
+    "bytes": 9691,
+    "sha256": "961f2d7fb59faefd1ddcb384617596df4715a6a602bfc3b051ccd67a771be853",
+    "transport": "curl",
+    "tls_verification": true,
+    "response_total_count": 53,
+    "retained_rows": 53,
+    "outside_requested_range_rows": 0,
+    "series_names": {
+      "TP_KTF12": "Konut Kredisi (TL, Akım, %)"
+    },
+    "frequency_conversion": {
+      "TP.KTF12": true
+    }
+  },
+  {
+    "status": "validated",
+    "series_code": "TP.KTF12",
+    "frequency": "HAFTALIK(CUMA)",
+    "aggregation": "avg",
+    "chunk_start": "2022-01-01",
+    "chunk_end": "2022-12-31",
+    "request_file": "raw/TP_KTF12_2022-01-01_2022-12-31_request.json",
+    "request_sha256": "460e4659b0583d326dbf6d6fff564e148a2cf3aed461a5e618dee209ed2b4840",
+    "response_file": "raw/TP_KTF12_2022-01-01_2022-12-31_response.json.gz",
+    "response_sha256": "43c4bd2959df5f52c2386ba517075265c37e49b340fc390934703d4bef242d27",
+    "served_from_cache": true,
+    "http_status": 200,
+    "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+    "content_type": "application/json;charset=UTF-8",
+    "bytes": 9690,
+    "sha256": "43c4bd2959df5f52c2386ba517075265c37e49b340fc390934703d4bef242d27",
+    "transport": "curl",
+    "tls_verification": true,
+    "response_total_count": 53,
+    "retained_rows": 52,
+    "outside_requested_range_rows": 1,
+    "series_names": {
+      "TP_KTF12": "Konut Kredisi (TL, Akım, %)"
+    },
+    "frequency_conversion": {
+      "TP.KTF12": true
+    }
+  },
+  {
+    "status": "validated",
+    "series_code": "TP.KTF12",
+    "frequency": "HAFTALIK(CUMA)",
+    "aggregation": "avg",
+    "chunk_start": "2023-01-01",
+    "chunk_end": "2023-12-31",
+    "request_file": "raw/TP_KTF12_2023-01-01_2023-12-31_request.json",
+    "request_sha256": "3b14fd338b99a132178b2eaee4fec140df7d5a744157fbe48c7dee810c3b8c61",
+    "response_file": "raw/TP_KTF12_2023-01-01_2023-12-31_response.json.gz",
+    "response_sha256": "e65255b8ffbcfa165d34ef821208c44dbdc0a2a971458cb8c66b3cc651708750",
+    "served_from_cache": true,
+    "http_status": 200,
+    "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+    "content_type": "application/json;charset=UTF-8",
+    "bytes": 9690,
+    "sha256": "e65255b8ffbcfa165d34ef821208c44dbdc0a2a971458cb8c66b3cc651708750",
+    "transport": "curl",
+    "tls_verification": true,
+    "response_total_count": 53,
+    "retained_rows": 52,
+    "outside_requested_range_rows": 1,
+    "series_names": {
+      "TP_KTF12": "Konut Kredisi (TL, Akım, %)"
+    },
+    "frequency_conversion": {
+      "TP.KTF12": true
+    }
+  },
+  {
+    "status": "validated",
+    "series_code": "TP.KTF12",
+    "frequency": "HAFTALIK(CUMA)",
+    "aggregation": "avg",
+    "chunk_start": "2024-01-01",
+    "chunk_end": "2024-12-31",
+    "request_file": "raw/TP_KTF12_2024-01-01_2024-12-31_request.json",
+    "request_sha256": "87aca89e6256616ea206a368f2cd1bc6fd0dff6fb328528cbd6a6beb65e53817",
+    "response_file": "raw/TP_KTF12_2024-01-01_2024-12-31_response.json.gz",
+    "response_sha256": "02e2186b84aadbea365e2847e0e1b93432cb5e1aedfd42f1084f5977285b1581",
+    "served_from_cache": true,
+    "http_status": 200,
+    "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+    "content_type": "application/json;charset=UTF-8",
+    "bytes": 9690,
+    "sha256": "02e2186b84aadbea365e2847e0e1b93432cb5e1aedfd42f1084f5977285b1581",
+    "transport": "curl",
+    "tls_verification": true,
+    "response_total_count": 53,
+    "retained_rows": 52,
+    "outside_requested_range_rows": 1,
+    "series_names": {
+      "TP_KTF12": "Konut Kredisi (TL, Akım, %)"
+    },
+    "frequency_conversion": {
+      "TP.KTF12": true
+    }
+  },
+  {
+    "status": "validated",
+    "series_code": "TP.KTF12",
+    "frequency": "HAFTALIK(CUMA)",
+    "aggregation": "avg",
+    "chunk_start": "2025-01-01",
+    "chunk_end": "2025-12-31",
+    "request_file": "raw/TP_KTF12_2025-01-01_2025-12-31_request.json",
+    "request_sha256": "4374c965577cdcd141a3de5657e0ce5ccea26f35ce4961ee0a7cefb012161cdb",
+    "response_file": "raw/TP_KTF12_2025-01-01_2025-12-31_response.json.gz",
+    "response_sha256": "6954cd84e97c6b87e0e7d9c7acf9dd63c220bb5e8498ceeac30f8fa1c13cf3f4",
+    "served_from_cache": true,
+    "http_status": 200,
+    "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+    "content_type": "application/json;charset=UTF-8",
+    "bytes": 9690,
+    "sha256": "6954cd84e97c6b87e0e7d9c7acf9dd63c220bb5e8498ceeac30f8fa1c13cf3f4",
+    "transport": "curl",
+    "tls_verification": true,
+    "response_total_count": 53,
+    "retained_rows": 52,
+    "outside_requested_range_rows": 1,
+    "series_names": {
+      "TP_KTF12": "Konut Kredisi (TL, Akım, %)"
+    },
+    "frequency_conversion": {
+      "TP.KTF12": true
+    }
+  },
+  {
+    "status": "validated",
+    "series_code": "TP.KTF12",
+    "frequency": "HAFTALIK(CUMA)",
+    "aggregation": "avg",
+    "chunk_start": "2026-01-01",
+    "chunk_end": "2026-06-30",
+    "request_file": "raw/TP_KTF12_2026-01-01_2026-06-30_request.json",
+    "request_sha256": "f8c9818284ccd0b37463385989f0caa9c936d88dd154006a45a73250019e09f6",
+    "response_file": "raw/TP_KTF12_2026-01-01_2026-06-30_response.json.gz",
+    "response_sha256": "c0932b4bd28c5743a05e98a9b97642d9cbde7b6b1a5ec90dcf6e3a28d4c97472",
+    "served_from_cache": true,
+    "http_status": 200,
+    "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+    "content_type": "application/json;charset=UTF-8",
+    "bytes": 5063,
+    "sha256": "c0932b4bd28c5743a05e98a9b97642d9cbde7b6b1a5ec90dcf6e3a28d4c97472",
+    "transport": "curl",
+    "tls_verification": true,
+    "response_total_count": 27,
+    "retained_rows": 26,
+    "outside_requested_range_rows": 1,
+    "series_names": {
+      "TP_KTF12": "Konut Kredisi (TL, Akım, %)"
+    },
+    "frequency_conversion": {
+      "TP.KTF12": true
+    }
+  },
+  {
+    "status": "validated",
+    "series_code": "TP.BKR.TRY.18",
+    "frequency": "AYLIK",
+    "aggregation": "avg",
+    "chunk_start": "2020-01-01",
+    "chunk_end": "2026-06-30",
+    "request_file": "raw/TP_BKR_TRY_18_2020-01-01_2026-06-30_request.json",
+    "request_sha256": "f6d9d53889a92aa2409a3fd6588ab7f17883ddc28a416e1c66bd599221a4426a",
+    "response_file": "raw/TP_BKR_TRY_18_2020-01-01_2026-06-30_response.json.gz",
+    "response_sha256": "6b2118163e2496c6c05cb25e12aeeaa5a32072ee555533d768f1fb856e9650a3",
+    "served_from_cache": true,
+    "http_status": 200,
+    "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+    "content_type": "application/json;charset=UTF-8",
+    "bytes": 11979,
+    "sha256": "6b2118163e2496c6c05cb25e12aeeaa5a32072ee555533d768f1fb856e9650a3",
+    "transport": "curl",
+    "tls_verification": true,
+    "response_total_count": 78,
+    "retained_rows": 78,
+    "outside_requested_range_rows": 0,
+    "series_names": {
+      "TP_BKR_TRY_18": "Konut Kredisi (TL, Stok, %)"
+    },
+    "frequency_conversion": {
+      "TP.BKR.TRY.18": true
+    }
+  },
+  {
+    "status": "validated",
+    "series_code": "TP.TRY.MT06",
+    "frequency": "HAFTALIK(CUMA)",
+    "aggregation": "avg",
+    "chunk_start": "2020-01-01",
+    "chunk_end": "2020-12-31",
+    "request_file": "raw/TP_TRY_MT06_2020-01-01_2020-12-31_request.json",
+    "request_sha256": "afd87f1942b34d8c7ed0bf4465c8f7aa9000b7a5068cdda765c3a977b07c44c1",
+    "response_file": "raw/TP_TRY_MT06_2020-01-01_2020-12-31_response.json.gz",
+    "response_sha256": "fb3235bc0cd98010fa8e410d4e149b5719a09c52b6c7310d436234231e30b932",
+    "served_from_cache": true,
+    "http_status": 200,
+    "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+    "content_type": "application/json;charset=UTF-8",
+    "bytes": 9788,
+    "sha256": "fb3235bc0cd98010fa8e410d4e149b5719a09c52b6c7310d436234231e30b932",
+    "transport": "curl",
+    "tls_verification": true,
+    "response_total_count": 53,
+    "retained_rows": 52,
+    "outside_requested_range_rows": 1,
+    "series_names": {
+      "TP_TRY_MT06": "Toplam (TL Mevduat, Akım, %)"
+    },
+    "frequency_conversion": {
+      "TP.TRY.MT06": true
+    }
+  },
+  {
+    "status": "validated",
+    "series_code": "TP.TRY.MT06",
+    "frequency": "HAFTALIK(CUMA)",
+    "aggregation": "avg",
+    "chunk_start": "2021-01-01",
+    "chunk_end": "2021-12-31",
+    "request_file": "raw/TP_TRY_MT06_2021-01-01_2021-12-31_request.json",
+    "request_sha256": "02c687562813ca87e516bedddd08041962fb8ce962ce65b64a890f25b2e78eeb",
+    "response_file": "raw/TP_TRY_MT06_2021-01-01_2021-12-31_response.json.gz",
+    "response_sha256": "b8264c6b276f369e7f28f77762f98d7ebc91c21d8df6fd53183f14889b663979",
+    "served_from_cache": true,
+    "http_status": 200,
+    "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+    "content_type": "application/json;charset=UTF-8",
+    "bytes": 9861,
+    "sha256": "b8264c6b276f369e7f28f77762f98d7ebc91c21d8df6fd53183f14889b663979",
+    "transport": "curl",
+    "tls_verification": true,
+    "response_total_count": 53,
+    "retained_rows": 53,
+    "outside_requested_range_rows": 0,
+    "series_names": {
+      "TP_TRY_MT06": "Toplam (TL Mevduat, Akım, %)"
+    },
+    "frequency_conversion": {
+      "TP.TRY.MT06": true
+    }
+  },
+  {
+    "status": "validated",
+    "series_code": "TP.TRY.MT06",
+    "frequency": "HAFTALIK(CUMA)",
+    "aggregation": "avg",
+    "chunk_start": "2022-01-01",
+    "chunk_end": "2022-12-31",
+    "request_file": "raw/TP_TRY_MT06_2022-01-01_2022-12-31_request.json",
+    "request_sha256": "eb9e9fc17a1a55653cfab70fdcadb8e703c50254d27d055310c0cdadc2ccd26b",
+    "response_file": "raw/TP_TRY_MT06_2022-01-01_2022-12-31_response.json.gz",
+    "response_sha256": "b4250145b4fcb9a221bea431c3aa1072530eaba6fc25acf8647a8f370050ee5b",
+    "served_from_cache": true,
+    "http_status": 200,
+    "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+    "content_type": "application/json;charset=UTF-8",
+    "bytes": 9860,
+    "sha256": "b4250145b4fcb9a221bea431c3aa1072530eaba6fc25acf8647a8f370050ee5b",
+    "transport": "curl",
+    "tls_verification": true,
+    "response_total_count": 53,
+    "retained_rows": 52,
+    "outside_requested_range_rows": 1,
+    "series_names": {
+      "TP_TRY_MT06": "Toplam (TL Mevduat, Akım, %)"
+    },
+    "frequency_conversion": {
+      "TP.TRY.MT06": true
+    }
+  },
+  {
+    "status": "validated",
+    "series_code": "TP.TRY.MT06",
+    "frequency": "HAFTALIK(CUMA)",
+    "aggregation": "avg",
+    "chunk_start": "2023-01-01",
+    "chunk_end": "2023-12-31",
+    "request_file": "raw/TP_TRY_MT06_2023-01-01_2023-12-31_request.json",
+    "request_sha256": "cec0418dce964b024c720a88b0eea12af2b23e7de1251bf44fda9ccb479d7983",
+    "response_file": "raw/TP_TRY_MT06_2023-01-01_2023-12-31_response.json.gz",
+    "response_sha256": "2911b2f8c0500b9c96ab4d09710514fe126d5762bc371b4b8fa34e8e3f5f3aed",
+    "served_from_cache": true,
+    "http_status": 200,
+    "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+    "content_type": "application/json;charset=UTF-8",
+    "bytes": 9860,
+    "sha256": "2911b2f8c0500b9c96ab4d09710514fe126d5762bc371b4b8fa34e8e3f5f3aed",
+    "transport": "curl",
+    "tls_verification": true,
+    "response_total_count": 53,
+    "retained_rows": 52,
+    "outside_requested_range_rows": 1,
+    "series_names": {
+      "TP_TRY_MT06": "Toplam (TL Mevduat, Akım, %)"
+    },
+    "frequency_conversion": {
+      "TP.TRY.MT06": true
+    }
+  },
+  {
+    "status": "validated",
+    "series_code": "TP.TRY.MT06",
+    "frequency": "HAFTALIK(CUMA)",
+    "aggregation": "avg",
+    "chunk_start": "2024-01-01",
+    "chunk_end": "2024-12-31",
+    "request_file": "raw/TP_TRY_MT06_2024-01-01_2024-12-31_request.json",
+    "request_sha256": "0fd5abef5f7c20a07ccb70ef4cf8aaae3fb8130380b450e79ec3fbaaf51129cf",
+    "response_file": "raw/TP_TRY_MT06_2024-01-01_2024-12-31_response.json.gz",
+    "response_sha256": "0388515fa9f91f1352859c4fb43b02aa227489505fdbffa6f17a87a62a46d38d",
+    "served_from_cache": true,
+    "http_status": 200,
+    "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+    "content_type": "application/json;charset=UTF-8",
+    "bytes": 9860,
+    "sha256": "0388515fa9f91f1352859c4fb43b02aa227489505fdbffa6f17a87a62a46d38d",
+    "transport": "curl",
+    "tls_verification": true,
+    "response_total_count": 53,
+    "retained_rows": 52,
+    "outside_requested_range_rows": 1,
+    "series_names": {
+      "TP_TRY_MT06": "Toplam (TL Mevduat, Akım, %)"
+    },
+    "frequency_conversion": {
+      "TP.TRY.MT06": true
+    }
+  },
+  {
+    "status": "validated",
+    "series_code": "TP.TRY.MT06",
+    "frequency": "HAFTALIK(CUMA)",
+    "aggregation": "avg",
+    "chunk_start": "2025-01-01",
+    "chunk_end": "2025-12-31",
+    "request_file": "raw/TP_TRY_MT06_2025-01-01_2025-12-31_request.json",
+    "request_sha256": "fbc728072df6ac0a44e9863429825fa4c6706ee94f9d94e19aaf1a597763307f",
+    "response_file": "raw/TP_TRY_MT06_2025-01-01_2025-12-31_response.json.gz",
+    "response_sha256": "50e2b37b0e7e56cb9ffe81f2304fab590a098dcbce8279fc940215218b9e0a51",
+    "served_from_cache": true,
+    "http_status": 200,
+    "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+    "content_type": "application/json;charset=UTF-8",
+    "bytes": 9860,
+    "sha256": "50e2b37b0e7e56cb9ffe81f2304fab590a098dcbce8279fc940215218b9e0a51",
+    "transport": "curl",
+    "tls_verification": true,
+    "response_total_count": 53,
+    "retained_rows": 52,
+    "outside_requested_range_rows": 1,
+    "series_names": {
+      "TP_TRY_MT06": "Toplam (TL Mevduat, Akım, %)"
+    },
+    "frequency_conversion": {
+      "TP.TRY.MT06": true
+    }
+  },
+  {
+    "status": "validated",
+    "series_code": "TP.TRY.MT06",
+    "frequency": "HAFTALIK(CUMA)",
+    "aggregation": "avg",
+    "chunk_start": "2026-01-01",
+    "chunk_end": "2026-06-30",
+    "request_file": "raw/TP_TRY_MT06_2026-01-01_2026-06-30_request.json",
+    "request_sha256": "17f9d9730387a081560fe17b5dd8d937db0e946c7802efb9aa1cb9a5d7e4a841",
+    "response_file": "raw/TP_TRY_MT06_2026-01-01_2026-06-30_response.json.gz",
+    "response_sha256": "56a785563a1800e5e6501baeb26ac5d65eff83af0b39dd6990b88e5348e95b75",
+    "served_from_cache": true,
+    "http_status": 200,
+    "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+    "content_type": "application/json;charset=UTF-8",
+    "bytes": 5155,
+    "sha256": "56a785563a1800e5e6501baeb26ac5d65eff83af0b39dd6990b88e5348e95b75",
+    "transport": "curl",
+    "tls_verification": true,
+    "response_total_count": 27,
+    "retained_rows": 26,
+    "outside_requested_range_rows": 1,
+    "series_names": {
+      "TP_TRY_MT06": "Toplam (TL Mevduat, Akım, %)"
+    },
+    "frequency_conversion": {
+      "TP.TRY.MT06": true
+    }
+  },
+  {
+    "status": "validated",
+    "series_code": "TP.APIFON4",
+    "frequency": "İŞ GÜNÜ",
+    "aggregation": "last",
+    "chunk_start": "2020-01-01",
+    "chunk_end": "2020-12-31",
+    "request_file": "raw/TP_APIFON4_2020-01-01_2020-12-31_request.json",
+    "request_sha256": "e1efa3938bbbe94ea91bc43e998fcf0b5f36c0b51d5deb67f690bd4d47eb59e9",
+    "response_file": "raw/TP_APIFON4_2020-01-01_2020-12-31_response.json.gz",
+    "response_sha256": "3d52967d73a447bb3906c4af348d627d8819f396559bf69f9752dad2ba9b6e96",
+    "served_from_cache": true,
+    "http_status": 200,
+    "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+    "content_type": "application/json;charset=UTF-8",
+    "bytes": 41571,
+    "sha256": "3d52967d73a447bb3906c4af348d627d8819f396559bf69f9752dad2ba9b6e96",
+    "transport": "curl",
+    "tls_verification": true,
+    "response_total_count": 262,
+    "retained_rows": 262,
+    "outside_requested_range_rows": 0,
+    "series_names": {
+      "TP_APIFON4": "TCMB Ağırlıklı Ortalama Fonlama Maliyeti"
+    },
+    "frequency_conversion": {
+      "TP.APIFON4": true
+    }
+  },
+  {
+    "status": "validated",
+    "series_code": "TP.APIFON4",
+    "frequency": "İŞ GÜNÜ",
+    "aggregation": "last",
+    "chunk_start": "2021-01-01",
+    "chunk_end": "2021-12-31",
+    "request_file": "raw/TP_APIFON4_2021-01-01_2021-12-31_request.json",
+    "request_sha256": "74334c6a1a3299d626aaf9c26f247c78651e4cbdcd55f4319bb700d7dd00fe94",
+    "response_file": "raw/TP_APIFON4_2021-01-01_2021-12-31_response.json.gz",
+    "response_sha256": "1062607d33fc9831db6a7b3a8b9e4d5c53ceabe248dc911731025c0971f375be",
+    "served_from_cache": true,
+    "http_status": 200,
+    "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+    "content_type": "application/json;charset=UTF-8",
+    "bytes": 41588,
+    "sha256": "1062607d33fc9831db6a7b3a8b9e4d5c53ceabe248dc911731025c0971f375be",
+    "transport": "curl",
+    "tls_verification": true,
+    "response_total_count": 261,
+    "retained_rows": 261,
+    "outside_requested_range_rows": 0,
+    "series_names": {
+      "TP_APIFON4": "TCMB Ağırlıklı Ortalama Fonlama Maliyeti"
+    },
+    "frequency_conversion": {
+      "TP.APIFON4": true
+    }
+  },
+  {
+    "status": "validated",
+    "series_code": "TP.APIFON4",
+    "frequency": "İŞ GÜNÜ",
+    "aggregation": "last",
+    "chunk_start": "2022-01-01",
+    "chunk_end": "2022-12-31",
+    "request_file": "raw/TP_APIFON4_2022-01-01_2022-12-31_request.json",
+    "request_sha256": "7b71b39566f08fdbff52ecb96db29361e99d8f42eee6d6d25e7ec0936e24497c",
+    "response_file": "raw/TP_APIFON4_2022-01-01_2022-12-31_response.json.gz",
+    "response_sha256": "26efe639dd9b90194db16cb308c7d74455191f94ae8bff9329ddd82bdb3778ad",
+    "served_from_cache": true,
+    "http_status": 200,
+    "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+    "content_type": "application/json;charset=UTF-8",
+    "bytes": 41451,
+    "sha256": "26efe639dd9b90194db16cb308c7d74455191f94ae8bff9329ddd82bdb3778ad",
+    "transport": "curl",
+    "tls_verification": true,
+    "response_total_count": 260,
+    "retained_rows": 260,
+    "outside_requested_range_rows": 0,
+    "series_names": {
+      "TP_APIFON4": "TCMB Ağırlıklı Ortalama Fonlama Maliyeti"
+    },
+    "frequency_conversion": {
+      "TP.APIFON4": true
+    }
+  },
+  {
+    "status": "validated",
+    "series_code": "TP.APIFON4",
+    "frequency": "İŞ GÜNÜ",
+    "aggregation": "last",
+    "chunk_start": "2023-01-01",
+    "chunk_end": "2023-12-31",
+    "request_file": "raw/TP_APIFON4_2023-01-01_2023-12-31_request.json",
+    "request_sha256": "cd1c4362d73e13dfcb711167f23062441ce71f449eb150198995f5e492621919",
+    "response_file": "raw/TP_APIFON4_2023-01-01_2023-12-31_response.json.gz",
+    "response_sha256": "ab79e2012439fe08d707bf2a3f84761045c83c1bbafc11827e432d02037a7329",
+    "served_from_cache": true,
+    "http_status": 200,
+    "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+    "content_type": "application/json;charset=UTF-8",
+    "bytes": 41277,
+    "sha256": "ab79e2012439fe08d707bf2a3f84761045c83c1bbafc11827e432d02037a7329",
+    "transport": "curl",
+    "tls_verification": true,
+    "response_total_count": 260,
+    "retained_rows": 260,
+    "outside_requested_range_rows": 0,
+    "series_names": {
+      "TP_APIFON4": "TCMB Ağırlıklı Ortalama Fonlama Maliyeti"
+    },
+    "frequency_conversion": {
+      "TP.APIFON4": true
+    }
+  },
+  {
+    "status": "validated",
+    "series_code": "TP.APIFON4",
+    "frequency": "İŞ GÜNÜ",
+    "aggregation": "last",
+    "chunk_start": "2024-01-01",
+    "chunk_end": "2024-12-31",
+    "request_file": "raw/TP_APIFON4_2024-01-01_2024-12-31_request.json",
+    "request_sha256": "ec7002df06980c5262ed07b4565c12c639029f899d27119d08a24eee62962241",
+    "response_file": "raw/TP_APIFON4_2024-01-01_2024-12-31_response.json.gz",
+    "response_sha256": "b357bfa2cf28c4e133ea5f32545bd5aa28abca39b35f231e626bc9aee8601905",
+    "served_from_cache": true,
+    "http_status": 200,
+    "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+    "content_type": "application/json;charset=UTF-8",
+    "bytes": 41747,
+    "sha256": "b357bfa2cf28c4e133ea5f32545bd5aa28abca39b35f231e626bc9aee8601905",
+    "transport": "curl",
+    "tls_verification": true,
+    "response_total_count": 262,
+    "retained_rows": 262,
+    "outside_requested_range_rows": 0,
+    "series_names": {
+      "TP_APIFON4": "TCMB Ağırlıklı Ortalama Fonlama Maliyeti"
+    },
+    "frequency_conversion": {
+      "TP.APIFON4": true
+    }
+  },
+  {
+    "status": "validated",
+    "series_code": "TP.APIFON4",
+    "frequency": "İŞ GÜNÜ",
+    "aggregation": "last",
+    "chunk_start": "2025-01-01",
+    "chunk_end": "2025-12-31",
+    "request_file": "raw/TP_APIFON4_2025-01-01_2025-12-31_request.json",
+    "request_sha256": "d0449489f467546e810f8015d5f25b580b800f9439ccbaa38c789f20d3717342",
+    "response_file": "raw/TP_APIFON4_2025-01-01_2025-12-31_response.json.gz",
+    "response_sha256": "a9ea13459df0dd86709225ce7e64fec6b44f095c248d2d6355722396f90b6c83",
+    "served_from_cache": true,
+    "http_status": 200,
+    "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+    "content_type": "application/json;charset=UTF-8",
+    "bytes": 41624,
+    "sha256": "a9ea13459df0dd86709225ce7e64fec6b44f095c248d2d6355722396f90b6c83",
+    "transport": "curl",
+    "tls_verification": true,
+    "response_total_count": 261,
+    "retained_rows": 261,
+    "outside_requested_range_rows": 0,
+    "series_names": {
+      "TP_APIFON4": "TCMB Ağırlıklı Ortalama Fonlama Maliyeti"
+    },
+    "frequency_conversion": {
+      "TP.APIFON4": true
+    }
+  },
+  {
+    "status": "validated",
+    "series_code": "TP.APIFON4",
+    "frequency": "İŞ GÜNÜ",
+    "aggregation": "last",
+    "chunk_start": "2026-01-01",
+    "chunk_end": "2026-06-30",
+    "request_file": "raw/TP_APIFON4_2026-01-01_2026-06-30_request.json",
+    "request_sha256": "ff0b5f0dd45eac384492aa3242956cf93392796e7d10180bbd65ab3c280a274c",
+    "response_file": "raw/TP_APIFON4_2026-01-01_2026-06-30_response.json.gz",
+    "response_sha256": "26225fe05c37da545dab3b444a6da3747ea821bdb63613874721e5d08a015027",
+    "served_from_cache": true,
+    "http_status": 200,
+    "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+    "content_type": "application/json;charset=UTF-8",
+    "bytes": 20672,
+    "sha256": "26225fe05c37da545dab3b444a6da3747ea821bdb63613874721e5d08a015027",
+    "transport": "curl",
+    "tls_verification": true,
+    "response_total_count": 129,
+    "retained_rows": 129,
+    "outside_requested_range_rows": 0,
+    "series_names": {
+      "TP_APIFON4": "TCMB Ağırlıklı Ortalama Fonlama Maliyeti"
+    },
+    "frequency_conversion": {
+      "TP.APIFON4": true
+    }
+  },
+  {
+    "status": "validated",
+    "series_code": "TP.DK.USD.A.YTL",
+    "frequency": "GÜNLÜK",
+    "aggregation": "avg",
+    "chunk_start": "2020-01-01",
+    "chunk_end": "2020-12-31",
+    "request_file": "raw/TP_DK_USD_A_YTL_2020-01-01_2020-12-31_request.json",
+    "request_sha256": "e8eaabc7e1e057059cc132caaf4c185279808eebcf392f4f635a46732c839568",
+    "response_file": "raw/TP_DK_USD_A_YTL_2020-01-01_2020-12-31_response.json.gz",
+    "response_sha256": "90e2209262030636d3ed60ba9720e44c77fc5e6e83ecde0a07d20617bf74fa6b",
+    "served_from_cache": true,
+    "http_status": 200,
+    "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+    "content_type": "application/json;charset=UTF-8",
+    "bytes": 57774,
+    "sha256": "90e2209262030636d3ed60ba9720e44c77fc5e6e83ecde0a07d20617bf74fa6b",
+    "transport": "curl",
+    "tls_verification": true,
+    "response_total_count": 366,
+    "retained_rows": 366,
+    "outside_requested_range_rows": 0,
+    "series_names": {
+      "TP_DK_USD_A_YTL": "(USD)  ABD  Doları  (Döviz  Alış)"
+    },
+    "frequency_conversion": {
+      "TP.DK.USD.A.YTL": true
+    }
+  },
+  {
+    "status": "validated",
+    "series_code": "TP.DK.USD.A.YTL",
+    "frequency": "GÜNLÜK",
+    "aggregation": "avg",
+    "chunk_start": "2021-01-01",
+    "chunk_end": "2021-12-31",
+    "request_file": "raw/TP_DK_USD_A_YTL_2021-01-01_2021-12-31_request.json",
+    "request_sha256": "5b3f314a2e79bb174b311ab8b7ef0478cf945398decdbde3f5c04386ac85b22b",
+    "response_file": "raw/TP_DK_USD_A_YTL_2021-01-01_2021-12-31_response.json.gz",
+    "response_sha256": "380ca2bcd624f71e5ab99b1a00dde3d23a3097f02edf5111176af7fad88515e9",
+    "served_from_cache": true,
+    "http_status": 200,
+    "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+    "content_type": "application/json;charset=UTF-8",
+    "bytes": 57646,
+    "sha256": "380ca2bcd624f71e5ab99b1a00dde3d23a3097f02edf5111176af7fad88515e9",
+    "transport": "curl",
+    "tls_verification": true,
+    "response_total_count": 365,
+    "retained_rows": 365,
+    "outside_requested_range_rows": 0,
+    "series_names": {
+      "TP_DK_USD_A_YTL": "(USD)  ABD  Doları  (Döviz  Alış)"
+    },
+    "frequency_conversion": {
+      "TP.DK.USD.A.YTL": true
+    }
+  },
+  {
+    "status": "validated",
+    "series_code": "TP.DK.USD.A.YTL",
+    "frequency": "GÜNLÜK",
+    "aggregation": "avg",
+    "chunk_start": "2022-01-01",
+    "chunk_end": "2022-12-31",
+    "request_file": "raw/TP_DK_USD_A_YTL_2022-01-01_2022-12-31_request.json",
+    "request_sha256": "0b2638dc3dd215dde1786ed306a648fb98bc45b4acaf656561011b54105c4518",
+    "response_file": "raw/TP_DK_USD_A_YTL_2022-01-01_2022-12-31_response.json.gz",
+    "response_sha256": "70473929599c5c570ea0454fa3ac8f8a6663cac1d9be6a55eb42aa41ff4bf8ac",
+    "served_from_cache": true,
+    "http_status": 200,
+    "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+    "content_type": "application/json;charset=UTF-8",
+    "bytes": 58132,
+    "sha256": "70473929599c5c570ea0454fa3ac8f8a6663cac1d9be6a55eb42aa41ff4bf8ac",
+    "transport": "curl",
+    "tls_verification": true,
+    "response_total_count": 365,
+    "retained_rows": 365,
+    "outside_requested_range_rows": 0,
+    "series_names": {
+      "TP_DK_USD_A_YTL": "(USD)  ABD  Doları  (Döviz  Alış)"
+    },
+    "frequency_conversion": {
+      "TP.DK.USD.A.YTL": true
+    }
+  },
+  {
+    "status": "validated",
+    "series_code": "TP.DK.USD.A.YTL",
+    "frequency": "GÜNLÜK",
+    "aggregation": "avg",
+    "chunk_start": "2023-01-01",
+    "chunk_end": "2023-12-31",
+    "request_file": "raw/TP_DK_USD_A_YTL_2023-01-01_2023-12-31_request.json",
+    "request_sha256": "4fa03d3482aa3ccf2b9b828f357c572e6f160f1289fe41fa080f4011fa9a6a1c",
+    "response_file": "raw/TP_DK_USD_A_YTL_2023-01-01_2023-12-31_response.json.gz",
+    "response_sha256": "6cf5cd1f47600935d82b5e1cfc61f26a294c328df0cc83ce328792594281a335",
+    "served_from_cache": true,
+    "http_status": 200,
+    "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+    "content_type": "application/json;charset=UTF-8",
+    "bytes": 58150,
+    "sha256": "6cf5cd1f47600935d82b5e1cfc61f26a294c328df0cc83ce328792594281a335",
+    "transport": "curl",
+    "tls_verification": true,
+    "response_total_count": 365,
+    "retained_rows": 365,
+    "outside_requested_range_rows": 0,
+    "series_names": {
+      "TP_DK_USD_A_YTL": "(USD)  ABD  Doları  (Döviz  Alış)"
+    },
+    "frequency_conversion": {
+      "TP.DK.USD.A.YTL": true
+    }
+  },
+  {
+    "status": "validated",
+    "series_code": "TP.DK.USD.A.YTL",
+    "frequency": "GÜNLÜK",
+    "aggregation": "avg",
+    "chunk_start": "2024-01-01",
+    "chunk_end": "2024-12-31",
+    "request_file": "raw/TP_DK_USD_A_YTL_2024-01-01_2024-12-31_request.json",
+    "request_sha256": "1a7f387ba90561a6a395379f59442943ec630f4091bf68dfb501144c41cd4299",
+    "response_file": "raw/TP_DK_USD_A_YTL_2024-01-01_2024-12-31_response.json.gz",
+    "response_sha256": "b1cda5d0a47aac4262ea1c3e0493eb63a9f766c6eac4bf778293c91e0e69e0ea",
+    "served_from_cache": true,
+    "http_status": 200,
+    "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+    "content_type": "application/json;charset=UTF-8",
+    "bytes": 58242,
+    "sha256": "b1cda5d0a47aac4262ea1c3e0493eb63a9f766c6eac4bf778293c91e0e69e0ea",
+    "transport": "curl",
+    "tls_verification": true,
+    "response_total_count": 366,
+    "retained_rows": 366,
+    "outside_requested_range_rows": 0,
+    "series_names": {
+      "TP_DK_USD_A_YTL": "(USD)  ABD  Doları  (Döviz  Alış)"
+    },
+    "frequency_conversion": {
+      "TP.DK.USD.A.YTL": true
+    }
+  },
+  {
+    "status": "validated",
+    "series_code": "TP.DK.USD.A.YTL",
+    "frequency": "GÜNLÜK",
+    "aggregation": "avg",
+    "chunk_start": "2025-01-01",
+    "chunk_end": "2025-12-31",
+    "request_file": "raw/TP_DK_USD_A_YTL_2025-01-01_2025-12-31_request.json",
+    "request_sha256": "13a546781b1dcc71daa9b7c2dd444732e660a904dc527fc2a17fc43ce346804c",
+    "response_file": "raw/TP_DK_USD_A_YTL_2025-01-01_2025-12-31_response.json.gz",
+    "response_sha256": "c48eae0e8ae881df1178ffcd5adb041df3fa204ea400195bec165b9229d95f0e",
+    "served_from_cache": true,
+    "http_status": 200,
+    "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+    "content_type": "application/json;charset=UTF-8",
+    "bytes": 58114,
+    "sha256": "c48eae0e8ae881df1178ffcd5adb041df3fa204ea400195bec165b9229d95f0e",
+    "transport": "curl",
+    "tls_verification": true,
+    "response_total_count": 365,
+    "retained_rows": 365,
+    "outside_requested_range_rows": 0,
+    "series_names": {
+      "TP_DK_USD_A_YTL": "(USD)  ABD  Doları  (Döviz  Alış)"
+    },
+    "frequency_conversion": {
+      "TP.DK.USD.A.YTL": true
+    }
+  },
+  {
+    "status": "validated",
+    "series_code": "TP.DK.USD.A.YTL",
+    "frequency": "GÜNLÜK",
+    "aggregation": "avg",
+    "chunk_start": "2026-01-01",
+    "chunk_end": "2026-06-30",
+    "request_file": "raw/TP_DK_USD_A_YTL_2026-01-01_2026-06-30_request.json",
+    "request_sha256": "b212a0072dce33186262447918ab8f03fecf62b65d1c8699058c7ba414d9e8b4",
+    "response_file": "raw/TP_DK_USD_A_YTL_2026-01-01_2026-06-30_response.json.gz",
+    "response_sha256": "39ed1c41a17912d7a36a7359727610f685154539bc9e11de51271634731fb564",
+    "served_from_cache": true,
+    "http_status": 200,
+    "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+    "content_type": "application/json;charset=UTF-8",
+    "bytes": 28910,
+    "sha256": "39ed1c41a17912d7a36a7359727610f685154539bc9e11de51271634731fb564",
+    "transport": "curl",
+    "tls_verification": true,
+    "response_total_count": 181,
+    "retained_rows": 181,
+    "outside_requested_range_rows": 0,
+    "series_names": {
+      "TP_DK_USD_A_YTL": "(USD)  ABD  Doları  (Döviz  Alış)"
+    },
+    "frequency_conversion": {
+      "TP.DK.USD.A.YTL": true
+    }
+  },
+  {
+    "status": "validated",
+    "series_code": "TP.AKONUTSAT1.KTRTOPLAM",
+    "frequency": "AYLIK",
+    "aggregation": "sum",
+    "chunk_start": "2020-01-01",
+    "chunk_end": "2026-06-30",
+    "request_file": "raw/TP_AKONUTSAT1_KTRTOPLAM_2020-01-01_2026-06-30_request.json",
+    "request_sha256": "3a6b698de13581089f666299ff202e5903f09ad2a39a66c8f2339942c8263dd1",
+    "response_file": "raw/TP_AKONUTSAT1_KTRTOPLAM_2020-01-01_2026-06-30_response.json.gz",
+    "response_sha256": "c9ca43148c620a54e660631515d25a193b708c1f16230b401f5b69382b68f9da",
+    "served_from_cache": true,
+    "http_status": 200,
+    "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+    "content_type": "application/json;charset=UTF-8",
+    "bytes": 13393,
+    "sha256": "c9ca43148c620a54e660631515d25a193b708c1f16230b401f5b69382b68f9da",
+    "transport": "curl",
+    "tls_verification": true,
+    "response_total_count": 78,
+    "retained_rows": 78,
+    "outside_requested_range_rows": 0,
+    "series_names": {
+      "TP_AKONUTSAT1_KTRTOPLAM": "Türkiye_Konut_Toplam Satışlar"
+    },
+    "frequency_conversion": {
+      "TP.AKONUTSAT1.KTRTOPLAM": true
+    }
+  },
+  {
+    "status": "validated",
+    "series_code": "TP.AKONUTSAT2.KTRTOPLAM",
+    "frequency": "AYLIK",
+    "aggregation": "sum",
+    "chunk_start": "2020-01-01",
+    "chunk_end": "2026-06-30",
+    "request_file": "raw/TP_AKONUTSAT2_KTRTOPLAM_2020-01-01_2026-06-30_request.json",
+    "request_sha256": "0aa12168f1f7ff50323cde1dce031f1aa9fdc7bff257f4a9226f5772e04c6f61",
+    "response_file": "raw/TP_AKONUTSAT2_KTRTOPLAM_2020-01-01_2026-06-30_response.json.gz",
+    "response_sha256": "525348d40b73e1ae0f65de66227eb7ce4b78a5da7cb9e874e6e1dae94eee5bfa",
+    "served_from_cache": true,
+    "http_status": 200,
+    "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+    "content_type": "application/json;charset=UTF-8",
+    "bytes": 13261,
+    "sha256": "525348d40b73e1ae0f65de66227eb7ce4b78a5da7cb9e874e6e1dae94eee5bfa",
+    "transport": "curl",
+    "tls_verification": true,
+    "response_total_count": 78,
+    "retained_rows": 78,
+    "outside_requested_range_rows": 0,
+    "series_names": {
+      "TP_AKONUTSAT2_KTRTOPLAM": "Türkiye_Konut_İpotekli Satışlar"
+    },
+    "frequency_conversion": {
+      "TP.AKONUTSAT2.KTRTOPLAM": true
+    }
+  },
+  {
+    "status": "validated",
+    "series_code": "TP.AKONUTSAT3.KTRTOPLAM",
+    "frequency": "AYLIK",
+    "aggregation": "sum",
+    "chunk_start": "2020-01-01",
+    "chunk_end": "2026-06-30",
+    "request_file": "raw/TP_AKONUTSAT3_KTRTOPLAM_2020-01-01_2026-06-30_request.json",
+    "request_sha256": "21ef75d9695e01cd36890e07efd27c3add8c979a7bbda7c9e0a9407e6dd9bf6a",
+    "response_file": "raw/TP_AKONUTSAT3_KTRTOPLAM_2020-01-01_2026-06-30_response.json.gz",
+    "response_sha256": "d690ea842bf23858fe614955fdcde13d6c2e80b057cc145feb93d9df65169af5",
+    "served_from_cache": true,
+    "http_status": 200,
+    "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+    "content_type": "application/json;charset=UTF-8",
+    "bytes": 13271,
+    "sha256": "d690ea842bf23858fe614955fdcde13d6c2e80b057cc145feb93d9df65169af5",
+    "transport": "curl",
+    "tls_verification": true,
+    "response_total_count": 78,
+    "retained_rows": 78,
+    "outside_requested_range_rows": 0,
+    "series_names": {
+      "TP_AKONUTSAT3_KTRTOPLAM": "Türkiye_Konut_İlk El Satışlar"
+    },
+    "frequency_conversion": {
+      "TP.AKONUTSAT3.KTRTOPLAM": true
+    }
+  },
+  {
+    "status": "validated",
+    "series_code": "TP.AKONUTSAT4.KTRTOPLAM",
+    "frequency": "AYLIK",
+    "aggregation": "sum",
+    "chunk_start": "2020-01-01",
+    "chunk_end": "2026-06-30",
+    "request_file": "raw/TP_AKONUTSAT4_KTRTOPLAM_2020-01-01_2026-06-30_request.json",
+    "request_sha256": "01b77c3c71600e7c1eff634f2b03a93a6e767bfa5ab45dcb22c08328e8f8a548",
+    "response_file": "raw/TP_AKONUTSAT4_KTRTOPLAM_2020-01-01_2026-06-30_response.json.gz",
+    "response_sha256": "839c4c5ecb6691c937f90f170c0fbc314d5acaa9d3e630d7ebf8a950cac5e914",
+    "served_from_cache": true,
+    "http_status": 200,
+    "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+    "content_type": "application/json;charset=UTF-8",
+    "bytes": 13315,
+    "sha256": "839c4c5ecb6691c937f90f170c0fbc314d5acaa9d3e630d7ebf8a950cac5e914",
+    "transport": "curl",
+    "tls_verification": true,
+    "response_total_count": 78,
+    "retained_rows": 78,
+    "outside_requested_range_rows": 0,
+    "series_names": {
+      "TP_AKONUTSAT4_KTRTOPLAM": "Türkiye_Konut_İkinci El Satışlar"
+    },
+    "frequency_conversion": {
+      "TP.AKONUTSAT4.KTRTOPLAM": true
+    }
+  },
+  {
+    "status": "validated",
+    "series_code": "TP.TG2.Y01",
+    "frequency": "AYLIK",
+    "aggregation": "avg",
+    "chunk_start": "2020-01-01",
+    "chunk_end": "2026-06-30",
+    "request_file": "raw/TP_TG2_Y01_2020-01-01_2026-06-30_request.json",
+    "request_sha256": "0e8de4d24d2a9e9aab71946c31d6a041379fa58f6fe18754aa460819337a339c",
+    "response_file": "raw/TP_TG2_Y01_2020-01-01_2026-06-30_response.json.gz",
+    "response_sha256": "9c037cdb77e3bfa3042b50eb96c087647ee89e331baa66a526e8130983d9cce3",
+    "served_from_cache": true,
+    "http_status": 200,
+    "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+    "content_type": "application/json;charset=UTF-8",
+    "bytes": 11730,
+    "sha256": "9c037cdb77e3bfa3042b50eb96c087647ee89e331baa66a526e8130983d9cce3",
+    "transport": "curl",
+    "tls_verification": true,
+    "response_total_count": 78,
+    "retained_rows": 78,
+    "outside_requested_range_rows": 0,
+    "series_names": {
+      "TP_TG2_Y01": "Tüketici Güven Endeksi"
+    },
+    "frequency_conversion": {
+      "TP.TG2.Y01": true
+    }
+  },
+  {
+    "status": "validated",
+    "series_code": "TP.TG2.Y19",
+    "frequency": "AYLIK",
+    "aggregation": "avg",
+    "chunk_start": "2020-01-01",
+    "chunk_end": "2026-06-30",
+    "request_file": "raw/TP_TG2_Y19_2020-01-01_2026-06-30_request.json",
+    "request_sha256": "0895444c58c7e76cce45d97f0b4f56d55252774d3e2a3070f773b532790a43d0",
+    "response_file": "raw/TP_TG2_Y19_2020-01-01_2026-06-30_response.json.gz",
+    "response_sha256": "9de2e6b34803fcd0cef6d248fcd0e8a6d9c48c736df0924cec32824f132fa7de",
+    "served_from_cache": true,
+    "http_status": 200,
+    "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+    "content_type": "application/json;charset=UTF-8",
+    "bytes": 11754,
+    "sha256": "9de2e6b34803fcd0cef6d248fcd0e8a6d9c48c736df0924cec32824f132fa7de",
+    "transport": "curl",
+    "tls_verification": true,
+    "response_total_count": 78,
+    "retained_rows": 78,
+    "outside_requested_range_rows": 0,
+    "series_names": {
+      "TP_TG2_Y19": "Gelecek on iki aydaki konut satın alma veya inşa ettirme ihtimali beklentisi"
+    },
+    "frequency_conversion": {
+      "TP.TG2.Y19": true
+    }
+  },
+  {
+    "status": "validated",
+    "series_code": "TP.TSANAYMT2021.Y1",
+    "frequency": "AYLIK",
+    "aggregation": "avg",
+    "chunk_start": "2020-01-01",
+    "chunk_end": "2026-06-30",
+    "request_file": "raw/TP_TSANAYMT2021_Y1_2020-01-01_2026-06-30_request.json",
+    "request_sha256": "7e7e97a41b5efca02a8c9e3b4cf0f74a3becea3daaaab631f886f893a4919d9b",
+    "response_file": "raw/TP_TSANAYMT2021_Y1_2020-01-01_2026-06-30_response.json.gz",
+    "response_sha256": "bf69cfe1c042d8d96b990d69b9e5897d6eba1caa2806781a2edff1d1cba94ef9",
+    "served_from_cache": true,
+    "http_status": 200,
+    "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+    "content_type": "application/json;charset=UTF-8",
+    "bytes": 12472,
+    "sha256": "bf69cfe1c042d8d96b990d69b9e5897d6eba1caa2806781a2edff1d1cba94ef9",
+    "transport": "curl",
+    "tls_verification": true,
+    "response_total_count": 78,
+    "retained_rows": 78,
+    "outside_requested_range_rows": 0,
+    "series_names": {
+      "TP_TSANAYMT2021_Y1": "Toplam sanayi"
+    },
+    "frequency_conversion": {
+      "TP.TSANAYMT2021.Y1": true
+    }
+  },
+  {
+    "status": "validated",
+    "series_code": "TP.TIG08",
+    "frequency": "AYLIK",
+    "aggregation": "last",
+    "chunk_start": "2020-01-01",
+    "chunk_end": "2026-06-30",
+    "request_file": "raw/TP_TIG08_2020-01-01_2026-06-30_request.json",
+    "request_sha256": "8444a840407a22a0a5c63d90bedcd57ca97fa31ab067441ec2641a84765449a4",
+    "response_file": "raw/TP_TIG08_2020-01-01_2026-06-30_response.json.gz",
+    "response_sha256": "f586e1c5a5d32c11575c66cf1424910816dd92970d638f20e1af688b37a7f197",
+    "served_from_cache": true,
+    "http_status": 200,
+    "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+    "content_type": "application/json;charset=UTF-8",
+    "bytes": 11486,
+    "sha256": "f586e1c5a5d32c11575c66cf1424910816dd92970d638f20e1af688b37a7f197",
+    "transport": "curl",
+    "tls_verification": true,
+    "response_total_count": 78,
+    "retained_rows": 78,
+    "outside_requested_range_rows": 0,
+    "series_names": {
+      "TP_TIG08": "8.İşsizlik oranı (%)"
+    },
+    "frequency_conversion": {
+      "TP.TIG08": true
+    }
+  },
+  {
+    "status": "validated",
+    "series_code": "TP.PKAUO.S01.E.U",
+    "frequency": "AYLIK",
+    "aggregation": "last",
+    "chunk_start": "2020-01-01",
+    "chunk_end": "2026-06-30",
+    "request_file": "raw/TP_PKAUO_S01_E_U_2020-01-01_2026-06-30_request.json",
+    "request_sha256": "c777c3c5cce72fe0859a06a504d5d940bc7d2b72956be228b512d0bc0d8c496e",
+    "response_file": "raw/TP_PKAUO_S01_E_U_2020-01-01_2026-06-30_response.json.gz",
+    "response_sha256": "3940dcca28e09b9523aca8274a8fa14f65536e51e34f463baca3fe8217b5b1b1",
+    "served_from_cache": true,
+    "http_status": 200,
+    "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+    "content_type": "application/json;charset=UTF-8",
+    "bytes": 12268,
+    "sha256": "3940dcca28e09b9523aca8274a8fa14f65536e51e34f463baca3fe8217b5b1b1",
+    "transport": "curl",
+    "tls_verification": true,
+    "response_total_count": 78,
+    "retained_rows": 78,
+    "outside_requested_range_rows": 0,
+    "series_names": {
+      "TP_PKAUO_S01_E_U": "12 Ay Sonrasının Yıllık TÜFE Beklentisi (% Değişim)"
+    },
+    "frequency_conversion": {
+      "TP.PKAUO.S01.E.U": true
+    }
+  },
+  {
+    "status": "validated",
+    "series_code": "TP.PKAUO.S04.C.U",
+    "frequency": "AYLIK",
+    "aggregation": "last",
+    "chunk_start": "2020-01-01",
+    "chunk_end": "2026-06-30",
+    "request_file": "raw/TP_PKAUO_S04_C_U_2020-01-01_2026-06-30_request.json",
+    "request_sha256": "c8b982a9bfb16f49714f0a148d50b7821fdcaf23d37209b801f825d4797047d3",
+    "response_file": "raw/TP_PKAUO_S04_C_U_2020-01-01_2026-06-30_response.json.gz",
+    "response_sha256": "982bb3cc4394b436fc753df108be5c261f7a013fd2140b25767c3d369e65af15",
+    "served_from_cache": true,
+    "http_status": 200,
+    "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+    "content_type": "application/json;charset=UTF-8",
+    "bytes": 11122,
+    "sha256": "982bb3cc4394b436fc753df108be5c261f7a013fd2140b25767c3d369e65af15",
+    "transport": "curl",
+    "tls_verification": true,
+    "response_total_count": 78,
+    "retained_rows": 78,
+    "outside_requested_range_rows": 0,
+    "series_names": {
+      "TP_PKAUO_S04_C_U": "İlk Toplantı İçin TCMB Politika Faiz Oranı Beklentisi (%)"
+    },
+    "frequency_conversion": {
+      "TP.PKAUO.S04.C.U": true
+    }
+  },
+  {
+    "status": "validated",
+    "series_code": "TP.GY1.N2.MA",
+    "frequency": "AYLIK",
+    "aggregation": "avg",
+    "chunk_start": "2020-01-01",
+    "chunk_end": "2026-06-30",
+    "request_file": "raw/TP_GY1_N2_MA_2020-01-01_2026-06-30_request.json",
+    "request_sha256": "22e4129d4d2327aaaa9e17570b61dc371866a6a297eb3cf69f72591103b77771",
+    "response_file": "raw/TP_GY1_N2_MA_2020-01-01_2026-06-30_response.json.gz",
+    "response_sha256": "1af31c973880155ab416a9026b20c216516f565f0556785f1b6858be0395daa3",
+    "served_from_cache": true,
+    "http_status": 200,
+    "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+    "content_type": "application/json;charset=UTF-8",
+    "bytes": 12036,
+    "sha256": "1af31c973880155ab416a9026b20c216516f565f0556785f1b6858be0395daa3",
+    "transport": "curl",
+    "tls_verification": true,
+    "response_total_count": 78,
+    "retained_rows": 78,
+    "outside_requested_range_rows": 0,
+    "series_names": {
+      "TP_GY1_N2_MA": "1.Reel Kesim Güven Endeksi-MA"
+    },
+    "frequency_conversion": {
+      "TP.GY1.N2.MA": true
+    }
+  },
+  {
+    "status": "validated",
+    "series_code": "TP.HANEBEK.HAN18A",
+    "frequency": "AYLIK",
+    "aggregation": "avg",
+    "chunk_start": "2020-01-01",
+    "chunk_end": "2026-06-30",
+    "request_file": "raw/TP_HANEBEK_HAN18A_2020-01-01_2026-06-30_request.json",
+    "request_sha256": "93a3f63be3aa79ad2bf3326416b17727bff67ba6767f99dbb3030061bd89740d",
+    "response_file": "raw/TP_HANEBEK_HAN18A_2020-01-01_2026-06-30_response.json.gz",
+    "response_sha256": "6370851aad67ae4b14c268dd6abcc344dd8b439a4d9f127a4c66f4b569e13167",
+    "served_from_cache": true,
+    "http_status": 200,
+    "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+    "content_type": "application/json;charset=UTF-8",
+    "bytes": 11207,
+    "sha256": "6370851aad67ae4b14c268dd6abcc344dd8b439a4d9f127a4c66f4b569e13167",
+    "transport": "curl",
+    "tls_verification": true,
+    "response_total_count": 78,
+    "retained_rows": 78,
+    "outside_requested_range_rows": 0,
+    "series_names": {
+      "TP_HANEBEK_HAN18A": "SORU_18. Gelecek 12 ay sonunda konut fiyatlarının yıllık yüzde kaç artacağını/azalacağını bekliyorsunuz? (ORTALAMA)"
+    },
+    "frequency_conversion": {
+      "TP.HANEBEK.HAN18A": true
+    }
+  },
+  {
+    "status": "validated",
+    "series_code": "TP.IN.RH2.TOPLAM.TOP.D",
+    "frequency": "AYLIK",
+    "aggregation": "sum",
+    "chunk_start": "2020-01-01",
+    "chunk_end": "2026-06-30",
+    "request_file": "raw/TP_IN_RH2_TOPLAM_TOP_D_2020-01-01_2026-06-30_request.json",
+    "request_sha256": "608a081343fccf841e34b1e9d56712d2a4fb44c70d1c9c7fd91cd839cbf5de68",
+    "response_file": "raw/TP_IN_RH2_TOPLAM_TOP_D_2020-01-01_2026-06-30_response.json.gz",
+    "response_sha256": "381aa7b00ac7423f5e1ca231571db2f9a84ec80d208ab0019da199cf10c41795",
+    "served_from_cache": true,
+    "http_status": 200,
+    "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+    "content_type": "application/json;charset=UTF-8",
+    "bytes": 13212,
+    "sha256": "381aa7b00ac7423f5e1ca231571db2f9a84ec80d208ab0019da199cf10c41795",
+    "transport": "curl",
+    "tls_verification": true,
+    "response_total_count": 78,
+    "retained_rows": 78,
+    "outside_requested_range_rows": 0,
+    "series_names": {
+      "TP_IN_RH2_TOPLAM_TOP_D": "(Toplam) Binalar (Daire Sayısı)"
+    },
+    "frequency_conversion": {
+      "TP.IN.RH2.TOPLAM.TOP.D": true
+    }
+  },
+  {
+    "status": "validated",
+    "series_code": "TP.BIRIMFIYAT.TR",
+    "frequency": "ÜÇ AYLIK",
+    "aggregation": "avg",
+    "chunk_start": "2020-01-01",
+    "chunk_end": "2026-06-30",
+    "request_file": "raw/TP_BIRIMFIYAT_TR_2020-01-01_2026-06-30_request.json",
+    "request_sha256": "f860177dd6e153ddd89ee21fe486b154de1544caab20a67a67dd132dc724a78f",
+    "response_file": "raw/TP_BIRIMFIYAT_TR_2020-01-01_2026-06-30_response.json.gz",
+    "response_sha256": "d146629d831c66b664a4b2a4e5e5ce628aebf524cf027a57a601a98bff569c94",
+    "served_from_cache": true,
+    "http_status": 200,
+    "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+    "content_type": "application/json;charset=UTF-8",
+    "bytes": 4516,
+    "sha256": "d146629d831c66b664a4b2a4e5e5ce628aebf524cf027a57a601a98bff569c94",
+    "transport": "curl",
+    "tls_verification": true,
+    "response_total_count": 26,
+    "retained_rows": 26,
+    "outside_requested_range_rows": 0,
+    "series_names": {
+      "TP_BIRIMFIYAT_TR": "Türkiye Konut Birim Fiyatları"
+    },
+    "frequency_conversion": {
+      "TP.BIRIMFIYAT.TR": true
+    }
+  },
+  {
+    "status": "validated",
+    "series_code": "TP.BKEA.S056",
+    "frequency": "ÜÇ AYLIK",
+    "aggregation": "last",
+    "chunk_start": "2020-01-01",
+    "chunk_end": "2026-06-30",
+    "request_file": "raw/TP_BKEA_S056_2020-01-01_2026-06-30_request.json",
+    "request_sha256": "20bce9ca485e5140a531763a3383a3c753f1ac107d01eef248cfe9abf9ee810c",
+    "response_file": "raw/TP_BKEA_S056_2020-01-01_2026-06-30_response.json.gz",
+    "response_sha256": "5027d74d437bc84334781a168f45fc40582fcc1ab145c040db5a4d609527cade",
+    "served_from_cache": true,
+    "http_status": 200,
+    "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+    "content_type": "application/json;charset=UTF-8",
+    "bytes": 4496,
+    "sha256": "5027d74d437bc84334781a168f45fc40582fcc1ab145c040db5a4d609527cade",
+    "transport": "curl",
+    "tls_verification": true,
+    "response_total_count": 26,
+    "retained_rows": 26,
+    "outside_requested_range_rows": 0,
+    "series_names": {
+      "TP_BKEA_S056": "8.1. (Konut Alım Kredileri)_ Geçen üç ayda, bireysel kredi taleplerinin onaylanmasında uygulanan Bankanız kredi standartları ne yönde değişti?"
+    },
+    "frequency_conversion": {
+      "TP.BKEA.S056": true
+    }
+  },
+  {
+    "status": "validated",
+    "series_code": "TP.BKEA.S059",
+    "frequency": "ÜÇ AYLIK",
+    "aggregation": "last",
+    "chunk_start": "2020-01-01",
+    "chunk_end": "2026-06-30",
+    "request_file": "raw/TP_BKEA_S059_2020-01-01_2026-06-30_request.json",
+    "request_sha256": "b7f93b3aef2b7464a3c5a554f4eb16c8d421ce5d95680d7c5450fd883c6520c5",
+    "response_file": "raw/TP_BKEA_S059_2020-01-01_2026-06-30_response.json.gz",
+    "response_sha256": "2e84987fdd9372eb20bcdf36584474346e4d3032bb806501b53564430522a5c9",
+    "served_from_cache": true,
+    "http_status": 200,
+    "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+    "content_type": "application/json;charset=UTF-8",
+    "bytes": 4522,
+    "sha256": "2e84987fdd9372eb20bcdf36584474346e4d3032bb806501b53564430522a5c9",
+    "transport": "curl",
+    "tls_verification": true,
+    "response_total_count": 26,
+    "retained_rows": 26,
+    "outside_requested_range_rows": 0,
+    "series_names": {
+      "TP_BKEA_S059": "9.1. (Fon Maliyetleri ve Bilanço Kısıtlamaları)_ Geçen üç ayda, bu faktör konut kredilerine ilişkin Bankanız kredi standartlarını ne yönde etkiledi?"
+    },
+    "frequency_conversion": {
+      "TP.BKEA.S059": true
+    }
+  },
+  {
+    "status": "validated",
+    "series_code": "TP.BKEA.S060",
+    "frequency": "ÜÇ AYLIK",
+    "aggregation": "last",
+    "chunk_start": "2020-01-01",
+    "chunk_end": "2026-06-30",
+    "request_file": "raw/TP_BKEA_S060_2020-01-01_2026-06-30_request.json",
+    "request_sha256": "4dab4e631319f638e488380eaad12e0969f1e4fb511b6750cbc6ba92fe6db6c9",
+    "response_file": "raw/TP_BKEA_S060_2020-01-01_2026-06-30_response.json.gz",
+    "response_sha256": "65117df03ffd0d78cd209ff2c65b8f3105bfbb19cc2a62bd04f2752fcf051ce3",
+    "served_from_cache": true,
+    "http_status": 200,
+    "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+    "content_type": "application/json;charset=UTF-8",
+    "bytes": 4462,
+    "sha256": "65117df03ffd0d78cd209ff2c65b8f3105bfbb19cc2a62bd04f2752fcf051ce3",
+    "transport": "curl",
+    "tls_verification": true,
+    "response_total_count": 26,
+    "retained_rows": 26,
+    "outside_requested_range_rows": 0,
+    "series_names": {
+      "TP_BKEA_S060": "9.2. (Diğer Bankaların Rekabeti)_ Geçen üç ayda, bu faktör konut kredilerine ilişkin Bankanız kredi standartlarını ne yönde etkiledi?"
+    },
+    "frequency_conversion": {
+      "TP.BKEA.S060": true
+    }
+  },
+  {
+    "status": "validated",
+    "series_code": "TP.BKEA.S061",
+    "frequency": "ÜÇ AYLIK",
+    "aggregation": "last",
+    "chunk_start": "2020-01-01",
+    "chunk_end": "2026-06-30",
+    "request_file": "raw/TP_BKEA_S061_2020-01-01_2026-06-30_request.json",
+    "request_sha256": "e3960bbebb0cc4d58adf8e4902b94413100bfd434b3fce31ff66536f45bb8294",
+    "response_file": "raw/TP_BKEA_S061_2020-01-01_2026-06-30_response.json.gz",
+    "response_sha256": "13f4da58164aba5d42088eccf91443b95bd1f97561052a31de1e07096f414443",
+    "served_from_cache": true,
+    "http_status": 200,
+    "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+    "content_type": "application/json;charset=UTF-8",
+    "bytes": 4474,
+    "sha256": "13f4da58164aba5d42088eccf91443b95bd1f97561052a31de1e07096f414443",
+    "transport": "curl",
+    "tls_verification": true,
+    "response_total_count": 26,
+    "retained_rows": 26,
+    "outside_requested_range_rows": 0,
+    "series_names": {
+      "TP_BKEA_S061": "9.3. (Banka Dışı Mali Kesimin Rekabeti)_ Geçen üç ayda, bu faktör konut kredilerine ilişkin Bankanız kredi standartlarını ne yönde etkiledi?"
+    },
+    "frequency_conversion": {
+      "TP.BKEA.S061": true
+    }
+  },
+  {
+    "status": "validated",
+    "series_code": "TP.BKEA.S062",
+    "frequency": "ÜÇ AYLIK",
+    "aggregation": "last",
+    "chunk_start": "2020-01-01",
+    "chunk_end": "2026-06-30",
+    "request_file": "raw/TP_BKEA_S062_2020-01-01_2026-06-30_request.json",
+    "request_sha256": "f115eff72f12099afacc4da50bdfff0f36561cee9fe99d812938e001fccf9f52",
+    "response_file": "raw/TP_BKEA_S062_2020-01-01_2026-06-30_response.json.gz",
+    "response_sha256": "b66da882ac3829dc97e0f6f06d3177f62290c38323e056680596f57d770c0a32",
+    "served_from_cache": true,
+    "http_status": 200,
+    "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+    "content_type": "application/json;charset=UTF-8",
+    "bytes": 4526,
+    "sha256": "b66da882ac3829dc97e0f6f06d3177f62290c38323e056680596f57d770c0a32",
+    "transport": "curl",
+    "tls_verification": true,
+    "response_total_count": 26,
+    "retained_rows": 26,
+    "outside_requested_range_rows": 0,
+    "series_names": {
+      "TP_BKEA_S062": "9.4. (Genel Ekonomik Faaliyetlere İlişkin Beklentiler)_ Geçen üç ayda, bu faktör konut kredilerine ilişkin Bankanız kredi standartlarını ne yönde etkiledi?"
+    },
+    "frequency_conversion": {
+      "TP.BKEA.S062": true
+    }
+  },
+  {
+    "status": "validated",
+    "series_code": "TP.BKEA.S063",
+    "frequency": "ÜÇ AYLIK",
+    "aggregation": "last",
+    "chunk_start": "2020-01-01",
+    "chunk_end": "2026-06-30",
+    "request_file": "raw/TP_BKEA_S063_2020-01-01_2026-06-30_request.json",
+    "request_sha256": "84bd6bb4c61cb8799ffbb971b18bc23c96723baf42a94437406911bcea5873c2",
+    "response_file": "raw/TP_BKEA_S063_2020-01-01_2026-06-30_response.json.gz",
+    "response_sha256": "95572be014b3de38139ec59ab79a74c38478f60eb7a9bcd7ee93f2f8428521dd",
+    "served_from_cache": true,
+    "http_status": 200,
+    "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+    "content_type": "application/json;charset=UTF-8",
+    "bytes": 4500,
+    "sha256": "95572be014b3de38139ec59ab79a74c38478f60eb7a9bcd7ee93f2f8428521dd",
+    "transport": "curl",
+    "tls_verification": true,
+    "response_total_count": 26,
+    "retained_rows": 26,
+    "outside_requested_range_rows": 0,
+    "series_names": {
+      "TP_BKEA_S063": "9.5. (Emlak Piyasasına İlişkin Beklentiler)_ Geçen üç ayda, bu faktör konut kredilerine ilişkin Bankanız kredi standartlarını ne yönde etkiledi?"
+    },
+    "frequency_conversion": {
+      "TP.BKEA.S063": true
+    }
+  },
+  {
+    "status": "validated",
+    "series_code": "TP.BKEA.S064",
+    "frequency": "ÜÇ AYLIK",
+    "aggregation": "last",
+    "chunk_start": "2020-01-01",
+    "chunk_end": "2026-06-30",
+    "request_file": "raw/TP_BKEA_S064_2020-01-01_2026-06-30_request.json",
+    "request_sha256": "6168d0cc1f4388844f63898c3abb119c6a91ee6389d9605fe9b162ab5e34c37d",
+    "response_file": "raw/TP_BKEA_S064_2020-01-01_2026-06-30_response.json.gz",
+    "response_sha256": "1eeb7af33f4431e43fdc295959a0d2aa42e8e1cdc00234e4efa6468d7d89508f",
+    "served_from_cache": true,
+    "http_status": 200,
+    "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+    "content_type": "application/json;charset=UTF-8",
+    "bytes": 4552,
+    "sha256": "1eeb7af33f4431e43fdc295959a0d2aa42e8e1cdc00234e4efa6468d7d89508f",
+    "transport": "curl",
+    "tls_verification": true,
+    "response_total_count": 26,
+    "retained_rows": 26,
+    "outside_requested_range_rows": 0,
+    "series_names": {
+      "TP_BKEA_S064": "10.1. (Bankanızın Ortalama Krediler Üzerindeki Kar Marjı)_ Geçen üç ayda, konut alım kredisi taleplerinin onaylanmasında Bankanız koşul ve kuralları ne yönde değişti?"
+    },
+    "frequency_conversion": {
+      "TP.BKEA.S064": true
+    }
+  },
+  {
+    "status": "validated",
+    "series_code": "TP.BKEA.S065",
+    "frequency": "ÜÇ AYLIK",
+    "aggregation": "last",
+    "chunk_start": "2020-01-01",
+    "chunk_end": "2026-06-30",
+    "request_file": "raw/TP_BKEA_S065_2020-01-01_2026-06-30_request.json",
+    "request_sha256": "eb7c2a3ca2ffbf57d4feaaf2ffefce85da3637e8cdef7222a8325fb47193004f",
+    "response_file": "raw/TP_BKEA_S065_2020-01-01_2026-06-30_response.json.gz",
+    "response_sha256": "371b8246160366353c11315076d38b141b74e1fe434bb021e1d298d93ec5e65e",
+    "served_from_cache": true,
+    "http_status": 200,
+    "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+    "content_type": "application/json;charset=UTF-8",
+    "bytes": 4552,
+    "sha256": "371b8246160366353c11315076d38b141b74e1fe434bb021e1d298d93ec5e65e",
+    "transport": "curl",
+    "tls_verification": true,
+    "response_total_count": 26,
+    "retained_rows": 26,
+    "outside_requested_range_rows": 0,
+    "series_names": {
+      "TP_BKEA_S065": "10.2. (Bankanızın Daha Riskli Krediler Üzerindeki Kar Marjı)_ Geçen üç ayda, konut alım kredisi taleplerinin onaylanmasında Bankanız koşul ve kuralları ne yönde değişti?"
+    },
+    "frequency_conversion": {
+      "TP.BKEA.S065": true
+    }
+  },
+  {
+    "status": "validated",
+    "series_code": "TP.BKEA.S066",
+    "frequency": "ÜÇ AYLIK",
+    "aggregation": "last",
+    "chunk_start": "2020-01-01",
+    "chunk_end": "2026-06-30",
+    "request_file": "raw/TP_BKEA_S066_2020-01-01_2026-06-30_request.json",
+    "request_sha256": "61a60b138024cd3c0044e7f274ede46292b9ddce4d6f352c3f939ef8265f81e9",
+    "response_file": "raw/TP_BKEA_S066_2020-01-01_2026-06-30_response.json.gz",
+    "response_sha256": "e7c31de06ecafc2acb4e8a7a6a457f89b31e5d7816d158b5b9aac0026ca5d389",
+    "served_from_cache": true,
+    "http_status": 200,
+    "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+    "content_type": "application/json;charset=UTF-8",
+    "bytes": 4488,
+    "sha256": "e7c31de06ecafc2acb4e8a7a6a457f89b31e5d7816d158b5b9aac0026ca5d389",
+    "transport": "curl",
+    "tls_verification": true,
+    "response_total_count": 26,
+    "retained_rows": 26,
+    "outside_requested_range_rows": 0,
+    "series_names": {
+      "TP_BKEA_S066": "10.3. (Teminat İhtiyacı)_ Geçen üç ayda, konut alım kredisi taleplerinin onaylanmasında Bankanız koşul ve kuralları ne yönde değişti?"
+    },
+    "frequency_conversion": {
+      "TP.BKEA.S066": true
+    }
+  },
+  {
+    "status": "validated",
+    "series_code": "TP.BKEA.S067",
+    "frequency": "ÜÇ AYLIK",
+    "aggregation": "last",
+    "chunk_start": "2020-01-01",
+    "chunk_end": "2026-06-30",
+    "request_file": "raw/TP_BKEA_S067_2020-01-01_2026-06-30_request.json",
+    "request_sha256": "94c8a778b10d96d8619c2cce26c93f4a72a1793c8e50329cffdbfaae8929e94a",
+    "response_file": "raw/TP_BKEA_S067_2020-01-01_2026-06-30_response.json.gz",
+    "response_sha256": "2d8f9dc927f6308661c9e9b598ed6553bdad682f400fbd7681e9171ab71a0cba",
+    "served_from_cache": true,
+    "http_status": 200,
+    "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+    "content_type": "application/json;charset=UTF-8",
+    "bytes": 4482,
+    "sha256": "2d8f9dc927f6308661c9e9b598ed6553bdad682f400fbd7681e9171ab71a0cba",
+    "transport": "curl",
+    "tls_verification": true,
+    "response_total_count": 26,
+    "retained_rows": 26,
+    "outside_requested_range_rows": 0,
+    "series_names": {
+      "TP_BKEA_S067": "10.4. (Kredi/Teminat Oranı)_ Geçen üç ayda, konut alım kredisi taleplerinin onaylanmasında Bankanız koşul ve kuralları ne yönde değişti?"
+    },
+    "frequency_conversion": {
+      "TP.BKEA.S067": true
+    }
+  },
+  {
+    "status": "validated",
+    "series_code": "TP.BKEA.S068",
+    "frequency": "ÜÇ AYLIK",
+    "aggregation": "last",
+    "chunk_start": "2020-01-01",
+    "chunk_end": "2026-06-30",
+    "request_file": "raw/TP_BKEA_S068_2020-01-01_2026-06-30_request.json",
+    "request_sha256": "6f470843e18b9a3ed69656a87e7775d74247e7c79d01739a3e79f9b025e81be3",
+    "response_file": "raw/TP_BKEA_S068_2020-01-01_2026-06-30_response.json.gz",
+    "response_sha256": "bab0eb82b337f2208741f4e434aee9b737c664111303d1a88fd724e8e33e2326",
+    "served_from_cache": true,
+    "http_status": 200,
+    "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+    "content_type": "application/json;charset=UTF-8",
+    "bytes": 4454,
+    "sha256": "bab0eb82b337f2208741f4e434aee9b737c664111303d1a88fd724e8e33e2326",
+    "transport": "curl",
+    "tls_verification": true,
+    "response_total_count": 26,
+    "retained_rows": 26,
+    "outside_requested_range_rows": 0,
+    "series_names": {
+      "TP_BKEA_S068": "10.5. (Vade)_ Geçen üç ayda, konut alım kredisi taleplerinin onaylanmasında Bankanız koşul ve kuralları ne yönde değişti?"
+    },
+    "frequency_conversion": {
+      "TP.BKEA.S068": true
+    }
+  },
+  {
+    "status": "validated",
+    "series_code": "TP.BKEA.S069",
+    "frequency": "ÜÇ AYLIK",
+    "aggregation": "last",
+    "chunk_start": "2020-01-01",
+    "chunk_end": "2026-06-30",
+    "request_file": "raw/TP_BKEA_S069_2020-01-01_2026-06-30_request.json",
+    "request_sha256": "734a44859207c8c4eb288f8f401c29bcea926afa11e0394883eb76787564eab5",
+    "response_file": "raw/TP_BKEA_S069_2020-01-01_2026-06-30_response.json.gz",
+    "response_sha256": "b2298b5de49d48ef08833e24fa32cf9e453ad464dfb1da1eeb4bdf3521492959",
+    "served_from_cache": true,
+    "http_status": 200,
+    "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+    "content_type": "application/json;charset=UTF-8",
+    "bytes": 4484,
+    "sha256": "b2298b5de49d48ef08833e24fa32cf9e453ad464dfb1da1eeb4bdf3521492959",
+    "transport": "curl",
+    "tls_verification": true,
+    "response_total_count": 26,
+    "retained_rows": 26,
+    "outside_requested_range_rows": 0,
+    "series_names": {
+      "TP_BKEA_S069": "10.6. (Faiz Dışında Alınan Ücretler)_ Geçen üç ayda, konut alım kredisi taleplerinin onaylanmasında Bankanız koşul ve kuralları ne yönde değişti?"
+    },
+    "frequency_conversion": {
+      "TP.BKEA.S069": true
+    }
+  },
+  {
+    "status": "validated",
+    "series_code": "TP.BKEA.S092",
+    "frequency": "ÜÇ AYLIK",
+    "aggregation": "last",
+    "chunk_start": "2020-01-01",
+    "chunk_end": "2026-06-30",
+    "request_file": "raw/TP_BKEA_S092_2020-01-01_2026-06-30_request.json",
+    "request_sha256": "63a7b765f6569602b06b0253cbc1f7dfe2a907524171c353ecf4994abdcf8849",
+    "response_file": "raw/TP_BKEA_S092_2020-01-01_2026-06-30_response.json.gz",
+    "response_sha256": "98d206fad3d45d2209db1433cdb5e888452e0fc9e320f3b7fbb7c5ed9ea5e4e3",
+    "served_from_cache": true,
+    "http_status": 200,
+    "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+    "content_type": "application/json;charset=UTF-8",
+    "bytes": 4416,
+    "sha256": "98d206fad3d45d2209db1433cdb5e888452e0fc9e320f3b7fbb7c5ed9ea5e4e3",
+    "transport": "curl",
+    "tls_verification": true,
+    "response_total_count": 26,
+    "retained_rows": 26,
+    "outside_requested_range_rows": 0,
+    "series_names": {
+      "TP_BKEA_S092": "15.1. (Konut Alım Kredileri)_ Geçen üç ayda, Bankanızdan bireysel kredi talebi ne yönde değişti?"
+    },
+    "frequency_conversion": {
+      "TP.BKEA.S092": true
+    }
+  },
+  {
+    "status": "validated",
+    "series_code": "TP.BKEA.S095",
+    "frequency": "ÜÇ AYLIK",
+    "aggregation": "last",
+    "chunk_start": "2020-01-01",
+    "chunk_end": "2026-06-30",
+    "request_file": "raw/TP_BKEA_S095_2020-01-01_2026-06-30_request.json",
+    "request_sha256": "dd606f64b2e8ec4dd823d2dcfcd900605b20f760f9e55ade7e4d71a7fbba2a4f",
+    "response_file": "raw/TP_BKEA_S095_2020-01-01_2026-06-30_response.json.gz",
+    "response_sha256": "be3c2c6abd4eec7b716485b73748793e37aa16008f5137209c2ccb0a9c7e979c",
+    "served_from_cache": true,
+    "http_status": 200,
+    "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+    "content_type": "application/json;charset=UTF-8",
+    "bytes": 4458,
+    "sha256": "be3c2c6abd4eec7b716485b73748793e37aa16008f5137209c2ccb0a9c7e979c",
+    "transport": "curl",
+    "tls_verification": true,
+    "response_total_count": 26,
+    "retained_rows": 26,
+    "outside_requested_range_rows": 0,
+    "series_names": {
+      "TP_BKEA_S095": "16.1. (Konut Piyasasına İlişkin Beklentiler)_ Geçen üç ayda, bu faktör konut alım kredisi talebini ne yönde etkiledi?"
+    },
+    "frequency_conversion": {
+      "TP.BKEA.S095": true
+    }
+  },
+  {
+    "status": "validated",
+    "series_code": "TP.BKEA.S096",
+    "frequency": "ÜÇ AYLIK",
+    "aggregation": "last",
+    "chunk_start": "2020-01-01",
+    "chunk_end": "2026-06-30",
+    "request_file": "raw/TP_BKEA_S096_2020-01-01_2026-06-30_request.json",
+    "request_sha256": "a3d0445d9e1eebc71261611f9904a9d8c11ef5aa23dc01e8340139b5045ddac6",
+    "response_file": "raw/TP_BKEA_S096_2020-01-01_2026-06-30_response.json.gz",
+    "response_sha256": "41fe3ba804cc16ecd008af839e19a6c63f3e3bfae04ed11da3b1f1de23d64c7d",
+    "served_from_cache": true,
+    "http_status": 200,
+    "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+    "content_type": "application/json;charset=UTF-8",
+    "bytes": 4402,
+    "sha256": "41fe3ba804cc16ecd008af839e19a6c63f3e3bfae04ed11da3b1f1de23d64c7d",
+    "transport": "curl",
+    "tls_verification": true,
+    "response_total_count": 26,
+    "retained_rows": 26,
+    "outside_requested_range_rows": 0,
+    "series_names": {
+      "TP_BKEA_S096": "16.2. (Tüketici Güveni)_ Geçen üç ayda, bu faktör konut alım kredisi talebini ne yönde etkiledi?"
+    },
+    "frequency_conversion": {
+      "TP.BKEA.S096": true
+    }
+  },
+  {
+    "status": "validated",
+    "series_code": "TP.BKEA.S097",
+    "frequency": "ÜÇ AYLIK",
+    "aggregation": "last",
+    "chunk_start": "2020-01-01",
+    "chunk_end": "2026-06-30",
+    "request_file": "raw/TP_BKEA_S097_2020-01-01_2026-06-30_request.json",
+    "request_sha256": "2e57e9460ac9fe3c7095fd191f6b7dd2da4784a4835ab8de437753ddc5282dd6",
+    "response_file": "raw/TP_BKEA_S097_2020-01-01_2026-06-30_response.json.gz",
+    "response_sha256": "2ce7acd9d4febcf30c611ad53937f2bca7034e569e33583fdf86b128d2ca2ade",
+    "served_from_cache": true,
+    "http_status": 200,
+    "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+    "content_type": "application/json;charset=UTF-8",
+    "bytes": 4478,
+    "sha256": "2ce7acd9d4febcf30c611ad53937f2bca7034e569e33583fdf86b128d2ca2ade",
+    "transport": "curl",
+    "tls_verification": true,
+    "response_total_count": 26,
+    "retained_rows": 26,
+    "outside_requested_range_rows": 0,
+    "series_names": {
+      "TP_BKEA_S097": "16.3. (Konut Alımı Dışındaki Tüketim Harcamaları)_ Geçen üç ayda, bu faktör konut alım kredisi talebini ne yönde etkiledi?"
+    },
+    "frequency_conversion": {
+      "TP.BKEA.S097": true
+    }
+  },
+  {
+    "status": "validated",
+    "series_code": "TP.BKEA.S098",
+    "frequency": "ÜÇ AYLIK",
+    "aggregation": "last",
+    "chunk_start": "2020-01-01",
+    "chunk_end": "2026-06-30",
+    "request_file": "raw/TP_BKEA_S098_2020-01-01_2026-06-30_request.json",
+    "request_sha256": "126daea725ca0273b53200642ea2d24961e479ffe32d942026b726f3d6038b8f",
+    "response_file": "raw/TP_BKEA_S098_2020-01-01_2026-06-30_response.json.gz",
+    "response_sha256": "2f2684ec7303e615aca54c455ae65b5956922a7fc131e040e49258977f295713",
+    "served_from_cache": true,
+    "http_status": 200,
+    "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+    "content_type": "application/json;charset=UTF-8",
+    "bytes": 4388,
+    "sha256": "2f2684ec7303e615aca54c455ae65b5956922a7fc131e040e49258977f295713",
+    "transport": "curl",
+    "tls_verification": true,
+    "response_total_count": 26,
+    "retained_rows": 26,
+    "outside_requested_range_rows": 0,
+    "series_names": {
+      "TP_BKEA_S098": "16.4. (Vergi ve Fonlar)_ Geçen üç ayda, bu faktör konut alım kredisi talebini ne yönde etkiledi?"
+    },
+    "frequency_conversion": {
+      "TP.BKEA.S098": true
+    }
+  },
+  {
+    "status": "validated",
+    "series_code": "TP.BKEA.S099",
+    "frequency": "ÜÇ AYLIK",
+    "aggregation": "last",
+    "chunk_start": "2020-01-01",
+    "chunk_end": "2026-06-30",
+    "request_file": "raw/TP_BKEA_S099_2020-01-01_2026-06-30_request.json",
+    "request_sha256": "71d67682a533374ed85387ec690fded39235dd2d4f42a79b0ccd37227a58167d",
+    "response_file": "raw/TP_BKEA_S099_2020-01-01_2026-06-30_response.json.gz",
+    "response_sha256": "4807e9479dc2697b484ca7c34ee42f44a9e3c3e6255d3727bd2d9623d2fe62dc",
+    "served_from_cache": true,
+    "http_status": 200,
+    "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+    "content_type": "application/json;charset=UTF-8",
+    "bytes": 4420,
+    "sha256": "4807e9479dc2697b484ca7c34ee42f44a9e3c3e6255d3727bd2d9623d2fe62dc",
+    "transport": "curl",
+    "tls_verification": true,
+    "response_total_count": 26,
+    "retained_rows": 26,
+    "outside_requested_range_rows": 0,
+    "series_names": {
+      "TP_BKEA_S099": "16.5. (Bireysel Tasarruflar)_ Geçen üç ayda, bu faktör konut alım kredisi talebini ne yönde etkiledi?"
+    },
+    "frequency_conversion": {
+      "TP.BKEA.S099": true
+    }
+  },
+  {
+    "status": "validated",
+    "series_code": "TP.BKEA.S100",
+    "frequency": "ÜÇ AYLIK",
+    "aggregation": "last",
+    "chunk_start": "2020-01-01",
+    "chunk_end": "2026-06-30",
+    "request_file": "raw/TP_BKEA_S100_2020-01-01_2026-06-30_request.json",
+    "request_sha256": "cb45a49fccfb11400e3b7531eb7f696d23bbfbd1df2a0245492d37593f3adeb8",
+    "response_file": "raw/TP_BKEA_S100_2020-01-01_2026-06-30_response.json.gz",
+    "response_sha256": "e9021919f5fcffd71cfb291cbba3f3c0f4f3b662ad3572b5fc9b4c0b82084437",
+    "served_from_cache": true,
+    "http_status": 200,
+    "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+    "content_type": "application/json;charset=UTF-8",
+    "bytes": 4462,
+    "sha256": "e9021919f5fcffd71cfb291cbba3f3c0f4f3b662ad3572b5fc9b4c0b82084437",
+    "transport": "curl",
+    "tls_verification": true,
+    "response_total_count": 26,
+    "retained_rows": 26,
+    "outside_requested_range_rows": 0,
+    "series_names": {
+      "TP_BKEA_S100": "16.6. (Diğer Bankalardan Sağlanan Krediler)_ Geçen üç ayda, bu faktör konut alım kredisi talebini ne yönde etkiledi?"
+    },
+    "frequency_conversion": {
+      "TP.BKEA.S100": true
+    }
+  },
+  {
+    "status": "validated",
+    "series_code": "TP.BKEA.S101",
+    "frequency": "ÜÇ AYLIK",
+    "aggregation": "last",
+    "chunk_start": "2020-01-01",
+    "chunk_end": "2026-06-30",
+    "request_file": "raw/TP_BKEA_S101_2020-01-01_2026-06-30_request.json",
+    "request_sha256": "1af4e244ec65ae8e8745e74e403a0f819b6a1d1fb2fe3372f8cdbb6ef50eeb1c",
+    "response_file": "raw/TP_BKEA_S101_2020-01-01_2026-06-30_response.json.gz",
+    "response_sha256": "9d0aa9e96c902a0775cda2c5926a8b20e34240429355bc1fe46f8425f0e6af90",
+    "served_from_cache": true,
+    "http_status": 200,
+    "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+    "content_type": "application/json;charset=UTF-8",
+    "bytes": 4436,
+    "sha256": "9d0aa9e96c902a0775cda2c5926a8b20e34240429355bc1fe46f8425f0e6af90",
+    "transport": "curl",
+    "tls_verification": true,
+    "response_total_count": 26,
+    "retained_rows": 26,
+    "outside_requested_range_rows": 0,
+    "series_names": {
+      "TP_BKEA_S101": "16.7. (Diğer Finansman Kaynakları)_ Geçen üç ayda, bu faktör konut alım kredisi talebini ne yönde etkiledi?"
+    },
+    "frequency_conversion": {
+      "TP.BKEA.S101": true
+    }
+  },
+  {
+    "status": "validated",
+    "series_code": "TP.BKEA.S102",
+    "frequency": "ÜÇ AYLIK",
+    "aggregation": "last",
+    "chunk_start": "2020-01-01",
+    "chunk_end": "2026-06-30",
+    "request_file": "raw/TP_BKEA_S102_2020-01-01_2026-06-30_request.json",
+    "request_sha256": "24d3f325e7fe58db9841e6977bff09078925ef7dcf1709ebf5ecf520b819d851",
+    "response_file": "raw/TP_BKEA_S102_2020-01-01_2026-06-30_response.json.gz",
+    "response_sha256": "401bc3f09ab550894c6a4310c02e7d5fa7bfe917c7b6e9860bb07f20b9837910",
+    "served_from_cache": true,
+    "http_status": 200,
+    "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+    "content_type": "application/json;charset=UTF-8",
+    "bytes": 4456,
+    "sha256": "401bc3f09ab550894c6a4310c02e7d5fa7bfe917c7b6e9860bb07f20b9837910",
+    "transport": "curl",
+    "tls_verification": true,
+    "response_total_count": 26,
+    "retained_rows": 26,
+    "outside_requested_range_rows": 0,
+    "series_names": {
+      "TP_BKEA_S102": "16.8. (Krediler Üzerindeki Vergi ve Benzeri Yükler)_ Geçen üç ayda, bu faktör konut alım kredisi talebini ne yönde etkiledi?"
+    },
+    "frequency_conversion": {
+      "TP.BKEA.S102": true
+    }
+  },
+  {
+    "status": "validated",
+    "series_code": "TP.BKEA.S117",
+    "frequency": "ÜÇ AYLIK",
+    "aggregation": "last",
+    "chunk_start": "2020-01-01",
+    "chunk_end": "2026-06-30",
+    "request_file": "raw/TP_BKEA_S117_2020-01-01_2026-06-30_request.json",
+    "request_sha256": "a63713bf1ba853faf4956d8a0d0e3935ca8641e8e41ad9cc1db8e2b8c879e150",
+    "response_file": "raw/TP_BKEA_S117_2020-01-01_2026-06-30_response.json.gz",
+    "response_sha256": "0498d03ce4e26e9b826aaeb4b17de75464ccc7096309294ab95c59eeb3bc9836",
+    "served_from_cache": true,
+    "http_status": 200,
+    "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+    "content_type": "application/json;charset=UTF-8",
+    "bytes": 4510,
+    "sha256": "0498d03ce4e26e9b826aaeb4b17de75464ccc7096309294ab95c59eeb3bc9836",
+    "transport": "curl",
+    "tls_verification": true,
+    "response_total_count": 26,
+    "retained_rows": 26,
+    "outside_requested_range_rows": 0,
+    "series_names": {
+      "TP_BKEA_S117": "19.1. (Konut Alım Kredileri)_ Gelecek üç ayda, bireysel kredilerin onaylanmasında uygulanan Bankanız kredi standartlarının ne yönde değişeceğini bekliyorsunuz?"
+    },
+    "frequency_conversion": {
+      "TP.BKEA.S117": true
+    }
+  },
+  {
+    "status": "validated",
+    "series_code": "TP.BKEA.S120",
+    "frequency": "ÜÇ AYLIK",
+    "aggregation": "last",
+    "chunk_start": "2020-01-01",
+    "chunk_end": "2026-06-30",
+    "request_file": "raw/TP_BKEA_S120_2020-01-01_2026-06-30_request.json",
+    "request_sha256": "50948a1931c800c12d56081a93971c18e986a59aa7090b870a219a29d73dcfe7",
+    "response_file": "raw/TP_BKEA_S120_2020-01-01_2026-06-30_response.json.gz",
+    "response_sha256": "087df0570d1aa77adce10587ed617476a07aace7bcf81b8519ea17ec2caa3954",
+    "served_from_cache": true,
+    "http_status": 200,
+    "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+    "content_type": "application/json;charset=UTF-8",
+    "bytes": 4464,
+    "sha256": "087df0570d1aa77adce10587ed617476a07aace7bcf81b8519ea17ec2caa3954",
+    "transport": "curl",
+    "tls_verification": true,
+    "response_total_count": 26,
+    "retained_rows": 26,
+    "outside_requested_range_rows": 0,
+    "series_names": {
+      "TP_BKEA_S120": "20.1. (Konut Alım Kredileri)_ Gelecek üç ayda, Bankanızdan bireysel kredi talebinin ne yönde değişeceğini bekliyorsunuz?"
+    },
+    "frequency_conversion": {
+      "TP.BKEA.S120": true
+    }
+  }
+]

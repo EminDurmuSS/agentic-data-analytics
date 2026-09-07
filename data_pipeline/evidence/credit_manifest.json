@@ -1,0 +1,98 @@
+[
+  {
+    "file": "credit_monthly_data.json",
+    "bytes": 31457,
+    "sha256": "fa2229ba798fc68d6f936a68a6a2259fb81769b4a3ad754bd89cc00ebf647371",
+    "request_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+    "request_file": "credit_monthly_request.json",
+    "http_status": 200,
+    "download_completed_at_utc_file_mtime": "2026-09-07T17:33:11.995758+00:00",
+    "timestamp_note": "Approximate download completion: filesystem last-write timestamp immediately after successful response; exact server response timestamp was not recorded.",
+    "rows": 78,
+    "first_period": "2020-01",
+    "last_period": "2026-06",
+    "series_count": 3,
+    "null_counts": {
+      "TP_KM_B11": 0,
+      "TP_KM_A11": 0,
+      "TP_KB_KRE10": 0
+    },
+    "duplicate_periods": 0
+  },
+  {
+    "file": "credit_monthly_extra_data.json",
+    "bytes": 88220,
+    "sha256": "1d27a2154a2284b6409714a6221018b1c9d719f70acc117248c3205e602019dd",
+    "request_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+    "request_file": "credit_monthly_extra_request.json",
+    "http_status": 200,
+    "download_completed_at_utc_file_mtime": "2026-09-07T17:34:52.077078+00:00",
+    "timestamp_note": "Approximate download completion: filesystem last-write timestamp immediately after successful response; exact server response timestamp was not recorded.",
+    "rows": 78,
+    "first_period": "2020-01",
+    "last_period": "2026-06",
+    "series_count": 12,
+    "null_counts": {
+      "TP_KM_B10": 0,
+      "TP_KM_B12": 0,
+      "TP_KM_B13": 0,
+      "TP_KM_B14": 0,
+      "TP_KM_A10": 0,
+      "TP_KM_A12": 0,
+      "TP_KM_A13": 0,
+      "TP_KM_A14": 0,
+      "TP_KB_KRE09": 0,
+      "TP_KB_KRE11": 0,
+      "TP_KB_KRE12": 0,
+      "TP_KB_KRE13": 0
+    },
+    "duplicate_periods": 0
+  },
+  {
+    "file": "credit_data.json",
+    "bytes": 261655,
+    "sha256": "e21e155704c0a80a23f6071c4f9e6e44261662cea38ba09f4853525a3cece5ea",
+    "request_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+    "request_file": "credit_data_request.json",
+    "http_status": 200,
+    "download_completed_at_utc_file_mtime": "2026-09-07T17:31:55.200469+00:00",
+    "timestamp_note": "Approximate download completion: filesystem last-write timestamp immediately after successful response; exact server response timestamp was not recorded.",
+    "rows": 288,
+    "first_period": "01-01-2021",
+    "last_period": "03-07-2026",
+    "series_count": 10,
+    "null_counts": {
+      "TP_HPBITABLO6_3": 182,
+      "TP_HPBITABLO6_7": 182,
+      "TP_HPBITABLO6_11": 182,
+      "TP_HPBITABLO6_16": 182,
+      "TP_HPBITABLO6_20": 182,
+      "TP_HPBITABLO6_21": 182,
+      "TP_HPBITABLO6_26": 182,
+      "TP_HPBITABLO6_51": 182,
+      "TP_HPBITABLO6_50": 182,
+      "TP_HPBITABLO6_19": 182
+    },
+    "duplicate_periods": 0
+  },
+  {
+    "file": "credit_monthly_metadata.pdf",
+    "bytes": 109500,
+    "sha256": "2162f831ba52383250142ddf75a3b8ad97608e5ce7dc104f9dae9423c01c60ee",
+    "request_url": "http://www.tcmb.gov.tr/wps/wcm/connect/f3ad1a37-6d59-4a0b-b0d7-09b51cd7a73f/MetaveriAPB%C4%B02018.pdf?MOD=AJPERES&CACHEID=ROOTWORKSPACE-f3ad1a37-6d59-4a0b-b0d7-09b51cd7a73f-ml2zpGJ",
+    "request_file": null,
+    "http_status": 200,
+    "download_completed_at_utc_file_mtime": "2026-09-07T17:33:25.453985+00:00",
+    "timestamp_note": "Approximate download completion: filesystem last-write timestamp immediately after successful response; exact server response timestamp was not recorded."
+  },
+  {
+    "file": "credit_hpbi_metadata.pdf",
+    "bytes": 791315,
+    "sha256": "9ff104f6285bd1bddc8d9c5c968b8476bcbcb235f1548435001c5b98791847d5",
+    "request_url": "https://www.tcmb.gov.tr/wps/wcm/connect/af2e86c3-6410-45ce-9eb6-1770e459b528/Metaveri.pdf?MOD=AJPERES&CACHEID=ROOTWORKSPACE-af2e86c3-6410-45ce-9eb6-1770e459b528-nCuKFP8",
+    "request_file": null,
+    "http_status": 200,
+    "download_completed_at_utc_file_mtime": "2026-09-07T17:31:58.258739+00:00",
+    "timestamp_note": "Approximate download completion: filesystem last-write timestamp immediately after successful response; exact server response timestamp was not recorded."
+  }
+]

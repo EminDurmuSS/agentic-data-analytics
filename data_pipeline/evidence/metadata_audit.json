@@ -1,0 +1,63 @@
+{
+  "audited_at_utc": "2026-09-07T17:50:51.317378+00:00",
+  "target_period": [
+    "2021-01",
+    "2026-06"
+  ],
+  "cpi_input": "core_cpi.json",
+  "cpi_input_sha256": "1623d15ca20bfd54e31b5f4eb494a1b3c25a4d82423d79ee6c2dfd3fd6e8faa7",
+  "cpi_checks": {
+    "count": 132,
+    "matched_2dp": 132,
+    "mom_count": 66,
+    "yoy_count": 66,
+    "mismatches": [],
+    "meaning": "Growth rates independently matched against TCMB HTML publication of TÜİK rates; not an independent level or primary collection audit."
+  },
+  "base_means": {
+    "cpi_2025": {
+      "count": 12,
+      "mean": 99.99999999833334,
+      "expected": 100,
+      "tolerance": 1e-06
+    },
+    "kfe_2023": {
+      "count": 12,
+      "mean": 99.99916666666667,
+      "expected": 100,
+      "tolerance": 0.005
+    }
+  },
+  "spot_levels_evds_only": {
+    "2021-01": {
+      "cpi": 16.12513498,
+      "kfe": 16.49
+    },
+    "2023-12": {
+      "cpi": 58.41175431,
+      "kfe": 122.43
+    },
+    "2026-06": {
+      "cpi": 129.99,
+      "kfe": 231.34
+    }
+  },
+  "not_independently_matched": [
+    "KFE historical exact levels outside EVDS",
+    "Housing interest historical exact rates outside EVDS",
+    "CPI absolute levels in a second publication; CPI growth rates are matched"
+  ],
+  "methodology_dates": {
+    "kfe_metadata": "2026-02-17",
+    "housing_rate_metadata": "2026-04-27",
+    "cpi_rebase_announcement": "2025-10-30"
+  },
+  "important_interpretation": [
+    "TP.KTF12 is annual effective TRY fixed-rate housing-loan interest, published weekly, flow weighted.",
+    "Monthly simple mean of published weekly annual rates is a derived summary, not a monthly volume-weighted rate.",
+    "Rate bank coverage excludes participation banks; do not silently equate to BDDK all-bank loan stock.",
+    "KFE current base2023 uses latest revised history and is not a sale-price level or all-transactions average.",
+    "CPI current base2025 series includes back-history; never append2003baselevels directly.",
+    "Historical observations are current-vintage revised data, not proof of what was publicly known on historical date."
+  ]
+}

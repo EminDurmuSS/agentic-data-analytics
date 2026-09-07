@@ -1,0 +1,31 @@
+{
+  "status": "validated",
+  "diagnosis": "validated_bddk_weekly_html_table",
+  "source_url": "https://www.bddk.org.tr/BultenHaftalik/",
+  "sha256_uncompressed": "149eaa19080aaa6b1394d01388c8310e0c980e34b4772f436152fb0cdcadfb14",
+  "compressed_bytes": 13962,
+  "uncompressed_bytes": 179712,
+  "served_from_cache": false,
+  "completed_at_utc": "2026-09-07T21:50:18.114581+00:00",
+  "table_id": 294,
+  "table_name": "Bilanco Disi Islemler",
+  "group_code": 10001,
+  "group_name": "Sektor",
+  "period_id": 489,
+  "observation_date": "2023-05-12",
+  "week_number": 19,
+  "source_period_label": "Mayıs/12 (19. Hafta)",
+  "source_date_heading": "Tarih: 12 Mayıs 2023 Cuma | Birim: Milyon TL",
+  "source_date_parsed": "2023-05-12",
+  "headers": [
+    "",
+    "Bilanço Dışı İşlemler",
+    "TP",
+    "YP",
+    "TOPLAM"
+  ],
+  "rows": 4,
+  "max_cells_per_row": 5,
+  "unit_heading": "Milyon TL",
+  "date_heading_normalized": "tarih: 12 mayis 2023 cuma | birim: milyon tl"
+}

@@ -1,0 +1,31 @@
+{
+  "status": "validated",
+  "diagnosis": "validated_bddk_weekly_html_table",
+  "source_url": "https://www.bddk.org.tr/BultenHaftalik/",
+  "sha256_uncompressed": "56b12a69685872cf790af3aa8e1332eac3e64672d65ccf46c3a76d33113ab43b",
+  "compressed_bytes": 13967,
+  "uncompressed_bytes": 179718,
+  "served_from_cache": false,
+  "completed_at_utc": "2026-09-07T21:49:07.831102+00:00",
+  "table_id": 294,
+  "table_name": "Bilanco Disi Islemler",
+  "group_code": 10001,
+  "group_name": "Sektor",
+  "period_id": 446,
+  "observation_date": "2022-07-14",
+  "week_number": 28,
+  "source_period_label": "Temmuz/14 (28. Hafta)",
+  "source_date_heading": "Tarih: 14 Temmuz 2022 Perşembe | Birim: Milyon TL",
+  "source_date_parsed": "2022-07-14",
+  "headers": [
+    "",
+    "Bilanço Dışı İşlemler",
+    "TP",
+    "YP",
+    "TOPLAM"
+  ],
+  "rows": 4,
+  "max_cells_per_row": 5,
+  "unit_heading": "Milyon TL",
+  "date_heading_normalized": "tarih: 14 temmuz 2022 persembe | birim: milyon tl"
+}

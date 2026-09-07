@@ -1,0 +1,16 @@
+# Preserve downloaded and generated data byte-for-byte. These files may contain
+# source CRLF line endings or significant trailing spaces and should not be
+# normalized or rendered as textual Git diffs.
+data_pipeline/**/*.csv binary
+data_pipeline/**/*.jsonl binary
+data_pipeline/**/raw/** binary
+data_pipeline/evidence/**/*.txt binary
+data_pipeline/evidence/**/*.html binary
+data_pipeline/**/*.parquet binary
+data_pipeline/**/*.duckdb binary
+data_pipeline/**/*.zip binary
+data_pipeline/**/*.pdf binary
+data_pipeline/**/*.xls binary
+data_pipeline/**/*.xlsx binary
+data_pipeline/**/*.docx binary
+docs/research/**/*.docx binary
