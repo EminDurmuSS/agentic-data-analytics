@@ -67,7 +67,13 @@ class LakehouseTests(unittest.TestCase):
             "FROM catalog.metrics WHERE source_system = 'TCMB_EVDS'"
         ).fetchone()
         self.assertEqual(52696, total)
-        self.assertEqual(60, available)
+        self.assertEqual(61, available)
+        derived = self.connection.execute(
+            "SELECT count(*) FROM catalog.metrics "
+            "WHERE source_system = 'TCMB_EVDS_DERIVED' "
+            "AND source_metric_code = 'DERIVED.BIST.GOLD.TL.GR'"
+        ).fetchone()[0]
+        self.assertEqual(1, derived)
 
     def test_causality_and_market_controls_are_queryable(self):
         columns = {
@@ -83,15 +89,31 @@ class LakehouseTests(unittest.TestCase):
                 "TP_BISPOLFAIZ_XM",
                 "TP_IN_KL2_TOPLAM_TOP_D",
                 "TP_MK_F_BILESIK",
+                "TP_ALTINPIYASA_KAP02",
+                "DERIVED_BIST_GOLD_TL_GR",
             }
             <= columns
         )
         june_2026 = self.connection.execute(
-            "SELECT TP_MK_KUL_YTL, TP_MK_F_BILESIK "
+            "SELECT TP_MK_KUL_YTL, TP_MK_F_BILESIK, "
+            "TP_ALTINPIYASA_KAP02, DERIVED_BIST_GOLD_TL_GR "
             "FROM analysis.housing_credit_monthly WHERE month = '2026-06'"
         ).fetchone()
         self.assertIsNone(june_2026[0])
         self.assertIsNotNone(june_2026[1])
+        self.assertIsNotNone(june_2026[2])
+        self.assertAlmostEqual(june_2026[2] / 1000, june_2026[3], places=10)
+
+    def test_empty_gap_tables_keep_semantic_column_types(self):
+        for table in ["evds.housing_coverage_gaps", "evds.market_controls_coverage_gaps"]:
+            schema = {
+                row[0]: row[1]
+                for row in self.connection.execute(f"DESCRIBE {table}").fetchall()
+            }
+            self.assertEqual("VARCHAR", schema["series_code"])
+            self.assertEqual("VARCHAR", schema["period"])
+            self.assertEqual("BOOLEAN", schema["is_structural_na"])
+            self.assertEqual("BOOLEAN", schema["is_unresolved_missing"])
 
     def test_completed_weekly_bddk_is_loaded(self):
         count = self.connection.execute(

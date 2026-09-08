@@ -203,6 +203,70 @@ def validate_currency_totals(frame: pd.DataFrame) -> dict[str, int]:
     }
 
 
+def classify_missing_measurements(frame: pd.DataFrame) -> tuple[pd.DataFrame, dict[str, int]]:
+    """Explain source nulls without changing their numeric values.
+
+    The weekly bulletin uses ``-`` in the FX column for some measures that are
+    defined only in Turkish lira.  When TRY and TOTAL are both present and
+    equal, that FX cell is structurally not applicable rather than an unknown
+    observation.  Every other null remains explicitly unresolved.
+    """
+
+    classified = frame.copy()
+    classified["is_missing"] = classified["value"].isna()
+    classified["missing_kind"] = "observed"
+    classified["missing_reason"] = ""
+    classified["is_structural_na"] = False
+    classified["is_unresolved_missing"] = False
+
+    index = ["observation_date", "table_id", "group_code", "metric_code"]
+    relevant = classified.loc[
+        classified["currency_dimension"].isin(["TRY", "FX", "TOTAL"])
+    ]
+    wide = relevant.pivot(index=index, columns="currency_dimension", values="value")
+    structural_keys = wide.loc[
+        wide.get("FX").isna()
+        & wide.get("TRY").notna()
+        & wide.get("TOTAL").notna()
+        & (wide.get("TRY") - wide.get("TOTAL")).abs().le(1.01)
+    ].index
+    key_index = pd.MultiIndex.from_frame(classified[index])
+    structural_mask = (
+        classified["is_missing"]
+        & classified["currency_dimension"].eq("FX")
+        & key_index.isin(structural_keys)
+    )
+    unresolved_mask = classified["is_missing"] & ~structural_mask
+
+    classified.loc[structural_mask, "missing_kind"] = "source_not_applicable"
+    classified.loc[structural_mask, "missing_reason"] = (
+        "Source reports '-' for the FX component while TRY equals TOTAL; "
+        "the measure is Turkish-lira-only."
+    )
+    classified.loc[structural_mask, "is_structural_na"] = True
+    classified.loc[unresolved_mask, "missing_kind"] = "source_not_reported"
+    classified.loc[unresolved_mask, "missing_reason"] = (
+        "Source cell is empty and no structural rule explains it."
+    )
+    classified.loc[unresolved_mask, "is_unresolved_missing"] = True
+
+    counts = {
+        "raw_missing_measurements": int(classified["is_missing"].sum()),
+        "structural_not_applicable_measurements": int(
+            classified["is_structural_na"].sum()
+        ),
+        "unresolved_missing_measurements": int(
+            classified["is_unresolved_missing"].sum()
+        ),
+    }
+    if counts["raw_missing_measurements"] != (
+        counts["structural_not_applicable_measurements"]
+        + counts["unresolved_missing_measurements"]
+    ):
+        raise ValueError("BDDK haftalik eksik deger siniflandirmasi tutarsiz.")
+    return classified, counts
+
+
 def build(input_dir: Path, output_dir: Path) -> dict[str, Any]:
     config_path = input_dir / "request_config.json"
     summary_path = input_dir / "summary.json"
@@ -250,6 +314,7 @@ def build(input_dir: Path, output_dir: Path) -> dict[str, Any]:
     ]
     if measurements.duplicated(key).any():
         raise ValueError("BDDK haftalik olcum anahtari tekrarlaniyor.")
+    measurements, missingness = classify_missing_measurements(measurements)
     catalog = pd.DataFrame(catalog_rows).sort_values(
         ["observation_date", "table_id", "group_code"], kind="stable"
     )
@@ -292,10 +357,34 @@ def build(input_dir: Path, output_dir: Path) -> dict[str, Any]:
     label_variants = Counter(dictionary["metric_code"])
 
     output_dir.mkdir(parents=True, exist_ok=True)
+    missingness_audit = (
+        measurements.loc[measurements["is_missing"]]
+        .groupby(
+            [
+                "table_id",
+                "table_name",
+                "metric_code",
+                "metric_label",
+                "currency_dimension",
+                "missing_kind",
+                "missing_reason",
+            ],
+            as_index=False,
+            dropna=False,
+        )
+        .agg(missing_measurement_count=("value", "size"))
+        .sort_values(["table_id", "metric_code", "currency_dimension"], kind="stable")
+    )
     measurements.to_csv(
         output_dir / "measurements_long.csv", index=False, encoding="utf-8-sig"
     )
     measurements.to_parquet(output_dir / "measurements_long.parquet", index=False)
+    missingness_audit.to_csv(
+        output_dir / "missingness_audit.csv", index=False, encoding="utf-8-sig"
+    )
+    missingness_audit.to_parquet(
+        output_dir / "missingness_audit.parquet", index=False
+    )
     wide.to_csv(output_dir / "metrics_wide.csv", index=False, encoding="utf-8-sig")
     wide.to_parquet(output_dir / "metrics_wide.parquet", index=False)
     dictionary.to_csv(
@@ -333,6 +422,8 @@ def build(input_dir: Path, output_dir: Path) -> dict[str, Any]:
         "measurement_row_count": len(measurements),
         "wide_row_count": len(wide),
         "missing_measurement_count": int(measurements["value"].isna().sum()),
+        "missingness": missingness,
+        "missingness_audit_rows": len(missingness_audit),
         "metric_codes_with_label_changes": sorted(
             key for key, count in label_variants.items() if count > 1
         ),
@@ -343,6 +434,8 @@ def build(input_dir: Path, output_dir: Path) -> dict[str, Any]:
             "Every HTML source page is reparsed and hash-checked.",
             "Source sequence and labels are preserved instead of guessed from row position.",
             "Turkish thousands and decimal formatting is normalized without filling missing cells.",
+            "TL-only measures with source '-' in FX are marked source_not_applicable when TRY equals TOTAL.",
+            "Structural not-applicable cells remain null; unresolved source gaps are counted separately.",
             "TRY plus FX totals are checked with a one-million-TL rounding tolerance.",
             "Metric label and schema changes remain visible in the catalogs.",
         ],

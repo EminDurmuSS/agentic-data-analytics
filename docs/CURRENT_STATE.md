@@ -1,6 +1,6 @@
 # Mevcut durum
 
-Tarih: 7 Eylül 2026
+Tarih: 8 Eylül 2026
 
 ## Sonuç
 
@@ -9,8 +9,9 @@ BDDK haftalık, BDDK FinTürk ve seçilmiş TCMB EVDS gözlemleri yerel olarak
 saklanıyor, kaynak hash'leriyle izleniyor ve doğrulanmış işlenmiş çıktılara
 dönüştürülüyor.
 
-Tek açık kaynak boşluğu TBB'nin Haziran 2026 tüketici kredileri raporudur.
-7 Eylül 2026 itibarıyla kaynakta yayımlanmadığı için değer tahmin edilmedi.
+TBB'nin Haziran 2026 tüketici kredileri raporu 8 Eylül 2026 itibarıyla kaynakta
+yayımlanmamıştır. Ayrıca bazı kaynakların kendi yayın takvimindeki veya tanımındaki
+boşluklar açıkça sınıflandırılır. Hiçbir değer tahmin edilmez.
 
 ## Zorunlu veri kaynakları
 
@@ -31,7 +32,9 @@ Tek açık kaynak boşluğu TBB'nin Haziran 2026 tüketici kredileri raporudur.
 - 2.574 / 2.574 resmî HTML sayfası
 - 249.070 kayıp vermeden saklanan ham hücre
 - 147.154 normalize ölçüm
-- 514 kaynak boş değeri, doldurulmadan korundu
+- 514 kaynak boş değerin tamamı `TRY = TOTAL` olan TL-only metriklerin FX
+  hücreleridir ve `source_not_applicable` olarak sınıflandırıldı
+- Çözümlenmemiş haftalık kaynak boşluğu: 0
 - 47.584 `TP + YP = Toplam` kontrolü geçti
 - Kaynak yuvarlamasından oluşan azami mutlak fark: 1 milyon TL
 
@@ -43,6 +46,10 @@ Tek açık kaynak boşluğu TBB'nin Haziran 2026 tüketici kredileri raporudur.
 - 84.484 kaynak satırı
 - 936.512 normalize ölçüm
 - 76 sorgulanabilir metrik
+- 30.892 kaynak boş değer: 7.128 `source_not_applicable`, 22.436
+  `structural_undefined`, 1.328 `source_not_reported`
+- 29.564 yapısal boşluk ayrı işaretlendi, 1.328 raporlanmamış şube hücresi
+  tahmin edilmeden açık bırakıldı
 
 ## TCMB EVDS
 
@@ -54,29 +61,36 @@ Tek açık kaynak boşluğu TBB'nin Haziran 2026 tüketici kredileri raporudur.
 
 ### Yerel gözlem kapsamı
 
-Toplam 60 seçilmiş seri bulunuyor:
+Toplam 61 seçilmiş kaynak seri ve 1 türetilmiş seri bulunuyor:
 
 - 47 ana konut kredisi nedensellik serisi
 - 11 ek politika, faaliyet, arz ve kira kontrolü
-- 2 piyasa kontrolü: BIST 100 ve BIST altın piyasası
+- 3 piyasa kaynak kontrolü: BIST 100, aktif BIST altın kapanış fiyatı ve eski
+  seyrek altın serisi
+- 1 türetilmiş seri: aktif altın fiyatının açık `0.001` katsayısıyla
+  TL/kg'dan TL/grama çevrilmiş hâli
 
 Bu seri grubu kredi faizi, kredi stoku, konut satışı, TÜFE, KFE, kredi arzı ve
 talebi anketleri, politika faizleri, döviz, güven, işsizlik, sanayi, GSYİH,
 tüketim, yapı izinleri, kiralar, altın ve hisse piyasası gibi alternatif
 açıklamaları kapsar.
 
-- Toplam kaynak gözlemi: 10.787
-- Dolu gözlem: 8.289
-- Kaynakta boş gözlem: 2.498
+- Toplam kaynak gözlemi: 12.482
+- Dolu gözlem: 9.901
+- Kaynakta boş gözlem: 2.581
 - Ana dönem: 2020-01-01 ile 2026-06-30
 - 78 aylık ve 26 çeyreklik hizalama tabloları
 - Çeyreklik değerler ara aylara forward fill edilmez
+- Kaynak boşlukları `calendar_non_observation`, `before_series_start`,
+  `source_not_published` ve `interior_source_null` olarak ayrılır
 
-Bilinen iki EVDS sınırı:
+Bilinen EVDS sınırları:
 
 - `TP.MK.KUL.YTL` Haziran 2026 yerine Mayıs 2026'da biter, değer uydurulmadı.
-- BIST altın piyasası serisi seyrektir ve 24 Kasım 2025'te biter. Ana kontrol
-  yerine çapraz kontrol olarak kullanılmalıdır.
+- Eski `TP.ALTINPIYASA.KAP05` serisi seyrektir ve 24 Kasım 2025'te biter.
+  Yalnız tarihsel çapraz kontrol olarak tutulur.
+- Ana altın kontrolü `TP.ALTINPIYASA.KAP02`, 30 Haziran 2026'ya kadar doludur.
+  Kaynak birimi TL/kg'dır; TL/gram dönüşümü ayrı türetilmiş seri olarak tutulur.
 
 ## Destekleyici kaynaklar
 
@@ -86,7 +100,8 @@ Bilinen iki EVDS sınırı:
 - 63 doğrulanmış XLS, PDF ve DOCX eki
 - 252 ürün bazlı ölçüm
 - Gerçek kullandırım akımı ile dönem sonu bakiye ayrı tutulur
-- Haziran 2026 raporu kaynakta bulunmadığı için açık boşluktur
+- Haziran 2026 raporu 8 Eylül 2026 tarihli resmî liste kontrolünde bulunmadığı
+  için açık kaynak boşluğudur
 
 ### Resmî karar ve yöntem belgeleri
 
@@ -108,10 +123,10 @@ Bilinen iki EVDS sınırı:
 
 ## Sorgulanabilir çıktı
 
-- Birleşik katalog: 44 veri varlığı
-- Toplam katalog metriği: 55.457
-- Yerel gözlemi bulunan sorgulanabilir metrik: 2.819
-- DuckDB: 7 şema, 32 tablo
+- Birleşik katalog: 50 veri varlığı
+- Toplam katalog metriği: 55.458
+- Yerel gözlemi bulunan sorgulanabilir metrik: 2.821
+- DuckDB: 7 şema, 38 tablo
 - Aylık analiz tablosu: 66 benzersiz ay
 - Çeyreklik analiz tablosu: 22 benzersiz çeyrek
 - Haftalık BDDK ölçümleri DuckDB içine kopyalandı

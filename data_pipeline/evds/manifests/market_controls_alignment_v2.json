@@ -1,0 +1,37 @@
+{
+  "dataset_id": "housing_credit_market_controls_v2",
+  "description": "Aktif ve tarihsel gunluk piyasa kontrol serilerini ay ve ceyrek sonu gozlemine hizalama kurallari.",
+  "quarterly_to_monthly": "quarter_end_only",
+  "role_policies": {
+    "alternative_asset_primary": {
+      "temporal_semantics": "market_close_price_tl_per_kg",
+      "subperiod_aggregation": "last"
+    },
+    "alternative_asset_primary_tl_per_gram": {
+      "temporal_semantics": "derived_market_close_price_tl_per_gram",
+      "subperiod_aggregation": "last"
+    },
+    "alternative_asset_legacy_crosscheck": {
+      "temporal_semantics": "sparse_market_close_price_tl_per_gram",
+      "subperiod_aggregation": "last"
+    },
+    "equity_market": {
+      "temporal_semantics": "market_close_index",
+      "subperiod_aggregation": "last"
+    }
+  },
+  "derived_series": [
+    {
+      "series_code": "DERIVED.BIST.GOLD.TL.GR",
+      "series_name_tr": "BIST Altın Kapanış Fiyatı (TL/gram, TP.ALTINPIYASA.KAP02 / 1000)",
+      "series_name_en": "BIST Gold Closing Price (TRY/gram, TP.ALTINPIYASA.KAP02 / 1000)",
+      "source_series_code": "TP.ALTINPIYASA.KAP02",
+      "operation": "scale",
+      "factor": 0.001,
+      "unit": "TL/gram",
+      "role": "alternative_asset_primary_tl_per_gram",
+      "reason": "Aktif resmî BIST TL/kg kapanış serisini yalnızca birim dönüşümüyle TL/gram olarak sunar.",
+      "source": "Borsa İstanbul via TCMB EVDS, derived unit conversion"
+    }
+  ]
+}

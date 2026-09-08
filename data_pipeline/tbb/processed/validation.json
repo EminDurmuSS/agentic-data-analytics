@@ -28,6 +28,20 @@
   "source_gap_periods": [
     "2026-06"
   ],
+  "source_gap_details": [
+    {
+      "period": "2026-06",
+      "status": "source_gap",
+      "reason": "not_published",
+      "source_gap_reason": "not_published",
+      "source_detail": "quarterly_report_not_published",
+      "list_url": "https://www.tbb.org.tr/istatistiki-raporlar-liste/11265?rapor_donemi=11411&ay=6",
+      "official_listing_url": "https://www.tbb.org.tr/istatistiki-raporlar-liste/11265?rapor_donemi=11411&ay=6",
+      "list_page_sha256": "08beb41e2f8ef49027290094029ec89bcd6309f22bcc12f62120d4b6fd7dbc9e",
+      "last_checked_at_utc": "2026-09-08T06:33:11.657512+00:00"
+    }
+  ],
+  "last_checked_at_utc": "2026-09-08T06:33:00.606286+00:00",
   "derived_metric_rows": 252,
   "housing_quarter_rows": 21,
   "reporting_bank_rows": 679,

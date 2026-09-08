@@ -289,7 +289,11 @@ def run(args: argparse.Namespace) -> int:
             gap = {
                 "period": period,
                 "status": "source_gap",
-                "reason": "year_not_listed_by_source",
+                "reason": "not_published",
+                "source_gap_reason": "not_published",
+                "source_detail": "year_not_listed_by_source",
+                "official_listing_url": BASE_URL + CATEGORY_PAGE,
+                "last_checked_at_utc": category_fetch["completed_at_utc"],
             }
             source_gaps.append(gap)
             manifest.append(gap)
@@ -310,9 +314,13 @@ def run(args: argparse.Namespace) -> int:
                 gap = {
                     "period": period,
                     "status": "source_gap",
-                    "reason": "quarterly_report_not_published",
+                    "reason": "not_published",
+                    "source_gap_reason": "not_published",
+                    "source_detail": "quarterly_report_not_published",
                     "list_url": list_url,
+                    "official_listing_url": list_url,
                     "list_page_sha256": sha256(list_data),
+                    "last_checked_at_utc": list_fetch["completed_at_utc"],
                 }
                 source_gaps.append(gap)
                 manifest.append(gap)
@@ -411,6 +419,8 @@ def run(args: argparse.Namespace) -> int:
         "expected_periods": len(periods),
         "published_periods": successful_periods,
         "source_gap_periods": [item["period"] for item in source_gaps],
+        "source_gap_details": source_gaps,
+        "last_checked_at_utc": category_fetch["completed_at_utc"],
         "failed_periods": [item["period"] for item in failures],
         "validated_attachment_count": attachment_count,
         "formats": requested_formats,

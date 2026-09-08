@@ -6,6 +6,13 @@
   "observation_count": 545,
   "non_null_observation_count": 545,
   "missing_observation_count": 0,
+  "structural_missing_observation_count": 0,
+  "unresolved_missing_observation_count": 0,
+  "missing_kind_counts": {},
+  "expected_period_without_source_row_count": 1,
+  "expected_period_gap_kind_counts": {
+    "source_not_published": 1
+  },
   "first_period_start": "2020-01-01",
   "last_period_end": "2026-06-30",
   "frequency_counts": {
@@ -20,6 +27,8 @@
     "Response totalCount must equal the returned item count for every request.",
     "Observations outside the requested interval are filtered locally and reported.",
     "Null source observations remain null and are never converted to zero.",
+    "Returned nulls are classified by calendar position and publication coverage.",
+    "Low-frequency periods omitted from responses are recorded in coverage_gaps without creating source observations.",
     "Every observation retains request and response files with SHA-256 hashes."
   ]
 }

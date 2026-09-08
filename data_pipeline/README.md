@@ -1,6 +1,6 @@
 # KKB veri katmanı
 
-Araştırma tarihi: 7 Eylül 2026. Ana analiz dönemi: Ocak 2021-Haziran 2026.
+Araştırma tarihi: 8 Eylül 2026. Ana analiz dönemi: Ocak 2021-Haziran 2026.
 Yıllık değişim ve gecikmeli analiz için gerekli yerlerde 2020 hazırlık verisi
 de korunur.
 
@@ -11,18 +11,18 @@ de korunur.
 | BDDK aylık | 17 tablo, 66 ay, sektör | Aylık | Tamamlandı |
 | BDDK haftalık | 9 tablo, 286 hafta, sektör | Haftalık | Tamamlandı |
 | BDDK FinTürk | 7 tablo, 7 grup, 81 il ve yurt dışı, 22 dönem | Çeyreklik | Tamamlandı |
-| TCMB EVDS | 60 seçilmiş seri | Günlük, iş günü, haftalık, aylık, çeyreklik | Tamamlandı |
+| TCMB EVDS | 61 seçilmiş kaynak seri ve 1 türetilmiş seri | Günlük, iş günü, haftalık, aylık, çeyreklik | Tamamlandı |
 | TCMB EVDS katalog | 52.696 seri metadata kaydı | Metadata | Tamamlandı |
 | TBB | 21 yayımlanmış tüketici kredisi raporu | Çeyreklik | Kaynak boşluğuyla tamamlandı |
 | BDDK ve TCMB belgeleri | 8 resmî PDF | Olay/yöntem | Tamamlandı |
 
-TBB Haziran 2026 raporu 7 Eylül 2026 itibarıyla kaynakta yayımlanmamıştır.
+TBB Haziran 2026 raporu 8 Eylül 2026 itibarıyla kaynakta yayımlanmamıştır.
 Bu dönem boş bırakılmış, tahmin veya başka seriden kopyalama yapılmamıştır.
 
 ## EVDS seçim mantığı
 
 EVDS'deki her tarihsel gözlemi indirmek yerine tam metadata kataloğu yerelde
-tutulur ve analitik olarak gerekli seriler seçilir. 60 seri şunları kapsar:
+tutulur ve analitik olarak gerekli 61 kaynak seri şunları kapsar:
 
 - Konut kredisi stoku, faizi ve kredi arz-talep anketleri
 - Konut satışları, KFE, birim fiyatlar ve kiralar
@@ -32,6 +32,11 @@ tutulur ve analitik olarak gerekli seriler seçilir. 60 seri şunları kapsar:
 - İşsizlik, tüketici ve reel kesim güveni, sanayi üretimi
 - Reel GSYİH ve hanehalkı tüketimi
 - Yapı ruhsatı ve yapı kullanma izni göstergeleri
+
+Aktif BIST altın kapanış serisinin kaynak birimi TL/kg'dır. Analizde kullanılan
+TL/gram karşılığı, kaynak serinin `0.001` ile çarpıldığı deklaratif bir dönüşüm
+olarak ayrıca kaydedilir. Eski seyrek altın serisi yalnız çapraz kontrol olarak
+korunur.
 
 Seri seçimi kaynak kataloğundaki kod, ad, birim, frekans ve toplulaştırma
 özelliklerine dayanır. Günlük ve haftalık seriler yıllık istek parçalarıyla
@@ -51,12 +56,14 @@ Seri seçimi kaynak kataloğundaki kod, ad, birim, frekans ve toplulaştırma
 ## Doğrulama özeti
 
 - BDDK aylık: 1.122 kaynak sayfası, 33.965 satır, durum `passed`
-- BDDK haftalık: 2.574 kaynak sayfası, 147.154 ölçüm, durum `passed`
-- FinTürk: 936.512 ölçüm, durum `passed`
-- EVDS seçilmiş seriler: 10.787 gözlem, üç paket de `passed`
+- BDDK haftalık: 2.574 kaynak sayfası, 147.154 ölçüm, 514 yapısal boşluk,
+  0 çözümlenmemiş boşluk, durum `passed`
+- FinTürk: 936.512 ölçüm, 29.564 yapısal boşluk, 1.328 kaynakta
+  raporlanmamış hücre, durum `passed`
+- EVDS seçilmiş kaynak seriler: 12.482 gözlem, üç paket de `passed`
 - TBB: 21 yayımlanmış dönem, durum `passed_with_source_gaps`
-- Birleşik katalog: 44 varlık, 55.457 metrik, durum `passed`
-- DuckDB: 32 tablo, durum `passed`
+- Birleşik katalog: 50 varlık, 55.458 metrik, durum `passed`
+- DuckDB: 38 tablo, durum `passed`
 
 ## Üretim sırası
 
@@ -93,7 +100,7 @@ ile yeni snapshot sessizce karıştırılmaz.
 - `bddk/processed/finturk_all_groups_all_cities/measurements_long.parquet`
 - `evds/housing_causality_v1/monthly_panel.parquet`
 - `evds/housing_causality_controls_v1/monthly_panel.parquet`
-- `evds/market_controls_v1/monthly_panel.parquet`
+- `evds/market_controls_v2/monthly_panel.parquet`
 - `tbb/processed/housing_credit_quarterly.parquet`
 - `evidence/events/events.json`
 

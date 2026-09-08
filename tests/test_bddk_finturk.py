@@ -48,6 +48,26 @@ class BddkFinTurkDatasetTests(unittest.TestCase):
         )
         self.assertGreater(self.validation["missing_measurement_count"], 0)
 
+    def test_all_missing_values_have_an_explicit_reason(self):
+        self.assertEqual(30892, self.validation["missing_measurement_count"])
+        self.assertEqual(
+            {
+                "source_not_applicable": 7128,
+                "source_not_reported": 1328,
+                "structural_undefined": 22436,
+            },
+            self.validation["missing_kind_counts"],
+        )
+        self.assertEqual(
+            29564, self.validation["structural_missing_measurement_count"]
+        )
+        self.assertEqual(
+            1328, self.validation["unresolved_missing_measurement_count"]
+        )
+        missing = self.measurements.loc[self.measurements["is_missing"]]
+        self.assertFalse(missing["missing_kind"].eq("observed").any())
+        self.assertTrue(missing["value"].isna().all())
+
     def test_housing_credit_is_quarterly_stock_not_disbursement(self):
         self.assertEqual(22, self.housing["quarter"].nunique())
         self.assertEqual("quarterly", self.housing["native_frequency"].unique().item())

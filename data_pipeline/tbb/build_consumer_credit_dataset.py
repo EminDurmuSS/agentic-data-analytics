@@ -435,6 +435,21 @@ def build(input_dir: Path, output_dir: Path) -> dict[str, Any]:
         ["report_period", "sheet_name", "row_index", "column_index"], kind="stable"
     )
     workbook_frame = pd.DataFrame(workbook_rows).sort_values("report_period")
+    source_gap_columns = [
+        "period",
+        "status",
+        "reason",
+        "source_gap_reason",
+        "source_detail",
+        "official_listing_url",
+        "last_checked_at_utc",
+    ]
+    source_gap_frame = pd.DataFrame(
+        download_summary.get("source_gap_details", []),
+        columns=source_gap_columns,
+    ).astype({column: "string" for column in source_gap_columns}).sort_values(
+        "period", kind="stable"
+    )
 
     total_rows = derived.loc[derived["currency_group"].eq("Total")]
     housing = total_rows.pivot(
@@ -457,6 +472,7 @@ def build(input_dir: Path, output_dir: Path) -> dict[str, Any]:
         "reporting_banks": bank_frame,
         "workbook_catalog": workbook_frame,
         "workbook_cells_long": cell_frame,
+        "source_gaps": source_gap_frame,
     }
     for name, frame in outputs.items():
         frame.to_csv(output_dir / f"{name}.csv", index=False, encoding="utf-8-sig")
@@ -464,12 +480,15 @@ def build(input_dir: Path, output_dir: Path) -> dict[str, Any]:
 
     expected_periods = download_summary["expected_periods"]
     source_gap_periods = download_summary.get("source_gap_periods", [])
+    source_gap_details = download_summary.get("source_gap_details", [])
     result = {
         "status": "passed_with_source_gaps" if source_gap_periods else "passed",
         "expected_periods": expected_periods,
         "parsed_workbooks": len(workbook_frame),
         "parsed_periods": workbook_frame["report_period"].tolist(),
         "source_gap_periods": source_gap_periods,
+        "source_gap_details": source_gap_details,
+        "last_checked_at_utc": download_summary.get("last_checked_at_utc"),
         "derived_metric_rows": len(derived),
         "housing_quarter_rows": len(housing),
         "reporting_bank_rows": len(bank_frame),

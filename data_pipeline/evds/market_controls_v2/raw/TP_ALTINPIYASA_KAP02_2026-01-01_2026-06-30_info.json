@@ -1,0 +1,29 @@
+{
+  "status": "validated",
+  "series_code": "TP.ALTINPIYASA.KAP02",
+  "frequency": "İŞ GÜNÜ",
+  "aggregation": "last",
+  "chunk_start": "2026-01-01",
+  "chunk_end": "2026-06-30",
+  "request_file": "raw/TP_ALTINPIYASA_KAP02_2026-01-01_2026-06-30_request.json",
+  "request_sha256": "c165ab9a0ab53d5623d060fab8d2c60bd7ac6ae9185af35d0bf7ce8d303b830b",
+  "response_file": "raw/TP_ALTINPIYASA_KAP02_2026-01-01_2026-06-30_response.json.gz",
+  "response_sha256": "6e7824d0f773dafa153331f97ffe31437784ad3fb03ac98cb20138ccd1eec021",
+  "served_from_cache": true,
+  "http_status": 200,
+  "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "content_type": "application/json;charset=UTF-8",
+  "bytes": 23128,
+  "sha256": "6e7824d0f773dafa153331f97ffe31437784ad3fb03ac98cb20138ccd1eec021",
+  "transport": "curl",
+  "tls_verification": true,
+  "response_total_count": 129,
+  "retained_rows": 129,
+  "outside_requested_range_rows": 0,
+  "series_names": {
+    "TP_ALTINPIYASA_KAP02": "Altın - Kapanış Fiyatı  - TL/kg"
+  },
+  "frequency_conversion": {
+    "TP.ALTINPIYASA.KAP02": true
+  }
+}

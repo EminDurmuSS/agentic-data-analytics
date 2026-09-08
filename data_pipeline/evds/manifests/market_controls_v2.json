@@ -1,0 +1,23 @@
+{
+  "dataset_id": "housing_credit_market_controls_v2",
+  "description": "Konut ve mevduata alternatif yerel yatirim kanallarini izlemek icin aktif ve tarihsel EVDS piyasa kontrol paketi.",
+  "start_date": "2020-01-01",
+  "end_date": "2026-06-30",
+  "series": [
+    {
+      "series_code": "TP.ALTINPIYASA.KAP02",
+      "role": "alternative_asset_primary",
+      "reason": "BIST Altin Piyasasi is gunu TL/kg kapanis fiyati; Haziran 2026 hedef sonuna ulasan birincil altin kontrolu"
+    },
+    {
+      "series_code": "TP.ALTINPIYASA.KAP05",
+      "role": "alternative_asset_legacy_crosscheck",
+      "reason": "BIST Altin Piyasasi seyrek TL/gram kapanis fiyati; tarihsel capraz kontrol olarak korunur"
+    },
+    {
+      "series_code": "TP.MK.F.BILESIK",
+      "role": "equity_market",
+      "reason": "BIST 100 is gunu kapanis fiyat endeksi"
+    }
+  ]
+}

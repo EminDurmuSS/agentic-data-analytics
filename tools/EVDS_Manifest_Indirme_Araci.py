@@ -21,6 +21,7 @@ import time
 import urllib.error
 import urllib.request
 from calendar import monthrange
+from collections import Counter
 from datetime import date, datetime, timezone
 from pathlib import Path
 from typing import Any
@@ -299,6 +300,144 @@ def parse_response(
     return parsed, metadata
 
 
+def classify_series_missingness(
+    rows: list[dict[str, Any]], frequency: str
+) -> tuple[list[dict[str, Any]], dict[str, int]]:
+    """Classify returned nulls without changing or imputing source values."""
+
+    non_null = [row for row in rows if not row["is_missing"]]
+    first_non_null = min(row["period_start"] for row in non_null) if non_null else None
+    last_non_null = max(row["period_end"] for row in non_null) if non_null else None
+    counts: dict[str, int] = {}
+    high_frequency = frequency in HIGH_FREQUENCY
+
+    for row in rows:
+        if not row["is_missing"]:
+            kind = "observed"
+            position = "within_series_coverage"
+            structural = False
+            unresolved = False
+        elif first_non_null is None or last_non_null is None:
+            kind = "source_not_published"
+            position = "no_observed_coverage"
+            structural = False
+            unresolved = True
+        elif row["period_end"] < first_non_null:
+            kind = "before_series_start"
+            position = "before_series_start"
+            structural = True
+            unresolved = False
+        elif row["period_start"] > last_non_null:
+            kind = "source_not_published"
+            position = "after_series_end"
+            structural = False
+            unresolved = True
+        elif high_frequency:
+            kind = "calendar_non_observation"
+            position = "within_series_coverage"
+            structural = True
+            unresolved = False
+        else:
+            kind = "interior_source_null"
+            position = "within_series_coverage"
+            structural = False
+            unresolved = True
+
+        row["missing_kind"] = kind
+        row["coverage_position"] = position
+        row["is_structural_na"] = structural
+        row["is_unresolved_missing"] = unresolved
+        counts[kind] = counts.get(kind, 0) + 1
+    return rows, counts
+
+
+def expected_periods(
+    start: date, end: date, frequency: str
+) -> list[tuple[str, date, date]]:
+    """Return periods whose presence can be checked without a holiday calendar."""
+
+    result: list[tuple[str, date, date]] = []
+    if frequency == "AYLIK":
+        year, month = start.year, start.month
+        while (year, month) <= (end.year, end.month):
+            period_start = date(year, month, 1)
+            period_end = date(year, month, monthrange(year, month)[1])
+            if period_end >= start and period_start <= end:
+                result.append((f"{year:04d}-{month:02d}", period_start, period_end))
+            if month == 12:
+                year, month = year + 1, 1
+            else:
+                month += 1
+    elif frequency == "ÜÇ AYLIK":
+        for year in range(start.year, end.year + 1):
+            for quarter in range(1, 5):
+                end_month = quarter * 3
+                period_start = date(year, end_month - 2, 1)
+                period_end = date(year, end_month, monthrange(year, end_month)[1])
+                if period_end >= start and period_start <= end:
+                    result.append((f"{year:04d}-Q{quarter}", period_start, period_end))
+    elif frequency == "ALTI AYLIK":
+        for year in range(start.year, end.year + 1):
+            for half, start_month, end_month in [(1, 1, 6), (2, 7, 12)]:
+                period_start = date(year, start_month, 1)
+                period_end = date(year, end_month, monthrange(year, end_month)[1])
+                if period_end >= start and period_start <= end:
+                    result.append((f"{year:04d}-H{half}", period_start, period_end))
+    elif frequency == "YILLIK":
+        for year in range(start.year, end.year + 1):
+            period_start = date(year, 1, 1)
+            period_end = date(year, 12, 31)
+            if period_end >= start and period_start <= end:
+                result.append((str(year), period_start, period_end))
+    return result
+
+
+def missing_expected_periods(
+    rows: list[dict[str, Any]],
+    frequency: str,
+    requested_start: date,
+    requested_end: date,
+) -> list[dict[str, Any]]:
+    """Describe low-frequency periods omitted entirely from the EVDS response."""
+
+    expected = expected_periods(requested_start, requested_end, frequency)
+    if not expected:
+        return []
+    returned = {str(row["period"]) for row in rows}
+    non_null = [row for row in rows if not row["is_missing"]]
+    first_non_null = min(row["period_start"] for row in non_null) if non_null else None
+    last_non_null = max(row["period_end"] for row in non_null) if non_null else None
+    gaps = []
+    for period, period_start, period_end in expected:
+        if period in returned:
+            continue
+        if first_non_null is None or last_non_null is None:
+            kind = "source_not_published"
+            position = "no_observed_coverage"
+        elif period_end.isoformat() < first_non_null:
+            kind = "before_series_start"
+            position = "before_series_start"
+        elif period_start.isoformat() > last_non_null:
+            kind = "source_not_published"
+            position = "after_series_end"
+        else:
+            kind = "interior_source_null"
+            position = "within_series_coverage"
+        gaps.append(
+            {
+                "period": period,
+                "period_start": period_start.isoformat(),
+                "period_end": period_end.isoformat(),
+                "missing_kind": kind,
+                "coverage_position": position,
+                "is_expected_period_without_source_row": True,
+                "is_structural_na": kind == "before_series_start",
+                "is_unresolved_missing": kind != "before_series_start",
+            }
+        )
+    return gaps
+
+
 def build_catalog_index(path: Path) -> dict[str, dict[str, Any]]:
     frame = pd.read_parquet(path)
     if frame["series_code"].duplicated().any():
@@ -355,6 +494,7 @@ def run(args: argparse.Namespace) -> int:
     atomic_json(config_path, config)
 
     all_rows: list[dict[str, Any]] = []
+    all_coverage_gaps: list[dict[str, Any]] = []
     request_manifest: list[dict[str, Any]] = []
     series_records: list[dict[str, Any]] = []
     for selection in selections:
@@ -494,6 +634,23 @@ def run(args: argparse.Namespace) -> int:
         key_pairs = [(row["series_code"], row["period"]) for row in series_rows]
         if len(key_pairs) != len(set(key_pairs)):
             raise ValueError(f"EVDS seri-donem tekrari var: {code}")
+        series_rows, missing_kind_counts = classify_series_missingness(
+            series_rows, frequency
+        )
+        coverage_gaps = missing_expected_periods(
+            series_rows, frequency, start, end
+        )
+        for gap in coverage_gaps:
+            gap.update(
+                {
+                    "series_code": code,
+                    "role": selection.get("role"),
+                    "series_name_tr": metadata.get("series_name_tr"),
+                    "native_frequency": frequency,
+                    "source": metadata.get("source"),
+                }
+            )
+        all_coverage_gaps.extend(coverage_gaps)
         all_rows.extend(series_rows)
         non_null_rows = [row for row in series_rows if not row["is_missing"]]
         series_records.append(
@@ -508,6 +665,27 @@ def run(args: argparse.Namespace) -> int:
                 "observation_count": len(series_rows),
                 "non_null_observation_count": len(non_null_rows),
                 "missing_observation_count": len(series_rows) - len(non_null_rows),
+                "structural_missing_observation_count": sum(
+                    bool(row["is_structural_na"]) for row in series_rows
+                ),
+                "unresolved_missing_observation_count": sum(
+                    bool(row["is_unresolved_missing"]) for row in series_rows
+                ),
+                "missing_kind_counts_json": json.dumps(
+                    {
+                        key: value
+                        for key, value in missing_kind_counts.items()
+                        if key != "observed"
+                    },
+                    ensure_ascii=False,
+                    sort_keys=True,
+                ),
+                "expected_period_without_source_row_count": len(coverage_gaps),
+                "expected_period_gap_counts_json": json.dumps(
+                    dict(Counter(gap["missing_kind"] for gap in coverage_gaps)),
+                    ensure_ascii=False,
+                    sort_keys=True,
+                ),
                 "first_period": series_rows[0]["period"] if series_rows else None,
                 "last_period": series_rows[-1]["period"] if series_rows else None,
                 "first_non_null_period": non_null_rows[0]["period"] if non_null_rows else None,
@@ -526,6 +704,45 @@ def run(args: argparse.Namespace) -> int:
     observations.to_csv(output / "observations_long.csv", index=False, encoding="utf-8-sig")
     observations.to_parquet(output / "observations_long.parquet", index=False)
 
+    coverage_gap_columns = [
+        "series_code",
+        "series_name_tr",
+        "role",
+        "native_frequency",
+        "period",
+        "period_start",
+        "period_end",
+        "missing_kind",
+        "coverage_position",
+        "is_expected_period_without_source_row",
+        "is_structural_na",
+        "is_unresolved_missing",
+        "source",
+    ]
+    coverage_gaps_frame = pd.DataFrame(
+        all_coverage_gaps, columns=coverage_gap_columns
+    ).astype(
+        {
+            "series_code": "string",
+            "series_name_tr": "string",
+            "role": "string",
+            "native_frequency": "string",
+            "period": "string",
+            "period_start": "string",
+            "period_end": "string",
+            "missing_kind": "string",
+            "coverage_position": "string",
+            "is_expected_period_without_source_row": "boolean",
+            "is_structural_na": "boolean",
+            "is_unresolved_missing": "boolean",
+            "source": "string",
+        }
+    ).sort_values(["series_code", "period"], kind="stable")
+    coverage_gaps_frame.to_csv(
+        output / "coverage_gaps.csv", index=False, encoding="utf-8-sig"
+    )
+    coverage_gaps_frame.to_parquet(output / "coverage_gaps.parquet", index=False)
+
     series_frame = pd.DataFrame(series_records).sort_values("series_code", kind="stable")
     series_frame.to_csv(output / "series_catalog.csv", index=False, encoding="utf-8-sig")
     series_frame.to_parquet(output / "series_catalog.parquet", index=False)
@@ -538,6 +755,23 @@ def run(args: argparse.Namespace) -> int:
         "observation_count": len(observations),
         "non_null_observation_count": int(observations["value"].notna().sum()),
         "missing_observation_count": int(observations["is_missing"].sum()),
+        "structural_missing_observation_count": int(
+            observations["is_structural_na"].sum()
+        ),
+        "unresolved_missing_observation_count": int(
+            observations["is_unresolved_missing"].sum()
+        ),
+        "missing_kind_counts": {
+            str(key): int(value)
+            for key, value in observations.loc[
+                observations["is_missing"], "missing_kind"
+            ].value_counts().sort_index().items()
+        },
+        "expected_period_without_source_row_count": len(coverage_gaps_frame),
+        "expected_period_gap_kind_counts": {
+            str(key): int(value)
+            for key, value in coverage_gaps_frame["missing_kind"].value_counts().sort_index().items()
+        },
         "first_period_start": observations["period_start"].min(),
         "last_period_end": observations["period_end"].max(),
         "frequency_counts": {
@@ -558,6 +792,8 @@ def run(args: argparse.Namespace) -> int:
             "Response totalCount must equal the returned item count for every request.",
             "Observations outside the requested interval are filtered locally and reported.",
             "Null source observations remain null and are never converted to zero.",
+            "Returned nulls are classified by calendar position and publication coverage.",
+            "Low-frequency periods omitted from responses are recorded in coverage_gaps without creating source observations.",
             "Every observation retains request and response files with SHA-256 hashes.",
         ],
     }

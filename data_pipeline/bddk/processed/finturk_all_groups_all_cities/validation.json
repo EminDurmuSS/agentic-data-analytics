@@ -8,6 +8,14 @@
   "source_row_count": 84484,
   "measurement_row_count": 936512,
   "missing_measurement_count": 30892,
+  "structural_missing_measurement_count": 29564,
+  "unresolved_missing_measurement_count": 1328,
+  "missing_kind_counts": {
+    "source_not_applicable": 7128,
+    "source_not_reported": 1328,
+    "structural_undefined": 22436
+  },
+  "missingness_audit_rows": 47,
   "column_dictionary_count": 76,
   "tables": {
     "1": {
@@ -176,6 +184,9 @@
     "Different source table schemas remain separate in wide outputs.",
     "A generic long measurement table is produced without inventing missing rows.",
     "Missing values remain null and are never converted to zero.",
+    "Every source null is classified as structural_undefined, source_not_applicable or source_not_reported.",
+    "Ratios are structurally undefined when their explicit denominator is zero.",
+    "Source-not-reported branch counts remain unresolved instead of being guessed as zero.",
     "FinTurk values are quarterly period-end observations, not monthly flows.",
     "Source row counts, absent group-city combinations and schema changes are reported."
   ]

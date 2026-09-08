@@ -42,6 +42,70 @@ TABLES = {
 
 IDENTITY_COLUMNS = ["EftKodu", "Yil", "Ay", "Sehir", "Grup"]
 
+RATIO_DENOMINATORS: dict[str, list[tuple[int, str]]] = {
+    "ToplamNakdiKrediTasarrufMevduatiOrani": [(2, "TasarrufMevduati")],
+    "ToplamNakdiKrediToplamMevduatOrani": [(2, "ToplamMevduat")],
+    "KonutKredisiPerformansOrani": [
+        (3, "KonutKredisi"),
+        (3, "TakiptekiKonutKredisi"),
+    ],
+    "TasitKredisiPerformansOrani": [
+        (3, "TasitKredisi"),
+        (3, "TakiptekiTasitKredisi"),
+    ],
+    "DigerTuketiciKredileriPerformansOrani": [
+        (3, "DigerTuketiciKredileri"),
+        (3, "TakiptekiDigerTuketiciKredileri"),
+    ],
+    "DenizcilikKrediPerformansOrani": [
+        (4, "Denizcilik"),
+        (4, "TakiptekiDenizcilik"),
+    ],
+    "EnerjiKrediPerformansOrani": [
+        (4, "Enerji"),
+        (4, "TakiptekiEnerji"),
+    ],
+    "FinansalKuruluslarKrediPerformansOrani": [
+        (4, "FinansalKuruluslar"),
+        (4, "TakiptekiFinansalKuruluslar"),
+    ],
+    "GidaMesrubatveTutunKrediPerformansOrani": [
+        (4, "GidaMesrubatveTutun"),
+        (4, "TakiptekiGidaMesrubatveTutun"),
+    ],
+    "InsaatKrediPerformansOrani": [
+        (4, "Insaat"),
+        (4, "TakiptekiInsaat"),
+    ],
+    "MetalveIslenmisMadenKrediPerformansOrani": [
+        (4, "MetalveIslenmisMaden"),
+        (4, "TakiptekiMetalveIslenmisMaden"),
+    ],
+    "TekstilveTekstilUrunleriKrediPerformansOrani": [
+        (4, "TekstilveTekstilUrunleri"),
+        (4, "TakiptekiTekstilveTekstilUrunleri"),
+    ],
+    "ToptanTicaretveKomisyonculukKrediPerformansOrani": [
+        (4, "ToptanTicaretveKomisyonculuk"),
+        (4, "TakiptekiToptanTicaretveKomisyonculuk"),
+    ],
+    "TurizmKrediPerformansOrani": [
+        (4, "Turizm"),
+        (4, "TakiptekiTurizm"),
+    ],
+    "ZiraatveBalikcilikKrediPerformansOrani": [
+        (4, "ZiraatveBalikcilik"),
+        (4, "TakiptekiZiraatveBalikcilik"),
+    ],
+}
+
+PER_CAPITA_DEPENDENCIES: dict[str, tuple[int, str]] = {
+    "KisiBasiTasarrufMevduati": (2, "TasarrufMevduati"),
+    "KisiBasiToplamMevduat": (2, "ToplamMevduat"),
+    "KisiBasiNakdiKredi": (1, "NakdiKrediler"),
+    "KisiBasiTakiptekiAlacak": (1, "TakiptekiAlacaklar"),
+}
+
 
 def sha256_bytes(value: bytes) -> str:
     return hashlib.sha256(value).hexdigest()
@@ -276,6 +340,140 @@ def validate_additive_identities(table_no: int, frame: pd.DataFrame) -> list[str
     return checks
 
 
+def classify_missing_measurements(frame: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame]:
+    """Classify every source null from explicit FinTurk dependencies.
+
+    Source values are never overwritten. Ratios with a zero denominator are
+    structurally undefined. Deposit-derived measures for institution groups
+    absent from the deposit source table are not applicable. Branch counts
+    that the source leaves empty stay source-not-reported rather than being
+    guessed as zero.
+    """
+
+    classified = frame.copy()
+    classified["missing_kind"] = "observed"
+    classified["missing_reason"] = ""
+    classified["dependency_codes"] = ""
+    classified["dependency_value"] = pd.NA
+    classified["is_structural_na"] = False
+    classified["is_unresolved_missing"] = False
+
+    lookup = {
+        (
+            str(row.quarter),
+            int(row.group_code),
+            str(row.city),
+            int(row.table_no),
+            str(row.measure_code),
+        ): row.value
+        for row in classified.itertuples(index=False)
+    }
+    absent = object()
+
+    for row in classified.loc[classified["is_missing"]].itertuples():
+        key_prefix = (str(row.quarter), int(row.group_code), str(row.city))
+        dependencies: list[tuple[int, str]] = []
+        kind = "source_not_reported"
+        reason = "Source leaves the cell empty and no structural rule explains it."
+        dependency_value: float | None = None
+
+        if int(row.table_no) == 5 and row.measure_code in RATIO_DENOMINATORS:
+            dependencies = RATIO_DENOMINATORS[row.measure_code]
+            values = [
+                lookup.get((*key_prefix, table_no, measure_code), absent)
+                for table_no, measure_code in dependencies
+            ]
+            if any(value is absent for value in values):
+                kind = "source_not_applicable"
+                reason = (
+                    "The denominator source row is not published for this "
+                    "institution-group and city combination."
+                )
+            elif all(value is not None and not pd.isna(value) for value in values):
+                dependency_value = float(sum(float(value) for value in values))
+                if abs(dependency_value) <= 1e-12:
+                    kind = "structural_undefined"
+                    reason = "The source ratio is undefined because its denominator is zero."
+        elif int(row.table_no) == 6 and row.measure_code in PER_CAPITA_DEPENDENCIES:
+            dependency = PER_CAPITA_DEPENDENCIES[row.measure_code]
+            dependencies = [dependency]
+            value = lookup.get((*key_prefix, dependency[0], dependency[1]), absent)
+            if value is absent:
+                kind = "source_not_applicable"
+                reason = (
+                    "The underlying deposit or credit measure is not published "
+                    "for this institution-group and city combination."
+                )
+            elif value is not None and not pd.isna(value):
+                dependency_value = float(value)
+                if abs(dependency_value) <= 1e-12:
+                    kind = "structural_undefined"
+                    reason = "The per-capita measure is undefined because its base is zero."
+        elif int(row.table_no) == 6 and row.measure_code == "SubeyeDusenNufus":
+            dependencies = [(6, "SubeSayisi")]
+            branch_value = lookup.get((*key_prefix, 6, "SubeSayisi"), absent)
+            if branch_value is absent or branch_value is None or pd.isna(branch_value):
+                kind = "structural_undefined"
+                reason = (
+                    "Population per branch is undefined because the source does "
+                    "not report a branch count for the same row."
+                )
+            else:
+                dependency_value = float(branch_value)
+                if abs(dependency_value) <= 1e-12:
+                    kind = "structural_undefined"
+                    reason = "Population per branch is undefined because branch count is zero."
+        elif int(row.table_no) == 6 and row.measure_code == "SubeSayisi":
+            kind = "source_not_reported"
+            reason = (
+                "The official FinTurk source leaves branch count empty; it is not "
+                "silently converted to zero."
+            )
+
+        classified.at[row.Index, "missing_kind"] = kind
+        classified.at[row.Index, "missing_reason"] = reason
+        classified.at[row.Index, "dependency_codes"] = json.dumps(
+            [f"table{table_no:02}:{measure_code}" for table_no, measure_code in dependencies],
+            ensure_ascii=False,
+        )
+        if dependency_value is not None:
+            classified.at[row.Index, "dependency_value"] = dependency_value
+
+    structural_kinds = {"structural_undefined", "source_not_applicable"}
+    classified["is_structural_na"] = (
+        classified["is_missing"] & classified["missing_kind"].isin(structural_kinds)
+    )
+    classified["is_unresolved_missing"] = (
+        classified["is_missing"] & classified["missing_kind"].eq("source_not_reported")
+    )
+    missing = classified.loc[classified["is_missing"]]
+    if missing["missing_kind"].eq("observed").any():
+        raise ValueError("FinTurk eksik degerlerinden bazilari siniflandirilmadi.")
+
+    audit = (
+        missing.groupby(
+            [
+                "table_no",
+                "table_name",
+                "group_code",
+                "group_name",
+                "measure_code",
+                "measure_label",
+                "missing_kind",
+                "missing_reason",
+            ],
+            dropna=False,
+            as_index=False,
+        )
+        .agg(missing_measurement_count=("value", "size"))
+        .sort_values(
+            ["table_no", "group_code", "measure_code", "missing_kind"],
+            kind="stable",
+        )
+    )
+    return classified, audit
+
+
 def build(input_dir: Path, output_dir: Path) -> dict[str, Any]:
     config_path = input_dir / "request_config.json"
     summary_path = input_dir / "summary.json"
@@ -435,10 +633,19 @@ def build(input_dir: Path, output_dir: Path) -> dict[str, Any]:
     ]
     if measurement_frame.duplicated(measurement_key).any():
         raise ValueError("FinTurk uzun olcum anahtari tekrarlaniyor.")
+    measurement_frame, missingness_audit = classify_missing_measurements(
+        measurement_frame
+    )
     measurement_frame = measurement_frame.sort_values(
         measurement_key, kind="stable"
     ).reset_index(drop=True)
     measurement_frame.to_parquet(output_dir / "measurements_long.parquet", index=False)
+    missingness_audit.to_csv(
+        output_dir / "missingness_audit.csv", index=False, encoding="utf-8-sig"
+    )
+    missingness_audit.to_parquet(
+        output_dir / "missingness_audit.parquet", index=False
+    )
 
     dictionary_frame = pd.DataFrame(dictionaries).sort_values(
         ["table_no", "measure_code"], kind="stable"
@@ -473,6 +680,19 @@ def build(input_dir: Path, output_dir: Path) -> dict[str, Any]:
         "source_row_count": sum(len(rows) for rows in rows_by_table.values()),
         "measurement_row_count": len(measurement_frame),
         "missing_measurement_count": int(measurement_frame["is_missing"].sum()),
+        "structural_missing_measurement_count": int(
+            measurement_frame["is_structural_na"].sum()
+        ),
+        "unresolved_missing_measurement_count": int(
+            measurement_frame["is_unresolved_missing"].sum()
+        ),
+        "missing_kind_counts": {
+            str(key): int(value)
+            for key, value in measurement_frame.loc[
+                measurement_frame["is_missing"], "missing_kind"
+            ].value_counts().sort_index().items()
+        },
+        "missingness_audit_rows": len(missingness_audit),
         "column_dictionary_count": len(dictionary_frame),
         "tables": table_summaries,
         "additive_checks": additive_checks,
@@ -481,6 +701,9 @@ def build(input_dir: Path, output_dir: Path) -> dict[str, Any]:
             "Different source table schemas remain separate in wide outputs.",
             "A generic long measurement table is produced without inventing missing rows.",
             "Missing values remain null and are never converted to zero.",
+            "Every source null is classified as structural_undefined, source_not_applicable or source_not_reported.",
+            "Ratios are structurally undefined when their explicit denominator is zero.",
+            "Source-not-reported branch counts remain unresolved instead of being guessed as zero.",
             "FinTurk values are quarterly period-end observations, not monthly flows.",
             "Source row counts, absent group-city combinations and schema changes are reported.",
         ],

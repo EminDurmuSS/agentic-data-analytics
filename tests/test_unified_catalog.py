@@ -42,10 +42,28 @@ class UnifiedCatalogTests(unittest.TestCase):
     def test_evds_metadata_and_local_observations_are_not_confused(self):
         evds = self.metrics.loc[self.metrics["source_system"].eq("TCMB_EVDS")]
         self.assertEqual(52696, len(evds))
-        self.assertEqual(60, int(evds["observation_available"].sum()))
+        self.assertEqual(61, int(evds["observation_available"].sum()))
         metadata_only = evds.loc[~evds["observation_available"]]
         self.assertTrue(metadata_only["quality_status"].eq("metadata_only").all())
         self.assertTrue(metadata_only["observation_count"].eq(0).all())
+        derived = self.metrics.loc[
+            self.metrics["source_system"].eq("TCMB_EVDS_DERIVED")
+        ]
+        self.assertEqual(
+            ["DERIVED.BIST.GOLD.TL.GR"],
+            derived["source_metric_code"].tolist(),
+        )
+
+    def test_missingness_and_source_gap_assets_are_discoverable(self):
+        expected = {
+            "bddk.weekly_all_sector.missingness_audit",
+            "bddk.finturk_all_groups_all_cities.missingness_audit",
+            "evds.housing_causality_v1.coverage_gaps",
+            "evds.housing_causality_controls_v1.coverage_gaps",
+            "evds.market_controls_v2.coverage_gaps",
+            "tbb.consumer_credit_reports.source_gaps",
+        }
+        self.assertTrue(expected <= set(self.assets["asset_id"]))
 
     def test_stock_and_flow_semantics_remain_separate(self):
         finturk_housing = self.metrics.loc[

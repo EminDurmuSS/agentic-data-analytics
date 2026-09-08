@@ -72,6 +72,13 @@ class TbbDatasetTests(unittest.TestCase):
         self.assertEqual("passed_with_source_gaps", self.validation["status"])
         self.assertEqual(["2026-06"], self.validation["source_gap_periods"])
         self.assertEqual(21, self.validation["parsed_workbooks"])
+        gap = self.validation["source_gap_details"][0]
+        self.assertEqual("not_published", gap["source_gap_reason"])
+        self.assertIn("last_checked_at_utc", gap)
+        self.assertTrue(gap["official_listing_url"].startswith("https://"))
+        source_gaps = pd.read_parquet(PROCESSED / "source_gaps.parquet")
+        self.assertEqual(["2026-06"], source_gaps["period"].tolist())
+        self.assertEqual(["not_published"], source_gaps["source_gap_reason"].tolist())
 
     def test_housing_disbursement_is_quarterly_and_unique(self):
         self.assertEqual(21, len(self.housing))

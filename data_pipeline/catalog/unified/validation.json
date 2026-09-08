@@ -1,27 +1,28 @@
 {
   "status": "passed",
   "data_readiness_status": "core_sources_complete",
-  "asset_count": 44,
-  "metric_count": 55457,
-  "queryable_metric_count": 2819,
-  "metadata_only_metric_count": 52638,
+  "asset_count": 50,
+  "metric_count": 55458,
+  "queryable_metric_count": 2821,
+  "metadata_only_metric_count": 52637,
   "metrics_by_source_system": {
     "BDDK_FINTURK": 76,
     "BDDK_MONTHLY": 2108,
     "BDDK_WEEKLY": 517,
     "TBB_REPORTS": 60,
-    "TCMB_EVDS": 52696
+    "TCMB_EVDS": 52696,
+    "TCMB_EVDS_DERIVED": 1
   },
   "assets_by_source_system": {
-    "BDDK_FINTURK": 8,
+    "BDDK_FINTURK": 9,
     "BDDK_MONTHLY": 18,
-    "BDDK_WEEKLY": 2,
+    "BDDK_WEEKLY": 3,
     "CROSS_SOURCE_QUALITY": 1,
     "OFFICIAL_DOCUMENTS": 1,
-    "TBB_REPORTS": 4,
-    "TCMB_EVDS": 10
+    "TBB_REPORTS": 5,
+    "TCMB_EVDS": 13
   },
-  "selected_evds_observation_series": 60,
+  "selected_evds_observation_series": 61,
   "weekly_bddk": {
     "status": "complete",
     "completed": 2574,

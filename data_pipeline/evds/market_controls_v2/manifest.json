@@ -1,0 +1,611 @@
+[
+  {
+    "status": "validated",
+    "series_code": "TP.ALTINPIYASA.KAP02",
+    "frequency": "İŞ GÜNÜ",
+    "aggregation": "last",
+    "chunk_start": "2020-01-01",
+    "chunk_end": "2020-12-31",
+    "request_file": "raw/TP_ALTINPIYASA_KAP02_2020-01-01_2020-12-31_request.json",
+    "request_sha256": "d172ae4a46f6c4668c9b0ce9477a44b99af7ee2d2b381902a4f0a41902dd9f71",
+    "response_file": "raw/TP_ALTINPIYASA_KAP02_2020-01-01_2020-12-31_response.json.gz",
+    "response_sha256": "fb55b5897d5d5d0deba797bf62733b85f62c5f272ea32fdd674c25b45f3b6d1f",
+    "served_from_cache": true,
+    "http_status": 200,
+    "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+    "content_type": "application/json;charset=UTF-8",
+    "bytes": 46379,
+    "sha256": "fb55b5897d5d5d0deba797bf62733b85f62c5f272ea32fdd674c25b45f3b6d1f",
+    "transport": "curl",
+    "tls_verification": true,
+    "response_total_count": 262,
+    "retained_rows": 262,
+    "outside_requested_range_rows": 0,
+    "series_names": {
+      "TP_ALTINPIYASA_KAP02": "Altın - Kapanış Fiyatı  - TL/kg"
+    },
+    "frequency_conversion": {
+      "TP.ALTINPIYASA.KAP02": true
+    }
+  },
+  {
+    "status": "validated",
+    "series_code": "TP.ALTINPIYASA.KAP02",
+    "frequency": "İŞ GÜNÜ",
+    "aggregation": "last",
+    "chunk_start": "2021-01-01",
+    "chunk_end": "2021-12-31",
+    "request_file": "raw/TP_ALTINPIYASA_KAP02_2021-01-01_2021-12-31_request.json",
+    "request_sha256": "f386f03fa7bca776fd5cfc82d1ca66e217ae3ee891a750f2a9a9005fdf1b9964",
+    "response_file": "raw/TP_ALTINPIYASA_KAP02_2021-01-01_2021-12-31_response.json.gz",
+    "response_sha256": "9d47ca9d36b4827cb57e98a274548af0229d9366465d7550dff5a00c552e1531",
+    "served_from_cache": true,
+    "http_status": 200,
+    "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+    "content_type": "application/json;charset=UTF-8",
+    "bytes": 46126,
+    "sha256": "9d47ca9d36b4827cb57e98a274548af0229d9366465d7550dff5a00c552e1531",
+    "transport": "curl",
+    "tls_verification": true,
+    "response_total_count": 261,
+    "retained_rows": 261,
+    "outside_requested_range_rows": 0,
+    "series_names": {
+      "TP_ALTINPIYASA_KAP02": "Altın - Kapanış Fiyatı  - TL/kg"
+    },
+    "frequency_conversion": {
+      "TP.ALTINPIYASA.KAP02": true
+    }
+  },
+  {
+    "status": "validated",
+    "series_code": "TP.ALTINPIYASA.KAP02",
+    "frequency": "İŞ GÜNÜ",
+    "aggregation": "last",
+    "chunk_start": "2022-01-01",
+    "chunk_end": "2022-12-31",
+    "request_file": "raw/TP_ALTINPIYASA_KAP02_2022-01-01_2022-12-31_request.json",
+    "request_sha256": "f357ba0a4ae4cd98ab277b8b21fc6adf1668af5ba8e5007e2bd61732384e30ed",
+    "response_file": "raw/TP_ALTINPIYASA_KAP02_2022-01-01_2022-12-31_response.json.gz",
+    "response_sha256": "faaaff3381d661481f0ef49387075d01fa4169a8a0c2640cac904f3fe50a0de7",
+    "served_from_cache": true,
+    "http_status": 200,
+    "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+    "content_type": "application/json;charset=UTF-8",
+    "bytes": 46269,
+    "sha256": "faaaff3381d661481f0ef49387075d01fa4169a8a0c2640cac904f3fe50a0de7",
+    "transport": "curl",
+    "tls_verification": true,
+    "response_total_count": 260,
+    "retained_rows": 260,
+    "outside_requested_range_rows": 0,
+    "series_names": {
+      "TP_ALTINPIYASA_KAP02": "Altın - Kapanış Fiyatı  - TL/kg"
+    },
+    "frequency_conversion": {
+      "TP.ALTINPIYASA.KAP02": true
+    }
+  },
+  {
+    "status": "validated",
+    "series_code": "TP.ALTINPIYASA.KAP02",
+    "frequency": "İŞ GÜNÜ",
+    "aggregation": "last",
+    "chunk_start": "2023-01-01",
+    "chunk_end": "2023-12-31",
+    "request_file": "raw/TP_ALTINPIYASA_KAP02_2023-01-01_2023-12-31_request.json",
+    "request_sha256": "696c511f6f05e6f8df7948b393b0abde88274c341138b47198e90a2879758c76",
+    "response_file": "raw/TP_ALTINPIYASA_KAP02_2023-01-01_2023-12-31_response.json.gz",
+    "response_sha256": "50dc323aa62ad839b5ff68d8d4cda1e5d900eab7e8056644b3da246a12f7d510",
+    "served_from_cache": true,
+    "http_status": 200,
+    "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+    "content_type": "application/json;charset=UTF-8",
+    "bytes": 46605,
+    "sha256": "50dc323aa62ad839b5ff68d8d4cda1e5d900eab7e8056644b3da246a12f7d510",
+    "transport": "curl",
+    "tls_verification": true,
+    "response_total_count": 260,
+    "retained_rows": 260,
+    "outside_requested_range_rows": 0,
+    "series_names": {
+      "TP_ALTINPIYASA_KAP02": "Altın - Kapanış Fiyatı  - TL/kg"
+    },
+    "frequency_conversion": {
+      "TP.ALTINPIYASA.KAP02": true
+    }
+  },
+  {
+    "status": "validated",
+    "series_code": "TP.ALTINPIYASA.KAP02",
+    "frequency": "İŞ GÜNÜ",
+    "aggregation": "last",
+    "chunk_start": "2024-01-01",
+    "chunk_end": "2024-12-31",
+    "request_file": "raw/TP_ALTINPIYASA_KAP02_2024-01-01_2024-12-31_request.json",
+    "request_sha256": "dd7af3b96244169a0e68889454cf05f471b8df48a930ed4a810ddf099022cafd",
+    "response_file": "raw/TP_ALTINPIYASA_KAP02_2024-01-01_2024-12-31_response.json.gz",
+    "response_sha256": "4909d9b073ee9a9eed96edfac7a25b048f68d2d431078b39d25d11eb720c2dd3",
+    "served_from_cache": true,
+    "http_status": 200,
+    "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+    "content_type": "application/json;charset=UTF-8",
+    "bytes": 46795,
+    "sha256": "4909d9b073ee9a9eed96edfac7a25b048f68d2d431078b39d25d11eb720c2dd3",
+    "transport": "curl",
+    "tls_verification": true,
+    "response_total_count": 262,
+    "retained_rows": 262,
+    "outside_requested_range_rows": 0,
+    "series_names": {
+      "TP_ALTINPIYASA_KAP02": "Altın - Kapanış Fiyatı  - TL/kg"
+    },
+    "frequency_conversion": {
+      "TP.ALTINPIYASA.KAP02": true
+    }
+  },
+  {
+    "status": "validated",
+    "series_code": "TP.ALTINPIYASA.KAP02",
+    "frequency": "İŞ GÜNÜ",
+    "aggregation": "last",
+    "chunk_start": "2025-01-01",
+    "chunk_end": "2025-12-31",
+    "request_file": "raw/TP_ALTINPIYASA_KAP02_2025-01-01_2025-12-31_request.json",
+    "request_sha256": "8feb60884edf0d29639c6d53081b4a729a855d79f727c60ab3a00bd4899cda5c",
+    "response_file": "raw/TP_ALTINPIYASA_KAP02_2025-01-01_2025-12-31_response.json.gz",
+    "response_sha256": "b3c719705877cfd05ad1283aa4f0ad169f11b3ce285e3d6d5cad31e234cb6d95",
+    "served_from_cache": true,
+    "http_status": 200,
+    "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+    "content_type": "application/json;charset=UTF-8",
+    "bytes": 46700,
+    "sha256": "b3c719705877cfd05ad1283aa4f0ad169f11b3ce285e3d6d5cad31e234cb6d95",
+    "transport": "curl",
+    "tls_verification": true,
+    "response_total_count": 261,
+    "retained_rows": 261,
+    "outside_requested_range_rows": 0,
+    "series_names": {
+      "TP_ALTINPIYASA_KAP02": "Altın - Kapanış Fiyatı  - TL/kg"
+    },
+    "frequency_conversion": {
+      "TP.ALTINPIYASA.KAP02": true
+    }
+  },
+  {
+    "status": "validated",
+    "series_code": "TP.ALTINPIYASA.KAP02",
+    "frequency": "İŞ GÜNÜ",
+    "aggregation": "last",
+    "chunk_start": "2026-01-01",
+    "chunk_end": "2026-06-30",
+    "request_file": "raw/TP_ALTINPIYASA_KAP02_2026-01-01_2026-06-30_request.json",
+    "request_sha256": "c165ab9a0ab53d5623d060fab8d2c60bd7ac6ae9185af35d0bf7ce8d303b830b",
+    "response_file": "raw/TP_ALTINPIYASA_KAP02_2026-01-01_2026-06-30_response.json.gz",
+    "response_sha256": "6e7824d0f773dafa153331f97ffe31437784ad3fb03ac98cb20138ccd1eec021",
+    "served_from_cache": true,
+    "http_status": 200,
+    "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+    "content_type": "application/json;charset=UTF-8",
+    "bytes": 23128,
+    "sha256": "6e7824d0f773dafa153331f97ffe31437784ad3fb03ac98cb20138ccd1eec021",
+    "transport": "curl",
+    "tls_verification": true,
+    "response_total_count": 129,
+    "retained_rows": 129,
+    "outside_requested_range_rows": 0,
+    "series_names": {
+      "TP_ALTINPIYASA_KAP02": "Altın - Kapanış Fiyatı  - TL/kg"
+    },
+    "frequency_conversion": {
+      "TP.ALTINPIYASA.KAP02": true
+    }
+  },
+  {
+    "status": "validated",
+    "series_code": "TP.ALTINPIYASA.KAP05",
+    "frequency": "İŞ GÜNÜ",
+    "aggregation": "last",
+    "chunk_start": "2020-01-01",
+    "chunk_end": "2020-12-31",
+    "request_file": "raw/TP_ALTINPIYASA_KAP05_2020-01-01_2020-12-31_request.json",
+    "request_sha256": "db99ec4aad372067a181dbbfdbf2b04f3c4fc8e4e274ee0d71062ebc7d3eb546",
+    "response_file": "raw/TP_ALTINPIYASA_KAP05_2020-01-01_2020-12-31_response.json.gz",
+    "response_sha256": "52babbb5b7378218fe8497ae56deb55a478b13bdba66d0d6823999aa64c66e4f",
+    "served_from_cache": true,
+    "http_status": 200,
+    "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+    "content_type": "application/json;charset=UTF-8",
+    "bytes": 40099,
+    "sha256": "52babbb5b7378218fe8497ae56deb55a478b13bdba66d0d6823999aa64c66e4f",
+    "transport": "curl",
+    "tls_verification": true,
+    "response_total_count": 262,
+    "retained_rows": 262,
+    "outside_requested_range_rows": 0,
+    "series_names": {
+      "TP_ALTINPIYASA_KAP05": "Altın - Kapanış Fiyatı  - TL/gr"
+    },
+    "frequency_conversion": {
+      "TP.ALTINPIYASA.KAP05": true
+    }
+  },
+  {
+    "status": "validated",
+    "series_code": "TP.ALTINPIYASA.KAP05",
+    "frequency": "İŞ GÜNÜ",
+    "aggregation": "last",
+    "chunk_start": "2021-01-01",
+    "chunk_end": "2021-12-31",
+    "request_file": "raw/TP_ALTINPIYASA_KAP05_2021-01-01_2021-12-31_request.json",
+    "request_sha256": "d9d5a629f64fb57b2bdfa8af3e6be470908c5ac33436e0076a53ea7ef58b3307",
+    "response_file": "raw/TP_ALTINPIYASA_KAP05_2021-01-01_2021-12-31_response.json.gz",
+    "response_sha256": "e69b7aa54fc893ee8dd8c619b3f3ff7e77c6d6443d694192801bc52b6ba43b7d",
+    "served_from_cache": true,
+    "http_status": 200,
+    "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+    "content_type": "application/json;charset=UTF-8",
+    "bytes": 40150,
+    "sha256": "e69b7aa54fc893ee8dd8c619b3f3ff7e77c6d6443d694192801bc52b6ba43b7d",
+    "transport": "curl",
+    "tls_verification": true,
+    "response_total_count": 261,
+    "retained_rows": 261,
+    "outside_requested_range_rows": 0,
+    "series_names": {
+      "TP_ALTINPIYASA_KAP05": "Altın - Kapanış Fiyatı  - TL/gr"
+    },
+    "frequency_conversion": {
+      "TP.ALTINPIYASA.KAP05": true
+    }
+  },
+  {
+    "status": "validated",
+    "series_code": "TP.ALTINPIYASA.KAP05",
+    "frequency": "İŞ GÜNÜ",
+    "aggregation": "last",
+    "chunk_start": "2022-01-01",
+    "chunk_end": "2022-12-31",
+    "request_file": "raw/TP_ALTINPIYASA_KAP05_2022-01-01_2022-12-31_request.json",
+    "request_sha256": "6dc59b00d0a6cbfbbf3e1ca2e0cbf451c872ab2b58a750a6bd8b888a22e34da0",
+    "response_file": "raw/TP_ALTINPIYASA_KAP05_2022-01-01_2022-12-31_response.json.gz",
+    "response_sha256": "f5d0fc3204423c5eb68f2fef760edea55259e0084e4e76e04e4c41b35c9a8ebb",
+    "served_from_cache": true,
+    "http_status": 200,
+    "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+    "content_type": "application/json;charset=UTF-8",
+    "bytes": 41631,
+    "sha256": "f5d0fc3204423c5eb68f2fef760edea55259e0084e4e76e04e4c41b35c9a8ebb",
+    "transport": "curl",
+    "tls_verification": true,
+    "response_total_count": 260,
+    "retained_rows": 260,
+    "outside_requested_range_rows": 0,
+    "series_names": {
+      "TP_ALTINPIYASA_KAP05": "Altın - Kapanış Fiyatı  - TL/gr"
+    },
+    "frequency_conversion": {
+      "TP.ALTINPIYASA.KAP05": true
+    }
+  },
+  {
+    "status": "validated",
+    "series_code": "TP.ALTINPIYASA.KAP05",
+    "frequency": "İŞ GÜNÜ",
+    "aggregation": "last",
+    "chunk_start": "2023-01-01",
+    "chunk_end": "2023-12-31",
+    "request_file": "raw/TP_ALTINPIYASA_KAP05_2023-01-01_2023-12-31_request.json",
+    "request_sha256": "77d50d6cf0930e21d6ca8c5c4f69fb16bf5c60d4af9468f13d2f91fadee412dc",
+    "response_file": "raw/TP_ALTINPIYASA_KAP05_2023-01-01_2023-12-31_response.json.gz",
+    "response_sha256": "bcf682be4ca55a9a5eb46a4f7d3563b625248bf4cad62a27ec724dbab6ed6288",
+    "served_from_cache": true,
+    "http_status": 200,
+    "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+    "content_type": "application/json;charset=UTF-8",
+    "bytes": 40633,
+    "sha256": "bcf682be4ca55a9a5eb46a4f7d3563b625248bf4cad62a27ec724dbab6ed6288",
+    "transport": "curl",
+    "tls_verification": true,
+    "response_total_count": 260,
+    "retained_rows": 260,
+    "outside_requested_range_rows": 0,
+    "series_names": {
+      "TP_ALTINPIYASA_KAP05": "Altın - Kapanış Fiyatı  - TL/gr"
+    },
+    "frequency_conversion": {
+      "TP.ALTINPIYASA.KAP05": true
+    }
+  },
+  {
+    "status": "validated",
+    "series_code": "TP.ALTINPIYASA.KAP05",
+    "frequency": "İŞ GÜNÜ",
+    "aggregation": "last",
+    "chunk_start": "2024-01-01",
+    "chunk_end": "2024-12-31",
+    "request_file": "raw/TP_ALTINPIYASA_KAP05_2024-01-01_2024-12-31_request.json",
+    "request_sha256": "3240f7f72913236d5681b18a4ffe2281f71cc998f1412b5e712fd3f56c8475f0",
+    "response_file": "raw/TP_ALTINPIYASA_KAP05_2024-01-01_2024-12-31_response.json.gz",
+    "response_sha256": "84e3ecb0b823632d2844f1069df89e87274c95c096244b83e92982030a2ecc63",
+    "served_from_cache": true,
+    "http_status": 200,
+    "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+    "content_type": "application/json;charset=UTF-8",
+    "bytes": 40517,
+    "sha256": "84e3ecb0b823632d2844f1069df89e87274c95c096244b83e92982030a2ecc63",
+    "transport": "curl",
+    "tls_verification": true,
+    "response_total_count": 262,
+    "retained_rows": 262,
+    "outside_requested_range_rows": 0,
+    "series_names": {
+      "TP_ALTINPIYASA_KAP05": "Altın - Kapanış Fiyatı  - TL/gr"
+    },
+    "frequency_conversion": {
+      "TP.ALTINPIYASA.KAP05": true
+    }
+  },
+  {
+    "status": "validated",
+    "series_code": "TP.ALTINPIYASA.KAP05",
+    "frequency": "İŞ GÜNÜ",
+    "aggregation": "last",
+    "chunk_start": "2025-01-01",
+    "chunk_end": "2025-12-31",
+    "request_file": "raw/TP_ALTINPIYASA_KAP05_2025-01-01_2025-12-31_request.json",
+    "request_sha256": "db18712a764fb0923aa67da41e579af93afd1f66db98bf9b108a5e9240b36604",
+    "response_file": "raw/TP_ALTINPIYASA_KAP05_2025-01-01_2025-12-31_response.json.gz",
+    "response_sha256": "9b615f304e2041db532f458d9978afa290e6ca411e00469ad4457865922592e1",
+    "served_from_cache": true,
+    "http_status": 200,
+    "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+    "content_type": "application/json;charset=UTF-8",
+    "bytes": 39926,
+    "sha256": "9b615f304e2041db532f458d9978afa290e6ca411e00469ad4457865922592e1",
+    "transport": "curl",
+    "tls_verification": true,
+    "response_total_count": 261,
+    "retained_rows": 261,
+    "outside_requested_range_rows": 0,
+    "series_names": {
+      "TP_ALTINPIYASA_KAP05": "Altın - Kapanış Fiyatı  - TL/gr"
+    },
+    "frequency_conversion": {
+      "TP.ALTINPIYASA.KAP05": true
+    }
+  },
+  {
+    "status": "validated",
+    "series_code": "TP.ALTINPIYASA.KAP05",
+    "frequency": "İŞ GÜNÜ",
+    "aggregation": "last",
+    "chunk_start": "2026-01-01",
+    "chunk_end": "2026-06-30",
+    "request_file": "raw/TP_ALTINPIYASA_KAP05_2026-01-01_2026-06-30_request.json",
+    "request_sha256": "5b67f2d05c56f0dae2677fe9a33172212f5eb312e6e198acd6ebfd411cc1fa82",
+    "response_file": "raw/TP_ALTINPIYASA_KAP05_2026-01-01_2026-06-30_response.json.gz",
+    "response_sha256": "737218ea28690e02a3565a2f9aacf5dc706bdd11258636f56db0d774d89ac38a",
+    "served_from_cache": true,
+    "http_status": 200,
+    "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+    "content_type": "application/json;charset=UTF-8",
+    "bytes": 19796,
+    "sha256": "737218ea28690e02a3565a2f9aacf5dc706bdd11258636f56db0d774d89ac38a",
+    "transport": "curl",
+    "tls_verification": true,
+    "response_total_count": 129,
+    "retained_rows": 129,
+    "outside_requested_range_rows": 0,
+    "series_names": {
+      "TP_ALTINPIYASA_KAP05": "Altın - Kapanış Fiyatı  - TL/gr"
+    },
+    "frequency_conversion": {
+      "TP.ALTINPIYASA.KAP05": true
+    }
+  },
+  {
+    "status": "validated",
+    "series_code": "TP.MK.F.BILESIK",
+    "frequency": "İŞ GÜNÜ",
+    "aggregation": "last",
+    "chunk_start": "2020-01-01",
+    "chunk_end": "2020-12-31",
+    "request_file": "raw/TP_MK_F_BILESIK_2020-01-01_2020-12-31_request.json",
+    "request_sha256": "28354377d0a767b2be7ad616631652f6f332b796b268cf150d97b9cbc55edd68",
+    "response_file": "raw/TP_MK_F_BILESIK_2020-01-01_2020-12-31_response.json.gz",
+    "response_sha256": "b22e99698eeeb620126e3084d5940de80575b83286fd4712182e4f6d44d452f9",
+    "served_from_cache": true,
+    "http_status": 200,
+    "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+    "content_type": "application/json;charset=UTF-8",
+    "bytes": 44108,
+    "sha256": "b22e99698eeeb620126e3084d5940de80575b83286fd4712182e4f6d44d452f9",
+    "transport": "curl",
+    "tls_verification": true,
+    "response_total_count": 262,
+    "retained_rows": 262,
+    "outside_requested_range_rows": 0,
+    "series_names": {
+      "TP_MK_F_BILESIK": "(FİYAT) BİST 100 Endeks (XU100), Kapanış Fiyatlarına Göre (Ocak 1986=0,01)"
+    },
+    "frequency_conversion": {
+      "TP.MK.F.BILESIK": true
+    }
+  },
+  {
+    "status": "validated",
+    "series_code": "TP.MK.F.BILESIK",
+    "frequency": "İŞ GÜNÜ",
+    "aggregation": "last",
+    "chunk_start": "2021-01-01",
+    "chunk_end": "2021-12-31",
+    "request_file": "raw/TP_MK_F_BILESIK_2021-01-01_2021-12-31_request.json",
+    "request_sha256": "defcb682dd532c041884c0bb6669a5340ddedc48e9f46c669aa5aec0290cb7ec",
+    "response_file": "raw/TP_MK_F_BILESIK_2021-01-01_2021-12-31_response.json.gz",
+    "response_sha256": "be996aeda498efa5ea85fece61511691deb8bea9da14a5a3c26119c701bc7fb3",
+    "served_from_cache": true,
+    "http_status": 200,
+    "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+    "content_type": "application/json;charset=UTF-8",
+    "bytes": 43976,
+    "sha256": "be996aeda498efa5ea85fece61511691deb8bea9da14a5a3c26119c701bc7fb3",
+    "transport": "curl",
+    "tls_verification": true,
+    "response_total_count": 261,
+    "retained_rows": 261,
+    "outside_requested_range_rows": 0,
+    "series_names": {
+      "TP_MK_F_BILESIK": "(FİYAT) BİST 100 Endeks (XU100), Kapanış Fiyatlarına Göre (Ocak 1986=0,01)"
+    },
+    "frequency_conversion": {
+      "TP.MK.F.BILESIK": true
+    }
+  },
+  {
+    "status": "validated",
+    "series_code": "TP.MK.F.BILESIK",
+    "frequency": "İŞ GÜNÜ",
+    "aggregation": "last",
+    "chunk_start": "2022-01-01",
+    "chunk_end": "2022-12-31",
+    "request_file": "raw/TP_MK_F_BILESIK_2022-01-01_2022-12-31_request.json",
+    "request_sha256": "60a47a40f547a179fcfa29f49a933d92b807fde7c87a8b6d2b43990ea3059566",
+    "response_file": "raw/TP_MK_F_BILESIK_2022-01-01_2022-12-31_response.json.gz",
+    "response_sha256": "d70c4cf024b50b79301d1b130dae951ba3e56cc34a5e118216a62dac800d0df3",
+    "served_from_cache": true,
+    "http_status": 200,
+    "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+    "content_type": "application/json;charset=UTF-8",
+    "bytes": 43896,
+    "sha256": "d70c4cf024b50b79301d1b130dae951ba3e56cc34a5e118216a62dac800d0df3",
+    "transport": "curl",
+    "tls_verification": true,
+    "response_total_count": 260,
+    "retained_rows": 260,
+    "outside_requested_range_rows": 0,
+    "series_names": {
+      "TP_MK_F_BILESIK": "(FİYAT) BİST 100 Endeks (XU100), Kapanış Fiyatlarına Göre (Ocak 1986=0,01)"
+    },
+    "frequency_conversion": {
+      "TP.MK.F.BILESIK": true
+    }
+  },
+  {
+    "status": "validated",
+    "series_code": "TP.MK.F.BILESIK",
+    "frequency": "İŞ GÜNÜ",
+    "aggregation": "last",
+    "chunk_start": "2023-01-01",
+    "chunk_end": "2023-12-31",
+    "request_file": "raw/TP_MK_F_BILESIK_2023-01-01_2023-12-31_request.json",
+    "request_sha256": "b4906c773c622caa39141c3565662fe5906770eb38b3ed45bdb967fd3694bf40",
+    "response_file": "raw/TP_MK_F_BILESIK_2023-01-01_2023-12-31_response.json.gz",
+    "response_sha256": "eb5393606686b4cbed59403b313cf761edaece4eea968e83935a82c1284d0e65",
+    "served_from_cache": true,
+    "http_status": 200,
+    "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+    "content_type": "application/json;charset=UTF-8",
+    "bytes": 43808,
+    "sha256": "eb5393606686b4cbed59403b313cf761edaece4eea968e83935a82c1284d0e65",
+    "transport": "curl",
+    "tls_verification": true,
+    "response_total_count": 260,
+    "retained_rows": 260,
+    "outside_requested_range_rows": 0,
+    "series_names": {
+      "TP_MK_F_BILESIK": "(FİYAT) BİST 100 Endeks (XU100), Kapanış Fiyatlarına Göre (Ocak 1986=0,01)"
+    },
+    "frequency_conversion": {
+      "TP.MK.F.BILESIK": true
+    }
+  },
+  {
+    "status": "validated",
+    "series_code": "TP.MK.F.BILESIK",
+    "frequency": "İŞ GÜNÜ",
+    "aggregation": "last",
+    "chunk_start": "2024-01-01",
+    "chunk_end": "2024-12-31",
+    "request_file": "raw/TP_MK_F_BILESIK_2024-01-01_2024-12-31_request.json",
+    "request_sha256": "a21fe6fc3b4935ac363d4db886cd742a29007ad5a3b028ee44bb3d56eced1616",
+    "response_file": "raw/TP_MK_F_BILESIK_2024-01-01_2024-12-31_response.json.gz",
+    "response_sha256": "f2f3737116a5aa57105f70f4974fe23ca346d31f1d65fbb1d97189620c726ce6",
+    "served_from_cache": true,
+    "http_status": 200,
+    "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+    "content_type": "application/json;charset=UTF-8",
+    "bytes": 44300,
+    "sha256": "f2f3737116a5aa57105f70f4974fe23ca346d31f1d65fbb1d97189620c726ce6",
+    "transport": "curl",
+    "tls_verification": true,
+    "response_total_count": 262,
+    "retained_rows": 262,
+    "outside_requested_range_rows": 0,
+    "series_names": {
+      "TP_MK_F_BILESIK": "(FİYAT) BİST 100 Endeks (XU100), Kapanış Fiyatlarına Göre (Ocak 1986=0,01)"
+    },
+    "frequency_conversion": {
+      "TP.MK.F.BILESIK": true
+    }
+  },
+  {
+    "status": "validated",
+    "series_code": "TP.MK.F.BILESIK",
+    "frequency": "İŞ GÜNÜ",
+    "aggregation": "last",
+    "chunk_start": "2025-01-01",
+    "chunk_end": "2025-12-31",
+    "request_file": "raw/TP_MK_F_BILESIK_2025-01-01_2025-12-31_request.json",
+    "request_sha256": "2855c5511fce2902d2b0adfcb55217818ca614b350738d4e04c678e1ae63ca29",
+    "response_file": "raw/TP_MK_F_BILESIK_2025-01-01_2025-12-31_response.json.gz",
+    "response_sha256": "5b1226e6d53c01241d87ee43c96266c7597a649fae7b34cd06464df1b20faf71",
+    "served_from_cache": true,
+    "http_status": 200,
+    "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+    "content_type": "application/json;charset=UTF-8",
+    "bytes": 44320,
+    "sha256": "5b1226e6d53c01241d87ee43c96266c7597a649fae7b34cd06464df1b20faf71",
+    "transport": "curl",
+    "tls_verification": true,
+    "response_total_count": 261,
+    "retained_rows": 261,
+    "outside_requested_range_rows": 0,
+    "series_names": {
+      "TP_MK_F_BILESIK": "(FİYAT) BİST 100 Endeks (XU100), Kapanış Fiyatlarına Göre (Ocak 1986=0,01)"
+    },
+    "frequency_conversion": {
+      "TP.MK.F.BILESIK": true
+    }
+  },
+  {
+    "status": "validated",
+    "series_code": "TP.MK.F.BILESIK",
+    "frequency": "İŞ GÜNÜ",
+    "aggregation": "last",
+    "chunk_start": "2026-01-01",
+    "chunk_end": "2026-06-30",
+    "request_file": "raw/TP_MK_F_BILESIK_2026-01-01_2026-06-30_request.json",
+    "request_sha256": "5ac3b78e2d00cab64f186eb8c062a342e803d3d54cd0fd52e0f7dbfedc103d98",
+    "response_file": "raw/TP_MK_F_BILESIK_2026-01-01_2026-06-30_response.json.gz",
+    "response_sha256": "2e80765cc807808dc985dbb5a3dab1df4d426a8023808a78dc9484af96650f73",
+    "served_from_cache": true,
+    "http_status": 200,
+    "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+    "content_type": "application/json;charset=UTF-8",
+    "bytes": 22130,
+    "sha256": "2e80765cc807808dc985dbb5a3dab1df4d426a8023808a78dc9484af96650f73",
+    "transport": "curl",
+    "tls_verification": true,
+    "response_total_count": 129,
+    "retained_rows": 129,
+    "outside_requested_range_rows": 0,
+    "series_names": {
+      "TP_MK_F_BILESIK": "(FİYAT) BİST 100 Endeks (XU100), Kapanış Fiyatlarına Göre (Ocak 1986=0,01)"
+    },
+    "frequency_conversion": {
+      "TP.MK.F.BILESIK": true
+    }
+  }
+]

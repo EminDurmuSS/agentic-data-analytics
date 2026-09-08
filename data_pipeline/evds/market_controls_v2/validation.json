@@ -1,0 +1,35 @@
+{
+  "status": "passed",
+  "dataset_id": "housing_credit_market_controls_v2",
+  "series_count": 3,
+  "request_count": 21,
+  "observation_count": 5085,
+  "non_null_observation_count": 3453,
+  "missing_observation_count": 1632,
+  "structural_missing_observation_count": 1476,
+  "unresolved_missing_observation_count": 156,
+  "missing_kind_counts": {
+    "before_series_start": 19,
+    "calendar_non_observation": 1457,
+    "source_not_published": 156
+  },
+  "expected_period_without_source_row_count": 0,
+  "expected_period_gap_kind_counts": {},
+  "first_period_start": "2020-01-01",
+  "last_period_end": "2026-06-30",
+  "frequency_counts": {
+    "İŞ GÜNÜ": 3
+  },
+  "series_with_no_observations": [],
+  "series_with_no_non_null_observations": [],
+  "quality_policy": [
+    "Series must exist uniquely in the downloaded EVDS metadata catalog.",
+    "High-frequency series are requested in annual chunks to avoid silent row limits.",
+    "Response totalCount must equal the returned item count for every request.",
+    "Observations outside the requested interval are filtered locally and reported.",
+    "Null source observations remain null and are never converted to zero.",
+    "Returned nulls are classified by calendar position and publication coverage.",
+    "Low-frequency periods omitted from responses are recorded in coverage_gaps without creating source observations.",
+    "Every observation retains request and response files with SHA-256 hashes."
+  ]
+}

@@ -65,6 +65,20 @@ class BddkWeeklyDatasetTests(unittest.TestCase):
             int(self.measurements["value"].isna().sum()),
         )
 
+    def test_all_source_nulls_are_structural_tl_only_fx_cells(self) -> None:
+        missingness = self.validation["missingness"]
+        self.assertEqual(514, missingness["raw_missing_measurements"])
+        self.assertEqual(
+            514, missingness["structural_not_applicable_measurements"]
+        )
+        self.assertEqual(0, missingness["unresolved_missing_measurements"])
+        missing = self.measurements.loc[self.measurements["is_missing"]]
+        self.assertTrue(missing["is_structural_na"].all())
+        self.assertTrue(missing["currency_dimension"].eq("FX").all())
+        self.assertEqual(
+            {"292:11", "292:12"}, set(missing["metric_code"].unique())
+        )
+
 
 if __name__ == "__main__":
     unittest.main()

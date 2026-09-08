@@ -120,7 +120,7 @@ def build_notebook() -> dict:
 
     title = """# KKB Agentic Data Analytics: güncel veri doğrulama notebook'u
 
-**7 Eylül 2026 veri kapanış sürümü**
+**8 Eylül 2026 veri kapanış sürümü**
 
 Bu notebook eski 25 serilik başlangıç snapshot'ı değildir. Repodaki güncel,
 self-contained DuckDB dosyasını salt okunur açar ve BDDK aylık, BDDK haftalık,
@@ -139,7 +139,7 @@ boşluk olarak korunuyor.
 | BDDK aylık | 66 ay, sektör toplamı, 17 tablonun tamamı, 133.485 semantik ölçüm |
 | BDDK haftalık | 286 hafta, sektör toplamı, 9 tablonun tamamı, 147.154 ölçüm |
 | BDDK FinTürk | 22 çeyrek, 7 tablo, 7 banka grubu, 81 il ve `YURT DIŞI`, 936.512 ölçüm |
-| TCMB EVDS | 52.696 serilik metadata kataloğu, analitik değeri yüksek {int(summary.iloc[0]['yerel_evds_serisi'])} serinin yerel gözlemi |
+| TCMB EVDS | 52.696 serilik metadata kataloğu, analitik değeri yüksek {int(summary.iloc[0]['yerel_evds_serisi'])} kaynak serinin yerel gözlemi ve 1 türetilmiş altın serisi |
 | TBB | Mart 2021-Mart 2026 arasında yayımlanmış 21 rapor, 252 ürün ölçümü |
 | Resmî belgeler | 4 BDDK kararı ve 4 TCMB yöntem veya destek belgesi |
 
@@ -259,17 +259,20 @@ display(demo)
 - Haftalık faiz aylığa çevrilirken kullanılan yöntem metadata ile birlikte saklanır.
 - Kümülatif BDDK kâr-zarar değerleri kaynak hâliyle korunur, türetilmiş aylık akım ayrıca tutulur.
 - Eksik değerler sıfır yapılmaz veya tahminle doldurulmaz.
+- BDDK haftalık kaynak boşlukları ile FinTürk yapısal ve raporlanmamış
+  boşlukları ayrı denetim tablolarında tutulur.
 - Çeyreklik gözlem ara aylara forward fill edilmez.
 - Birlikte hareket nedensellik kanıtı sayılmaz. Olay belgeleri yalnız araştırma bağlamıdır.
 """
 
     known_gaps = """## Açık kalite notları
 
-1. TBB Haziran 2026 tüketici kredileri raporu kaynak snapshot'ında yayımlanmamıştır.
-2. EVDS `TP.MK.KUL.YTL` serisi Mayıs 2026'da biter.
-3. EVDS BIST altın piyasası serisi seyrektir ve 24 Kasım 2025'te biter.
-4. Ağustos 2025 EVDS ve BDDK konut kredisi kapsam farkı otomatik düzeltilmez.
-5. TBB raporlayan banka kapsamı BDDK sektör toplamından daha dardır.
+1. TBB Haziran 2026 tüketici kredileri raporu 8 Eylül 2026 kontrolünde kaynakta yayımlanmamıştır.
+2. EVDS `TP.MK.KUL.YTL` serisinin Haziran 2026 gözlemi kaynak cevabında yoktur.
+3. Eski EVDS `TP.ALTINPIYASA.KAP05` serisi seyrektir ve 24 Kasım 2025'te biter.
+4. Aktif altın kontrolü `TP.ALTINPIYASA.KAP02` 30 Haziran 2026'ya kadar doludur; TL/gram serisi açık `0.001` dönüşümüyle türetilir.
+5. Ağustos 2025 EVDS ve BDDK konut kredisi kapsam farkı otomatik düzeltilmez.
+6. TBB raporlayan banka kapsamı BDDK sektör toplamından daha dardır.
 
 Bu boşluklar veri kaybı gibi gizlenmez. Katalog ve kalite tablolarında açıkça
 görülebilir.

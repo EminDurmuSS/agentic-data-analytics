@@ -164,10 +164,10 @@ def evds_assets_and_metrics() -> tuple[list[dict[str, Any]], list[dict[str, Any]
             "searchable_text": "EVDS housing credit additional causal controls",
         },
         {
-            "directory": "market_controls_v1",
-            "dataset_id": "evds.market_controls_v1",
-            "description": "Selected BIST 100 and gold market controls with source missingness preserved.",
-            "searchable_text": "EVDS BIST 100 gold market controls",
+            "directory": "market_controls_v2",
+            "dataset_id": "evds.market_controls_v2",
+            "description": "Selected BIST 100, active BIST TL/kg gold and legacy sparse TL/gram gold controls with source missingness preserved.",
+            "searchable_text": "EVDS BIST 100 active gold legacy gold market controls",
         },
     ]
 
@@ -268,6 +268,75 @@ def evds_assets_and_metrics() -> tuple[list[dict[str, Any]], list[dict[str, Any]
             )
         )
 
+    full_catalog_codes = set(full_catalog["series_code"].astype(str))
+    for series_code, selected_entry in sorted(selected_lookup.items()):
+        if series_code in full_catalog_codes:
+            continue
+        observed = selected_entry["row"]
+        spec = selected_entry["spec"]
+        if not bool(observed.get("is_derived")):
+            raise ValueError(
+                f"EVDS katalogunda bulunmayan ve turetilmis olmayan seri: {series_code}"
+            )
+        source_asset = (
+            PROJECT_ROOT
+            / "data_pipeline"
+            / "evds"
+            / spec["directory"]
+            / "monthly_panel.parquet"
+        )
+        source_code = text_value(observed.get("source_series_code"))
+        metric_name_tr = text_value(observed.get("series_name_tr"))
+        metric_name_en = text_value(observed.get("series_name_en"))
+        source_organization = text_value(observed.get("source"))
+        metrics.append(
+            make_metric(
+                metric_id=f"evds_derived:{series_code}",
+                dataset_id=spec["dataset_id"],
+                source_system="TCMB_EVDS_DERIVED",
+                source_organization=source_organization,
+                competition_scope="derived_from_explicit_source",
+                source_metric_code=series_code,
+                metric_name_tr=metric_name_tr,
+                metric_name_en=metric_name_en,
+                group_name=text_value(observed.get("group_name_tr")),
+                role=text_value(observed.get("role")),
+                dimension="series_defined",
+                native_frequency="derived",
+                unit=text_value(observed.get("unit")),
+                temporal_semantics=text_value(observed.get("temporal_semantics")),
+                default_aggregation=text_value(observed.get("subperiod_aggregation")),
+                geography_grain="series_defined",
+                institution_grain="series_defined",
+                coverage_start=text_value(observed.get("requested_start")),
+                coverage_end=text_value(observed.get("requested_end")),
+                observation_available=True,
+                observation_count=int(observed.get("non_null_observation_count", 0)),
+                missing_observation_count=int(observed.get("missing_observation_count", 0)),
+                quality_status="passed",
+                is_archive=False,
+                source_asset=relative(source_asset),
+                source_metadata_url=text_value(observed.get("metadata_url")),
+                notes=(
+                    f"{text_value(observed.get('reason'))} "
+                    f"Source series: {source_code}; operation: "
+                    f"{text_value(observed.get('derivation_operation'))}; factor: "
+                    f"{text_value(observed.get('derivation_factor'))}."
+                ),
+                searchable_text=" | ".join(
+                    value
+                    for value in [
+                        series_code,
+                        metric_name_tr,
+                        metric_name_en,
+                        source_code,
+                        source_organization,
+                    ]
+                    if value
+                ),
+            )
+        )
+
     assets = [
         make_asset(
             asset_id="evds.public_series_catalog",
@@ -297,7 +366,6 @@ def evds_assets_and_metrics() -> tuple[list[dict[str, Any]], list[dict[str, Any]
             searchable_text="EVDS TCMB complete series metadata catalog",
         )
     ]
-
     for spec in dataset_specs:
         dataset_dir = PROJECT_ROOT / "data_pipeline" / "evds" / spec["directory"]
         validation_path = dataset_dir / "validation.json"
@@ -323,7 +391,9 @@ def evds_assets_and_metrics() -> tuple[list[dict[str, Any]], list[dict[str, Any]
                 coverage_end=validation["last_period_end"],
                 row_count=len(observation_frame),
                 column_count=len(observation_frame.columns),
-                metric_count=int(validation["series_count"]),
+                metric_count=int(
+                    validation.get("source_series_count", validation["series_count"])
+                ),
                 missing_value_count=int(validation["missing_observation_count"]),
                 progress_completed=int(validation["request_count"]),
                 progress_expected=int(validation["request_count"]),
@@ -333,6 +403,42 @@ def evds_assets_and_metrics() -> tuple[list[dict[str, Any]], list[dict[str, Any]
                 source_url="https://evds3.tcmb.gov.tr/",
                 description=spec["description"],
                 searchable_text=f"{spec['searchable_text']} observations long",
+            )
+        )
+        coverage_gaps_path = dataset_dir / "coverage_gaps.parquet"
+        coverage_gaps = pd.read_parquet(coverage_gaps_path)
+        assets.append(
+            make_asset(
+                asset_id=f"{spec['dataset_id']}.coverage_gaps",
+                dataset_id=spec["dataset_id"],
+                source_system="TCMB_EVDS",
+                source_organization="TCMB and upstream official producers",
+                competition_scope="derived_quality_evidence",
+                status=validation["status"],
+                data_kind="source_availability",
+                native_frequency="mixed",
+                temporal_semantics="source_missingness_classification",
+                geography_grain="series_defined",
+                institution_grain="series_defined",
+                coverage_start=validation["first_period_start"],
+                coverage_end=validation["last_period_end"],
+                row_count=len(coverage_gaps),
+                column_count=len(coverage_gaps.columns),
+                metric_count=0,
+                missing_value_count=int(coverage_gaps.isna().sum().sum()),
+                progress_completed=len(coverage_gaps),
+                progress_expected=len(coverage_gaps),
+                file_path=relative(coverage_gaps_path),
+                file_format="parquet",
+                validation_file=relative(validation_path),
+                source_url="https://evds3.tcmb.gov.tr/",
+                description=(
+                    "Expected periods absent from EVDS source rows, classified "
+                    "without creating observations."
+                ),
+                searchable_text=(
+                    f"{spec['searchable_text']} coverage gaps source not published"
+                ),
             )
         )
         for frequency in ["monthly", "quarterly"]:
@@ -614,6 +720,37 @@ def finturk_assets_and_metrics() -> tuple[list[dict[str, Any]], list[dict[str, A
             searchable_text="BDDK FinTurk province city bank group measurements",
         )
     ]
+    missingness_path = base / "missingness_audit.parquet"
+    missingness = pd.read_parquet(missingness_path)
+    assets.append(
+        make_asset(
+            asset_id="bddk.finturk_all_groups_all_cities.missingness_audit",
+            dataset_id="bddk.finturk_all_groups_all_cities",
+            source_system="BDDK_FINTURK",
+            source_organization="BDDK",
+            competition_scope="derived_quality_evidence",
+            status=validation["status"],
+            data_kind="missingness_audit",
+            native_frequency="quarterly",
+            temporal_semantics="source_missingness_classification",
+            geography_grain="province_and_abroad",
+            institution_grain="bank_group",
+            coverage_start=str(measurements["quarter"].min()),
+            coverage_end=str(measurements["quarter"].max()),
+            row_count=len(missingness),
+            column_count=len(missingness.columns),
+            metric_count=0,
+            missing_value_count=int(missingness.isna().sum().sum()),
+            progress_completed=int(validation["missing_measurement_count"]),
+            progress_expected=int(validation["missing_measurement_count"]),
+            file_path=relative(missingness_path),
+            file_format="parquet",
+            validation_file=relative(validation_path),
+            source_url="https://www.bddk.org.tr/BultenFinturk/",
+            description="Explicit classification of every FinTurk source null.",
+            searchable_text="BDDK FinTurk missingness structural undefined not applicable source not reported",
+        )
+    )
     for table_no in sorted(validation["tables"], key=int):
         summary = validation["tables"][table_no]
         path = base / f"table_{int(table_no):02d}.parquet"
@@ -734,13 +871,27 @@ def tbb_assets_and_metrics() -> tuple[list[dict[str, Any]], list[dict[str, Any]]
             0,
             "All non-empty workbook cells retained for audit and re-parsing.",
         ),
+        (
+            "source_gaps",
+            "source_gaps.parquet",
+            "source_availability",
+            0,
+            "Officially checked but not yet published report periods.",
+        ),
     ]
     for asset_name, filename, data_kind, metric_count, description in asset_specs:
         path = base / filename
         data = pd.read_parquet(path)
-        period_column = "quarter" if "quarter" in data.columns else "report_period"
-        coverage_start = str(data[period_column].min()) if period_column in data else ""
-        coverage_end = str(data[period_column].max()) if period_column in data else ""
+        period_column = next(
+            (
+                candidate
+                for candidate in ["quarter", "report_period", "period"]
+                if candidate in data.columns
+            ),
+            None,
+        )
+        coverage_start = str(data[period_column].min()) if period_column else ""
+        coverage_end = str(data[period_column].max()) if period_column else ""
         assets.append(
             make_asset(
                 asset_id=f"tbb.consumer_credit_reports.{asset_name}",
@@ -851,6 +1002,38 @@ def weekly_bddk_assets_and_metrics() -> tuple[list[dict[str, Any]], list[dict[st
                 searchable_text="BDDK weekly sector measurements long",
             )
         )
+        missingness_path = processed_dir / "missingness_audit.parquet"
+        if missingness_path.exists():
+            missingness = pd.read_parquet(missingness_path)
+            assets.append(
+                make_asset(
+                    asset_id="bddk.weekly_all_sector.missingness_audit",
+                    dataset_id="bddk.weekly_all_sector",
+                    source_system="BDDK_WEEKLY",
+                    source_organization="BDDK",
+                    competition_scope="derived_quality_evidence",
+                    status=validation["status"],
+                    data_kind="missingness_audit",
+                    native_frequency="weekly",
+                    temporal_semantics="source_missingness_classification",
+                    geography_grain="national",
+                    institution_grain="sector",
+                    coverage_start=str(measurements["observation_date"].min()),
+                    coverage_end=str(measurements["observation_date"].max()),
+                    row_count=len(missingness),
+                    column_count=len(missingness.columns),
+                    metric_count=0,
+                    missing_value_count=int(missingness.isna().sum().sum()),
+                    progress_completed=int(validation["missing_measurement_count"]),
+                    progress_expected=int(validation["missing_measurement_count"]),
+                    file_path=relative(missingness_path),
+                    file_format="parquet",
+                    validation_file=relative(processed_validation_path),
+                    source_url=config["source_url"],
+                    description="Explicit classification of every BDDK weekly source null.",
+                    searchable_text="BDDK weekly missingness source not applicable unresolved",
+                )
+            )
         for (table_id, metric_code, dimension), rows in measurements.groupby(
             ["table_id", "metric_code", "currency_dimension"], sort=True
         ):
@@ -996,7 +1179,7 @@ def validate_catalog(
         "evds.public_series_catalog",
         "evds.housing_causality_v1",
         "evds.housing_causality_controls_v1",
-        "evds.market_controls_v1",
+        "evds.market_controls_v2",
         "bddk.monthly_all_sector.table_01",
         "bddk.finturk_all_groups_all_cities",
         "bddk.weekly_all_sector",

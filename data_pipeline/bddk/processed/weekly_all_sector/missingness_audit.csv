@@ -1,0 +1,3 @@
+﻿table_id,table_name,metric_code,metric_label,currency_dimension,missing_kind,missing_reason,missing_measurement_count
+292,Mevduat,292:11,Sigortaya Tabi Mevduat (Bilgi),FX,source_not_applicable,Source reports '-' for the FX component while TRY equals TOTAL; the measure is Turkish-lira-only.,286
+292,Mevduat,292:12,Kur Korumalı TL Mevduat ve Katılma Hesapları (Bilgi için),FX,source_not_applicable,Source reports '-' for the FX component while TRY equals TOTAL; the measure is Turkish-lira-only.,228

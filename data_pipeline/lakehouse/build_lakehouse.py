@@ -57,7 +57,7 @@ def build_monthly_analysis() -> pd.DataFrame:
         / "monthly_panel.parquet"
     ).rename(columns={"target_period": "month"})
     frame = bddk.merge(evds, on="month", how="left", validate="one_to_one")
-    for dataset_name in ["housing_causality_controls_v1", "market_controls_v1"]:
+    for dataset_name in ["housing_causality_controls_v1", "market_controls_v2"]:
         controls = pd.read_parquet(
             PROJECT_ROOT
             / "data_pipeline"
@@ -160,7 +160,7 @@ def build_quarterly_analysis() -> pd.DataFrame:
     )
     frame = reconciliation.merge(tbb, on="quarter", how="left", validate="one_to_one")
     frame = frame.merge(evds, on="evds_quarter", how="left", validate="one_to_one")
-    for dataset_name in ["housing_causality_controls_v1", "market_controls_v1"]:
+    for dataset_name in ["housing_causality_controls_v1", "market_controls_v2"]:
         controls = pd.read_parquet(
             PROJECT_ROOT
             / "data_pipeline"
@@ -259,6 +259,11 @@ def build(output_path: Path) -> dict[str, Any]:
                 PROJECT_ROOT / "data_pipeline" / "evds" / "housing_causality_v1" / "quarterly_alignment_audit.parquet",
             ),
             (
+                "evds",
+                "housing_coverage_gaps",
+                PROJECT_ROOT / "data_pipeline" / "evds" / "housing_causality_v1" / "coverage_gaps.parquet",
+            ),
+            (
                 "bddk",
                 "monthly_measurements",
                 PROJECT_ROOT / "data_pipeline" / "bddk" / "processed" / "monthly_semantic" / "measurements_long.parquet",
@@ -284,6 +289,11 @@ def build(output_path: Path) -> dict[str, Any]:
                 PROJECT_ROOT / "data_pipeline" / "bddk" / "processed" / "finturk_all_groups_all_cities" / "column_dictionary.parquet",
             ),
             (
+                "bddk",
+                "finturk_missingness_audit",
+                PROJECT_ROOT / "data_pipeline" / "bddk" / "processed" / "finturk_all_groups_all_cities" / "missingness_audit.parquet",
+            ),
+            (
                 "tbb",
                 "consumer_credit_product_metrics",
                 PROJECT_ROOT / "data_pipeline" / "tbb" / "processed" / "consumer_credit_product_metrics.parquet",
@@ -299,6 +309,11 @@ def build(output_path: Path) -> dict[str, Any]:
                 PROJECT_ROOT / "data_pipeline" / "tbb" / "processed" / "reporting_banks.parquet",
             ),
             (
+                "tbb",
+                "source_gaps",
+                PROJECT_ROOT / "data_pipeline" / "tbb" / "processed" / "source_gaps.parquet",
+            ),
+            (
                 "quality",
                 "housing_credit_stock_reconciliation",
                 PROJECT_ROOT / "data_pipeline" / "quality" / "processed" / "housing_credit_stock_reconciliation.parquet",
@@ -307,7 +322,7 @@ def build(output_path: Path) -> dict[str, Any]:
 
         for dataset_name, table_prefix in [
             ("housing_causality_controls_v1", "housing_controls"),
-            ("market_controls_v1", "market_controls"),
+            ("market_controls_v2", "market_controls"),
         ]:
             dataset_dir = PROJECT_ROOT / "data_pipeline" / "evds" / dataset_name
             parquet_tables.extend(
@@ -337,6 +352,11 @@ def build(output_path: Path) -> dict[str, Any]:
                         f"{table_prefix}_quarterly_alignment_audit",
                         dataset_dir / "quarterly_alignment_audit.parquet",
                     ),
+                    (
+                        "evds",
+                        f"{table_prefix}_coverage_gaps",
+                        dataset_dir / "coverage_gaps.parquet",
+                    ),
                 ]
             )
 
@@ -350,6 +370,13 @@ def build(output_path: Path) -> dict[str, Any]:
         )
         if weekly_path.exists():
             parquet_tables.append(("bddk", "weekly_measurements", weekly_path))
+            parquet_tables.append(
+                (
+                    "bddk",
+                    "weekly_missingness_audit",
+                    weekly_path.parent / "missingness_audit.parquet",
+                )
+            )
 
         for schema, table, path in parquet_tables:
             row_count = load_parquet(connection, schema, table, path)

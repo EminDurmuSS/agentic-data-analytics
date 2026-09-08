@@ -1,15 +1,15 @@
 {
   "status": "passed",
   "database_file": "analytics.duckdb",
-  "database_bytes": 64237568,
+  "database_bytes": 67121152,
   "schema_count": 7,
-  "table_count": 32,
+  "table_count": 38,
   "monthly_analysis_rows": 66,
   "quarterly_analysis_rows": 22,
   "duplicate_months": 0,
   "duplicate_quarters": 0,
   "weekly_measurements_loaded": true,
-  "source_table_manifest_rows": 31,
+  "source_table_manifest_rows": 37,
   "quality_policy": [
     "The DuckDB file contains copied tables and does not depend on absolute Parquet paths at query time.",
     "Raw source values remain available in source-specific Parquet files with hashes.",

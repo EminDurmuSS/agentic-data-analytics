@@ -102,6 +102,52 @@ def align_series(
     return result
 
 
+def add_derived_series(
+    audit: pd.DataFrame,
+    derived_specs: list[dict[str, Any]],
+) -> pd.DataFrame:
+    """Apply small, declarative transformations after source aggregation."""
+
+    result = audit.copy()
+    result["is_derived"] = False
+    result["source_series_code"] = ""
+    result["derivation_operation"] = ""
+    result["derivation_factor"] = float("nan")
+    additions = []
+    source_codes = set(result["series_code"])
+    derived_codes: set[str] = set()
+    for spec in derived_specs:
+        code = str(spec["series_code"])
+        source_code = str(spec["source_series_code"])
+        operation = str(spec["operation"])
+        if code in source_codes or code in derived_codes:
+            raise ValueError(f"Turetilmis EVDS seri kodu tekrarlaniyor: {code}")
+        if source_code not in source_codes:
+            raise ValueError(f"Turetilmis EVDS kaynak serisi bulunamadi: {source_code}")
+        if operation != "scale":
+            raise ValueError(f"Desteklenmeyen EVDS turetim islemi: {operation}")
+        factor = float(spec["factor"])
+        derived = result.loc[result["series_code"].eq(source_code)].copy()
+        derived["series_code"] = code
+        derived["analysis_column"] = safe_column(code)
+        derived["series_name_tr"] = spec["series_name_tr"]
+        derived["role"] = spec["role"]
+        derived["native_frequency"] = "DERIVED"
+        derived["aggregation"] = (
+            "scale_after_" + derived["aggregation"].astype(str)
+        )
+        derived["value"] = derived["value"] * factor
+        derived["is_derived"] = True
+        derived["source_series_code"] = source_code
+        derived["derivation_operation"] = operation
+        derived["derivation_factor"] = factor
+        additions.append(derived)
+        derived_codes.add(code)
+    if additions:
+        result = pd.concat([result, *additions], ignore_index=True)
+    return result.sort_values(["target_period", "series_code"], kind="stable")
+
+
 def build(input_dir: Path, policy_path: Path) -> dict[str, Any]:
     observations_path = input_dir / "observations_long.parquet"
     catalog_path = input_dir / "series_catalog.parquet"
@@ -126,6 +172,7 @@ def build(input_dir: Path, policy_path: Path) -> dict[str, Any]:
 
     outputs: dict[str, pd.DataFrame] = {}
     audits: dict[str, pd.DataFrame] = {}
+    derived_specs = policy.get("derived_series", [])
     for target_frequency in ["monthly", "quarterly"]:
         rows: list[dict[str, Any]] = []
         for series_code, group in observations.groupby("series_code", sort=True):
@@ -135,6 +182,7 @@ def build(input_dir: Path, policy_path: Path) -> dict[str, Any]:
         audit = pd.DataFrame(rows).sort_values(
             ["target_period", "series_code"], kind="stable"
         )
+        audit = add_derived_series(audit, derived_specs)
         if audit.duplicated(["target_period", "series_code"]).any():
             raise ValueError(f"{target_frequency} hizalama anahtari tekrarlaniyor.")
         wide = audit.pivot(
@@ -152,6 +200,51 @@ def build(input_dir: Path, policy_path: Path) -> dict[str, Any]:
     enriched_catalog["subperiod_aggregation"] = enriched_catalog["role"].map(
         lambda role: policy["role_policies"][role]["subperiod_aggregation"]
     )
+    enriched_catalog["is_derived"] = False
+    enriched_catalog["source_series_code"] = ""
+    enriched_catalog["derivation_operation"] = ""
+    enriched_catalog["derivation_factor"] = float("nan")
+    derived_catalog_rows = []
+    for spec in derived_specs:
+        source_rows = enriched_catalog.loc[
+            enriched_catalog["series_code"].eq(spec["source_series_code"])
+        ]
+        if len(source_rows) != 1:
+            raise ValueError(
+                f"Turetilmis katalog kaynak serisi tekil degil: {spec['source_series_code']}"
+            )
+        derived_row = source_rows.iloc[0].to_dict()
+        derived_row.update(
+            {
+                "series_code": spec["series_code"],
+                "series_name_tr": spec["series_name_tr"],
+                "series_name_en": spec.get("series_name_en", ""),
+                "role": spec["role"],
+                "reason": spec["reason"],
+                "unit": spec["unit"],
+                "source": spec.get(
+                    "source", "Derived from an official TCMB EVDS source series"
+                ),
+                "frequency": "DERIVED",
+                "native_frequency": "DERIVED",
+                "analysis_column": safe_column(str(spec["series_code"])),
+                "temporal_semantics": policy["role_policies"][spec["role"]][
+                    "temporal_semantics"
+                ],
+                "subperiod_aggregation": "scale_after_"
+                + policy["role_policies"][spec["role"]]["subperiod_aggregation"],
+                "is_derived": True,
+                "source_series_code": spec["source_series_code"],
+                "derivation_operation": spec["operation"],
+                "derivation_factor": float(spec["factor"]),
+                "is_archive": False,
+            }
+        )
+        derived_catalog_rows.append(derived_row)
+    if derived_catalog_rows:
+        enriched_catalog = pd.concat(
+            [enriched_catalog, pd.DataFrame(derived_catalog_rows)], ignore_index=True
+        ).sort_values("series_code", kind="stable")
 
     for name, frame in outputs.items():
         frame.to_csv(input_dir / f"{name}_panel.csv", index=False, encoding="utf-8-sig")
@@ -179,7 +272,9 @@ def build(input_dir: Path, policy_path: Path) -> dict[str, Any]:
     result = {
         "status": "passed",
         "dataset_id": source_validation["dataset_id"],
-        "series_count": int(catalog["series_code"].nunique()),
+        "source_series_count": int(catalog["series_code"].nunique()),
+        "derived_series_count": len(derived_specs),
+        "series_count": int(enriched_catalog["series_code"].nunique()),
         "monthly_period_count": len(outputs["monthly"]),
         "quarterly_period_count": len(outputs["quarterly"]),
         "monthly_audit_rows": len(audits["monthly"]),
@@ -193,6 +288,7 @@ def build(input_dir: Path, policy_path: Path) -> dict[str, Any]:
             "Flow variables are summed; rates and survey measures are averaged; period-end levels use the last value.",
             "Every panel value has an audit row with source, non-null and missing observation counts.",
             "No interpolation, forward fill or backward fill is applied.",
+            "Derived series use explicit declarative operations and retain their source series code and factor.",
         ],
     }
     (input_dir / "alignment_validation.json").write_text(

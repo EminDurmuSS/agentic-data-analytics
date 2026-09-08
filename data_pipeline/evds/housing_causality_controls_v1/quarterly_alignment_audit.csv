@@ -1,287 +1,287 @@
-﻿target_period,series_code,analysis_column,series_name_tr,role,native_frequency,target_frequency,aggregation,value,source_observation_count,non_null_observation_count,missing_observation_count,first_source_period,last_source_period,source_period_end_max
-2020Q1,TP.BISPOLFAIZ.TUR,TP_BISPOLFAIZ_TUR,Türkiye (TUR) Merkez Bankası Politika Faiz Oranı,policy_rate_actual,AYLIK,quarterly,last,9.75,3,3,0,2020-01,2020-03,2020-03-31
-2020Q1,TP.BISPOLFAIZ.USA,TP_BISPOLFAIZ_USA,Amerika Birleşik Devletleri (USA) Merkez Bankası Politika Faiz Oranı,global_policy_rate,AYLIK,quarterly,last,0.125,3,3,0,2020-01,2020-03,2020-03-31
-2020Q1,TP.BISPOLFAIZ.XM,TP_BISPOLFAIZ_XM,Euro Bölgesi (XM) Merkez Bankası Politika Faiz Oranı,global_policy_rate,AYLIK,quarterly,last,0.0,3,3,0,2020-01,2020-03,2020-03-31
-2020Q1,TP.BK.ANKARA,TP_BK_ANKARA,Ankara Konut Birim Kiraları,housing_rent_level,ÜÇ AYLIK,quarterly,identity,9.42,1,1,0,2020-Q1,2020-Q1,2020-03-31
-2020Q1,TP.BK.ISTANBUL,TP_BK_ISTANBUL,İstanbul Konut Birim Kiraları,housing_rent_level,ÜÇ AYLIK,quarterly,identity,21.66,1,1,0,2020-Q1,2020-Q1,2020-03-31
-2020Q1,TP.BK.IZMIR,TP_BK_IZMIR,İzmir Konut Birim Kiraları,housing_rent_level,ÜÇ AYLIK,quarterly,identity,14.52,1,1,0,2020-Q1,2020-Q1,2020-03-31
-2020Q1,TP.BK.TR,TP_BK_TR,Türkiye Konut Birim Kiraları,housing_rent_level,ÜÇ AYLIK,quarterly,identity,12.8,1,1,0,2020-Q1,2020-Q1,2020-03-31
-2020Q1,TP.GSYIH60.HY.B1GQ,TP_GSYIH60_HY_B1GQ,"Gayrisafi Yurt İçi Hasıla (Harcama Yöntemiyle, Mevsim Etkisinden Arındırılmış  Zincirlenmiş Hacim Endeksi)",activity_control,ÜÇ AYLIK,quarterly,identity,181.56601096,1,1,0,2020-Q1,2020-Q1,2020-03-31
-2020Q1,TP.GSYIH60.HY.P311,TP_GSYIH60_HY_P311,"Yerleşik Hanehalklarının Tüketimi (Harcama Yöntemiyle, Mevsim Etkisinden Arındırılmış  Zincirlenmiş Hacim Endeksi)",consumption_control,ÜÇ AYLIK,quarterly,identity,169.71936371,1,1,0,2020-Q1,2020-Q1,2020-03-31
-2020Q1,TP.IN.KL2.TOPLAM.TOP.D,TP_IN_KL2_TOPLAM_TOP_D,(Toplam) Binalar (Daire Sayısı),housing_completion,AYLIK,quarterly,sum,156439.0,3,3,0,2020-01,2020-03,2020-03-31
-2020Q1,TP.MK.KUL.YTL,TP_MK_KUL_YTL,Külçe Altın Satış Fiyatı (TL/Gr),alternative_asset,AYLIK,quarterly,last,330.65,3,3,0,2020-01,2020-03,2020-03-31
-2020Q2,TP.BISPOLFAIZ.TUR,TP_BISPOLFAIZ_TUR,Türkiye (TUR) Merkez Bankası Politika Faiz Oranı,policy_rate_actual,AYLIK,quarterly,last,8.25,3,3,0,2020-04,2020-06,2020-06-30
-2020Q2,TP.BISPOLFAIZ.USA,TP_BISPOLFAIZ_USA,Amerika Birleşik Devletleri (USA) Merkez Bankası Politika Faiz Oranı,global_policy_rate,AYLIK,quarterly,last,0.125,3,3,0,2020-04,2020-06,2020-06-30
-2020Q2,TP.BISPOLFAIZ.XM,TP_BISPOLFAIZ_XM,Euro Bölgesi (XM) Merkez Bankası Politika Faiz Oranı,global_policy_rate,AYLIK,quarterly,last,0.0,3,3,0,2020-04,2020-06,2020-06-30
-2020Q2,TP.BK.ANKARA,TP_BK_ANKARA,Ankara Konut Birim Kiraları,housing_rent_level,ÜÇ AYLIK,quarterly,identity,10.04,1,1,0,2020-Q2,2020-Q2,2020-06-30
-2020Q2,TP.BK.ISTANBUL,TP_BK_ISTANBUL,İstanbul Konut Birim Kiraları,housing_rent_level,ÜÇ AYLIK,quarterly,identity,22.92,1,1,0,2020-Q2,2020-Q2,2020-06-30
-2020Q2,TP.BK.IZMIR,TP_BK_IZMIR,İzmir Konut Birim Kiraları,housing_rent_level,ÜÇ AYLIK,quarterly,identity,15.42,1,1,0,2020-Q2,2020-Q2,2020-06-30
-2020Q2,TP.BK.TR,TP_BK_TR,Türkiye Konut Birim Kiraları,housing_rent_level,ÜÇ AYLIK,quarterly,identity,13.69,1,1,0,2020-Q2,2020-Q2,2020-06-30
-2020Q2,TP.GSYIH60.HY.B1GQ,TP_GSYIH60_HY_B1GQ,"Gayrisafi Yurt İçi Hasıla (Harcama Yöntemiyle, Mevsim Etkisinden Arındırılmış  Zincirlenmiş Hacim Endeksi)",activity_control,ÜÇ AYLIK,quarterly,identity,161.47788633,1,1,0,2020-Q2,2020-Q2,2020-06-30
-2020Q2,TP.GSYIH60.HY.P311,TP_GSYIH60_HY_P311,"Yerleşik Hanehalklarının Tüketimi (Harcama Yöntemiyle, Mevsim Etkisinden Arındırılmış  Zincirlenmiş Hacim Endeksi)",consumption_control,ÜÇ AYLIK,quarterly,identity,151.06076185,1,1,0,2020-Q2,2020-Q2,2020-06-30
-2020Q2,TP.IN.KL2.TOPLAM.TOP.D,TP_IN_KL2_TOPLAM_TOP_D,(Toplam) Binalar (Daire Sayısı),housing_completion,AYLIK,quarterly,sum,117365.0,3,3,0,2020-04,2020-06,2020-06-30
-2020Q2,TP.MK.KUL.YTL,TP_MK_KUL_YTL,Külçe Altın Satış Fiyatı (TL/Gr),alternative_asset,AYLIK,quarterly,last,382.84,3,3,0,2020-04,2020-06,2020-06-30
-2020Q3,TP.BISPOLFAIZ.TUR,TP_BISPOLFAIZ_TUR,Türkiye (TUR) Merkez Bankası Politika Faiz Oranı,policy_rate_actual,AYLIK,quarterly,last,10.25,3,3,0,2020-07,2020-09,2020-09-30
-2020Q3,TP.BISPOLFAIZ.USA,TP_BISPOLFAIZ_USA,Amerika Birleşik Devletleri (USA) Merkez Bankası Politika Faiz Oranı,global_policy_rate,AYLIK,quarterly,last,0.125,3,3,0,2020-07,2020-09,2020-09-30
-2020Q3,TP.BISPOLFAIZ.XM,TP_BISPOLFAIZ_XM,Euro Bölgesi (XM) Merkez Bankası Politika Faiz Oranı,global_policy_rate,AYLIK,quarterly,last,0.0,3,3,0,2020-07,2020-09,2020-09-30
-2020Q3,TP.BK.ANKARA,TP_BK_ANKARA,Ankara Konut Birim Kiraları,housing_rent_level,ÜÇ AYLIK,quarterly,identity,10.73,1,1,0,2020-Q3,2020-Q3,2020-09-30
-2020Q3,TP.BK.ISTANBUL,TP_BK_ISTANBUL,İstanbul Konut Birim Kiraları,housing_rent_level,ÜÇ AYLIK,quarterly,identity,24.04,1,1,0,2020-Q3,2020-Q3,2020-09-30
-2020Q3,TP.BK.IZMIR,TP_BK_IZMIR,İzmir Konut Birim Kiraları,housing_rent_level,ÜÇ AYLIK,quarterly,identity,16.35,1,1,0,2020-Q3,2020-Q3,2020-09-30
-2020Q3,TP.BK.TR,TP_BK_TR,Türkiye Konut Birim Kiraları,housing_rent_level,ÜÇ AYLIK,quarterly,identity,14.37,1,1,0,2020-Q3,2020-Q3,2020-09-30
-2020Q3,TP.GSYIH60.HY.B1GQ,TP_GSYIH60_HY_B1GQ,"Gayrisafi Yurt İçi Hasıla (Harcama Yöntemiyle, Mevsim Etkisinden Arındırılmış  Zincirlenmiş Hacim Endeksi)",activity_control,ÜÇ AYLIK,quarterly,identity,187.4771752,1,1,0,2020-Q3,2020-Q3,2020-09-30
-2020Q3,TP.GSYIH60.HY.P311,TP_GSYIH60_HY_P311,"Yerleşik Hanehalklarının Tüketimi (Harcama Yöntemiyle, Mevsim Etkisinden Arındırılmış  Zincirlenmiş Hacim Endeksi)",consumption_control,ÜÇ AYLIK,quarterly,identity,183.67462827,1,1,0,2020-Q3,2020-Q3,2020-09-30
-2020Q3,TP.IN.KL2.TOPLAM.TOP.D,TP_IN_KL2_TOPLAM_TOP_D,(Toplam) Binalar (Daire Sayısı),housing_completion,AYLIK,quarterly,sum,156851.0,3,3,0,2020-07,2020-09,2020-09-30
-2020Q3,TP.MK.KUL.YTL,TP_MK_KUL_YTL,Külçe Altın Satış Fiyatı (TL/Gr),alternative_asset,AYLIK,quarterly,last,467.61,3,3,0,2020-07,2020-09,2020-09-30
-2020Q4,TP.BISPOLFAIZ.TUR,TP_BISPOLFAIZ_TUR,Türkiye (TUR) Merkez Bankası Politika Faiz Oranı,policy_rate_actual,AYLIK,quarterly,last,17.0,3,3,0,2020-10,2020-12,2020-12-31
-2020Q4,TP.BISPOLFAIZ.USA,TP_BISPOLFAIZ_USA,Amerika Birleşik Devletleri (USA) Merkez Bankası Politika Faiz Oranı,global_policy_rate,AYLIK,quarterly,last,0.125,3,3,0,2020-10,2020-12,2020-12-31
-2020Q4,TP.BISPOLFAIZ.XM,TP_BISPOLFAIZ_XM,Euro Bölgesi (XM) Merkez Bankası Politika Faiz Oranı,global_policy_rate,AYLIK,quarterly,last,0.0,3,3,0,2020-10,2020-12,2020-12-31
-2020Q4,TP.BK.ANKARA,TP_BK_ANKARA,Ankara Konut Birim Kiraları,housing_rent_level,ÜÇ AYLIK,quarterly,identity,11.64,1,1,0,2020-Q4,2020-Q4,2020-12-31
-2020Q4,TP.BK.ISTANBUL,TP_BK_ISTANBUL,İstanbul Konut Birim Kiraları,housing_rent_level,ÜÇ AYLIK,quarterly,identity,26.36,1,1,0,2020-Q4,2020-Q4,2020-12-31
-2020Q4,TP.BK.IZMIR,TP_BK_IZMIR,İzmir Konut Birim Kiraları,housing_rent_level,ÜÇ AYLIK,quarterly,identity,17.22,1,1,0,2020-Q4,2020-Q4,2020-12-31
-2020Q4,TP.BK.TR,TP_BK_TR,Türkiye Konut Birim Kiraları,housing_rent_level,ÜÇ AYLIK,quarterly,identity,15.44,1,1,0,2020-Q4,2020-Q4,2020-12-31
-2020Q4,TP.GSYIH60.HY.B1GQ,TP_GSYIH60_HY_B1GQ,"Gayrisafi Yurt İçi Hasıla (Harcama Yöntemiyle, Mevsim Etkisinden Arındırılmış  Zincirlenmiş Hacim Endeksi)",activity_control,ÜÇ AYLIK,quarterly,identity,190.31174374,1,1,0,2020-Q4,2020-Q4,2020-12-31
-2020Q4,TP.GSYIH60.HY.P311,TP_GSYIH60_HY_P311,"Yerleşik Hanehalklarının Tüketimi (Harcama Yöntemiyle, Mevsim Etkisinden Arındırılmış  Zincirlenmiş Hacim Endeksi)",consumption_control,ÜÇ AYLIK,quarterly,identity,182.50275802,1,1,0,2020-Q4,2020-Q4,2020-12-31
-2020Q4,TP.IN.KL2.TOPLAM.TOP.D,TP_IN_KL2_TOPLAM_TOP_D,(Toplam) Binalar (Daire Sayısı),housing_completion,AYLIK,quarterly,sum,178003.0,3,3,0,2020-10,2020-12,2020-12-31
-2020Q4,TP.MK.KUL.YTL,TP_MK_KUL_YTL,Külçe Altın Satış Fiyatı (TL/Gr),alternative_asset,AYLIK,quarterly,last,462.72,3,3,0,2020-10,2020-12,2020-12-31
-2021Q1,TP.BISPOLFAIZ.TUR,TP_BISPOLFAIZ_TUR,Türkiye (TUR) Merkez Bankası Politika Faiz Oranı,policy_rate_actual,AYLIK,quarterly,last,19.0,3,3,0,2021-01,2021-03,2021-03-31
-2021Q1,TP.BISPOLFAIZ.USA,TP_BISPOLFAIZ_USA,Amerika Birleşik Devletleri (USA) Merkez Bankası Politika Faiz Oranı,global_policy_rate,AYLIK,quarterly,last,0.125,3,3,0,2021-01,2021-03,2021-03-31
-2021Q1,TP.BISPOLFAIZ.XM,TP_BISPOLFAIZ_XM,Euro Bölgesi (XM) Merkez Bankası Politika Faiz Oranı,global_policy_rate,AYLIK,quarterly,last,0.0,3,3,0,2021-01,2021-03,2021-03-31
-2021Q1,TP.BK.ANKARA,TP_BK_ANKARA,Ankara Konut Birim Kiraları,housing_rent_level,ÜÇ AYLIK,quarterly,identity,11.53,1,1,0,2021-Q1,2021-Q1,2021-03-31
-2021Q1,TP.BK.ISTANBUL,TP_BK_ISTANBUL,İstanbul Konut Birim Kiraları,housing_rent_level,ÜÇ AYLIK,quarterly,identity,26.92,1,1,0,2021-Q1,2021-Q1,2021-03-31
-2021Q1,TP.BK.IZMIR,TP_BK_IZMIR,İzmir Konut Birim Kiraları,housing_rent_level,ÜÇ AYLIK,quarterly,identity,18.81,1,1,0,2021-Q1,2021-Q1,2021-03-31
-2021Q1,TP.BK.TR,TP_BK_TR,Türkiye Konut Birim Kiraları,housing_rent_level,ÜÇ AYLIK,quarterly,identity,16.0,1,1,0,2021-Q1,2021-Q1,2021-03-31
-2021Q1,TP.GSYIH60.HY.B1GQ,TP_GSYIH60_HY_B1GQ,"Gayrisafi Yurt İçi Hasıla (Harcama Yöntemiyle, Mevsim Etkisinden Arındırılmış  Zincirlenmiş Hacim Endeksi)",activity_control,ÜÇ AYLIK,quarterly,identity,195.05576929,1,1,0,2021-Q1,2021-Q1,2021-03-31
-2021Q1,TP.GSYIH60.HY.P311,TP_GSYIH60_HY_P311,"Yerleşik Hanehalklarının Tüketimi (Harcama Yöntemiyle, Mevsim Etkisinden Arındırılmış  Zincirlenmiş Hacim Endeksi)",consumption_control,ÜÇ AYLIK,quarterly,identity,186.84564444,1,1,0,2021-Q1,2021-Q1,2021-03-31
-2021Q1,TP.IN.KL2.TOPLAM.TOP.D,TP_IN_KL2_TOPLAM_TOP_D,(Toplam) Binalar (Daire Sayısı),housing_completion,AYLIK,quarterly,sum,161320.0,3,3,0,2021-01,2021-03,2021-03-31
-2021Q1,TP.MK.KUL.YTL,TP_MK_KUL_YTL,Külçe Altın Satış Fiyatı (TL/Gr),alternative_asset,AYLIK,quarterly,last,423.38,3,3,0,2021-01,2021-03,2021-03-31
-2021Q2,TP.BISPOLFAIZ.TUR,TP_BISPOLFAIZ_TUR,Türkiye (TUR) Merkez Bankası Politika Faiz Oranı,policy_rate_actual,AYLIK,quarterly,last,19.0,3,3,0,2021-04,2021-06,2021-06-30
-2021Q2,TP.BISPOLFAIZ.USA,TP_BISPOLFAIZ_USA,Amerika Birleşik Devletleri (USA) Merkez Bankası Politika Faiz Oranı,global_policy_rate,AYLIK,quarterly,last,0.125,3,3,0,2021-04,2021-06,2021-06-30
-2021Q2,TP.BISPOLFAIZ.XM,TP_BISPOLFAIZ_XM,Euro Bölgesi (XM) Merkez Bankası Politika Faiz Oranı,global_policy_rate,AYLIK,quarterly,last,0.0,3,3,0,2021-04,2021-06,2021-06-30
-2021Q2,TP.BK.ANKARA,TP_BK_ANKARA,Ankara Konut Birim Kiraları,housing_rent_level,ÜÇ AYLIK,quarterly,identity,12.38,1,1,0,2021-Q2,2021-Q2,2021-06-30
-2021Q2,TP.BK.ISTANBUL,TP_BK_ISTANBUL,İstanbul Konut Birim Kiraları,housing_rent_level,ÜÇ AYLIK,quarterly,identity,29.07,1,1,0,2021-Q2,2021-Q2,2021-06-30
-2021Q2,TP.BK.IZMIR,TP_BK_IZMIR,İzmir Konut Birim Kiraları,housing_rent_level,ÜÇ AYLIK,quarterly,identity,19.66,1,1,0,2021-Q2,2021-Q2,2021-06-30
-2021Q2,TP.BK.TR,TP_BK_TR,Türkiye Konut Birim Kiraları,housing_rent_level,ÜÇ AYLIK,quarterly,identity,17.27,1,1,0,2021-Q2,2021-Q2,2021-06-30
-2021Q2,TP.GSYIH60.HY.B1GQ,TP_GSYIH60_HY_B1GQ,"Gayrisafi Yurt İçi Hasıla (Harcama Yöntemiyle, Mevsim Etkisinden Arındırılmış  Zincirlenmiş Hacim Endeksi)",activity_control,ÜÇ AYLIK,quarterly,identity,197.7399596,1,1,0,2021-Q2,2021-Q2,2021-06-30
-2021Q2,TP.GSYIH60.HY.P311,TP_GSYIH60_HY_P311,"Yerleşik Hanehalklarının Tüketimi (Harcama Yöntemiyle, Mevsim Etkisinden Arındırılmış  Zincirlenmiş Hacim Endeksi)",consumption_control,ÜÇ AYLIK,quarterly,identity,190.31678086,1,1,0,2021-Q2,2021-Q2,2021-06-30
-2021Q2,TP.IN.KL2.TOPLAM.TOP.D,TP_IN_KL2_TOPLAM_TOP_D,(Toplam) Binalar (Daire Sayısı),housing_completion,AYLIK,quarterly,sum,122421.0,3,3,0,2021-04,2021-06,2021-06-30
-2021Q2,TP.MK.KUL.YTL,TP_MK_KUL_YTL,Külçe Altın Satış Fiyatı (TL/Gr),alternative_asset,AYLIK,quarterly,last,512.01,3,3,0,2021-04,2021-06,2021-06-30
-2021Q3,TP.BISPOLFAIZ.TUR,TP_BISPOLFAIZ_TUR,Türkiye (TUR) Merkez Bankası Politika Faiz Oranı,policy_rate_actual,AYLIK,quarterly,last,18.0,3,3,0,2021-07,2021-09,2021-09-30
-2021Q3,TP.BISPOLFAIZ.USA,TP_BISPOLFAIZ_USA,Amerika Birleşik Devletleri (USA) Merkez Bankası Politika Faiz Oranı,global_policy_rate,AYLIK,quarterly,last,0.125,3,3,0,2021-07,2021-09,2021-09-30
-2021Q3,TP.BISPOLFAIZ.XM,TP_BISPOLFAIZ_XM,Euro Bölgesi (XM) Merkez Bankası Politika Faiz Oranı,global_policy_rate,AYLIK,quarterly,last,0.0,3,3,0,2021-07,2021-09,2021-09-30
-2021Q3,TP.BK.ANKARA,TP_BK_ANKARA,Ankara Konut Birim Kiraları,housing_rent_level,ÜÇ AYLIK,quarterly,identity,13.51,1,1,0,2021-Q3,2021-Q3,2021-09-30
-2021Q3,TP.BK.ISTANBUL,TP_BK_ISTANBUL,İstanbul Konut Birim Kiraları,housing_rent_level,ÜÇ AYLIK,quarterly,identity,31.39,1,1,0,2021-Q3,2021-Q3,2021-09-30
-2021Q3,TP.BK.IZMIR,TP_BK_IZMIR,İzmir Konut Birim Kiraları,housing_rent_level,ÜÇ AYLIK,quarterly,identity,21.71,1,1,0,2021-Q3,2021-Q3,2021-09-30
-2021Q3,TP.BK.TR,TP_BK_TR,Türkiye Konut Birim Kiraları,housing_rent_level,ÜÇ AYLIK,quarterly,identity,18.85,1,1,0,2021-Q3,2021-Q3,2021-09-30
-2021Q3,TP.GSYIH60.HY.B1GQ,TP_GSYIH60_HY_B1GQ,"Gayrisafi Yurt İçi Hasıla (Harcama Yöntemiyle, Mevsim Etkisinden Arındırılmış  Zincirlenmiş Hacim Endeksi)",activity_control,ÜÇ AYLIK,quarterly,identity,203.8978029,1,1,0,2021-Q3,2021-Q3,2021-09-30
-2021Q3,TP.GSYIH60.HY.P311,TP_GSYIH60_HY_P311,"Yerleşik Hanehalklarının Tüketimi (Harcama Yöntemiyle, Mevsim Etkisinden Arındırılmış  Zincirlenmiş Hacim Endeksi)",consumption_control,ÜÇ AYLIK,quarterly,identity,196.81658144,1,1,0,2021-Q3,2021-Q3,2021-09-30
-2021Q3,TP.IN.KL2.TOPLAM.TOP.D,TP_IN_KL2_TOPLAM_TOP_D,(Toplam) Binalar (Daire Sayısı),housing_completion,AYLIK,quarterly,sum,141573.0,3,3,0,2021-07,2021-09,2021-09-30
-2021Q3,TP.MK.KUL.YTL,TP_MK_KUL_YTL,Külçe Altın Satış Fiyatı (TL/Gr),alternative_asset,AYLIK,quarterly,last,470.59,3,3,0,2021-07,2021-09,2021-09-30
-2021Q4,TP.BISPOLFAIZ.TUR,TP_BISPOLFAIZ_TUR,Türkiye (TUR) Merkez Bankası Politika Faiz Oranı,policy_rate_actual,AYLIK,quarterly,last,14.0,3,3,0,2021-10,2021-12,2021-12-31
-2021Q4,TP.BISPOLFAIZ.USA,TP_BISPOLFAIZ_USA,Amerika Birleşik Devletleri (USA) Merkez Bankası Politika Faiz Oranı,global_policy_rate,AYLIK,quarterly,last,0.125,3,3,0,2021-10,2021-12,2021-12-31
-2021Q4,TP.BISPOLFAIZ.XM,TP_BISPOLFAIZ_XM,Euro Bölgesi (XM) Merkez Bankası Politika Faiz Oranı,global_policy_rate,AYLIK,quarterly,last,0.0,3,3,0,2021-10,2021-12,2021-12-31
-2021Q4,TP.BK.ANKARA,TP_BK_ANKARA,Ankara Konut Birim Kiraları,housing_rent_level,ÜÇ AYLIK,quarterly,identity,15.84,1,1,0,2021-Q4,2021-Q4,2021-12-31
-2021Q4,TP.BK.ISTANBUL,TP_BK_ISTANBUL,İstanbul Konut Birim Kiraları,housing_rent_level,ÜÇ AYLIK,quarterly,identity,39.06,1,1,0,2021-Q4,2021-Q4,2021-12-31
-2021Q4,TP.BK.IZMIR,TP_BK_IZMIR,İzmir Konut Birim Kiraları,housing_rent_level,ÜÇ AYLIK,quarterly,identity,24.95,1,1,0,2021-Q4,2021-Q4,2021-12-31
-2021Q4,TP.BK.TR,TP_BK_TR,Türkiye Konut Birim Kiraları,housing_rent_level,ÜÇ AYLIK,quarterly,identity,22.52,1,1,0,2021-Q4,2021-Q4,2021-12-31
-2021Q4,TP.GSYIH60.HY.B1GQ,TP_GSYIH60_HY_B1GQ,"Gayrisafi Yurt İçi Hasıla (Harcama Yöntemiyle, Mevsim Etkisinden Arındırılmış  Zincirlenmiş Hacim Endeksi)",activity_control,ÜÇ AYLIK,quarterly,identity,209.28306698,1,1,0,2021-Q4,2021-Q4,2021-12-31
-2021Q4,TP.GSYIH60.HY.P311,TP_GSYIH60_HY_P311,"Yerleşik Hanehalklarının Tüketimi (Harcama Yöntemiyle, Mevsim Etkisinden Arındırılmış  Zincirlenmiş Hacim Endeksi)",consumption_control,ÜÇ AYLIK,quarterly,identity,220.26016001,1,1,0,2021-Q4,2021-Q4,2021-12-31
-2021Q4,TP.IN.KL2.TOPLAM.TOP.D,TP_IN_KL2_TOPLAM_TOP_D,(Toplam) Binalar (Daire Sayısı),housing_completion,AYLIK,quarterly,sum,210828.0,3,3,0,2021-10,2021-12,2021-12-31
-2021Q4,TP.MK.KUL.YTL,TP_MK_KUL_YTL,Külçe Altın Satış Fiyatı (TL/Gr),alternative_asset,AYLIK,quarterly,last,817.61,3,3,0,2021-10,2021-12,2021-12-31
-2022Q1,TP.BISPOLFAIZ.TUR,TP_BISPOLFAIZ_TUR,Türkiye (TUR) Merkez Bankası Politika Faiz Oranı,policy_rate_actual,AYLIK,quarterly,last,14.0,3,3,0,2022-01,2022-03,2022-03-31
-2022Q1,TP.BISPOLFAIZ.USA,TP_BISPOLFAIZ_USA,Amerika Birleşik Devletleri (USA) Merkez Bankası Politika Faiz Oranı,global_policy_rate,AYLIK,quarterly,last,0.375,3,3,0,2022-01,2022-03,2022-03-31
-2022Q1,TP.BISPOLFAIZ.XM,TP_BISPOLFAIZ_XM,Euro Bölgesi (XM) Merkez Bankası Politika Faiz Oranı,global_policy_rate,AYLIK,quarterly,last,0.0,3,3,0,2022-01,2022-03,2022-03-31
-2022Q1,TP.BK.ANKARA,TP_BK_ANKARA,Ankara Konut Birim Kiraları,housing_rent_level,ÜÇ AYLIK,quarterly,identity,21.11,1,1,0,2022-Q1,2022-Q1,2022-03-31
-2022Q1,TP.BK.ISTANBUL,TP_BK_ISTANBUL,İstanbul Konut Birim Kiraları,housing_rent_level,ÜÇ AYLIK,quarterly,identity,53.49,1,1,0,2022-Q1,2022-Q1,2022-03-31
-2022Q1,TP.BK.IZMIR,TP_BK_IZMIR,İzmir Konut Birim Kiraları,housing_rent_level,ÜÇ AYLIK,quarterly,identity,32.42,1,1,0,2022-Q1,2022-Q1,2022-03-31
-2022Q1,TP.BK.TR,TP_BK_TR,Türkiye Konut Birim Kiraları,housing_rent_level,ÜÇ AYLIK,quarterly,identity,29.67,1,1,0,2022-Q1,2022-Q1,2022-03-31
-2022Q1,TP.GSYIH60.HY.B1GQ,TP_GSYIH60_HY_B1GQ,"Gayrisafi Yurt İçi Hasıla (Harcama Yöntemiyle, Mevsim Etkisinden Arındırılmış  Zincirlenmiş Hacim Endeksi)",activity_control,ÜÇ AYLIK,quarterly,identity,208.98568287,1,1,0,2022-Q1,2022-Q1,2022-03-31
-2022Q1,TP.GSYIH60.HY.P311,TP_GSYIH60_HY_P311,"Yerleşik Hanehalklarının Tüketimi (Harcama Yöntemiyle, Mevsim Etkisinden Arındırılmış  Zincirlenmiş Hacim Endeksi)",consumption_control,ÜÇ AYLIK,quarterly,identity,223.77942664,1,1,0,2022-Q1,2022-Q1,2022-03-31
-2022Q1,TP.IN.KL2.TOPLAM.TOP.D,TP_IN_KL2_TOPLAM_TOP_D,(Toplam) Binalar (Daire Sayısı),housing_completion,AYLIK,quarterly,sum,158663.0,3,3,0,2022-01,2022-03,2022-03-31
-2022Q1,TP.MK.KUL.YTL,TP_MK_KUL_YTL,Külçe Altın Satış Fiyatı (TL/Gr),alternative_asset,AYLIK,quarterly,last,926.51,3,3,0,2022-01,2022-03,2022-03-31
-2022Q2,TP.BISPOLFAIZ.TUR,TP_BISPOLFAIZ_TUR,Türkiye (TUR) Merkez Bankası Politika Faiz Oranı,policy_rate_actual,AYLIK,quarterly,last,14.0,3,3,0,2022-04,2022-06,2022-06-30
-2022Q2,TP.BISPOLFAIZ.USA,TP_BISPOLFAIZ_USA,Amerika Birleşik Devletleri (USA) Merkez Bankası Politika Faiz Oranı,global_policy_rate,AYLIK,quarterly,last,1.625,3,3,0,2022-04,2022-06,2022-06-30
-2022Q2,TP.BISPOLFAIZ.XM,TP_BISPOLFAIZ_XM,Euro Bölgesi (XM) Merkez Bankası Politika Faiz Oranı,global_policy_rate,AYLIK,quarterly,last,0.0,3,3,0,2022-04,2022-06,2022-06-30
-2022Q2,TP.BK.ANKARA,TP_BK_ANKARA,Ankara Konut Birim Kiraları,housing_rent_level,ÜÇ AYLIK,quarterly,identity,26.78,1,1,0,2022-Q2,2022-Q2,2022-06-30
-2022Q2,TP.BK.ISTANBUL,TP_BK_ISTANBUL,İstanbul Konut Birim Kiraları,housing_rent_level,ÜÇ AYLIK,quarterly,identity,69.92,1,1,0,2022-Q2,2022-Q2,2022-06-30
-2022Q2,TP.BK.IZMIR,TP_BK_IZMIR,İzmir Konut Birim Kiraları,housing_rent_level,ÜÇ AYLIK,quarterly,identity,39.66,1,1,0,2022-Q2,2022-Q2,2022-06-30
-2022Q2,TP.BK.TR,TP_BK_TR,Türkiye Konut Birim Kiraları,housing_rent_level,ÜÇ AYLIK,quarterly,identity,38.16,1,1,0,2022-Q2,2022-Q2,2022-06-30
-2022Q2,TP.GSYIH60.HY.B1GQ,TP_GSYIH60_HY_B1GQ,"Gayrisafi Yurt İçi Hasıla (Harcama Yöntemiyle, Mevsim Etkisinden Arındırılmış  Zincirlenmiş Hacim Endeksi)",activity_control,ÜÇ AYLIK,quarterly,identity,211.79583954,1,1,0,2022-Q2,2022-Q2,2022-06-30
-2022Q2,TP.GSYIH60.HY.P311,TP_GSYIH60_HY_P311,"Yerleşik Hanehalklarının Tüketimi (Harcama Yöntemiyle, Mevsim Etkisinden Arındırılmış  Zincirlenmiş Hacim Endeksi)",consumption_control,ÜÇ AYLIK,quarterly,identity,221.18844336,1,1,0,2022-Q2,2022-Q2,2022-06-30
-2022Q2,TP.IN.KL2.TOPLAM.TOP.D,TP_IN_KL2_TOPLAM_TOP_D,(Toplam) Binalar (Daire Sayısı),housing_completion,AYLIK,quarterly,sum,150455.0,3,3,0,2022-04,2022-06,2022-06-30
-2022Q2,TP.MK.KUL.YTL,TP_MK_KUL_YTL,Külçe Altın Satış Fiyatı (TL/Gr),alternative_asset,AYLIK,quarterly,last,1018.48,3,3,0,2022-04,2022-06,2022-06-30
-2022Q3,TP.BISPOLFAIZ.TUR,TP_BISPOLFAIZ_TUR,Türkiye (TUR) Merkez Bankası Politika Faiz Oranı,policy_rate_actual,AYLIK,quarterly,last,12.0,3,3,0,2022-07,2022-09,2022-09-30
-2022Q3,TP.BISPOLFAIZ.USA,TP_BISPOLFAIZ_USA,Amerika Birleşik Devletleri (USA) Merkez Bankası Politika Faiz Oranı,global_policy_rate,AYLIK,quarterly,last,3.125,3,3,0,2022-07,2022-09,2022-09-30
-2022Q3,TP.BISPOLFAIZ.XM,TP_BISPOLFAIZ_XM,Euro Bölgesi (XM) Merkez Bankası Politika Faiz Oranı,global_policy_rate,AYLIK,quarterly,last,1.25,3,3,0,2022-07,2022-09,2022-09-30
-2022Q3,TP.BK.ANKARA,TP_BK_ANKARA,Ankara Konut Birim Kiraları,housing_rent_level,ÜÇ AYLIK,quarterly,identity,34.47,1,1,0,2022-Q3,2022-Q3,2022-09-30
-2022Q3,TP.BK.ISTANBUL,TP_BK_ISTANBUL,İstanbul Konut Birim Kiraları,housing_rent_level,ÜÇ AYLIK,quarterly,identity,89.08,1,1,0,2022-Q3,2022-Q3,2022-09-30
-2022Q3,TP.BK.IZMIR,TP_BK_IZMIR,İzmir Konut Birim Kiraları,housing_rent_level,ÜÇ AYLIK,quarterly,identity,51.33,1,1,0,2022-Q3,2022-Q3,2022-09-30
-2022Q3,TP.BK.TR,TP_BK_TR,Türkiye Konut Birim Kiraları,housing_rent_level,ÜÇ AYLIK,quarterly,identity,48.35,1,1,0,2022-Q3,2022-Q3,2022-09-30
-2022Q3,TP.GSYIH60.HY.B1GQ,TP_GSYIH60_HY_B1GQ,"Gayrisafi Yurt İçi Hasıla (Harcama Yöntemiyle, Mevsim Etkisinden Arındırılmış  Zincirlenmiş Hacim Endeksi)",activity_control,ÜÇ AYLIK,quarterly,identity,212.93750692,1,1,0,2022-Q3,2022-Q3,2022-09-30
-2022Q3,TP.GSYIH60.HY.P311,TP_GSYIH60_HY_P311,"Yerleşik Hanehalklarının Tüketimi (Harcama Yöntemiyle, Mevsim Etkisinden Arındırılmış  Zincirlenmiş Hacim Endeksi)",consumption_control,ÜÇ AYLIK,quarterly,identity,233.85526893,1,1,0,2022-Q3,2022-Q3,2022-09-30
-2022Q3,TP.IN.KL2.TOPLAM.TOP.D,TP_IN_KL2_TOPLAM_TOP_D,(Toplam) Binalar (Daire Sayısı),housing_completion,AYLIK,quarterly,sum,141178.0,3,3,0,2022-07,2022-09,2022-09-30
-2022Q3,TP.MK.KUL.YTL,TP_MK_KUL_YTL,Külçe Altın Satış Fiyatı (TL/Gr),alternative_asset,AYLIK,quarterly,last,1010.29,3,3,0,2022-07,2022-09,2022-09-30
-2022Q4,TP.BISPOLFAIZ.TUR,TP_BISPOLFAIZ_TUR,Türkiye (TUR) Merkez Bankası Politika Faiz Oranı,policy_rate_actual,AYLIK,quarterly,last,9.0,3,3,0,2022-10,2022-12,2022-12-31
-2022Q4,TP.BISPOLFAIZ.USA,TP_BISPOLFAIZ_USA,Amerika Birleşik Devletleri (USA) Merkez Bankası Politika Faiz Oranı,global_policy_rate,AYLIK,quarterly,last,4.375,3,3,0,2022-10,2022-12,2022-12-31
-2022Q4,TP.BISPOLFAIZ.XM,TP_BISPOLFAIZ_XM,Euro Bölgesi (XM) Merkez Bankası Politika Faiz Oranı,global_policy_rate,AYLIK,quarterly,last,2.5,3,3,0,2022-10,2022-12,2022-12-31
-2022Q4,TP.BK.ANKARA,TP_BK_ANKARA,Ankara Konut Birim Kiraları,housing_rent_level,ÜÇ AYLIK,quarterly,identity,40.71,1,1,0,2022-Q4,2022-Q4,2022-12-31
-2022Q4,TP.BK.ISTANBUL,TP_BK_ISTANBUL,İstanbul Konut Birim Kiraları,housing_rent_level,ÜÇ AYLIK,quarterly,identity,101.57,1,1,0,2022-Q4,2022-Q4,2022-12-31
-2022Q4,TP.BK.IZMIR,TP_BK_IZMIR,İzmir Konut Birim Kiraları,housing_rent_level,ÜÇ AYLIK,quarterly,identity,62.33,1,1,0,2022-Q4,2022-Q4,2022-12-31
-2022Q4,TP.BK.TR,TP_BK_TR,Türkiye Konut Birim Kiraları,housing_rent_level,ÜÇ AYLIK,quarterly,identity,56.39,1,1,0,2022-Q4,2022-Q4,2022-12-31
-2022Q4,TP.GSYIH60.HY.B1GQ,TP_GSYIH60_HY_B1GQ,"Gayrisafi Yurt İçi Hasıla (Harcama Yöntemiyle, Mevsim Etkisinden Arındırılmış  Zincirlenmiş Hacim Endeksi)",activity_control,ÜÇ AYLIK,quarterly,identity,216.1660281,1,1,0,2022-Q4,2022-Q4,2022-12-31
-2022Q4,TP.GSYIH60.HY.P311,TP_GSYIH60_HY_P311,"Yerleşik Hanehalklarının Tüketimi (Harcama Yöntemiyle, Mevsim Etkisinden Arındırılmış  Zincirlenmiş Hacim Endeksi)",consumption_control,ÜÇ AYLIK,quarterly,identity,244.56419256,1,1,0,2022-Q4,2022-Q4,2022-12-31
-2022Q4,TP.IN.KL2.TOPLAM.TOP.D,TP_IN_KL2_TOPLAM_TOP_D,(Toplam) Binalar (Daire Sayısı),housing_completion,AYLIK,quarterly,sum,201727.0,3,3,0,2022-10,2022-12,2022-12-31
-2022Q4,TP.MK.KUL.YTL,TP_MK_KUL_YTL,Külçe Altın Satış Fiyatı (TL/Gr),alternative_asset,AYLIK,quarterly,last,1091.54,3,3,0,2022-10,2022-12,2022-12-31
-2023Q1,TP.BISPOLFAIZ.TUR,TP_BISPOLFAIZ_TUR,Türkiye (TUR) Merkez Bankası Politika Faiz Oranı,policy_rate_actual,AYLIK,quarterly,last,8.5,3,3,0,2023-01,2023-03,2023-03-31
-2023Q1,TP.BISPOLFAIZ.USA,TP_BISPOLFAIZ_USA,Amerika Birleşik Devletleri (USA) Merkez Bankası Politika Faiz Oranı,global_policy_rate,AYLIK,quarterly,last,4.875,3,3,0,2023-01,2023-03,2023-03-31
-2023Q1,TP.BISPOLFAIZ.XM,TP_BISPOLFAIZ_XM,Euro Bölgesi (XM) Merkez Bankası Politika Faiz Oranı,global_policy_rate,AYLIK,quarterly,last,3.5,3,3,0,2023-01,2023-03,2023-03-31
-2023Q1,TP.BK.ANKARA,TP_BK_ANKARA,Ankara Konut Birim Kiraları,housing_rent_level,ÜÇ AYLIK,quarterly,identity,49.75,1,1,0,2023-Q1,2023-Q1,2023-03-31
-2023Q1,TP.BK.ISTANBUL,TP_BK_ISTANBUL,İstanbul Konut Birim Kiraları,housing_rent_level,ÜÇ AYLIK,quarterly,identity,120.57,1,1,0,2023-Q1,2023-Q1,2023-03-31
-2023Q1,TP.BK.IZMIR,TP_BK_IZMIR,İzmir Konut Birim Kiraları,housing_rent_level,ÜÇ AYLIK,quarterly,identity,74.73,1,1,0,2023-Q1,2023-Q1,2023-03-31
-2023Q1,TP.BK.TR,TP_BK_TR,Türkiye Konut Birim Kiraları,housing_rent_level,ÜÇ AYLIK,quarterly,identity,69.2,1,1,0,2023-Q1,2023-Q1,2023-03-31
-2023Q1,TP.GSYIH60.HY.B1GQ,TP_GSYIH60_HY_B1GQ,"Gayrisafi Yurt İçi Hasıla (Harcama Yöntemiyle, Mevsim Etkisinden Arındırılmış  Zincirlenmiş Hacim Endeksi)",activity_control,ÜÇ AYLIK,quarterly,identity,215.46856222,1,1,0,2023-Q1,2023-Q1,2023-03-31
-2023Q1,TP.GSYIH60.HY.P311,TP_GSYIH60_HY_P311,"Yerleşik Hanehalklarının Tüketimi (Harcama Yöntemiyle, Mevsim Etkisinden Arındırılmış  Zincirlenmiş Hacim Endeksi)",consumption_control,ÜÇ AYLIK,quarterly,identity,249.4200984,1,1,0,2023-Q1,2023-Q1,2023-03-31
-2023Q1,TP.IN.KL2.TOPLAM.TOP.D,TP_IN_KL2_TOPLAM_TOP_D,(Toplam) Binalar (Daire Sayısı),housing_completion,AYLIK,quarterly,sum,126375.0,3,3,0,2023-01,2023-03,2023-03-31
-2023Q1,TP.MK.KUL.YTL,TP_MK_KUL_YTL,Külçe Altın Satış Fiyatı (TL/Gr),alternative_asset,AYLIK,quarterly,last,1201.91,3,3,0,2023-01,2023-03,2023-03-31
-2023Q2,TP.BISPOLFAIZ.TUR,TP_BISPOLFAIZ_TUR,Türkiye (TUR) Merkez Bankası Politika Faiz Oranı,policy_rate_actual,AYLIK,quarterly,last,15.0,3,3,0,2023-04,2023-06,2023-06-30
-2023Q2,TP.BISPOLFAIZ.USA,TP_BISPOLFAIZ_USA,Amerika Birleşik Devletleri (USA) Merkez Bankası Politika Faiz Oranı,global_policy_rate,AYLIK,quarterly,last,5.125,3,3,0,2023-04,2023-06,2023-06-30
-2023Q2,TP.BISPOLFAIZ.XM,TP_BISPOLFAIZ_XM,Euro Bölgesi (XM) Merkez Bankası Politika Faiz Oranı,global_policy_rate,AYLIK,quarterly,last,4.0,3,3,0,2023-04,2023-06,2023-06-30
-2023Q2,TP.BK.ANKARA,TP_BK_ANKARA,Ankara Konut Birim Kiraları,housing_rent_level,ÜÇ AYLIK,quarterly,identity,61.04,1,1,0,2023-Q2,2023-Q2,2023-06-30
-2023Q2,TP.BK.ISTANBUL,TP_BK_ISTANBUL,İstanbul Konut Birim Kiraları,housing_rent_level,ÜÇ AYLIK,quarterly,identity,140.83,1,1,0,2023-Q2,2023-Q2,2023-06-30
-2023Q2,TP.BK.IZMIR,TP_BK_IZMIR,İzmir Konut Birim Kiraları,housing_rent_level,ÜÇ AYLIK,quarterly,identity,88.69,1,1,0,2023-Q2,2023-Q2,2023-06-30
-2023Q2,TP.BK.TR,TP_BK_TR,Türkiye Konut Birim Kiraları,housing_rent_level,ÜÇ AYLIK,quarterly,identity,82.53,1,1,0,2023-Q2,2023-Q2,2023-06-30
-2023Q2,TP.GSYIH60.HY.B1GQ,TP_GSYIH60_HY_B1GQ,"Gayrisafi Yurt İçi Hasıla (Harcama Yöntemiyle, Mevsim Etkisinden Arındırılmış  Zincirlenmiş Hacim Endeksi)",activity_control,ÜÇ AYLIK,quarterly,identity,222.71528077,1,1,0,2023-Q2,2023-Q2,2023-06-30
-2023Q2,TP.GSYIH60.HY.P311,TP_GSYIH60_HY_P311,"Yerleşik Hanehalklarının Tüketimi (Harcama Yöntemiyle, Mevsim Etkisinden Arındırılmış  Zincirlenmiş Hacim Endeksi)",consumption_control,ÜÇ AYLIK,quarterly,identity,249.9378136,1,1,0,2023-Q2,2023-Q2,2023-06-30
-2023Q2,TP.IN.KL2.TOPLAM.TOP.D,TP_IN_KL2_TOPLAM_TOP_D,(Toplam) Binalar (Daire Sayısı),housing_completion,AYLIK,quarterly,sum,109321.0,3,3,0,2023-04,2023-06,2023-06-30
-2023Q2,TP.MK.KUL.YTL,TP_MK_KUL_YTL,Külçe Altın Satış Fiyatı (TL/Gr),alternative_asset,AYLIK,quarterly,last,1495.28,3,3,0,2023-04,2023-06,2023-06-30
-2023Q3,TP.BISPOLFAIZ.TUR,TP_BISPOLFAIZ_TUR,Türkiye (TUR) Merkez Bankası Politika Faiz Oranı,policy_rate_actual,AYLIK,quarterly,last,30.0,3,3,0,2023-07,2023-09,2023-09-30
-2023Q3,TP.BISPOLFAIZ.USA,TP_BISPOLFAIZ_USA,Amerika Birleşik Devletleri (USA) Merkez Bankası Politika Faiz Oranı,global_policy_rate,AYLIK,quarterly,last,5.375,3,3,0,2023-07,2023-09,2023-09-30
-2023Q3,TP.BISPOLFAIZ.XM,TP_BISPOLFAIZ_XM,Euro Bölgesi (XM) Merkez Bankası Politika Faiz Oranı,global_policy_rate,AYLIK,quarterly,last,4.5,3,3,0,2023-07,2023-09,2023-09-30
-2023Q3,TP.BK.ANKARA,TP_BK_ANKARA,Ankara Konut Birim Kiraları,housing_rent_level,ÜÇ AYLIK,quarterly,identity,82.22,1,1,0,2023-Q3,2023-Q3,2023-09-30
-2023Q3,TP.BK.ISTANBUL,TP_BK_ISTANBUL,İstanbul Konut Birim Kiraları,housing_rent_level,ÜÇ AYLIK,quarterly,identity,167.37,1,1,0,2023-Q3,2023-Q3,2023-09-30
-2023Q3,TP.BK.IZMIR,TP_BK_IZMIR,İzmir Konut Birim Kiraları,housing_rent_level,ÜÇ AYLIK,quarterly,identity,110.13,1,1,0,2023-Q3,2023-Q3,2023-09-30
-2023Q3,TP.BK.TR,TP_BK_TR,Türkiye Konut Birim Kiraları,housing_rent_level,ÜÇ AYLIK,quarterly,identity,103.28,1,1,0,2023-Q3,2023-Q3,2023-09-30
-2023Q3,TP.GSYIH60.HY.B1GQ,TP_GSYIH60_HY_B1GQ,"Gayrisafi Yurt İçi Hasıla (Harcama Yöntemiyle, Mevsim Etkisinden Arındırılmış  Zincirlenmiş Hacim Endeksi)",activity_control,ÜÇ AYLIK,quarterly,identity,226.21698727,1,1,0,2023-Q3,2023-Q3,2023-09-30
-2023Q3,TP.GSYIH60.HY.P311,TP_GSYIH60_HY_P311,"Yerleşik Hanehalklarının Tüketimi (Harcama Yöntemiyle, Mevsim Etkisinden Arındırılmış  Zincirlenmiş Hacim Endeksi)",consumption_control,ÜÇ AYLIK,quarterly,identity,255.84456878,1,1,0,2023-Q3,2023-Q3,2023-09-30
-2023Q3,TP.IN.KL2.TOPLAM.TOP.D,TP_IN_KL2_TOPLAM_TOP_D,(Toplam) Binalar (Daire Sayısı),housing_completion,AYLIK,quarterly,sum,116865.0,3,3,0,2023-07,2023-09,2023-09-30
-2023Q3,TP.MK.KUL.YTL,TP_MK_KUL_YTL,Külçe Altın Satış Fiyatı (TL/Gr),alternative_asset,AYLIK,quarterly,last,1710.53,3,3,0,2023-07,2023-09,2023-09-30
-2023Q4,TP.BISPOLFAIZ.TUR,TP_BISPOLFAIZ_TUR,Türkiye (TUR) Merkez Bankası Politika Faiz Oranı,policy_rate_actual,AYLIK,quarterly,last,42.5,3,3,0,2023-10,2023-12,2023-12-31
-2023Q4,TP.BISPOLFAIZ.USA,TP_BISPOLFAIZ_USA,Amerika Birleşik Devletleri (USA) Merkez Bankası Politika Faiz Oranı,global_policy_rate,AYLIK,quarterly,last,5.375,3,3,0,2023-10,2023-12,2023-12-31
-2023Q4,TP.BISPOLFAIZ.XM,TP_BISPOLFAIZ_XM,Euro Bölgesi (XM) Merkez Bankası Politika Faiz Oranı,global_policy_rate,AYLIK,quarterly,last,4.5,3,3,0,2023-10,2023-12,2023-12-31
-2023Q4,TP.BK.ANKARA,TP_BK_ANKARA,Ankara Konut Birim Kiraları,housing_rent_level,ÜÇ AYLIK,quarterly,identity,94.76,1,1,0,2023-Q4,2023-Q4,2023-12-31
-2023Q4,TP.BK.ISTANBUL,TP_BK_ISTANBUL,İstanbul Konut Birim Kiraları,housing_rent_level,ÜÇ AYLIK,quarterly,identity,187.66,1,1,0,2023-Q4,2023-Q4,2023-12-31
-2023Q4,TP.BK.IZMIR,TP_BK_IZMIR,İzmir Konut Birim Kiraları,housing_rent_level,ÜÇ AYLIK,quarterly,identity,127.81,1,1,0,2023-Q4,2023-Q4,2023-12-31
-2023Q4,TP.BK.TR,TP_BK_TR,Türkiye Konut Birim Kiraları,housing_rent_level,ÜÇ AYLIK,quarterly,identity,117.63,1,1,0,2023-Q4,2023-Q4,2023-12-31
-2023Q4,TP.GSYIH60.HY.B1GQ,TP_GSYIH60_HY_B1GQ,"Gayrisafi Yurt İçi Hasıla (Harcama Yöntemiyle, Mevsim Etkisinden Arındırılmış  Zincirlenmiş Hacim Endeksi)",activity_control,ÜÇ AYLIK,quarterly,identity,228.26733386,1,1,0,2023-Q4,2023-Q4,2023-12-31
-2023Q4,TP.GSYIH60.HY.P311,TP_GSYIH60_HY_P311,"Yerleşik Hanehalklarının Tüketimi (Harcama Yöntemiyle, Mevsim Etkisinden Arındırılmış  Zincirlenmiş Hacim Endeksi)",consumption_control,ÜÇ AYLIK,quarterly,identity,264.37037632,1,1,0,2023-Q4,2023-Q4,2023-12-31
-2023Q4,TP.IN.KL2.TOPLAM.TOP.D,TP_IN_KL2_TOPLAM_TOP_D,(Toplam) Binalar (Daire Sayısı),housing_completion,AYLIK,quarterly,sum,186575.0,3,3,0,2023-10,2023-12,2023-12-31
-2023Q4,TP.MK.KUL.YTL,TP_MK_KUL_YTL,Külçe Altın Satış Fiyatı (TL/Gr),alternative_asset,AYLIK,quarterly,last,1984.48,3,3,0,2023-10,2023-12,2023-12-31
-2024Q1,TP.BISPOLFAIZ.TUR,TP_BISPOLFAIZ_TUR,Türkiye (TUR) Merkez Bankası Politika Faiz Oranı,policy_rate_actual,AYLIK,quarterly,last,50.0,3,3,0,2024-01,2024-03,2024-03-31
-2024Q1,TP.BISPOLFAIZ.USA,TP_BISPOLFAIZ_USA,Amerika Birleşik Devletleri (USA) Merkez Bankası Politika Faiz Oranı,global_policy_rate,AYLIK,quarterly,last,5.375,3,3,0,2024-01,2024-03,2024-03-31
-2024Q1,TP.BISPOLFAIZ.XM,TP_BISPOLFAIZ_XM,Euro Bölgesi (XM) Merkez Bankası Politika Faiz Oranı,global_policy_rate,AYLIK,quarterly,last,4.5,3,3,0,2024-01,2024-03,2024-03-31
-2024Q1,TP.BK.ANKARA,TP_BK_ANKARA,Ankara Konut Birim Kiraları,housing_rent_level,ÜÇ AYLIK,quarterly,identity,103.2,1,1,0,2024-Q1,2024-Q1,2024-03-31
-2024Q1,TP.BK.ISTANBUL,TP_BK_ISTANBUL,İstanbul Konut Birim Kiraları,housing_rent_level,ÜÇ AYLIK,quarterly,identity,193.09,1,1,0,2024-Q1,2024-Q1,2024-03-31
-2024Q1,TP.BK.IZMIR,TP_BK_IZMIR,İzmir Konut Birim Kiraları,housing_rent_level,ÜÇ AYLIK,quarterly,identity,133.63,1,1,0,2024-Q1,2024-Q1,2024-03-31
-2024Q1,TP.BK.TR,TP_BK_TR,Türkiye Konut Birim Kiraları,housing_rent_level,ÜÇ AYLIK,quarterly,identity,122.28,1,1,0,2024-Q1,2024-Q1,2024-03-31
-2024Q1,TP.GSYIH60.HY.B1GQ,TP_GSYIH60_HY_B1GQ,"Gayrisafi Yurt İçi Hasıla (Harcama Yöntemiyle, Mevsim Etkisinden Arındırılmış  Zincirlenmiş Hacim Endeksi)",activity_control,ÜÇ AYLIK,quarterly,identity,230.60445261,1,1,0,2024-Q1,2024-Q1,2024-03-31
-2024Q1,TP.GSYIH60.HY.P311,TP_GSYIH60_HY_P311,"Yerleşik Hanehalklarının Tüketimi (Harcama Yöntemiyle, Mevsim Etkisinden Arındırılmış  Zincirlenmiş Hacim Endeksi)",consumption_control,ÜÇ AYLIK,quarterly,identity,268.29523419,1,1,0,2024-Q1,2024-Q1,2024-03-31
-2024Q1,TP.IN.KL2.TOPLAM.TOP.D,TP_IN_KL2_TOPLAM_TOP_D,(Toplam) Binalar (Daire Sayısı),housing_completion,AYLIK,quarterly,sum,188338.0,3,3,0,2024-01,2024-03,2024-03-31
-2024Q1,TP.MK.KUL.YTL,TP_MK_KUL_YTL,Külçe Altın Satış Fiyatı (TL/Gr),alternative_asset,AYLIK,quarterly,last,2394.82,3,3,0,2024-01,2024-03,2024-03-31
-2024Q2,TP.BISPOLFAIZ.TUR,TP_BISPOLFAIZ_TUR,Türkiye (TUR) Merkez Bankası Politika Faiz Oranı,policy_rate_actual,AYLIK,quarterly,last,50.0,3,3,0,2024-04,2024-06,2024-06-30
-2024Q2,TP.BISPOLFAIZ.USA,TP_BISPOLFAIZ_USA,Amerika Birleşik Devletleri (USA) Merkez Bankası Politika Faiz Oranı,global_policy_rate,AYLIK,quarterly,last,5.375,3,3,0,2024-04,2024-06,2024-06-30
-2024Q2,TP.BISPOLFAIZ.XM,TP_BISPOLFAIZ_XM,Euro Bölgesi (XM) Merkez Bankası Politika Faiz Oranı,global_policy_rate,AYLIK,quarterly,last,4.25,3,3,0,2024-04,2024-06,2024-06-30
-2024Q2,TP.BK.ANKARA,TP_BK_ANKARA,Ankara Konut Birim Kiraları,housing_rent_level,ÜÇ AYLIK,quarterly,identity,115.37,1,1,0,2024-Q2,2024-Q2,2024-06-30
-2024Q2,TP.BK.ISTANBUL,TP_BK_ISTANBUL,İstanbul Konut Birim Kiraları,housing_rent_level,ÜÇ AYLIK,quarterly,identity,205.88,1,1,0,2024-Q2,2024-Q2,2024-06-30
-2024Q2,TP.BK.IZMIR,TP_BK_IZMIR,İzmir Konut Birim Kiraları,housing_rent_level,ÜÇ AYLIK,quarterly,identity,151.44,1,1,0,2024-Q2,2024-Q2,2024-06-30
-2024Q2,TP.BK.TR,TP_BK_TR,Türkiye Konut Birim Kiraları,housing_rent_level,ÜÇ AYLIK,quarterly,identity,134.56,1,1,0,2024-Q2,2024-Q2,2024-06-30
-2024Q2,TP.GSYIH60.HY.B1GQ,TP_GSYIH60_HY_B1GQ,"Gayrisafi Yurt İçi Hasıla (Harcama Yöntemiyle, Mevsim Etkisinden Arındırılmış  Zincirlenmiş Hacim Endeksi)",activity_control,ÜÇ AYLIK,quarterly,identity,227.43829171,1,1,0,2024-Q2,2024-Q2,2024-06-30
-2024Q2,TP.GSYIH60.HY.P311,TP_GSYIH60_HY_P311,"Yerleşik Hanehalklarının Tüketimi (Harcama Yöntemiyle, Mevsim Etkisinden Arındırılmış  Zincirlenmiş Hacim Endeksi)",consumption_control,ÜÇ AYLIK,quarterly,identity,257.32664448,1,1,0,2024-Q2,2024-Q2,2024-06-30
-2024Q2,TP.IN.KL2.TOPLAM.TOP.D,TP_IN_KL2_TOPLAM_TOP_D,(Toplam) Binalar (Daire Sayısı),housing_completion,AYLIK,quarterly,sum,89557.0,3,3,0,2024-04,2024-06,2024-06-30
-2024Q2,TP.MK.KUL.YTL,TP_MK_KUL_YTL,Külçe Altın Satış Fiyatı (TL/Gr),alternative_asset,AYLIK,quarterly,last,2477.29,3,3,0,2024-04,2024-06,2024-06-30
-2024Q3,TP.BISPOLFAIZ.TUR,TP_BISPOLFAIZ_TUR,Türkiye (TUR) Merkez Bankası Politika Faiz Oranı,policy_rate_actual,AYLIK,quarterly,last,50.0,3,3,0,2024-07,2024-09,2024-09-30
-2024Q3,TP.BISPOLFAIZ.USA,TP_BISPOLFAIZ_USA,Amerika Birleşik Devletleri (USA) Merkez Bankası Politika Faiz Oranı,global_policy_rate,AYLIK,quarterly,last,4.875,3,3,0,2024-07,2024-09,2024-09-30
-2024Q3,TP.BISPOLFAIZ.XM,TP_BISPOLFAIZ_XM,Euro Bölgesi (XM) Merkez Bankası Politika Faiz Oranı,global_policy_rate,AYLIK,quarterly,last,3.5,3,3,0,2024-07,2024-09,2024-09-30
-2024Q3,TP.BK.ANKARA,TP_BK_ANKARA,Ankara Konut Birim Kiraları,housing_rent_level,ÜÇ AYLIK,quarterly,identity,130.53,1,1,0,2024-Q3,2024-Q3,2024-09-30
-2024Q3,TP.BK.ISTANBUL,TP_BK_ISTANBUL,İstanbul Konut Birim Kiraları,housing_rent_level,ÜÇ AYLIK,quarterly,identity,232.73,1,1,0,2024-Q3,2024-Q3,2024-09-30
-2024Q3,TP.BK.IZMIR,TP_BK_IZMIR,İzmir Konut Birim Kiraları,housing_rent_level,ÜÇ AYLIK,quarterly,identity,167.19,1,1,0,2024-Q3,2024-Q3,2024-09-30
-2024Q3,TP.BK.TR,TP_BK_TR,Türkiye Konut Birim Kiraları,housing_rent_level,ÜÇ AYLIK,quarterly,identity,150.75,1,1,0,2024-Q3,2024-Q3,2024-09-30
-2024Q3,TP.GSYIH60.HY.B1GQ,TP_GSYIH60_HY_B1GQ,"Gayrisafi Yurt İçi Hasıla (Harcama Yöntemiyle, Mevsim Etkisinden Arındırılmış  Zincirlenmiş Hacim Endeksi)",activity_control,ÜÇ AYLIK,quarterly,identity,230.91977436,1,1,0,2024-Q3,2024-Q3,2024-09-30
-2024Q3,TP.GSYIH60.HY.P311,TP_GSYIH60_HY_P311,"Yerleşik Hanehalklarının Tüketimi (Harcama Yöntemiyle, Mevsim Etkisinden Arındırılmış  Zincirlenmiş Hacim Endeksi)",consumption_control,ÜÇ AYLIK,quarterly,identity,266.67307862,1,1,0,2024-Q3,2024-Q3,2024-09-30
-2024Q3,TP.IN.KL2.TOPLAM.TOP.D,TP_IN_KL2_TOPLAM_TOP_D,(Toplam) Binalar (Daire Sayısı),housing_completion,AYLIK,quarterly,sum,127086.0,3,3,0,2024-07,2024-09,2024-09-30
-2024Q3,TP.MK.KUL.YTL,TP_MK_KUL_YTL,Külçe Altın Satış Fiyatı (TL/Gr),alternative_asset,AYLIK,quarterly,last,2907.12,3,3,0,2024-07,2024-09,2024-09-30
-2024Q4,TP.BISPOLFAIZ.TUR,TP_BISPOLFAIZ_TUR,Türkiye (TUR) Merkez Bankası Politika Faiz Oranı,policy_rate_actual,AYLIK,quarterly,last,47.5,3,3,0,2024-10,2024-12,2024-12-31
-2024Q4,TP.BISPOLFAIZ.USA,TP_BISPOLFAIZ_USA,Amerika Birleşik Devletleri (USA) Merkez Bankası Politika Faiz Oranı,global_policy_rate,AYLIK,quarterly,last,4.375,3,3,0,2024-10,2024-12,2024-12-31
-2024Q4,TP.BISPOLFAIZ.XM,TP_BISPOLFAIZ_XM,Euro Bölgesi (XM) Merkez Bankası Politika Faiz Oranı,global_policy_rate,AYLIK,quarterly,last,3.0,3,3,0,2024-10,2024-12,2024-12-31
-2024Q4,TP.BK.ANKARA,TP_BK_ANKARA,Ankara Konut Birim Kiraları,housing_rent_level,ÜÇ AYLIK,quarterly,identity,147.09,1,1,0,2024-Q4,2024-Q4,2024-12-31
-2024Q4,TP.BK.ISTANBUL,TP_BK_ISTANBUL,İstanbul Konut Birim Kiraları,housing_rent_level,ÜÇ AYLIK,quarterly,identity,260.58,1,1,0,2024-Q4,2024-Q4,2024-12-31
-2024Q4,TP.BK.IZMIR,TP_BK_IZMIR,İzmir Konut Birim Kiraları,housing_rent_level,ÜÇ AYLIK,quarterly,identity,190.55,1,1,0,2024-Q4,2024-Q4,2024-12-31
-2024Q4,TP.BK.TR,TP_BK_TR,Türkiye Konut Birim Kiraları,housing_rent_level,ÜÇ AYLIK,quarterly,identity,168.76,1,1,0,2024-Q4,2024-Q4,2024-12-31
-2024Q4,TP.GSYIH60.HY.B1GQ,TP_GSYIH60_HY_B1GQ,"Gayrisafi Yurt İçi Hasıla (Harcama Yöntemiyle, Mevsim Etkisinden Arındırılmış  Zincirlenmiş Hacim Endeksi)",activity_control,ÜÇ AYLIK,quarterly,identity,234.69667096,1,1,0,2024-Q4,2024-Q4,2024-12-31
-2024Q4,TP.GSYIH60.HY.P311,TP_GSYIH60_HY_P311,"Yerleşik Hanehalklarının Tüketimi (Harcama Yöntemiyle, Mevsim Etkisinden Arındırılmış  Zincirlenmiş Hacim Endeksi)",consumption_control,ÜÇ AYLIK,quarterly,identity,274.22647537,1,1,0,2024-Q4,2024-Q4,2024-12-31
-2024Q4,TP.IN.KL2.TOPLAM.TOP.D,TP_IN_KL2_TOPLAM_TOP_D,(Toplam) Binalar (Daire Sayısı),housing_completion,AYLIK,quarterly,sum,231177.0,3,3,0,2024-10,2024-12,2024-12-31
-2024Q4,TP.MK.KUL.YTL,TP_MK_KUL_YTL,Külçe Altın Satış Fiyatı (TL/Gr),alternative_asset,AYLIK,quarterly,last,3041.08,3,3,0,2024-10,2024-12,2024-12-31
-2025Q1,TP.BISPOLFAIZ.TUR,TP_BISPOLFAIZ_TUR,Türkiye (TUR) Merkez Bankası Politika Faiz Oranı,policy_rate_actual,AYLIK,quarterly,last,42.5,3,3,0,2025-01,2025-03,2025-03-31
-2025Q1,TP.BISPOLFAIZ.USA,TP_BISPOLFAIZ_USA,Amerika Birleşik Devletleri (USA) Merkez Bankası Politika Faiz Oranı,global_policy_rate,AYLIK,quarterly,last,4.375,3,3,0,2025-01,2025-03,2025-03-31
-2025Q1,TP.BISPOLFAIZ.XM,TP_BISPOLFAIZ_XM,Euro Bölgesi (XM) Merkez Bankası Politika Faiz Oranı,global_policy_rate,AYLIK,quarterly,last,2.5,3,3,0,2025-01,2025-03,2025-03-31
-2025Q1,TP.BK.ANKARA,TP_BK_ANKARA,Ankara Konut Birim Kiraları,housing_rent_level,ÜÇ AYLIK,quarterly,identity,164.24,1,1,0,2025-Q1,2025-Q1,2025-03-31
-2025Q1,TP.BK.ISTANBUL,TP_BK_ISTANBUL,İstanbul Konut Birim Kiraları,housing_rent_level,ÜÇ AYLIK,quarterly,identity,293.16,1,1,0,2025-Q1,2025-Q1,2025-03-31
-2025Q1,TP.BK.IZMIR,TP_BK_IZMIR,İzmir Konut Birim Kiraları,housing_rent_level,ÜÇ AYLIK,quarterly,identity,202.69,1,1,0,2025-Q1,2025-Q1,2025-03-31
-2025Q1,TP.BK.TR,TP_BK_TR,Türkiye Konut Birim Kiraları,housing_rent_level,ÜÇ AYLIK,quarterly,identity,179.93,1,1,0,2025-Q1,2025-Q1,2025-03-31
-2025Q1,TP.GSYIH60.HY.B1GQ,TP_GSYIH60_HY_B1GQ,"Gayrisafi Yurt İçi Hasıla (Harcama Yöntemiyle, Mevsim Etkisinden Arındırılmış  Zincirlenmiş Hacim Endeksi)",activity_control,ÜÇ AYLIK,quarterly,identity,235.96467536,1,1,0,2025-Q1,2025-Q1,2025-03-31
-2025Q1,TP.GSYIH60.HY.P311,TP_GSYIH60_HY_P311,"Yerleşik Hanehalklarının Tüketimi (Harcama Yöntemiyle, Mevsim Etkisinden Arındırılmış  Zincirlenmiş Hacim Endeksi)",consumption_control,ÜÇ AYLIK,quarterly,identity,272.18456013,1,1,0,2025-Q1,2025-Q1,2025-03-31
-2025Q1,TP.IN.KL2.TOPLAM.TOP.D,TP_IN_KL2_TOPLAM_TOP_D,(Toplam) Binalar (Daire Sayısı),housing_completion,AYLIK,quarterly,sum,148211.0,3,3,0,2025-01,2025-03,2025-03-31
-2025Q1,TP.MK.KUL.YTL,TP_MK_KUL_YTL,Külçe Altın Satış Fiyatı (TL/Gr),alternative_asset,AYLIK,quarterly,last,3648.33,3,3,0,2025-01,2025-03,2025-03-31
-2025Q2,TP.BISPOLFAIZ.TUR,TP_BISPOLFAIZ_TUR,Türkiye (TUR) Merkez Bankası Politika Faiz Oranı,policy_rate_actual,AYLIK,quarterly,last,46.0,3,3,0,2025-04,2025-06,2025-06-30
-2025Q2,TP.BISPOLFAIZ.USA,TP_BISPOLFAIZ_USA,Amerika Birleşik Devletleri (USA) Merkez Bankası Politika Faiz Oranı,global_policy_rate,AYLIK,quarterly,last,4.375,3,3,0,2025-04,2025-06,2025-06-30
-2025Q2,TP.BISPOLFAIZ.XM,TP_BISPOLFAIZ_XM,Euro Bölgesi (XM) Merkez Bankası Politika Faiz Oranı,global_policy_rate,AYLIK,quarterly,last,2.0,3,3,0,2025-04,2025-06,2025-06-30
-2025Q2,TP.BK.ANKARA,TP_BK_ANKARA,Ankara Konut Birim Kiraları,housing_rent_level,ÜÇ AYLIK,quarterly,identity,178.71,1,1,0,2025-Q2,2025-Q2,2025-06-30
-2025Q2,TP.BK.ISTANBUL,TP_BK_ISTANBUL,İstanbul Konut Birim Kiraları,housing_rent_level,ÜÇ AYLIK,quarterly,identity,305.19,1,1,0,2025-Q2,2025-Q2,2025-06-30
-2025Q2,TP.BK.IZMIR,TP_BK_IZMIR,İzmir Konut Birim Kiraları,housing_rent_level,ÜÇ AYLIK,quarterly,identity,217.97,1,1,0,2025-Q2,2025-Q2,2025-06-30
-2025Q2,TP.BK.TR,TP_BK_TR,Türkiye Konut Birim Kiraları,housing_rent_level,ÜÇ AYLIK,quarterly,identity,191.19,1,1,0,2025-Q2,2025-Q2,2025-06-30
-2025Q2,TP.GSYIH60.HY.B1GQ,TP_GSYIH60_HY_B1GQ,"Gayrisafi Yurt İçi Hasıla (Harcama Yöntemiyle, Mevsim Etkisinden Arındırılmış  Zincirlenmiş Hacim Endeksi)",activity_control,ÜÇ AYLIK,quarterly,identity,237.66426013,1,1,0,2025-Q2,2025-Q2,2025-06-30
-2025Q2,TP.GSYIH60.HY.P311,TP_GSYIH60_HY_P311,"Yerleşik Hanehalklarının Tüketimi (Harcama Yöntemiyle, Mevsim Etkisinden Arındırılmış  Zincirlenmiş Hacim Endeksi)",consumption_control,ÜÇ AYLIK,quarterly,identity,270.27144969,1,1,0,2025-Q2,2025-Q2,2025-06-30
-2025Q2,TP.IN.KL2.TOPLAM.TOP.D,TP_IN_KL2_TOPLAM_TOP_D,(Toplam) Binalar (Daire Sayısı),housing_completion,AYLIK,quarterly,sum,130263.0,3,3,0,2025-04,2025-06,2025-06-30
-2025Q2,TP.MK.KUL.YTL,TP_MK_KUL_YTL,Külçe Altın Satış Fiyatı (TL/Gr),alternative_asset,AYLIK,quarterly,last,4314.26,3,3,0,2025-04,2025-06,2025-06-30
-2025Q3,TP.BISPOLFAIZ.TUR,TP_BISPOLFAIZ_TUR,Türkiye (TUR) Merkez Bankası Politika Faiz Oranı,policy_rate_actual,AYLIK,quarterly,last,40.5,3,3,0,2025-07,2025-09,2025-09-30
-2025Q3,TP.BISPOLFAIZ.USA,TP_BISPOLFAIZ_USA,Amerika Birleşik Devletleri (USA) Merkez Bankası Politika Faiz Oranı,global_policy_rate,AYLIK,quarterly,last,4.125,3,3,0,2025-07,2025-09,2025-09-30
-2025Q3,TP.BISPOLFAIZ.XM,TP_BISPOLFAIZ_XM,Euro Bölgesi (XM) Merkez Bankası Politika Faiz Oranı,global_policy_rate,AYLIK,quarterly,last,2.0,3,3,0,2025-07,2025-09,2025-09-30
-2025Q3,TP.BK.ANKARA,TP_BK_ANKARA,Ankara Konut Birim Kiraları,housing_rent_level,ÜÇ AYLIK,quarterly,identity,197.65,1,1,0,2025-Q3,2025-Q3,2025-09-30
-2025Q3,TP.BK.ISTANBUL,TP_BK_ISTANBUL,İstanbul Konut Birim Kiraları,housing_rent_level,ÜÇ AYLIK,quarterly,identity,334.58,1,1,0,2025-Q3,2025-Q3,2025-09-30
-2025Q3,TP.BK.IZMIR,TP_BK_IZMIR,İzmir Konut Birim Kiraları,housing_rent_level,ÜÇ AYLIK,quarterly,identity,239.34,1,1,0,2025-Q3,2025-Q3,2025-09-30
-2025Q3,TP.BK.TR,TP_BK_TR,Türkiye Konut Birim Kiraları,housing_rent_level,ÜÇ AYLIK,quarterly,identity,208.56,1,1,0,2025-Q3,2025-Q3,2025-09-30
-2025Q3,TP.GSYIH60.HY.B1GQ,TP_GSYIH60_HY_B1GQ,"Gayrisafi Yurt İçi Hasıla (Harcama Yöntemiyle, Mevsim Etkisinden Arındırılmış  Zincirlenmiş Hacim Endeksi)",activity_control,ÜÇ AYLIK,quarterly,identity,242.18230627,1,1,0,2025-Q3,2025-Q3,2025-09-30
-2025Q3,TP.GSYIH60.HY.P311,TP_GSYIH60_HY_P311,"Yerleşik Hanehalklarının Tüketimi (Harcama Yöntemiyle, Mevsim Etkisinden Arındırılmış  Zincirlenmiş Hacim Endeksi)",consumption_control,ÜÇ AYLIK,quarterly,identity,278.83794003,1,1,0,2025-Q3,2025-Q3,2025-09-30
-2025Q3,TP.IN.KL2.TOPLAM.TOP.D,TP_IN_KL2_TOPLAM_TOP_D,(Toplam) Binalar (Daire Sayısı),housing_completion,AYLIK,quarterly,sum,156440.0,3,3,0,2025-07,2025-09,2025-09-30
-2025Q3,TP.MK.KUL.YTL,TP_MK_KUL_YTL,Külçe Altın Satış Fiyatı (TL/Gr),alternative_asset,AYLIK,quarterly,last,4978.61,3,3,0,2025-07,2025-09,2025-09-30
-2025Q4,TP.BISPOLFAIZ.TUR,TP_BISPOLFAIZ_TUR,Türkiye (TUR) Merkez Bankası Politika Faiz Oranı,policy_rate_actual,AYLIK,quarterly,last,38.0,3,3,0,2025-10,2025-12,2025-12-31
-2025Q4,TP.BISPOLFAIZ.USA,TP_BISPOLFAIZ_USA,Amerika Birleşik Devletleri (USA) Merkez Bankası Politika Faiz Oranı,global_policy_rate,AYLIK,quarterly,last,3.625,3,3,0,2025-10,2025-12,2025-12-31
-2025Q4,TP.BISPOLFAIZ.XM,TP_BISPOLFAIZ_XM,Euro Bölgesi (XM) Merkez Bankası Politika Faiz Oranı,global_policy_rate,AYLIK,quarterly,last,2.0,3,3,0,2025-10,2025-12,2025-12-31
-2025Q4,TP.BK.ANKARA,TP_BK_ANKARA,Ankara Konut Birim Kiraları,housing_rent_level,ÜÇ AYLIK,quarterly,identity,210.07,1,1,0,2025-Q4,2025-Q4,2025-12-31
-2025Q4,TP.BK.ISTANBUL,TP_BK_ISTANBUL,İstanbul Konut Birim Kiraları,housing_rent_level,ÜÇ AYLIK,quarterly,identity,367.86,1,1,0,2025-Q4,2025-Q4,2025-12-31
-2025Q4,TP.BK.IZMIR,TP_BK_IZMIR,İzmir Konut Birim Kiraları,housing_rent_level,ÜÇ AYLIK,quarterly,identity,252.18,1,1,0,2025-Q4,2025-Q4,2025-12-31
-2025Q4,TP.BK.TR,TP_BK_TR,Türkiye Konut Birim Kiraları,housing_rent_level,ÜÇ AYLIK,quarterly,identity,224.75,1,1,0,2025-Q4,2025-Q4,2025-12-31
-2025Q4,TP.GSYIH60.HY.B1GQ,TP_GSYIH60_HY_B1GQ,"Gayrisafi Yurt İçi Hasıla (Harcama Yöntemiyle, Mevsim Etkisinden Arındırılmış  Zincirlenmiş Hacim Endeksi)",activity_control,ÜÇ AYLIK,quarterly,identity,242.22474866,1,1,0,2025-Q4,2025-Q4,2025-12-31
-2025Q4,TP.GSYIH60.HY.P311,TP_GSYIH60_HY_P311,"Yerleşik Hanehalklarının Tüketimi (Harcama Yöntemiyle, Mevsim Etkisinden Arındırılmış  Zincirlenmiş Hacim Endeksi)",consumption_control,ÜÇ AYLIK,quarterly,identity,289.57734846,1,1,0,2025-Q4,2025-Q4,2025-12-31
-2025Q4,TP.IN.KL2.TOPLAM.TOP.D,TP_IN_KL2_TOPLAM_TOP_D,(Toplam) Binalar (Daire Sayısı),housing_completion,AYLIK,quarterly,sum,257824.0,3,3,0,2025-10,2025-12,2025-12-31
-2025Q4,TP.MK.KUL.YTL,TP_MK_KUL_YTL,Külçe Altın Satış Fiyatı (TL/Gr),alternative_asset,AYLIK,quarterly,last,6030.79,3,3,0,2025-10,2025-12,2025-12-31
-2026Q1,TP.BISPOLFAIZ.TUR,TP_BISPOLFAIZ_TUR,Türkiye (TUR) Merkez Bankası Politika Faiz Oranı,policy_rate_actual,AYLIK,quarterly,last,37.0,3,3,0,2026-01,2026-03,2026-03-31
-2026Q1,TP.BISPOLFAIZ.USA,TP_BISPOLFAIZ_USA,Amerika Birleşik Devletleri (USA) Merkez Bankası Politika Faiz Oranı,global_policy_rate,AYLIK,quarterly,last,3.625,3,3,0,2026-01,2026-03,2026-03-31
-2026Q1,TP.BISPOLFAIZ.XM,TP_BISPOLFAIZ_XM,Euro Bölgesi (XM) Merkez Bankası Politika Faiz Oranı,global_policy_rate,AYLIK,quarterly,last,2.0,3,3,0,2026-01,2026-03,2026-03-31
-2026Q1,TP.BK.ANKARA,TP_BK_ANKARA,Ankara Konut Birim Kiraları,housing_rent_level,ÜÇ AYLIK,quarterly,identity,224.01,1,1,0,2026-Q1,2026-Q1,2026-03-31
-2026Q1,TP.BK.ISTANBUL,TP_BK_ISTANBUL,İstanbul Konut Birim Kiraları,housing_rent_level,ÜÇ AYLIK,quarterly,identity,404.53,1,1,0,2026-Q1,2026-Q1,2026-03-31
-2026Q1,TP.BK.IZMIR,TP_BK_IZMIR,İzmir Konut Birim Kiraları,housing_rent_level,ÜÇ AYLIK,quarterly,identity,265.79,1,1,0,2026-Q1,2026-Q1,2026-03-31
-2026Q1,TP.BK.TR,TP_BK_TR,Türkiye Konut Birim Kiraları,housing_rent_level,ÜÇ AYLIK,quarterly,identity,241.79,1,1,0,2026-Q1,2026-Q1,2026-03-31
-2026Q1,TP.GSYIH60.HY.B1GQ,TP_GSYIH60_HY_B1GQ,"Gayrisafi Yurt İçi Hasıla (Harcama Yöntemiyle, Mevsim Etkisinden Arındırılmış  Zincirlenmiş Hacim Endeksi)",activity_control,ÜÇ AYLIK,quarterly,identity,241.86362068,1,1,0,2026-Q1,2026-Q1,2026-03-31
-2026Q1,TP.GSYIH60.HY.P311,TP_GSYIH60_HY_P311,"Yerleşik Hanehalklarının Tüketimi (Harcama Yöntemiyle, Mevsim Etkisinden Arındırılmış  Zincirlenmiş Hacim Endeksi)",consumption_control,ÜÇ AYLIK,quarterly,identity,285.89274515,1,1,0,2026-Q1,2026-Q1,2026-03-31
-2026Q1,TP.IN.KL2.TOPLAM.TOP.D,TP_IN_KL2_TOPLAM_TOP_D,(Toplam) Binalar (Daire Sayısı),housing_completion,AYLIK,quarterly,sum,163290.0,3,3,0,2026-01,2026-03,2026-03-31
-2026Q1,TP.MK.KUL.YTL,TP_MK_KUL_YTL,Külçe Altın Satış Fiyatı (TL/Gr),alternative_asset,AYLIK,quarterly,last,7259.39,3,3,0,2026-01,2026-03,2026-03-31
-2026Q2,TP.BISPOLFAIZ.TUR,TP_BISPOLFAIZ_TUR,Türkiye (TUR) Merkez Bankası Politika Faiz Oranı,policy_rate_actual,AYLIK,quarterly,last,37.0,3,3,0,2026-04,2026-06,2026-06-30
-2026Q2,TP.BISPOLFAIZ.USA,TP_BISPOLFAIZ_USA,Amerika Birleşik Devletleri (USA) Merkez Bankası Politika Faiz Oranı,global_policy_rate,AYLIK,quarterly,last,3.625,3,3,0,2026-04,2026-06,2026-06-30
-2026Q2,TP.BISPOLFAIZ.XM,TP_BISPOLFAIZ_XM,Euro Bölgesi (XM) Merkez Bankası Politika Faiz Oranı,global_policy_rate,AYLIK,quarterly,last,2.25,3,3,0,2026-04,2026-06,2026-06-30
-2026Q2,TP.BK.ANKARA,TP_BK_ANKARA,Ankara Konut Birim Kiraları,housing_rent_level,ÜÇ AYLIK,quarterly,identity,239.24,1,1,0,2026-Q2,2026-Q2,2026-06-30
-2026Q2,TP.BK.ISTANBUL,TP_BK_ISTANBUL,İstanbul Konut Birim Kiraları,housing_rent_level,ÜÇ AYLIK,quarterly,identity,442.57,1,1,0,2026-Q2,2026-Q2,2026-06-30
-2026Q2,TP.BK.IZMIR,TP_BK_IZMIR,İzmir Konut Birim Kiraları,housing_rent_level,ÜÇ AYLIK,quarterly,identity,285.62,1,1,0,2026-Q2,2026-Q2,2026-06-30
-2026Q2,TP.BK.TR,TP_BK_TR,Türkiye Konut Birim Kiraları,housing_rent_level,ÜÇ AYLIK,quarterly,identity,258.45,1,1,0,2026-Q2,2026-Q2,2026-06-30
-2026Q2,TP.GSYIH60.HY.B1GQ,TP_GSYIH60_HY_B1GQ,"Gayrisafi Yurt İçi Hasıla (Harcama Yöntemiyle, Mevsim Etkisinden Arındırılmış  Zincirlenmiş Hacim Endeksi)",activity_control,ÜÇ AYLIK,quarterly,identity,243.87109226,1,1,0,2026-Q2,2026-Q2,2026-06-30
-2026Q2,TP.GSYIH60.HY.P311,TP_GSYIH60_HY_P311,"Yerleşik Hanehalklarının Tüketimi (Harcama Yöntemiyle, Mevsim Etkisinden Arındırılmış  Zincirlenmiş Hacim Endeksi)",consumption_control,ÜÇ AYLIK,quarterly,identity,280.00240853,1,1,0,2026-Q2,2026-Q2,2026-06-30
-2026Q2,TP.IN.KL2.TOPLAM.TOP.D,TP_IN_KL2_TOPLAM_TOP_D,(Toplam) Binalar (Daire Sayısı),housing_completion,AYLIK,quarterly,sum,144150.0,3,3,0,2026-04,2026-06,2026-06-30
-2026Q2,TP.MK.KUL.YTL,TP_MK_KUL_YTL,Külçe Altın Satış Fiyatı (TL/Gr),alternative_asset,AYLIK,quarterly,last,6741.91,2,2,0,2026-04,2026-05,2026-05-31
+﻿target_period,series_code,analysis_column,series_name_tr,role,native_frequency,target_frequency,aggregation,value,source_observation_count,non_null_observation_count,missing_observation_count,first_source_period,last_source_period,source_period_end_max,is_derived,source_series_code,derivation_operation,derivation_factor
+2020Q1,TP.BISPOLFAIZ.TUR,TP_BISPOLFAIZ_TUR,Türkiye (TUR) Merkez Bankası Politika Faiz Oranı,policy_rate_actual,AYLIK,quarterly,last,9.75,3,3,0,2020-01,2020-03,2020-03-31,False,,,
+2020Q1,TP.BISPOLFAIZ.USA,TP_BISPOLFAIZ_USA,Amerika Birleşik Devletleri (USA) Merkez Bankası Politika Faiz Oranı,global_policy_rate,AYLIK,quarterly,last,0.125,3,3,0,2020-01,2020-03,2020-03-31,False,,,
+2020Q1,TP.BISPOLFAIZ.XM,TP_BISPOLFAIZ_XM,Euro Bölgesi (XM) Merkez Bankası Politika Faiz Oranı,global_policy_rate,AYLIK,quarterly,last,0.0,3,3,0,2020-01,2020-03,2020-03-31,False,,,
+2020Q1,TP.BK.ANKARA,TP_BK_ANKARA,Ankara Konut Birim Kiraları,housing_rent_level,ÜÇ AYLIK,quarterly,identity,9.42,1,1,0,2020-Q1,2020-Q1,2020-03-31,False,,,
+2020Q1,TP.BK.ISTANBUL,TP_BK_ISTANBUL,İstanbul Konut Birim Kiraları,housing_rent_level,ÜÇ AYLIK,quarterly,identity,21.66,1,1,0,2020-Q1,2020-Q1,2020-03-31,False,,,
+2020Q1,TP.BK.IZMIR,TP_BK_IZMIR,İzmir Konut Birim Kiraları,housing_rent_level,ÜÇ AYLIK,quarterly,identity,14.52,1,1,0,2020-Q1,2020-Q1,2020-03-31,False,,,
+2020Q1,TP.BK.TR,TP_BK_TR,Türkiye Konut Birim Kiraları,housing_rent_level,ÜÇ AYLIK,quarterly,identity,12.8,1,1,0,2020-Q1,2020-Q1,2020-03-31,False,,,
+2020Q1,TP.GSYIH60.HY.B1GQ,TP_GSYIH60_HY_B1GQ,"Gayrisafi Yurt İçi Hasıla (Harcama Yöntemiyle, Mevsim Etkisinden Arındırılmış  Zincirlenmiş Hacim Endeksi)",activity_control,ÜÇ AYLIK,quarterly,identity,181.56601096,1,1,0,2020-Q1,2020-Q1,2020-03-31,False,,,
+2020Q1,TP.GSYIH60.HY.P311,TP_GSYIH60_HY_P311,"Yerleşik Hanehalklarının Tüketimi (Harcama Yöntemiyle, Mevsim Etkisinden Arındırılmış  Zincirlenmiş Hacim Endeksi)",consumption_control,ÜÇ AYLIK,quarterly,identity,169.71936371,1,1,0,2020-Q1,2020-Q1,2020-03-31,False,,,
+2020Q1,TP.IN.KL2.TOPLAM.TOP.D,TP_IN_KL2_TOPLAM_TOP_D,(Toplam) Binalar (Daire Sayısı),housing_completion,AYLIK,quarterly,sum,156439.0,3,3,0,2020-01,2020-03,2020-03-31,False,,,
+2020Q1,TP.MK.KUL.YTL,TP_MK_KUL_YTL,Külçe Altın Satış Fiyatı (TL/Gr),alternative_asset,AYLIK,quarterly,last,330.65,3,3,0,2020-01,2020-03,2020-03-31,False,,,
+2020Q2,TP.BISPOLFAIZ.TUR,TP_BISPOLFAIZ_TUR,Türkiye (TUR) Merkez Bankası Politika Faiz Oranı,policy_rate_actual,AYLIK,quarterly,last,8.25,3,3,0,2020-04,2020-06,2020-06-30,False,,,
+2020Q2,TP.BISPOLFAIZ.USA,TP_BISPOLFAIZ_USA,Amerika Birleşik Devletleri (USA) Merkez Bankası Politika Faiz Oranı,global_policy_rate,AYLIK,quarterly,last,0.125,3,3,0,2020-04,2020-06,2020-06-30,False,,,
+2020Q2,TP.BISPOLFAIZ.XM,TP_BISPOLFAIZ_XM,Euro Bölgesi (XM) Merkez Bankası Politika Faiz Oranı,global_policy_rate,AYLIK,quarterly,last,0.0,3,3,0,2020-04,2020-06,2020-06-30,False,,,
+2020Q2,TP.BK.ANKARA,TP_BK_ANKARA,Ankara Konut Birim Kiraları,housing_rent_level,ÜÇ AYLIK,quarterly,identity,10.04,1,1,0,2020-Q2,2020-Q2,2020-06-30,False,,,
+2020Q2,TP.BK.ISTANBUL,TP_BK_ISTANBUL,İstanbul Konut Birim Kiraları,housing_rent_level,ÜÇ AYLIK,quarterly,identity,22.92,1,1,0,2020-Q2,2020-Q2,2020-06-30,False,,,
+2020Q2,TP.BK.IZMIR,TP_BK_IZMIR,İzmir Konut Birim Kiraları,housing_rent_level,ÜÇ AYLIK,quarterly,identity,15.42,1,1,0,2020-Q2,2020-Q2,2020-06-30,False,,,
+2020Q2,TP.BK.TR,TP_BK_TR,Türkiye Konut Birim Kiraları,housing_rent_level,ÜÇ AYLIK,quarterly,identity,13.69,1,1,0,2020-Q2,2020-Q2,2020-06-30,False,,,
+2020Q2,TP.GSYIH60.HY.B1GQ,TP_GSYIH60_HY_B1GQ,"Gayrisafi Yurt İçi Hasıla (Harcama Yöntemiyle, Mevsim Etkisinden Arındırılmış  Zincirlenmiş Hacim Endeksi)",activity_control,ÜÇ AYLIK,quarterly,identity,161.47788633,1,1,0,2020-Q2,2020-Q2,2020-06-30,False,,,
+2020Q2,TP.GSYIH60.HY.P311,TP_GSYIH60_HY_P311,"Yerleşik Hanehalklarının Tüketimi (Harcama Yöntemiyle, Mevsim Etkisinden Arındırılmış  Zincirlenmiş Hacim Endeksi)",consumption_control,ÜÇ AYLIK,quarterly,identity,151.06076185,1,1,0,2020-Q2,2020-Q2,2020-06-30,False,,,
+2020Q2,TP.IN.KL2.TOPLAM.TOP.D,TP_IN_KL2_TOPLAM_TOP_D,(Toplam) Binalar (Daire Sayısı),housing_completion,AYLIK,quarterly,sum,117365.0,3,3,0,2020-04,2020-06,2020-06-30,False,,,
+2020Q2,TP.MK.KUL.YTL,TP_MK_KUL_YTL,Külçe Altın Satış Fiyatı (TL/Gr),alternative_asset,AYLIK,quarterly,last,382.84,3,3,0,2020-04,2020-06,2020-06-30,False,,,
+2020Q3,TP.BISPOLFAIZ.TUR,TP_BISPOLFAIZ_TUR,Türkiye (TUR) Merkez Bankası Politika Faiz Oranı,policy_rate_actual,AYLIK,quarterly,last,10.25,3,3,0,2020-07,2020-09,2020-09-30,False,,,
+2020Q3,TP.BISPOLFAIZ.USA,TP_BISPOLFAIZ_USA,Amerika Birleşik Devletleri (USA) Merkez Bankası Politika Faiz Oranı,global_policy_rate,AYLIK,quarterly,last,0.125,3,3,0,2020-07,2020-09,2020-09-30,False,,,
+2020Q3,TP.BISPOLFAIZ.XM,TP_BISPOLFAIZ_XM,Euro Bölgesi (XM) Merkez Bankası Politika Faiz Oranı,global_policy_rate,AYLIK,quarterly,last,0.0,3,3,0,2020-07,2020-09,2020-09-30,False,,,
+2020Q3,TP.BK.ANKARA,TP_BK_ANKARA,Ankara Konut Birim Kiraları,housing_rent_level,ÜÇ AYLIK,quarterly,identity,10.73,1,1,0,2020-Q3,2020-Q3,2020-09-30,False,,,
+2020Q3,TP.BK.ISTANBUL,TP_BK_ISTANBUL,İstanbul Konut Birim Kiraları,housing_rent_level,ÜÇ AYLIK,quarterly,identity,24.04,1,1,0,2020-Q3,2020-Q3,2020-09-30,False,,,
+2020Q3,TP.BK.IZMIR,TP_BK_IZMIR,İzmir Konut Birim Kiraları,housing_rent_level,ÜÇ AYLIK,quarterly,identity,16.35,1,1,0,2020-Q3,2020-Q3,2020-09-30,False,,,
+2020Q3,TP.BK.TR,TP_BK_TR,Türkiye Konut Birim Kiraları,housing_rent_level,ÜÇ AYLIK,quarterly,identity,14.37,1,1,0,2020-Q3,2020-Q3,2020-09-30,False,,,
+2020Q3,TP.GSYIH60.HY.B1GQ,TP_GSYIH60_HY_B1GQ,"Gayrisafi Yurt İçi Hasıla (Harcama Yöntemiyle, Mevsim Etkisinden Arındırılmış  Zincirlenmiş Hacim Endeksi)",activity_control,ÜÇ AYLIK,quarterly,identity,187.4771752,1,1,0,2020-Q3,2020-Q3,2020-09-30,False,,,
+2020Q3,TP.GSYIH60.HY.P311,TP_GSYIH60_HY_P311,"Yerleşik Hanehalklarının Tüketimi (Harcama Yöntemiyle, Mevsim Etkisinden Arındırılmış  Zincirlenmiş Hacim Endeksi)",consumption_control,ÜÇ AYLIK,quarterly,identity,183.67462827,1,1,0,2020-Q3,2020-Q3,2020-09-30,False,,,
+2020Q3,TP.IN.KL2.TOPLAM.TOP.D,TP_IN_KL2_TOPLAM_TOP_D,(Toplam) Binalar (Daire Sayısı),housing_completion,AYLIK,quarterly,sum,156851.0,3,3,0,2020-07,2020-09,2020-09-30,False,,,
+2020Q3,TP.MK.KUL.YTL,TP_MK_KUL_YTL,Külçe Altın Satış Fiyatı (TL/Gr),alternative_asset,AYLIK,quarterly,last,467.61,3,3,0,2020-07,2020-09,2020-09-30,False,,,
+2020Q4,TP.BISPOLFAIZ.TUR,TP_BISPOLFAIZ_TUR,Türkiye (TUR) Merkez Bankası Politika Faiz Oranı,policy_rate_actual,AYLIK,quarterly,last,17.0,3,3,0,2020-10,2020-12,2020-12-31,False,,,
+2020Q4,TP.BISPOLFAIZ.USA,TP_BISPOLFAIZ_USA,Amerika Birleşik Devletleri (USA) Merkez Bankası Politika Faiz Oranı,global_policy_rate,AYLIK,quarterly,last,0.125,3,3,0,2020-10,2020-12,2020-12-31,False,,,
+2020Q4,TP.BISPOLFAIZ.XM,TP_BISPOLFAIZ_XM,Euro Bölgesi (XM) Merkez Bankası Politika Faiz Oranı,global_policy_rate,AYLIK,quarterly,last,0.0,3,3,0,2020-10,2020-12,2020-12-31,False,,,
+2020Q4,TP.BK.ANKARA,TP_BK_ANKARA,Ankara Konut Birim Kiraları,housing_rent_level,ÜÇ AYLIK,quarterly,identity,11.64,1,1,0,2020-Q4,2020-Q4,2020-12-31,False,,,
+2020Q4,TP.BK.ISTANBUL,TP_BK_ISTANBUL,İstanbul Konut Birim Kiraları,housing_rent_level,ÜÇ AYLIK,quarterly,identity,26.36,1,1,0,2020-Q4,2020-Q4,2020-12-31,False,,,
+2020Q4,TP.BK.IZMIR,TP_BK_IZMIR,İzmir Konut Birim Kiraları,housing_rent_level,ÜÇ AYLIK,quarterly,identity,17.22,1,1,0,2020-Q4,2020-Q4,2020-12-31,False,,,
+2020Q4,TP.BK.TR,TP_BK_TR,Türkiye Konut Birim Kiraları,housing_rent_level,ÜÇ AYLIK,quarterly,identity,15.44,1,1,0,2020-Q4,2020-Q4,2020-12-31,False,,,
+2020Q4,TP.GSYIH60.HY.B1GQ,TP_GSYIH60_HY_B1GQ,"Gayrisafi Yurt İçi Hasıla (Harcama Yöntemiyle, Mevsim Etkisinden Arındırılmış  Zincirlenmiş Hacim Endeksi)",activity_control,ÜÇ AYLIK,quarterly,identity,190.31174374,1,1,0,2020-Q4,2020-Q4,2020-12-31,False,,,
+2020Q4,TP.GSYIH60.HY.P311,TP_GSYIH60_HY_P311,"Yerleşik Hanehalklarının Tüketimi (Harcama Yöntemiyle, Mevsim Etkisinden Arındırılmış  Zincirlenmiş Hacim Endeksi)",consumption_control,ÜÇ AYLIK,quarterly,identity,182.50275802,1,1,0,2020-Q4,2020-Q4,2020-12-31,False,,,
+2020Q4,TP.IN.KL2.TOPLAM.TOP.D,TP_IN_KL2_TOPLAM_TOP_D,(Toplam) Binalar (Daire Sayısı),housing_completion,AYLIK,quarterly,sum,178003.0,3,3,0,2020-10,2020-12,2020-12-31,False,,,
+2020Q4,TP.MK.KUL.YTL,TP_MK_KUL_YTL,Külçe Altın Satış Fiyatı (TL/Gr),alternative_asset,AYLIK,quarterly,last,462.72,3,3,0,2020-10,2020-12,2020-12-31,False,,,
+2021Q1,TP.BISPOLFAIZ.TUR,TP_BISPOLFAIZ_TUR,Türkiye (TUR) Merkez Bankası Politika Faiz Oranı,policy_rate_actual,AYLIK,quarterly,last,19.0,3,3,0,2021-01,2021-03,2021-03-31,False,,,
+2021Q1,TP.BISPOLFAIZ.USA,TP_BISPOLFAIZ_USA,Amerika Birleşik Devletleri (USA) Merkez Bankası Politika Faiz Oranı,global_policy_rate,AYLIK,quarterly,last,0.125,3,3,0,2021-01,2021-03,2021-03-31,False,,,
+2021Q1,TP.BISPOLFAIZ.XM,TP_BISPOLFAIZ_XM,Euro Bölgesi (XM) Merkez Bankası Politika Faiz Oranı,global_policy_rate,AYLIK,quarterly,last,0.0,3,3,0,2021-01,2021-03,2021-03-31,False,,,
+2021Q1,TP.BK.ANKARA,TP_BK_ANKARA,Ankara Konut Birim Kiraları,housing_rent_level,ÜÇ AYLIK,quarterly,identity,11.53,1,1,0,2021-Q1,2021-Q1,2021-03-31,False,,,
+2021Q1,TP.BK.ISTANBUL,TP_BK_ISTANBUL,İstanbul Konut Birim Kiraları,housing_rent_level,ÜÇ AYLIK,quarterly,identity,26.92,1,1,0,2021-Q1,2021-Q1,2021-03-31,False,,,
+2021Q1,TP.BK.IZMIR,TP_BK_IZMIR,İzmir Konut Birim Kiraları,housing_rent_level,ÜÇ AYLIK,quarterly,identity,18.81,1,1,0,2021-Q1,2021-Q1,2021-03-31,False,,,
+2021Q1,TP.BK.TR,TP_BK_TR,Türkiye Konut Birim Kiraları,housing_rent_level,ÜÇ AYLIK,quarterly,identity,16.0,1,1,0,2021-Q1,2021-Q1,2021-03-31,False,,,
+2021Q1,TP.GSYIH60.HY.B1GQ,TP_GSYIH60_HY_B1GQ,"Gayrisafi Yurt İçi Hasıla (Harcama Yöntemiyle, Mevsim Etkisinden Arındırılmış  Zincirlenmiş Hacim Endeksi)",activity_control,ÜÇ AYLIK,quarterly,identity,195.05576929,1,1,0,2021-Q1,2021-Q1,2021-03-31,False,,,
+2021Q1,TP.GSYIH60.HY.P311,TP_GSYIH60_HY_P311,"Yerleşik Hanehalklarının Tüketimi (Harcama Yöntemiyle, Mevsim Etkisinden Arındırılmış  Zincirlenmiş Hacim Endeksi)",consumption_control,ÜÇ AYLIK,quarterly,identity,186.84564444,1,1,0,2021-Q1,2021-Q1,2021-03-31,False,,,
+2021Q1,TP.IN.KL2.TOPLAM.TOP.D,TP_IN_KL2_TOPLAM_TOP_D,(Toplam) Binalar (Daire Sayısı),housing_completion,AYLIK,quarterly,sum,161320.0,3,3,0,2021-01,2021-03,2021-03-31,False,,,
+2021Q1,TP.MK.KUL.YTL,TP_MK_KUL_YTL,Külçe Altın Satış Fiyatı (TL/Gr),alternative_asset,AYLIK,quarterly,last,423.38,3,3,0,2021-01,2021-03,2021-03-31,False,,,
+2021Q2,TP.BISPOLFAIZ.TUR,TP_BISPOLFAIZ_TUR,Türkiye (TUR) Merkez Bankası Politika Faiz Oranı,policy_rate_actual,AYLIK,quarterly,last,19.0,3,3,0,2021-04,2021-06,2021-06-30,False,,,
+2021Q2,TP.BISPOLFAIZ.USA,TP_BISPOLFAIZ_USA,Amerika Birleşik Devletleri (USA) Merkez Bankası Politika Faiz Oranı,global_policy_rate,AYLIK,quarterly,last,0.125,3,3,0,2021-04,2021-06,2021-06-30,False,,,
+2021Q2,TP.BISPOLFAIZ.XM,TP_BISPOLFAIZ_XM,Euro Bölgesi (XM) Merkez Bankası Politika Faiz Oranı,global_policy_rate,AYLIK,quarterly,last,0.0,3,3,0,2021-04,2021-06,2021-06-30,False,,,
+2021Q2,TP.BK.ANKARA,TP_BK_ANKARA,Ankara Konut Birim Kiraları,housing_rent_level,ÜÇ AYLIK,quarterly,identity,12.38,1,1,0,2021-Q2,2021-Q2,2021-06-30,False,,,
+2021Q2,TP.BK.ISTANBUL,TP_BK_ISTANBUL,İstanbul Konut Birim Kiraları,housing_rent_level,ÜÇ AYLIK,quarterly,identity,29.07,1,1,0,2021-Q2,2021-Q2,2021-06-30,False,,,
+2021Q2,TP.BK.IZMIR,TP_BK_IZMIR,İzmir Konut Birim Kiraları,housing_rent_level,ÜÇ AYLIK,quarterly,identity,19.66,1,1,0,2021-Q2,2021-Q2,2021-06-30,False,,,
+2021Q2,TP.BK.TR,TP_BK_TR,Türkiye Konut Birim Kiraları,housing_rent_level,ÜÇ AYLIK,quarterly,identity,17.27,1,1,0,2021-Q2,2021-Q2,2021-06-30,False,,,
+2021Q2,TP.GSYIH60.HY.B1GQ,TP_GSYIH60_HY_B1GQ,"Gayrisafi Yurt İçi Hasıla (Harcama Yöntemiyle, Mevsim Etkisinden Arındırılmış  Zincirlenmiş Hacim Endeksi)",activity_control,ÜÇ AYLIK,quarterly,identity,197.7399596,1,1,0,2021-Q2,2021-Q2,2021-06-30,False,,,
+2021Q2,TP.GSYIH60.HY.P311,TP_GSYIH60_HY_P311,"Yerleşik Hanehalklarının Tüketimi (Harcama Yöntemiyle, Mevsim Etkisinden Arındırılmış  Zincirlenmiş Hacim Endeksi)",consumption_control,ÜÇ AYLIK,quarterly,identity,190.31678086,1,1,0,2021-Q2,2021-Q2,2021-06-30,False,,,
+2021Q2,TP.IN.KL2.TOPLAM.TOP.D,TP_IN_KL2_TOPLAM_TOP_D,(Toplam) Binalar (Daire Sayısı),housing_completion,AYLIK,quarterly,sum,122421.0,3,3,0,2021-04,2021-06,2021-06-30,False,,,
+2021Q2,TP.MK.KUL.YTL,TP_MK_KUL_YTL,Külçe Altın Satış Fiyatı (TL/Gr),alternative_asset,AYLIK,quarterly,last,512.01,3,3,0,2021-04,2021-06,2021-06-30,False,,,
+2021Q3,TP.BISPOLFAIZ.TUR,TP_BISPOLFAIZ_TUR,Türkiye (TUR) Merkez Bankası Politika Faiz Oranı,policy_rate_actual,AYLIK,quarterly,last,18.0,3,3,0,2021-07,2021-09,2021-09-30,False,,,
+2021Q3,TP.BISPOLFAIZ.USA,TP_BISPOLFAIZ_USA,Amerika Birleşik Devletleri (USA) Merkez Bankası Politika Faiz Oranı,global_policy_rate,AYLIK,quarterly,last,0.125,3,3,0,2021-07,2021-09,2021-09-30,False,,,
+2021Q3,TP.BISPOLFAIZ.XM,TP_BISPOLFAIZ_XM,Euro Bölgesi (XM) Merkez Bankası Politika Faiz Oranı,global_policy_rate,AYLIK,quarterly,last,0.0,3,3,0,2021-07,2021-09,2021-09-30,False,,,
+2021Q3,TP.BK.ANKARA,TP_BK_ANKARA,Ankara Konut Birim Kiraları,housing_rent_level,ÜÇ AYLIK,quarterly,identity,13.51,1,1,0,2021-Q3,2021-Q3,2021-09-30,False,,,
+2021Q3,TP.BK.ISTANBUL,TP_BK_ISTANBUL,İstanbul Konut Birim Kiraları,housing_rent_level,ÜÇ AYLIK,quarterly,identity,31.39,1,1,0,2021-Q3,2021-Q3,2021-09-30,False,,,
+2021Q3,TP.BK.IZMIR,TP_BK_IZMIR,İzmir Konut Birim Kiraları,housing_rent_level,ÜÇ AYLIK,quarterly,identity,21.71,1,1,0,2021-Q3,2021-Q3,2021-09-30,False,,,
+2021Q3,TP.BK.TR,TP_BK_TR,Türkiye Konut Birim Kiraları,housing_rent_level,ÜÇ AYLIK,quarterly,identity,18.85,1,1,0,2021-Q3,2021-Q3,2021-09-30,False,,,
+2021Q3,TP.GSYIH60.HY.B1GQ,TP_GSYIH60_HY_B1GQ,"Gayrisafi Yurt İçi Hasıla (Harcama Yöntemiyle, Mevsim Etkisinden Arındırılmış  Zincirlenmiş Hacim Endeksi)",activity_control,ÜÇ AYLIK,quarterly,identity,203.8978029,1,1,0,2021-Q3,2021-Q3,2021-09-30,False,,,
+2021Q3,TP.GSYIH60.HY.P311,TP_GSYIH60_HY_P311,"Yerleşik Hanehalklarının Tüketimi (Harcama Yöntemiyle, Mevsim Etkisinden Arındırılmış  Zincirlenmiş Hacim Endeksi)",consumption_control,ÜÇ AYLIK,quarterly,identity,196.81658144,1,1,0,2021-Q3,2021-Q3,2021-09-30,False,,,
+2021Q3,TP.IN.KL2.TOPLAM.TOP.D,TP_IN_KL2_TOPLAM_TOP_D,(Toplam) Binalar (Daire Sayısı),housing_completion,AYLIK,quarterly,sum,141573.0,3,3,0,2021-07,2021-09,2021-09-30,False,,,
+2021Q3,TP.MK.KUL.YTL,TP_MK_KUL_YTL,Külçe Altın Satış Fiyatı (TL/Gr),alternative_asset,AYLIK,quarterly,last,470.59,3,3,0,2021-07,2021-09,2021-09-30,False,,,
+2021Q4,TP.BISPOLFAIZ.TUR,TP_BISPOLFAIZ_TUR,Türkiye (TUR) Merkez Bankası Politika Faiz Oranı,policy_rate_actual,AYLIK,quarterly,last,14.0,3,3,0,2021-10,2021-12,2021-12-31,False,,,
+2021Q4,TP.BISPOLFAIZ.USA,TP_BISPOLFAIZ_USA,Amerika Birleşik Devletleri (USA) Merkez Bankası Politika Faiz Oranı,global_policy_rate,AYLIK,quarterly,last,0.125,3,3,0,2021-10,2021-12,2021-12-31,False,,,
+2021Q4,TP.BISPOLFAIZ.XM,TP_BISPOLFAIZ_XM,Euro Bölgesi (XM) Merkez Bankası Politika Faiz Oranı,global_policy_rate,AYLIK,quarterly,last,0.0,3,3,0,2021-10,2021-12,2021-12-31,False,,,
+2021Q4,TP.BK.ANKARA,TP_BK_ANKARA,Ankara Konut Birim Kiraları,housing_rent_level,ÜÇ AYLIK,quarterly,identity,15.84,1,1,0,2021-Q4,2021-Q4,2021-12-31,False,,,
+2021Q4,TP.BK.ISTANBUL,TP_BK_ISTANBUL,İstanbul Konut Birim Kiraları,housing_rent_level,ÜÇ AYLIK,quarterly,identity,39.06,1,1,0,2021-Q4,2021-Q4,2021-12-31,False,,,
+2021Q4,TP.BK.IZMIR,TP_BK_IZMIR,İzmir Konut Birim Kiraları,housing_rent_level,ÜÇ AYLIK,quarterly,identity,24.95,1,1,0,2021-Q4,2021-Q4,2021-12-31,False,,,
+2021Q4,TP.BK.TR,TP_BK_TR,Türkiye Konut Birim Kiraları,housing_rent_level,ÜÇ AYLIK,quarterly,identity,22.52,1,1,0,2021-Q4,2021-Q4,2021-12-31,False,,,
+2021Q4,TP.GSYIH60.HY.B1GQ,TP_GSYIH60_HY_B1GQ,"Gayrisafi Yurt İçi Hasıla (Harcama Yöntemiyle, Mevsim Etkisinden Arındırılmış  Zincirlenmiş Hacim Endeksi)",activity_control,ÜÇ AYLIK,quarterly,identity,209.28306698,1,1,0,2021-Q4,2021-Q4,2021-12-31,False,,,
+2021Q4,TP.GSYIH60.HY.P311,TP_GSYIH60_HY_P311,"Yerleşik Hanehalklarının Tüketimi (Harcama Yöntemiyle, Mevsim Etkisinden Arındırılmış  Zincirlenmiş Hacim Endeksi)",consumption_control,ÜÇ AYLIK,quarterly,identity,220.26016001,1,1,0,2021-Q4,2021-Q4,2021-12-31,False,,,
+2021Q4,TP.IN.KL2.TOPLAM.TOP.D,TP_IN_KL2_TOPLAM_TOP_D,(Toplam) Binalar (Daire Sayısı),housing_completion,AYLIK,quarterly,sum,210828.0,3,3,0,2021-10,2021-12,2021-12-31,False,,,
+2021Q4,TP.MK.KUL.YTL,TP_MK_KUL_YTL,Külçe Altın Satış Fiyatı (TL/Gr),alternative_asset,AYLIK,quarterly,last,817.61,3,3,0,2021-10,2021-12,2021-12-31,False,,,
+2022Q1,TP.BISPOLFAIZ.TUR,TP_BISPOLFAIZ_TUR,Türkiye (TUR) Merkez Bankası Politika Faiz Oranı,policy_rate_actual,AYLIK,quarterly,last,14.0,3,3,0,2022-01,2022-03,2022-03-31,False,,,
+2022Q1,TP.BISPOLFAIZ.USA,TP_BISPOLFAIZ_USA,Amerika Birleşik Devletleri (USA) Merkez Bankası Politika Faiz Oranı,global_policy_rate,AYLIK,quarterly,last,0.375,3,3,0,2022-01,2022-03,2022-03-31,False,,,
+2022Q1,TP.BISPOLFAIZ.XM,TP_BISPOLFAIZ_XM,Euro Bölgesi (XM) Merkez Bankası Politika Faiz Oranı,global_policy_rate,AYLIK,quarterly,last,0.0,3,3,0,2022-01,2022-03,2022-03-31,False,,,
+2022Q1,TP.BK.ANKARA,TP_BK_ANKARA,Ankara Konut Birim Kiraları,housing_rent_level,ÜÇ AYLIK,quarterly,identity,21.11,1,1,0,2022-Q1,2022-Q1,2022-03-31,False,,,
+2022Q1,TP.BK.ISTANBUL,TP_BK_ISTANBUL,İstanbul Konut Birim Kiraları,housing_rent_level,ÜÇ AYLIK,quarterly,identity,53.49,1,1,0,2022-Q1,2022-Q1,2022-03-31,False,,,
+2022Q1,TP.BK.IZMIR,TP_BK_IZMIR,İzmir Konut Birim Kiraları,housing_rent_level,ÜÇ AYLIK,quarterly,identity,32.42,1,1,0,2022-Q1,2022-Q1,2022-03-31,False,,,
+2022Q1,TP.BK.TR,TP_BK_TR,Türkiye Konut Birim Kiraları,housing_rent_level,ÜÇ AYLIK,quarterly,identity,29.67,1,1,0,2022-Q1,2022-Q1,2022-03-31,False,,,
+2022Q1,TP.GSYIH60.HY.B1GQ,TP_GSYIH60_HY_B1GQ,"Gayrisafi Yurt İçi Hasıla (Harcama Yöntemiyle, Mevsim Etkisinden Arındırılmış  Zincirlenmiş Hacim Endeksi)",activity_control,ÜÇ AYLIK,quarterly,identity,208.98568287,1,1,0,2022-Q1,2022-Q1,2022-03-31,False,,,
+2022Q1,TP.GSYIH60.HY.P311,TP_GSYIH60_HY_P311,"Yerleşik Hanehalklarının Tüketimi (Harcama Yöntemiyle, Mevsim Etkisinden Arındırılmış  Zincirlenmiş Hacim Endeksi)",consumption_control,ÜÇ AYLIK,quarterly,identity,223.77942664,1,1,0,2022-Q1,2022-Q1,2022-03-31,False,,,
+2022Q1,TP.IN.KL2.TOPLAM.TOP.D,TP_IN_KL2_TOPLAM_TOP_D,(Toplam) Binalar (Daire Sayısı),housing_completion,AYLIK,quarterly,sum,158663.0,3,3,0,2022-01,2022-03,2022-03-31,False,,,
+2022Q1,TP.MK.KUL.YTL,TP_MK_KUL_YTL,Külçe Altın Satış Fiyatı (TL/Gr),alternative_asset,AYLIK,quarterly,last,926.51,3,3,0,2022-01,2022-03,2022-03-31,False,,,
+2022Q2,TP.BISPOLFAIZ.TUR,TP_BISPOLFAIZ_TUR,Türkiye (TUR) Merkez Bankası Politika Faiz Oranı,policy_rate_actual,AYLIK,quarterly,last,14.0,3,3,0,2022-04,2022-06,2022-06-30,False,,,
+2022Q2,TP.BISPOLFAIZ.USA,TP_BISPOLFAIZ_USA,Amerika Birleşik Devletleri (USA) Merkez Bankası Politika Faiz Oranı,global_policy_rate,AYLIK,quarterly,last,1.625,3,3,0,2022-04,2022-06,2022-06-30,False,,,
+2022Q2,TP.BISPOLFAIZ.XM,TP_BISPOLFAIZ_XM,Euro Bölgesi (XM) Merkez Bankası Politika Faiz Oranı,global_policy_rate,AYLIK,quarterly,last,0.0,3,3,0,2022-04,2022-06,2022-06-30,False,,,
+2022Q2,TP.BK.ANKARA,TP_BK_ANKARA,Ankara Konut Birim Kiraları,housing_rent_level,ÜÇ AYLIK,quarterly,identity,26.78,1,1,0,2022-Q2,2022-Q2,2022-06-30,False,,,
+2022Q2,TP.BK.ISTANBUL,TP_BK_ISTANBUL,İstanbul Konut Birim Kiraları,housing_rent_level,ÜÇ AYLIK,quarterly,identity,69.92,1,1,0,2022-Q2,2022-Q2,2022-06-30,False,,,
+2022Q2,TP.BK.IZMIR,TP_BK_IZMIR,İzmir Konut Birim Kiraları,housing_rent_level,ÜÇ AYLIK,quarterly,identity,39.66,1,1,0,2022-Q2,2022-Q2,2022-06-30,False,,,
+2022Q2,TP.BK.TR,TP_BK_TR,Türkiye Konut Birim Kiraları,housing_rent_level,ÜÇ AYLIK,quarterly,identity,38.16,1,1,0,2022-Q2,2022-Q2,2022-06-30,False,,,
+2022Q2,TP.GSYIH60.HY.B1GQ,TP_GSYIH60_HY_B1GQ,"Gayrisafi Yurt İçi Hasıla (Harcama Yöntemiyle, Mevsim Etkisinden Arındırılmış  Zincirlenmiş Hacim Endeksi)",activity_control,ÜÇ AYLIK,quarterly,identity,211.79583954,1,1,0,2022-Q2,2022-Q2,2022-06-30,False,,,
+2022Q2,TP.GSYIH60.HY.P311,TP_GSYIH60_HY_P311,"Yerleşik Hanehalklarının Tüketimi (Harcama Yöntemiyle, Mevsim Etkisinden Arındırılmış  Zincirlenmiş Hacim Endeksi)",consumption_control,ÜÇ AYLIK,quarterly,identity,221.18844336,1,1,0,2022-Q2,2022-Q2,2022-06-30,False,,,
+2022Q2,TP.IN.KL2.TOPLAM.TOP.D,TP_IN_KL2_TOPLAM_TOP_D,(Toplam) Binalar (Daire Sayısı),housing_completion,AYLIK,quarterly,sum,150455.0,3,3,0,2022-04,2022-06,2022-06-30,False,,,
+2022Q2,TP.MK.KUL.YTL,TP_MK_KUL_YTL,Külçe Altın Satış Fiyatı (TL/Gr),alternative_asset,AYLIK,quarterly,last,1018.48,3,3,0,2022-04,2022-06,2022-06-30,False,,,
+2022Q3,TP.BISPOLFAIZ.TUR,TP_BISPOLFAIZ_TUR,Türkiye (TUR) Merkez Bankası Politika Faiz Oranı,policy_rate_actual,AYLIK,quarterly,last,12.0,3,3,0,2022-07,2022-09,2022-09-30,False,,,
+2022Q3,TP.BISPOLFAIZ.USA,TP_BISPOLFAIZ_USA,Amerika Birleşik Devletleri (USA) Merkez Bankası Politika Faiz Oranı,global_policy_rate,AYLIK,quarterly,last,3.125,3,3,0,2022-07,2022-09,2022-09-30,False,,,
+2022Q3,TP.BISPOLFAIZ.XM,TP_BISPOLFAIZ_XM,Euro Bölgesi (XM) Merkez Bankası Politika Faiz Oranı,global_policy_rate,AYLIK,quarterly,last,1.25,3,3,0,2022-07,2022-09,2022-09-30,False,,,
+2022Q3,TP.BK.ANKARA,TP_BK_ANKARA,Ankara Konut Birim Kiraları,housing_rent_level,ÜÇ AYLIK,quarterly,identity,34.47,1,1,0,2022-Q3,2022-Q3,2022-09-30,False,,,
+2022Q3,TP.BK.ISTANBUL,TP_BK_ISTANBUL,İstanbul Konut Birim Kiraları,housing_rent_level,ÜÇ AYLIK,quarterly,identity,89.08,1,1,0,2022-Q3,2022-Q3,2022-09-30,False,,,
+2022Q3,TP.BK.IZMIR,TP_BK_IZMIR,İzmir Konut Birim Kiraları,housing_rent_level,ÜÇ AYLIK,quarterly,identity,51.33,1,1,0,2022-Q3,2022-Q3,2022-09-30,False,,,
+2022Q3,TP.BK.TR,TP_BK_TR,Türkiye Konut Birim Kiraları,housing_rent_level,ÜÇ AYLIK,quarterly,identity,48.35,1,1,0,2022-Q3,2022-Q3,2022-09-30,False,,,
+2022Q3,TP.GSYIH60.HY.B1GQ,TP_GSYIH60_HY_B1GQ,"Gayrisafi Yurt İçi Hasıla (Harcama Yöntemiyle, Mevsim Etkisinden Arındırılmış  Zincirlenmiş Hacim Endeksi)",activity_control,ÜÇ AYLIK,quarterly,identity,212.93750692,1,1,0,2022-Q3,2022-Q3,2022-09-30,False,,,
+2022Q3,TP.GSYIH60.HY.P311,TP_GSYIH60_HY_P311,"Yerleşik Hanehalklarının Tüketimi (Harcama Yöntemiyle, Mevsim Etkisinden Arındırılmış  Zincirlenmiş Hacim Endeksi)",consumption_control,ÜÇ AYLIK,quarterly,identity,233.85526893,1,1,0,2022-Q3,2022-Q3,2022-09-30,False,,,
+2022Q3,TP.IN.KL2.TOPLAM.TOP.D,TP_IN_KL2_TOPLAM_TOP_D,(Toplam) Binalar (Daire Sayısı),housing_completion,AYLIK,quarterly,sum,141178.0,3,3,0,2022-07,2022-09,2022-09-30,False,,,
+2022Q3,TP.MK.KUL.YTL,TP_MK_KUL_YTL,Külçe Altın Satış Fiyatı (TL/Gr),alternative_asset,AYLIK,quarterly,last,1010.29,3,3,0,2022-07,2022-09,2022-09-30,False,,,
+2022Q4,TP.BISPOLFAIZ.TUR,TP_BISPOLFAIZ_TUR,Türkiye (TUR) Merkez Bankası Politika Faiz Oranı,policy_rate_actual,AYLIK,quarterly,last,9.0,3,3,0,2022-10,2022-12,2022-12-31,False,,,
+2022Q4,TP.BISPOLFAIZ.USA,TP_BISPOLFAIZ_USA,Amerika Birleşik Devletleri (USA) Merkez Bankası Politika Faiz Oranı,global_policy_rate,AYLIK,quarterly,last,4.375,3,3,0,2022-10,2022-12,2022-12-31,False,,,
+2022Q4,TP.BISPOLFAIZ.XM,TP_BISPOLFAIZ_XM,Euro Bölgesi (XM) Merkez Bankası Politika Faiz Oranı,global_policy_rate,AYLIK,quarterly,last,2.5,3,3,0,2022-10,2022-12,2022-12-31,False,,,
+2022Q4,TP.BK.ANKARA,TP_BK_ANKARA,Ankara Konut Birim Kiraları,housing_rent_level,ÜÇ AYLIK,quarterly,identity,40.71,1,1,0,2022-Q4,2022-Q4,2022-12-31,False,,,
+2022Q4,TP.BK.ISTANBUL,TP_BK_ISTANBUL,İstanbul Konut Birim Kiraları,housing_rent_level,ÜÇ AYLIK,quarterly,identity,101.57,1,1,0,2022-Q4,2022-Q4,2022-12-31,False,,,
+2022Q4,TP.BK.IZMIR,TP_BK_IZMIR,İzmir Konut Birim Kiraları,housing_rent_level,ÜÇ AYLIK,quarterly,identity,62.33,1,1,0,2022-Q4,2022-Q4,2022-12-31,False,,,
+2022Q4,TP.BK.TR,TP_BK_TR,Türkiye Konut Birim Kiraları,housing_rent_level,ÜÇ AYLIK,quarterly,identity,56.39,1,1,0,2022-Q4,2022-Q4,2022-12-31,False,,,
+2022Q4,TP.GSYIH60.HY.B1GQ,TP_GSYIH60_HY_B1GQ,"Gayrisafi Yurt İçi Hasıla (Harcama Yöntemiyle, Mevsim Etkisinden Arındırılmış  Zincirlenmiş Hacim Endeksi)",activity_control,ÜÇ AYLIK,quarterly,identity,216.1660281,1,1,0,2022-Q4,2022-Q4,2022-12-31,False,,,
+2022Q4,TP.GSYIH60.HY.P311,TP_GSYIH60_HY_P311,"Yerleşik Hanehalklarının Tüketimi (Harcama Yöntemiyle, Mevsim Etkisinden Arındırılmış  Zincirlenmiş Hacim Endeksi)",consumption_control,ÜÇ AYLIK,quarterly,identity,244.56419256,1,1,0,2022-Q4,2022-Q4,2022-12-31,False,,,
+2022Q4,TP.IN.KL2.TOPLAM.TOP.D,TP_IN_KL2_TOPLAM_TOP_D,(Toplam) Binalar (Daire Sayısı),housing_completion,AYLIK,quarterly,sum,201727.0,3,3,0,2022-10,2022-12,2022-12-31,False,,,
+2022Q4,TP.MK.KUL.YTL,TP_MK_KUL_YTL,Külçe Altın Satış Fiyatı (TL/Gr),alternative_asset,AYLIK,quarterly,last,1091.54,3,3,0,2022-10,2022-12,2022-12-31,False,,,
+2023Q1,TP.BISPOLFAIZ.TUR,TP_BISPOLFAIZ_TUR,Türkiye (TUR) Merkez Bankası Politika Faiz Oranı,policy_rate_actual,AYLIK,quarterly,last,8.5,3,3,0,2023-01,2023-03,2023-03-31,False,,,
+2023Q1,TP.BISPOLFAIZ.USA,TP_BISPOLFAIZ_USA,Amerika Birleşik Devletleri (USA) Merkez Bankası Politika Faiz Oranı,global_policy_rate,AYLIK,quarterly,last,4.875,3,3,0,2023-01,2023-03,2023-03-31,False,,,
+2023Q1,TP.BISPOLFAIZ.XM,TP_BISPOLFAIZ_XM,Euro Bölgesi (XM) Merkez Bankası Politika Faiz Oranı,global_policy_rate,AYLIK,quarterly,last,3.5,3,3,0,2023-01,2023-03,2023-03-31,False,,,
+2023Q1,TP.BK.ANKARA,TP_BK_ANKARA,Ankara Konut Birim Kiraları,housing_rent_level,ÜÇ AYLIK,quarterly,identity,49.75,1,1,0,2023-Q1,2023-Q1,2023-03-31,False,,,
+2023Q1,TP.BK.ISTANBUL,TP_BK_ISTANBUL,İstanbul Konut Birim Kiraları,housing_rent_level,ÜÇ AYLIK,quarterly,identity,120.57,1,1,0,2023-Q1,2023-Q1,2023-03-31,False,,,
+2023Q1,TP.BK.IZMIR,TP_BK_IZMIR,İzmir Konut Birim Kiraları,housing_rent_level,ÜÇ AYLIK,quarterly,identity,74.73,1,1,0,2023-Q1,2023-Q1,2023-03-31,False,,,
+2023Q1,TP.BK.TR,TP_BK_TR,Türkiye Konut Birim Kiraları,housing_rent_level,ÜÇ AYLIK,quarterly,identity,69.2,1,1,0,2023-Q1,2023-Q1,2023-03-31,False,,,
+2023Q1,TP.GSYIH60.HY.B1GQ,TP_GSYIH60_HY_B1GQ,"Gayrisafi Yurt İçi Hasıla (Harcama Yöntemiyle, Mevsim Etkisinden Arındırılmış  Zincirlenmiş Hacim Endeksi)",activity_control,ÜÇ AYLIK,quarterly,identity,215.46856222,1,1,0,2023-Q1,2023-Q1,2023-03-31,False,,,
+2023Q1,TP.GSYIH60.HY.P311,TP_GSYIH60_HY_P311,"Yerleşik Hanehalklarının Tüketimi (Harcama Yöntemiyle, Mevsim Etkisinden Arındırılmış  Zincirlenmiş Hacim Endeksi)",consumption_control,ÜÇ AYLIK,quarterly,identity,249.4200984,1,1,0,2023-Q1,2023-Q1,2023-03-31,False,,,
+2023Q1,TP.IN.KL2.TOPLAM.TOP.D,TP_IN_KL2_TOPLAM_TOP_D,(Toplam) Binalar (Daire Sayısı),housing_completion,AYLIK,quarterly,sum,126375.0,3,3,0,2023-01,2023-03,2023-03-31,False,,,
+2023Q1,TP.MK.KUL.YTL,TP_MK_KUL_YTL,Külçe Altın Satış Fiyatı (TL/Gr),alternative_asset,AYLIK,quarterly,last,1201.91,3,3,0,2023-01,2023-03,2023-03-31,False,,,
+2023Q2,TP.BISPOLFAIZ.TUR,TP_BISPOLFAIZ_TUR,Türkiye (TUR) Merkez Bankası Politika Faiz Oranı,policy_rate_actual,AYLIK,quarterly,last,15.0,3,3,0,2023-04,2023-06,2023-06-30,False,,,
+2023Q2,TP.BISPOLFAIZ.USA,TP_BISPOLFAIZ_USA,Amerika Birleşik Devletleri (USA) Merkez Bankası Politika Faiz Oranı,global_policy_rate,AYLIK,quarterly,last,5.125,3,3,0,2023-04,2023-06,2023-06-30,False,,,
+2023Q2,TP.BISPOLFAIZ.XM,TP_BISPOLFAIZ_XM,Euro Bölgesi (XM) Merkez Bankası Politika Faiz Oranı,global_policy_rate,AYLIK,quarterly,last,4.0,3,3,0,2023-04,2023-06,2023-06-30,False,,,
+2023Q2,TP.BK.ANKARA,TP_BK_ANKARA,Ankara Konut Birim Kiraları,housing_rent_level,ÜÇ AYLIK,quarterly,identity,61.04,1,1,0,2023-Q2,2023-Q2,2023-06-30,False,,,
+2023Q2,TP.BK.ISTANBUL,TP_BK_ISTANBUL,İstanbul Konut Birim Kiraları,housing_rent_level,ÜÇ AYLIK,quarterly,identity,140.83,1,1,0,2023-Q2,2023-Q2,2023-06-30,False,,,
+2023Q2,TP.BK.IZMIR,TP_BK_IZMIR,İzmir Konut Birim Kiraları,housing_rent_level,ÜÇ AYLIK,quarterly,identity,88.69,1,1,0,2023-Q2,2023-Q2,2023-06-30,False,,,
+2023Q2,TP.BK.TR,TP_BK_TR,Türkiye Konut Birim Kiraları,housing_rent_level,ÜÇ AYLIK,quarterly,identity,82.53,1,1,0,2023-Q2,2023-Q2,2023-06-30,False,,,
+2023Q2,TP.GSYIH60.HY.B1GQ,TP_GSYIH60_HY_B1GQ,"Gayrisafi Yurt İçi Hasıla (Harcama Yöntemiyle, Mevsim Etkisinden Arındırılmış  Zincirlenmiş Hacim Endeksi)",activity_control,ÜÇ AYLIK,quarterly,identity,222.71528077,1,1,0,2023-Q2,2023-Q2,2023-06-30,False,,,
+2023Q2,TP.GSYIH60.HY.P311,TP_GSYIH60_HY_P311,"Yerleşik Hanehalklarının Tüketimi (Harcama Yöntemiyle, Mevsim Etkisinden Arındırılmış  Zincirlenmiş Hacim Endeksi)",consumption_control,ÜÇ AYLIK,quarterly,identity,249.9378136,1,1,0,2023-Q2,2023-Q2,2023-06-30,False,,,
+2023Q2,TP.IN.KL2.TOPLAM.TOP.D,TP_IN_KL2_TOPLAM_TOP_D,(Toplam) Binalar (Daire Sayısı),housing_completion,AYLIK,quarterly,sum,109321.0,3,3,0,2023-04,2023-06,2023-06-30,False,,,
+2023Q2,TP.MK.KUL.YTL,TP_MK_KUL_YTL,Külçe Altın Satış Fiyatı (TL/Gr),alternative_asset,AYLIK,quarterly,last,1495.28,3,3,0,2023-04,2023-06,2023-06-30,False,,,
+2023Q3,TP.BISPOLFAIZ.TUR,TP_BISPOLFAIZ_TUR,Türkiye (TUR) Merkez Bankası Politika Faiz Oranı,policy_rate_actual,AYLIK,quarterly,last,30.0,3,3,0,2023-07,2023-09,2023-09-30,False,,,
+2023Q3,TP.BISPOLFAIZ.USA,TP_BISPOLFAIZ_USA,Amerika Birleşik Devletleri (USA) Merkez Bankası Politika Faiz Oranı,global_policy_rate,AYLIK,quarterly,last,5.375,3,3,0,2023-07,2023-09,2023-09-30,False,,,
+2023Q3,TP.BISPOLFAIZ.XM,TP_BISPOLFAIZ_XM,Euro Bölgesi (XM) Merkez Bankası Politika Faiz Oranı,global_policy_rate,AYLIK,quarterly,last,4.5,3,3,0,2023-07,2023-09,2023-09-30,False,,,
+2023Q3,TP.BK.ANKARA,TP_BK_ANKARA,Ankara Konut Birim Kiraları,housing_rent_level,ÜÇ AYLIK,quarterly,identity,82.22,1,1,0,2023-Q3,2023-Q3,2023-09-30,False,,,
+2023Q3,TP.BK.ISTANBUL,TP_BK_ISTANBUL,İstanbul Konut Birim Kiraları,housing_rent_level,ÜÇ AYLIK,quarterly,identity,167.37,1,1,0,2023-Q3,2023-Q3,2023-09-30,False,,,
+2023Q3,TP.BK.IZMIR,TP_BK_IZMIR,İzmir Konut Birim Kiraları,housing_rent_level,ÜÇ AYLIK,quarterly,identity,110.13,1,1,0,2023-Q3,2023-Q3,2023-09-30,False,,,
+2023Q3,TP.BK.TR,TP_BK_TR,Türkiye Konut Birim Kiraları,housing_rent_level,ÜÇ AYLIK,quarterly,identity,103.28,1,1,0,2023-Q3,2023-Q3,2023-09-30,False,,,
+2023Q3,TP.GSYIH60.HY.B1GQ,TP_GSYIH60_HY_B1GQ,"Gayrisafi Yurt İçi Hasıla (Harcama Yöntemiyle, Mevsim Etkisinden Arındırılmış  Zincirlenmiş Hacim Endeksi)",activity_control,ÜÇ AYLIK,quarterly,identity,226.21698727,1,1,0,2023-Q3,2023-Q3,2023-09-30,False,,,
+2023Q3,TP.GSYIH60.HY.P311,TP_GSYIH60_HY_P311,"Yerleşik Hanehalklarının Tüketimi (Harcama Yöntemiyle, Mevsim Etkisinden Arındırılmış  Zincirlenmiş Hacim Endeksi)",consumption_control,ÜÇ AYLIK,quarterly,identity,255.84456878,1,1,0,2023-Q3,2023-Q3,2023-09-30,False,,,
+2023Q3,TP.IN.KL2.TOPLAM.TOP.D,TP_IN_KL2_TOPLAM_TOP_D,(Toplam) Binalar (Daire Sayısı),housing_completion,AYLIK,quarterly,sum,116865.0,3,3,0,2023-07,2023-09,2023-09-30,False,,,
+2023Q3,TP.MK.KUL.YTL,TP_MK_KUL_YTL,Külçe Altın Satış Fiyatı (TL/Gr),alternative_asset,AYLIK,quarterly,last,1710.53,3,3,0,2023-07,2023-09,2023-09-30,False,,,
+2023Q4,TP.BISPOLFAIZ.TUR,TP_BISPOLFAIZ_TUR,Türkiye (TUR) Merkez Bankası Politika Faiz Oranı,policy_rate_actual,AYLIK,quarterly,last,42.5,3,3,0,2023-10,2023-12,2023-12-31,False,,,
+2023Q4,TP.BISPOLFAIZ.USA,TP_BISPOLFAIZ_USA,Amerika Birleşik Devletleri (USA) Merkez Bankası Politika Faiz Oranı,global_policy_rate,AYLIK,quarterly,last,5.375,3,3,0,2023-10,2023-12,2023-12-31,False,,,
+2023Q4,TP.BISPOLFAIZ.XM,TP_BISPOLFAIZ_XM,Euro Bölgesi (XM) Merkez Bankası Politika Faiz Oranı,global_policy_rate,AYLIK,quarterly,last,4.5,3,3,0,2023-10,2023-12,2023-12-31,False,,,
+2023Q4,TP.BK.ANKARA,TP_BK_ANKARA,Ankara Konut Birim Kiraları,housing_rent_level,ÜÇ AYLIK,quarterly,identity,94.76,1,1,0,2023-Q4,2023-Q4,2023-12-31,False,,,
+2023Q4,TP.BK.ISTANBUL,TP_BK_ISTANBUL,İstanbul Konut Birim Kiraları,housing_rent_level,ÜÇ AYLIK,quarterly,identity,187.66,1,1,0,2023-Q4,2023-Q4,2023-12-31,False,,,
+2023Q4,TP.BK.IZMIR,TP_BK_IZMIR,İzmir Konut Birim Kiraları,housing_rent_level,ÜÇ AYLIK,quarterly,identity,127.81,1,1,0,2023-Q4,2023-Q4,2023-12-31,False,,,
+2023Q4,TP.BK.TR,TP_BK_TR,Türkiye Konut Birim Kiraları,housing_rent_level,ÜÇ AYLIK,quarterly,identity,117.63,1,1,0,2023-Q4,2023-Q4,2023-12-31,False,,,
+2023Q4,TP.GSYIH60.HY.B1GQ,TP_GSYIH60_HY_B1GQ,"Gayrisafi Yurt İçi Hasıla (Harcama Yöntemiyle, Mevsim Etkisinden Arındırılmış  Zincirlenmiş Hacim Endeksi)",activity_control,ÜÇ AYLIK,quarterly,identity,228.26733386,1,1,0,2023-Q4,2023-Q4,2023-12-31,False,,,
+2023Q4,TP.GSYIH60.HY.P311,TP_GSYIH60_HY_P311,"Yerleşik Hanehalklarının Tüketimi (Harcama Yöntemiyle, Mevsim Etkisinden Arındırılmış  Zincirlenmiş Hacim Endeksi)",consumption_control,ÜÇ AYLIK,quarterly,identity,264.37037632,1,1,0,2023-Q4,2023-Q4,2023-12-31,False,,,
+2023Q4,TP.IN.KL2.TOPLAM.TOP.D,TP_IN_KL2_TOPLAM_TOP_D,(Toplam) Binalar (Daire Sayısı),housing_completion,AYLIK,quarterly,sum,186575.0,3,3,0,2023-10,2023-12,2023-12-31,False,,,
+2023Q4,TP.MK.KUL.YTL,TP_MK_KUL_YTL,Külçe Altın Satış Fiyatı (TL/Gr),alternative_asset,AYLIK,quarterly,last,1984.48,3,3,0,2023-10,2023-12,2023-12-31,False,,,
+2024Q1,TP.BISPOLFAIZ.TUR,TP_BISPOLFAIZ_TUR,Türkiye (TUR) Merkez Bankası Politika Faiz Oranı,policy_rate_actual,AYLIK,quarterly,last,50.0,3,3,0,2024-01,2024-03,2024-03-31,False,,,
+2024Q1,TP.BISPOLFAIZ.USA,TP_BISPOLFAIZ_USA,Amerika Birleşik Devletleri (USA) Merkez Bankası Politika Faiz Oranı,global_policy_rate,AYLIK,quarterly,last,5.375,3,3,0,2024-01,2024-03,2024-03-31,False,,,
+2024Q1,TP.BISPOLFAIZ.XM,TP_BISPOLFAIZ_XM,Euro Bölgesi (XM) Merkez Bankası Politika Faiz Oranı,global_policy_rate,AYLIK,quarterly,last,4.5,3,3,0,2024-01,2024-03,2024-03-31,False,,,
+2024Q1,TP.BK.ANKARA,TP_BK_ANKARA,Ankara Konut Birim Kiraları,housing_rent_level,ÜÇ AYLIK,quarterly,identity,103.2,1,1,0,2024-Q1,2024-Q1,2024-03-31,False,,,
+2024Q1,TP.BK.ISTANBUL,TP_BK_ISTANBUL,İstanbul Konut Birim Kiraları,housing_rent_level,ÜÇ AYLIK,quarterly,identity,193.09,1,1,0,2024-Q1,2024-Q1,2024-03-31,False,,,
+2024Q1,TP.BK.IZMIR,TP_BK_IZMIR,İzmir Konut Birim Kiraları,housing_rent_level,ÜÇ AYLIK,quarterly,identity,133.63,1,1,0,2024-Q1,2024-Q1,2024-03-31,False,,,
+2024Q1,TP.BK.TR,TP_BK_TR,Türkiye Konut Birim Kiraları,housing_rent_level,ÜÇ AYLIK,quarterly,identity,122.28,1,1,0,2024-Q1,2024-Q1,2024-03-31,False,,,
+2024Q1,TP.GSYIH60.HY.B1GQ,TP_GSYIH60_HY_B1GQ,"Gayrisafi Yurt İçi Hasıla (Harcama Yöntemiyle, Mevsim Etkisinden Arındırılmış  Zincirlenmiş Hacim Endeksi)",activity_control,ÜÇ AYLIK,quarterly,identity,230.60445261,1,1,0,2024-Q1,2024-Q1,2024-03-31,False,,,
+2024Q1,TP.GSYIH60.HY.P311,TP_GSYIH60_HY_P311,"Yerleşik Hanehalklarının Tüketimi (Harcama Yöntemiyle, Mevsim Etkisinden Arındırılmış  Zincirlenmiş Hacim Endeksi)",consumption_control,ÜÇ AYLIK,quarterly,identity,268.29523419,1,1,0,2024-Q1,2024-Q1,2024-03-31,False,,,
+2024Q1,TP.IN.KL2.TOPLAM.TOP.D,TP_IN_KL2_TOPLAM_TOP_D,(Toplam) Binalar (Daire Sayısı),housing_completion,AYLIK,quarterly,sum,188338.0,3,3,0,2024-01,2024-03,2024-03-31,False,,,
+2024Q1,TP.MK.KUL.YTL,TP_MK_KUL_YTL,Külçe Altın Satış Fiyatı (TL/Gr),alternative_asset,AYLIK,quarterly,last,2394.82,3,3,0,2024-01,2024-03,2024-03-31,False,,,
+2024Q2,TP.BISPOLFAIZ.TUR,TP_BISPOLFAIZ_TUR,Türkiye (TUR) Merkez Bankası Politika Faiz Oranı,policy_rate_actual,AYLIK,quarterly,last,50.0,3,3,0,2024-04,2024-06,2024-06-30,False,,,
+2024Q2,TP.BISPOLFAIZ.USA,TP_BISPOLFAIZ_USA,Amerika Birleşik Devletleri (USA) Merkez Bankası Politika Faiz Oranı,global_policy_rate,AYLIK,quarterly,last,5.375,3,3,0,2024-04,2024-06,2024-06-30,False,,,
+2024Q2,TP.BISPOLFAIZ.XM,TP_BISPOLFAIZ_XM,Euro Bölgesi (XM) Merkez Bankası Politika Faiz Oranı,global_policy_rate,AYLIK,quarterly,last,4.25,3,3,0,2024-04,2024-06,2024-06-30,False,,,
+2024Q2,TP.BK.ANKARA,TP_BK_ANKARA,Ankara Konut Birim Kiraları,housing_rent_level,ÜÇ AYLIK,quarterly,identity,115.37,1,1,0,2024-Q2,2024-Q2,2024-06-30,False,,,
+2024Q2,TP.BK.ISTANBUL,TP_BK_ISTANBUL,İstanbul Konut Birim Kiraları,housing_rent_level,ÜÇ AYLIK,quarterly,identity,205.88,1,1,0,2024-Q2,2024-Q2,2024-06-30,False,,,
+2024Q2,TP.BK.IZMIR,TP_BK_IZMIR,İzmir Konut Birim Kiraları,housing_rent_level,ÜÇ AYLIK,quarterly,identity,151.44,1,1,0,2024-Q2,2024-Q2,2024-06-30,False,,,
+2024Q2,TP.BK.TR,TP_BK_TR,Türkiye Konut Birim Kiraları,housing_rent_level,ÜÇ AYLIK,quarterly,identity,134.56,1,1,0,2024-Q2,2024-Q2,2024-06-30,False,,,
+2024Q2,TP.GSYIH60.HY.B1GQ,TP_GSYIH60_HY_B1GQ,"Gayrisafi Yurt İçi Hasıla (Harcama Yöntemiyle, Mevsim Etkisinden Arındırılmış  Zincirlenmiş Hacim Endeksi)",activity_control,ÜÇ AYLIK,quarterly,identity,227.43829171,1,1,0,2024-Q2,2024-Q2,2024-06-30,False,,,
+2024Q2,TP.GSYIH60.HY.P311,TP_GSYIH60_HY_P311,"Yerleşik Hanehalklarının Tüketimi (Harcama Yöntemiyle, Mevsim Etkisinden Arındırılmış  Zincirlenmiş Hacim Endeksi)",consumption_control,ÜÇ AYLIK,quarterly,identity,257.32664448,1,1,0,2024-Q2,2024-Q2,2024-06-30,False,,,
+2024Q2,TP.IN.KL2.TOPLAM.TOP.D,TP_IN_KL2_TOPLAM_TOP_D,(Toplam) Binalar (Daire Sayısı),housing_completion,AYLIK,quarterly,sum,89557.0,3,3,0,2024-04,2024-06,2024-06-30,False,,,
+2024Q2,TP.MK.KUL.YTL,TP_MK_KUL_YTL,Külçe Altın Satış Fiyatı (TL/Gr),alternative_asset,AYLIK,quarterly,last,2477.29,3,3,0,2024-04,2024-06,2024-06-30,False,,,
+2024Q3,TP.BISPOLFAIZ.TUR,TP_BISPOLFAIZ_TUR,Türkiye (TUR) Merkez Bankası Politika Faiz Oranı,policy_rate_actual,AYLIK,quarterly,last,50.0,3,3,0,2024-07,2024-09,2024-09-30,False,,,
+2024Q3,TP.BISPOLFAIZ.USA,TP_BISPOLFAIZ_USA,Amerika Birleşik Devletleri (USA) Merkez Bankası Politika Faiz Oranı,global_policy_rate,AYLIK,quarterly,last,4.875,3,3,0,2024-07,2024-09,2024-09-30,False,,,
+2024Q3,TP.BISPOLFAIZ.XM,TP_BISPOLFAIZ_XM,Euro Bölgesi (XM) Merkez Bankası Politika Faiz Oranı,global_policy_rate,AYLIK,quarterly,last,3.5,3,3,0,2024-07,2024-09,2024-09-30,False,,,
+2024Q3,TP.BK.ANKARA,TP_BK_ANKARA,Ankara Konut Birim Kiraları,housing_rent_level,ÜÇ AYLIK,quarterly,identity,130.53,1,1,0,2024-Q3,2024-Q3,2024-09-30,False,,,
+2024Q3,TP.BK.ISTANBUL,TP_BK_ISTANBUL,İstanbul Konut Birim Kiraları,housing_rent_level,ÜÇ AYLIK,quarterly,identity,232.73,1,1,0,2024-Q3,2024-Q3,2024-09-30,False,,,
+2024Q3,TP.BK.IZMIR,TP_BK_IZMIR,İzmir Konut Birim Kiraları,housing_rent_level,ÜÇ AYLIK,quarterly,identity,167.19,1,1,0,2024-Q3,2024-Q3,2024-09-30,False,,,
+2024Q3,TP.BK.TR,TP_BK_TR,Türkiye Konut Birim Kiraları,housing_rent_level,ÜÇ AYLIK,quarterly,identity,150.75,1,1,0,2024-Q3,2024-Q3,2024-09-30,False,,,
+2024Q3,TP.GSYIH60.HY.B1GQ,TP_GSYIH60_HY_B1GQ,"Gayrisafi Yurt İçi Hasıla (Harcama Yöntemiyle, Mevsim Etkisinden Arındırılmış  Zincirlenmiş Hacim Endeksi)",activity_control,ÜÇ AYLIK,quarterly,identity,230.91977436,1,1,0,2024-Q3,2024-Q3,2024-09-30,False,,,
+2024Q3,TP.GSYIH60.HY.P311,TP_GSYIH60_HY_P311,"Yerleşik Hanehalklarının Tüketimi (Harcama Yöntemiyle, Mevsim Etkisinden Arındırılmış  Zincirlenmiş Hacim Endeksi)",consumption_control,ÜÇ AYLIK,quarterly,identity,266.67307862,1,1,0,2024-Q3,2024-Q3,2024-09-30,False,,,
+2024Q3,TP.IN.KL2.TOPLAM.TOP.D,TP_IN_KL2_TOPLAM_TOP_D,(Toplam) Binalar (Daire Sayısı),housing_completion,AYLIK,quarterly,sum,127086.0,3,3,0,2024-07,2024-09,2024-09-30,False,,,
+2024Q3,TP.MK.KUL.YTL,TP_MK_KUL_YTL,Külçe Altın Satış Fiyatı (TL/Gr),alternative_asset,AYLIK,quarterly,last,2907.12,3,3,0,2024-07,2024-09,2024-09-30,False,,,
+2024Q4,TP.BISPOLFAIZ.TUR,TP_BISPOLFAIZ_TUR,Türkiye (TUR) Merkez Bankası Politika Faiz Oranı,policy_rate_actual,AYLIK,quarterly,last,47.5,3,3,0,2024-10,2024-12,2024-12-31,False,,,
+2024Q4,TP.BISPOLFAIZ.USA,TP_BISPOLFAIZ_USA,Amerika Birleşik Devletleri (USA) Merkez Bankası Politika Faiz Oranı,global_policy_rate,AYLIK,quarterly,last,4.375,3,3,0,2024-10,2024-12,2024-12-31,False,,,
+2024Q4,TP.BISPOLFAIZ.XM,TP_BISPOLFAIZ_XM,Euro Bölgesi (XM) Merkez Bankası Politika Faiz Oranı,global_policy_rate,AYLIK,quarterly,last,3.0,3,3,0,2024-10,2024-12,2024-12-31,False,,,
+2024Q4,TP.BK.ANKARA,TP_BK_ANKARA,Ankara Konut Birim Kiraları,housing_rent_level,ÜÇ AYLIK,quarterly,identity,147.09,1,1,0,2024-Q4,2024-Q4,2024-12-31,False,,,
+2024Q4,TP.BK.ISTANBUL,TP_BK_ISTANBUL,İstanbul Konut Birim Kiraları,housing_rent_level,ÜÇ AYLIK,quarterly,identity,260.58,1,1,0,2024-Q4,2024-Q4,2024-12-31,False,,,
+2024Q4,TP.BK.IZMIR,TP_BK_IZMIR,İzmir Konut Birim Kiraları,housing_rent_level,ÜÇ AYLIK,quarterly,identity,190.55,1,1,0,2024-Q4,2024-Q4,2024-12-31,False,,,
+2024Q4,TP.BK.TR,TP_BK_TR,Türkiye Konut Birim Kiraları,housing_rent_level,ÜÇ AYLIK,quarterly,identity,168.76,1,1,0,2024-Q4,2024-Q4,2024-12-31,False,,,
+2024Q4,TP.GSYIH60.HY.B1GQ,TP_GSYIH60_HY_B1GQ,"Gayrisafi Yurt İçi Hasıla (Harcama Yöntemiyle, Mevsim Etkisinden Arındırılmış  Zincirlenmiş Hacim Endeksi)",activity_control,ÜÇ AYLIK,quarterly,identity,234.69667096,1,1,0,2024-Q4,2024-Q4,2024-12-31,False,,,
+2024Q4,TP.GSYIH60.HY.P311,TP_GSYIH60_HY_P311,"Yerleşik Hanehalklarının Tüketimi (Harcama Yöntemiyle, Mevsim Etkisinden Arındırılmış  Zincirlenmiş Hacim Endeksi)",consumption_control,ÜÇ AYLIK,quarterly,identity,274.22647537,1,1,0,2024-Q4,2024-Q4,2024-12-31,False,,,
+2024Q4,TP.IN.KL2.TOPLAM.TOP.D,TP_IN_KL2_TOPLAM_TOP_D,(Toplam) Binalar (Daire Sayısı),housing_completion,AYLIK,quarterly,sum,231177.0,3,3,0,2024-10,2024-12,2024-12-31,False,,,
+2024Q4,TP.MK.KUL.YTL,TP_MK_KUL_YTL,Külçe Altın Satış Fiyatı (TL/Gr),alternative_asset,AYLIK,quarterly,last,3041.08,3,3,0,2024-10,2024-12,2024-12-31,False,,,
+2025Q1,TP.BISPOLFAIZ.TUR,TP_BISPOLFAIZ_TUR,Türkiye (TUR) Merkez Bankası Politika Faiz Oranı,policy_rate_actual,AYLIK,quarterly,last,42.5,3,3,0,2025-01,2025-03,2025-03-31,False,,,
+2025Q1,TP.BISPOLFAIZ.USA,TP_BISPOLFAIZ_USA,Amerika Birleşik Devletleri (USA) Merkez Bankası Politika Faiz Oranı,global_policy_rate,AYLIK,quarterly,last,4.375,3,3,0,2025-01,2025-03,2025-03-31,False,,,
+2025Q1,TP.BISPOLFAIZ.XM,TP_BISPOLFAIZ_XM,Euro Bölgesi (XM) Merkez Bankası Politika Faiz Oranı,global_policy_rate,AYLIK,quarterly,last,2.5,3,3,0,2025-01,2025-03,2025-03-31,False,,,
+2025Q1,TP.BK.ANKARA,TP_BK_ANKARA,Ankara Konut Birim Kiraları,housing_rent_level,ÜÇ AYLIK,quarterly,identity,164.24,1,1,0,2025-Q1,2025-Q1,2025-03-31,False,,,
+2025Q1,TP.BK.ISTANBUL,TP_BK_ISTANBUL,İstanbul Konut Birim Kiraları,housing_rent_level,ÜÇ AYLIK,quarterly,identity,293.16,1,1,0,2025-Q1,2025-Q1,2025-03-31,False,,,
+2025Q1,TP.BK.IZMIR,TP_BK_IZMIR,İzmir Konut Birim Kiraları,housing_rent_level,ÜÇ AYLIK,quarterly,identity,202.69,1,1,0,2025-Q1,2025-Q1,2025-03-31,False,,,
+2025Q1,TP.BK.TR,TP_BK_TR,Türkiye Konut Birim Kiraları,housing_rent_level,ÜÇ AYLIK,quarterly,identity,179.93,1,1,0,2025-Q1,2025-Q1,2025-03-31,False,,,
+2025Q1,TP.GSYIH60.HY.B1GQ,TP_GSYIH60_HY_B1GQ,"Gayrisafi Yurt İçi Hasıla (Harcama Yöntemiyle, Mevsim Etkisinden Arındırılmış  Zincirlenmiş Hacim Endeksi)",activity_control,ÜÇ AYLIK,quarterly,identity,235.96467536,1,1,0,2025-Q1,2025-Q1,2025-03-31,False,,,
+2025Q1,TP.GSYIH60.HY.P311,TP_GSYIH60_HY_P311,"Yerleşik Hanehalklarının Tüketimi (Harcama Yöntemiyle, Mevsim Etkisinden Arındırılmış  Zincirlenmiş Hacim Endeksi)",consumption_control,ÜÇ AYLIK,quarterly,identity,272.18456013,1,1,0,2025-Q1,2025-Q1,2025-03-31,False,,,
+2025Q1,TP.IN.KL2.TOPLAM.TOP.D,TP_IN_KL2_TOPLAM_TOP_D,(Toplam) Binalar (Daire Sayısı),housing_completion,AYLIK,quarterly,sum,148211.0,3,3,0,2025-01,2025-03,2025-03-31,False,,,
+2025Q1,TP.MK.KUL.YTL,TP_MK_KUL_YTL,Külçe Altın Satış Fiyatı (TL/Gr),alternative_asset,AYLIK,quarterly,last,3648.33,3,3,0,2025-01,2025-03,2025-03-31,False,,,
+2025Q2,TP.BISPOLFAIZ.TUR,TP_BISPOLFAIZ_TUR,Türkiye (TUR) Merkez Bankası Politika Faiz Oranı,policy_rate_actual,AYLIK,quarterly,last,46.0,3,3,0,2025-04,2025-06,2025-06-30,False,,,
+2025Q2,TP.BISPOLFAIZ.USA,TP_BISPOLFAIZ_USA,Amerika Birleşik Devletleri (USA) Merkez Bankası Politika Faiz Oranı,global_policy_rate,AYLIK,quarterly,last,4.375,3,3,0,2025-04,2025-06,2025-06-30,False,,,
+2025Q2,TP.BISPOLFAIZ.XM,TP_BISPOLFAIZ_XM,Euro Bölgesi (XM) Merkez Bankası Politika Faiz Oranı,global_policy_rate,AYLIK,quarterly,last,2.0,3,3,0,2025-04,2025-06,2025-06-30,False,,,
+2025Q2,TP.BK.ANKARA,TP_BK_ANKARA,Ankara Konut Birim Kiraları,housing_rent_level,ÜÇ AYLIK,quarterly,identity,178.71,1,1,0,2025-Q2,2025-Q2,2025-06-30,False,,,
+2025Q2,TP.BK.ISTANBUL,TP_BK_ISTANBUL,İstanbul Konut Birim Kiraları,housing_rent_level,ÜÇ AYLIK,quarterly,identity,305.19,1,1,0,2025-Q2,2025-Q2,2025-06-30,False,,,
+2025Q2,TP.BK.IZMIR,TP_BK_IZMIR,İzmir Konut Birim Kiraları,housing_rent_level,ÜÇ AYLIK,quarterly,identity,217.97,1,1,0,2025-Q2,2025-Q2,2025-06-30,False,,,
+2025Q2,TP.BK.TR,TP_BK_TR,Türkiye Konut Birim Kiraları,housing_rent_level,ÜÇ AYLIK,quarterly,identity,191.19,1,1,0,2025-Q2,2025-Q2,2025-06-30,False,,,
+2025Q2,TP.GSYIH60.HY.B1GQ,TP_GSYIH60_HY_B1GQ,"Gayrisafi Yurt İçi Hasıla (Harcama Yöntemiyle, Mevsim Etkisinden Arındırılmış  Zincirlenmiş Hacim Endeksi)",activity_control,ÜÇ AYLIK,quarterly,identity,237.66426013,1,1,0,2025-Q2,2025-Q2,2025-06-30,False,,,
+2025Q2,TP.GSYIH60.HY.P311,TP_GSYIH60_HY_P311,"Yerleşik Hanehalklarının Tüketimi (Harcama Yöntemiyle, Mevsim Etkisinden Arındırılmış  Zincirlenmiş Hacim Endeksi)",consumption_control,ÜÇ AYLIK,quarterly,identity,270.27144969,1,1,0,2025-Q2,2025-Q2,2025-06-30,False,,,
+2025Q2,TP.IN.KL2.TOPLAM.TOP.D,TP_IN_KL2_TOPLAM_TOP_D,(Toplam) Binalar (Daire Sayısı),housing_completion,AYLIK,quarterly,sum,130263.0,3,3,0,2025-04,2025-06,2025-06-30,False,,,
+2025Q2,TP.MK.KUL.YTL,TP_MK_KUL_YTL,Külçe Altın Satış Fiyatı (TL/Gr),alternative_asset,AYLIK,quarterly,last,4314.26,3,3,0,2025-04,2025-06,2025-06-30,False,,,
+2025Q3,TP.BISPOLFAIZ.TUR,TP_BISPOLFAIZ_TUR,Türkiye (TUR) Merkez Bankası Politika Faiz Oranı,policy_rate_actual,AYLIK,quarterly,last,40.5,3,3,0,2025-07,2025-09,2025-09-30,False,,,
+2025Q3,TP.BISPOLFAIZ.USA,TP_BISPOLFAIZ_USA,Amerika Birleşik Devletleri (USA) Merkez Bankası Politika Faiz Oranı,global_policy_rate,AYLIK,quarterly,last,4.125,3,3,0,2025-07,2025-09,2025-09-30,False,,,
+2025Q3,TP.BISPOLFAIZ.XM,TP_BISPOLFAIZ_XM,Euro Bölgesi (XM) Merkez Bankası Politika Faiz Oranı,global_policy_rate,AYLIK,quarterly,last,2.0,3,3,0,2025-07,2025-09,2025-09-30,False,,,
+2025Q3,TP.BK.ANKARA,TP_BK_ANKARA,Ankara Konut Birim Kiraları,housing_rent_level,ÜÇ AYLIK,quarterly,identity,197.65,1,1,0,2025-Q3,2025-Q3,2025-09-30,False,,,
+2025Q3,TP.BK.ISTANBUL,TP_BK_ISTANBUL,İstanbul Konut Birim Kiraları,housing_rent_level,ÜÇ AYLIK,quarterly,identity,334.58,1,1,0,2025-Q3,2025-Q3,2025-09-30,False,,,
+2025Q3,TP.BK.IZMIR,TP_BK_IZMIR,İzmir Konut Birim Kiraları,housing_rent_level,ÜÇ AYLIK,quarterly,identity,239.34,1,1,0,2025-Q3,2025-Q3,2025-09-30,False,,,
+2025Q3,TP.BK.TR,TP_BK_TR,Türkiye Konut Birim Kiraları,housing_rent_level,ÜÇ AYLIK,quarterly,identity,208.56,1,1,0,2025-Q3,2025-Q3,2025-09-30,False,,,
+2025Q3,TP.GSYIH60.HY.B1GQ,TP_GSYIH60_HY_B1GQ,"Gayrisafi Yurt İçi Hasıla (Harcama Yöntemiyle, Mevsim Etkisinden Arındırılmış  Zincirlenmiş Hacim Endeksi)",activity_control,ÜÇ AYLIK,quarterly,identity,242.18230627,1,1,0,2025-Q3,2025-Q3,2025-09-30,False,,,
+2025Q3,TP.GSYIH60.HY.P311,TP_GSYIH60_HY_P311,"Yerleşik Hanehalklarının Tüketimi (Harcama Yöntemiyle, Mevsim Etkisinden Arındırılmış  Zincirlenmiş Hacim Endeksi)",consumption_control,ÜÇ AYLIK,quarterly,identity,278.83794003,1,1,0,2025-Q3,2025-Q3,2025-09-30,False,,,
+2025Q3,TP.IN.KL2.TOPLAM.TOP.D,TP_IN_KL2_TOPLAM_TOP_D,(Toplam) Binalar (Daire Sayısı),housing_completion,AYLIK,quarterly,sum,156440.0,3,3,0,2025-07,2025-09,2025-09-30,False,,,
+2025Q3,TP.MK.KUL.YTL,TP_MK_KUL_YTL,Külçe Altın Satış Fiyatı (TL/Gr),alternative_asset,AYLIK,quarterly,last,4978.61,3,3,0,2025-07,2025-09,2025-09-30,False,,,
+2025Q4,TP.BISPOLFAIZ.TUR,TP_BISPOLFAIZ_TUR,Türkiye (TUR) Merkez Bankası Politika Faiz Oranı,policy_rate_actual,AYLIK,quarterly,last,38.0,3,3,0,2025-10,2025-12,2025-12-31,False,,,
+2025Q4,TP.BISPOLFAIZ.USA,TP_BISPOLFAIZ_USA,Amerika Birleşik Devletleri (USA) Merkez Bankası Politika Faiz Oranı,global_policy_rate,AYLIK,quarterly,last,3.625,3,3,0,2025-10,2025-12,2025-12-31,False,,,
+2025Q4,TP.BISPOLFAIZ.XM,TP_BISPOLFAIZ_XM,Euro Bölgesi (XM) Merkez Bankası Politika Faiz Oranı,global_policy_rate,AYLIK,quarterly,last,2.0,3,3,0,2025-10,2025-12,2025-12-31,False,,,
+2025Q4,TP.BK.ANKARA,TP_BK_ANKARA,Ankara Konut Birim Kiraları,housing_rent_level,ÜÇ AYLIK,quarterly,identity,210.07,1,1,0,2025-Q4,2025-Q4,2025-12-31,False,,,
+2025Q4,TP.BK.ISTANBUL,TP_BK_ISTANBUL,İstanbul Konut Birim Kiraları,housing_rent_level,ÜÇ AYLIK,quarterly,identity,367.86,1,1,0,2025-Q4,2025-Q4,2025-12-31,False,,,
+2025Q4,TP.BK.IZMIR,TP_BK_IZMIR,İzmir Konut Birim Kiraları,housing_rent_level,ÜÇ AYLIK,quarterly,identity,252.18,1,1,0,2025-Q4,2025-Q4,2025-12-31,False,,,
+2025Q4,TP.BK.TR,TP_BK_TR,Türkiye Konut Birim Kiraları,housing_rent_level,ÜÇ AYLIK,quarterly,identity,224.75,1,1,0,2025-Q4,2025-Q4,2025-12-31,False,,,
+2025Q4,TP.GSYIH60.HY.B1GQ,TP_GSYIH60_HY_B1GQ,"Gayrisafi Yurt İçi Hasıla (Harcama Yöntemiyle, Mevsim Etkisinden Arındırılmış  Zincirlenmiş Hacim Endeksi)",activity_control,ÜÇ AYLIK,quarterly,identity,242.22474866,1,1,0,2025-Q4,2025-Q4,2025-12-31,False,,,
+2025Q4,TP.GSYIH60.HY.P311,TP_GSYIH60_HY_P311,"Yerleşik Hanehalklarının Tüketimi (Harcama Yöntemiyle, Mevsim Etkisinden Arındırılmış  Zincirlenmiş Hacim Endeksi)",consumption_control,ÜÇ AYLIK,quarterly,identity,289.57734846,1,1,0,2025-Q4,2025-Q4,2025-12-31,False,,,
+2025Q4,TP.IN.KL2.TOPLAM.TOP.D,TP_IN_KL2_TOPLAM_TOP_D,(Toplam) Binalar (Daire Sayısı),housing_completion,AYLIK,quarterly,sum,257824.0,3,3,0,2025-10,2025-12,2025-12-31,False,,,
+2025Q4,TP.MK.KUL.YTL,TP_MK_KUL_YTL,Külçe Altın Satış Fiyatı (TL/Gr),alternative_asset,AYLIK,quarterly,last,6030.79,3,3,0,2025-10,2025-12,2025-12-31,False,,,
+2026Q1,TP.BISPOLFAIZ.TUR,TP_BISPOLFAIZ_TUR,Türkiye (TUR) Merkez Bankası Politika Faiz Oranı,policy_rate_actual,AYLIK,quarterly,last,37.0,3,3,0,2026-01,2026-03,2026-03-31,False,,,
+2026Q1,TP.BISPOLFAIZ.USA,TP_BISPOLFAIZ_USA,Amerika Birleşik Devletleri (USA) Merkez Bankası Politika Faiz Oranı,global_policy_rate,AYLIK,quarterly,last,3.625,3,3,0,2026-01,2026-03,2026-03-31,False,,,
+2026Q1,TP.BISPOLFAIZ.XM,TP_BISPOLFAIZ_XM,Euro Bölgesi (XM) Merkez Bankası Politika Faiz Oranı,global_policy_rate,AYLIK,quarterly,last,2.0,3,3,0,2026-01,2026-03,2026-03-31,False,,,
+2026Q1,TP.BK.ANKARA,TP_BK_ANKARA,Ankara Konut Birim Kiraları,housing_rent_level,ÜÇ AYLIK,quarterly,identity,224.01,1,1,0,2026-Q1,2026-Q1,2026-03-31,False,,,
+2026Q1,TP.BK.ISTANBUL,TP_BK_ISTANBUL,İstanbul Konut Birim Kiraları,housing_rent_level,ÜÇ AYLIK,quarterly,identity,404.53,1,1,0,2026-Q1,2026-Q1,2026-03-31,False,,,
+2026Q1,TP.BK.IZMIR,TP_BK_IZMIR,İzmir Konut Birim Kiraları,housing_rent_level,ÜÇ AYLIK,quarterly,identity,265.79,1,1,0,2026-Q1,2026-Q1,2026-03-31,False,,,
+2026Q1,TP.BK.TR,TP_BK_TR,Türkiye Konut Birim Kiraları,housing_rent_level,ÜÇ AYLIK,quarterly,identity,241.79,1,1,0,2026-Q1,2026-Q1,2026-03-31,False,,,
+2026Q1,TP.GSYIH60.HY.B1GQ,TP_GSYIH60_HY_B1GQ,"Gayrisafi Yurt İçi Hasıla (Harcama Yöntemiyle, Mevsim Etkisinden Arındırılmış  Zincirlenmiş Hacim Endeksi)",activity_control,ÜÇ AYLIK,quarterly,identity,241.86362068,1,1,0,2026-Q1,2026-Q1,2026-03-31,False,,,
+2026Q1,TP.GSYIH60.HY.P311,TP_GSYIH60_HY_P311,"Yerleşik Hanehalklarının Tüketimi (Harcama Yöntemiyle, Mevsim Etkisinden Arındırılmış  Zincirlenmiş Hacim Endeksi)",consumption_control,ÜÇ AYLIK,quarterly,identity,285.89274515,1,1,0,2026-Q1,2026-Q1,2026-03-31,False,,,
+2026Q1,TP.IN.KL2.TOPLAM.TOP.D,TP_IN_KL2_TOPLAM_TOP_D,(Toplam) Binalar (Daire Sayısı),housing_completion,AYLIK,quarterly,sum,163290.0,3,3,0,2026-01,2026-03,2026-03-31,False,,,
+2026Q1,TP.MK.KUL.YTL,TP_MK_KUL_YTL,Külçe Altın Satış Fiyatı (TL/Gr),alternative_asset,AYLIK,quarterly,last,7259.39,3,3,0,2026-01,2026-03,2026-03-31,False,,,
+2026Q2,TP.BISPOLFAIZ.TUR,TP_BISPOLFAIZ_TUR,Türkiye (TUR) Merkez Bankası Politika Faiz Oranı,policy_rate_actual,AYLIK,quarterly,last,37.0,3,3,0,2026-04,2026-06,2026-06-30,False,,,
+2026Q2,TP.BISPOLFAIZ.USA,TP_BISPOLFAIZ_USA,Amerika Birleşik Devletleri (USA) Merkez Bankası Politika Faiz Oranı,global_policy_rate,AYLIK,quarterly,last,3.625,3,3,0,2026-04,2026-06,2026-06-30,False,,,
+2026Q2,TP.BISPOLFAIZ.XM,TP_BISPOLFAIZ_XM,Euro Bölgesi (XM) Merkez Bankası Politika Faiz Oranı,global_policy_rate,AYLIK,quarterly,last,2.25,3,3,0,2026-04,2026-06,2026-06-30,False,,,
+2026Q2,TP.BK.ANKARA,TP_BK_ANKARA,Ankara Konut Birim Kiraları,housing_rent_level,ÜÇ AYLIK,quarterly,identity,239.24,1,1,0,2026-Q2,2026-Q2,2026-06-30,False,,,
+2026Q2,TP.BK.ISTANBUL,TP_BK_ISTANBUL,İstanbul Konut Birim Kiraları,housing_rent_level,ÜÇ AYLIK,quarterly,identity,442.57,1,1,0,2026-Q2,2026-Q2,2026-06-30,False,,,
+2026Q2,TP.BK.IZMIR,TP_BK_IZMIR,İzmir Konut Birim Kiraları,housing_rent_level,ÜÇ AYLIK,quarterly,identity,285.62,1,1,0,2026-Q2,2026-Q2,2026-06-30,False,,,
+2026Q2,TP.BK.TR,TP_BK_TR,Türkiye Konut Birim Kiraları,housing_rent_level,ÜÇ AYLIK,quarterly,identity,258.45,1,1,0,2026-Q2,2026-Q2,2026-06-30,False,,,
+2026Q2,TP.GSYIH60.HY.B1GQ,TP_GSYIH60_HY_B1GQ,"Gayrisafi Yurt İçi Hasıla (Harcama Yöntemiyle, Mevsim Etkisinden Arındırılmış  Zincirlenmiş Hacim Endeksi)",activity_control,ÜÇ AYLIK,quarterly,identity,243.87109226,1,1,0,2026-Q2,2026-Q2,2026-06-30,False,,,
+2026Q2,TP.GSYIH60.HY.P311,TP_GSYIH60_HY_P311,"Yerleşik Hanehalklarının Tüketimi (Harcama Yöntemiyle, Mevsim Etkisinden Arındırılmış  Zincirlenmiş Hacim Endeksi)",consumption_control,ÜÇ AYLIK,quarterly,identity,280.00240853,1,1,0,2026-Q2,2026-Q2,2026-06-30,False,,,
+2026Q2,TP.IN.KL2.TOPLAM.TOP.D,TP_IN_KL2_TOPLAM_TOP_D,(Toplam) Binalar (Daire Sayısı),housing_completion,AYLIK,quarterly,sum,144150.0,3,3,0,2026-04,2026-06,2026-06-30,False,,,
+2026Q2,TP.MK.KUL.YTL,TP_MK_KUL_YTL,Külçe Altın Satış Fiyatı (TL/Gr),alternative_asset,AYLIK,quarterly,last,6741.91,2,2,0,2026-04,2026-05,2026-05-31,False,,,

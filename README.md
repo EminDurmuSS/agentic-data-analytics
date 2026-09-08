@@ -12,8 +12,8 @@ ve yeniden üretilebilir biçimde hazırlanmasıdır.
 | BDDK haftalık | 286 hafta, sektör toplamı, 9 tablonun tamamı | Tamamlandı ve doğrulandı |
 | BDDK FinTürk | 22 çeyrek, 7 tablo, 7 banka grubu, 81 il ve `YURT DIŞI` | Tamamlandı ve doğrulandı |
 | TCMB EVDS katalog | 676 veri grubu, 52.696 benzersiz seri kaydı | Tamamlandı, metadata kataloğu |
-| TCMB EVDS gözlem | Konut kredisi nedensellik analizi için seçilmiş 60 seri | Tamamlandı ve doğrulandı |
-| TBB tüketici kredileri | 2021 Mart-2026 Mart, 21 yayımlanmış çeyrek | Tamamlandı; 2026 Haziran raporu kaynakta yok |
+| TCMB EVDS gözlem | Konut kredisi nedensellik analizi için seçilmiş 61 kaynak seri ve 1 açıkça türetilmiş seri | Tamamlandı ve doğrulandı |
+| TBB tüketici kredileri | 2021 Mart-2026 Mart, 21 yayımlanmış çeyrek | Tamamlandı; 8 Eylül 2026 kontrolünde 2026 Haziran raporu kaynakta yok |
 | Resmî karar belgeleri | 4 BDDK kararı ve 4 TCMB destek belgesi | Tam metin, çıkarılmış metin ve SHA-256 mevcut |
 
 Ham kaynak değerleri değiştirilmez. Eksik gözlemler sıfır yapılmaz, stok ile
@@ -23,11 +23,11 @@ ayrı tutulur ve çeyreklik veri ara aylara yapay olarak yayılmaz.
 ## Ölçek
 
 - BDDK aylık: 1.122 resmî istek, 33.965 kaynak satırı, 133.485 semantik ölçüm
-- BDDK haftalık: 2.574 resmî sayfa, 249.070 ham hücre, 147.154 ölçüm
-- BDDK FinTürk: 84.484 kaynak satırı, 936.512 ölçüm
-- EVDS: 52.696 seri metadata kaydı, 60 seçilmiş seride 10.787 gözlem
-- Birleşik katalog: 44 veri varlığı, 55.457 metrik, 2.819 yerel sorgulanabilir metrik
-- DuckDB: 7 şema, 32 tablo, mutlak dosya yoluna ihtiyaç duymayan tek dosya
+- BDDK haftalık: 2.574 resmî sayfa, 249.070 ham hücre, 147.154 ölçüm. Kaynaktaki 514 boş hücrenin tamamı yapısal `FX uygulanamaz` olarak açıklandı
+- BDDK FinTürk: 84.484 kaynak satırı, 936.512 ölçüm. 30.892 kaynak boşluğunun 29.564'ü yapısal, 1.328'i kaynakta raporlanmamış olarak sınıflandırıldı
+- EVDS: 52.696 seri metadata kaydı, 61 seçilmiş kaynak seride 12.482 gözlem ve 1 türetilmiş altın serisi
+- Birleşik katalog: 50 veri varlığı, 55.458 metrik, 2.821 yerel sorgulanabilir metrik
+- DuckDB: 7 şema, 38 tablo, mutlak dosya yoluna ihtiyaç duymayan tek dosya
 
 ## Klasörler
 
@@ -76,7 +76,9 @@ python -m unittest discover -s tests -v
 BDDK aylık ve haftalık bültenlerde bütün tablolar sektör toplamı için alındı.
 FinTürk'te ise bütün banka grupları ve bütün iller alındı. EVDS'nin tüm 52.696
 serisinin tarihsel gözlemleri indirilmedi. Bunun yerine, yarışmanın konut kredisi
-senaryosunda nedensellik ve alternatif açıklamalar için gerekli 60 seri seçildi.
+senaryosunda nedensellik ve alternatif açıklamalar için gerekli 61 kaynak seri
+seçildi. BIST altın kapanış fiyatından `0.001` katsayısıyla TL/kg -> TL/gram
+dönüşümü yapılan 1 ek seri de kaynak ve formül bilgisiyle ayrıca tutulur.
 Bu yaklaşım veri kapsamını güçlü tutarken gereksiz veri hacmini ve yanlış seri
 seçimi riskini sınırlar.
 
