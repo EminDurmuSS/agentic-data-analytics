@@ -1,0 +1,2655 @@
+{
+  "dataset_id": "regional_housing_v1",
+  "description": "Il bazinda konut satislari ve birim fiyatlari ile bolgesel KFE ve yeni kiraci kira endekslerini birlestiren EVDS gozlem paketi.",
+  "start_date": "2020-01-01",
+  "end_date": "2026-06-30",
+  "selection_policy": "catalog_driven_regional_housing_without_cross_dataset_duplicates",
+  "series": [
+    {
+      "series_code": "TP.AKONUTSAT1.KTR100",
+      "role": "province_housing_sales_total",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT1.KTR211",
+      "role": "province_housing_sales_total",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT1.KTR212",
+      "role": "province_housing_sales_total",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT1.KTR213",
+      "role": "province_housing_sales_total",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT1.KTR221",
+      "role": "province_housing_sales_total",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT1.KTR222",
+      "role": "province_housing_sales_total",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT1.KTR310",
+      "role": "province_housing_sales_total",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT1.KTR321",
+      "role": "province_housing_sales_total",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT1.KTR322",
+      "role": "province_housing_sales_total",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT1.KTR323",
+      "role": "province_housing_sales_total",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT1.KTR331",
+      "role": "province_housing_sales_total",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT1.KTR332",
+      "role": "province_housing_sales_total",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT1.KTR333",
+      "role": "province_housing_sales_total",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT1.KTR334",
+      "role": "province_housing_sales_total",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT1.KTR411",
+      "role": "province_housing_sales_total",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT1.KTR412",
+      "role": "province_housing_sales_total",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT1.KTR413",
+      "role": "province_housing_sales_total",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT1.KTR421",
+      "role": "province_housing_sales_total",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT1.KTR422",
+      "role": "province_housing_sales_total",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT1.KTR423",
+      "role": "province_housing_sales_total",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT1.KTR424",
+      "role": "province_housing_sales_total",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT1.KTR425",
+      "role": "province_housing_sales_total",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT1.KTR510",
+      "role": "province_housing_sales_total",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT1.KTR521",
+      "role": "province_housing_sales_total",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT1.KTR522",
+      "role": "province_housing_sales_total",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT1.KTR611",
+      "role": "province_housing_sales_total",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT1.KTR612",
+      "role": "province_housing_sales_total",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT1.KTR613",
+      "role": "province_housing_sales_total",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT1.KTR621",
+      "role": "province_housing_sales_total",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT1.KTR622",
+      "role": "province_housing_sales_total",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT1.KTR631",
+      "role": "province_housing_sales_total",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT1.KTR632",
+      "role": "province_housing_sales_total",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT1.KTR633",
+      "role": "province_housing_sales_total",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT1.KTR711",
+      "role": "province_housing_sales_total",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT1.KTR712",
+      "role": "province_housing_sales_total",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT1.KTR713",
+      "role": "province_housing_sales_total",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT1.KTR714",
+      "role": "province_housing_sales_total",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT1.KTR715",
+      "role": "province_housing_sales_total",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT1.KTR721",
+      "role": "province_housing_sales_total",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT1.KTR722",
+      "role": "province_housing_sales_total",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT1.KTR723",
+      "role": "province_housing_sales_total",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT1.KTR811",
+      "role": "province_housing_sales_total",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT1.KTR812",
+      "role": "province_housing_sales_total",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT1.KTR813",
+      "role": "province_housing_sales_total",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT1.KTR821",
+      "role": "province_housing_sales_total",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT1.KTR822",
+      "role": "province_housing_sales_total",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT1.KTR823",
+      "role": "province_housing_sales_total",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT1.KTR831",
+      "role": "province_housing_sales_total",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT1.KTR832",
+      "role": "province_housing_sales_total",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT1.KTR833",
+      "role": "province_housing_sales_total",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT1.KTR834",
+      "role": "province_housing_sales_total",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT1.KTR901",
+      "role": "province_housing_sales_total",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT1.KTR902",
+      "role": "province_housing_sales_total",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT1.KTR903",
+      "role": "province_housing_sales_total",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT1.KTR904",
+      "role": "province_housing_sales_total",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT1.KTR905",
+      "role": "province_housing_sales_total",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT1.KTR906",
+      "role": "province_housing_sales_total",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT1.KTRA11",
+      "role": "province_housing_sales_total",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT1.KTRA12",
+      "role": "province_housing_sales_total",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT1.KTRA13",
+      "role": "province_housing_sales_total",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT1.KTRA21",
+      "role": "province_housing_sales_total",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT1.KTRA22",
+      "role": "province_housing_sales_total",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT1.KTRA23",
+      "role": "province_housing_sales_total",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT1.KTRA24",
+      "role": "province_housing_sales_total",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT1.KTRB11",
+      "role": "province_housing_sales_total",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT1.KTRB12",
+      "role": "province_housing_sales_total",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT1.KTRB13",
+      "role": "province_housing_sales_total",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT1.KTRB14",
+      "role": "province_housing_sales_total",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT1.KTRB21",
+      "role": "province_housing_sales_total",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT1.KTRB22",
+      "role": "province_housing_sales_total",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT1.KTRB23",
+      "role": "province_housing_sales_total",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT1.KTRB24",
+      "role": "province_housing_sales_total",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT1.KTRC11",
+      "role": "province_housing_sales_total",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT1.KTRC12",
+      "role": "province_housing_sales_total",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT1.KTRC13",
+      "role": "province_housing_sales_total",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT1.KTRC21",
+      "role": "province_housing_sales_total",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT1.KTRC22",
+      "role": "province_housing_sales_total",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT1.KTRC31",
+      "role": "province_housing_sales_total",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT1.KTRC32",
+      "role": "province_housing_sales_total",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT1.KTRC33",
+      "role": "province_housing_sales_total",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT1.KTRC34",
+      "role": "province_housing_sales_total",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT2.KTR100",
+      "role": "province_housing_sales_mortgaged",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT2.KTR211",
+      "role": "province_housing_sales_mortgaged",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT2.KTR212",
+      "role": "province_housing_sales_mortgaged",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT2.KTR213",
+      "role": "province_housing_sales_mortgaged",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT2.KTR221",
+      "role": "province_housing_sales_mortgaged",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT2.KTR222",
+      "role": "province_housing_sales_mortgaged",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT2.KTR310",
+      "role": "province_housing_sales_mortgaged",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT2.KTR321",
+      "role": "province_housing_sales_mortgaged",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT2.KTR322",
+      "role": "province_housing_sales_mortgaged",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT2.KTR323",
+      "role": "province_housing_sales_mortgaged",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT2.KTR331",
+      "role": "province_housing_sales_mortgaged",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT2.KTR332",
+      "role": "province_housing_sales_mortgaged",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT2.KTR333",
+      "role": "province_housing_sales_mortgaged",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT2.KTR334",
+      "role": "province_housing_sales_mortgaged",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT2.KTR411",
+      "role": "province_housing_sales_mortgaged",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT2.KTR412",
+      "role": "province_housing_sales_mortgaged",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT2.KTR413",
+      "role": "province_housing_sales_mortgaged",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT2.KTR421",
+      "role": "province_housing_sales_mortgaged",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT2.KTR422",
+      "role": "province_housing_sales_mortgaged",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT2.KTR423",
+      "role": "province_housing_sales_mortgaged",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT2.KTR424",
+      "role": "province_housing_sales_mortgaged",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT2.KTR425",
+      "role": "province_housing_sales_mortgaged",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT2.KTR510",
+      "role": "province_housing_sales_mortgaged",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT2.KTR521",
+      "role": "province_housing_sales_mortgaged",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT2.KTR522",
+      "role": "province_housing_sales_mortgaged",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT2.KTR611",
+      "role": "province_housing_sales_mortgaged",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT2.KTR612",
+      "role": "province_housing_sales_mortgaged",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT2.KTR613",
+      "role": "province_housing_sales_mortgaged",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT2.KTR621",
+      "role": "province_housing_sales_mortgaged",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT2.KTR622",
+      "role": "province_housing_sales_mortgaged",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT2.KTR631",
+      "role": "province_housing_sales_mortgaged",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT2.KTR632",
+      "role": "province_housing_sales_mortgaged",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT2.KTR633",
+      "role": "province_housing_sales_mortgaged",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT2.KTR711",
+      "role": "province_housing_sales_mortgaged",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT2.KTR712",
+      "role": "province_housing_sales_mortgaged",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT2.KTR713",
+      "role": "province_housing_sales_mortgaged",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT2.KTR714",
+      "role": "province_housing_sales_mortgaged",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT2.KTR715",
+      "role": "province_housing_sales_mortgaged",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT2.KTR721",
+      "role": "province_housing_sales_mortgaged",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT2.KTR722",
+      "role": "province_housing_sales_mortgaged",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT2.KTR723",
+      "role": "province_housing_sales_mortgaged",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT2.KTR811",
+      "role": "province_housing_sales_mortgaged",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT2.KTR812",
+      "role": "province_housing_sales_mortgaged",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT2.KTR813",
+      "role": "province_housing_sales_mortgaged",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT2.KTR821",
+      "role": "province_housing_sales_mortgaged",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT2.KTR822",
+      "role": "province_housing_sales_mortgaged",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT2.KTR823",
+      "role": "province_housing_sales_mortgaged",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT2.KTR831",
+      "role": "province_housing_sales_mortgaged",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT2.KTR832",
+      "role": "province_housing_sales_mortgaged",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT2.KTR833",
+      "role": "province_housing_sales_mortgaged",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT2.KTR834",
+      "role": "province_housing_sales_mortgaged",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT2.KTR901",
+      "role": "province_housing_sales_mortgaged",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT2.KTR902",
+      "role": "province_housing_sales_mortgaged",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT2.KTR903",
+      "role": "province_housing_sales_mortgaged",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT2.KTR904",
+      "role": "province_housing_sales_mortgaged",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT2.KTR905",
+      "role": "province_housing_sales_mortgaged",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT2.KTR906",
+      "role": "province_housing_sales_mortgaged",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT2.KTRA11",
+      "role": "province_housing_sales_mortgaged",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT2.KTRA12",
+      "role": "province_housing_sales_mortgaged",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT2.KTRA13",
+      "role": "province_housing_sales_mortgaged",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT2.KTRA21",
+      "role": "province_housing_sales_mortgaged",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT2.KTRA22",
+      "role": "province_housing_sales_mortgaged",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT2.KTRA23",
+      "role": "province_housing_sales_mortgaged",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT2.KTRA24",
+      "role": "province_housing_sales_mortgaged",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT2.KTRB11",
+      "role": "province_housing_sales_mortgaged",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT2.KTRB12",
+      "role": "province_housing_sales_mortgaged",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT2.KTRB13",
+      "role": "province_housing_sales_mortgaged",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT2.KTRB14",
+      "role": "province_housing_sales_mortgaged",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT2.KTRB21",
+      "role": "province_housing_sales_mortgaged",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT2.KTRB22",
+      "role": "province_housing_sales_mortgaged",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT2.KTRB23",
+      "role": "province_housing_sales_mortgaged",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT2.KTRB24",
+      "role": "province_housing_sales_mortgaged",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT2.KTRC11",
+      "role": "province_housing_sales_mortgaged",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT2.KTRC12",
+      "role": "province_housing_sales_mortgaged",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT2.KTRC13",
+      "role": "province_housing_sales_mortgaged",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT2.KTRC21",
+      "role": "province_housing_sales_mortgaged",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT2.KTRC22",
+      "role": "province_housing_sales_mortgaged",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT2.KTRC31",
+      "role": "province_housing_sales_mortgaged",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT2.KTRC32",
+      "role": "province_housing_sales_mortgaged",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT2.KTRC33",
+      "role": "province_housing_sales_mortgaged",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT2.KTRC34",
+      "role": "province_housing_sales_mortgaged",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT3.KTR100",
+      "role": "province_housing_sales_first_hand",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT3.KTR211",
+      "role": "province_housing_sales_first_hand",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT3.KTR212",
+      "role": "province_housing_sales_first_hand",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT3.KTR213",
+      "role": "province_housing_sales_first_hand",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT3.KTR221",
+      "role": "province_housing_sales_first_hand",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT3.KTR222",
+      "role": "province_housing_sales_first_hand",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT3.KTR310",
+      "role": "province_housing_sales_first_hand",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT3.KTR321",
+      "role": "province_housing_sales_first_hand",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT3.KTR322",
+      "role": "province_housing_sales_first_hand",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT3.KTR323",
+      "role": "province_housing_sales_first_hand",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT3.KTR331",
+      "role": "province_housing_sales_first_hand",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT3.KTR332",
+      "role": "province_housing_sales_first_hand",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT3.KTR333",
+      "role": "province_housing_sales_first_hand",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT3.KTR334",
+      "role": "province_housing_sales_first_hand",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT3.KTR411",
+      "role": "province_housing_sales_first_hand",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT3.KTR412",
+      "role": "province_housing_sales_first_hand",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT3.KTR413",
+      "role": "province_housing_sales_first_hand",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT3.KTR421",
+      "role": "province_housing_sales_first_hand",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT3.KTR422",
+      "role": "province_housing_sales_first_hand",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT3.KTR423",
+      "role": "province_housing_sales_first_hand",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT3.KTR424",
+      "role": "province_housing_sales_first_hand",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT3.KTR425",
+      "role": "province_housing_sales_first_hand",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT3.KTR510",
+      "role": "province_housing_sales_first_hand",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT3.KTR521",
+      "role": "province_housing_sales_first_hand",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT3.KTR522",
+      "role": "province_housing_sales_first_hand",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT3.KTR611",
+      "role": "province_housing_sales_first_hand",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT3.KTR612",
+      "role": "province_housing_sales_first_hand",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT3.KTR613",
+      "role": "province_housing_sales_first_hand",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT3.KTR621",
+      "role": "province_housing_sales_first_hand",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT3.KTR622",
+      "role": "province_housing_sales_first_hand",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT3.KTR631",
+      "role": "province_housing_sales_first_hand",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT3.KTR632",
+      "role": "province_housing_sales_first_hand",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT3.KTR633",
+      "role": "province_housing_sales_first_hand",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT3.KTR711",
+      "role": "province_housing_sales_first_hand",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT3.KTR712",
+      "role": "province_housing_sales_first_hand",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT3.KTR713",
+      "role": "province_housing_sales_first_hand",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT3.KTR714",
+      "role": "province_housing_sales_first_hand",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT3.KTR715",
+      "role": "province_housing_sales_first_hand",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT3.KTR721",
+      "role": "province_housing_sales_first_hand",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT3.KTR722",
+      "role": "province_housing_sales_first_hand",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT3.KTR723",
+      "role": "province_housing_sales_first_hand",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT3.KTR811",
+      "role": "province_housing_sales_first_hand",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT3.KTR812",
+      "role": "province_housing_sales_first_hand",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT3.KTR813",
+      "role": "province_housing_sales_first_hand",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT3.KTR821",
+      "role": "province_housing_sales_first_hand",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT3.KTR822",
+      "role": "province_housing_sales_first_hand",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT3.KTR823",
+      "role": "province_housing_sales_first_hand",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT3.KTR831",
+      "role": "province_housing_sales_first_hand",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT3.KTR832",
+      "role": "province_housing_sales_first_hand",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT3.KTR833",
+      "role": "province_housing_sales_first_hand",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT3.KTR834",
+      "role": "province_housing_sales_first_hand",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT3.KTR901",
+      "role": "province_housing_sales_first_hand",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT3.KTR902",
+      "role": "province_housing_sales_first_hand",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT3.KTR903",
+      "role": "province_housing_sales_first_hand",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT3.KTR904",
+      "role": "province_housing_sales_first_hand",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT3.KTR905",
+      "role": "province_housing_sales_first_hand",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT3.KTR906",
+      "role": "province_housing_sales_first_hand",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT3.KTRA11",
+      "role": "province_housing_sales_first_hand",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT3.KTRA12",
+      "role": "province_housing_sales_first_hand",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT3.KTRA13",
+      "role": "province_housing_sales_first_hand",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT3.KTRA21",
+      "role": "province_housing_sales_first_hand",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT3.KTRA22",
+      "role": "province_housing_sales_first_hand",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT3.KTRA23",
+      "role": "province_housing_sales_first_hand",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT3.KTRA24",
+      "role": "province_housing_sales_first_hand",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT3.KTRB11",
+      "role": "province_housing_sales_first_hand",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT3.KTRB12",
+      "role": "province_housing_sales_first_hand",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT3.KTRB13",
+      "role": "province_housing_sales_first_hand",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT3.KTRB14",
+      "role": "province_housing_sales_first_hand",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT3.KTRB21",
+      "role": "province_housing_sales_first_hand",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT3.KTRB22",
+      "role": "province_housing_sales_first_hand",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT3.KTRB23",
+      "role": "province_housing_sales_first_hand",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT3.KTRB24",
+      "role": "province_housing_sales_first_hand",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT3.KTRC11",
+      "role": "province_housing_sales_first_hand",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT3.KTRC12",
+      "role": "province_housing_sales_first_hand",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT3.KTRC13",
+      "role": "province_housing_sales_first_hand",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT3.KTRC21",
+      "role": "province_housing_sales_first_hand",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT3.KTRC22",
+      "role": "province_housing_sales_first_hand",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT3.KTRC31",
+      "role": "province_housing_sales_first_hand",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT3.KTRC32",
+      "role": "province_housing_sales_first_hand",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT3.KTRC33",
+      "role": "province_housing_sales_first_hand",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT3.KTRC34",
+      "role": "province_housing_sales_first_hand",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT4.KTR100",
+      "role": "province_housing_sales_second_hand",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT4.KTR211",
+      "role": "province_housing_sales_second_hand",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT4.KTR212",
+      "role": "province_housing_sales_second_hand",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT4.KTR213",
+      "role": "province_housing_sales_second_hand",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT4.KTR221",
+      "role": "province_housing_sales_second_hand",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT4.KTR222",
+      "role": "province_housing_sales_second_hand",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT4.KTR310",
+      "role": "province_housing_sales_second_hand",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT4.KTR321",
+      "role": "province_housing_sales_second_hand",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT4.KTR322",
+      "role": "province_housing_sales_second_hand",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT4.KTR323",
+      "role": "province_housing_sales_second_hand",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT4.KTR331",
+      "role": "province_housing_sales_second_hand",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT4.KTR332",
+      "role": "province_housing_sales_second_hand",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT4.KTR333",
+      "role": "province_housing_sales_second_hand",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT4.KTR334",
+      "role": "province_housing_sales_second_hand",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT4.KTR411",
+      "role": "province_housing_sales_second_hand",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT4.KTR412",
+      "role": "province_housing_sales_second_hand",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT4.KTR413",
+      "role": "province_housing_sales_second_hand",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT4.KTR421",
+      "role": "province_housing_sales_second_hand",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT4.KTR422",
+      "role": "province_housing_sales_second_hand",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT4.KTR423",
+      "role": "province_housing_sales_second_hand",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT4.KTR424",
+      "role": "province_housing_sales_second_hand",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT4.KTR425",
+      "role": "province_housing_sales_second_hand",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT4.KTR510",
+      "role": "province_housing_sales_second_hand",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT4.KTR521",
+      "role": "province_housing_sales_second_hand",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT4.KTR522",
+      "role": "province_housing_sales_second_hand",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT4.KTR611",
+      "role": "province_housing_sales_second_hand",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT4.KTR612",
+      "role": "province_housing_sales_second_hand",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT4.KTR613",
+      "role": "province_housing_sales_second_hand",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT4.KTR621",
+      "role": "province_housing_sales_second_hand",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT4.KTR622",
+      "role": "province_housing_sales_second_hand",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT4.KTR631",
+      "role": "province_housing_sales_second_hand",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT4.KTR632",
+      "role": "province_housing_sales_second_hand",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT4.KTR633",
+      "role": "province_housing_sales_second_hand",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT4.KTR711",
+      "role": "province_housing_sales_second_hand",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT4.KTR712",
+      "role": "province_housing_sales_second_hand",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT4.KTR713",
+      "role": "province_housing_sales_second_hand",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT4.KTR714",
+      "role": "province_housing_sales_second_hand",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT4.KTR715",
+      "role": "province_housing_sales_second_hand",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT4.KTR721",
+      "role": "province_housing_sales_second_hand",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT4.KTR722",
+      "role": "province_housing_sales_second_hand",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT4.KTR723",
+      "role": "province_housing_sales_second_hand",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT4.KTR811",
+      "role": "province_housing_sales_second_hand",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT4.KTR812",
+      "role": "province_housing_sales_second_hand",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT4.KTR813",
+      "role": "province_housing_sales_second_hand",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT4.KTR821",
+      "role": "province_housing_sales_second_hand",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT4.KTR822",
+      "role": "province_housing_sales_second_hand",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT4.KTR823",
+      "role": "province_housing_sales_second_hand",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT4.KTR831",
+      "role": "province_housing_sales_second_hand",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT4.KTR832",
+      "role": "province_housing_sales_second_hand",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT4.KTR833",
+      "role": "province_housing_sales_second_hand",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT4.KTR834",
+      "role": "province_housing_sales_second_hand",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT4.KTR901",
+      "role": "province_housing_sales_second_hand",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT4.KTR902",
+      "role": "province_housing_sales_second_hand",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT4.KTR903",
+      "role": "province_housing_sales_second_hand",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT4.KTR904",
+      "role": "province_housing_sales_second_hand",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT4.KTR905",
+      "role": "province_housing_sales_second_hand",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT4.KTR906",
+      "role": "province_housing_sales_second_hand",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT4.KTRA11",
+      "role": "province_housing_sales_second_hand",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT4.KTRA12",
+      "role": "province_housing_sales_second_hand",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT4.KTRA13",
+      "role": "province_housing_sales_second_hand",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT4.KTRA21",
+      "role": "province_housing_sales_second_hand",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT4.KTRA22",
+      "role": "province_housing_sales_second_hand",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT4.KTRA23",
+      "role": "province_housing_sales_second_hand",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT4.KTRA24",
+      "role": "province_housing_sales_second_hand",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT4.KTRB11",
+      "role": "province_housing_sales_second_hand",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT4.KTRB12",
+      "role": "province_housing_sales_second_hand",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT4.KTRB13",
+      "role": "province_housing_sales_second_hand",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT4.KTRB14",
+      "role": "province_housing_sales_second_hand",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT4.KTRB21",
+      "role": "province_housing_sales_second_hand",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT4.KTRB22",
+      "role": "province_housing_sales_second_hand",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT4.KTRB23",
+      "role": "province_housing_sales_second_hand",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT4.KTRB24",
+      "role": "province_housing_sales_second_hand",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT4.KTRC11",
+      "role": "province_housing_sales_second_hand",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT4.KTRC12",
+      "role": "province_housing_sales_second_hand",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT4.KTRC13",
+      "role": "province_housing_sales_second_hand",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT4.KTRC21",
+      "role": "province_housing_sales_second_hand",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT4.KTRC22",
+      "role": "province_housing_sales_second_hand",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT4.KTRC31",
+      "role": "province_housing_sales_second_hand",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT4.KTRC32",
+      "role": "province_housing_sales_second_hand",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT4.KTRC33",
+      "role": "province_housing_sales_second_hand",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.AKONUTSAT4.KTRC34",
+      "role": "province_housing_sales_second_hand",
+      "reason": "Il bazinda konut satis hareketini ve finansman kompozisyonunu olcmek",
+      "aggregation": "sum"
+    },
+    {
+      "series_code": "TP.BIRIMFIYAT.ADANA",
+      "role": "province_housing_unit_price",
+      "reason": "Il bazinda konut birim fiyat seviyesini olcmek",
+      "aggregation": "last"
+    },
+    {
+      "series_code": "TP.BIRIMFIYAT.ADIYAMAN",
+      "role": "province_housing_unit_price",
+      "reason": "Il bazinda konut birim fiyat seviyesini olcmek",
+      "aggregation": "last"
+    },
+    {
+      "series_code": "TP.BIRIMFIYAT.AFYON",
+      "role": "province_housing_unit_price",
+      "reason": "Il bazinda konut birim fiyat seviyesini olcmek",
+      "aggregation": "last"
+    },
+    {
+      "series_code": "TP.BIRIMFIYAT.AGRI",
+      "role": "province_housing_unit_price",
+      "reason": "Il bazinda konut birim fiyat seviyesini olcmek",
+      "aggregation": "last"
+    },
+    {
+      "series_code": "TP.BIRIMFIYAT.AKSARAY",
+      "role": "province_housing_unit_price",
+      "reason": "Il bazinda konut birim fiyat seviyesini olcmek",
+      "aggregation": "last"
+    },
+    {
+      "series_code": "TP.BIRIMFIYAT.AMASYA",
+      "role": "province_housing_unit_price",
+      "reason": "Il bazinda konut birim fiyat seviyesini olcmek",
+      "aggregation": "last"
+    },
+    {
+      "series_code": "TP.BIRIMFIYAT.ANK",
+      "role": "province_housing_unit_price",
+      "reason": "Il bazinda konut birim fiyat seviyesini olcmek",
+      "aggregation": "last"
+    },
+    {
+      "series_code": "TP.BIRIMFIYAT.ANTALYA",
+      "role": "province_housing_unit_price",
+      "reason": "Il bazinda konut birim fiyat seviyesini olcmek",
+      "aggregation": "last"
+    },
+    {
+      "series_code": "TP.BIRIMFIYAT.ANTEP",
+      "role": "province_housing_unit_price",
+      "reason": "Il bazinda konut birim fiyat seviyesini olcmek",
+      "aggregation": "last"
+    },
+    {
+      "series_code": "TP.BIRIMFIYAT.ARDAHAN",
+      "role": "province_housing_unit_price",
+      "reason": "Il bazinda konut birim fiyat seviyesini olcmek",
+      "aggregation": "last"
+    },
+    {
+      "series_code": "TP.BIRIMFIYAT.ARTVIN",
+      "role": "province_housing_unit_price",
+      "reason": "Il bazinda konut birim fiyat seviyesini olcmek",
+      "aggregation": "last"
+    },
+    {
+      "series_code": "TP.BIRIMFIYAT.AYDIN",
+      "role": "province_housing_unit_price",
+      "reason": "Il bazinda konut birim fiyat seviyesini olcmek",
+      "aggregation": "last"
+    },
+    {
+      "series_code": "TP.BIRIMFIYAT.BALIKESIR",
+      "role": "province_housing_unit_price",
+      "reason": "Il bazinda konut birim fiyat seviyesini olcmek",
+      "aggregation": "last"
+    },
+    {
+      "series_code": "TP.BIRIMFIYAT.BARTIN",
+      "role": "province_housing_unit_price",
+      "reason": "Il bazinda konut birim fiyat seviyesini olcmek",
+      "aggregation": "last"
+    },
+    {
+      "series_code": "TP.BIRIMFIYAT.BATMAN",
+      "role": "province_housing_unit_price",
+      "reason": "Il bazinda konut birim fiyat seviyesini olcmek",
+      "aggregation": "last"
+    },
+    {
+      "series_code": "TP.BIRIMFIYAT.BAYBURT",
+      "role": "province_housing_unit_price",
+      "reason": "Il bazinda konut birim fiyat seviyesini olcmek",
+      "aggregation": "last"
+    },
+    {
+      "series_code": "TP.BIRIMFIYAT.BILECIK",
+      "role": "province_housing_unit_price",
+      "reason": "Il bazinda konut birim fiyat seviyesini olcmek",
+      "aggregation": "last"
+    },
+    {
+      "series_code": "TP.BIRIMFIYAT.BINGOL",
+      "role": "province_housing_unit_price",
+      "reason": "Il bazinda konut birim fiyat seviyesini olcmek",
+      "aggregation": "last"
+    },
+    {
+      "series_code": "TP.BIRIMFIYAT.BITLIS",
+      "role": "province_housing_unit_price",
+      "reason": "Il bazinda konut birim fiyat seviyesini olcmek",
+      "aggregation": "last"
+    },
+    {
+      "series_code": "TP.BIRIMFIYAT.BOLU",
+      "role": "province_housing_unit_price",
+      "reason": "Il bazinda konut birim fiyat seviyesini olcmek",
+      "aggregation": "last"
+    },
+    {
+      "series_code": "TP.BIRIMFIYAT.BURDUR",
+      "role": "province_housing_unit_price",
+      "reason": "Il bazinda konut birim fiyat seviyesini olcmek",
+      "aggregation": "last"
+    },
+    {
+      "series_code": "TP.BIRIMFIYAT.BURSA",
+      "role": "province_housing_unit_price",
+      "reason": "Il bazinda konut birim fiyat seviyesini olcmek",
+      "aggregation": "last"
+    },
+    {
+      "series_code": "TP.BIRIMFIYAT.CANAKKALE",
+      "role": "province_housing_unit_price",
+      "reason": "Il bazinda konut birim fiyat seviyesini olcmek",
+      "aggregation": "last"
+    },
+    {
+      "series_code": "TP.BIRIMFIYAT.CANKIRI",
+      "role": "province_housing_unit_price",
+      "reason": "Il bazinda konut birim fiyat seviyesini olcmek",
+      "aggregation": "last"
+    },
+    {
+      "series_code": "TP.BIRIMFIYAT.CORUM",
+      "role": "province_housing_unit_price",
+      "reason": "Il bazinda konut birim fiyat seviyesini olcmek",
+      "aggregation": "last"
+    },
+    {
+      "series_code": "TP.BIRIMFIYAT.DENIZLI",
+      "role": "province_housing_unit_price",
+      "reason": "Il bazinda konut birim fiyat seviyesini olcmek",
+      "aggregation": "last"
+    },
+    {
+      "series_code": "TP.BIRIMFIYAT.DIYARBAKIR",
+      "role": "province_housing_unit_price",
+      "reason": "Il bazinda konut birim fiyat seviyesini olcmek",
+      "aggregation": "last"
+    },
+    {
+      "series_code": "TP.BIRIMFIYAT.DUZCE",
+      "role": "province_housing_unit_price",
+      "reason": "Il bazinda konut birim fiyat seviyesini olcmek",
+      "aggregation": "last"
+    },
+    {
+      "series_code": "TP.BIRIMFIYAT.EDIRNE",
+      "role": "province_housing_unit_price",
+      "reason": "Il bazinda konut birim fiyat seviyesini olcmek",
+      "aggregation": "last"
+    },
+    {
+      "series_code": "TP.BIRIMFIYAT.ELAZIG",
+      "role": "province_housing_unit_price",
+      "reason": "Il bazinda konut birim fiyat seviyesini olcmek",
+      "aggregation": "last"
+    },
+    {
+      "series_code": "TP.BIRIMFIYAT.ERZINCAN",
+      "role": "province_housing_unit_price",
+      "reason": "Il bazinda konut birim fiyat seviyesini olcmek",
+      "aggregation": "last"
+    },
+    {
+      "series_code": "TP.BIRIMFIYAT.ERZURUM",
+      "role": "province_housing_unit_price",
+      "reason": "Il bazinda konut birim fiyat seviyesini olcmek",
+      "aggregation": "last"
+    },
+    {
+      "series_code": "TP.BIRIMFIYAT.ESKISEHIR",
+      "role": "province_housing_unit_price",
+      "reason": "Il bazinda konut birim fiyat seviyesini olcmek",
+      "aggregation": "last"
+    },
+    {
+      "series_code": "TP.BIRIMFIYAT.GIRESUN",
+      "role": "province_housing_unit_price",
+      "reason": "Il bazinda konut birim fiyat seviyesini olcmek",
+      "aggregation": "last"
+    },
+    {
+      "series_code": "TP.BIRIMFIYAT.GUMUSHANE",
+      "role": "province_housing_unit_price",
+      "reason": "Il bazinda konut birim fiyat seviyesini olcmek",
+      "aggregation": "last"
+    },
+    {
+      "series_code": "TP.BIRIMFIYAT.HAKKARI",
+      "role": "province_housing_unit_price",
+      "reason": "Il bazinda konut birim fiyat seviyesini olcmek",
+      "aggregation": "last"
+    },
+    {
+      "series_code": "TP.BIRIMFIYAT.HATAY",
+      "role": "province_housing_unit_price",
+      "reason": "Il bazinda konut birim fiyat seviyesini olcmek",
+      "aggregation": "last"
+    },
+    {
+      "series_code": "TP.BIRIMFIYAT.IGDIR",
+      "role": "province_housing_unit_price",
+      "reason": "Il bazinda konut birim fiyat seviyesini olcmek",
+      "aggregation": "last"
+    },
+    {
+      "series_code": "TP.BIRIMFIYAT.ISPARTA",
+      "role": "province_housing_unit_price",
+      "reason": "Il bazinda konut birim fiyat seviyesini olcmek",
+      "aggregation": "last"
+    },
+    {
+      "series_code": "TP.BIRIMFIYAT.IST",
+      "role": "province_housing_unit_price",
+      "reason": "Il bazinda konut birim fiyat seviyesini olcmek",
+      "aggregation": "last"
+    },
+    {
+      "series_code": "TP.BIRIMFIYAT.IZM",
+      "role": "province_housing_unit_price",
+      "reason": "Il bazinda konut birim fiyat seviyesini olcmek",
+      "aggregation": "last"
+    },
+    {
+      "series_code": "TP.BIRIMFIYAT.KARABUK",
+      "role": "province_housing_unit_price",
+      "reason": "Il bazinda konut birim fiyat seviyesini olcmek",
+      "aggregation": "last"
+    },
+    {
+      "series_code": "TP.BIRIMFIYAT.KARAMAN",
+      "role": "province_housing_unit_price",
+      "reason": "Il bazinda konut birim fiyat seviyesini olcmek",
+      "aggregation": "last"
+    },
+    {
+      "series_code": "TP.BIRIMFIYAT.KARS",
+      "role": "province_housing_unit_price",
+      "reason": "Il bazinda konut birim fiyat seviyesini olcmek",
+      "aggregation": "last"
+    },
+    {
+      "series_code": "TP.BIRIMFIYAT.KASTAMONU",
+      "role": "province_housing_unit_price",
+      "reason": "Il bazinda konut birim fiyat seviyesini olcmek",
+      "aggregation": "last"
+    },
+    {
+      "series_code": "TP.BIRIMFIYAT.KAYSERI",
+      "role": "province_housing_unit_price",
+      "reason": "Il bazinda konut birim fiyat seviyesini olcmek",
+      "aggregation": "last"
+    },
+    {
+      "series_code": "TP.BIRIMFIYAT.KILIS",
+      "role": "province_housing_unit_price",
+      "reason": "Il bazinda konut birim fiyat seviyesini olcmek",
+      "aggregation": "last"
+    },
+    {
+      "series_code": "TP.BIRIMFIYAT.KIRIKKALE",
+      "role": "province_housing_unit_price",
+      "reason": "Il bazinda konut birim fiyat seviyesini olcmek",
+      "aggregation": "last"
+    },
+    {
+      "series_code": "TP.BIRIMFIYAT.KIRKLARELI",
+      "role": "province_housing_unit_price",
+      "reason": "Il bazinda konut birim fiyat seviyesini olcmek",
+      "aggregation": "last"
+    },
+    {
+      "series_code": "TP.BIRIMFIYAT.KIRSEHIR",
+      "role": "province_housing_unit_price",
+      "reason": "Il bazinda konut birim fiyat seviyesini olcmek",
+      "aggregation": "last"
+    },
+    {
+      "series_code": "TP.BIRIMFIYAT.KOCAELI",
+      "role": "province_housing_unit_price",
+      "reason": "Il bazinda konut birim fiyat seviyesini olcmek",
+      "aggregation": "last"
+    },
+    {
+      "series_code": "TP.BIRIMFIYAT.KONYA",
+      "role": "province_housing_unit_price",
+      "reason": "Il bazinda konut birim fiyat seviyesini olcmek",
+      "aggregation": "last"
+    },
+    {
+      "series_code": "TP.BIRIMFIYAT.KUTAHYA",
+      "role": "province_housing_unit_price",
+      "reason": "Il bazinda konut birim fiyat seviyesini olcmek",
+      "aggregation": "last"
+    },
+    {
+      "series_code": "TP.BIRIMFIYAT.MALATYA",
+      "role": "province_housing_unit_price",
+      "reason": "Il bazinda konut birim fiyat seviyesini olcmek",
+      "aggregation": "last"
+    },
+    {
+      "series_code": "TP.BIRIMFIYAT.MANISA",
+      "role": "province_housing_unit_price",
+      "reason": "Il bazinda konut birim fiyat seviyesini olcmek",
+      "aggregation": "last"
+    },
+    {
+      "series_code": "TP.BIRIMFIYAT.MARAS",
+      "role": "province_housing_unit_price",
+      "reason": "Il bazinda konut birim fiyat seviyesini olcmek",
+      "aggregation": "last"
+    },
+    {
+      "series_code": "TP.BIRIMFIYAT.MARDIN",
+      "role": "province_housing_unit_price",
+      "reason": "Il bazinda konut birim fiyat seviyesini olcmek",
+      "aggregation": "last"
+    },
+    {
+      "series_code": "TP.BIRIMFIYAT.MERSIN",
+      "role": "province_housing_unit_price",
+      "reason": "Il bazinda konut birim fiyat seviyesini olcmek",
+      "aggregation": "last"
+    },
+    {
+      "series_code": "TP.BIRIMFIYAT.MUGLA",
+      "role": "province_housing_unit_price",
+      "reason": "Il bazinda konut birim fiyat seviyesini olcmek",
+      "aggregation": "last"
+    },
+    {
+      "series_code": "TP.BIRIMFIYAT.MUS",
+      "role": "province_housing_unit_price",
+      "reason": "Il bazinda konut birim fiyat seviyesini olcmek",
+      "aggregation": "last"
+    },
+    {
+      "series_code": "TP.BIRIMFIYAT.NEVSEHIR",
+      "role": "province_housing_unit_price",
+      "reason": "Il bazinda konut birim fiyat seviyesini olcmek",
+      "aggregation": "last"
+    },
+    {
+      "series_code": "TP.BIRIMFIYAT.NIGDE",
+      "role": "province_housing_unit_price",
+      "reason": "Il bazinda konut birim fiyat seviyesini olcmek",
+      "aggregation": "last"
+    },
+    {
+      "series_code": "TP.BIRIMFIYAT.ORDU",
+      "role": "province_housing_unit_price",
+      "reason": "Il bazinda konut birim fiyat seviyesini olcmek",
+      "aggregation": "last"
+    },
+    {
+      "series_code": "TP.BIRIMFIYAT.OSMANIYE",
+      "role": "province_housing_unit_price",
+      "reason": "Il bazinda konut birim fiyat seviyesini olcmek",
+      "aggregation": "last"
+    },
+    {
+      "series_code": "TP.BIRIMFIYAT.RIZE",
+      "role": "province_housing_unit_price",
+      "reason": "Il bazinda konut birim fiyat seviyesini olcmek",
+      "aggregation": "last"
+    },
+    {
+      "series_code": "TP.BIRIMFIYAT.SAKARYA",
+      "role": "province_housing_unit_price",
+      "reason": "Il bazinda konut birim fiyat seviyesini olcmek",
+      "aggregation": "last"
+    },
+    {
+      "series_code": "TP.BIRIMFIYAT.SAMSUN",
+      "role": "province_housing_unit_price",
+      "reason": "Il bazinda konut birim fiyat seviyesini olcmek",
+      "aggregation": "last"
+    },
+    {
+      "series_code": "TP.BIRIMFIYAT.SIIRT",
+      "role": "province_housing_unit_price",
+      "reason": "Il bazinda konut birim fiyat seviyesini olcmek",
+      "aggregation": "last"
+    },
+    {
+      "series_code": "TP.BIRIMFIYAT.SINOP",
+      "role": "province_housing_unit_price",
+      "reason": "Il bazinda konut birim fiyat seviyesini olcmek",
+      "aggregation": "last"
+    },
+    {
+      "series_code": "TP.BIRIMFIYAT.SIRNAK",
+      "role": "province_housing_unit_price",
+      "reason": "Il bazinda konut birim fiyat seviyesini olcmek",
+      "aggregation": "last"
+    },
+    {
+      "series_code": "TP.BIRIMFIYAT.SIVAS",
+      "role": "province_housing_unit_price",
+      "reason": "Il bazinda konut birim fiyat seviyesini olcmek",
+      "aggregation": "last"
+    },
+    {
+      "series_code": "TP.BIRIMFIYAT.TEKIRDAG",
+      "role": "province_housing_unit_price",
+      "reason": "Il bazinda konut birim fiyat seviyesini olcmek",
+      "aggregation": "last"
+    },
+    {
+      "series_code": "TP.BIRIMFIYAT.TOKAT",
+      "role": "province_housing_unit_price",
+      "reason": "Il bazinda konut birim fiyat seviyesini olcmek",
+      "aggregation": "last"
+    },
+    {
+      "series_code": "TP.BIRIMFIYAT.TRABZON",
+      "role": "province_housing_unit_price",
+      "reason": "Il bazinda konut birim fiyat seviyesini olcmek",
+      "aggregation": "last"
+    },
+    {
+      "series_code": "TP.BIRIMFIYAT.TUNCELI",
+      "role": "province_housing_unit_price",
+      "reason": "Il bazinda konut birim fiyat seviyesini olcmek",
+      "aggregation": "last"
+    },
+    {
+      "series_code": "TP.BIRIMFIYAT.URFA",
+      "role": "province_housing_unit_price",
+      "reason": "Il bazinda konut birim fiyat seviyesini olcmek",
+      "aggregation": "last"
+    },
+    {
+      "series_code": "TP.BIRIMFIYAT.USAK",
+      "role": "province_housing_unit_price",
+      "reason": "Il bazinda konut birim fiyat seviyesini olcmek",
+      "aggregation": "last"
+    },
+    {
+      "series_code": "TP.BIRIMFIYAT.VAN",
+      "role": "province_housing_unit_price",
+      "reason": "Il bazinda konut birim fiyat seviyesini olcmek",
+      "aggregation": "last"
+    },
+    {
+      "series_code": "TP.BIRIMFIYAT.YALOVA",
+      "role": "province_housing_unit_price",
+      "reason": "Il bazinda konut birim fiyat seviyesini olcmek",
+      "aggregation": "last"
+    },
+    {
+      "series_code": "TP.BIRIMFIYAT.YOZGAT",
+      "role": "province_housing_unit_price",
+      "reason": "Il bazinda konut birim fiyat seviyesini olcmek",
+      "aggregation": "last"
+    },
+    {
+      "series_code": "TP.BIRIMFIYAT.ZONGULDAK",
+      "role": "province_housing_unit_price",
+      "reason": "Il bazinda konut birim fiyat seviyesini olcmek",
+      "aggregation": "last"
+    },
+    {
+      "series_code": "TP.KFE.TR21",
+      "role": "regional_housing_price_index",
+      "reason": "Il grubunun nominal konut fiyat hareketini kontrol etmek",
+      "aggregation": "last"
+    },
+    {
+      "series_code": "TP.KFE.TR22",
+      "role": "regional_housing_price_index",
+      "reason": "Il grubunun nominal konut fiyat hareketini kontrol etmek",
+      "aggregation": "last"
+    },
+    {
+      "series_code": "TP.KFE.TR32",
+      "role": "regional_housing_price_index",
+      "reason": "Il grubunun nominal konut fiyat hareketini kontrol etmek",
+      "aggregation": "last"
+    },
+    {
+      "series_code": "TP.KFE.TR33",
+      "role": "regional_housing_price_index",
+      "reason": "Il grubunun nominal konut fiyat hareketini kontrol etmek",
+      "aggregation": "last"
+    },
+    {
+      "series_code": "TP.KFE.TR41",
+      "role": "regional_housing_price_index",
+      "reason": "Il grubunun nominal konut fiyat hareketini kontrol etmek",
+      "aggregation": "last"
+    },
+    {
+      "series_code": "TP.KFE.TR42",
+      "role": "regional_housing_price_index",
+      "reason": "Il grubunun nominal konut fiyat hareketini kontrol etmek",
+      "aggregation": "last"
+    },
+    {
+      "series_code": "TP.KFE.TR52",
+      "role": "regional_housing_price_index",
+      "reason": "Il grubunun nominal konut fiyat hareketini kontrol etmek",
+      "aggregation": "last"
+    },
+    {
+      "series_code": "TP.KFE.TR61",
+      "role": "regional_housing_price_index",
+      "reason": "Il grubunun nominal konut fiyat hareketini kontrol etmek",
+      "aggregation": "last"
+    },
+    {
+      "series_code": "TP.KFE.TR62",
+      "role": "regional_housing_price_index",
+      "reason": "Il grubunun nominal konut fiyat hareketini kontrol etmek",
+      "aggregation": "last"
+    },
+    {
+      "series_code": "TP.KFE.TR63",
+      "role": "regional_housing_price_index",
+      "reason": "Il grubunun nominal konut fiyat hareketini kontrol etmek",
+      "aggregation": "last"
+    },
+    {
+      "series_code": "TP.KFE.TR7",
+      "role": "regional_housing_price_index",
+      "reason": "Il grubunun nominal konut fiyat hareketini kontrol etmek",
+      "aggregation": "last"
+    },
+    {
+      "series_code": "TP.KFE.TR8",
+      "role": "regional_housing_price_index",
+      "reason": "Il grubunun nominal konut fiyat hareketini kontrol etmek",
+      "aggregation": "last"
+    },
+    {
+      "series_code": "TP.KFE.TR9",
+      "role": "regional_housing_price_index",
+      "reason": "Il grubunun nominal konut fiyat hareketini kontrol etmek",
+      "aggregation": "last"
+    },
+    {
+      "series_code": "TP.KFE.TRA",
+      "role": "regional_housing_price_index",
+      "reason": "Il grubunun nominal konut fiyat hareketini kontrol etmek",
+      "aggregation": "last"
+    },
+    {
+      "series_code": "TP.KFE.TRB",
+      "role": "regional_housing_price_index",
+      "reason": "Il grubunun nominal konut fiyat hareketini kontrol etmek",
+      "aggregation": "last"
+    },
+    {
+      "series_code": "TP.KFE.TRC",
+      "role": "regional_housing_price_index",
+      "reason": "Il grubunun nominal konut fiyat hareketini kontrol etmek",
+      "aggregation": "last"
+    },
+    {
+      "series_code": "TP.YKKE.TR",
+      "role": "regional_new_tenant_rent_index",
+      "reason": "Yeni kiraci kira maliyetindeki bolgesel hareketi kontrol etmek",
+      "aggregation": "last"
+    },
+    {
+      "series_code": "TP.YKKE.TR10",
+      "role": "regional_new_tenant_rent_index",
+      "reason": "Yeni kiraci kira maliyetindeki bolgesel hareketi kontrol etmek",
+      "aggregation": "last"
+    },
+    {
+      "series_code": "TP.YKKE.TR21",
+      "role": "regional_new_tenant_rent_index",
+      "reason": "Yeni kiraci kira maliyetindeki bolgesel hareketi kontrol etmek",
+      "aggregation": "last"
+    },
+    {
+      "series_code": "TP.YKKE.TR22",
+      "role": "regional_new_tenant_rent_index",
+      "reason": "Yeni kiraci kira maliyetindeki bolgesel hareketi kontrol etmek",
+      "aggregation": "last"
+    },
+    {
+      "series_code": "TP.YKKE.TR31",
+      "role": "regional_new_tenant_rent_index",
+      "reason": "Yeni kiraci kira maliyetindeki bolgesel hareketi kontrol etmek",
+      "aggregation": "last"
+    },
+    {
+      "series_code": "TP.YKKE.TR32",
+      "role": "regional_new_tenant_rent_index",
+      "reason": "Yeni kiraci kira maliyetindeki bolgesel hareketi kontrol etmek",
+      "aggregation": "last"
+    },
+    {
+      "series_code": "TP.YKKE.TR33",
+      "role": "regional_new_tenant_rent_index",
+      "reason": "Yeni kiraci kira maliyetindeki bolgesel hareketi kontrol etmek",
+      "aggregation": "last"
+    },
+    {
+      "series_code": "TP.YKKE.TR41",
+      "role": "regional_new_tenant_rent_index",
+      "reason": "Yeni kiraci kira maliyetindeki bolgesel hareketi kontrol etmek",
+      "aggregation": "last"
+    },
+    {
+      "series_code": "TP.YKKE.TR42",
+      "role": "regional_new_tenant_rent_index",
+      "reason": "Yeni kiraci kira maliyetindeki bolgesel hareketi kontrol etmek",
+      "aggregation": "last"
+    },
+    {
+      "series_code": "TP.YKKE.TR51",
+      "role": "regional_new_tenant_rent_index",
+      "reason": "Yeni kiraci kira maliyetindeki bolgesel hareketi kontrol etmek",
+      "aggregation": "last"
+    },
+    {
+      "series_code": "TP.YKKE.TR52",
+      "role": "regional_new_tenant_rent_index",
+      "reason": "Yeni kiraci kira maliyetindeki bolgesel hareketi kontrol etmek",
+      "aggregation": "last"
+    },
+    {
+      "series_code": "TP.YKKE.TR61",
+      "role": "regional_new_tenant_rent_index",
+      "reason": "Yeni kiraci kira maliyetindeki bolgesel hareketi kontrol etmek",
+      "aggregation": "last"
+    },
+    {
+      "series_code": "TP.YKKE.TR62",
+      "role": "regional_new_tenant_rent_index",
+      "reason": "Yeni kiraci kira maliyetindeki bolgesel hareketi kontrol etmek",
+      "aggregation": "last"
+    },
+    {
+      "series_code": "TP.YKKE.TR63",
+      "role": "regional_new_tenant_rent_index",
+      "reason": "Yeni kiraci kira maliyetindeki bolgesel hareketi kontrol etmek",
+      "aggregation": "last"
+    },
+    {
+      "series_code": "TP.YKKE.TR7",
+      "role": "regional_new_tenant_rent_index",
+      "reason": "Yeni kiraci kira maliyetindeki bolgesel hareketi kontrol etmek",
+      "aggregation": "last"
+    },
+    {
+      "series_code": "TP.YKKE.TR8",
+      "role": "regional_new_tenant_rent_index",
+      "reason": "Yeni kiraci kira maliyetindeki bolgesel hareketi kontrol etmek",
+      "aggregation": "last"
+    },
+    {
+      "series_code": "TP.YKKE.TR9",
+      "role": "regional_new_tenant_rent_index",
+      "reason": "Yeni kiraci kira maliyetindeki bolgesel hareketi kontrol etmek",
+      "aggregation": "last"
+    },
+    {
+      "series_code": "TP.YKKE.TRA",
+      "role": "regional_new_tenant_rent_index",
+      "reason": "Yeni kiraci kira maliyetindeki bolgesel hareketi kontrol etmek",
+      "aggregation": "last"
+    },
+    {
+      "series_code": "TP.YKKE.TRB",
+      "role": "regional_new_tenant_rent_index",
+      "reason": "Yeni kiraci kira maliyetindeki bolgesel hareketi kontrol etmek",
+      "aggregation": "last"
+    },
+    {
+      "series_code": "TP.YKKE.TRC",
+      "role": "regional_new_tenant_rent_index",
+      "reason": "Yeni kiraci kira maliyetindeki bolgesel hareketi kontrol etmek",
+      "aggregation": "last"
+    }
+  ]
+}

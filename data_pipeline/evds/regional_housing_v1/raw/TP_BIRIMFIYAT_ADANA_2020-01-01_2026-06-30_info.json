@@ -1,0 +1,32 @@
+{
+  "status": "validated",
+  "series_code": "TP.BIRIMFIYAT.ADANA",
+  "frequency": "ÜÇ AYLIK",
+  "aggregation": "last",
+  "chunk_start": "2020-01-01",
+  "chunk_end": "2026-06-30",
+  "request_file": "raw/TP_BIRIMFIYAT_ADANA_2020-01-01_2026-06-30_request.json",
+  "request_sha256": "779c0983b98720d0ba385d704a4c333a1827ae813e2801ed219224b7398cce35",
+  "response_file": "raw/TP_BIRIMFIYAT_ADANA_2020-01-01_2026-06-30_response.json.gz",
+  "response_sha256": "a3283420ef9c3c46c97b1251b6f2ed014abd1e10ee613c6e67c8e13eb43fbbc6",
+  "served_from_cache": false,
+  "http_status": 200,
+  "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "content_type": "application/json;charset=UTF-8",
+  "url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "started_at_utc": "2026-09-08T10:02:50.586191+00:00",
+  "completed_at_utc": "2026-09-08T10:02:50.998799+00:00",
+  "bytes": 4595,
+  "sha256": "a3283420ef9c3c46c97b1251b6f2ed014abd1e10ee613c6e67c8e13eb43fbbc6",
+  "transport": "curl",
+  "tls_verification": true,
+  "response_total_count": 26,
+  "retained_rows": 26,
+  "outside_requested_range_rows": 0,
+  "series_names": {
+    "TP_BIRIMFIYAT_ADANA": "Adana Konut Birim Fiyatları"
+  },
+  "frequency_conversion": {
+    "TP.BIRIMFIYAT.ADANA": true
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "endpoint": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "dataset_id": "household_finance_v1",
+  "manifest_file": "household_finance_v1.json",
+  "manifest_sha256": "d0a9802cc7914eb7212d341258328b6b8f4c7e5056a3b002c92ee27803fd64b5",
+  "catalog_file": "evds_series_catalog.parquet",
+  "catalog_sha256": "ccdd130fb752defb99a295857b56e61b088f8c49708722f9b6e303f454e576da",
+  "start_date": "2020-01-01",
+  "end_date": "2026-06-30",
+  "series_count": 4,
+  "transport": "curl",
+  "tls_verification": true
+}

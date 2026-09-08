@@ -1,0 +1,32 @@
+{
+  "status": "validated",
+  "series_code": "TP.BIRIMFIYAT.SIVAS",
+  "frequency": "ÜÇ AYLIK",
+  "aggregation": "last",
+  "chunk_start": "2020-01-01",
+  "chunk_end": "2026-06-30",
+  "request_file": "raw/TP_BIRIMFIYAT_SIVAS_2020-01-01_2026-06-30_request.json",
+  "request_sha256": "984d9a582ea15935ab28fa764c5ed3b9568dab14eedefb8b991fc76066342477",
+  "response_file": "raw/TP_BIRIMFIYAT_SIVAS_2020-01-01_2026-06-30_response.json.gz",
+  "response_sha256": "4eba984ada8f47e9b82fbeca1be7aa6afbe51f6e03478f15d1c57cea5b1ee910",
+  "served_from_cache": false,
+  "http_status": 200,
+  "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "content_type": "application/json;charset=UTF-8",
+  "url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "started_at_utc": "2026-09-08T10:03:25.187385+00:00",
+  "completed_at_utc": "2026-09-08T10:03:25.798182+00:00",
+  "bytes": 4589,
+  "sha256": "4eba984ada8f47e9b82fbeca1be7aa6afbe51f6e03478f15d1c57cea5b1ee910",
+  "transport": "curl",
+  "tls_verification": true,
+  "response_total_count": 26,
+  "retained_rows": 26,
+  "outside_requested_range_rows": 0,
+  "series_names": {
+    "TP_BIRIMFIYAT_SIVAS": "Sivas Konut Birim Fiyatları"
+  },
+  "frequency_conversion": {
+    "TP.BIRIMFIYAT.SIVAS": true
+  }
+}

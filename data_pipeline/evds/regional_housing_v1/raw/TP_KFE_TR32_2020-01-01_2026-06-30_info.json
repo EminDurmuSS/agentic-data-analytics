@@ -1,0 +1,32 @@
+{
+  "status": "validated",
+  "series_code": "TP.KFE.TR32",
+  "frequency": "AYLIK",
+  "aggregation": "last",
+  "chunk_start": "2020-01-01",
+  "chunk_end": "2026-06-30",
+  "request_file": "raw/TP_KFE_TR32_2020-01-01_2026-06-30_request.json",
+  "request_sha256": "087680ad88b279f7f38a9b980e94fe2354709c6798c87cf80cdebc161e6d6ea2",
+  "response_file": "raw/TP_KFE_TR32_2020-01-01_2026-06-30_response.json.gz",
+  "response_sha256": "aace9a93751d0cc350887266730f477381d1c87f921a2f36dd078ccf0c1aa260",
+  "served_from_cache": false,
+  "http_status": 200,
+  "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "content_type": "application/json;charset=UTF-8",
+  "url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "started_at_utc": "2026-09-08T10:03:31.237199+00:00",
+  "completed_at_utc": "2026-09-08T10:03:31.611750+00:00",
+  "bytes": 11895,
+  "sha256": "aace9a93751d0cc350887266730f477381d1c87f921a2f36dd078ccf0c1aa260",
+  "transport": "curl",
+  "tls_verification": true,
+  "response_total_count": 78,
+  "retained_rows": 78,
+  "outside_requested_range_rows": 0,
+  "series_names": {
+    "TP_KFE_TR32": "TR32 (Aydın, Denizli, Muğla)"
+  },
+  "frequency_conversion": {
+    "TP.KFE.TR32": true
+  }
+}

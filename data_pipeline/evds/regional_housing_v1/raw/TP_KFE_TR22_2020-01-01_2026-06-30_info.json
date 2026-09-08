@@ -1,0 +1,32 @@
+{
+  "status": "validated",
+  "series_code": "TP.KFE.TR22",
+  "frequency": "AYLIK",
+  "aggregation": "last",
+  "chunk_start": "2020-01-01",
+  "chunk_end": "2026-06-30",
+  "request_file": "raw/TP_KFE_TR22_2020-01-01_2026-06-30_request.json",
+  "request_sha256": "008215c7075cfa8faccadca4e7ffa093aef1f541a1004dc600a09e5ac5ec33ae",
+  "response_file": "raw/TP_KFE_TR22_2020-01-01_2026-06-30_response.json.gz",
+  "response_sha256": "5b37fb4f97cb36e11ddbb08eccb59f786873ff8969c2ef3c096b1f488e2d88a9",
+  "served_from_cache": false,
+  "http_status": 200,
+  "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "content_type": "application/json;charset=UTF-8",
+  "url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "started_at_utc": "2026-09-08T10:03:30.734819+00:00",
+  "completed_at_utc": "2026-09-08T10:03:31.128054+00:00",
+  "bytes": 11893,
+  "sha256": "5b37fb4f97cb36e11ddbb08eccb59f786873ff8969c2ef3c096b1f488e2d88a9",
+  "transport": "curl",
+  "tls_verification": true,
+  "response_total_count": 78,
+  "retained_rows": 78,
+  "outside_requested_range_rows": 0,
+  "series_names": {
+    "TP_KFE_TR22": "TR22 (Balıkesir, Çanakkale)"
+  },
+  "frequency_conversion": {
+    "TP.KFE.TR22": true
+  }
+}

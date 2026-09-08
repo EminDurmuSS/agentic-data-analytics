@@ -1,0 +1,32 @@
+{
+  "status": "validated",
+  "series_code": "TP.AKONUTSAT3.KTRA13",
+  "frequency": "AYLIK",
+  "aggregation": "sum",
+  "chunk_start": "2020-01-01",
+  "chunk_end": "2026-06-30",
+  "request_file": "raw/TP_AKONUTSAT3_KTRA13_2020-01-01_2026-06-30_request.json",
+  "request_sha256": "ba4e6cb9f49d9863d2f49b17739a1ae6542584108f51338bb5773a1a718df8ff",
+  "response_file": "raw/TP_AKONUTSAT3_KTRA13_2020-01-01_2026-06-30_response.json.gz",
+  "response_sha256": "95d5a75973f963af137d64cdd815268018e119a84df9c82e02312cf2eca854d0",
+  "served_from_cache": false,
+  "http_status": 200,
+  "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "content_type": "application/json;charset=UTF-8",
+  "url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "started_at_utc": "2026-09-08T10:01:59.079066+00:00",
+  "completed_at_utc": "2026-09-08T10:01:59.421668+00:00",
+  "bytes": 12558,
+  "sha256": "95d5a75973f963af137d64cdd815268018e119a84df9c82e02312cf2eca854d0",
+  "transport": "curl",
+  "tls_verification": true,
+  "response_total_count": 78,
+  "retained_rows": 78,
+  "outside_requested_range_rows": 0,
+  "series_names": {
+    "TP_AKONUTSAT3_KTRA13": "Bayburt_Konut_İlk El Satışlar"
+  },
+  "frequency_conversion": {
+    "TP.AKONUTSAT3.KTRA13": true
+  }
+}

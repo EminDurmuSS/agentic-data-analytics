@@ -1,0 +1,32 @@
+{
+  "status": "validated",
+  "series_code": "TP.BIRIMFIYAT.ERZINCAN",
+  "frequency": "ÜÇ AYLIK",
+  "aggregation": "last",
+  "chunk_start": "2020-01-01",
+  "chunk_end": "2026-06-30",
+  "request_file": "raw/TP_BIRIMFIYAT_ERZINCAN_2020-01-01_2026-06-30_request.json",
+  "request_sha256": "889529dfc64bd0aa3a0a0b3caf90892205caee1c8aa972df4c4275f6d5e5af12",
+  "response_file": "raw/TP_BIRIMFIYAT_ERZINCAN_2020-01-01_2026-06-30_response.json.gz",
+  "response_sha256": "bf72c417782f76a6089dcba99ff45d35cf5e8ce21a472e60807b76214ffca65b",
+  "served_from_cache": false,
+  "http_status": 200,
+  "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "content_type": "application/json;charset=UTF-8",
+  "url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "started_at_utc": "2026-09-08T10:03:05.794691+00:00",
+  "completed_at_utc": "2026-09-08T10:03:06.201136+00:00",
+  "bytes": 4682,
+  "sha256": "bf72c417782f76a6089dcba99ff45d35cf5e8ce21a472e60807b76214ffca65b",
+  "transport": "curl",
+  "tls_verification": true,
+  "response_total_count": 26,
+  "retained_rows": 26,
+  "outside_requested_range_rows": 0,
+  "series_names": {
+    "TP_BIRIMFIYAT_ERZINCAN": "Erzincan Konut Birim Fiyatları"
+  },
+  "frequency_conversion": {
+    "TP.BIRIMFIYAT.ERZINCAN": true
+  }
+}

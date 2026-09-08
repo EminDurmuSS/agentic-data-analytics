@@ -1,0 +1,42 @@
+{
+  "status": "passed",
+  "dataset_id": "regional_housing_v1",
+  "series_count": 441,
+  "request_count": 441,
+  "observation_count": 30186,
+  "non_null_observation_count": 29966,
+  "missing_observation_count": 220,
+  "structural_missing_observation_count": 80,
+  "unresolved_missing_observation_count": 140,
+  "missing_kind_counts": {
+    "before_series_start": 80,
+    "interior_source_null": 10,
+    "source_not_published": 130
+  },
+  "expected_period_without_source_row_count": 0,
+  "expected_period_gap_kind_counts": {},
+  "first_period_start": "2020-01-01",
+  "last_period_end": "2026-06-30",
+  "frequency_counts": {
+    "AYLIK": 360,
+    "ÜÇ AYLIK": 81
+  },
+  "series_with_no_observations": [],
+  "series_with_no_non_null_observations": [
+    "TP.BIRIMFIYAT.ARDAHAN",
+    "TP.BIRIMFIYAT.BAYBURT",
+    "TP.BIRIMFIYAT.GUMUSHANE",
+    "TP.BIRIMFIYAT.HAKKARI",
+    "TP.BIRIMFIYAT.TUNCELI"
+  ],
+  "quality_policy": [
+    "Series must exist uniquely in the downloaded EVDS metadata catalog.",
+    "High-frequency series are requested in annual chunks to avoid silent row limits.",
+    "Response totalCount must equal the returned item count for every request.",
+    "Observations outside the requested interval are filtered locally and reported.",
+    "Null source observations remain null and are never converted to zero.",
+    "Returned nulls are classified by calendar position and publication coverage.",
+    "Low-frequency periods omitted from responses are recorded in coverage_gaps without creating source observations.",
+    "Every observation retains request and response files with SHA-256 hashes."
+  ]
+}

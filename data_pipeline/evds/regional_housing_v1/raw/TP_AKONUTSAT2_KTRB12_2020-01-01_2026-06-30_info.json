@@ -1,0 +1,32 @@
+{
+  "status": "validated",
+  "series_code": "TP.AKONUTSAT2.KTRB12",
+  "frequency": "AYLIK",
+  "aggregation": "sum",
+  "chunk_start": "2020-01-01",
+  "chunk_end": "2026-06-30",
+  "request_file": "raw/TP_AKONUTSAT2_KTRB12_2020-01-01_2026-06-30_request.json",
+  "request_sha256": "72a3d17f09dd41de7a4195ee81d6c8878a533d429d79737f9779eac12372ff8c",
+  "response_file": "raw/TP_AKONUTSAT2_KTRB12_2020-01-01_2026-06-30_response.json.gz",
+  "response_sha256": "3c0cf83a17482384325cac15add3064bd108b4d2c8a8952a2ec583e047a8cd8a",
+  "served_from_cache": false,
+  "http_status": 200,
+  "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "content_type": "application/json;charset=UTF-8",
+  "url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "started_at_utc": "2026-09-08T10:01:23.653318+00:00",
+  "completed_at_utc": "2026-09-08T10:01:23.976873+00:00",
+  "bytes": 12628,
+  "sha256": "3c0cf83a17482384325cac15add3064bd108b4d2c8a8952a2ec583e047a8cd8a",
+  "transport": "curl",
+  "tls_verification": true,
+  "response_total_count": 78,
+  "retained_rows": 78,
+  "outside_requested_range_rows": 0,
+  "series_names": {
+    "TP_AKONUTSAT2_KTRB12": "Elazığ_Konut_İpotekli Satışlar"
+  },
+  "frequency_conversion": {
+    "TP.AKONUTSAT2.KTRB12": true
+  }
+}

@@ -1,0 +1,32 @@
+{
+  "status": "validated",
+  "series_code": "TP.BIRIMFIYAT.VAN",
+  "frequency": "ÜÇ AYLIK",
+  "aggregation": "last",
+  "chunk_start": "2020-01-01",
+  "chunk_end": "2026-06-30",
+  "request_file": "raw/TP_BIRIMFIYAT_VAN_2020-01-01_2026-06-30_request.json",
+  "request_sha256": "a65542fa31cc805ce5d95296f0217d838b9c74b2bf51af774cf54f80f713c9b0",
+  "response_file": "raw/TP_BIRIMFIYAT_VAN_2020-01-01_2026-06-30_response.json.gz",
+  "response_sha256": "3a3b60108be9010c4e04d514f8e1e8bdccbeb36ebd1187986f0747f6409a42bb",
+  "served_from_cache": false,
+  "http_status": 200,
+  "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "content_type": "application/json;charset=UTF-8",
+  "url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "started_at_utc": "2026-09-08T10:03:28.375481+00:00",
+  "completed_at_utc": "2026-09-08T10:03:28.745596+00:00",
+  "bytes": 4265,
+  "sha256": "3a3b60108be9010c4e04d514f8e1e8bdccbeb36ebd1187986f0747f6409a42bb",
+  "transport": "curl",
+  "tls_verification": true,
+  "response_total_count": 26,
+  "retained_rows": 26,
+  "outside_requested_range_rows": 0,
+  "series_names": {
+    "TP_BIRIMFIYAT_VAN": "Van Konut Birim Fiyatları"
+  },
+  "frequency_conversion": {
+    "TP.BIRIMFIYAT.VAN": true
+  }
+}

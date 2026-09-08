@@ -11,7 +11,10 @@ de korunur.
 | BDDK aylık | 17 tablo, 66 ay, 10 resmî banka grubu | Aylık | Tamamlandı |
 | BDDK haftalık | 9 tablo, 286 hafta, 7 resmî banka grubu | Haftalık | Tamamlandı |
 | BDDK FinTürk | 7 tablo, 7 grup, 81 il ve yurt dışı, 22 dönem | Çeyreklik | Tamamlandı |
-| TCMB EVDS | 61 seçilmiş kaynak seri ve 1 türetilmiş seri | Günlük, iş günü, haftalık, aylık, çeyreklik | Tamamlandı |
+| TCMB EVDS ulusal | 61 seçilmiş kaynak seri ve 1 türetilmiş seri | Günlük, iş günü, haftalık, aylık, çeyreklik | Tamamlandı |
+| TCMB EVDS bölgesel | 441 il ve bölge bazlı konut serisi | Aylık, çeyreklik | Kaynak boşluklarıyla tamamlandı |
+| TCMB EVDS hanehalkı finansmanı | 3 KKM ve 1 hanehalkı mevduat serisi | Aylık | Tamamlandı |
+| İl bazlı konut paneli | 81 il, 22 çeyrek, 26 analitik metrik | Çeyreklik | Kaynak boşluklarıyla tamamlandı |
 | TCMB EVDS katalog | 52.696 seri metadata kaydı | Metadata | Tamamlandı |
 | TBB | 21 yayımlanmış tüketici kredisi raporu | Çeyreklik | Kaynak boşluğuyla tamamlandı |
 | BDDK ve TCMB belgeleri | 8 resmî PDF | Olay/yöntem | Tamamlandı |
@@ -22,7 +25,9 @@ Bu dönem boş bırakılmış, tahmin veya başka seriden kopyalama yapılmamı�
 ## EVDS seçim mantığı
 
 EVDS'deki her tarihsel gözlemi indirmek yerine tam metadata kataloğu yerelde
-tutulur ve analitik olarak gerekli 61 kaynak seri şunları kapsar:
+tutulur. Yerel 506 kaynak seri üç katmana ayrılır.
+
+Ulusal 61 kaynak seri şunları kapsar:
 
 - Konut kredisi stoku, faizi ve kredi arz-talep anketleri
 - Konut satışları, KFE, birim fiyatlar ve kiralar
@@ -32,6 +37,16 @@ tutulur ve analitik olarak gerekli 61 kaynak seri şunları kapsar:
 - İşsizlik, tüketici ve reel kesim güveni, sanayi üretimi
 - Reel GSYİH ve hanehalkı tüketimi
 - Yapı ruhsatı ve yapı kullanma izni göstergeleri
+
+Bölgesel 441 kaynak seri şunları kapsar:
+
+- 81 il için toplam, ipotekli, ilk el ve ikinci el konut satışları
+- 81 il için konut birim fiyatı serileri
+- 20 bölgesel KFE ve 20 bölgesel YKKE serisi
+
+Hanehalkı finansmanı katmanı 3 KKM serisi ile 1 hanehalkı mevduat serisini
+içerir. İl bazlı panel bu kaynakları FinTürk sektör toplamındaki konut kredisi,
+tasarruf mevduatı, altın mevduatı ve nakdi kredi göstergeleriyle birleştirir.
 
 Aktif BIST altın kapanış serisinin kaynak birimi TL/kg'dır. Analizde kullanılan
 TL/gram karşılığı, kaynak serinin `0.001` ile çarpıldığı deklaratif bir dönüşüm
@@ -60,10 +75,13 @@ Seri seçimi kaynak kataloğundaki kod, ad, birim, frekans ve toplulaştırma
   0 çözümlenmemiş boşluk, durum `passed`
 - FinTürk: 936.512 ölçüm, 29.564 yapısal boşluk, 1.328 kaynakta
   raporlanmamış hücre, durum `passed`
-- EVDS seçilmiş kaynak seriler: 12.482 gözlem, üç paket de `passed`
+- EVDS ulusal kaynak seriler: 12.482 gözlem, üç paket de `passed`
+- EVDS bölgesel konut: 441 seri, 30.186 gözlem, durum `passed`
+- EVDS hanehalkı finansmanı: 4 seri, 312 gözlem, durum `passed`
+- İl bazlı konut paneli: 1.782 tekil il-çeyrek satırı, durum `passed_with_source_gaps`
 - TBB: 21 yayımlanmış dönem, durum `passed_with_source_gaps`
-- Birleşik katalog: 50 varlık, 55.458 metrik, durum `passed`
-- DuckDB: 40 tablo, durum `passed`
+- Birleşik katalog: 61 varlık, 55.484 metrik, 3.292 sorgulanabilir metrik, durum `passed`
+- DuckDB: 8 şema, 55 tablo, durum `passed`
 
 ## Üretim sırası
 
@@ -76,6 +94,7 @@ Mevcut ham dosyalardan çalıştırılabilir temel sıra:
 .venv/bin/python data_pipeline/bddk/build_finturk_dataset.py
 .venv/bin/python data_pipeline/bddk/build_weekly_dataset.py
 .venv/bin/python data_pipeline/tbb/build_consumer_credit_dataset.py
+.venv/bin/python data_pipeline/regional/build_housing_panel.py
 .venv/bin/python data_pipeline/quality/build_cross_source_reconciliation.py
 .venv/bin/python data_pipeline/evidence/events/build_events.py
 .venv/bin/python data_pipeline/catalog/build_unified_catalog.py
@@ -101,6 +120,9 @@ ile yeni snapshot sessizce karıştırılmaz.
 - `evds/housing_causality_v1/monthly_panel.parquet`
 - `evds/housing_causality_controls_v1/monthly_panel.parquet`
 - `evds/market_controls_v2/monthly_panel.parquet`
+- `evds/regional_housing_v1/observations_long.parquet`
+- `evds/household_finance_v1/monthly_panel.parquet`
+- `regional/processed/province_quarter_housing_panel.parquet`
 - `tbb/processed/housing_credit_quarterly.parquet`
 - `evidence/events/events.json`
 

@@ -1,0 +1,32 @@
+{
+  "status": "validated",
+  "series_code": "TP.KM.E041",
+  "frequency": "AYLIK",
+  "aggregation": "last",
+  "chunk_start": "2020-01-01",
+  "chunk_end": "2026-06-30",
+  "request_file": "raw/TP_KM_E041_2020-01-01_2026-06-30_request.json",
+  "request_sha256": "fdd229a0d1b43cd54392d587d3efb90a9f4777da6781fea23b9daada0cad409e",
+  "response_file": "raw/TP_KM_E041_2020-01-01_2026-06-30_response.json.gz",
+  "response_sha256": "190b5611f9bf177763a4ec40a3a56d5da14e19b187a86073a1ed27ea44edd78b",
+  "served_from_cache": false,
+  "http_status": 200,
+  "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "content_type": "application/json;charset=UTF-8",
+  "url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "started_at_utc": "2026-09-08T10:00:14.624597+00:00",
+  "completed_at_utc": "2026-09-08T10:00:14.925421+00:00",
+  "bytes": 12974,
+  "sha256": "190b5611f9bf177763a4ec40a3a56d5da14e19b187a86073a1ed27ea44edd78b",
+  "transport": "curl",
+  "tls_verification": true,
+  "response_total_count": 78,
+  "retained_rows": 78,
+  "outside_requested_range_rows": 0,
+  "series_names": {
+    "TP_KM_E041": "3.3.1. Tasarruf Mevduatı, Gerçek Kişiler"
+  },
+  "frequency_conversion": {
+    "TP.KM.E041": true
+  }
+}

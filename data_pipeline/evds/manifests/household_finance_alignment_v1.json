@@ -1,0 +1,23 @@
+{
+  "dataset_id": "household_finance_v1",
+  "description": "KKM ve hanehalki mevduat stoklarini ay ve ceyrek sonuna hizalama kurallari.",
+  "quarterly_to_monthly": "quarter_end_only",
+  "role_policies": {
+    "ddkkm_total_stock": {
+      "temporal_semantics": "period_end_stock_billion_usd",
+      "subperiod_aggregation": "last"
+    },
+    "ddkkm_household_stock": {
+      "temporal_semantics": "period_end_stock_billion_usd",
+      "subperiod_aggregation": "last"
+    },
+    "tl_kkm_total_stock": {
+      "temporal_semantics": "period_end_stock_billion_try",
+      "subperiod_aggregation": "last"
+    },
+    "household_savings_deposit_stock": {
+      "temporal_semantics": "period_end_stock_thousand_try",
+      "subperiod_aggregation": "last"
+    }
+  }
+}

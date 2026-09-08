@@ -1,0 +1,35 @@
+{
+  "dataset_id": "regional_housing_v1",
+  "description": "Il satislari, il birim fiyatlari, bolgesel KFE ve YKKE icin acik frekans hizalama kurallari.",
+  "quarterly_to_monthly": "quarter_end_only",
+  "role_policies": {
+    "province_housing_sales_total": {
+      "temporal_semantics": "flow",
+      "subperiod_aggregation": "sum"
+    },
+    "province_housing_sales_mortgaged": {
+      "temporal_semantics": "flow",
+      "subperiod_aggregation": "sum"
+    },
+    "province_housing_sales_first_hand": {
+      "temporal_semantics": "flow",
+      "subperiod_aggregation": "sum"
+    },
+    "province_housing_sales_second_hand": {
+      "temporal_semantics": "flow",
+      "subperiod_aggregation": "sum"
+    },
+    "province_housing_unit_price": {
+      "temporal_semantics": "quarter_end_level",
+      "subperiod_aggregation": "last"
+    },
+    "regional_housing_price_index": {
+      "temporal_semantics": "index",
+      "subperiod_aggregation": "last"
+    },
+    "regional_new_tenant_rent_index": {
+      "temporal_semantics": "index",
+      "subperiod_aggregation": "last"
+    }
+  }
+}

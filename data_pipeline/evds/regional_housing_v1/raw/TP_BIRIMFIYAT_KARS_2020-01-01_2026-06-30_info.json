@@ -1,0 +1,32 @@
+{
+  "status": "validated",
+  "series_code": "TP.BIRIMFIYAT.KARS",
+  "frequency": "ÜÇ AYLIK",
+  "aggregation": "last",
+  "chunk_start": "2020-01-01",
+  "chunk_end": "2026-06-30",
+  "request_file": "raw/TP_BIRIMFIYAT_KARS_2020-01-01_2026-06-30_request.json",
+  "request_sha256": "3db8c85e364205e7f33f66c9a95a36101583baa480c32fc86e9041c08ca65b31",
+  "response_file": "raw/TP_BIRIMFIYAT_KARS_2020-01-01_2026-06-30_response.json.gz",
+  "response_sha256": "a4121d6110e943d8427ea8df3169f664ff0daa952b5f2eac62f5ed90c4086a75",
+  "served_from_cache": false,
+  "http_status": 200,
+  "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "content_type": "application/json;charset=UTF-8",
+  "url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "started_at_utc": "2026-09-08T10:03:11.787204+00:00",
+  "completed_at_utc": "2026-09-08T10:03:12.056277+00:00",
+  "bytes": 4292,
+  "sha256": "a4121d6110e943d8427ea8df3169f664ff0daa952b5f2eac62f5ed90c4086a75",
+  "transport": "curl",
+  "tls_verification": true,
+  "response_total_count": 26,
+  "retained_rows": 26,
+  "outside_requested_range_rows": 0,
+  "series_names": {
+    "TP_BIRIMFIYAT_KARS": "Kars Konut Birim Fiyatları"
+  },
+  "frequency_conversion": {
+    "TP.BIRIMFIYAT.KARS": true
+  }
+}

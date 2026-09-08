@@ -1,0 +1,32 @@
+{
+  "status": "validated",
+  "series_code": "TP.AKONUTSAT3.KTR421",
+  "frequency": "AYLIK",
+  "aggregation": "sum",
+  "chunk_start": "2020-01-01",
+  "chunk_end": "2026-06-30",
+  "request_file": "raw/TP_AKONUTSAT3_KTR421_2020-01-01_2026-06-30_request.json",
+  "request_sha256": "ee429e3617851f86d075f16e6266d9922078dad232d884302e5c44e07076a383",
+  "response_file": "raw/TP_AKONUTSAT3_KTR421_2020-01-01_2026-06-30_response.json.gz",
+  "response_sha256": "37a2cd93030f2811c599e0a1fc49fc046ba0b3161967118c99ea31a0596e72a5",
+  "served_from_cache": false,
+  "http_status": 200,
+  "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "content_type": "application/json;charset=UTF-8",
+  "url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "started_at_utc": "2026-09-08T10:01:39.130157+00:00",
+  "completed_at_utc": "2026-09-08T10:01:39.461721+00:00",
+  "bytes": 12816,
+  "sha256": "37a2cd93030f2811c599e0a1fc49fc046ba0b3161967118c99ea31a0596e72a5",
+  "transport": "curl",
+  "tls_verification": true,
+  "response_total_count": 78,
+  "retained_rows": 78,
+  "outside_requested_range_rows": 0,
+  "series_names": {
+    "TP_AKONUTSAT3_KTR421": "Kocaeli_Konut_İlk El Satışlar"
+  },
+  "frequency_conversion": {
+    "TP.AKONUTSAT3.KTR421": true
+  }
+}

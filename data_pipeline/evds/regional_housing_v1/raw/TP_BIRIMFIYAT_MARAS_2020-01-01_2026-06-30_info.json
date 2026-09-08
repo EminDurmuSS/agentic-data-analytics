@@ -1,0 +1,32 @@
+{
+  "status": "validated",
+  "series_code": "TP.BIRIMFIYAT.MARAS",
+  "frequency": "ÜÇ AYLIK",
+  "aggregation": "last",
+  "chunk_start": "2020-01-01",
+  "chunk_end": "2026-06-30",
+  "request_file": "raw/TP_BIRIMFIYAT_MARAS_2020-01-01_2026-06-30_request.json",
+  "request_sha256": "b1b029c49328e5d012a4ca00967a825098c3bd2e8958e2c5bb95af58224614e5",
+  "response_file": "raw/TP_BIRIMFIYAT_MARAS_2020-01-01_2026-06-30_response.json.gz",
+  "response_sha256": "3a90a2c9d684f811a8df9e90afff778cc6b1d312c86154f20fced400a5aedc89",
+  "served_from_cache": false,
+  "http_status": 200,
+  "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "content_type": "application/json;charset=UTF-8",
+  "url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "started_at_utc": "2026-09-08T10:03:17.759637+00:00",
+  "completed_at_utc": "2026-09-08T10:03:18.118418+00:00",
+  "bytes": 4609,
+  "sha256": "3a90a2c9d684f811a8df9e90afff778cc6b1d312c86154f20fced400a5aedc89",
+  "transport": "curl",
+  "tls_verification": true,
+  "response_total_count": 26,
+  "retained_rows": 26,
+  "outside_requested_range_rows": 0,
+  "series_names": {
+    "TP_BIRIMFIYAT_MARAS": "Kahramanmaraş Konut Birim Fiyatları"
+  },
+  "frequency_conversion": {
+    "TP.BIRIMFIYAT.MARAS": true
+  }
+}

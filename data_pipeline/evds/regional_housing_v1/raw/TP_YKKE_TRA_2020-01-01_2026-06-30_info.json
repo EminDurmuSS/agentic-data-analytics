@@ -1,0 +1,32 @@
+{
+  "status": "validated",
+  "series_code": "TP.YKKE.TRA",
+  "frequency": "AYLIK",
+  "aggregation": "last",
+  "chunk_start": "2020-01-01",
+  "chunk_end": "2026-06-30",
+  "request_file": "raw/TP_YKKE_TRA_2020-01-01_2026-06-30_request.json",
+  "request_sha256": "ace0fc1774f90a3fb9c34de68abb8b365e417a25f3b590949144a0b2e14b3c60",
+  "response_file": "raw/TP_YKKE_TRA_2020-01-01_2026-06-30_response.json.gz",
+  "response_sha256": "aef89396710f3fb4707e22cebfdfbf231b899f0a41dda6cb5e1a0cf84707b92d",
+  "served_from_cache": false,
+  "http_status": 200,
+  "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "content_type": "application/json;charset=UTF-8",
+  "url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "started_at_utc": "2026-09-08T10:03:47.209960+00:00",
+  "completed_at_utc": "2026-09-08T10:03:47.622211+00:00",
+  "bytes": 11961,
+  "sha256": "aef89396710f3fb4707e22cebfdfbf231b899f0a41dda6cb5e1a0cf84707b92d",
+  "transport": "curl",
+  "tls_verification": true,
+  "response_total_count": 78,
+  "retained_rows": 78,
+  "outside_requested_range_rows": 0,
+  "series_names": {
+    "TP_YKKE_TRA": "TRA (Erzurum, Erzincan, Bayburt, Ağrı, Kars, Iğdır, Ardahan)"
+  },
+  "frequency_conversion": {
+    "TP.YKKE.TRA": true
+  }
+}

@@ -42,7 +42,7 @@ class UnifiedCatalogTests(unittest.TestCase):
     def test_evds_metadata_and_local_observations_are_not_confused(self):
         evds = self.metrics.loc[self.metrics["source_system"].eq("TCMB_EVDS")]
         self.assertEqual(52696, len(evds))
-        self.assertEqual(61, int(evds["observation_available"].sum()))
+        self.assertEqual(506, int(evds["observation_available"].sum()))
         metadata_only = evds.loc[~evds["observation_available"]]
         self.assertTrue(metadata_only["quality_status"].eq("metadata_only").all())
         self.assertTrue(metadata_only["observation_count"].eq(0).all())
@@ -61,6 +61,8 @@ class UnifiedCatalogTests(unittest.TestCase):
             "evds.housing_causality_v1.coverage_gaps",
             "evds.housing_causality_controls_v1.coverage_gaps",
             "evds.market_controls_v2.coverage_gaps",
+            "evds.regional_housing_v1.coverage_gaps",
+            "evds.household_finance_v1.coverage_gaps",
             "tbb.consumer_credit_reports.source_gaps",
         }
         self.assertTrue(expected <= set(self.assets["asset_id"]))
@@ -91,6 +93,17 @@ class UnifiedCatalogTests(unittest.TestCase):
             if not (ROOT / path).exists()
         ]
         self.assertEqual([], missing)
+
+    def test_regional_analysis_metrics_are_discoverable(self):
+        regional = self.metrics.loc[
+            self.metrics["source_system"].eq("REGIONAL_HOUSING_ANALYSIS")
+        ]
+        self.assertEqual(26, len(regional))
+        self.assertTrue(regional["observation_available"].all())
+        self.assertIn(
+            "regional_housing:housing_credit_per_capita_try",
+            set(regional["metric_id"]),
+        )
 
 
 if __name__ == "__main__":

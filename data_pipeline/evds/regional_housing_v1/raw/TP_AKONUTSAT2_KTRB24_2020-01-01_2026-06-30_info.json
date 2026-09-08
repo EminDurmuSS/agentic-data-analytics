@@ -1,0 +1,32 @@
+{
+  "status": "validated",
+  "series_code": "TP.AKONUTSAT2.KTRB24",
+  "frequency": "AYLIK",
+  "aggregation": "sum",
+  "chunk_start": "2020-01-01",
+  "chunk_end": "2026-06-30",
+  "request_file": "raw/TP_AKONUTSAT2_KTRB24_2020-01-01_2026-06-30_request.json",
+  "request_sha256": "a72479e939841cd174c3869b0b27786351bad75e96f19b053f36bb4f34bca936",
+  "response_file": "raw/TP_AKONUTSAT2_KTRB24_2020-01-01_2026-06-30_response.json.gz",
+  "response_sha256": "a04f49eba3030437ef2f90fee7f09ead9ebdadbf0aff9b242f0f095aa7f8ca6c",
+  "served_from_cache": false,
+  "http_status": 200,
+  "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "content_type": "application/json;charset=UTF-8",
+  "url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "started_at_utc": "2026-09-08T10:01:26.487485+00:00",
+  "completed_at_utc": "2026-09-08T10:01:26.910752+00:00",
+  "bytes": 12320,
+  "sha256": "a04f49eba3030437ef2f90fee7f09ead9ebdadbf0aff9b242f0f095aa7f8ca6c",
+  "transport": "curl",
+  "tls_verification": true,
+  "response_total_count": 78,
+  "retained_rows": 78,
+  "outside_requested_range_rows": 0,
+  "series_names": {
+    "TP_AKONUTSAT2_KTRB24": "Hakkari_Konut_İpotekli Satışlar"
+  },
+  "frequency_conversion": {
+    "TP.AKONUTSAT2.KTRB24": true
+  }
+}

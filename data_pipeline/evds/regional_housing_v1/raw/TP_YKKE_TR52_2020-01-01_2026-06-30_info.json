@@ -1,0 +1,32 @@
+{
+  "status": "validated",
+  "series_code": "TP.YKKE.TR52",
+  "frequency": "AYLIK",
+  "aggregation": "last",
+  "chunk_start": "2020-01-01",
+  "chunk_end": "2026-06-30",
+  "request_file": "raw/TP_YKKE_TR52_2020-01-01_2026-06-30_request.json",
+  "request_sha256": "35104833a00d912dd5b04b25c2aa71f80e24a2923c2f5d2628f89ea918725119",
+  "response_file": "raw/TP_YKKE_TR52_2020-01-01_2026-06-30_response.json.gz",
+  "response_sha256": "0f573dbe6bae5d2be57e6a34b4773a656bd4a580354be93fca3e9e713daf6660",
+  "served_from_cache": false,
+  "http_status": 200,
+  "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "content_type": "application/json;charset=UTF-8",
+  "url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "started_at_utc": "2026-09-08T10:03:43.542288+00:00",
+  "completed_at_utc": "2026-09-08T10:03:43.953399+00:00",
+  "bytes": 11958,
+  "sha256": "0f573dbe6bae5d2be57e6a34b4773a656bd4a580354be93fca3e9e713daf6660",
+  "transport": "curl",
+  "tls_verification": true,
+  "response_total_count": 78,
+  "retained_rows": 78,
+  "outside_requested_range_rows": 0,
+  "series_names": {
+    "TP_YKKE_TR52": "TR52 (Konya, Karaman)"
+  },
+  "frequency_conversion": {
+    "TP.YKKE.TR52": true
+  }
+}

@@ -1,0 +1,32 @@
+{
+  "status": "validated",
+  "series_code": "TP.AKONUTSAT4.KTRB23",
+  "frequency": "AYLIK",
+  "aggregation": "sum",
+  "chunk_start": "2020-01-01",
+  "chunk_end": "2026-06-30",
+  "request_file": "raw/TP_AKONUTSAT4_KTRB23_2020-01-01_2026-06-30_request.json",
+  "request_sha256": "e05abe0164dce0bb6097216af98cb8b519edb20e9a4e07ed983efbae8b0361af",
+  "response_file": "raw/TP_AKONUTSAT4_KTRB23_2020-01-01_2026-06-30_response.json.gz",
+  "response_sha256": "afc3052124c791ceddfb63ad99680f67061d0b01f8a500185b49117ea98e298a",
+  "served_from_cache": false,
+  "http_status": 200,
+  "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "content_type": "application/json;charset=UTF-8",
+  "url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "started_at_utc": "2026-09-08T10:02:44.819696+00:00",
+  "completed_at_utc": "2026-09-08T10:02:45.232140+00:00",
+  "bytes": 12702,
+  "sha256": "afc3052124c791ceddfb63ad99680f67061d0b01f8a500185b49117ea98e298a",
+  "transport": "curl",
+  "tls_verification": true,
+  "response_total_count": 78,
+  "retained_rows": 78,
+  "outside_requested_range_rows": 0,
+  "series_names": {
+    "TP_AKONUTSAT4_KTRB23": "Bitlis_Konut_İkinci El Satışlar"
+  },
+  "frequency_conversion": {
+    "TP.AKONUTSAT4.KTRB23": true
+  }
+}

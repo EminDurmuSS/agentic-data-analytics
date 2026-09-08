@@ -1,0 +1,32 @@
+{
+  "status": "validated",
+  "series_code": "TP.BIRIMFIYAT.MUS",
+  "frequency": "ÜÇ AYLIK",
+  "aggregation": "last",
+  "chunk_start": "2020-01-01",
+  "chunk_end": "2026-06-30",
+  "request_file": "raw/TP_BIRIMFIYAT_MUS_2020-01-01_2026-06-30_request.json",
+  "request_sha256": "b26476e1efa0b3000428d4f4b9527ad863fe42188bbe2e497e8b0eaf2d553e55",
+  "response_file": "raw/TP_BIRIMFIYAT_MUS_2020-01-01_2026-06-30_response.json.gz",
+  "response_sha256": "23fc29701c92fc85dde47f82e1aa0b03edd8d92501666539d924de0b5079ccf3",
+  "served_from_cache": false,
+  "http_status": 200,
+  "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "content_type": "application/json;charset=UTF-8",
+  "url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "started_at_utc": "2026-09-08T10:03:19.519350+00:00",
+  "completed_at_utc": "2026-09-08T10:03:19.835409+00:00",
+  "bytes": 4263,
+  "sha256": "23fc29701c92fc85dde47f82e1aa0b03edd8d92501666539d924de0b5079ccf3",
+  "transport": "curl",
+  "tls_verification": true,
+  "response_total_count": 26,
+  "retained_rows": 26,
+  "outside_requested_range_rows": 0,
+  "series_names": {
+    "TP_BIRIMFIYAT_MUS": "Muş Konut Birim Fiyatları"
+  },
+  "frequency_conversion": {
+    "TP.BIRIMFIYAT.MUS": true
+  }
+}

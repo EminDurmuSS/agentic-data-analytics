@@ -1,0 +1,32 @@
+{
+  "status": "validated",
+  "series_code": "TP.AKONUTSAT4.KTRC21",
+  "frequency": "AYLIK",
+  "aggregation": "sum",
+  "chunk_start": "2020-01-01",
+  "chunk_end": "2026-06-30",
+  "request_file": "raw/TP_AKONUTSAT4_KTRC21_2020-01-01_2026-06-30_request.json",
+  "request_sha256": "a4ff0899a5399419ac02a682389ac1cd33dfdd255360dc14160bec289b46e1c3",
+  "response_file": "raw/TP_AKONUTSAT4_KTRC21_2020-01-01_2026-06-30_response.json.gz",
+  "response_sha256": "194142a7bd055bc2c8d8bc0daf19e666ce9aeb3b095d22d697f42b76674b9231",
+  "served_from_cache": false,
+  "http_status": 200,
+  "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "content_type": "application/json;charset=UTF-8",
+  "url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "started_at_utc": "2026-09-08T10:02:47.442909+00:00",
+  "completed_at_utc": "2026-09-08T10:02:47.853440+00:00",
+  "bytes": 12868,
+  "sha256": "194142a7bd055bc2c8d8bc0daf19e666ce9aeb3b095d22d697f42b76674b9231",
+  "transport": "curl",
+  "tls_verification": true,
+  "response_total_count": 78,
+  "retained_rows": 78,
+  "outside_requested_range_rows": 0,
+  "series_names": {
+    "TP_AKONUTSAT4_KTRC21": "Şanlıurfa_Konut_İkinci El Satışlar"
+  },
+  "frequency_conversion": {
+    "TP.AKONUTSAT4.KTRC21": true
+  }
+}

@@ -1,0 +1,32 @@
+{
+  "status": "validated",
+  "series_code": "TP.BIRIMFIYAT.KUTAHYA",
+  "frequency": "ÜÇ AYLIK",
+  "aggregation": "last",
+  "chunk_start": "2020-01-01",
+  "chunk_end": "2026-06-30",
+  "request_file": "raw/TP_BIRIMFIYAT_KUTAHYA_2020-01-01_2026-06-30_request.json",
+  "request_sha256": "c20fada20fec011a20638ffa6563619651f7806d8a3667e1ef76b89b45284244",
+  "response_file": "raw/TP_BIRIMFIYAT_KUTAHYA_2020-01-01_2026-06-30_response.json.gz",
+  "response_sha256": "1f26018f7324807c245471fb234f9191ad6a6e8d2526d1b10c17a23542a7dd02",
+  "served_from_cache": false,
+  "http_status": 200,
+  "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "content_type": "application/json;charset=UTF-8",
+  "url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "started_at_utc": "2026-09-08T10:03:16.273683+00:00",
+  "completed_at_utc": "2026-09-08T10:03:16.689577+00:00",
+  "bytes": 4653,
+  "sha256": "1f26018f7324807c245471fb234f9191ad6a6e8d2526d1b10c17a23542a7dd02",
+  "transport": "curl",
+  "tls_verification": true,
+  "response_total_count": 26,
+  "retained_rows": 26,
+  "outside_requested_range_rows": 0,
+  "series_names": {
+    "TP_BIRIMFIYAT_KUTAHYA": "Kütahya Konut Birim Fiyatları"
+  },
+  "frequency_conversion": {
+    "TP.BIRIMFIYAT.KUTAHYA": true
+  }
+}

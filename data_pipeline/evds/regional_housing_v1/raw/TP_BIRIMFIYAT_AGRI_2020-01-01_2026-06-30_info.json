@@ -1,0 +1,32 @@
+{
+  "status": "validated",
+  "series_code": "TP.BIRIMFIYAT.AGRI",
+  "frequency": "ÜÇ AYLIK",
+  "aggregation": "last",
+  "chunk_start": "2020-01-01",
+  "chunk_end": "2026-06-30",
+  "request_file": "raw/TP_BIRIMFIYAT_AGRI_2020-01-01_2026-06-30_request.json",
+  "request_sha256": "1e025c658cea56b7d40c9e4afaadb75f607b0e3d29558acca673078417de6118",
+  "response_file": "raw/TP_BIRIMFIYAT_AGRI_2020-01-01_2026-06-30_response.json.gz",
+  "response_sha256": "c875779d3cec4ed2625b05d56b1832264d852f36342479ef0678439402af0bdb",
+  "served_from_cache": false,
+  "http_status": 200,
+  "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "content_type": "application/json;charset=UTF-8",
+  "url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "started_at_utc": "2026-09-08T10:02:52.157474+00:00",
+  "completed_at_utc": "2026-09-08T10:02:52.574234+00:00",
+  "bytes": 4294,
+  "sha256": "c875779d3cec4ed2625b05d56b1832264d852f36342479ef0678439402af0bdb",
+  "transport": "curl",
+  "tls_verification": true,
+  "response_total_count": 26,
+  "retained_rows": 26,
+  "outside_requested_range_rows": 0,
+  "series_names": {
+    "TP_BIRIMFIYAT_AGRI": "Ağrı Konut Birim Fiyatları"
+  },
+  "frequency_conversion": {
+    "TP.BIRIMFIYAT.AGRI": true
+  }
+}

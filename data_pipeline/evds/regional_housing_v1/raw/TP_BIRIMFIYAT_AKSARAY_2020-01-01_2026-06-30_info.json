@@ -1,0 +1,32 @@
+{
+  "status": "validated",
+  "series_code": "TP.BIRIMFIYAT.AKSARAY",
+  "frequency": "ÜÇ AYLIK",
+  "aggregation": "last",
+  "chunk_start": "2020-01-01",
+  "chunk_end": "2026-06-30",
+  "request_file": "raw/TP_BIRIMFIYAT_AKSARAY_2020-01-01_2026-06-30_request.json",
+  "request_sha256": "e02f78470959a2448d56c9727ff40a54a5cd1c2f08caf10a6e0a05811d0ba54c",
+  "response_file": "raw/TP_BIRIMFIYAT_AKSARAY_2020-01-01_2026-06-30_response.json.gz",
+  "response_sha256": "c8c1436a6fc02bc116f6156260bdae4c913c6595f800bdff57eea64afee6f91f",
+  "served_from_cache": false,
+  "http_status": 200,
+  "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "content_type": "application/json;charset=UTF-8",
+  "url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "started_at_utc": "2026-09-08T10:02:52.682607+00:00",
+  "completed_at_utc": "2026-09-08T10:02:53.096029+00:00",
+  "bytes": 4653,
+  "sha256": "c8c1436a6fc02bc116f6156260bdae4c913c6595f800bdff57eea64afee6f91f",
+  "transport": "curl",
+  "tls_verification": true,
+  "response_total_count": 26,
+  "retained_rows": 26,
+  "outside_requested_range_rows": 0,
+  "series_names": {
+    "TP_BIRIMFIYAT_AKSARAY": "Aksaray Konut Birim Fiyatları"
+  },
+  "frequency_conversion": {
+    "TP.BIRIMFIYAT.AKSARAY": true
+  }
+}

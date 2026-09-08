@@ -1,0 +1,32 @@
+{
+  "status": "validated",
+  "series_code": "TP.KFE.TR8",
+  "frequency": "AYLIK",
+  "aggregation": "last",
+  "chunk_start": "2020-01-01",
+  "chunk_end": "2026-06-30",
+  "request_file": "raw/TP_KFE_TR8_2020-01-01_2026-06-30_request.json",
+  "request_sha256": "93e23fb1f72df0479ae863cd47199ba1c8c63af492d74c308d8c34f4f62e26c2",
+  "response_file": "raw/TP_KFE_TR8_2020-01-01_2026-06-30_response.json.gz",
+  "response_sha256": "b91bd8540c4ff4589a857486cabbb56cdcf8d99ac9db8f0ee9a5a3116142ea6a",
+  "served_from_cache": false,
+  "http_status": 200,
+  "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "content_type": "application/json;charset=UTF-8",
+  "url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "started_at_utc": "2026-09-08T10:03:35.671832+00:00",
+  "completed_at_utc": "2026-09-08T10:03:36.087046+00:00",
+  "bytes": 11944,
+  "sha256": "b91bd8540c4ff4589a857486cabbb56cdcf8d99ac9db8f0ee9a5a3116142ea6a",
+  "transport": "curl",
+  "tls_verification": true,
+  "response_total_count": 78,
+  "retained_rows": 78,
+  "outside_requested_range_rows": 0,
+  "series_names": {
+    "TP_KFE_TR8": "TR8 (Zonguldak, Karabük, Bartın, Kastamonu, Çankırı, Sinop, Samsun, Tokat, Çorum, Amasya)"
+  },
+  "frequency_conversion": {
+    "TP.KFE.TR8": true
+  }
+}

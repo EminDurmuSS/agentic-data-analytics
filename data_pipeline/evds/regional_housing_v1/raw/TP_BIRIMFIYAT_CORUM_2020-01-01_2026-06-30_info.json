@@ -1,0 +1,32 @@
+{
+  "status": "validated",
+  "series_code": "TP.BIRIMFIYAT.CORUM",
+  "frequency": "ÜÇ AYLIK",
+  "aggregation": "last",
+  "chunk_start": "2020-01-01",
+  "chunk_end": "2026-06-30",
+  "request_file": "raw/TP_BIRIMFIYAT_CORUM_2020-01-01_2026-06-30_request.json",
+  "request_sha256": "a7567f73b0c01869e6cb058190aea407d878e863e45b764049e5153e0a57fa80",
+  "response_file": "raw/TP_BIRIMFIYAT_CORUM_2020-01-01_2026-06-30_response.json.gz",
+  "response_sha256": "395f9902033201f95a57803135eca9f09ef91adde96b5635e837dc0c63f596ac",
+  "served_from_cache": false,
+  "http_status": 200,
+  "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "content_type": "application/json;charset=UTF-8",
+  "url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "started_at_utc": "2026-09-08T10:03:02.118630+00:00",
+  "completed_at_utc": "2026-09-08T10:03:02.535916+00:00",
+  "bytes": 4591,
+  "sha256": "395f9902033201f95a57803135eca9f09ef91adde96b5635e837dc0c63f596ac",
+  "transport": "curl",
+  "tls_verification": true,
+  "response_total_count": 26,
+  "retained_rows": 26,
+  "outside_requested_range_rows": 0,
+  "series_names": {
+    "TP_BIRIMFIYAT_CORUM": "Çorum Konut Birim Fiyatları"
+  },
+  "frequency_conversion": {
+    "TP.BIRIMFIYAT.CORUM": true
+  }
+}

@@ -169,6 +169,18 @@ def evds_assets_and_metrics() -> tuple[list[dict[str, Any]], list[dict[str, Any]
             "description": "Selected BIST 100, active BIST TL/kg gold and legacy sparse TL/gram gold controls with source missingness preserved.",
             "searchable_text": "EVDS BIST 100 active gold legacy gold market controls",
         },
+        {
+            "directory": "regional_housing_v1",
+            "dataset_id": "evds.regional_housing_v1",
+            "description": "Province housing sales and unit prices plus regional KFE and new-tenant rent indices.",
+            "searchable_text": "EVDS province regional housing sales unit price KFE YKKE rent",
+        },
+        {
+            "directory": "household_finance_v1",
+            "dataset_id": "evds.household_finance_v1",
+            "description": "Selected KKM components and household savings deposits for housing-demand analysis.",
+            "searchable_text": "EVDS KKM household savings deposits financial alternatives",
+        },
     ]
 
     catalog_summary = read_json(catalog_summary_path)
@@ -787,6 +799,149 @@ def finturk_assets_and_metrics() -> tuple[list[dict[str, Any]], list[dict[str, A
     return assets, metrics
 
 
+def regional_housing_assets_and_metrics() -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
+    base = PROJECT_ROOT / "data_pipeline" / "regional" / "processed"
+    validation_path = base / "validation.json"
+    validation = read_json(validation_path)
+    panel_path = base / "province_quarter_housing_panel.parquet"
+    dimension_path = base / "province_dimension.parquet"
+    dictionary_path = base / "metric_dictionary.parquet"
+    panel = pd.read_parquet(panel_path)
+    dimension = pd.read_parquet(dimension_path)
+    dictionary = pd.read_parquet(dictionary_path)
+
+    assets = [
+        make_asset(
+            asset_id="regional.housing_v1.province_quarter_panel",
+            dataset_id="regional.housing_v1",
+            source_system="REGIONAL_HOUSING_ANALYSIS",
+            source_organization="BDDK, TCMB and TÜİK",
+            competition_scope="supporting_derived_analysis",
+            status=validation["status"],
+            data_kind="analysis_panel",
+            native_frequency="quarterly",
+            temporal_semantics="metric_defined",
+            geography_grain="province",
+            institution_grain="banking_sector_total",
+            coverage_start=validation["coverage_start"],
+            coverage_end=validation["coverage_end"],
+            row_count=len(panel),
+            column_count=len(panel.columns),
+            metric_count=len(dictionary),
+            missing_value_count=int(panel.isna().sum().sum()),
+            progress_completed=int(validation["analysis_ready_rows"]),
+            progress_expected=int(validation["expected_row_count"]),
+            file_path=relative(panel_path),
+            file_format="parquet",
+            validation_file=relative(validation_path),
+            source_url="https://evds3.tcmb.gov.tr/ and https://www.bddk.org.tr/BultenFinturk/",
+            description=(
+                "One row per province and quarter, combining housing sales, "
+                "prices, regional rent indices and FinTurk household-finance measures."
+            ),
+            searchable_text="province quarter housing credit sales price rent gold deposit regional panel",
+        ),
+        make_asset(
+            asset_id="regional.housing_v1.province_dimension",
+            dataset_id="regional.housing_v1",
+            source_system="REGIONAL_HOUSING_ANALYSIS",
+            source_organization="BDDK, TCMB and TÜİK",
+            competition_scope="supporting_derived_analysis",
+            status=validation["status"],
+            data_kind="dimension",
+            native_frequency="not_applicable",
+            temporal_semantics="mapping",
+            geography_grain="province_to_housing_price_region",
+            institution_grain="not_applicable",
+            coverage_start="",
+            coverage_end="",
+            row_count=len(dimension),
+            column_count=len(dimension.columns),
+            metric_count=0,
+            missing_value_count=int(dimension.isna().sum().sum()),
+            progress_completed=len(dimension),
+            progress_expected=81,
+            file_path=relative(dimension_path),
+            file_format="parquet",
+            validation_file=relative(validation_path),
+            source_url="https://evds3.tcmb.gov.tr/ and https://www.bddk.org.tr/BultenFinturk/",
+            description="Validated mapping of 81 provinces to EVDS source series and KFE/YKKE regions.",
+            searchable_text="province dimension EVDS KFE YKKE FinTurk mapping",
+        ),
+        make_asset(
+            asset_id="regional.housing_v1.metric_dictionary",
+            dataset_id="regional.housing_v1",
+            source_system="REGIONAL_HOUSING_ANALYSIS",
+            source_organization="BDDK, TCMB and TÜİK",
+            competition_scope="supporting_derived_analysis",
+            status=validation["status"],
+            data_kind="metric_dictionary",
+            native_frequency="quarterly",
+            temporal_semantics="metadata",
+            geography_grain="province",
+            institution_grain="banking_sector_total",
+            coverage_start=validation["coverage_start"],
+            coverage_end=validation["coverage_end"],
+            row_count=len(dictionary),
+            column_count=len(dictionary.columns),
+            metric_count=len(dictionary),
+            missing_value_count=int(dictionary.isna().sum().sum()),
+            progress_completed=len(dictionary),
+            progress_expected=len(dictionary),
+            file_path=relative(dictionary_path),
+            file_format="parquet",
+            validation_file=relative(validation_path),
+            source_url="",
+            description="Metric semantics, formulas and cautions for the province-quarter panel.",
+            searchable_text="regional housing metric dictionary formulas cautions",
+        ),
+    ]
+
+    metrics: list[dict[str, Any]] = []
+    for row in dictionary.to_dict("records"):
+        code = str(row["metric_code"])
+        values = pd.to_numeric(panel[code], errors="coerce")
+        derivation = text_value(row.get("derivation"))
+        caution = text_value(row.get("caution"))
+        metrics.append(
+            make_metric(
+                metric_id=f"regional_housing:{code}",
+                dataset_id="regional.housing_v1",
+                source_system="REGIONAL_HOUSING_ANALYSIS",
+                source_organization="BDDK, TCMB and TÜİK",
+                competition_scope="supporting_derived_analysis",
+                source_metric_code=code,
+                metric_name_tr=text_value(row.get("metric_name_tr")),
+                metric_name_en="",
+                group_name="Province-quarter housing and household finance",
+                role="regional_housing_analysis",
+                dimension="province",
+                native_frequency="quarterly",
+                unit=text_value(row.get("unit")),
+                temporal_semantics=text_value(row.get("temporal_semantics")),
+                default_aggregation="identity_at_province_quarter",
+                geography_grain="province",
+                institution_grain="banking_sector_total_or_not_applicable",
+                coverage_start=validation["coverage_start"],
+                coverage_end=validation["coverage_end"],
+                observation_available=bool(values.notna().any()),
+                observation_count=int(values.notna().sum()),
+                missing_observation_count=int(values.isna().sum()),
+                quality_status=validation["status"],
+                is_archive=False,
+                source_asset=relative(panel_path),
+                source_metadata_url="",
+                notes=" ".join(part for part in [derivation, caution] if part),
+                searchable_text=" | ".join(
+                    part
+                    for part in [code, text_value(row.get("metric_name_tr")), derivation, caution]
+                    if part
+                ),
+            )
+        )
+    return assets, metrics
+
+
 def tbb_assets_and_metrics() -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
     base = PROJECT_ROOT / "data_pipeline" / "tbb" / "processed"
     validation_path = base / "validation.json"
@@ -1180,9 +1335,12 @@ def validate_catalog(
         "evds.housing_causality_v1",
         "evds.housing_causality_controls_v1",
         "evds.market_controls_v2",
+        "evds.regional_housing_v1",
+        "evds.household_finance_v1",
         "bddk.monthly_all_groups.table_01",
         "bddk.finturk_all_groups_all_cities",
         "bddk.weekly_all_groups",
+        "regional.housing_v1",
     }
     present_datasets = set(assets["dataset_id"])
     missing_required = sorted(required_datasets - present_datasets)
@@ -1246,6 +1404,7 @@ def build(output_dir: Path) -> dict[str, Any]:
         evds_assets_and_metrics,
         monthly_bddk_assets_and_metrics,
         finturk_assets_and_metrics,
+        regional_housing_assets_and_metrics,
         tbb_assets_and_metrics,
     ]:
         source_assets, source_metrics = builder()

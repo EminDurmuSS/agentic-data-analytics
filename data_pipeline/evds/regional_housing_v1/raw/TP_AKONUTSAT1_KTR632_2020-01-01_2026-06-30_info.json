@@ -1,0 +1,32 @@
+{
+  "status": "validated",
+  "series_code": "TP.AKONUTSAT1.KTR632",
+  "frequency": "AYLIK",
+  "aggregation": "sum",
+  "chunk_start": "2020-01-01",
+  "chunk_end": "2026-06-30",
+  "request_file": "raw/TP_AKONUTSAT1_KTR632_2020-01-01_2026-06-30_request.json",
+  "request_sha256": "35e517536c46162e6733f95fed5b703cc1b8221e92011553927cf503b6c8b66a",
+  "response_file": "raw/TP_AKONUTSAT1_KTR632_2020-01-01_2026-06-30_response.json.gz",
+  "response_sha256": "317071cd9cb24195e33fbdc7be289a5a889d3b884fd93a83e001f75996e98420",
+  "served_from_cache": false,
+  "http_status": 200,
+  "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "content_type": "application/json;charset=UTF-8",
+  "url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "started_at_utc": "2026-09-08T10:00:28.908558+00:00",
+  "completed_at_utc": "2026-09-08T10:00:29.249410+00:00",
+  "bytes": 12820,
+  "sha256": "317071cd9cb24195e33fbdc7be289a5a889d3b884fd93a83e001f75996e98420",
+  "transport": "curl",
+  "tls_verification": true,
+  "response_total_count": 78,
+  "retained_rows": 78,
+  "outside_requested_range_rows": 0,
+  "series_names": {
+    "TP_AKONUTSAT1_KTR632": "Kahramanmaraş_Konut_Toplam Satışlar"
+  },
+  "frequency_conversion": {
+    "TP.AKONUTSAT1.KTR632": true
+  }
+}

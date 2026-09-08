@@ -1,0 +1,32 @@
+{
+  "status": "validated",
+  "series_code": "TP.BIRIMFIYAT.NEVSEHIR",
+  "frequency": "ÜÇ AYLIK",
+  "aggregation": "last",
+  "chunk_start": "2020-01-01",
+  "chunk_end": "2026-06-30",
+  "request_file": "raw/TP_BIRIMFIYAT_NEVSEHIR_2020-01-01_2026-06-30_request.json",
+  "request_sha256": "4982de429e51610979b8f4ebb1fd3eca340152af4bf1fbe8ffd319aac742f7fc",
+  "response_file": "raw/TP_BIRIMFIYAT_NEVSEHIR_2020-01-01_2026-06-30_response.json.gz",
+  "response_sha256": "bf48daf1f8a84223cb57097ea146fa6fd3051b5b5bf2a50d03412e0c120aa410",
+  "served_from_cache": false,
+  "http_status": 200,
+  "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "content_type": "application/json;charset=UTF-8",
+  "url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "started_at_utc": "2026-09-08T10:03:19.947235+00:00",
+  "completed_at_utc": "2026-09-08T10:03:20.358771+00:00",
+  "bytes": 4686,
+  "sha256": "bf48daf1f8a84223cb57097ea146fa6fd3051b5b5bf2a50d03412e0c120aa410",
+  "transport": "curl",
+  "tls_verification": true,
+  "response_total_count": 26,
+  "retained_rows": 26,
+  "outside_requested_range_rows": 0,
+  "series_names": {
+    "TP_BIRIMFIYAT_NEVSEHIR": "Nevşehir Konut Birim Fiyatları"
+  },
+  "frequency_conversion": {
+    "TP.BIRIMFIYAT.NEVSEHIR": true
+  }
+}

@@ -1,0 +1,32 @@
+{
+  "status": "validated",
+  "series_code": "TP.AKONUTSAT2.KTR711",
+  "frequency": "AYLIK",
+  "aggregation": "sum",
+  "chunk_start": "2020-01-01",
+  "chunk_end": "2026-06-30",
+  "request_file": "raw/TP_AKONUTSAT2_KTR711_2020-01-01_2026-06-30_request.json",
+  "request_sha256": "381e0cf7b6518e2e65505b0e0bbc785f003f83a46203b2b9b9cde71da5d10af5",
+  "response_file": "raw/TP_AKONUTSAT2_KTR711_2020-01-01_2026-06-30_response.json.gz",
+  "response_sha256": "1431f6a7d4c9b08cee99d5661e8400029e383f90b22a7ac69b12282476ea6d40",
+  "served_from_cache": false,
+  "http_status": 200,
+  "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "content_type": "application/json;charset=UTF-8",
+  "url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "started_at_utc": "2026-09-08T10:01:08.882327+00:00",
+  "completed_at_utc": "2026-09-08T10:01:09.191938+00:00",
+  "bytes": 12662,
+  "sha256": "1431f6a7d4c9b08cee99d5661e8400029e383f90b22a7ac69b12282476ea6d40",
+  "transport": "curl",
+  "tls_verification": true,
+  "response_total_count": 78,
+  "retained_rows": 78,
+  "outside_requested_range_rows": 0,
+  "series_names": {
+    "TP_AKONUTSAT2_KTR711": "Kırıkkale_Konut_İpotekli Satışlar"
+  },
+  "frequency_conversion": {
+    "TP.AKONUTSAT2.KTR711": true
+  }
+}

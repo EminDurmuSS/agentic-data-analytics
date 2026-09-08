@@ -1,0 +1,32 @@
+{
+  "status": "validated",
+  "series_code": "TP.BIRIMFIYAT.BITLIS",
+  "frequency": "ÜÇ AYLIK",
+  "aggregation": "last",
+  "chunk_start": "2020-01-01",
+  "chunk_end": "2026-06-30",
+  "request_file": "raw/TP_BIRIMFIYAT_BITLIS_2020-01-01_2026-06-30_request.json",
+  "request_sha256": "541a9762d5af1ae52c81b2e516339b7755a3592ad3fcb34cbced12d948cf330f",
+  "response_file": "raw/TP_BIRIMFIYAT_BITLIS_2020-01-01_2026-06-30_response.json.gz",
+  "response_sha256": "155d6c8f04881467188fbf35d724b4dd6935448138043a4ce488e98b7916f038",
+  "served_from_cache": false,
+  "http_status": 200,
+  "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "content_type": "application/json;charset=UTF-8",
+  "url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "started_at_utc": "2026-09-08T10:02:59.219166+00:00",
+  "completed_at_utc": "2026-09-08T10:02:59.584363+00:00",
+  "bytes": 4352,
+  "sha256": "155d6c8f04881467188fbf35d724b4dd6935448138043a4ce488e98b7916f038",
+  "transport": "curl",
+  "tls_verification": true,
+  "response_total_count": 26,
+  "retained_rows": 26,
+  "outside_requested_range_rows": 0,
+  "series_names": {
+    "TP_BIRIMFIYAT_BITLIS": "Bitlis Konut Birim Fiyatları"
+  },
+  "frequency_conversion": {
+    "TP.BIRIMFIYAT.BITLIS": true
+  }
+}

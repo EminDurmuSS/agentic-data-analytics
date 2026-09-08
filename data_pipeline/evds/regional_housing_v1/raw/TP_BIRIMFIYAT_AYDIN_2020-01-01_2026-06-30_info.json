@@ -1,0 +1,32 @@
+{
+  "status": "validated",
+  "series_code": "TP.BIRIMFIYAT.AYDIN",
+  "frequency": "ÜÇ AYLIK",
+  "aggregation": "last",
+  "chunk_start": "2020-01-01",
+  "chunk_end": "2026-06-30",
+  "request_file": "raw/TP_BIRIMFIYAT_AYDIN_2020-01-01_2026-06-30_request.json",
+  "request_sha256": "9dd4576c3ceb105f675bfa22c78a2ef9aadc9f87963595b7a3e36df916ef1770",
+  "response_file": "raw/TP_BIRIMFIYAT_AYDIN_2020-01-01_2026-06-30_response.json.gz",
+  "response_sha256": "c2f046e7c76ebdb98e6a14cb833b8bef81cb77c6b8ffb45519b73802e181967c",
+  "served_from_cache": false,
+  "http_status": 200,
+  "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "content_type": "application/json;charset=UTF-8",
+  "url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "started_at_utc": "2026-09-08T10:02:55.827235+00:00",
+  "completed_at_utc": "2026-09-08T10:02:56.241559+00:00",
+  "bytes": 4599,
+  "sha256": "c2f046e7c76ebdb98e6a14cb833b8bef81cb77c6b8ffb45519b73802e181967c",
+  "transport": "curl",
+  "tls_verification": true,
+  "response_total_count": 26,
+  "retained_rows": 26,
+  "outside_requested_range_rows": 0,
+  "series_names": {
+    "TP_BIRIMFIYAT_AYDIN": "Aydın Konut Birim Fiyatları"
+  },
+  "frequency_conversion": {
+    "TP.BIRIMFIYAT.AYDIN": true
+  }
+}

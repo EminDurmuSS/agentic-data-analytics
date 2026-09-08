@@ -1,0 +1,32 @@
+{
+  "status": "validated",
+  "series_code": "TP.AKONUTSAT2.KTR621",
+  "frequency": "AYLIK",
+  "aggregation": "sum",
+  "chunk_start": "2020-01-01",
+  "chunk_end": "2026-06-30",
+  "request_file": "raw/TP_AKONUTSAT2_KTR621_2020-01-01_2026-06-30_request.json",
+  "request_sha256": "a5810639a0b045737c21faea11f24b6b8d36f11a71eddc89adb211cb5cc4608f",
+  "response_file": "raw/TP_AKONUTSAT2_KTR621_2020-01-01_2026-06-30_response.json.gz",
+  "response_sha256": "ca482e70dbb5aaed52efdf8f06ce1178eb9550b384f7a424722c7990bde217c2",
+  "served_from_cache": false,
+  "http_status": 200,
+  "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "content_type": "application/json;charset=UTF-8",
+  "url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "started_at_utc": "2026-09-08T10:01:06.624185+00:00",
+  "completed_at_utc": "2026-09-08T10:01:06.961118+00:00",
+  "bytes": 12718,
+  "sha256": "ca482e70dbb5aaed52efdf8f06ce1178eb9550b384f7a424722c7990bde217c2",
+  "transport": "curl",
+  "tls_verification": true,
+  "response_total_count": 78,
+  "retained_rows": 78,
+  "outside_requested_range_rows": 0,
+  "series_names": {
+    "TP_AKONUTSAT2_KTR621": "Adana_Konut_İpotekli Satışlar"
+  },
+  "frequency_conversion": {
+    "TP.AKONUTSAT2.KTR621": true
+  }
+}

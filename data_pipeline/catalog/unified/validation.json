@@ -1,14 +1,15 @@
 {
   "status": "passed",
   "data_readiness_status": "core_sources_complete",
-  "asset_count": 50,
-  "metric_count": 55458,
-  "queryable_metric_count": 2821,
-  "metadata_only_metric_count": 52637,
+  "asset_count": 61,
+  "metric_count": 55484,
+  "queryable_metric_count": 3292,
+  "metadata_only_metric_count": 52192,
   "metrics_by_source_system": {
     "BDDK_FINTURK": 76,
     "BDDK_MONTHLY": 2108,
     "BDDK_WEEKLY": 517,
+    "REGIONAL_HOUSING_ANALYSIS": 26,
     "TBB_REPORTS": 60,
     "TCMB_EVDS": 52696,
     "TCMB_EVDS_DERIVED": 1
@@ -19,10 +20,11 @@
     "BDDK_WEEKLY": 3,
     "CROSS_SOURCE_QUALITY": 1,
     "OFFICIAL_DOCUMENTS": 1,
+    "REGIONAL_HOUSING_ANALYSIS": 3,
     "TBB_REPORTS": 5,
-    "TCMB_EVDS": 13
+    "TCMB_EVDS": 21
   },
-  "selected_evds_observation_series": 61,
+  "selected_evds_observation_series": 506,
   "weekly_bddk": {
     "status": "complete",
     "completed": 18018,

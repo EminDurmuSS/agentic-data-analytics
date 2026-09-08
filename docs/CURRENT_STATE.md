@@ -62,12 +62,15 @@ boşluklar açıkça sınıflandırılır. Hiçbir değer tahmin edilmez.
 
 ### Yerel gözlem kapsamı
 
-Toplam 61 seçilmiş kaynak seri ve 1 türetilmiş seri bulunuyor:
+Toplam 506 seçilmiş kaynak seri ve 1 türetilmiş seri bulunuyor:
 
 - 47 ana konut kredisi nedensellik serisi
 - 11 ek politika, faaliyet, arz ve kira kontrolü
 - 3 piyasa kaynak kontrolü: BIST 100, aktif BIST altın kapanış fiyatı ve eski
   seyrek altın serisi
+- 441 bölgesel konut serisi: 324 il bazlı satış, 81 il bazlı birim fiyat,
+  16 ek bölgesel KFE ve 20 YKKE serisi
+- 4 hanehalkı finansmanı serisi: 3 KKM ve 1 hanehalkı mevduat serisi
 - 1 türetilmiş seri: aktif altın fiyatının açık `0.001` katsayısıyla
   TL/kg'dan TL/grama çevrilmiş hâli
 
@@ -76,15 +79,15 @@ talebi anketleri, politika faizleri, döviz, güven, işsizlik, sanayi, GSYİH,
 tüketim, yapı izinleri, kiralar, altın ve hisse piyasası gibi alternatif
 açıklamaları kapsar.
 
-Katalogda olup bu 61 serilik başlangıç setinde bulunmayan bir seri,
+Katalogda olup bu 506 serilik seçilmiş sette bulunmayan bir seri,
 `tools/EVDS_Talep_Uzerine_Indirme_Araci.py` ile ad veya kod üzerinden seçilip
 aynı ham istek, ham cevap, eksiklik sınıflandırması ve SHA-256 sözleşmesiyle
 indirilebilir. Bu akış 8 Eylül 2026 tarihinde önceden seçilmemiş bir turizm
 gelirleri serisinin 12 aylık gözlemiyle canlı doğrulandı.
 
-- Toplam kaynak gözlemi: 12.482
-- Dolu gözlem: 9.901
-- Kaynakta boş gözlem: 2.581
+- Toplam kaynak gözlemi: 42.980
+- Dolu gözlem: 40.110
+- Kaynakta boş gözlem: 2.870
 - Ana dönem: 2020-01-01 ile 2026-06-30
 - 78 aylık ve 26 çeyreklik hizalama tabloları
 - Çeyreklik değerler ara aylara forward fill edilmez
@@ -98,6 +101,23 @@ Bilinen EVDS sınırları:
   Yalnız tarihsel çapraz kontrol olarak tutulur.
 - Ana altın kontrolü `TP.ALTINPIYASA.KAP02`, 30 Haziran 2026'ya kadar doludur.
   Kaynak birimi TL/kg'dır; TL/gram dönüşümü ayrı türetilmiş seri olarak tutulur.
+- Ardahan, Bayburt, Gümüşhane, Hakkari ve Tunceli için il bazlı konut birim
+  fiyatı serileri kaynakta tamamen boştur. Değer üretilmemiştir.
+- Bazı il bazlı ipotekli satış serilerindeki kaynak null değerleri 8 il-çeyrek
+  toplamını etkiler. Eksik ay bulunan çeyreğe kısmi toplam yazılmaz.
+
+### İl bazlı konut analitik paneli
+
+- 81 il x 22 çeyrek, 1.782 tekil il-çeyrek satırı
+- 26 kataloglanmış analitik metrik
+- Satış, konut birim fiyatı, bölgesel KFE ve YKKE ile FinTürk kredi ve mevduat
+  göstergeleri aynı çeyrek anahtarında birleştirildi
+- 1.619 satır seçilmiş kaynaklar açısından `analysis_ready=true`
+- Toplam satış = ilk el + ikinci el denetim ihlali: 0
+- İpotekli satışın toplam satışı aşması ihlali: 0
+- İpoteksiz satış hiçbir yerde nakit satış olarak etiketlenmez
+- FinTürk kişi başı nakdi kredi metriğinden türetilen nüfus açıkça yaklaşık
+  değer olarak işaretlenir
 
 ## Destekleyici kaynaklar
 
@@ -130,14 +150,17 @@ Bilinen EVDS sınırları:
 
 ## Sorgulanabilir çıktı
 
-- Birleşik katalog: 50 veri varlığı
-- Toplam katalog metriği: 55.458
-- Yerel gözlemi bulunan sorgulanabilir metrik: 2.821
-- DuckDB: 7 şema, 40 tablo
+- Birleşik katalog: 61 veri varlığı
+- Toplam katalog metriği: 55.484
+- Yerel gözlemi bulunan sorgulanabilir metrik: 3.292
+- Yerel TCMB EVDS kaynak serisi: 506
+- DuckDB: 8 şema, 55 tablo
 - Aylık analiz tablosu: 66 benzersiz ay
 - Çeyreklik analiz tablosu: 22 benzersiz çeyrek
+- İl bazlı analiz tablosu: 1.782 benzersiz il-çeyrek satırı
 - Haftalık BDDK ölçümleri DuckDB içine kopyalandı
-- EVDS ana, ek nedensellik ve piyasa kontrolleri analiz tablolarına eklendi
+- EVDS ana, ek nedensellik, piyasa, bölgesel konut ve hanehalkı finansmanı
+  katmanları DuckDB içine eklendi
 
 ## Henüz yapılmayan ürün parçaları
 

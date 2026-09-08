@@ -1,0 +1,32 @@
+{
+  "status": "validated",
+  "series_code": "TP.YKKE.TR9",
+  "frequency": "AYLIK",
+  "aggregation": "last",
+  "chunk_start": "2020-01-01",
+  "chunk_end": "2026-06-30",
+  "request_file": "raw/TP_YKKE_TR9_2020-01-01_2026-06-30_request.json",
+  "request_sha256": "a6807ccaa37bb5d01c98571d18364c13fc7c36ff9f218a94df1fd6e67e829d0c",
+  "response_file": "raw/TP_YKKE_TR9_2020-01-01_2026-06-30_response.json.gz",
+  "response_sha256": "f17183d0ec413764c12775aad98d28f1abe3c454a9460c128eb5a8ed98c52b30",
+  "served_from_cache": false,
+  "http_status": 200,
+  "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "content_type": "application/json;charset=UTF-8",
+  "url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "started_at_utc": "2026-09-08T10:03:46.686941+00:00",
+  "completed_at_utc": "2026-09-08T10:03:47.098994+00:00",
+  "bytes": 11947,
+  "sha256": "f17183d0ec413764c12775aad98d28f1abe3c454a9460c128eb5a8ed98c52b30",
+  "transport": "curl",
+  "tls_verification": true,
+  "response_total_count": 78,
+  "retained_rows": 78,
+  "outside_requested_range_rows": 0,
+  "series_names": {
+    "TP_YKKE_TR9": "TR9 (Trabzon, Ordu, Giresun, Rize, Artvin, Gümüşhane)"
+  },
+  "frequency_conversion": {
+    "TP.YKKE.TR9": true
+  }
+}

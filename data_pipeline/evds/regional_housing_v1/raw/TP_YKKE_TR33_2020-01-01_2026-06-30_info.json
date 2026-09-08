@@ -1,0 +1,32 @@
+{
+  "status": "validated",
+  "series_code": "TP.YKKE.TR33",
+  "frequency": "AYLIK",
+  "aggregation": "last",
+  "chunk_start": "2020-01-01",
+  "chunk_end": "2026-06-30",
+  "request_file": "raw/TP_YKKE_TR33_2020-01-01_2026-06-30_request.json",
+  "request_sha256": "4b80df9896e9f58269f937d0d4689bcf086dc7f9a26a20e732d7e3895ced8954",
+  "response_file": "raw/TP_YKKE_TR33_2020-01-01_2026-06-30_response.json.gz",
+  "response_sha256": "d942132f132d5a9f9e975ed3c37868fec1aa14dc74f1d54facd7d883d87f1b6b",
+  "served_from_cache": false,
+  "http_status": 200,
+  "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "content_type": "application/json;charset=UTF-8",
+  "url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "started_at_utc": "2026-09-08T10:03:41.442091+00:00",
+  "completed_at_utc": "2026-09-08T10:03:41.855740+00:00",
+  "bytes": 12006,
+  "sha256": "d942132f132d5a9f9e975ed3c37868fec1aa14dc74f1d54facd7d883d87f1b6b",
+  "transport": "curl",
+  "tls_verification": true,
+  "response_total_count": 78,
+  "retained_rows": 78,
+  "outside_requested_range_rows": 0,
+  "series_names": {
+    "TP_YKKE_TR33": "TR33 (Afyonkarahisar, Kütahya, Manisa, Uşak)"
+  },
+  "frequency_conversion": {
+    "TP.YKKE.TR33": true
+  }
+}

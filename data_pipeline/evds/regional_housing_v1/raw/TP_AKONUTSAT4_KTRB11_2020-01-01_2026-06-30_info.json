@@ -1,0 +1,32 @@
+{
+  "status": "validated",
+  "series_code": "TP.AKONUTSAT4.KTRB11",
+  "frequency": "AYLIK",
+  "aggregation": "sum",
+  "chunk_start": "2020-01-01",
+  "chunk_end": "2026-06-30",
+  "request_file": "raw/TP_AKONUTSAT4_KTRB11_2020-01-01_2026-06-30_request.json",
+  "request_sha256": "d8664d96e459e0be5a342f6ce8e251df28429706d4523d1ca760e8f567bea1a8",
+  "response_file": "raw/TP_AKONUTSAT4_KTRB11_2020-01-01_2026-06-30_response.json.gz",
+  "response_sha256": "d1e7e3de941b6fd25ed96d26abe106f3c2de3bbfad7a9cc13df920451e65d34a",
+  "served_from_cache": false,
+  "http_status": 200,
+  "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "content_type": "application/json;charset=UTF-8",
+  "url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "started_at_utc": "2026-09-08T10:02:41.672946+00:00",
+  "completed_at_utc": "2026-09-08T10:02:42.091704+00:00",
+  "bytes": 12728,
+  "sha256": "d1e7e3de941b6fd25ed96d26abe106f3c2de3bbfad7a9cc13df920451e65d34a",
+  "transport": "curl",
+  "tls_verification": true,
+  "response_total_count": 78,
+  "retained_rows": 78,
+  "outside_requested_range_rows": 0,
+  "series_names": {
+    "TP_AKONUTSAT4_KTRB11": "Malatya_Konut_İkinci El Satışlar"
+  },
+  "frequency_conversion": {
+    "TP.AKONUTSAT4.KTRB11": true
+  }
+}

@@ -1,0 +1,32 @@
+{
+  "status": "validated",
+  "series_code": "TP.KKM.K4",
+  "frequency": "AYLIK",
+  "aggregation": "last",
+  "chunk_start": "2020-01-01",
+  "chunk_end": "2026-06-30",
+  "request_file": "raw/TP_KKM_K4_2020-01-01_2026-06-30_request.json",
+  "request_sha256": "4f7b302e363eee6d8f0f8affe142bc71a1c0f39ac4ba229de623940852c617e3",
+  "response_file": "raw/TP_KKM_K4_2020-01-01_2026-06-30_response.json.gz",
+  "response_sha256": "de464401fa9dcc690588fe288a9ef2a06ce58cef6ef66931a46ed37d9e566a1a",
+  "served_from_cache": false,
+  "http_status": 200,
+  "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "content_type": "application/json;charset=UTF-8",
+  "url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "started_at_utc": "2026-09-08T10:00:14.104650+00:00",
+  "completed_at_utc": "2026-09-08T10:00:14.513706+00:00",
+  "bytes": 11259,
+  "sha256": "de464401fa9dcc690588fe288a9ef2a06ce58cef6ef66931a46ed37d9e566a1a",
+  "transport": "curl",
+  "tls_verification": true,
+  "response_total_count": 78,
+  "retained_rows": 78,
+  "outside_requested_range_rows": 0,
+  "series_names": {
+    "TP_KKM_K4": "2. TL KKM – Toplam (milyar TL)"
+  },
+  "frequency_conversion": {
+    "TP.KKM.K4": true
+  }
+}

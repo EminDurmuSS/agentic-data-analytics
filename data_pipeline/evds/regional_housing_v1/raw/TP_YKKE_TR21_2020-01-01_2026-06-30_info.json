@@ -1,0 +1,32 @@
+{
+  "status": "validated",
+  "series_code": "TP.YKKE.TR21",
+  "frequency": "AYLIK",
+  "aggregation": "last",
+  "chunk_start": "2020-01-01",
+  "chunk_end": "2026-06-30",
+  "request_file": "raw/TP_YKKE_TR21_2020-01-01_2026-06-30_request.json",
+  "request_sha256": "aed529506fccefe0bcb68dc0f544efeaceb668b8a49765ea89635662c44d3f93",
+  "response_file": "raw/TP_YKKE_TR21_2020-01-01_2026-06-30_response.json.gz",
+  "response_sha256": "a008cf83f616f2c602dead3ae8df8ac65cd79a548a098c08ccf4760378a2cf73",
+  "served_from_cache": false,
+  "http_status": 200,
+  "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "content_type": "application/json;charset=UTF-8",
+  "url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "started_at_utc": "2026-09-08T10:03:39.350495+00:00",
+  "completed_at_utc": "2026-09-08T10:03:39.757460+00:00",
+  "bytes": 11988,
+  "sha256": "a008cf83f616f2c602dead3ae8df8ac65cd79a548a098c08ccf4760378a2cf73",
+  "transport": "curl",
+  "tls_verification": true,
+  "response_total_count": 78,
+  "retained_rows": 78,
+  "outside_requested_range_rows": 0,
+  "series_names": {
+    "TP_YKKE_TR21": "TR21 (Edirne, Kırklareli, Tekirdağ)"
+  },
+  "frequency_conversion": {
+    "TP.YKKE.TR21": true
+  }
+}

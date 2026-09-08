@@ -1,0 +1,130 @@
+[
+  {
+    "status": "validated",
+    "series_code": "TP.KKM.K1",
+    "frequency": "AYLIK",
+    "aggregation": "last",
+    "chunk_start": "2020-01-01",
+    "chunk_end": "2026-06-30",
+    "request_file": "raw/TP_KKM_K1_2020-01-01_2026-06-30_request.json",
+    "request_sha256": "738718f69574a7940d3e7798ab69db4292616166ac6009921b3dc80d237f5ae7",
+    "response_file": "raw/TP_KKM_K1_2020-01-01_2026-06-30_response.json.gz",
+    "response_sha256": "88be1926f32d57a826bbbe6bc5e679203ea2e106d22aa060967708c72e88502d",
+    "served_from_cache": false,
+    "http_status": 200,
+    "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+    "content_type": "application/json;charset=UTF-8",
+    "url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+    "started_at_utc": "2026-09-08T10:00:12.585541+00:00",
+    "completed_at_utc": "2026-09-08T10:00:13.507096+00:00",
+    "bytes": 11241,
+    "sha256": "88be1926f32d57a826bbbe6bc5e679203ea2e106d22aa060967708c72e88502d",
+    "transport": "curl",
+    "tls_verification": true,
+    "response_total_count": 78,
+    "retained_rows": 78,
+    "outside_requested_range_rows": 0,
+    "series_names": {
+      "TP_KKM_K1": "1. DDKKM – Toplam (milyar ABD doları)"
+    },
+    "frequency_conversion": {
+      "TP.KKM.K1": true
+    }
+  },
+  {
+    "status": "validated",
+    "series_code": "TP.KKM.K2",
+    "frequency": "AYLIK",
+    "aggregation": "last",
+    "chunk_start": "2020-01-01",
+    "chunk_end": "2026-06-30",
+    "request_file": "raw/TP_KKM_K2_2020-01-01_2026-06-30_request.json",
+    "request_sha256": "c2e701a508f555c58757901852a25378923dfb29ebc4227782dd18be44388870",
+    "response_file": "raw/TP_KKM_K2_2020-01-01_2026-06-30_response.json.gz",
+    "response_sha256": "176dfe819b2ae5ca037d5ccae988c89820d7eeabcbf751485e338eedb2c4e385",
+    "served_from_cache": false,
+    "http_status": 200,
+    "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+    "content_type": "application/json;charset=UTF-8",
+    "url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+    "started_at_utc": "2026-09-08T10:00:13.611659+00:00",
+    "completed_at_utc": "2026-09-08T10:00:13.993875+00:00",
+    "bytes": 11259,
+    "sha256": "176dfe819b2ae5ca037d5ccae988c89820d7eeabcbf751485e338eedb2c4e385",
+    "transport": "curl",
+    "tls_verification": true,
+    "response_total_count": 78,
+    "retained_rows": 78,
+    "outside_requested_range_rows": 0,
+    "series_names": {
+      "TP_KKM_K2": "1.1. DDKKM – Gerçek Kişiler (milyar ABD doları)"
+    },
+    "frequency_conversion": {
+      "TP.KKM.K2": true
+    }
+  },
+  {
+    "status": "validated",
+    "series_code": "TP.KKM.K4",
+    "frequency": "AYLIK",
+    "aggregation": "last",
+    "chunk_start": "2020-01-01",
+    "chunk_end": "2026-06-30",
+    "request_file": "raw/TP_KKM_K4_2020-01-01_2026-06-30_request.json",
+    "request_sha256": "4f7b302e363eee6d8f0f8affe142bc71a1c0f39ac4ba229de623940852c617e3",
+    "response_file": "raw/TP_KKM_K4_2020-01-01_2026-06-30_response.json.gz",
+    "response_sha256": "de464401fa9dcc690588fe288a9ef2a06ce58cef6ef66931a46ed37d9e566a1a",
+    "served_from_cache": false,
+    "http_status": 200,
+    "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+    "content_type": "application/json;charset=UTF-8",
+    "url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+    "started_at_utc": "2026-09-08T10:00:14.104650+00:00",
+    "completed_at_utc": "2026-09-08T10:00:14.513706+00:00",
+    "bytes": 11259,
+    "sha256": "de464401fa9dcc690588fe288a9ef2a06ce58cef6ef66931a46ed37d9e566a1a",
+    "transport": "curl",
+    "tls_verification": true,
+    "response_total_count": 78,
+    "retained_rows": 78,
+    "outside_requested_range_rows": 0,
+    "series_names": {
+      "TP_KKM_K4": "2. TL KKM – Toplam (milyar TL)"
+    },
+    "frequency_conversion": {
+      "TP.KKM.K4": true
+    }
+  },
+  {
+    "status": "validated",
+    "series_code": "TP.KM.E041",
+    "frequency": "AYLIK",
+    "aggregation": "last",
+    "chunk_start": "2020-01-01",
+    "chunk_end": "2026-06-30",
+    "request_file": "raw/TP_KM_E041_2020-01-01_2026-06-30_request.json",
+    "request_sha256": "fdd229a0d1b43cd54392d587d3efb90a9f4777da6781fea23b9daada0cad409e",
+    "response_file": "raw/TP_KM_E041_2020-01-01_2026-06-30_response.json.gz",
+    "response_sha256": "190b5611f9bf177763a4ec40a3a56d5da14e19b187a86073a1ed27ea44edd78b",
+    "served_from_cache": false,
+    "http_status": 200,
+    "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+    "content_type": "application/json;charset=UTF-8",
+    "url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+    "started_at_utc": "2026-09-08T10:00:14.624597+00:00",
+    "completed_at_utc": "2026-09-08T10:00:14.925421+00:00",
+    "bytes": 12974,
+    "sha256": "190b5611f9bf177763a4ec40a3a56d5da14e19b187a86073a1ed27ea44edd78b",
+    "transport": "curl",
+    "tls_verification": true,
+    "response_total_count": 78,
+    "retained_rows": 78,
+    "outside_requested_range_rows": 0,
+    "series_names": {
+      "TP_KM_E041": "3.3.1. Tasarruf Mevduatı, Gerçek Kişiler"
+    },
+    "frequency_conversion": {
+      "TP.KM.E041": true
+    }
+  }
+]

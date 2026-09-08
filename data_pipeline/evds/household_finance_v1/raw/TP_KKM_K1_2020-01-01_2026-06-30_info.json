@@ -1,0 +1,32 @@
+{
+  "status": "validated",
+  "series_code": "TP.KKM.K1",
+  "frequency": "AYLIK",
+  "aggregation": "last",
+  "chunk_start": "2020-01-01",
+  "chunk_end": "2026-06-30",
+  "request_file": "raw/TP_KKM_K1_2020-01-01_2026-06-30_request.json",
+  "request_sha256": "738718f69574a7940d3e7798ab69db4292616166ac6009921b3dc80d237f5ae7",
+  "response_file": "raw/TP_KKM_K1_2020-01-01_2026-06-30_response.json.gz",
+  "response_sha256": "88be1926f32d57a826bbbe6bc5e679203ea2e106d22aa060967708c72e88502d",
+  "served_from_cache": false,
+  "http_status": 200,
+  "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "content_type": "application/json;charset=UTF-8",
+  "url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "started_at_utc": "2026-09-08T10:00:12.585541+00:00",
+  "completed_at_utc": "2026-09-08T10:00:13.507096+00:00",
+  "bytes": 11241,
+  "sha256": "88be1926f32d57a826bbbe6bc5e679203ea2e106d22aa060967708c72e88502d",
+  "transport": "curl",
+  "tls_verification": true,
+  "response_total_count": 78,
+  "retained_rows": 78,
+  "outside_requested_range_rows": 0,
+  "series_names": {
+    "TP_KKM_K1": "1. DDKKM – Toplam (milyar ABD doları)"
+  },
+  "frequency_conversion": {
+    "TP.KKM.K1": true
+  }
+}

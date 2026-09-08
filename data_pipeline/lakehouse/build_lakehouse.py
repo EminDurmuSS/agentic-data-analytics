@@ -58,7 +58,11 @@ def build_monthly_analysis() -> pd.DataFrame:
         / "monthly_panel.parquet"
     ).rename(columns={"target_period": "month"})
     frame = bddk.merge(evds, on="month", how="left", validate="one_to_one")
-    for dataset_name in ["housing_causality_controls_v1", "market_controls_v2"]:
+    for dataset_name in [
+        "housing_causality_controls_v1",
+        "market_controls_v2",
+        "household_finance_v1",
+    ]:
         controls = pd.read_parquet(
             PROJECT_ROOT
             / "data_pipeline"
@@ -161,7 +165,11 @@ def build_quarterly_analysis() -> pd.DataFrame:
     )
     frame = reconciliation.merge(tbb, on="quarter", how="left", validate="one_to_one")
     frame = frame.merge(evds, on="evds_quarter", how="left", validate="one_to_one")
-    for dataset_name in ["housing_causality_controls_v1", "market_controls_v2"]:
+    for dataset_name in [
+        "housing_causality_controls_v1",
+        "market_controls_v2",
+        "household_finance_v1",
+    ]:
         controls = pd.read_parquet(
             PROJECT_ROOT
             / "data_pipeline"
@@ -215,7 +223,16 @@ def build(output_path: Path) -> dict[str, Any]:
     table_manifest: list[dict[str, Any]] = []
     connection = duckdb.connect(str(temporary_path))
     try:
-        for schema in ["catalog", "evds", "bddk", "tbb", "quality", "evidence", "analysis"]:
+        for schema in [
+            "catalog",
+            "evds",
+            "bddk",
+            "tbb",
+            "quality",
+            "evidence",
+            "regional",
+            "analysis",
+        ]:
             connection.execute(f"CREATE SCHEMA {schema}")
 
         parquet_tables = [
@@ -233,6 +250,22 @@ def build(output_path: Path) -> dict[str, Any]:
                 "evds",
                 "series_catalog",
                 PROJECT_ROOT / "data_pipeline" / "catalog" / "evds_series_catalog.parquet",
+                ", ".join(
+                    [
+                        "series_code",
+                        "series_name_tr",
+                        "series_name_en",
+                        "group_code",
+                        "group_name_tr",
+                        "category_path_tr",
+                        "frequency",
+                        "default_aggregation",
+                        "unit",
+                        "is_archive",
+                        "metadata_url",
+                        "group_catalog_sha256",
+                    ]
+                ),
             ),
             (
                 "evds",
@@ -324,6 +357,8 @@ def build(output_path: Path) -> dict[str, Any]:
         for dataset_name, table_prefix in [
             ("housing_causality_controls_v1", "housing_controls"),
             ("market_controls_v2", "market_controls"),
+            ("regional_housing_v1", "regional_housing"),
+            ("household_finance_v1", "household_finance"),
         ]:
             dataset_dir = PROJECT_ROOT / "data_pipeline" / "evds" / dataset_name
             parquet_tables.extend(
@@ -394,6 +429,7 @@ def build(output_path: Path) -> dict[str, Any]:
                     weekly_measurement_projection,
                 )
             )
+
             parquet_tables.append(
                 (
                     "bddk",
@@ -415,6 +451,27 @@ def build(output_path: Path) -> dict[str, Any]:
                     weekly_path.parent / "missingness_audit.parquet",
                 )
             )
+
+        regional_dir = PROJECT_ROOT / "data_pipeline" / "regional" / "processed"
+        parquet_tables.extend(
+            [
+                (
+                    "regional",
+                    "province_dimension",
+                    regional_dir / "province_dimension.parquet",
+                ),
+                (
+                    "regional",
+                    "housing_quarterly",
+                    regional_dir / "province_quarter_housing_panel.parquet",
+                ),
+                (
+                    "regional",
+                    "metric_dictionary",
+                    regional_dir / "metric_dictionary.parquet",
+                ),
+            ]
+        )
 
         for item in parquet_tables:
             schema, table, path = item[:3]
@@ -498,6 +555,10 @@ def build(output_path: Path) -> dict[str, Any]:
                 "SELECT count(*) - count(DISTINCT quarter) FROM analysis.housing_credit_quarterly"
             ).fetchone()[0]
         )
+        regional_count, regional_distinct_count = connection.execute(
+            "SELECT count(*), count(DISTINCT province_key || ':' || quarter) "
+            "FROM regional.housing_quarterly"
+        ).fetchone()
         table_count = int(
             connection.execute(
                 "SELECT count(*) FROM information_schema.tables "
@@ -512,20 +573,24 @@ def build(output_path: Path) -> dict[str, Any]:
         "status": "passed",
         "database_file": output_path.name,
         "database_bytes": output_path.stat().st_size,
-        "schema_count": 7,
+        "schema_count": 8,
         "table_count": table_count,
         "monthly_analysis_rows": monthly_count,
         "quarterly_analysis_rows": quarterly_count,
         "duplicate_months": duplicate_months,
         "duplicate_quarters": duplicate_quarters,
+        "regional_housing_rows": int(regional_count),
+        "regional_housing_distinct_keys": int(regional_distinct_count),
         "weekly_measurements_loaded": weekly_path.exists(),
         "source_table_manifest_rows": len(table_manifest),
         "quality_policy": [
             "The DuckDB file contains copied tables and does not depend on absolute Parquet paths at query time.",
             "Raw source values remain available in source-specific Parquet files with hashes.",
+            "The DuckDB copy of the EVDS series catalog keeps discovery-critical columns; the complete source metadata remains in data_pipeline/catalog/evds_series_catalog.parquet.",
             "Weekly measurement rows keep analytical keys and values compact; labels and source hashes are joined through bddk.weekly_metric_dictionary and bddk.weekly_source_tables.",
             "The monthly analysis table keeps nominal stock, real stock, rates, controls and quality flags separate.",
             "The quarterly analysis table keeps BDDK, FinTurk, EVDS and TBB scope differences visible.",
+            "The regional panel keeps province observations distinct from regional KFE and YKKE values.",
             "Weekly BDDK data is loaded only after its processed validation exists.",
         ],
     }

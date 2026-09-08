@@ -1,0 +1,32 @@
+{
+  "status": "validated",
+  "series_code": "TP.BIRIMFIYAT.DENIZLI",
+  "frequency": "ÜÇ AYLIK",
+  "aggregation": "last",
+  "chunk_start": "2020-01-01",
+  "chunk_end": "2026-06-30",
+  "request_file": "raw/TP_BIRIMFIYAT_DENIZLI_2020-01-01_2026-06-30_request.json",
+  "request_sha256": "bc8a3183ab316a5364bb8a7823a586804d68e100c5f08d267a4ecdc1dccd4f3e",
+  "response_file": "raw/TP_BIRIMFIYAT_DENIZLI_2020-01-01_2026-06-30_response.json.gz",
+  "response_sha256": "d1167a9b2b599429c85455e7c67266cc22edf7b257ff2a16e22a8e7b19455828",
+  "served_from_cache": false,
+  "http_status": 200,
+  "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "content_type": "application/json;charset=UTF-8",
+  "url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "started_at_utc": "2026-09-08T10:03:02.646518+00:00",
+  "completed_at_utc": "2026-09-08T10:03:03.973651+00:00",
+  "bytes": 4655,
+  "sha256": "d1167a9b2b599429c85455e7c67266cc22edf7b257ff2a16e22a8e7b19455828",
+  "transport": "curl",
+  "tls_verification": true,
+  "response_total_count": 26,
+  "retained_rows": 26,
+  "outside_requested_range_rows": 0,
+  "series_names": {
+    "TP_BIRIMFIYAT_DENIZLI": "Denizli Konut Birim Fiyatları"
+  },
+  "frequency_conversion": {
+    "TP.BIRIMFIYAT.DENIZLI": true
+  }
+}

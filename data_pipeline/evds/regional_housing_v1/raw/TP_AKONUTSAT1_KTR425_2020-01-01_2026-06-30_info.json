@@ -1,0 +1,32 @@
+{
+  "status": "validated",
+  "series_code": "TP.AKONUTSAT1.KTR425",
+  "frequency": "AYLIK",
+  "aggregation": "sum",
+  "chunk_start": "2020-01-01",
+  "chunk_end": "2026-06-30",
+  "request_file": "raw/TP_AKONUTSAT1_KTR425_2020-01-01_2026-06-30_request.json",
+  "request_sha256": "8b35fe3eb87799f8dcbd2a31bc34c45f1c56f4a796384f84f9f3175848aae464",
+  "response_file": "raw/TP_AKONUTSAT1_KTR425_2020-01-01_2026-06-30_response.json.gz",
+  "response_sha256": "13a0fa8690456bc9627168917cb580dc44fc8b8eb216e1f5eda05b755f7468bb",
+  "served_from_cache": false,
+  "http_status": 200,
+  "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "content_type": "application/json;charset=UTF-8",
+  "url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "started_at_utc": "2026-09-08T10:00:23.391536+00:00",
+  "completed_at_utc": "2026-09-08T10:00:23.747763+00:00",
+  "bytes": 12820,
+  "sha256": "13a0fa8690456bc9627168917cb580dc44fc8b8eb216e1f5eda05b755f7468bb",
+  "transport": "curl",
+  "tls_verification": true,
+  "response_total_count": 78,
+  "retained_rows": 78,
+  "outside_requested_range_rows": 0,
+  "series_names": {
+    "TP_AKONUTSAT1_KTR425": "Yalova_Konut_Toplam Satışlar"
+  },
+  "frequency_conversion": {
+    "TP.AKONUTSAT1.KTR425": true
+  }
+}

@@ -1,0 +1,32 @@
+{
+  "status": "validated",
+  "series_code": "TP.YKKE.TR7",
+  "frequency": "AYLIK",
+  "aggregation": "last",
+  "chunk_start": "2020-01-01",
+  "chunk_end": "2026-06-30",
+  "request_file": "raw/TP_YKKE_TR7_2020-01-01_2026-06-30_request.json",
+  "request_sha256": "eef9c70f6986af6ce7007d5e447686bf9a4ea7b6d51b4d28531f33e62a3a0257",
+  "response_file": "raw/TP_YKKE_TR7_2020-01-01_2026-06-30_response.json.gz",
+  "response_sha256": "1dd068edb12f96a4245406474e2f903575da0932133342ebc1eff6828be970e3",
+  "served_from_cache": false,
+  "http_status": 200,
+  "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "content_type": "application/json;charset=UTF-8",
+  "url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "started_at_utc": "2026-09-08T10:03:45.637341+00:00",
+  "completed_at_utc": "2026-09-08T10:03:46.050057+00:00",
+  "bytes": 11997,
+  "sha256": "1dd068edb12f96a4245406474e2f903575da0932133342ebc1eff6828be970e3",
+  "transport": "curl",
+  "tls_verification": true,
+  "response_total_count": 78,
+  "retained_rows": 78,
+  "outside_requested_range_rows": 0,
+  "series_names": {
+    "TP_YKKE_TR7": "TR7 (Nevşehir, Niğde, Kırıkkale, Kırşehir, Aksaray, Kayseri, Sivas, Yozgat)"
+  },
+  "frequency_conversion": {
+    "TP.YKKE.TR7": true
+  }
+}

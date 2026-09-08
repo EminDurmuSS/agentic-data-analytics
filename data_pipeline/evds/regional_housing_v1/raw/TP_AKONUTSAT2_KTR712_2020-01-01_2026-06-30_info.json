@@ -1,0 +1,32 @@
+{
+  "status": "validated",
+  "series_code": "TP.AKONUTSAT2.KTR712",
+  "frequency": "AYLIK",
+  "aggregation": "sum",
+  "chunk_start": "2020-01-01",
+  "chunk_end": "2026-06-30",
+  "request_file": "raw/TP_AKONUTSAT2_KTR712_2020-01-01_2026-06-30_request.json",
+  "request_sha256": "f9432868c90056f0403ab1610b2c5d471c51ab041145685944ba22ca8f569df7",
+  "response_file": "raw/TP_AKONUTSAT2_KTR712_2020-01-01_2026-06-30_response.json.gz",
+  "response_sha256": "b25d10dfdc773ba6434c9ec02a596e5bb1affae0d145304620568242fe7b38ff",
+  "served_from_cache": false,
+  "http_status": 200,
+  "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "content_type": "application/json;charset=UTF-8",
+  "url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "started_at_utc": "2026-09-08T10:01:09.303245+00:00",
+  "completed_at_utc": "2026-09-08T10:01:09.703396+00:00",
+  "bytes": 12600,
+  "sha256": "b25d10dfdc773ba6434c9ec02a596e5bb1affae0d145304620568242fe7b38ff",
+  "transport": "curl",
+  "tls_verification": true,
+  "response_total_count": 78,
+  "retained_rows": 78,
+  "outside_requested_range_rows": 0,
+  "series_names": {
+    "TP_AKONUTSAT2_KTR712": "Aksaray_Konut_İpotekli Satışlar"
+  },
+  "frequency_conversion": {
+    "TP.AKONUTSAT2.KTR712": true
+  }
+}

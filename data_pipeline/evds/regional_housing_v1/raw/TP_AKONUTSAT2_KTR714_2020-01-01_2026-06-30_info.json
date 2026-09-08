@@ -1,0 +1,32 @@
+{
+  "status": "validated",
+  "series_code": "TP.AKONUTSAT2.KTR714",
+  "frequency": "AYLIK",
+  "aggregation": "sum",
+  "chunk_start": "2020-01-01",
+  "chunk_end": "2026-06-30",
+  "request_file": "raw/TP_AKONUTSAT2_KTR714_2020-01-01_2026-06-30_request.json",
+  "request_sha256": "1ede8544e4b4140d699b43418845ff537fac5ab68f8c821e659877f04562f173",
+  "response_file": "raw/TP_AKONUTSAT2_KTR714_2020-01-01_2026-06-30_response.json.gz",
+  "response_sha256": "cca15972d066294eb583d78d4201130609ff150e4ddae499c78eaf5e9a366528",
+  "served_from_cache": false,
+  "http_status": 200,
+  "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "content_type": "application/json;charset=UTF-8",
+  "url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "started_at_utc": "2026-09-08T10:01:10.263148+00:00",
+  "completed_at_utc": "2026-09-08T10:01:10.639584+00:00",
+  "bytes": 12572,
+  "sha256": "cca15972d066294eb583d78d4201130609ff150e4ddae499c78eaf5e9a366528",
+  "transport": "curl",
+  "tls_verification": true,
+  "response_total_count": 78,
+  "retained_rows": 78,
+  "outside_requested_range_rows": 0,
+  "series_names": {
+    "TP_AKONUTSAT2_KTR714": "Nevşehir_Konut_İpotekli Satışlar"
+  },
+  "frequency_conversion": {
+    "TP.AKONUTSAT2.KTR714": true
+  }
+}

@@ -13,8 +13,8 @@ güncel repo durumuyla karşılaştırır.
 3. Birlikte hareket nedensellik kanıtı değildir. Faiz, reel kredi ve satış
    karşılaştırmaları önce betimleyici bulgu üretir.
 4. EVDS'nin 52.696 serisinin bütün tarihsel gözlemleri yerelde değildir. Tam
-   metadata kataloğu bulunur, gözlem olarak analitik değeri yüksek 61 kaynak seri
-   seçilmiştir.
+   metadata kataloğu bulunur, gözlem olarak analitik değeri yüksek 506 kaynak
+   seri seçilmiştir.
 5. Aynı veri ve dönüşümler üzerinde devam eden kullanıcı oturumu henüz ürün
    olarak uygulanmadı.
 
@@ -59,17 +59,27 @@ bulunmadığı için açık boşluk olarak işaretlenir.
 ### Sorgulanabilir veri altyapısı
 
 SQLite/Pandas başlangıcının yanında artık birleşik katalog ve self-contained
-DuckDB bulunur. DuckDB 7 şema ve 40 tablo içerir. BDDK aylık, haftalık ve
-FinTürk verileri, TBB raporları, 61 seçilmiş EVDS kaynak serisi, 1 açıkça
-türetilmiş seri, kalite tabloları ve
-olay kayıtları tek sorgu yüzeyinde erişilebilirdir.
+DuckDB bulunur. DuckDB 8 şema ve 55 tablo içerir. BDDK aylık, haftalık ve
+FinTürk verileri, TBB raporları, 506 seçilmiş EVDS kaynak serisi, 1 açıkça
+türetilmiş seri, il bazlı konut paneli, kalite tabloları ve olay kayıtları tek
+sorgu yüzeyinde erişilebilirdir.
+
+### Bölgesel konut ve hanehalkı finansmanı
+
+81 ilin toplam, ipotekli, ilk el ve ikinci el konut satışları ile il bazlı
+birim fiyatlar, bölgesel KFE ve YKKE serileri indirildi. Bunlar FinTürk konut
+kredisi, tasarruf mevduatı, altın mevduatı ve nakdi kredi göstergeleriyle 22
+çeyreklik panelde birleştirildi. Ayrıca 3 KKM ve 1 hanehalkı mevduat serisi
+ulusal aylık analize eklendi. Kaynak null değerleri korunur ve eksik ayı olan
+çeyreğe kısmi toplam yazılmaz.
 
 ## Bilinçli kapsam sınırları
 
 - BDDK aylık bültende 10, haftalık bültende 7 resmî banka grubu alınır.
 - EVDS'nin bütün tarihsel gözlemlerini indirmek yerine tam metadata kataloğu ve
-  görevle ilişkili 61 kaynak seri tutulur. Bu, yanlış seri seçimini ve gereksiz veri
-  hacmini azaltan bilinçli bir tasarımdır.
+  görevle ilişkili 506 kaynak seri tutulur. Bunların 61'i ulusal, 441'i
+  bölgesel konut, 4'ü hanehalkı finansmanı serisidir. Bu, yanlış seri seçimini
+  ve gereksiz veri hacmini azaltan bilinçli bir tasarımdır.
 - TBB Haziran 2026 raporu yayımlanmadığı için mevcut değildir.
 - Ağustos 2025 EVDS ve BDDK konut kredisi farkı otomatik düzeltilmez, kaynak
   kapsamı uyarısı olarak korunur.

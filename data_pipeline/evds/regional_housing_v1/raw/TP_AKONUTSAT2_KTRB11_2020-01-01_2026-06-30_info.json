@@ -1,0 +1,32 @@
+{
+  "status": "validated",
+  "series_code": "TP.AKONUTSAT2.KTRB11",
+  "frequency": "AYLIK",
+  "aggregation": "sum",
+  "chunk_start": "2020-01-01",
+  "chunk_end": "2026-06-30",
+  "request_file": "raw/TP_AKONUTSAT2_KTRB11_2020-01-01_2026-06-30_request.json",
+  "request_sha256": "5951e513a0797f8524a35ed722741a6f1b9cc6ac8cf396396dfaa164a8ddc926",
+  "response_file": "raw/TP_AKONUTSAT2_KTRB11_2020-01-01_2026-06-30_response.json.gz",
+  "response_sha256": "0d68f65b2f3b03ad3e308f03061e1ff3a54562393261a724fee57786c0170ece",
+  "served_from_cache": false,
+  "http_status": 200,
+  "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "content_type": "application/json;charset=UTF-8",
+  "url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "started_at_utc": "2026-09-08T10:01:23.125692+00:00",
+  "completed_at_utc": "2026-09-08T10:01:23.545549+00:00",
+  "bytes": 12620,
+  "sha256": "0d68f65b2f3b03ad3e308f03061e1ff3a54562393261a724fee57786c0170ece",
+  "transport": "curl",
+  "tls_verification": true,
+  "response_total_count": 78,
+  "retained_rows": 78,
+  "outside_requested_range_rows": 0,
+  "series_names": {
+    "TP_AKONUTSAT2_KTRB11": "Malatya_Konut_İpotekli Satışlar"
+  },
+  "frequency_conversion": {
+    "TP.AKONUTSAT2.KTRB11": true
+  }
+}

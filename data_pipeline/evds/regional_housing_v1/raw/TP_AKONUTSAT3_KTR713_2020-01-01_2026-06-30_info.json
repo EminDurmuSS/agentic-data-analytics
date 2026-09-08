@@ -1,0 +1,32 @@
+{
+  "status": "validated",
+  "series_code": "TP.AKONUTSAT3.KTR713",
+  "frequency": "AYLIK",
+  "aggregation": "sum",
+  "chunk_start": "2020-01-01",
+  "chunk_end": "2026-06-30",
+  "request_file": "raw/TP_AKONUTSAT3_KTR713_2020-01-01_2026-06-30_request.json",
+  "request_sha256": "58d87fb67926f99ef386b9a5e182fd92ba39d9519b8e9670cb434b2a5c12835e",
+  "response_file": "raw/TP_AKONUTSAT3_KTR713_2020-01-01_2026-06-30_response.json.gz",
+  "response_sha256": "23c0eea72cde953cbf72c33f5fbeb1ac95af14cd7407fa7303932ab86c3a9581",
+  "served_from_cache": false,
+  "http_status": 200,
+  "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "content_type": "application/json;charset=UTF-8",
+  "url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "started_at_utc": "2026-09-08T10:01:47.831354+00:00",
+  "completed_at_utc": "2026-09-08T10:01:48.148575+00:00",
+  "bytes": 12646,
+  "sha256": "23c0eea72cde953cbf72c33f5fbeb1ac95af14cd7407fa7303932ab86c3a9581",
+  "transport": "curl",
+  "tls_verification": true,
+  "response_total_count": 78,
+  "retained_rows": 78,
+  "outside_requested_range_rows": 0,
+  "series_names": {
+    "TP_AKONUTSAT3_KTR713": "Niğde_Konut_İlk El Satışlar"
+  },
+  "frequency_conversion": {
+    "TP.AKONUTSAT3.KTR713": true
+  }
+}

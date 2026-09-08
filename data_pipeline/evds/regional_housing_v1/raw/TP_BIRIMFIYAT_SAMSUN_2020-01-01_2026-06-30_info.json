@@ -1,0 +1,32 @@
+{
+  "status": "validated",
+  "series_code": "TP.BIRIMFIYAT.SAMSUN",
+  "frequency": "ÜÇ AYLIK",
+  "aggregation": "last",
+  "chunk_start": "2020-01-01",
+  "chunk_end": "2026-06-30",
+  "request_file": "raw/TP_BIRIMFIYAT_SAMSUN_2020-01-01_2026-06-30_request.json",
+  "request_sha256": "a4e0553d143d5181c42ad39e328f49f379a0aeeee6ec7fffc4e46b981e71edbd",
+  "response_file": "raw/TP_BIRIMFIYAT_SAMSUN_2020-01-01_2026-06-30_response.json.gz",
+  "response_sha256": "235940ce7145263eb32d7bcea3322f7758d9db14f5b1bb1aed0d37514f690b8c",
+  "served_from_cache": false,
+  "http_status": 200,
+  "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "content_type": "application/json;charset=UTF-8",
+  "url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "started_at_utc": "2026-09-08T10:03:23.087579+00:00",
+  "completed_at_utc": "2026-09-08T10:03:23.502630+00:00",
+  "bytes": 4622,
+  "sha256": "235940ce7145263eb32d7bcea3322f7758d9db14f5b1bb1aed0d37514f690b8c",
+  "transport": "curl",
+  "tls_verification": true,
+  "response_total_count": 26,
+  "retained_rows": 26,
+  "outside_requested_range_rows": 0,
+  "series_names": {
+    "TP_BIRIMFIYAT_SAMSUN": "Samsun Konut Birim Fiyatları"
+  },
+  "frequency_conversion": {
+    "TP.BIRIMFIYAT.SAMSUN": true
+  }
+}

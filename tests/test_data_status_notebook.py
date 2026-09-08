@@ -23,6 +23,8 @@ class DataStatusNotebookTests(unittest.TestCase):
             self.assertIn("BDDK haftalık", content, path)
             self.assertIn("BDDK FinTürk", content, path)
             self.assertIn("52.696", content, path)
+            self.assertIn("İl bazlı konut paneli", content, path)
+            self.assertIn("506", content, path)
             self.assertIn("analytics.duckdb", content, path)
             self.assertNotIn("25 sayısal seri", content, path)
             self.assertNotIn("BDDK aylık/haftalık/FinTürk kapsamı tamamlanmadı", content, path)

@@ -53,7 +53,12 @@ def build_notebook() -> dict:
                WHERE source_system = 'TCMB_EVDS'
                  AND observation_available) AS yerel_evds_serisi,
               (SELECT count(*) FROM analysis.housing_credit_monthly) AS aylik_donem,
-              (SELECT count(*) FROM analysis.housing_credit_quarterly) AS ceyreklik_donem
+              (SELECT count(*) FROM analysis.housing_credit_quarterly) AS ceyreklik_donem,
+              (SELECT count(*) FROM regional.housing_quarterly) AS bolgesel_satir,
+              (SELECT count(DISTINCT province_key)
+               FROM regional.housing_quarterly) AS il_sayisi,
+              (SELECT count(*) FROM regional.housing_quarterly
+               WHERE analysis_ready) AS analize_hazir_bolgesel_satir
             """
         ).fetchdf()
         source_status = connection.execute(
@@ -115,6 +120,21 @@ def build_notebook() -> dict:
             ORDER BY source_system
             """
         ).fetchdf()
+        regional_sample = connection.execute(
+            """
+            SELECT province_name AS il,
+                   quarter AS ceyrek,
+                   housing_sales_total_count AS toplam_konut_satisi,
+                   round(mortgaged_sales_share_pct, 2) AS ipotekli_satis_payi_yuzde,
+                   round(housing_credit_per_capita_try, 2) AS kisi_basi_konut_kredisi_tl,
+                   round(housing_credit_yoy_pct, 2) AS konut_kredisi_yillik_yuzde,
+                   analysis_ready AS analize_hazir
+            FROM regional.housing_quarterly
+            WHERE quarter = '2026Q2'
+              AND province_name IN ('ANKARA', 'İSTANBUL', 'İZMİR')
+            ORDER BY province_name
+            """
+        ).fetchdf()
     finally:
         connection.close()
 
@@ -124,8 +144,9 @@ def build_notebook() -> dict:
 
 Bu notebook eski 25 serilik başlangıç snapshot'ı değildir. Repodaki güncel,
 self-contained DuckDB dosyasını salt okunur açar ve BDDK aylık, BDDK haftalık,
-BDDK FinTürk, seçilmiş TCMB EVDS serileri, TBB tüketici kredileri ve resmî
-bağlam belgelerinin birleşik durumunu gösterir.
+BDDK FinTürk, seçilmiş ulusal ve bölgesel TCMB EVDS serileri, TBB tüketici
+kredileri, hanehalkı finansmanı ve resmî bağlam belgelerinin birleşik durumunu
+gösterir.
 
 Ana sonuç: Zorunlu kaynak ailelerinin yayımlanmış veri kapsamı tamamlandı.
 Kaynakta henüz yayımlanmayan TBB Haziran 2026 raporu tahmin edilmedi ve açık
@@ -140,6 +161,7 @@ boşluk olarak korunuyor.
 | BDDK haftalık | 286 hafta, 7 resmî banka grubu, 9 tablonun tamamı, 1.025.974 ölçüm |
 | BDDK FinTürk | 22 çeyrek, 7 tablo, 7 banka grubu, 81 il ve `YURT DIŞI`, 936.512 ölçüm |
 | TCMB EVDS | 52.696 serilik metadata kataloğu, analitik değeri yüksek {int(summary.iloc[0]['yerel_evds_serisi'])} kaynak serinin yerel gözlemi ve 1 türetilmiş altın serisi |
+| İl bazlı konut paneli | {int(summary.iloc[0]['il_sayisi'])} il, 22 çeyrek, {int(summary.iloc[0]['bolgesel_satir'])} tekil satır ve {int(summary.iloc[0]['analize_hazir_bolgesel_satir'])} analize hazır satır |
 | TBB | Mart 2021-Mart 2026 arasında yayımlanmış 21 rapor, 252 ürün ölçümü |
 | Resmî belgeler | 4 BDDK kararı ve 4 TCMB yöntem veya destek belgesi |
 
@@ -177,7 +199,12 @@ print(f"Boyut: {DB_PATH.stat().st_size / 1024 / 1024:.2f} MiB")
        WHERE source_system = 'TCMB_EVDS'
          AND observation_available) AS yerel_evds_serisi,
       (SELECT count(*) FROM analysis.housing_credit_monthly) AS aylik_donem,
-      (SELECT count(*) FROM analysis.housing_credit_quarterly) AS ceyreklik_donem
+      (SELECT count(*) FROM analysis.housing_credit_quarterly) AS ceyreklik_donem,
+      (SELECT count(*) FROM regional.housing_quarterly) AS bolgesel_satir,
+      (SELECT count(DISTINCT province_key)
+       FROM regional.housing_quarterly) AS il_sayisi,
+      (SELECT count(*) FROM regional.housing_quarterly
+       WHERE analysis_ready) AS analize_hazir_bolgesel_satir
     \"\"\"
 ).fetchdf()
 """
@@ -253,6 +280,23 @@ display(demo)
 ).fetchdf()
 """
 
+    regional_source = """connection.execute(
+    \"\"\"
+    SELECT province_name AS il,
+           quarter AS ceyrek,
+           housing_sales_total_count AS toplam_konut_satisi,
+           round(mortgaged_sales_share_pct, 2) AS ipotekli_satis_payi_yuzde,
+           round(housing_credit_per_capita_try, 2) AS kisi_basi_konut_kredisi_tl,
+           round(housing_credit_yoy_pct, 2) AS konut_kredisi_yillik_yuzde,
+           analysis_ready AS analize_hazir
+    FROM regional.housing_quarterly
+    WHERE quarter = '2026Q2'
+      AND province_name IN ('ANKARA', 'İSTANBUL', 'İZMİR')
+    ORDER BY province_name
+    \"\"\"
+).fetchdf()
+"""
+
     quality = """## Analitik sözleşme
 
 - Kredi stoku, stok değişimi ve yeni kullandırım akımı farklı ölçülerdir.
@@ -262,6 +306,8 @@ display(demo)
 - BDDK haftalık kaynak boşlukları ile FinTürk yapısal ve raporlanmamış
   boşlukları ayrı denetim tablolarında tutulur.
 - Çeyreklik gözlem ara aylara forward fill edilmez.
+- İl bazlı panelde eksik aylı çeyrekler kısmi toplamla doldurulmaz.
+- İpoteksiz satış, nakit satış olarak yorumlanmaz.
 - Birlikte hareket nedensellik kanıtı sayılmaz. Olay belgeleri yalnız araştırma bağlamıdır.
 """
 
@@ -273,6 +319,8 @@ display(demo)
 4. Aktif altın kontrolü `TP.ALTINPIYASA.KAP02` 30 Haziran 2026'ya kadar doludur; TL/gram serisi açık `0.001` dönüşümüyle türetilir.
 5. Ağustos 2025 EVDS ve BDDK konut kredisi kapsam farkı otomatik düzeltilmez.
 6. TBB raporlayan banka kapsamı BDDK sektör toplamından daha dardır.
+7. Beş ilin konut birim fiyatı serisi kaynakta tamamen boştur; 162 il-çeyrek değeri null kalır.
+8. İl bazlı ipotekli satış kaynak null değerleri 8 il-çeyrek toplamını etkiler.
 
 Bu boşluklar veri kaybı gibi gizlenmez. Katalog ve kalite tablolarında açıkça
 görülebilir.
@@ -318,6 +366,8 @@ agent katmanını kurmaktır.
             query_cell(demo_source, demo_rows),
             new_markdown_cell("## Kaynak kapsamlarının çeyreklik karşılaştırması"),
             query_cell(reconciliation_source, reconciliation),
+            new_markdown_cell("## İl bazlı konut panelinden örnek"),
+            query_cell(regional_source, regional_sample),
             new_markdown_cell(known_gaps),
             query_cell(missing_source, missing_metrics),
             new_code_cell("connection.close()\nprint('Bağlantı kapatıldı.')"),

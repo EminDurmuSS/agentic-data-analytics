@@ -1,0 +1,32 @@
+{
+  "status": "validated",
+  "series_code": "TP.YKKE.TR10",
+  "frequency": "AYLIK",
+  "aggregation": "last",
+  "chunk_start": "2020-01-01",
+  "chunk_end": "2026-06-30",
+  "request_file": "raw/TP_YKKE_TR10_2020-01-01_2026-06-30_request.json",
+  "request_sha256": "5cb11f2d995dc7c549e2e8823510a30f080ce22abdaf4c81bb57ac38b3e5ca53",
+  "response_file": "raw/TP_YKKE_TR10_2020-01-01_2026-06-30_response.json.gz",
+  "response_sha256": "4e8a0305c128797e755bf2b207ad5675cb38e15cef8d8ff1f76189acfa749d07",
+  "served_from_cache": false,
+  "http_status": 200,
+  "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "content_type": "application/json;charset=UTF-8",
+  "url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "started_at_utc": "2026-09-08T10:03:38.820867+00:00",
+  "completed_at_utc": "2026-09-08T10:03:39.236586+00:00",
+  "bytes": 11948,
+  "sha256": "4e8a0305c128797e755bf2b207ad5675cb38e15cef8d8ff1f76189acfa749d07",
+  "transport": "curl",
+  "tls_verification": true,
+  "response_total_count": 78,
+  "retained_rows": 78,
+  "outside_requested_range_rows": 0,
+  "series_names": {
+    "TP_YKKE_TR10": "TR10 (İstanbul)"
+  },
+  "frequency_conversion": {
+    "TP.YKKE.TR10": true
+  }
+}

@@ -1,0 +1,32 @@
+{
+  "status": "validated",
+  "series_code": "TP.BIRIMFIYAT.KILIS",
+  "frequency": "ÜÇ AYLIK",
+  "aggregation": "last",
+  "chunk_start": "2020-01-01",
+  "chunk_end": "2026-06-30",
+  "request_file": "raw/TP_BIRIMFIYAT_KILIS_2020-01-01_2026-06-30_request.json",
+  "request_sha256": "23ff8b8c58275fed2ac60fe8801877da6b9b74409e601a9b477366efc354f1d3",
+  "response_file": "raw/TP_BIRIMFIYAT_KILIS_2020-01-01_2026-06-30_response.json.gz",
+  "response_sha256": "92c7748435ab6f2eca4d505b86780a4f9923ffb4ccbf67329dac815a9d100275",
+  "served_from_cache": false,
+  "http_status": 200,
+  "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "content_type": "application/json;charset=UTF-8",
+  "url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "started_at_utc": "2026-09-08T10:03:13.126637+00:00",
+  "completed_at_utc": "2026-09-08T10:03:13.542617+00:00",
+  "bytes": 4587,
+  "sha256": "92c7748435ab6f2eca4d505b86780a4f9923ffb4ccbf67329dac815a9d100275",
+  "transport": "curl",
+  "tls_verification": true,
+  "response_total_count": 26,
+  "retained_rows": 26,
+  "outside_requested_range_rows": 0,
+  "series_names": {
+    "TP_BIRIMFIYAT_KILIS": "Kilis Konut Birim Fiyatları"
+  },
+  "frequency_conversion": {
+    "TP.BIRIMFIYAT.KILIS": true
+  }
+}

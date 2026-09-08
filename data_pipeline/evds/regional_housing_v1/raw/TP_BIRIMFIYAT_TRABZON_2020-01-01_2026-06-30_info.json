@@ -1,0 +1,32 @@
+{
+  "status": "validated",
+  "series_code": "TP.BIRIMFIYAT.TRABZON",
+  "frequency": "ÜÇ AYLIK",
+  "aggregation": "last",
+  "chunk_start": "2020-01-01",
+  "chunk_end": "2026-06-30",
+  "request_file": "raw/TP_BIRIMFIYAT_TRABZON_2020-01-01_2026-06-30_request.json",
+  "request_sha256": "a7c4be91b12fafb5bbc4a291596b29594c3b8f876d7262deb85c5e322e6ae77b",
+  "response_file": "raw/TP_BIRIMFIYAT_TRABZON_2020-01-01_2026-06-30_response.json.gz",
+  "response_sha256": "068b48a986d332264fcb961e8579b653db6677b7caf71194df7f5eb9f3cca280",
+  "served_from_cache": false,
+  "http_status": 200,
+  "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "content_type": "application/json;charset=UTF-8",
+  "url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "started_at_utc": "2026-09-08T10:03:26.665185+00:00",
+  "completed_at_utc": "2026-09-08T10:03:26.937840+00:00",
+  "bytes": 4653,
+  "sha256": "068b48a986d332264fcb961e8579b653db6677b7caf71194df7f5eb9f3cca280",
+  "transport": "curl",
+  "tls_verification": true,
+  "response_total_count": 26,
+  "retained_rows": 26,
+  "outside_requested_range_rows": 0,
+  "series_names": {
+    "TP_BIRIMFIYAT_TRABZON": "Trabzon Konut Birim Fiyatları"
+  },
+  "frequency_conversion": {
+    "TP.BIRIMFIYAT.TRABZON": true
+  }
+}

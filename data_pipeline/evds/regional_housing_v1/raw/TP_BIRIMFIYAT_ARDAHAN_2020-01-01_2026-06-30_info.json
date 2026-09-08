@@ -1,0 +1,32 @@
+{
+  "status": "validated",
+  "series_code": "TP.BIRIMFIYAT.ARDAHAN",
+  "frequency": "ÜÇ AYLIK",
+  "aggregation": "last",
+  "chunk_start": "2020-01-01",
+  "chunk_end": "2026-06-30",
+  "request_file": "raw/TP_BIRIMFIYAT_ARDAHAN_2020-01-01_2026-06-30_request.json",
+  "request_sha256": "96e48b1d7af65b25f290ce820f63e5c5db87fdb9b85ff5606b6578740c6d7ec3",
+  "response_file": "raw/TP_BIRIMFIYAT_ARDAHAN_2020-01-01_2026-06-30_response.json.gz",
+  "response_sha256": "910a6fe95995db334f0c22639c48602520fddc54a787c6eaf4460b4b83417658",
+  "served_from_cache": false,
+  "http_status": 200,
+  "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "content_type": "application/json;charset=UTF-8",
+  "url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "started_at_utc": "2026-09-08T10:02:54.999398+00:00",
+  "completed_at_utc": "2026-09-08T10:02:55.259528+00:00",
+  "bytes": 4053,
+  "sha256": "910a6fe95995db334f0c22639c48602520fddc54a787c6eaf4460b4b83417658",
+  "transport": "curl",
+  "tls_verification": true,
+  "response_total_count": 26,
+  "retained_rows": 26,
+  "outside_requested_range_rows": 0,
+  "series_names": {
+    "TP_BIRIMFIYAT_ARDAHAN": "Ardahan Konut Birim Fiyatları"
+  },
+  "frequency_conversion": {
+    "TP.BIRIMFIYAT.ARDAHAN": true
+  }
+}

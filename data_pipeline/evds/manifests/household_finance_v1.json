@@ -1,0 +1,32 @@
+{
+  "dataset_id": "household_finance_v1",
+  "description": "KKM bilesenleri ve gercek kisi tasarruf mevduatini konut talebinin alternatif finansal kanallari olarak izleyen dar EVDS paketi.",
+  "start_date": "2020-01-01",
+  "end_date": "2026-06-30",
+  "series": [
+    {
+      "series_code": "TP.KKM.K1",
+      "role": "ddkkm_total_stock",
+      "reason": "Doviz donusumlu KKM toplam stokunu izlemek",
+      "aggregation": "last"
+    },
+    {
+      "series_code": "TP.KKM.K2",
+      "role": "ddkkm_household_stock",
+      "reason": "Gercek kisilerin doviz donusumlu KKM stokunu izlemek",
+      "aggregation": "last"
+    },
+    {
+      "series_code": "TP.KKM.K4",
+      "role": "tl_kkm_total_stock",
+      "reason": "TL KKM toplam stokunu izlemek",
+      "aggregation": "last"
+    },
+    {
+      "series_code": "TP.KM.E041",
+      "role": "household_savings_deposit_stock",
+      "reason": "Gercek kisi tasarruf mevduatini konut ve alternatif tasarruf kanallariyla karsilastirmak",
+      "aggregation": "last"
+    }
+  ]
+}

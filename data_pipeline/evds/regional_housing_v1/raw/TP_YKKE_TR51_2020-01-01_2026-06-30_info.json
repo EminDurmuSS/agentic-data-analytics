@@ -1,0 +1,32 @@
+{
+  "status": "validated",
+  "series_code": "TP.YKKE.TR51",
+  "frequency": "AYLIK",
+  "aggregation": "last",
+  "chunk_start": "2020-01-01",
+  "chunk_end": "2026-06-30",
+  "request_file": "raw/TP_YKKE_TR51_2020-01-01_2026-06-30_request.json",
+  "request_sha256": "7bfc2f8161ed419a4d313055a2a5b4598eb2557fced1b668cb25ff7a980db8c9",
+  "response_file": "raw/TP_YKKE_TR51_2020-01-01_2026-06-30_response.json.gz",
+  "response_sha256": "e5ca257ab867938c4eff71fbfa5aee5146920ddac9ec28fe8776964242a08dbc",
+  "served_from_cache": false,
+  "http_status": 200,
+  "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "content_type": "application/json;charset=UTF-8",
+  "url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "started_at_utc": "2026-09-08T10:03:43.018084+00:00",
+  "completed_at_utc": "2026-09-08T10:03:43.430404+00:00",
+  "bytes": 11942,
+  "sha256": "e5ca257ab867938c4eff71fbfa5aee5146920ddac9ec28fe8776964242a08dbc",
+  "transport": "curl",
+  "tls_verification": true,
+  "response_total_count": 78,
+  "retained_rows": 78,
+  "outside_requested_range_rows": 0,
+  "series_names": {
+    "TP_YKKE_TR51": "TR51 (Ankara)"
+  },
+  "frequency_conversion": {
+    "TP.YKKE.TR51": true
+  }
+}

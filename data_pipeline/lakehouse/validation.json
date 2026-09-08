@@ -1,21 +1,25 @@
 {
   "status": "passed",
   "database_file": "analytics.duckdb",
-  "database_bytes": 101986304,
-  "schema_count": 7,
-  "table_count": 40,
+  "database_bytes": 99102720,
+  "schema_count": 8,
+  "table_count": 55,
   "monthly_analysis_rows": 66,
   "quarterly_analysis_rows": 22,
   "duplicate_months": 0,
   "duplicate_quarters": 0,
+  "regional_housing_rows": 1782,
+  "regional_housing_distinct_keys": 1782,
   "weekly_measurements_loaded": true,
-  "source_table_manifest_rows": 39,
+  "source_table_manifest_rows": 54,
   "quality_policy": [
     "The DuckDB file contains copied tables and does not depend on absolute Parquet paths at query time.",
     "Raw source values remain available in source-specific Parquet files with hashes.",
+    "The DuckDB copy of the EVDS series catalog keeps discovery-critical columns; the complete source metadata remains in data_pipeline/catalog/evds_series_catalog.parquet.",
     "Weekly measurement rows keep analytical keys and values compact; labels and source hashes are joined through bddk.weekly_metric_dictionary and bddk.weekly_source_tables.",
     "The monthly analysis table keeps nominal stock, real stock, rates, controls and quality flags separate.",
     "The quarterly analysis table keeps BDDK, FinTurk, EVDS and TBB scope differences visible.",
+    "The regional panel keeps province observations distinct from regional KFE and YKKE values.",
     "Weekly BDDK data is loaded only after its processed validation exists."
   ]
 }

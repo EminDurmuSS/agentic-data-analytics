@@ -1,0 +1,32 @@
+{
+  "status": "validated",
+  "series_code": "TP.AKONUTSAT3.KTRA24",
+  "frequency": "AYLIK",
+  "aggregation": "sum",
+  "chunk_start": "2020-01-01",
+  "chunk_end": "2026-06-30",
+  "request_file": "raw/TP_AKONUTSAT3_KTRA24_2020-01-01_2026-06-30_request.json",
+  "request_sha256": "f0c5bfe18b13a77a115f11a1131392c809dc21428f3b3b404096dde63d2f7904",
+  "response_file": "raw/TP_AKONUTSAT3_KTRA24_2020-01-01_2026-06-30_response.json.gz",
+  "response_sha256": "53bd9d87817aa9cc0835a569405a32a17762482b68a4fee6a309f549bca7da16",
+  "served_from_cache": false,
+  "http_status": 200,
+  "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "content_type": "application/json;charset=UTF-8",
+  "url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "started_at_utc": "2026-09-08T10:02:01.202257+00:00",
+  "completed_at_utc": "2026-09-08T10:02:01.585215+00:00",
+  "bytes": 12554,
+  "sha256": "53bd9d87817aa9cc0835a569405a32a17762482b68a4fee6a309f549bca7da16",
+  "transport": "curl",
+  "tls_verification": true,
+  "response_total_count": 78,
+  "retained_rows": 78,
+  "outside_requested_range_rows": 0,
+  "series_names": {
+    "TP_AKONUTSAT3_KTRA24": "Ardahan_Konut_İlk El Satışlar"
+  },
+  "frequency_conversion": {
+    "TP.AKONUTSAT3.KTRA24": true
+  }
+}

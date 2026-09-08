@@ -1,0 +1,32 @@
+{
+  "status": "validated",
+  "series_code": "TP.AKONUTSAT2.KTRC31",
+  "frequency": "AYLIK",
+  "aggregation": "sum",
+  "chunk_start": "2020-01-01",
+  "chunk_end": "2026-06-30",
+  "request_file": "raw/TP_AKONUTSAT2_KTRC31_2020-01-01_2026-06-30_request.json",
+  "request_sha256": "e3450fd66507df49c77977480d9e51bb2dddf8b2f962fe7ba111137709e629f7",
+  "response_file": "raw/TP_AKONUTSAT2_KTRC31_2020-01-01_2026-06-30_response.json.gz",
+  "response_sha256": "9018d5894ee09a84563eec7559dee6bb3e377b6dd8ad9ce2628ac4f4a9fafab4",
+  "served_from_cache": false,
+  "http_status": 200,
+  "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "content_type": "application/json;charset=UTF-8",
+  "url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "started_at_utc": "2026-09-08T10:01:29.465611+00:00",
+  "completed_at_utc": "2026-09-08T10:01:29.789337+00:00",
+  "bytes": 12590,
+  "sha256": "9018d5894ee09a84563eec7559dee6bb3e377b6dd8ad9ce2628ac4f4a9fafab4",
+  "transport": "curl",
+  "tls_verification": true,
+  "response_total_count": 78,
+  "retained_rows": 78,
+  "outside_requested_range_rows": 0,
+  "series_names": {
+    "TP_AKONUTSAT2_KTRC31": "Mardin_Konut_İpotekli Satışlar"
+  },
+  "frequency_conversion": {
+    "TP.AKONUTSAT2.KTRC31": true
+  }
+}

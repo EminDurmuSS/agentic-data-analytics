@@ -1,0 +1,32 @@
+{
+  "status": "validated",
+  "series_code": "TP.KFE.TR63",
+  "frequency": "AYLIK",
+  "aggregation": "last",
+  "chunk_start": "2020-01-01",
+  "chunk_end": "2026-06-30",
+  "request_file": "raw/TP_KFE_TR63_2020-01-01_2026-06-30_request.json",
+  "request_sha256": "3dae62045330aa2baca228523ac8120afa736ea237a32112ce01dc4b3b278b5d",
+  "response_file": "raw/TP_KFE_TR63_2020-01-01_2026-06-30_response.json.gz",
+  "response_sha256": "eb54eb1f4a00b7baad030dded2ac38eeebace7c5cc274e193d27a10cd6bb1f13",
+  "served_from_cache": false,
+  "http_status": 200,
+  "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "content_type": "application/json;charset=UTF-8",
+  "url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "started_at_utc": "2026-09-08T10:03:34.627403+00:00",
+  "completed_at_utc": "2026-09-08T10:03:35.038968+00:00",
+  "bytes": 11911,
+  "sha256": "eb54eb1f4a00b7baad030dded2ac38eeebace7c5cc274e193d27a10cd6bb1f13",
+  "transport": "curl",
+  "tls_verification": true,
+  "response_total_count": 78,
+  "retained_rows": 78,
+  "outside_requested_range_rows": 0,
+  "series_names": {
+    "TP_KFE_TR63": "TR63 (Hatay, Kahramanmaraş, Osmaniye)"
+  },
+  "frequency_conversion": {
+    "TP.KFE.TR63": true
+  }
+}

@@ -1,0 +1,32 @@
+{
+  "status": "validated",
+  "series_code": "TP.AKONUTSAT1.KTRA21",
+  "frequency": "AYLIK",
+  "aggregation": "sum",
+  "chunk_start": "2020-01-01",
+  "chunk_end": "2026-06-30",
+  "request_file": "raw/TP_AKONUTSAT1_KTRA21_2020-01-01_2026-06-30_request.json",
+  "request_sha256": "11b3f9a30ce4748fb061720834dfe93da97c7c80316b6dfd29131dc6bf5550ff",
+  "response_file": "raw/TP_AKONUTSAT1_KTRA21_2020-01-01_2026-06-30_response.json.gz",
+  "response_sha256": "76b6c8878c9d824aec8599622c55cdef93bd503b86a9f37bc258e225b4f2543d",
+  "served_from_cache": false,
+  "http_status": 200,
+  "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "content_type": "application/json;charset=UTF-8",
+  "url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "started_at_utc": "2026-09-08T10:00:42.092532+00:00",
+  "completed_at_utc": "2026-09-08T10:00:42.701533+00:00",
+  "bytes": 12704,
+  "sha256": "76b6c8878c9d824aec8599622c55cdef93bd503b86a9f37bc258e225b4f2543d",
+  "transport": "curl",
+  "tls_verification": true,
+  "response_total_count": 78,
+  "retained_rows": 78,
+  "outside_requested_range_rows": 0,
+  "series_names": {
+    "TP_AKONUTSAT1_KTRA21": "Ağrı_Konut_Toplam Satışlar"
+  },
+  "frequency_conversion": {
+    "TP.AKONUTSAT1.KTRA21": true
+  }
+}

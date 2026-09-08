@@ -1,0 +1,32 @@
+{
+  "status": "validated",
+  "series_code": "TP.AKONUTSAT1.KTR622",
+  "frequency": "AYLIK",
+  "aggregation": "sum",
+  "chunk_start": "2020-01-01",
+  "chunk_end": "2026-06-30",
+  "request_file": "raw/TP_AKONUTSAT1_KTR622_2020-01-01_2026-06-30_request.json",
+  "request_sha256": "e2c0ae85292722e2d095f00961a4caeed33c7efef54c057e5495e377b4d76a21",
+  "response_file": "raw/TP_AKONUTSAT1_KTR622_2020-01-01_2026-06-30_response.json.gz",
+  "response_sha256": "1e144d5c58d42141cdd3e8baaff49a08ac3c6de3517cadcde7f7152d6ae9150b",
+  "served_from_cache": false,
+  "http_status": 200,
+  "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "content_type": "application/json;charset=UTF-8",
+  "url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "started_at_utc": "2026-09-08T10:00:28.028315+00:00",
+  "completed_at_utc": "2026-09-08T10:00:28.337239+00:00",
+  "bytes": 12864,
+  "sha256": "1e144d5c58d42141cdd3e8baaff49a08ac3c6de3517cadcde7f7152d6ae9150b",
+  "transport": "curl",
+  "tls_verification": true,
+  "response_total_count": 78,
+  "retained_rows": 78,
+  "outside_requested_range_rows": 0,
+  "series_names": {
+    "TP_AKONUTSAT1_KTR622": "Mersin_Konut_Toplam Satışlar"
+  },
+  "frequency_conversion": {
+    "TP.AKONUTSAT1.KTR622": true
+  }
+}

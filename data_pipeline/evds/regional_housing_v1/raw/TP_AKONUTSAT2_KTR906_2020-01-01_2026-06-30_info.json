@@ -1,0 +1,32 @@
+{
+  "status": "validated",
+  "series_code": "TP.AKONUTSAT2.KTR906",
+  "frequency": "AYLIK",
+  "aggregation": "sum",
+  "chunk_start": "2020-01-01",
+  "chunk_end": "2026-06-30",
+  "request_file": "raw/TP_AKONUTSAT2_KTR906_2020-01-01_2026-06-30_request.json",
+  "request_sha256": "e6399f1fb9718541461b47603ce90506d68ab6fa9931b5b4e43e38efbf48668e",
+  "response_file": "raw/TP_AKONUTSAT2_KTR906_2020-01-01_2026-06-30_response.json.gz",
+  "response_sha256": "74e683eb9a9d988ca7032e5a87ab5823621e2040e932489b350763c2c69d8e29",
+  "served_from_cache": false,
+  "http_status": 200,
+  "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "content_type": "application/json;charset=UTF-8",
+  "url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "started_at_utc": "2026-09-08T10:01:19.368531+00:00",
+  "completed_at_utc": "2026-09-08T10:01:19.803780+00:00",
+  "bytes": 12512,
+  "sha256": "74e683eb9a9d988ca7032e5a87ab5823621e2040e932489b350763c2c69d8e29",
+  "transport": "curl",
+  "tls_verification": true,
+  "response_total_count": 78,
+  "retained_rows": 78,
+  "outside_requested_range_rows": 0,
+  "series_names": {
+    "TP_AKONUTSAT2_KTR906": "Gümüşhane_Konut_İpotekli Satışlar"
+  },
+  "frequency_conversion": {
+    "TP.AKONUTSAT2.KTR906": true
+  }
+}

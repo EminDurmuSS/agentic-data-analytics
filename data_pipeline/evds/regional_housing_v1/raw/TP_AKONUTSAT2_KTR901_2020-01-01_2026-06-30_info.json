@@ -1,0 +1,32 @@
+{
+  "status": "validated",
+  "series_code": "TP.AKONUTSAT2.KTR901",
+  "frequency": "AYLIK",
+  "aggregation": "sum",
+  "chunk_start": "2020-01-01",
+  "chunk_end": "2026-06-30",
+  "request_file": "raw/TP_AKONUTSAT2_KTR901_2020-01-01_2026-06-30_request.json",
+  "request_sha256": "54f6b5958bcb0bfca7f4ce21dbd8e7f2cd1da321c9a339ed4f908484efafd95e",
+  "response_file": "raw/TP_AKONUTSAT2_KTR901_2020-01-01_2026-06-30_response.json.gz",
+  "response_sha256": "12aa127f9e6d86d8620227953ff5f84bf25069d795429d76cdae49bd9fd17549",
+  "served_from_cache": false,
+  "http_status": 200,
+  "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "content_type": "application/json;charset=UTF-8",
+  "url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "started_at_utc": "2026-09-08T10:01:17.035593+00:00",
+  "completed_at_utc": "2026-09-08T10:01:17.359709+00:00",
+  "bytes": 12658,
+  "sha256": "12aa127f9e6d86d8620227953ff5f84bf25069d795429d76cdae49bd9fd17549",
+  "transport": "curl",
+  "tls_verification": true,
+  "response_total_count": 78,
+  "retained_rows": 78,
+  "outside_requested_range_rows": 0,
+  "series_names": {
+    "TP_AKONUTSAT2_KTR901": "Trabzon_Konut_İpotekli Satışlar"
+  },
+  "frequency_conversion": {
+    "TP.AKONUTSAT2.KTR901": true
+  }
+}

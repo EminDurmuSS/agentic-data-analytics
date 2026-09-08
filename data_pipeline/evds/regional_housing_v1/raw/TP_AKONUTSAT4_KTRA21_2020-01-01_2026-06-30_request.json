@@ -1,0 +1,16 @@
+{
+  "type": "json",
+  "series": "TP.AKONUTSAT4.KTRA21",
+  "aggregationTypes": "sum",
+  "formulas": "0",
+  "startDate": "01-01-2020",
+  "endDate": "30-06-2026",
+  "frequency": "5",
+  "decimalSeperator": ".",
+  "decimal": "8",
+  "dateFormat": "0",
+  "lang": "tr",
+  "ozelFormuller": [],
+  "groupSeperator": false,
+  "isRaporSayfasi": false
+}

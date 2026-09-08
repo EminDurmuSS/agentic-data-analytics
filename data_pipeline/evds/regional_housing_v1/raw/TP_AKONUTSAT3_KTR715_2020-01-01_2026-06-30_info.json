@@ -1,0 +1,32 @@
+{
+  "status": "validated",
+  "series_code": "TP.AKONUTSAT3.KTR715",
+  "frequency": "AYLIK",
+  "aggregation": "sum",
+  "chunk_start": "2020-01-01",
+  "chunk_end": "2026-06-30",
+  "request_file": "raw/TP_AKONUTSAT3_KTR715_2020-01-01_2026-06-30_request.json",
+  "request_sha256": "ebb72070bce67458ae81223f0fcf020471c8a73750629f2fa6cf5813e1915cac",
+  "response_file": "raw/TP_AKONUTSAT3_KTR715_2020-01-01_2026-06-30_response.json.gz",
+  "response_sha256": "5d8a77a56afd2af993ca71b4e1ce4aef03bd52db358ee2a01e010e48883ef328",
+  "served_from_cache": false,
+  "http_status": 200,
+  "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "content_type": "application/json;charset=UTF-8",
+  "url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "started_at_utc": "2026-09-08T10:01:48.681241+00:00",
+  "completed_at_utc": "2026-09-08T10:01:48.998955+00:00",
+  "bytes": 12706,
+  "sha256": "5d8a77a56afd2af993ca71b4e1ce4aef03bd52db358ee2a01e010e48883ef328",
+  "transport": "curl",
+  "tls_verification": true,
+  "response_total_count": 78,
+  "retained_rows": 78,
+  "outside_requested_range_rows": 0,
+  "series_names": {
+    "TP_AKONUTSAT3_KTR715": "Kırşehir_Konut_İlk El Satışlar"
+  },
+  "frequency_conversion": {
+    "TP.AKONUTSAT3.KTR715": true
+  }
+}

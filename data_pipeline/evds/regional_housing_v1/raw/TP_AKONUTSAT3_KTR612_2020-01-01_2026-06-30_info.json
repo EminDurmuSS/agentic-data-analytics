@@ -1,0 +1,32 @@
+{
+  "status": "validated",
+  "series_code": "TP.AKONUTSAT3.KTR612",
+  "frequency": "AYLIK",
+  "aggregation": "sum",
+  "chunk_start": "2020-01-01",
+  "chunk_end": "2026-06-30",
+  "request_file": "raw/TP_AKONUTSAT3_KTR612_2020-01-01_2026-06-30_request.json",
+  "request_sha256": "9a95afcada3cae4a88aa6d55093f33ac068f501d00d68ee012bd998f77a84d35",
+  "response_file": "raw/TP_AKONUTSAT3_KTR612_2020-01-01_2026-06-30_response.json.gz",
+  "response_sha256": "1e42dba34d16909c17dd9b2887be36774d95c005b20553bdf40dff99e7b5d65b",
+  "served_from_cache": false,
+  "http_status": 200,
+  "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "content_type": "application/json;charset=UTF-8",
+  "url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "started_at_utc": "2026-09-08T10:01:43.325178+00:00",
+  "completed_at_utc": "2026-09-08T10:01:43.749824+00:00",
+  "bytes": 12702,
+  "sha256": "1e42dba34d16909c17dd9b2887be36774d95c005b20553bdf40dff99e7b5d65b",
+  "transport": "curl",
+  "tls_verification": true,
+  "response_total_count": 78,
+  "retained_rows": 78,
+  "outside_requested_range_rows": 0,
+  "series_names": {
+    "TP_AKONUTSAT3_KTR612": "Isparta_Konut_İlk El Satışlar"
+  },
+  "frequency_conversion": {
+    "TP.AKONUTSAT3.KTR612": true
+  }
+}

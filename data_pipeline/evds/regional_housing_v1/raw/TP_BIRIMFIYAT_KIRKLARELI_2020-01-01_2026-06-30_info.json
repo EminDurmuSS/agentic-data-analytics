@@ -1,0 +1,32 @@
+{
+  "status": "validated",
+  "series_code": "TP.BIRIMFIYAT.KIRKLARELI",
+  "frequency": "ÜÇ AYLIK",
+  "aggregation": "last",
+  "chunk_start": "2020-01-01",
+  "chunk_end": "2026-06-30",
+  "request_file": "raw/TP_BIRIMFIYAT_KIRKLARELI_2020-01-01_2026-06-30_request.json",
+  "request_sha256": "b0cecd7b5037a1f14f8cba9daa06610ece123a61a96d392f73f069d01263c275",
+  "response_file": "raw/TP_BIRIMFIYAT_KIRKLARELI_2020-01-01_2026-06-30_response.json.gz",
+  "response_sha256": "b444480d7103271b6b647cc61029f1d55d29c62bcd6d17e4cf54e6c0c5378a6f",
+  "served_from_cache": false,
+  "http_status": 200,
+  "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "content_type": "application/json;charset=UTF-8",
+  "url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "started_at_utc": "2026-09-08T10:03:14.177321+00:00",
+  "completed_at_utc": "2026-09-08T10:03:14.591574+00:00",
+  "bytes": 4750,
+  "sha256": "b444480d7103271b6b647cc61029f1d55d29c62bcd6d17e4cf54e6c0c5378a6f",
+  "transport": "curl",
+  "tls_verification": true,
+  "response_total_count": 26,
+  "retained_rows": 26,
+  "outside_requested_range_rows": 0,
+  "series_names": {
+    "TP_BIRIMFIYAT_KIRKLARELI": "Kırklareli Konut Birim Fiyatları"
+  },
+  "frequency_conversion": {
+    "TP.BIRIMFIYAT.KIRKLARELI": true
+  }
+}

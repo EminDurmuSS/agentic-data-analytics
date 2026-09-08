@@ -1,0 +1,32 @@
+{
+  "status": "validated",
+  "series_code": "TP.BIRIMFIYAT.SAKARYA",
+  "frequency": "ÜÇ AYLIK",
+  "aggregation": "last",
+  "chunk_start": "2020-01-01",
+  "chunk_end": "2026-06-30",
+  "request_file": "raw/TP_BIRIMFIYAT_SAKARYA_2020-01-01_2026-06-30_request.json",
+  "request_sha256": "58254f700e60c9585c588e4d6e4713dc573b9357810cb7469cf246b9ecb0340c",
+  "response_file": "raw/TP_BIRIMFIYAT_SAKARYA_2020-01-01_2026-06-30_response.json.gz",
+  "response_sha256": "0c563cad9aaf8f63d21d240826e8f65a56627c03d8eb4e0f2d0d8d9b7b0fbec0",
+  "served_from_cache": false,
+  "http_status": 200,
+  "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "content_type": "application/json;charset=UTF-8",
+  "url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "started_at_utc": "2026-09-08T10:03:22.565687+00:00",
+  "completed_at_utc": "2026-09-08T10:03:22.979512+00:00",
+  "bytes": 4655,
+  "sha256": "0c563cad9aaf8f63d21d240826e8f65a56627c03d8eb4e0f2d0d8d9b7b0fbec0",
+  "transport": "curl",
+  "tls_verification": true,
+  "response_total_count": 26,
+  "retained_rows": 26,
+  "outside_requested_range_rows": 0,
+  "series_names": {
+    "TP_BIRIMFIYAT_SAKARYA": "Sakarya Konut Birim Fiyatları"
+  },
+  "frequency_conversion": {
+    "TP.BIRIMFIYAT.SAKARYA": true
+  }
+}

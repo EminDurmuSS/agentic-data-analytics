@@ -1,0 +1,32 @@
+{
+  "status": "validated",
+  "series_code": "TP.YKKE.TR41",
+  "frequency": "AYLIK",
+  "aggregation": "last",
+  "chunk_start": "2020-01-01",
+  "chunk_end": "2026-06-30",
+  "request_file": "raw/TP_YKKE_TR41_2020-01-01_2026-06-30_request.json",
+  "request_sha256": "7d9902ff2b70c611edaf6a39d0d123f2dbcddfba47c855de3f097ffa7a0400e3",
+  "response_file": "raw/TP_YKKE_TR41_2020-01-01_2026-06-30_response.json.gz",
+  "response_sha256": "a255a07755bfe9513779c7f9d2d101926e75a7a33db432b3d859ed8ccc2ec84b",
+  "served_from_cache": false,
+  "http_status": 200,
+  "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "content_type": "application/json;charset=UTF-8",
+  "url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "started_at_utc": "2026-09-08T10:03:41.967709+00:00",
+  "completed_at_utc": "2026-09-08T10:03:42.379067+00:00",
+  "bytes": 11982,
+  "sha256": "a255a07755bfe9513779c7f9d2d101926e75a7a33db432b3d859ed8ccc2ec84b",
+  "transport": "curl",
+  "tls_verification": true,
+  "response_total_count": 78,
+  "retained_rows": 78,
+  "outside_requested_range_rows": 0,
+  "series_names": {
+    "TP_YKKE_TR41": "TR41 (Bursa, Eskişehir, Bilecik)"
+  },
+  "frequency_conversion": {
+    "TP.YKKE.TR41": true
+  }
+}

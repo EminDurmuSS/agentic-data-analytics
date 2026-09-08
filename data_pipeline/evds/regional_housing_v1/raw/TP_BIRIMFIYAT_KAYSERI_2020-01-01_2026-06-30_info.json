@@ -1,0 +1,32 @@
+{
+  "status": "validated",
+  "series_code": "TP.BIRIMFIYAT.KAYSERI",
+  "frequency": "ÜÇ AYLIK",
+  "aggregation": "last",
+  "chunk_start": "2020-01-01",
+  "chunk_end": "2026-06-30",
+  "request_file": "raw/TP_BIRIMFIYAT_KAYSERI_2020-01-01_2026-06-30_request.json",
+  "request_sha256": "8a57557558a58edadb31668fbcbc28a57adddd6d1f05e51b5842480f19c0d01c",
+  "response_file": "raw/TP_BIRIMFIYAT_KAYSERI_2020-01-01_2026-06-30_response.json.gz",
+  "response_sha256": "5b38b2e18d82005c13383a61c622be59ad1cd2237f9f080cb9c50a7bcc79f493",
+  "served_from_cache": false,
+  "http_status": 200,
+  "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "content_type": "application/json;charset=UTF-8",
+  "url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "started_at_utc": "2026-09-08T10:03:12.605287+00:00",
+  "completed_at_utc": "2026-09-08T10:03:13.018277+00:00",
+  "bytes": 4653,
+  "sha256": "5b38b2e18d82005c13383a61c622be59ad1cd2237f9f080cb9c50a7bcc79f493",
+  "transport": "curl",
+  "tls_verification": true,
+  "response_total_count": 26,
+  "retained_rows": 26,
+  "outside_requested_range_rows": 0,
+  "series_names": {
+    "TP_BIRIMFIYAT_KAYSERI": "Kayseri Konut Birim Fiyatları"
+  },
+  "frequency_conversion": {
+    "TP.BIRIMFIYAT.KAYSERI": true
+  }
+}

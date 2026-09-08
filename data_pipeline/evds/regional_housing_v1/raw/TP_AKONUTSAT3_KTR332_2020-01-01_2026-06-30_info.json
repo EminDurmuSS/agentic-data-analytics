@@ -1,0 +1,32 @@
+{
+  "status": "validated",
+  "series_code": "TP.AKONUTSAT3.KTR332",
+  "frequency": "AYLIK",
+  "aggregation": "sum",
+  "chunk_start": "2020-01-01",
+  "chunk_end": "2026-06-30",
+  "request_file": "raw/TP_AKONUTSAT3_KTR332_2020-01-01_2026-06-30_request.json",
+  "request_sha256": "6c877f8754ffa4300dab4bde328c94714064c3e130352f85749f19fb59973349",
+  "response_file": "raw/TP_AKONUTSAT3_KTR332_2020-01-01_2026-06-30_response.json.gz",
+  "response_sha256": "c31dfc44ab6cc2091d69b49d43274145c47978e30458bc22d3d66493a62ee52f",
+  "served_from_cache": false,
+  "http_status": 200,
+  "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "content_type": "application/json;charset=UTF-8",
+  "url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "started_at_utc": "2026-09-08T10:01:36.386832+00:00",
+  "completed_at_utc": "2026-09-08T10:01:36.750860+00:00",
+  "bytes": 12726,
+  "sha256": "c31dfc44ab6cc2091d69b49d43274145c47978e30458bc22d3d66493a62ee52f",
+  "transport": "curl",
+  "tls_verification": true,
+  "response_total_count": 78,
+  "retained_rows": 78,
+  "outside_requested_range_rows": 0,
+  "series_names": {
+    "TP_AKONUTSAT3_KTR332": "Afyonkarahisar_Konut_İlk El Satışlar"
+  },
+  "frequency_conversion": {
+    "TP.AKONUTSAT3.KTR332": true
+  }
+}

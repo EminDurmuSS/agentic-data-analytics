@@ -32,7 +32,16 @@ class LakehouseTests(unittest.TestCase):
             ).fetchall()
         }
         self.assertTrue(
-            {"catalog", "evds", "bddk", "tbb", "quality", "evidence", "analysis"}
+            {
+                "catalog",
+                "evds",
+                "bddk",
+                "tbb",
+                "quality",
+                "evidence",
+                "regional",
+                "analysis",
+            }
             <= schemas
         )
 
@@ -67,7 +76,7 @@ class LakehouseTests(unittest.TestCase):
             "FROM catalog.metrics WHERE source_system = 'TCMB_EVDS'"
         ).fetchone()
         self.assertEqual(52696, total)
-        self.assertEqual(61, available)
+        self.assertEqual(506, available)
         derived = self.connection.execute(
             "SELECT count(*) FROM catalog.metrics "
             "WHERE source_system = 'TCMB_EVDS_DERIVED' "
@@ -140,6 +149,39 @@ class LakehouseTests(unittest.TestCase):
             "(table_id, metric_code)"
         ).fetchone()[0]
         self.assertEqual(0, unmatched_metrics)
+
+    def test_regional_housing_panel_is_queryable_and_unique(self):
+        count, distinct_count = self.connection.execute(
+            "SELECT count(*), count(DISTINCT province_key || ':' || quarter) "
+            "FROM regional.housing_quarterly"
+        ).fetchone()
+        self.assertEqual((1782, 1782), (count, distinct_count))
+        province_count = self.connection.execute(
+            "SELECT count(DISTINCT province_key) FROM regional.housing_quarterly"
+        ).fetchone()[0]
+        self.assertEqual(81, province_count)
+        istanbul = self.connection.execute(
+            "SELECT housing_sales_total_count, housing_credit_per_capita_try, "
+            "regional_ykke_index FROM regional.housing_quarterly "
+            "WHERE province_name = 'İSTANBUL' AND quarter = '2026Q2'"
+        ).fetchone()
+        self.assertTrue(all(value is not None for value in istanbul))
+
+    def test_household_finance_is_available_in_national_analysis(self):
+        columns = {
+            row[1]
+            for row in self.connection.execute(
+                "PRAGMA table_info('analysis.housing_credit_monthly')"
+            ).fetchall()
+        }
+        self.assertTrue(
+            {"TP_KKM_K1", "TP_KKM_K2", "TP_KKM_K4", "TP_KM_E041"} <= columns
+        )
+        june = self.connection.execute(
+            "SELECT TP_KKM_K1, TP_KKM_K2, TP_KKM_K4, TP_KM_E041 "
+            "FROM analysis.housing_credit_monthly WHERE month = '2026-06'"
+        ).fetchone()
+        self.assertTrue(all(value is not None for value in june))
 
     def test_demo_query_returns_only_quality_screened_rows(self):
         rows = self.connection.execute(

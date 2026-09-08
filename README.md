@@ -12,7 +12,8 @@ ve yeniden üretilebilir biçimde hazırlanmasıdır.
 | BDDK haftalık | 286 hafta, 9 tablonun tamamı, 7 resmî banka grubu | Tamamlandı ve doğrulandı |
 | BDDK FinTürk | 22 çeyrek, 7 tablo, 7 banka grubu, 81 il ve `YURT DIŞI` | Tamamlandı ve doğrulandı |
 | TCMB EVDS katalog | 676 veri grubu, 52.696 benzersiz seri kaydı | Tamamlandı, metadata kataloğu |
-| TCMB EVDS gözlem | Konut kredisi nedensellik analizi için seçilmiş 61 kaynak seri ve 1 açıkça türetilmiş seri | Tamamlandı ve doğrulandı |
+| TCMB EVDS gözlem | 61 ulusal, 441 bölgesel ve 4 hanehalkı finansmanı serisi, ayrıca 1 açıkça türetilmiş seri | Tamamlandı ve doğrulandı |
+| İl bazlı konut paneli | 81 il, 22 çeyrek, satış, fiyat, kredi, mevduat, KFE ve YKKE göstergeleri | Tamamlandı, kaynak boşlukları işaretli |
 | TBB tüketici kredileri | 2021 Mart-2026 Mart, 21 yayımlanmış çeyrek | Tamamlandı; 8 Eylül 2026 kontrolünde 2026 Haziran raporu kaynakta yok |
 | Resmî karar belgeleri | 4 BDDK kararı ve 4 TCMB destek belgesi | Tam metin, çıkarılmış metin ve SHA-256 mevcut |
 
@@ -25,9 +26,10 @@ ayrı tutulur ve çeyreklik veri ara aylara yapay olarak yayılmaz.
 - BDDK aylık: 1.122 resmî istek, 11.220 tablo-grup kaydı, 339.650 kaynak satırı, 1.334.850 semantik ölçüm
 - BDDK haftalık: 18.018 resmî sayfa, 1.736.650 ham hücre, 1.025.974 ölçüm. Kaynaktaki 2.230 boş hücrenin tamamı yapısal `FX uygulanamaz` olarak açıklandı
 - BDDK FinTürk: 84.484 kaynak satırı, 936.512 ölçüm. 30.892 kaynak boşluğunun 29.564'ü yapısal, 1.328'i kaynakta raporlanmamış olarak sınıflandırıldı
-- EVDS: 52.696 seri metadata kaydı, 61 seçilmiş kaynak seride 12.482 gözlem ve 1 türetilmiş altın serisi
-- Birleşik katalog: 50 veri varlığı, 55.458 metrik, 2.821 yerel sorgulanabilir metrik
-- DuckDB: 7 şema, 40 tablo, mutlak dosya yoluna ihtiyaç duymayan tek dosya
+- EVDS: 52.696 seri metadata kaydı, 506 seçilmiş kaynak seride 42.980 gözlem ve 1 türetilmiş altın serisi
+- Bölgesel panel: 81 il x 22 çeyrek, 1.782 tekil satır, 26 analitik metrik
+- Birleşik katalog: 61 veri varlığı, 55.484 metrik, 3.292 yerel sorgulanabilir metrik
+- DuckDB: 8 şema, 55 tablo, mutlak dosya yoluna ihtiyaç duymayan tek dosya
 
 ## Klasörler
 
@@ -35,6 +37,7 @@ ayrı tutulur ve çeyreklik veri ara aylara yapay olarak yayılmaz.
 | --- | --- |
 | `data_pipeline/bddk/` | Aylık, haftalık ve FinTürk ham verileri ile doğrulanmış çıktılar |
 | `data_pipeline/evds/` | Seçilmiş gözlemler, hizalama denetimleri ve kaynak manifestleri |
+| `data_pipeline/regional/` | İl bazlı konut, kredi, mevduat ve fiyat analitik paneli |
 | `data_pipeline/tbb/` | Tüketici kredisi raporları, gerçek kullandırım akımı ve bakiye verileri |
 | `data_pipeline/catalog/` | Tam EVDS metadata kataloğu ve birleşik veri sözlüğü |
 | `data_pipeline/quality/` | Kurumlar arası kapsam ve tutarlılık kontrolleri |
@@ -63,6 +66,7 @@ python -m unittest discover -s tests -v
 .venv/bin/python data_pipeline/bddk/build_finturk_dataset.py
 .venv/bin/python data_pipeline/bddk/build_weekly_dataset.py
 .venv/bin/python data_pipeline/tbb/build_consumer_credit_dataset.py
+.venv/bin/python data_pipeline/regional/build_housing_panel.py
 .venv/bin/python data_pipeline/quality/build_cross_source_reconciliation.py
 .venv/bin/python data_pipeline/evidence/events/build_events.py
 .venv/bin/python data_pipeline/catalog/build_unified_catalog.py
@@ -75,11 +79,15 @@ python -m unittest discover -s tests -v
 
 BDDK aylık bültende bütün tablolar ve 10 resmî banka grubu, haftalık bültende
 bütün tablolar ve 7 resmî banka grubu alındı. FinTürk'te de bütün banka
-grupları ve bütün iller alındı. EVDS'nin tüm 52.696
-serisinin tarihsel gözlemleri indirilmedi. Bunun yerine, yarışmanın konut kredisi
-senaryosunda nedensellik ve alternatif açıklamalar için gerekli 61 kaynak seri
-seçildi. BIST altın kapanış fiyatından `0.001` katsayısıyla TL/kg -> TL/gram
-dönüşümü yapılan 1 ek seri de kaynak ve formül bilgisiyle ayrıca tutulur.
+grupları ve bütün iller alındı. EVDS'nin tüm 52.696 serisinin tarihsel
+gözlemleri indirilmedi. Bunun yerine 61 ulusal nedensellik ve piyasa serisi,
+441 il veya bölge bazlı konut serisi ve KKM ile hanehalkı mevduatını kapsayan
+4 seri seçildi. BIST altın kapanış fiyatından `0.001` katsayısıyla TL/kg ->
+TL/gram dönüşümü yapılan 1 ek seri de kaynak ve formül bilgisiyle ayrıca
+tutulur. Bölgesel katmanda 81 ilin konut satışları, birim fiyatları, bölgesel
+KFE ve YKKE değerleri FinTürk kredi ve mevduat göstergeleriyle aynı çeyrek
+anahtarında birleştirilir. Çeyreklik değerler ara aylara kopyalanmaz ve kaynak
+boşlukları doldurulmaz.
 Katalogdaki herhangi bir başka seri `tools/EVDS_Talep_Uzerine_Indirme_Araci.py`
 ile adı veya kodu üzerinden bulunup ham istek, ham cevap ve SHA-256 iziyle
 indirilebilir. Bu yaklaşım veri kapsamını güçlü tutarken gereksiz veri hacmini

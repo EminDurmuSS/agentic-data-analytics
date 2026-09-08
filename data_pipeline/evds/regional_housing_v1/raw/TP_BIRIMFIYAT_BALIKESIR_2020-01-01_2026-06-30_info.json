@@ -1,0 +1,32 @@
+{
+  "status": "validated",
+  "series_code": "TP.BIRIMFIYAT.BALIKESIR",
+  "frequency": "ÜÇ AYLIK",
+  "aggregation": "last",
+  "chunk_start": "2020-01-01",
+  "chunk_end": "2026-06-30",
+  "request_file": "raw/TP_BIRIMFIYAT_BALIKESIR_2020-01-01_2026-06-30_request.json",
+  "request_sha256": "82edf13d669a2e98e641f857fb77c033c4910516f27634e442dcc24b45b4dd9b",
+  "response_file": "raw/TP_BIRIMFIYAT_BALIKESIR_2020-01-01_2026-06-30_response.json.gz",
+  "response_sha256": "4697571579abb40929557a780d138da4ec6ca30c13030695eb9d7f87a20bf8aa",
+  "served_from_cache": false,
+  "http_status": 200,
+  "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "content_type": "application/json;charset=UTF-8",
+  "url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "started_at_utc": "2026-09-08T10:02:56.350550+00:00",
+  "completed_at_utc": "2026-09-08T10:02:56.765186+00:00",
+  "bytes": 4721,
+  "sha256": "4697571579abb40929557a780d138da4ec6ca30c13030695eb9d7f87a20bf8aa",
+  "transport": "curl",
+  "tls_verification": true,
+  "response_total_count": 26,
+  "retained_rows": 26,
+  "outside_requested_range_rows": 0,
+  "series_names": {
+    "TP_BIRIMFIYAT_BALIKESIR": "Balıkesir Konut Birim Fiyatları"
+  },
+  "frequency_conversion": {
+    "TP.BIRIMFIYAT.BALIKESIR": true
+  }
+}

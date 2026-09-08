@@ -1,0 +1,32 @@
+{
+  "status": "validated",
+  "series_code": "TP.BIRIMFIYAT.ERZURUM",
+  "frequency": "ÜÇ AYLIK",
+  "aggregation": "last",
+  "chunk_start": "2020-01-01",
+  "chunk_end": "2026-06-30",
+  "request_file": "raw/TP_BIRIMFIYAT_ERZURUM_2020-01-01_2026-06-30_request.json",
+  "request_sha256": "55bb5b58ed6c597ec076ec2d475da30013d77aef586c2b1f02710f596222f8b5",
+  "response_file": "raw/TP_BIRIMFIYAT_ERZURUM_2020-01-01_2026-06-30_response.json.gz",
+  "response_sha256": "c28b5fe0047bef425d199d92d5e9c6155c466a3c3247b07dbedf6b64428d8700",
+  "served_from_cache": false,
+  "http_status": 200,
+  "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "content_type": "application/json;charset=UTF-8",
+  "url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "started_at_utc": "2026-09-08T10:03:06.312216+00:00",
+  "completed_at_utc": "2026-09-08T10:03:06.727034+00:00",
+  "bytes": 4649,
+  "sha256": "c28b5fe0047bef425d199d92d5e9c6155c466a3c3247b07dbedf6b64428d8700",
+  "transport": "curl",
+  "tls_verification": true,
+  "response_total_count": 26,
+  "retained_rows": 26,
+  "outside_requested_range_rows": 0,
+  "series_names": {
+    "TP_BIRIMFIYAT_ERZURUM": "Erzurum Konut Birim Fiyatları"
+  },
+  "frequency_conversion": {
+    "TP.BIRIMFIYAT.ERZURUM": true
+  }
+}

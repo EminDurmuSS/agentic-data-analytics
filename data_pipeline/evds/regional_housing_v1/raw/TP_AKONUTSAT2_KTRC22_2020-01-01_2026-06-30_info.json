@@ -1,0 +1,32 @@
+{
+  "status": "validated",
+  "series_code": "TP.AKONUTSAT2.KTRC22",
+  "frequency": "AYLIK",
+  "aggregation": "sum",
+  "chunk_start": "2020-01-01",
+  "chunk_end": "2026-06-30",
+  "request_file": "raw/TP_AKONUTSAT2_KTRC22_2020-01-01_2026-06-30_request.json",
+  "request_sha256": "227943696053819abe9bb5038585d1b42665d7f59bcdff48745483d7291d8e3d",
+  "response_file": "raw/TP_AKONUTSAT2_KTRC22_2020-01-01_2026-06-30_response.json.gz",
+  "response_sha256": "4217942177013a3810ce0e59e685071529f224f78c1c9521ac145189f97ed995",
+  "served_from_cache": false,
+  "http_status": 200,
+  "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "content_type": "application/json;charset=UTF-8",
+  "url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "started_at_utc": "2026-09-08T10:01:28.952253+00:00",
+  "completed_at_utc": "2026-09-08T10:01:29.352519+00:00",
+  "bytes": 12720,
+  "sha256": "4217942177013a3810ce0e59e685071529f224f78c1c9521ac145189f97ed995",
+  "transport": "curl",
+  "tls_verification": true,
+  "response_total_count": 78,
+  "retained_rows": 78,
+  "outside_requested_range_rows": 0,
+  "series_names": {
+    "TP_AKONUTSAT2_KTRC22": "Diyarbakır_Konut_İpotekli Satışlar"
+  },
+  "frequency_conversion": {
+    "TP.AKONUTSAT2.KTRC22": true
+  }
+}

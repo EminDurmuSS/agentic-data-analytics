@@ -1,0 +1,32 @@
+{
+  "status": "validated",
+  "series_code": "TP.BIRIMFIYAT.CANAKKALE",
+  "frequency": "ÜÇ AYLIK",
+  "aggregation": "last",
+  "chunk_start": "2020-01-01",
+  "chunk_end": "2026-06-30",
+  "request_file": "raw/TP_BIRIMFIYAT_CANAKKALE_2020-01-01_2026-06-30_request.json",
+  "request_sha256": "94bceaa5e668ed5b2a09bb3f6c300b677595d349bbd957d0c2bd1f52e7244e02",
+  "response_file": "raw/TP_BIRIMFIYAT_CANAKKALE_2020-01-01_2026-06-30_response.json.gz",
+  "response_sha256": "2b1d04a95e29a37badb45361a3d4121c134bc915e5806858cb078d5b83e95e62",
+  "served_from_cache": false,
+  "http_status": 200,
+  "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "content_type": "application/json;charset=UTF-8",
+  "url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "started_at_utc": "2026-09-08T10:03:01.268228+00:00",
+  "completed_at_utc": "2026-09-08T10:03:01.519943+00:00",
+  "bytes": 4721,
+  "sha256": "2b1d04a95e29a37badb45361a3d4121c134bc915e5806858cb078d5b83e95e62",
+  "transport": "curl",
+  "tls_verification": true,
+  "response_total_count": 26,
+  "retained_rows": 26,
+  "outside_requested_range_rows": 0,
+  "series_names": {
+    "TP_BIRIMFIYAT_CANAKKALE": "Çanakkale Konut Birim Fiyatları"
+  },
+  "frequency_conversion": {
+    "TP.BIRIMFIYAT.CANAKKALE": true
+  }
+}

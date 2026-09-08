@@ -1,0 +1,32 @@
+{
+  "status": "validated",
+  "series_code": "TP.YKKE.TR31",
+  "frequency": "AYLIK",
+  "aggregation": "last",
+  "chunk_start": "2020-01-01",
+  "chunk_end": "2026-06-30",
+  "request_file": "raw/TP_YKKE_TR31_2020-01-01_2026-06-30_request.json",
+  "request_sha256": "1a09ab478af4d86a5239b890d9f15abc0f84e3a07de1702a75b7dd2e703adad3",
+  "response_file": "raw/TP_YKKE_TR31_2020-01-01_2026-06-30_response.json.gz",
+  "response_sha256": "1c7561d2ff8dff7483edab36e4021ba306989d39218ccb814bdacef15273d744",
+  "served_from_cache": false,
+  "http_status": 200,
+  "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "content_type": "application/json;charset=UTF-8",
+  "url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "started_at_utc": "2026-09-08T10:03:40.389853+00:00",
+  "completed_at_utc": "2026-09-08T10:03:40.805974+00:00",
+  "bytes": 11942,
+  "sha256": "1c7561d2ff8dff7483edab36e4021ba306989d39218ccb814bdacef15273d744",
+  "transport": "curl",
+  "tls_verification": true,
+  "response_total_count": 78,
+  "retained_rows": 78,
+  "outside_requested_range_rows": 0,
+  "series_names": {
+    "TP_YKKE_TR31": "TR31 (İzmir)"
+  },
+  "frequency_conversion": {
+    "TP.YKKE.TR31": true
+  }
+}

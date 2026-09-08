@@ -1,0 +1,32 @@
+{
+  "status": "validated",
+  "series_code": "TP.BIRIMFIYAT.IZM",
+  "frequency": "ÜÇ AYLIK",
+  "aggregation": "last",
+  "chunk_start": "2020-01-01",
+  "chunk_end": "2026-06-30",
+  "request_file": "raw/TP_BIRIMFIYAT_IZM_2020-01-01_2026-06-30_request.json",
+  "request_sha256": "5b59585749f60f06c33789695a94d9349ce65565c79b190cde0e97ff8cfc712d",
+  "response_file": "raw/TP_BIRIMFIYAT_IZM_2020-01-01_2026-06-30_response.json.gz",
+  "response_sha256": "e1fbecb3f86be67a2dae6ee6afbe460b936576217fb73e3369f2218cfe9d40f7",
+  "served_from_cache": false,
+  "http_status": 200,
+  "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "content_type": "application/json;charset=UTF-8",
+  "url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "started_at_utc": "2026-09-08T10:03:10.526622+00:00",
+  "completed_at_utc": "2026-09-08T10:03:10.831499+00:00",
+  "bytes": 4541,
+  "sha256": "e1fbecb3f86be67a2dae6ee6afbe460b936576217fb73e3369f2218cfe9d40f7",
+  "transport": "curl",
+  "tls_verification": true,
+  "response_total_count": 26,
+  "retained_rows": 26,
+  "outside_requested_range_rows": 0,
+  "series_names": {
+    "TP_BIRIMFIYAT_IZM": "İzmir Konut Birim Fiyatları"
+  },
+  "frequency_conversion": {
+    "TP.BIRIMFIYAT.IZM": true
+  }
+}

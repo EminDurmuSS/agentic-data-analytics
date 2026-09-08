@@ -1,0 +1,32 @@
+{
+  "status": "validated",
+  "series_code": "TP.BIRIMFIYAT.BINGOL",
+  "frequency": "ÜÇ AYLIK",
+  "aggregation": "last",
+  "chunk_start": "2020-01-01",
+  "chunk_end": "2026-06-30",
+  "request_file": "raw/TP_BIRIMFIYAT_BINGOL_2020-01-01_2026-06-30_request.json",
+  "request_sha256": "bc95f6f27d87ae23faaabb0928d8ea5de00ed2ef1323ad36631aa522baad88ab",
+  "response_file": "raw/TP_BIRIMFIYAT_BINGOL_2020-01-01_2026-06-30_response.json.gz",
+  "response_sha256": "ed2d7627c0b77a56e416490504f41b5c6841cd724e0b02206b1072f7ca92c97a",
+  "served_from_cache": false,
+  "http_status": 200,
+  "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "content_type": "application/json;charset=UTF-8",
+  "url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "started_at_utc": "2026-09-08T10:02:58.786519+00:00",
+  "completed_at_utc": "2026-09-08T10:02:59.108172+00:00",
+  "bytes": 4620,
+  "sha256": "ed2d7627c0b77a56e416490504f41b5c6841cd724e0b02206b1072f7ca92c97a",
+  "transport": "curl",
+  "tls_verification": true,
+  "response_total_count": 26,
+  "retained_rows": 26,
+  "outside_requested_range_rows": 0,
+  "series_names": {
+    "TP_BIRIMFIYAT_BINGOL": "Bingöl Konut Birim Fiyatları"
+  },
+  "frequency_conversion": {
+    "TP.BIRIMFIYAT.BINGOL": true
+  }
+}
