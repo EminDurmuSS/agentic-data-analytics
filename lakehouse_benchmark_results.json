@@ -1,0 +1,575 @@
+{
+  "integrity": {
+    "checks": [
+      {
+        "name": "monthly metric dictionary orphans",
+        "status": "PASS",
+        "critical": true,
+        "orphan_rows": 0
+      },
+      {
+        "name": "weekly metric dictionary orphans",
+        "status": "PASS",
+        "critical": true,
+        "orphan_rows": 0
+      },
+      {
+        "name": "FinTurk metric dictionary orphans",
+        "status": "PASS",
+        "critical": true,
+        "orphan_rows": 0
+      },
+      {
+        "name": "evds.household_finance_monthly_panel catalog metric columns",
+        "status": "PASS",
+        "critical": true,
+        "unknown_metric_columns": [],
+        "checked_metric_columns": 4
+      },
+      {
+        "name": "evds.household_finance_quarterly_panel catalog metric columns",
+        "status": "PASS",
+        "critical": true,
+        "unknown_metric_columns": [],
+        "checked_metric_columns": 4
+      },
+      {
+        "name": "evds.housing_controls_monthly_panel catalog metric columns",
+        "status": "PASS",
+        "critical": true,
+        "unknown_metric_columns": [],
+        "checked_metric_columns": 11
+      },
+      {
+        "name": "evds.housing_controls_quarterly_panel catalog metric columns",
+        "status": "PASS",
+        "critical": true,
+        "unknown_metric_columns": [],
+        "checked_metric_columns": 11
+      },
+      {
+        "name": "evds.housing_monthly_panel catalog metric columns",
+        "status": "PASS",
+        "critical": true,
+        "unknown_metric_columns": [],
+        "checked_metric_columns": 47
+      },
+      {
+        "name": "evds.housing_quarterly_panel catalog metric columns",
+        "status": "PASS",
+        "critical": true,
+        "unknown_metric_columns": [],
+        "checked_metric_columns": 47
+      },
+      {
+        "name": "evds.market_controls_monthly_panel catalog metric columns",
+        "status": "PASS",
+        "critical": true,
+        "unknown_metric_columns": [],
+        "checked_metric_columns": 4
+      },
+      {
+        "name": "evds.market_controls_quarterly_panel catalog metric columns",
+        "status": "PASS",
+        "critical": true,
+        "unknown_metric_columns": [],
+        "checked_metric_columns": 4
+      },
+      {
+        "name": "evds.regional_housing_monthly_panel catalog metric columns",
+        "status": "PASS",
+        "critical": true,
+        "unknown_metric_columns": [],
+        "checked_metric_columns": 441
+      },
+      {
+        "name": "evds.regional_housing_quarterly_panel catalog metric columns",
+        "status": "PASS",
+        "critical": true,
+        "unknown_metric_columns": [],
+        "checked_metric_columns": 441
+      },
+      {
+        "name": "evds.household_finance_observations series catalog orphans",
+        "status": "PASS",
+        "critical": true,
+        "orphan_rows": 0
+      },
+      {
+        "name": "evds.housing_controls_observations series catalog orphans",
+        "status": "PASS",
+        "critical": true,
+        "orphan_rows": 0
+      },
+      {
+        "name": "evds.housing_observations series catalog orphans",
+        "status": "PASS",
+        "critical": true,
+        "orphan_rows": 0
+      },
+      {
+        "name": "evds.market_controls_observations series catalog orphans",
+        "status": "PASS",
+        "critical": true,
+        "orphan_rows": 0
+      },
+      {
+        "name": "evds.regional_housing_observations series catalog orphans",
+        "status": "PASS",
+        "critical": true,
+        "orphan_rows": 0
+      },
+      {
+        "name": "analysis.housing_credit_monthly duplicate periods",
+        "status": "PASS",
+        "critical": true,
+        "duplicate_rows": 0
+      },
+      {
+        "name": "analysis.housing_credit_quarterly duplicate periods",
+        "status": "PASS",
+        "critical": true,
+        "duplicate_rows": 0
+      }
+    ],
+    "status": "PASS",
+    "quality_gap_reports": [
+      {
+        "table": "quality.housing_credit_stock_reconciliation",
+        "row_count": 22,
+        "deviation_columns": [
+          "evds_minus_bddk_pct",
+          "finturk_all_minus_bddk_pct",
+          "finturk_domestic_minus_bddk_pct",
+          "tbb_minus_bddk_pct"
+        ],
+        "null_rates": {
+          "balance_amount_million_try": {
+            "null_count": 1,
+            "null_rate": 0.045454545454545456
+          },
+          "bddk_housing_credit_stock_million_tl": {
+            "null_count": 0,
+            "null_rate": 0.0
+          },
+          "comparison_interpretation": {
+            "null_count": 0,
+            "null_rate": 0.0
+          },
+          "evds_housing_credit_stock_million_tl": {
+            "null_count": 0,
+            "null_rate": 0.0
+          },
+          "evds_minus_bddk_pct": {
+            "null_count": 0,
+            "null_rate": 0.0
+          },
+          "finturk_abroad_million_try": {
+            "null_count": 0,
+            "null_rate": 0.0
+          },
+          "finturk_all_geographies_million_try": {
+            "null_count": 0,
+            "null_rate": 0.0
+          },
+          "finturk_all_minus_bddk_pct": {
+            "null_count": 0,
+            "null_rate": 0.0
+          },
+          "finturk_domestic_minus_bddk_million_try": {
+            "null_count": 0,
+            "null_rate": 0.0
+          },
+          "finturk_domestic_minus_bddk_pct": {
+            "null_count": 0,
+            "null_rate": 0.0
+          },
+          "finturk_domestic_provinces_million_try": {
+            "null_count": 0,
+            "null_rate": 0.0
+          },
+          "quarter": {
+            "null_count": 0,
+            "null_rate": 0.0
+          },
+          "reporting_bank_count": {
+            "null_count": 1,
+            "null_rate": 0.045454545454545456
+          },
+          "source_scope": {
+            "null_count": 1,
+            "null_rate": 0.045454545454545456
+          },
+          "tbb_minus_bddk_pct": {
+            "null_count": 1,
+            "null_rate": 0.045454545454545456
+          }
+        }
+      }
+    ]
+  },
+  "schema_and_lineage": {
+    "checks": [
+      {
+        "name": "required schemas present",
+        "status": "PASS",
+        "critical": true,
+        "missing_schemas": [],
+        "schemas": [
+          "analysis",
+          "bddk",
+          "catalog",
+          "evds",
+          "evidence",
+          "quality",
+          "regional",
+          "tbb",
+          "tuik"
+        ]
+      },
+      {
+        "name": "catalog metric observation coverage",
+        "status": "PASS",
+        "total_metrics": 55489,
+        "observation_available_metrics": 3297,
+        "coverage_ratio": 0.059417181783776966
+      },
+      {
+        "name": "table manifest source paths",
+        "status": "PASS",
+        "missing_source_paths": 0
+      }
+    ],
+    "status": "PASS"
+  },
+  "benchmarks": {
+    "simple_metric_date_lookup": {
+      "iterations": 5,
+      "result_rows": 1,
+      "latency_ms": {
+        "min": 0.334,
+        "median": 0.3491,
+        "mean": 0.35728,
+        "p95": 0.3943,
+        "max": 0.3943
+      }
+    },
+    "monthly_group_by": {
+      "iterations": 5,
+      "result_rows": 6,
+      "latency_ms": {
+        "min": 1.251,
+        "median": 1.2822,
+        "mean": 1.376,
+        "p95": 1.6593,
+        "max": 1.6593
+      }
+    },
+    "monthly_join_and_derived_calculation": {
+      "iterations": 5,
+      "result_rows": 66,
+      "latency_ms": {
+        "min": 1.4541,
+        "median": 1.5047,
+        "mean": 1.49896,
+        "p95": 1.56,
+        "max": 1.56
+      }
+    },
+    "weekly_large_aggregation": {
+      "iterations": 5,
+      "result_rows": 175,
+      "latency_ms": {
+        "min": 9.9626,
+        "median": 10.2728,
+        "mean": 10.41508,
+        "p95": 11.2851,
+        "max": 11.2851
+      }
+    }
+  },
+  "storage": {
+    "database_path": "data_pipeline\\lakehouse\\analytics.duckdb",
+    "database_file_bytes": 103034880,
+    "database_file_mib": 98.26171875,
+    "database_size": [
+      {
+        "database_name": "analytics",
+        "database_size": "98.2 MiB",
+        "block_size": 262144,
+        "total_blocks": 393,
+        "used_blocks": 393,
+        "free_blocks": 0,
+        "wal_size": "0 bytes",
+        "memory_usage": "20.5 MiB",
+        "memory_limit": "12.5 GiB"
+      }
+    ],
+    "table_rows": [
+      {
+        "table": "analysis.housing_credit_monthly",
+        "row_count": 66
+      },
+      {
+        "table": "analysis.housing_credit_quarterly",
+        "row_count": 22
+      },
+      {
+        "table": "bddk.finturk_branch_zero_fallback_audit",
+        "row_count": 1328
+      },
+      {
+        "table": "bddk.finturk_measurements",
+        "row_count": 936512
+      },
+      {
+        "table": "bddk.finturk_metric_dictionary",
+        "row_count": 76
+      },
+      {
+        "table": "bddk.finturk_missingness_audit",
+        "row_count": 47
+      },
+      {
+        "table": "bddk.finturk_source_tables",
+        "row_count": 154
+      },
+      {
+        "table": "bddk.housing_credit_monthly",
+        "row_count": 66
+      },
+      {
+        "table": "bddk.monthly_measurements",
+        "row_count": 1334850
+      },
+      {
+        "table": "bddk.monthly_metric_dictionary",
+        "row_count": 2108
+      },
+      {
+        "table": "bddk.weekly_measurements",
+        "row_count": 1025974
+      },
+      {
+        "table": "bddk.weekly_metric_dictionary",
+        "row_count": 188
+      },
+      {
+        "table": "bddk.weekly_missingness_audit",
+        "row_count": 2
+      },
+      {
+        "table": "bddk.weekly_source_tables",
+        "row_count": 18018
+      },
+      {
+        "table": "catalog.data_assets",
+        "row_count": 66
+      },
+      {
+        "table": "catalog.metrics",
+        "row_count": 55489
+      },
+      {
+        "table": "catalog.table_manifest",
+        "row_count": 59
+      },
+      {
+        "table": "evds.household_finance_coverage_gaps",
+        "row_count": 0
+      },
+      {
+        "table": "evds.household_finance_monthly_alignment_audit",
+        "row_count": 312
+      },
+      {
+        "table": "evds.household_finance_monthly_panel",
+        "row_count": 78
+      },
+      {
+        "table": "evds.household_finance_observations",
+        "row_count": 312
+      },
+      {
+        "table": "evds.household_finance_quarterly_alignment_audit",
+        "row_count": 104
+      },
+      {
+        "table": "evds.household_finance_quarterly_panel",
+        "row_count": 26
+      },
+      {
+        "table": "evds.housing_controls_coverage_gaps",
+        "row_count": 1
+      },
+      {
+        "table": "evds.housing_controls_monthly_alignment_audit",
+        "row_count": 545
+      },
+      {
+        "table": "evds.housing_controls_monthly_panel",
+        "row_count": 78
+      },
+      {
+        "table": "evds.housing_controls_observations",
+        "row_count": 545
+      },
+      {
+        "table": "evds.housing_controls_quarterly_alignment_audit",
+        "row_count": 286
+      },
+      {
+        "table": "evds.housing_controls_quarterly_panel",
+        "row_count": 26
+      },
+      {
+        "table": "evds.housing_coverage_gaps",
+        "row_count": 0
+      },
+      {
+        "table": "evds.housing_monthly_panel",
+        "row_count": 78
+      },
+      {
+        "table": "evds.housing_observations",
+        "row_count": 6852
+      },
+      {
+        "table": "evds.housing_quarterly_panel",
+        "row_count": 26
+      },
+      {
+        "table": "evds.market_controls_coverage_gaps",
+        "row_count": 0
+      },
+      {
+        "table": "evds.market_controls_monthly_alignment_audit",
+        "row_count": 312
+      },
+      {
+        "table": "evds.market_controls_monthly_panel",
+        "row_count": 78
+      },
+      {
+        "table": "evds.market_controls_observations",
+        "row_count": 5085
+      },
+      {
+        "table": "evds.market_controls_quarterly_alignment_audit",
+        "row_count": 104
+      },
+      {
+        "table": "evds.market_controls_quarterly_panel",
+        "row_count": 26
+      },
+      {
+        "table": "evds.monthly_alignment_audit",
+        "row_count": 2418
+      },
+      {
+        "table": "evds.quarterly_alignment_audit",
+        "row_count": 1222
+      },
+      {
+        "table": "evds.regional_housing_coverage_gaps",
+        "row_count": 0
+      },
+      {
+        "table": "evds.regional_housing_monthly_alignment_audit",
+        "row_count": 30186
+      },
+      {
+        "table": "evds.regional_housing_monthly_panel",
+        "row_count": 78
+      },
+      {
+        "table": "evds.regional_housing_observations",
+        "row_count": 30186
+      },
+      {
+        "table": "evds.regional_housing_quarterly_alignment_audit",
+        "row_count": 11466
+      },
+      {
+        "table": "evds.regional_housing_quarterly_panel",
+        "row_count": 26
+      },
+      {
+        "table": "evds.series_catalog",
+        "row_count": 52696
+      },
+      {
+        "table": "evidence.context_events",
+        "row_count": 5
+      },
+      {
+        "table": "quality.housing_credit_stock_reconciliation",
+        "row_count": 22
+      },
+      {
+        "table": "regional.housing_quarterly",
+        "row_count": 1782
+      },
+      {
+        "table": "regional.metric_dictionary",
+        "row_count": 26
+      },
+      {
+        "table": "regional.province_dimension",
+        "row_count": 81
+      },
+      {
+        "table": "tbb.consumer_credit_product_metrics",
+        "row_count": 252
+      },
+      {
+        "table": "tbb.housing_credit_quarterly",
+        "row_count": 21
+      },
+      {
+        "table": "tbb.reporting_banks",
+        "row_count": 679
+      },
+      {
+        "table": "tbb.source_gaps",
+        "row_count": 1
+      },
+      {
+        "table": "tuik.province_housing_sales_evds_reconciliation",
+        "row_count": 25272
+      },
+      {
+        "table": "tuik.province_housing_sales_identity_zero_fallbacks",
+        "row_count": 10
+      },
+      {
+        "table": "tuik.province_housing_sales_monthly",
+        "row_count": 31590
+      }
+    ],
+    "total_rows": 3577918,
+    "bytes_per_logical_row": 28.79744029907896,
+    "storage_note": "DuckDB compression details are reported by PRAGMA database_size; table row counts are logical, not physical byte allocation."
+  },
+  "status": "PASS",
+  "critical_failures": [],
+  "database": {
+    "path": "data_pipeline\\lakehouse\\analytics.duckdb",
+    "schemas": [
+      "analysis",
+      "bddk",
+      "catalog",
+      "evds",
+      "evidence",
+      "quality",
+      "regional",
+      "tbb",
+      "tuik"
+    ],
+    "table_count": 60
+  },
+  "generated_at_utc": "2026-09-08T15:45:25.666207+00:00",
+  "configuration": {
+    "iterations": 5
+  }
+}
