@@ -1,0 +1,31 @@
+{
+  "status": "validated",
+  "diagnosis": "validated_bddk_weekly_html_table",
+  "source_url": "https://www.bddk.org.tr/BultenHaftalik/",
+  "sha256_uncompressed": "39c2985891f43a39b45a7ec50773f197e0c6cc58f95a28c09004bbc6033fe991",
+  "compressed_bytes": 14948,
+  "uncompressed_bytes": 196493,
+  "served_from_cache": true,
+  "completed_at_utc": "2026-09-08T08:31:21.570267+00:00",
+  "table_id": 293,
+  "table_name": "Diger Bilanco Kalemleri",
+  "group_code": 10007,
+  "group_name": "Yerli Ozel",
+  "period_id": 411,
+  "observation_date": "2021-11-12",
+  "week_number": 45,
+  "source_period_label": "Kasım/12 (45. Hafta)",
+  "source_date_heading": "Tarih: 12 Kasım 2021 Cuma | Birim: Milyon TL",
+  "source_date_parsed": "2021-11-12",
+  "headers": [
+    "",
+    "Diğer Bilanço Kalemleri",
+    "TP",
+    "YP",
+    "TOPLAM"
+  ],
+  "rows": 16,
+  "max_cells_per_row": 5,
+  "unit_heading": "Milyon TL",
+  "date_heading_normalized": "tarih: 12 kasim 2021 cuma | birim: milyon tl"
+}

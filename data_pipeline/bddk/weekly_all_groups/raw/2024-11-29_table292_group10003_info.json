@@ -1,0 +1,31 @@
+{
+  "status": "validated",
+  "diagnosis": "validated_bddk_weekly_html_table",
+  "source_url": "https://www.bddk.org.tr/BultenHaftalik/",
+  "sha256_uncompressed": "d8b417034ccfc8b044eb2dded5852c4a40ec597e243e7419e8e1bcec8e60b741",
+  "compressed_bytes": 13994,
+  "uncompressed_bytes": 189206,
+  "served_from_cache": true,
+  "completed_at_utc": "2026-09-08T08:27:14.072204+00:00",
+  "table_id": 292,
+  "table_name": "Mevduat",
+  "group_code": 10003,
+  "group_name": "Kalkinma ve Yatirim",
+  "period_id": 570,
+  "observation_date": "2024-11-29",
+  "week_number": 48,
+  "source_period_label": "Kasım/29 (48. Hafta)",
+  "source_date_heading": "Tarih: 29 Kasım 2024 Cuma | Birim: Milyon TL",
+  "source_date_parsed": "2024-11-29",
+  "headers": [
+    "",
+    "Mevduat",
+    "TP",
+    "YP",
+    "TOPLAM"
+  ],
+  "rows": 11,
+  "max_cells_per_row": 5,
+  "unit_heading": "Milyon TL",
+  "date_heading_normalized": "tarih: 29 kasim 2024 cuma | birim: milyon tl"
+}

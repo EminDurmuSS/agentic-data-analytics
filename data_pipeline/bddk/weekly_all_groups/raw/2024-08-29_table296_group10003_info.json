@@ -1,0 +1,31 @@
+{
+  "status": "validated",
+  "diagnosis": "validated_bddk_weekly_html_table",
+  "source_url": "https://www.bddk.org.tr/BultenHaftalik/",
+  "sha256_uncompressed": "4500d8f3008f4849fc6cebe2670ca53633797f1ec580f5fcb8c4ee9970a1bd4e",
+  "compressed_bytes": 16464,
+  "uncompressed_bytes": 242381,
+  "served_from_cache": true,
+  "completed_at_utc": "2026-09-08T08:27:41.263434+00:00",
+  "table_id": 296,
+  "table_name": "Bankalarda Saklanan Menkul Degerler - 2",
+  "group_code": 10003,
+  "group_name": "Kalkinma ve Yatirim",
+  "period_id": 557,
+  "observation_date": "2024-08-29",
+  "week_number": 35,
+  "source_period_label": "Ağustos/29 (35. Hafta)",
+  "source_date_heading": "Tarih: 29 Ağustos 2024 Perşembe | Birim: Milyon TL",
+  "source_date_parsed": "2024-08-29",
+  "headers": [
+    "",
+    "Bankalarda Saklanan Menkul Değerler - 2",
+    "TP",
+    "YP",
+    "TOPLAM"
+  ],
+  "rows": 45,
+  "max_cells_per_row": 5,
+  "unit_heading": "Milyon TL",
+  "date_heading_normalized": "tarih: 29 agustos 2024 persembe | birim: milyon tl"
+}

@@ -1,0 +1,31 @@
+{
+  "status": "validated",
+  "diagnosis": "validated_bddk_weekly_html_table",
+  "source_url": "https://www.bddk.org.tr/BultenHaftalik/",
+  "sha256_uncompressed": "e05bf52a89dca0e81053352c520b027096568a87ac86c326597382e6009c6231",
+  "compressed_bytes": 15988,
+  "uncompressed_bytes": 241936,
+  "served_from_cache": true,
+  "completed_at_utc": "2026-09-08T08:27:37.214230+00:00",
+  "table_id": 296,
+  "table_name": "Bankalarda Saklanan Menkul Degerler - 2",
+  "group_code": 10003,
+  "group_name": "Kalkinma ve Yatirim",
+  "period_id": 390,
+  "observation_date": "2021-06-18",
+  "week_number": 24,
+  "source_period_label": "Haziran/18 (24. Hafta)",
+  "source_date_heading": "Tarih: 18 Haziran 2021 Cuma | Birim: Milyon TL",
+  "source_date_parsed": "2021-06-18",
+  "headers": [
+    "",
+    "Bankalarda Saklanan Menkul Değerler - 2",
+    "TP",
+    "YP",
+    "TOPLAM"
+  ],
+  "rows": 45,
+  "max_cells_per_row": 5,
+  "unit_heading": "Milyon TL",
+  "date_heading_normalized": "tarih: 18 haziran 2021 cuma | birim: milyon tl"
+}

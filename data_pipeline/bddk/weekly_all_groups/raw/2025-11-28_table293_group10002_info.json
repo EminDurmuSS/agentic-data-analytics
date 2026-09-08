@@ -1,0 +1,31 @@
+{
+  "status": "validated",
+  "diagnosis": "validated_bddk_weekly_html_table",
+  "source_url": "https://www.bddk.org.tr/BultenHaftalik/",
+  "sha256_uncompressed": "5f5a41a1c30acc3ef5a8905ac74120aca1f6e29f6be1e9c5d35868b49886b9f3",
+  "compressed_bytes": 15229,
+  "uncompressed_bytes": 198462,
+  "served_from_cache": true,
+  "completed_at_utc": "2026-09-08T08:26:23.297235+00:00",
+  "table_id": 293,
+  "table_name": "Diger Bilanco Kalemleri",
+  "group_code": 10002,
+  "group_name": "Mevduat",
+  "period_id": 622,
+  "observation_date": "2025-11-28",
+  "week_number": 48,
+  "source_period_label": "Kasım/28 (48. Hafta)",
+  "source_date_heading": "Tarih: 28 Kasım 2025 Cuma | Birim: Milyon TL",
+  "source_date_parsed": "2025-11-28",
+  "headers": [
+    "",
+    "Diğer Bilanço Kalemleri",
+    "TP",
+    "YP",
+    "TOPLAM"
+  ],
+  "rows": 16,
+  "max_cells_per_row": 5,
+  "unit_heading": "Milyon TL",
+  "date_heading_normalized": "tarih: 28 kasim 2025 cuma | birim: milyon tl"
+}

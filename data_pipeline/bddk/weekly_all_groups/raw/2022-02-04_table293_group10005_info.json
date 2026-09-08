@@ -1,0 +1,31 @@
+{
+  "status": "validated",
+  "diagnosis": "validated_bddk_weekly_html_table",
+  "source_url": "https://www.bddk.org.tr/BultenHaftalik/",
+  "sha256_uncompressed": "7a448b720e164beb90eec0070154c7ed3bc09320c92c2392f7d95f5c851854d3",
+  "compressed_bytes": 15045,
+  "uncompressed_bytes": 196562,
+  "served_from_cache": true,
+  "completed_at_utc": "2026-09-08T08:29:21.331867+00:00",
+  "table_id": 293,
+  "table_name": "Diger Bilanco Kalemleri",
+  "group_code": 10005,
+  "group_name": "Kamu",
+  "period_id": 423,
+  "observation_date": "2022-02-04",
+  "week_number": 5,
+  "source_period_label": "Şubat/04 (5. Hafta)",
+  "source_date_heading": "Tarih: 4 Şubat 2022 Cuma | Birim: Milyon TL",
+  "source_date_parsed": "2022-02-04",
+  "headers": [
+    "",
+    "Diğer Bilanço Kalemleri",
+    "TP",
+    "YP",
+    "TOPLAM"
+  ],
+  "rows": 16,
+  "max_cells_per_row": 5,
+  "unit_heading": "Milyon TL",
+  "date_heading_normalized": "tarih: 4 subat 2022 cuma | birim: milyon tl"
+}

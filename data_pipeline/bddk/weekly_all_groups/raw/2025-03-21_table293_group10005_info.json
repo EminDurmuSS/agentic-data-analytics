@@ -1,0 +1,31 @@
+{
+  "status": "validated",
+  "diagnosis": "validated_bddk_weekly_html_table",
+  "source_url": "https://www.bddk.org.tr/BultenHaftalik/",
+  "sha256_uncompressed": "08b52278afa1175ab9ba5f5cb4a0ccb0b1d0d285f2eac8d6ba425062dbf73a8b",
+  "compressed_bytes": 15038,
+  "uncompressed_bytes": 196655,
+  "served_from_cache": true,
+  "completed_at_utc": "2026-09-08T08:29:24.357449+00:00",
+  "table_id": 293,
+  "table_name": "Diger Bilanco Kalemleri",
+  "group_code": 10005,
+  "group_name": "Kamu",
+  "period_id": 586,
+  "observation_date": "2025-03-21",
+  "week_number": 12,
+  "source_period_label": "Mart/21 (12. Hafta)",
+  "source_date_heading": "Tarih: 21 Mart 2025 Cuma | Birim: Milyon TL",
+  "source_date_parsed": "2025-03-21",
+  "headers": [
+    "",
+    "Diğer Bilanço Kalemleri",
+    "TP",
+    "YP",
+    "TOPLAM"
+  ],
+  "rows": 16,
+  "max_cells_per_row": 5,
+  "unit_heading": "Milyon TL",
+  "date_heading_normalized": "tarih: 21 mart 2025 cuma | birim: milyon tl"
+}

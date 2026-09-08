@@ -1,0 +1,29 @@
+{
+  "status": "validated",
+  "diagnosis": "validated_bddk_weekly_html_table",
+  "source_url": "https://www.bddk.org.tr/BultenHaftalik/",
+  "sha256_uncompressed": "6d135af52a248662c362a25987331b9b604ab4a29e49485b7909eeede6084274",
+  "compressed_bytes": 14005,
+  "uncompressed_bytes": 183120,
+  "served_from_cache": true,
+  "completed_at_utc": "2026-09-08T08:29:50.393437+00:00",
+  "table_id": 297,
+  "table_name": "Yabanci Para Pozisyonu",
+  "group_code": 10005,
+  "group_name": "Kamu",
+  "period_id": 472,
+  "observation_date": "2023-01-13",
+  "week_number": 2,
+  "source_period_label": "Ocak/13 (2. Hafta)",
+  "source_date_heading": "Tarih: 13 Ocak 2023 Cuma | Birim: Milyon TL",
+  "source_date_parsed": "2023-01-13",
+  "headers": [
+    "",
+    "Yabancı Para Pozisyonu",
+    "TOPLAM"
+  ],
+  "rows": 10,
+  "max_cells_per_row": 3,
+  "unit_heading": "Milyon TL",
+  "date_heading_normalized": "tarih: 13 ocak 2023 cuma | birim: milyon tl"
+}

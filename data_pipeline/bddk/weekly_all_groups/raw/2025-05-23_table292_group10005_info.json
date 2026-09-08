@@ -1,0 +1,31 @@
+{
+  "status": "validated",
+  "diagnosis": "validated_bddk_weekly_html_table",
+  "source_url": "https://www.bddk.org.tr/BultenHaftalik/",
+  "sha256_uncompressed": "100d0535a3167969bff8f9f481f298b50e9bcd691a2a2acfa1571e61683825f5",
+  "compressed_bytes": 14519,
+  "uncompressed_bytes": 189970,
+  "served_from_cache": true,
+  "completed_at_utc": "2026-09-08T08:29:18.335975+00:00",
+  "table_id": 292,
+  "table_name": "Mevduat",
+  "group_code": 10005,
+  "group_name": "Kamu",
+  "period_id": 595,
+  "observation_date": "2025-05-23",
+  "week_number": 21,
+  "source_period_label": "Mayıs/23 (21. Hafta)",
+  "source_date_heading": "Tarih: 23 Mayıs 2025 Cuma | Birim: Milyon TL",
+  "source_date_parsed": "2025-05-23",
+  "headers": [
+    "",
+    "Mevduat",
+    "TP",
+    "YP",
+    "TOPLAM"
+  ],
+  "rows": 11,
+  "max_cells_per_row": 5,
+  "unit_heading": "Milyon TL",
+  "date_heading_normalized": "tarih: 23 mayis 2025 cuma | birim: milyon tl"
+}

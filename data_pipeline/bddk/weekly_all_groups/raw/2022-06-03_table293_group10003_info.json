@@ -1,0 +1,31 @@
+{
+  "status": "validated",
+  "diagnosis": "validated_bddk_weekly_html_table",
+  "source_url": "https://www.bddk.org.tr/BultenHaftalik/",
+  "sha256_uncompressed": "09514af974ed294d7140ca7ed0e01dfb80302440f5bca91a9e2a46fb9a17edd1",
+  "compressed_bytes": 14915,
+  "uncompressed_bytes": 196425,
+  "served_from_cache": true,
+  "completed_at_utc": "2026-09-08T08:27:17.443794+00:00",
+  "table_id": 293,
+  "table_name": "Diger Bilanco Kalemleri",
+  "group_code": 10003,
+  "group_name": "Kalkinma ve Yatirim",
+  "period_id": 440,
+  "observation_date": "2022-06-03",
+  "week_number": 22,
+  "source_period_label": "Haziran/03 (22. Hafta)",
+  "source_date_heading": "Tarih: 3 Haziran 2022 Cuma | Birim: Milyon TL",
+  "source_date_parsed": "2022-06-03",
+  "headers": [
+    "",
+    "Diğer Bilanço Kalemleri",
+    "TP",
+    "YP",
+    "TOPLAM"
+  ],
+  "rows": 16,
+  "max_cells_per_row": 5,
+  "unit_heading": "Milyon TL",
+  "date_heading_normalized": "tarih: 3 haziran 2022 cuma | birim: milyon tl"
+}

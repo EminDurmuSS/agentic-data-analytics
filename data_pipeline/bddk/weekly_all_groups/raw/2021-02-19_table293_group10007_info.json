@@ -1,0 +1,31 @@
+{
+  "status": "validated",
+  "diagnosis": "validated_bddk_weekly_html_table",
+  "source_url": "https://www.bddk.org.tr/BultenHaftalik/",
+  "sha256_uncompressed": "6c3eb4d823091524b26e5c8eb5a3398947858fac580ed11f4d48692b14578037",
+  "compressed_bytes": 14956,
+  "uncompressed_bytes": 196431,
+  "served_from_cache": true,
+  "completed_at_utc": "2026-09-08T08:31:20.799444+00:00",
+  "table_id": 293,
+  "table_name": "Diger Bilanco Kalemleri",
+  "group_code": 10007,
+  "group_name": "Yerli Ozel",
+  "period_id": 373,
+  "observation_date": "2021-02-19",
+  "week_number": 7,
+  "source_period_label": "Şubat/19 (7. Hafta)",
+  "source_date_heading": "Tarih: 19 Şubat 2021 Cuma | Birim: Milyon TL",
+  "source_date_parsed": "2021-02-19",
+  "headers": [
+    "",
+    "Diğer Bilanço Kalemleri",
+    "TP",
+    "YP",
+    "TOPLAM"
+  ],
+  "rows": 16,
+  "max_cells_per_row": 5,
+  "unit_heading": "Milyon TL",
+  "date_heading_normalized": "tarih: 19 subat 2021 cuma | birim: milyon tl"
+}

@@ -20,3 +20,7 @@ BDDK_Verileri_*/
 *_Paylas.zip
 tmp/
 temp/
+
+# Parallel BDDK weekly downloader workspaces. The validated snapshots are
+# merged into data_pipeline/bddk/weekly_all_groups before commit.
+data_pipeline/bddk/weekly_group_*/

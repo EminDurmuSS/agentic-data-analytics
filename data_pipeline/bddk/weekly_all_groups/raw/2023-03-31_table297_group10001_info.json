@@ -1,0 +1,29 @@
+{
+  "status": "validated",
+  "diagnosis": "validated_bddk_weekly_html_table",
+  "source_url": "https://www.bddk.org.tr/BultenHaftalik/",
+  "sha256_uncompressed": "8dd67e8905176d5a22cedfbc3045ac6200ac3876db5d6cfec2e5f2e8d3d90742",
+  "compressed_bytes": 14023,
+  "uncompressed_bytes": 183172,
+  "served_from_cache": true,
+  "completed_at_utc": "2026-09-08T08:25:52.608511+00:00",
+  "table_id": 297,
+  "table_name": "Yabanci Para Pozisyonu",
+  "group_code": 10001,
+  "group_name": "Sektor",
+  "period_id": 483,
+  "observation_date": "2023-03-31",
+  "week_number": 13,
+  "source_period_label": "Mart/31 (13. Hafta)",
+  "source_date_heading": "Tarih: 31 Mart 2023 Cuma | Birim: Milyon TL",
+  "source_date_parsed": "2023-03-31",
+  "headers": [
+    "",
+    "Yabancı Para Pozisyonu",
+    "TOPLAM"
+  ],
+  "rows": 10,
+  "max_cells_per_row": 3,
+  "unit_heading": "Milyon TL",
+  "date_heading_normalized": "tarih: 31 mart 2023 cuma | birim: milyon tl"
+}

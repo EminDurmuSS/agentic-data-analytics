@@ -1,0 +1,31 @@
+{
+  "status": "validated",
+  "diagnosis": "validated_bddk_weekly_html_table",
+  "source_url": "https://www.bddk.org.tr/BultenHaftalik/",
+  "sha256_uncompressed": "58df1167c4472750dc7f2ebf55ca910892186a1dc66b6ef42e161708e8d1bd4a",
+  "compressed_bytes": 14874,
+  "uncompressed_bytes": 196353,
+  "served_from_cache": true,
+  "completed_at_utc": "2026-09-08T08:27:16.267813+00:00",
+  "table_id": 293,
+  "table_name": "Diger Bilanco Kalemleri",
+  "group_code": 10003,
+  "group_name": "Kalkinma ve Yatirim",
+  "period_id": 372,
+  "observation_date": "2021-02-12",
+  "week_number": 6,
+  "source_period_label": "Şubat/12 (6. Hafta)",
+  "source_date_heading": "Tarih: 12 Şubat 2021 Cuma | Birim: Milyon TL",
+  "source_date_parsed": "2021-02-12",
+  "headers": [
+    "",
+    "Diğer Bilanço Kalemleri",
+    "TP",
+    "YP",
+    "TOPLAM"
+  ],
+  "rows": 16,
+  "max_cells_per_row": 5,
+  "unit_heading": "Milyon TL",
+  "date_heading_normalized": "tarih: 12 subat 2021 cuma | birim: milyon tl"
+}

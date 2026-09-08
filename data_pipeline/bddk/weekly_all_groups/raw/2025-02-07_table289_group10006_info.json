@@ -1,0 +1,31 @@
+{
+  "status": "validated",
+  "diagnosis": "validated_bddk_weekly_html_table",
+  "source_url": "https://www.bddk.org.tr/BultenHaftalik/",
+  "sha256_uncompressed": "fbe7b5b5ead2d9deb250714ae3d47992b8380644c74b3e4a1750f1d84a5bb2b6",
+  "compressed_bytes": 15480,
+  "uncompressed_bytes": 206800,
+  "served_from_cache": true,
+  "completed_at_utc": "2026-09-08T08:30:00.210701+00:00",
+  "table_id": 289,
+  "table_name": "Krediler",
+  "group_code": 10006,
+  "group_name": "Yabanci",
+  "period_id": 580,
+  "observation_date": "2025-02-07",
+  "week_number": 6,
+  "source_period_label": "Şubat/07 (6. Hafta)",
+  "source_date_heading": "Tarih: 7 Şubat 2025 Cuma | Birim: Milyon TL",
+  "source_date_parsed": "2025-02-07",
+  "headers": [
+    "",
+    "Krediler",
+    "TP",
+    "YP",
+    "TOPLAM"
+  ],
+  "rows": 22,
+  "max_cells_per_row": 5,
+  "unit_heading": "Milyon TL",
+  "date_heading_normalized": "tarih: 7 subat 2025 cuma | birim: milyon tl"
+}

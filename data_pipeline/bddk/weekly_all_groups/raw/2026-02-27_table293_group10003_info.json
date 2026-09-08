@@ -1,0 +1,31 @@
+{
+  "status": "validated",
+  "diagnosis": "validated_bddk_weekly_html_table",
+  "source_url": "https://www.bddk.org.tr/BultenHaftalik/",
+  "sha256_uncompressed": "96c732d1a3b7011dace8b7ac3bdb43444bff162ca8a171a638e5686e66661fdd",
+  "compressed_bytes": 14944,
+  "uncompressed_bytes": 196745,
+  "served_from_cache": true,
+  "completed_at_utc": "2026-09-08T08:27:20.886553+00:00",
+  "table_id": 293,
+  "table_name": "Diger Bilanco Kalemleri",
+  "group_code": 10003,
+  "group_name": "Kalkinma ve Yatirim",
+  "period_id": 635,
+  "observation_date": "2026-02-27",
+  "week_number": 9,
+  "source_period_label": "Şubat/27 (9. Hafta)",
+  "source_date_heading": "Tarih: 27 Şubat 2026 Cuma | Birim: Milyon TL",
+  "source_date_parsed": "2026-02-27",
+  "headers": [
+    "",
+    "Diğer Bilanço Kalemleri",
+    "TP",
+    "YP",
+    "TOPLAM"
+  ],
+  "rows": 16,
+  "max_cells_per_row": 5,
+  "unit_heading": "Milyon TL",
+  "date_heading_normalized": "tarih: 27 subat 2026 cuma | birim: milyon tl"
+}

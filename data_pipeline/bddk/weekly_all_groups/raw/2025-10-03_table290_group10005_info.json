@@ -1,0 +1,31 @@
+{
+  "status": "validated",
+  "diagnosis": "validated_bddk_weekly_html_table",
+  "source_url": "https://www.bddk.org.tr/BultenHaftalik/",
+  "sha256_uncompressed": "c2f86ef1e352a87cfe776cc98c7bc4b0e4d673d70bc02da6c8bc4b0a62f993bb",
+  "compressed_bytes": 14465,
+  "uncompressed_bytes": 190813,
+  "served_from_cache": true,
+  "completed_at_utc": "2026-09-08T08:29:05.912083+00:00",
+  "table_id": 290,
+  "table_name": "Takipteki Alacaklar",
+  "group_code": 10005,
+  "group_name": "Kamu",
+  "period_id": 614,
+  "observation_date": "2025-10-03",
+  "week_number": 40,
+  "source_period_label": "Ekim/03 (40. Hafta)",
+  "source_date_heading": "Tarih: 3 Ekim 2025 Cuma | Birim: Milyon TL",
+  "source_date_parsed": "2025-10-03",
+  "headers": [
+    "",
+    "Takipteki Alacaklar",
+    "TP",
+    "YP",
+    "TOPLAM"
+  ],
+  "rows": 12,
+  "max_cells_per_row": 5,
+  "unit_heading": "Milyon TL",
+  "date_heading_normalized": "tarih: 3 ekim 2025 cuma | birim: milyon tl"
+}

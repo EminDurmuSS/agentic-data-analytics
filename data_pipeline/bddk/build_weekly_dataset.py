@@ -31,8 +31,8 @@ from tools.BDDK_Haftalik_Indirme_Araci import Period, parse_page
 
 
 BASE_DIR = Path(__file__).resolve().parent
-DEFAULT_INPUT = BASE_DIR / "weekly_all_sector"
-DEFAULT_OUTPUT = BASE_DIR / "processed" / "weekly_all_sector"
+DEFAULT_INPUT = BASE_DIR / "weekly_all_groups"
+DEFAULT_OUTPUT = BASE_DIR / "processed" / "weekly_all_groups"
 
 
 def sha256_bytes(value: bytes) -> str:
@@ -267,7 +267,77 @@ def classify_missing_measurements(frame: pd.DataFrame) -> tuple[pd.DataFrame, di
     return classified, counts
 
 
-def build(input_dir: Path, output_dir: Path) -> dict[str, Any]:
+def validate_source_inventory(
+    config: dict[str, Any],
+    download_summary: dict[str, Any],
+    manifest: list[dict[str, Any]],
+    raw_dir: Path,
+) -> dict[str, Any]:
+    expected_groups = {int(value) for value in config["groups"]}
+    expected_tables = {int(value) for value in config["tables"]}
+    expected_period_count = int(config["period_count"])
+    expected_request_count = (
+        expected_period_count * len(expected_tables) * len(expected_groups)
+    )
+    if int(download_summary["expected_requests"]) != expected_request_count:
+        raise ValueError("BDDK haftalik config ve indirme ozeti kapsam sayisi uyusmuyor.")
+
+    validated = [item for item in manifest if item.get("status") == "validated"]
+    keys = [
+        (
+            str(item["observation_date"]),
+            int(item["table_id"]),
+            int(item["group_code"]),
+        )
+        for item in validated
+    ]
+    if len(keys) != expected_request_count or len(keys) != len(set(keys)):
+        raise ValueError("BDDK haftalik manifest kapsami eksik veya tekrarli.")
+
+    manifest_dates = {key[0] for key in keys}
+    manifest_tables = {key[1] for key in keys}
+    manifest_groups = {key[2] for key in keys}
+    if len(manifest_dates) != expected_period_count:
+        raise ValueError("BDDK haftalik manifest donem sayisi config ile uyusmuyor.")
+    if manifest_tables != expected_tables or manifest_groups != expected_groups:
+        raise ValueError("BDDK haftalik manifest tablo veya grup kapsami uyusmuyor.")
+    if min(manifest_dates) < config["start"] or max(manifest_dates) > config["end"]:
+        raise ValueError("BDDK haftalik manifest tarihi istenen aralik disinda.")
+
+    combination_counts = Counter((table_id, group_code) for _, table_id, group_code in keys)
+    if any(count != expected_period_count for count in combination_counts.values()):
+        raise ValueError("BDDK haftalik tablo-grup donem kapsami eksik.")
+    if len(combination_counts) != len(expected_tables) * len(expected_groups):
+        raise ValueError("BDDK haftalik tablo-grup kombinasyonu eksik.")
+
+    expected_raw_names = {
+        f"{observation_date}_table{table_id}_group{group_code}.html.gz"
+        for observation_date, table_id, group_code in keys
+    }
+    expected_info_names = {
+        name.removesuffix(".html.gz") + "_info.json"
+        for name in expected_raw_names
+    }
+    actual_raw_names = {path.name for path in raw_dir.glob("*.html.gz")}
+    actual_info_names = {path.name for path in raw_dir.glob("*_info.json")}
+    if actual_raw_names != expected_raw_names:
+        raise ValueError("BDDK haftalik ham HTML envanteri manifest ile uyusmuyor.")
+    if actual_info_names != expected_info_names:
+        raise ValueError("BDDK haftalik request-info envanteri manifest ile uyusmuyor.")
+
+    return {
+        "expected_request_count": expected_request_count,
+        "manifest_key_count": len(keys),
+        "period_count": len(manifest_dates),
+        "table_group_combinations": len(combination_counts),
+        "raw_html_file_count": len(actual_raw_names),
+        "request_info_file_count": len(actual_info_names),
+    }
+
+
+def build(
+    input_dir: Path, output_dir: Path, write_csv: bool = False
+) -> dict[str, Any]:
     config_path = input_dir / "request_config.json"
     summary_path = input_dir / "summary.json"
     manifest_path = input_dir / "manifest.json"
@@ -278,16 +348,10 @@ def build(input_dir: Path, output_dir: Path) -> dict[str, Any]:
     manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
     if download_summary.get("status") != "complete":
         raise ValueError("Tamamlanmamis BDDK haftalik indirmesi islenemez.")
-    validated_manifest = [item for item in manifest if item.get("status") == "validated"]
-    expected_count = int(download_summary["expected_requests"])
-    if len(validated_manifest) != expected_count:
-        raise ValueError("BDDK haftalik manifest kayit sayisi eksik.")
-
+    inventory = validate_source_inventory(
+        config, download_summary, manifest, input_dir / "raw"
+    )
     raw_files = sorted((input_dir / "raw").glob("*.html.gz"))
-    if len(raw_files) != expected_count:
-        raise ValueError(
-            f"BDDK haftalik kaynak dosya sayisi uyusmuyor: {len(raw_files)} != {expected_count}"
-        )
 
     rows = []
     catalog_rows = []
@@ -375,25 +439,40 @@ def build(input_dir: Path, output_dir: Path) -> dict[str, Any]:
         .agg(missing_measurement_count=("value", "size"))
         .sort_values(["table_id", "metric_code", "currency_dimension"], kind="stable")
     )
-    measurements.to_csv(
-        output_dir / "measurements_long.csv", index=False, encoding="utf-8-sig"
-    )
+    if write_csv:
+        measurements.to_csv(
+            output_dir / "measurements_long.csv",
+            index=False,
+            encoding="utf-8-sig",
+        )
     measurements.to_parquet(output_dir / "measurements_long.parquet", index=False)
-    missingness_audit.to_csv(
-        output_dir / "missingness_audit.csv", index=False, encoding="utf-8-sig"
-    )
+    if write_csv:
+        missingness_audit.to_csv(
+            output_dir / "missingness_audit.csv",
+            index=False,
+            encoding="utf-8-sig",
+        )
     missingness_audit.to_parquet(
         output_dir / "missingness_audit.parquet", index=False
     )
-    wide.to_csv(output_dir / "metrics_wide.csv", index=False, encoding="utf-8-sig")
+    if write_csv:
+        wide.to_csv(
+            output_dir / "metrics_wide.csv", index=False, encoding="utf-8-sig"
+        )
     wide.to_parquet(output_dir / "metrics_wide.parquet", index=False)
-    dictionary.to_csv(
-        output_dir / "metric_dictionary.csv", index=False, encoding="utf-8-sig"
-    )
+    if write_csv:
+        dictionary.to_csv(
+            output_dir / "metric_dictionary.csv",
+            index=False,
+            encoding="utf-8-sig",
+        )
     dictionary.to_parquet(output_dir / "metric_dictionary.parquet", index=False)
-    catalog.to_csv(
-        output_dir / "source_table_catalog.csv", index=False, encoding="utf-8-sig"
-    )
+    if write_csv:
+        catalog.to_csv(
+            output_dir / "source_table_catalog.csv",
+            index=False,
+            encoding="utf-8-sig",
+        )
     catalog.to_parquet(output_dir / "source_table_catalog.parquet", index=False)
 
     table_summaries = {}
@@ -415,12 +494,15 @@ def build(input_dir: Path, output_dir: Path) -> dict[str, Any]:
     result = {
         "status": "passed",
         "source_download_status": download_summary["status"],
+        "source_inventory": inventory,
         "source_page_count": len(catalog),
         "period_count": int(catalog["observation_date"].nunique()),
         "table_count": int(catalog["table_id"].nunique()),
         "group_count": int(catalog["group_code"].nunique()),
         "measurement_row_count": len(measurements),
         "wide_row_count": len(wide),
+        "csv_written": write_csv,
+        "primary_output_format": "parquet",
         "missing_measurement_count": int(measurements["value"].isna().sum()),
         "missingness": missingness,
         "missingness_audit_rows": len(missingness_audit),
@@ -450,8 +532,17 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--input", type=Path, default=DEFAULT_INPUT)
     parser.add_argument("--output", type=Path, default=DEFAULT_OUTPUT)
+    parser.add_argument(
+        "--write-csv",
+        action="store_true",
+        help="Parquet dosyalarina ek olarak buyuk CSV kopyalarini da yaz.",
+    )
     args = parser.parse_args()
-    result = build(args.input.expanduser().resolve(), args.output.expanduser().resolve())
+    result = build(
+        args.input.expanduser().resolve(),
+        args.output.expanduser().resolve(),
+        write_csv=args.write_csv,
+    )
     print(json.dumps(result, ensure_ascii=False, indent=2))
     return 0
 

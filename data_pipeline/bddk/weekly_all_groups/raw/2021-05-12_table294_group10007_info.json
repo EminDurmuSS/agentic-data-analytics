@@ -1,0 +1,31 @@
+{
+  "status": "validated",
+  "diagnosis": "validated_bddk_weekly_html_table",
+  "source_url": "https://www.bddk.org.tr/BultenHaftalik/",
+  "sha256_uncompressed": "35cb56a45b1fd8da1f6df09ba8ea6a4d507119d65b164d82c262e46895670bec",
+  "compressed_bytes": 13943,
+  "uncompressed_bytes": 179687,
+  "served_from_cache": true,
+  "completed_at_utc": "2026-09-08T08:31:27.038811+00:00",
+  "table_id": 294,
+  "table_name": "Bilanco Disi Islemler",
+  "group_code": 10007,
+  "group_name": "Yerli Ozel",
+  "period_id": 385,
+  "observation_date": "2021-05-12",
+  "week_number": 19,
+  "source_period_label": "Mayıs/12 (19. Hafta)",
+  "source_date_heading": "Tarih: 12 Mayıs 2021 Çarşamba | Birim: Milyon TL",
+  "source_date_parsed": "2021-05-12",
+  "headers": [
+    "",
+    "Bilanço Dışı İşlemler",
+    "TP",
+    "YP",
+    "TOPLAM"
+  ],
+  "rows": 4,
+  "max_cells_per_row": 5,
+  "unit_heading": "Milyon TL",
+  "date_heading_normalized": "tarih: 12 mayis 2021 carsamba | birim: milyon tl"
+}

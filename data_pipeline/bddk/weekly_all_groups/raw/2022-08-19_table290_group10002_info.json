@@ -1,0 +1,31 @@
+{
+  "status": "validated",
+  "diagnosis": "validated_bddk_weekly_html_table",
+  "source_url": "https://www.bddk.org.tr/BultenHaftalik/",
+  "sha256_uncompressed": "4b6185af9fe92b27d02f34074171022fe93ddf296eacc625f88aa7577e364156",
+  "compressed_bytes": 14585,
+  "uncompressed_bytes": 192523,
+  "served_from_cache": true,
+  "completed_at_utc": "2026-09-08T08:26:04.164309+00:00",
+  "table_id": 290,
+  "table_name": "Takipteki Alacaklar",
+  "group_code": 10002,
+  "group_name": "Mevduat",
+  "period_id": 451,
+  "observation_date": "2022-08-19",
+  "week_number": 33,
+  "source_period_label": "Ağustos/19 (33. Hafta)",
+  "source_date_heading": "Tarih: 19 Ağustos 2022 Cuma | Birim: Milyon TL",
+  "source_date_parsed": "2022-08-19",
+  "headers": [
+    "",
+    "Takipteki Alacaklar",
+    "TP",
+    "YP",
+    "TOPLAM"
+  ],
+  "rows": 12,
+  "max_cells_per_row": 5,
+  "unit_heading": "Milyon TL",
+  "date_heading_normalized": "tarih: 19 agustos 2022 cuma | birim: milyon tl"
+}

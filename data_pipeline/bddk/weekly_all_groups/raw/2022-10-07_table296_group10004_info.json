@@ -1,0 +1,31 @@
+{
+  "status": "validated",
+  "diagnosis": "validated_bddk_weekly_html_table",
+  "source_url": "https://www.bddk.org.tr/BultenHaftalik/",
+  "sha256_uncompressed": "1f591dd3b5014c23e5126051714a8d228c7321f2c2497ab97b692acb12434ba8",
+  "compressed_bytes": 15912,
+  "uncompressed_bytes": 241927,
+  "served_from_cache": true,
+  "completed_at_utc": "2026-09-08T08:28:39.538796+00:00",
+  "table_id": 296,
+  "table_name": "Bankalarda Saklanan Menkul Degerler - 2",
+  "group_code": 10004,
+  "group_name": "Katilim",
+  "period_id": 458,
+  "observation_date": "2022-10-07",
+  "week_number": 40,
+  "source_period_label": "Ekim/07 (40. Hafta)",
+  "source_date_heading": "Tarih: 7 Ekim 2022 Cuma | Birim: Milyon TL",
+  "source_date_parsed": "2022-10-07",
+  "headers": [
+    "",
+    "Bankalarda Saklanan Menkul Değerler - 2",
+    "TP",
+    "YP",
+    "TOPLAM"
+  ],
+  "rows": 45,
+  "max_cells_per_row": 5,
+  "unit_heading": "Milyon TL",
+  "date_heading_normalized": "tarih: 7 ekim 2022 cuma | birim: milyon tl"
+}

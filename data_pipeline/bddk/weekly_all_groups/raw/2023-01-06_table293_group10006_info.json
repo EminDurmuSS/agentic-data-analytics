@@ -1,0 +1,31 @@
+{
+  "status": "validated",
+  "diagnosis": "validated_bddk_weekly_html_table",
+  "source_url": "https://www.bddk.org.tr/BultenHaftalik/",
+  "sha256_uncompressed": "ed2ebfa5df620730a779621c9392192965074d9d8f49c605a138813a84d5e5a7",
+  "compressed_bytes": 15049,
+  "uncompressed_bytes": 196539,
+  "served_from_cache": true,
+  "completed_at_utc": "2026-09-08T08:30:24.308264+00:00",
+  "table_id": 293,
+  "table_name": "Diger Bilanco Kalemleri",
+  "group_code": 10006,
+  "group_name": "Yabanci",
+  "period_id": 471,
+  "observation_date": "2023-01-06",
+  "week_number": 1,
+  "source_period_label": "Ocak/06 (1. Hafta)",
+  "source_date_heading": "Tarih: 6 Ocak 2023 Cuma | Birim: Milyon TL",
+  "source_date_parsed": "2023-01-06",
+  "headers": [
+    "",
+    "Diğer Bilanço Kalemleri",
+    "TP",
+    "YP",
+    "TOPLAM"
+  ],
+  "rows": 16,
+  "max_cells_per_row": 5,
+  "unit_heading": "Milyon TL",
+  "date_heading_normalized": "tarih: 6 ocak 2023 cuma | birim: milyon tl"
+}

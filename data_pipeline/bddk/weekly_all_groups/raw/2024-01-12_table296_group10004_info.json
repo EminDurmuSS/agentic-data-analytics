@@ -1,0 +1,31 @@
+{
+  "status": "validated",
+  "diagnosis": "validated_bddk_weekly_html_table",
+  "source_url": "https://www.bddk.org.tr/BultenHaftalik/",
+  "sha256_uncompressed": "b6f54446156e88f3c6f9642d07023617bf387ec8dc283270424c841efed518d1",
+  "compressed_bytes": 16022,
+  "uncompressed_bytes": 242177,
+  "served_from_cache": true,
+  "completed_at_utc": "2026-09-08T08:28:41.599896+00:00",
+  "table_id": 296,
+  "table_name": "Bankalarda Saklanan Menkul Degerler - 2",
+  "group_code": 10004,
+  "group_name": "Katilim",
+  "period_id": 524,
+  "observation_date": "2024-01-12",
+  "week_number": 2,
+  "source_period_label": "Ocak/12 (2. Hafta)",
+  "source_date_heading": "Tarih: 12 Ocak 2024 Cuma | Birim: Milyon TL",
+  "source_date_parsed": "2024-01-12",
+  "headers": [
+    "",
+    "Bankalarda Saklanan Menkul Değerler - 2",
+    "TP",
+    "YP",
+    "TOPLAM"
+  ],
+  "rows": 45,
+  "max_cells_per_row": 5,
+  "unit_heading": "Milyon TL",
+  "date_heading_normalized": "tarih: 12 ocak 2024 cuma | birim: milyon tl"
+}

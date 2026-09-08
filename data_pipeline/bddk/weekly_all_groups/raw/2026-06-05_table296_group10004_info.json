@@ -1,0 +1,31 @@
+{
+  "status": "validated",
+  "diagnosis": "validated_bddk_weekly_html_table",
+  "source_url": "https://www.bddk.org.tr/BultenHaftalik/",
+  "sha256_uncompressed": "06821c1b712d9d95aa82ff68b2b143c6085ece6399ff6ea60d73ab94c83098ae",
+  "compressed_bytes": 16480,
+  "uncompressed_bytes": 242758,
+  "served_from_cache": true,
+  "completed_at_utc": "2026-09-08T08:28:45.159665+00:00",
+  "table_id": 296,
+  "table_name": "Bankalarda Saklanan Menkul Degerler - 2",
+  "group_code": 10004,
+  "group_name": "Katilim",
+  "period_id": 649,
+  "observation_date": "2026-06-05",
+  "week_number": 23,
+  "source_period_label": "Haziran/05 (23. Hafta)",
+  "source_date_heading": "Tarih: 5 Haziran 2026 Cuma | Birim: Milyon TL",
+  "source_date_parsed": "2026-06-05",
+  "headers": [
+    "",
+    "Bankalarda Saklanan Menkul Değerler - 2",
+    "TP",
+    "YP",
+    "TOPLAM"
+  ],
+  "rows": 45,
+  "max_cells_per_row": 5,
+  "unit_heading": "Milyon TL",
+  "date_heading_normalized": "tarih: 5 haziran 2026 cuma | birim: milyon tl"
+}

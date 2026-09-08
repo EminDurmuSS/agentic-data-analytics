@@ -1,0 +1,162 @@
+{
+  "started_at_utc": "2026-09-08T07:28:20.654786+00:00",
+  "completed_at_utc": "2026-09-08T07:28:20.847166+00:00",
+  "url": "https://www.bddk.org.tr/BultenAylik/tr/Home/BasitRaporGetir",
+  "final_url": "https://www.bddk.org.tr/BultenAylik/tr/Home/BasitRaporGetir",
+  "method": "POST",
+  "transport": "curl",
+  "http_status": 200,
+  "content_type": "application/json; charset=utf-8",
+  "sha256": "6f9b6077c5593681727f0b7c009d4948449540cb4946fca73325eb107627da52",
+  "bytes": 29308,
+  "error": "",
+  "diagnosis": "validated_bddk_table",
+  "tls_verification": true,
+  "period": "2024-11",
+  "table_no": 8,
+  "group_codes": [
+    10001,
+    10002,
+    10003,
+    10004,
+    10005,
+    10006,
+    10007,
+    10008,
+    10009,
+    10010
+  ],
+  "group_names": {
+    "10001": "Sektör",
+    "10002": "Mevduat",
+    "10003": "Katılım",
+    "10004": "Kalkınma ve Yatırım",
+    "10005": "Yerli Özel",
+    "10006": "Kamu",
+    "10007": "Yabancı",
+    "10008": "Mevduat-Yerli Özel",
+    "10009": "Mevduat-Kamu",
+    "10010": "Mevduat-Yabancı"
+  },
+  "form": [
+    [
+      "tabloNo",
+      "8"
+    ],
+    [
+      "yil",
+      "2024"
+    ],
+    [
+      "ay",
+      "11"
+    ],
+    [
+      "paraBirimi",
+      "TL"
+    ],
+    [
+      "taraf",
+      "10001"
+    ],
+    [
+      "taraf",
+      "10002"
+    ],
+    [
+      "taraf",
+      "10003"
+    ],
+    [
+      "taraf",
+      "10004"
+    ],
+    [
+      "taraf",
+      "10005"
+    ],
+    [
+      "taraf",
+      "10006"
+    ],
+    [
+      "taraf",
+      "10007"
+    ],
+    [
+      "taraf",
+      "10008"
+    ],
+    [
+      "taraf",
+      "10009"
+    ],
+    [
+      "taraf",
+      "10010"
+    ]
+  ],
+  "attempt": 2,
+  "attempt_history": [
+    {
+      "attempt": 1,
+      "http_status": null,
+      "diagnosis": "network_or_transport_failure",
+      "error": "curl: (28) Failed to connect to www.bddk.org.tr port 443 after 15003 ms: Timeout was reached\n",
+      "bytes": 0
+    },
+    {
+      "attempt": 2,
+      "http_status": 200,
+      "diagnosis": "http_success_pending_data_validation",
+      "error": "",
+      "bytes": 29308
+    }
+  ],
+  "status": "validated",
+  "rows": 290,
+  "rows_by_group": {
+    "Kalkınma ve Yatırım": 29,
+    "Kamu": 29,
+    "Katılım": 29,
+    "Mevduat": 29,
+    "Mevduat-Kamu": 29,
+    "Mevduat-Yabancı": 29,
+    "Mevduat-Yerli Özel": 29,
+    "Sektör": 29,
+    "Yabancı": 29,
+    "Yerli Özel": 29
+  },
+  "duplicate_display_orders": [
+    "1",
+    "10",
+    "11",
+    "12",
+    "13",
+    "14",
+    "15",
+    "16",
+    "17",
+    "18",
+    "19",
+    "2",
+    "20",
+    "21",
+    "22",
+    "23",
+    "24",
+    "25",
+    "26",
+    "27",
+    "28",
+    "29",
+    "3",
+    "4",
+    "5",
+    "6",
+    "7",
+    "8",
+    "9"
+  ],
+  "served_from_cache": false
+}

@@ -1,0 +1,31 @@
+{
+  "status": "validated",
+  "diagnosis": "validated_bddk_weekly_html_table",
+  "source_url": "https://www.bddk.org.tr/BultenHaftalik/",
+  "sha256_uncompressed": "cb32367e09cf1d0ba3b67b3355a69b0ce4efd6dd497bb0147adf5030d580abf0",
+  "compressed_bytes": 15459,
+  "uncompressed_bytes": 206771,
+  "served_from_cache": true,
+  "completed_at_utc": "2026-09-08T08:28:58.312908+00:00",
+  "table_id": 289,
+  "table_name": "Krediler",
+  "group_code": 10005,
+  "group_name": "Kamu",
+  "period_id": 576,
+  "observation_date": "2025-01-10",
+  "week_number": 2,
+  "source_period_label": "Ocak/10 (2. Hafta)",
+  "source_date_heading": "Tarih: 10 Ocak 2025 Cuma | Birim: Milyon TL",
+  "source_date_parsed": "2025-01-10",
+  "headers": [
+    "",
+    "Krediler",
+    "TP",
+    "YP",
+    "TOPLAM"
+  ],
+  "rows": 22,
+  "max_cells_per_row": 5,
+  "unit_heading": "Milyon TL",
+  "date_heading_normalized": "tarih: 10 ocak 2025 cuma | birim: milyon tl"
+}

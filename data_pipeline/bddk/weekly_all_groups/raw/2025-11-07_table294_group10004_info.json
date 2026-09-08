@@ -1,0 +1,31 @@
+{
+  "status": "validated",
+  "diagnosis": "validated_bddk_weekly_html_table",
+  "source_url": "https://www.bddk.org.tr/BultenHaftalik/",
+  "sha256_uncompressed": "7ee9d45adf8e355915515dd2874a54889ede4bc64bdfc22b96c3afbfbebbebce",
+  "compressed_bytes": 13941,
+  "uncompressed_bytes": 179651,
+  "served_from_cache": true,
+  "completed_at_utc": "2026-09-08T08:28:26.399045+00:00",
+  "table_id": 294,
+  "table_name": "Bilanco Disi Islemler",
+  "group_code": 10004,
+  "group_name": "Katilim",
+  "period_id": 619,
+  "observation_date": "2025-11-07",
+  "week_number": 45,
+  "source_period_label": "Kasım/07 (45. Hafta)",
+  "source_date_heading": "Tarih: 7 Kasım 2025 Cuma | Birim: Milyon TL",
+  "source_date_parsed": "2025-11-07",
+  "headers": [
+    "",
+    "Bilanço Dışı İşlemler",
+    "TP",
+    "YP",
+    "TOPLAM"
+  ],
+  "rows": 4,
+  "max_cells_per_row": 5,
+  "unit_heading": "Milyon TL",
+  "date_heading_normalized": "tarih: 7 kasim 2025 cuma | birim: milyon tl"
+}

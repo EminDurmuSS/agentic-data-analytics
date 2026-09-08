@@ -1,0 +1,31 @@
+{
+  "status": "validated",
+  "diagnosis": "validated_bddk_weekly_html_table",
+  "source_url": "https://www.bddk.org.tr/BultenHaftalik/",
+  "sha256_uncompressed": "42c84a80ef0b85e407a7d7b66a2fca0f5ff57288503b5ae63a3e21e4b6405463",
+  "compressed_bytes": 14874,
+  "uncompressed_bytes": 195579,
+  "served_from_cache": true,
+  "completed_at_utc": "2026-09-08T08:26:10.685411+00:00",
+  "table_id": 291,
+  "table_name": "Menkul Degerler",
+  "group_code": 10002,
+  "group_name": "Mevduat",
+  "period_id": 514,
+  "observation_date": "2023-11-03",
+  "week_number": 44,
+  "source_period_label": "Kasım/03 (44. Hafta)",
+  "source_date_heading": "Tarih: 3 Kasım 2023 Cuma | Birim: Milyon TL",
+  "source_date_parsed": "2023-11-03",
+  "headers": [
+    "",
+    "Menkul Değerler",
+    "TP",
+    "YP",
+    "TOPLAM"
+  ],
+  "rows": 13,
+  "max_cells_per_row": 5,
+  "unit_heading": "Milyon TL",
+  "date_heading_normalized": "tarih: 3 kasim 2023 cuma | birim: milyon tl"
+}

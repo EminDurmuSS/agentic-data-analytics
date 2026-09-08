@@ -1,0 +1,31 @@
+{
+  "status": "validated",
+  "diagnosis": "validated_bddk_weekly_html_table",
+  "source_url": "https://www.bddk.org.tr/BultenHaftalik/",
+  "sha256_uncompressed": "0fe699167aab2d42d7678a36a1ea3d68acf5bcca227ea79c20c2fceb9182d5f5",
+  "compressed_bytes": 13959,
+  "uncompressed_bytes": 179639,
+  "served_from_cache": true,
+  "completed_at_utc": "2026-09-08T08:28:22.446823+00:00",
+  "table_id": 294,
+  "table_name": "Bilanco Disi Islemler",
+  "group_code": 10004,
+  "group_name": "Katilim",
+  "period_id": 385,
+  "observation_date": "2021-05-12",
+  "week_number": 19,
+  "source_period_label": "Mayıs/12 (19. Hafta)",
+  "source_date_heading": "Tarih: 12 Mayıs 2021 Çarşamba | Birim: Milyon TL",
+  "source_date_parsed": "2021-05-12",
+  "headers": [
+    "",
+    "Bilanço Dışı İşlemler",
+    "TP",
+    "YP",
+    "TOPLAM"
+  ],
+  "rows": 4,
+  "max_cells_per_row": 5,
+  "unit_heading": "Milyon TL",
+  "date_heading_normalized": "tarih: 12 mayis 2021 carsamba | birim: milyon tl"
+}

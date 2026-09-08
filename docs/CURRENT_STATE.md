@@ -18,24 +18,25 @@ boşluklar açıkça sınıflandırılır. Hiçbir değer tahmin edilmez.
 ### BDDK aylık bülten
 
 - Dönem: Ocak 2021-Haziran 2026
-- 66 ay, 17 tablo, sektör grubu
-- 1.122 / 1.122 resmî istek
-- 33.965 kaynak satırı
-- 133.485 semantik ölçüm
-- 10.494 kümülatif kâr-zarar satırı aylık akıma dönüştürüldü
+- 66 ay, 17 tablo, 10 resmî banka grubu
+- 1.122 / 1.122 resmî birleşik istek
+- 11.220 tablo-grup kaydı
+- 339.650 kaynak satırı
+- 1.334.850 semantik ölçüm
+- 104.940 kümülatif kâr-zarar ölçümü aylık akıma dönüştürüldü
 - Aylık akımların kaynak yılbaşından bugüne değerlerine yeniden toplam farkı: 0
 
 ### BDDK haftalık bülten
 
 - Dönem: Ocak 2021-Haziran 2026
-- 286 hafta, 9 tablo, sektör grubu
-- 2.574 / 2.574 resmî HTML sayfası
-- 249.070 kayıp vermeden saklanan ham hücre
-- 147.154 normalize ölçüm
-- 514 kaynak boş değerin tamamı `TRY = TOTAL` olan TL-only metriklerin FX
+- 286 hafta, 9 tablo, 7 resmî banka grubu
+- 18.018 / 18.018 resmî HTML sayfası
+- 1.736.650 kayıp vermeden saklanan ham hücre
+- 1.025.974 normalize ölçüm
+- 2.230 kaynak boş değerin tamamı `TRY = TOTAL` olan TL-only metriklerin FX
   hücreleridir ve `source_not_applicable` olarak sınıflandırıldı
 - Çözümlenmemiş haftalık kaynak boşluğu: 0
-- 47.584 `TP + YP = Toplam` kontrolü geçti
+- 333.088 `TP + YP = Toplam` kontrolü geçti
 - Kaynak yuvarlamasından oluşan azami mutlak fark: 1 milyon TL
 
 ### BDDK FinTürk
@@ -74,6 +75,12 @@ Bu seri grubu kredi faizi, kredi stoku, konut satışı, TÜFE, KFE, kredi arzı
 talebi anketleri, politika faizleri, döviz, güven, işsizlik, sanayi, GSYİH,
 tüketim, yapı izinleri, kiralar, altın ve hisse piyasası gibi alternatif
 açıklamaları kapsar.
+
+Katalogda olup bu 61 serilik başlangıç setinde bulunmayan bir seri,
+`tools/EVDS_Talep_Uzerine_Indirme_Araci.py` ile ad veya kod üzerinden seçilip
+aynı ham istek, ham cevap, eksiklik sınıflandırması ve SHA-256 sözleşmesiyle
+indirilebilir. Bu akış 8 Eylül 2026 tarihinde önceden seçilmemiş bir turizm
+gelirleri serisinin 12 aylık gözlemiyle canlı doğrulandı.
 
 - Toplam kaynak gözlemi: 12.482
 - Dolu gözlem: 9.901
@@ -126,7 +133,7 @@ Bilinen EVDS sınırları:
 - Birleşik katalog: 50 veri varlığı
 - Toplam katalog metriği: 55.458
 - Yerel gözlemi bulunan sorgulanabilir metrik: 2.821
-- DuckDB: 7 şema, 38 tablo
+- DuckDB: 7 şema, 40 tablo
 - Aylık analiz tablosu: 66 benzersiz ay
 - Çeyreklik analiz tablosu: 22 benzersiz çeyrek
 - Haftalık BDDK ölçümleri DuckDB içine kopyalandı

@@ -1,0 +1,31 @@
+{
+  "status": "validated",
+  "diagnosis": "validated_bddk_weekly_html_table",
+  "source_url": "https://www.bddk.org.tr/BultenHaftalik/",
+  "sha256_uncompressed": "feba19a6280ff0fa5776cd6b115d93d8fd86ea44aff4d3c413b72dfa9ae8b725",
+  "compressed_bytes": 15400,
+  "uncompressed_bytes": 206701,
+  "served_from_cache": true,
+  "completed_at_utc": "2026-09-08T08:30:59.144855+00:00",
+  "table_id": 289,
+  "table_name": "Krediler",
+  "group_code": 10007,
+  "group_name": "Yerli Ozel",
+  "period_id": 499,
+  "observation_date": "2023-07-21",
+  "week_number": 29,
+  "source_period_label": "Temmuz/21 (29. Hafta)",
+  "source_date_heading": "Tarih: 21 Temmuz 2023 Cuma | Birim: Milyon TL",
+  "source_date_parsed": "2023-07-21",
+  "headers": [
+    "",
+    "Krediler",
+    "TP",
+    "YP",
+    "TOPLAM"
+  ],
+  "rows": 22,
+  "max_cells_per_row": 5,
+  "unit_heading": "Milyon TL",
+  "date_heading_normalized": "tarih: 21 temmuz 2023 cuma | birim: milyon tl"
+}

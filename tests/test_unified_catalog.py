@@ -56,7 +56,7 @@ class UnifiedCatalogTests(unittest.TestCase):
 
     def test_missingness_and_source_gap_assets_are_discoverable(self):
         expected = {
-            "bddk.weekly_all_sector.missingness_audit",
+            "bddk.weekly_all_groups.missingness_audit",
             "bddk.finturk_all_groups_all_cities.missingness_audit",
             "evds.housing_causality_v1.coverage_gaps",
             "evds.housing_causality_controls_v1.coverage_gaps",

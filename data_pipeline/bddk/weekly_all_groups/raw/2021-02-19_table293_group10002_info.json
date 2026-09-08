@@ -1,0 +1,31 @@
+{
+  "status": "validated",
+  "diagnosis": "validated_bddk_weekly_html_table",
+  "source_url": "https://www.bddk.org.tr/BultenHaftalik/",
+  "sha256_uncompressed": "ba782512b0e2fef70f3e201cda87258b108edc5266199a476a0cb69531d6c032",
+  "compressed_bytes": 15189,
+  "uncompressed_bytes": 198282,
+  "served_from_cache": true,
+  "completed_at_utc": "2026-09-08T08:26:19.119265+00:00",
+  "table_id": 293,
+  "table_name": "Diger Bilanco Kalemleri",
+  "group_code": 10002,
+  "group_name": "Mevduat",
+  "period_id": 373,
+  "observation_date": "2021-02-19",
+  "week_number": 7,
+  "source_period_label": "Şubat/19 (7. Hafta)",
+  "source_date_heading": "Tarih: 19 Şubat 2021 Cuma | Birim: Milyon TL",
+  "source_date_parsed": "2021-02-19",
+  "headers": [
+    "",
+    "Diğer Bilanço Kalemleri",
+    "TP",
+    "YP",
+    "TOPLAM"
+  ],
+  "rows": 16,
+  "max_cells_per_row": 5,
+  "unit_heading": "Milyon TL",
+  "date_heading_normalized": "tarih: 19 subat 2021 cuma | birim: milyon tl"
+}

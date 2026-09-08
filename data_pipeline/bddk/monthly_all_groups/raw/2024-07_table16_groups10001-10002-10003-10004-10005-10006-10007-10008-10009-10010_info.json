@@ -1,0 +1,133 @@
+{
+  "started_at_utc": "2026-09-08T07:27:35.648084+00:00",
+  "completed_at_utc": "2026-09-08T07:27:35.858495+00:00",
+  "url": "https://www.bddk.org.tr/BultenAylik/tr/Home/BasitRaporGetir",
+  "final_url": "https://www.bddk.org.tr/BultenAylik/tr/Home/BasitRaporGetir",
+  "method": "POST",
+  "transport": "curl",
+  "http_status": 200,
+  "content_type": "application/json; charset=utf-8",
+  "sha256": "08fee0f7e7191cfe4e04c87a281d469ccc58f08cc14a4e7a5d23d4927ec810e2",
+  "bytes": 6202,
+  "error": "",
+  "diagnosis": "validated_bddk_table",
+  "tls_verification": true,
+  "period": "2024-07",
+  "table_no": 16,
+  "group_codes": [
+    10001,
+    10002,
+    10003,
+    10004,
+    10005,
+    10006,
+    10007,
+    10008,
+    10009,
+    10010
+  ],
+  "group_names": {
+    "10001": "Sektör",
+    "10002": "Mevduat",
+    "10003": "Katılım",
+    "10004": "Kalkınma ve Yatırım",
+    "10005": "Yerli Özel",
+    "10006": "Kamu",
+    "10007": "Yabancı",
+    "10008": "Mevduat-Yerli Özel",
+    "10009": "Mevduat-Kamu",
+    "10010": "Mevduat-Yabancı"
+  },
+  "form": [
+    [
+      "tabloNo",
+      "16"
+    ],
+    [
+      "yil",
+      "2024"
+    ],
+    [
+      "ay",
+      "7"
+    ],
+    [
+      "paraBirimi",
+      "TL"
+    ],
+    [
+      "taraf",
+      "10001"
+    ],
+    [
+      "taraf",
+      "10002"
+    ],
+    [
+      "taraf",
+      "10003"
+    ],
+    [
+      "taraf",
+      "10004"
+    ],
+    [
+      "taraf",
+      "10005"
+    ],
+    [
+      "taraf",
+      "10006"
+    ],
+    [
+      "taraf",
+      "10007"
+    ],
+    [
+      "taraf",
+      "10008"
+    ],
+    [
+      "taraf",
+      "10009"
+    ],
+    [
+      "taraf",
+      "10010"
+    ]
+  ],
+  "attempt": 1,
+  "attempt_history": [
+    {
+      "attempt": 1,
+      "http_status": 200,
+      "diagnosis": "http_success_pending_data_validation",
+      "error": "",
+      "bytes": 6202
+    }
+  ],
+  "status": "validated",
+  "rows": 70,
+  "rows_by_group": {
+    "Kalkınma ve Yatırım": 7,
+    "Kamu": 7,
+    "Katılım": 7,
+    "Mevduat": 7,
+    "Mevduat-Kamu": 7,
+    "Mevduat-Yabancı": 7,
+    "Mevduat-Yerli Özel": 7,
+    "Sektör": 7,
+    "Yabancı": 7,
+    "Yerli Özel": 7
+  },
+  "duplicate_display_orders": [
+    "1",
+    "2",
+    "3",
+    "4",
+    "5",
+    "6",
+    "7"
+  ],
+  "served_from_cache": false
+}

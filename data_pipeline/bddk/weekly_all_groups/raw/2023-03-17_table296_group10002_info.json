@@ -1,0 +1,31 @@
+{
+  "status": "validated",
+  "diagnosis": "validated_bddk_weekly_html_table",
+  "source_url": "https://www.bddk.org.tr/BultenHaftalik/",
+  "sha256_uncompressed": "4b6c2f2f2f84e3318be160f0b59b457d570b50f9c3d07daf8418982fe2461510",
+  "compressed_bytes": 17182,
+  "uncompressed_bytes": 244939,
+  "served_from_cache": true,
+  "completed_at_utc": "2026-09-08T08:26:41.781892+00:00",
+  "table_id": 296,
+  "table_name": "Bankalarda Saklanan Menkul Degerler - 2",
+  "group_code": 10002,
+  "group_name": "Mevduat",
+  "period_id": 481,
+  "observation_date": "2023-03-17",
+  "week_number": 11,
+  "source_period_label": "Mart/17 (11. Hafta)",
+  "source_date_heading": "Tarih: 17 Mart 2023 Cuma | Birim: Milyon TL",
+  "source_date_parsed": "2023-03-17",
+  "headers": [
+    "",
+    "Bankalarda Saklanan Menkul Değerler - 2",
+    "TP",
+    "YP",
+    "TOPLAM"
+  ],
+  "rows": 45,
+  "max_cells_per_row": 5,
+  "unit_heading": "Milyon TL",
+  "date_heading_normalized": "tarih: 17 mart 2023 cuma | birim: milyon tl"
+}

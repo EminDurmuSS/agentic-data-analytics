@@ -1,0 +1,31 @@
+{
+  "status": "validated",
+  "diagnosis": "validated_bddk_weekly_html_table",
+  "source_url": "https://www.bddk.org.tr/BultenHaftalik/",
+  "sha256_uncompressed": "18286313db167a7682f2656f12c50de060adfa0186caa6711671d4ff0a5c13d3",
+  "compressed_bytes": 15920,
+  "uncompressed_bytes": 241914,
+  "served_from_cache": true,
+  "completed_at_utc": "2026-09-08T08:28:37.651259+00:00",
+  "table_id": 296,
+  "table_name": "Bankalarda Saklanan Menkul Degerler - 2",
+  "group_code": 10004,
+  "group_name": "Katilim",
+  "period_id": 395,
+  "observation_date": "2021-07-19",
+  "week_number": 29,
+  "source_period_label": "Temmuz/19 (29. Hafta)",
+  "source_date_heading": "Tarih: 19 Temmuz 2021 Pazartesi | Birim: Milyon TL",
+  "source_date_parsed": "2021-07-19",
+  "headers": [
+    "",
+    "Bankalarda Saklanan Menkul Değerler - 2",
+    "TP",
+    "YP",
+    "TOPLAM"
+  ],
+  "rows": 45,
+  "max_cells_per_row": 5,
+  "unit_heading": "Milyon TL",
+  "date_heading_normalized": "tarih: 19 temmuz 2021 pazartesi | birim: milyon tl"
+}

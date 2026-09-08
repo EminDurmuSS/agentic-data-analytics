@@ -1,0 +1,31 @@
+{
+  "status": "validated",
+  "diagnosis": "validated_bddk_weekly_html_table",
+  "source_url": "https://www.bddk.org.tr/BultenHaftalik/",
+  "sha256_uncompressed": "85456d152c2c5a3d17863bf053241c4ff45399ae68a4486f8a26b1fbbf62ed4c",
+  "compressed_bytes": 15600,
+  "uncompressed_bytes": 208608,
+  "served_from_cache": true,
+  "completed_at_utc": "2026-09-08T08:26:00.480669+00:00",
+  "table_id": 289,
+  "table_name": "Krediler",
+  "group_code": 10002,
+  "group_name": "Mevduat",
+  "period_id": 582,
+  "observation_date": "2025-02-21",
+  "week_number": 8,
+  "source_period_label": "Şubat/21 (8. Hafta)",
+  "source_date_heading": "Tarih: 21 Şubat 2025 Cuma | Birim: Milyon TL",
+  "source_date_parsed": "2025-02-21",
+  "headers": [
+    "",
+    "Krediler",
+    "TP",
+    "YP",
+    "TOPLAM"
+  ],
+  "rows": 22,
+  "max_cells_per_row": 5,
+  "unit_heading": "Milyon TL",
+  "date_heading_normalized": "tarih: 21 subat 2025 cuma | birim: milyon tl"
+}

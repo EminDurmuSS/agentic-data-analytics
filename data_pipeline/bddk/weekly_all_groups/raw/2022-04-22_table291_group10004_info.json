@@ -1,0 +1,31 @@
+{
+  "status": "validated",
+  "diagnosis": "validated_bddk_weekly_html_table",
+  "source_url": "https://www.bddk.org.tr/BultenHaftalik/",
+  "sha256_uncompressed": "45ec69a10b4e7d3b6c3e7b71481dae3280df643a46be54d7933701813fd21ab2",
+  "compressed_bytes": 14743,
+  "uncompressed_bytes": 193596,
+  "served_from_cache": true,
+  "completed_at_utc": "2026-09-08T08:28:03.535228+00:00",
+  "table_id": 291,
+  "table_name": "Menkul Degerler",
+  "group_code": 10004,
+  "group_name": "Katilim",
+  "period_id": 434,
+  "observation_date": "2022-04-22",
+  "week_number": 16,
+  "source_period_label": "Nisan/22 (16. Hafta)",
+  "source_date_heading": "Tarih: 22 Nisan 2022 Cuma | Birim: Milyon TL",
+  "source_date_parsed": "2022-04-22",
+  "headers": [
+    "",
+    "Menkul Değerler",
+    "TP",
+    "YP",
+    "TOPLAM"
+  ],
+  "rows": 13,
+  "max_cells_per_row": 5,
+  "unit_heading": "Milyon TL",
+  "date_heading_normalized": "tarih: 22 nisan 2022 cuma | birim: milyon tl"
+}

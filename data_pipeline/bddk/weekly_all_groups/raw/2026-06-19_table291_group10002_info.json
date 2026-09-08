@@ -1,0 +1,31 @@
+{
+  "status": "validated",
+  "diagnosis": "validated_bddk_weekly_html_table",
+  "source_url": "https://www.bddk.org.tr/BultenHaftalik/",
+  "sha256_uncompressed": "e56af8c65ada58c1a61485ba4f146c155a8f64d359d1ab898f70cb678100b481",
+  "compressed_bytes": 14879,
+  "uncompressed_bytes": 195875,
+  "served_from_cache": true,
+  "completed_at_utc": "2026-09-08T08:26:12.888226+00:00",
+  "table_id": 291,
+  "table_name": "Menkul Degerler",
+  "group_code": 10002,
+  "group_name": "Mevduat",
+  "period_id": 651,
+  "observation_date": "2026-06-19",
+  "week_number": 25,
+  "source_period_label": "Haziran/19 (25. Hafta)",
+  "source_date_heading": "Tarih: 19 Haziran 2026 Cuma | Birim: Milyon TL",
+  "source_date_parsed": "2026-06-19",
+  "headers": [
+    "",
+    "Menkul Değerler",
+    "TP",
+    "YP",
+    "TOPLAM"
+  ],
+  "rows": 13,
+  "max_cells_per_row": 5,
+  "unit_heading": "Milyon TL",
+  "date_heading_normalized": "tarih: 19 haziran 2026 cuma | birim: milyon tl"
+}

@@ -1,0 +1,31 @@
+{
+  "status": "validated",
+  "diagnosis": "validated_bddk_weekly_html_table",
+  "source_url": "https://www.bddk.org.tr/BultenHaftalik/",
+  "sha256_uncompressed": "cc091c16e118e80d1accef8831ab106725eb9602ff8bcd43c0d26e335c8aa776",
+  "compressed_bytes": 15026,
+  "uncompressed_bytes": 196609,
+  "served_from_cache": true,
+  "completed_at_utc": "2026-09-08T08:31:24.007615+00:00",
+  "table_id": 293,
+  "table_name": "Diger Bilanco Kalemleri",
+  "group_code": 10007,
+  "group_name": "Yerli Ozel",
+  "period_id": 546,
+  "observation_date": "2024-06-14",
+  "week_number": 24,
+  "source_period_label": "Haziran/14 (24. Hafta)",
+  "source_date_heading": "Tarih: 14 Haziran 2024 Cuma | Birim: Milyon TL",
+  "source_date_parsed": "2024-06-14",
+  "headers": [
+    "",
+    "Diğer Bilanço Kalemleri",
+    "TP",
+    "YP",
+    "TOPLAM"
+  ],
+  "rows": 16,
+  "max_cells_per_row": 5,
+  "unit_heading": "Milyon TL",
+  "date_heading_normalized": "tarih: 14 haziran 2024 cuma | birim: milyon tl"
+}

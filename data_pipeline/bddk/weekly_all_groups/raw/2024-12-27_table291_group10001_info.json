@@ -1,0 +1,31 @@
+{
+  "status": "validated",
+  "diagnosis": "validated_bddk_weekly_html_table",
+  "source_url": "https://www.bddk.org.tr/BultenHaftalik/",
+  "sha256_uncompressed": "addc05609b2bf1f0d04159524cbc13610708585188e441e1529d7a9b7b398703",
+  "compressed_bytes": 14819,
+  "uncompressed_bytes": 194024,
+  "served_from_cache": true,
+  "completed_at_utc": "2026-09-08T08:25:17.149418+00:00",
+  "table_id": 291,
+  "table_name": "Menkul Degerler",
+  "group_code": 10001,
+  "group_name": "Sektor",
+  "period_id": 574,
+  "observation_date": "2024-12-27",
+  "week_number": 52,
+  "source_period_label": "Aralık/27 (52. Hafta)",
+  "source_date_heading": "Tarih: 27 Aralık 2024 Cuma | Birim: Milyon TL",
+  "source_date_parsed": "2024-12-27",
+  "headers": [
+    "",
+    "Menkul Değerler",
+    "TP",
+    "YP",
+    "TOPLAM"
+  ],
+  "rows": 13,
+  "max_cells_per_row": 5,
+  "unit_heading": "Milyon TL",
+  "date_heading_normalized": "tarih: 27 aralik 2024 cuma | birim: milyon tl"
+}

@@ -31,12 +31,13 @@ def load_parquet(
     schema: str,
     table: str,
     path: Path,
+    projection: str = "*",
 ) -> int:
     if not path.exists():
         raise ValueError(f"Lakehouse kaynak dosyası bulunamadı: {path}")
     connection.execute(
         f"CREATE TABLE {schema}.{table} AS "
-        f"SELECT * FROM read_parquet('{sql_path(path)}')"
+        f"SELECT {projection} FROM read_parquet('{sql_path(path)}')"
     )
     return int(connection.execute(f"SELECT count(*) FROM {schema}.{table}").fetchone()[0])
 
@@ -365,11 +366,48 @@ def build(output_path: Path) -> dict[str, Any]:
             / "data_pipeline"
             / "bddk"
             / "processed"
-            / "weekly_all_sector"
+            / "weekly_all_groups"
             / "measurements_long.parquet"
         )
         if weekly_path.exists():
-            parquet_tables.append(("bddk", "weekly_measurements", weekly_path))
+            weekly_measurement_projection = ", ".join(
+                [
+                    "observation_date",
+                    "period_id",
+                    "week_number",
+                    "table_id",
+                    "group_code",
+                    "metric_code",
+                    "currency_dimension",
+                    "value",
+                    "is_missing",
+                    "missing_kind",
+                    "is_structural_na",
+                    "is_unresolved_missing",
+                ]
+            )
+            parquet_tables.append(
+                (
+                    "bddk",
+                    "weekly_measurements",
+                    weekly_path,
+                    weekly_measurement_projection,
+                )
+            )
+            parquet_tables.append(
+                (
+                    "bddk",
+                    "weekly_source_tables",
+                    weekly_path.parent / "source_table_catalog.parquet",
+                )
+            )
+            parquet_tables.append(
+                (
+                    "bddk",
+                    "weekly_metric_dictionary",
+                    weekly_path.parent / "metric_dictionary.parquet",
+                )
+            )
             parquet_tables.append(
                 (
                     "bddk",
@@ -378,8 +416,12 @@ def build(output_path: Path) -> dict[str, Any]:
                 )
             )
 
-        for schema, table, path in parquet_tables:
-            row_count = load_parquet(connection, schema, table, path)
+        for item in parquet_tables:
+            schema, table, path = item[:3]
+            projection = item[3] if len(item) == 4 else "*"
+            row_count = load_parquet(
+                connection, schema, table, path, projection=projection
+            )
             table_manifest.append(
                 {
                     "schema_name": schema,
@@ -481,6 +523,7 @@ def build(output_path: Path) -> dict[str, Any]:
         "quality_policy": [
             "The DuckDB file contains copied tables and does not depend on absolute Parquet paths at query time.",
             "Raw source values remain available in source-specific Parquet files with hashes.",
+            "Weekly measurement rows keep analytical keys and values compact; labels and source hashes are joined through bddk.weekly_metric_dictionary and bddk.weekly_source_tables.",
             "The monthly analysis table keeps nominal stock, real stock, rates, controls and quality flags separate.",
             "The quarterly analysis table keeps BDDK, FinTurk, EVDS and TBB scope differences visible.",
             "Weekly BDDK data is loaded only after its processed validation exists.",

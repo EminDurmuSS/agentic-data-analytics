@@ -119,7 +119,27 @@ class LakehouseTests(unittest.TestCase):
         count = self.connection.execute(
             "SELECT count(*) FROM bddk.weekly_measurements"
         ).fetchone()[0]
-        self.assertEqual(147154, count)
+        self.assertEqual(1025974, count)
+        source_count = self.connection.execute(
+            "SELECT count(*) FROM bddk.weekly_source_tables"
+        ).fetchone()[0]
+        self.assertEqual(18018, source_count)
+        dictionary_count = self.connection.execute(
+            "SELECT count(*) FROM bddk.weekly_metric_dictionary"
+        ).fetchone()[0]
+        self.assertEqual(188, dictionary_count)
+        unmatched = self.connection.execute(
+            "SELECT count(*) FROM bddk.weekly_measurements m "
+            "ANTI JOIN bddk.weekly_source_tables s USING "
+            "(observation_date, table_id, group_code)"
+        ).fetchone()[0]
+        self.assertEqual(0, unmatched)
+        unmatched_metrics = self.connection.execute(
+            "SELECT count(*) FROM bddk.weekly_measurements m "
+            "ANTI JOIN bddk.weekly_metric_dictionary d USING "
+            "(table_id, metric_code)"
+        ).fetchone()[0]
+        self.assertEqual(0, unmatched_metrics)
 
     def test_demo_query_returns_only_quality_screened_rows(self):
         rows = self.connection.execute(

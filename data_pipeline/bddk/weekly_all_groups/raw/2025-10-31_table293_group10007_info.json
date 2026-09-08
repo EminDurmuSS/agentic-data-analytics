@@ -1,0 +1,31 @@
+{
+  "status": "validated",
+  "diagnosis": "validated_bddk_weekly_html_table",
+  "source_url": "https://www.bddk.org.tr/BultenHaftalik/",
+  "sha256_uncompressed": "b5e2a2b4599fcdaa1b4eac5e35a5d54c8e1c81961a98e77ac669a060253019ca",
+  "compressed_bytes": 15043,
+  "uncompressed_bytes": 196643,
+  "served_from_cache": true,
+  "completed_at_utc": "2026-09-08T08:31:25.385968+00:00",
+  "table_id": 293,
+  "table_name": "Diger Bilanco Kalemleri",
+  "group_code": 10007,
+  "group_name": "Yerli Ozel",
+  "period_id": 618,
+  "observation_date": "2025-10-31",
+  "week_number": 44,
+  "source_period_label": "Ekim/31 (44. Hafta)",
+  "source_date_heading": "Tarih: 31 Ekim 2025 Cuma | Birim: Milyon TL",
+  "source_date_parsed": "2025-10-31",
+  "headers": [
+    "",
+    "Diğer Bilanço Kalemleri",
+    "TP",
+    "YP",
+    "TOPLAM"
+  ],
+  "rows": 16,
+  "max_cells_per_row": 5,
+  "unit_heading": "Milyon TL",
+  "date_heading_normalized": "tarih: 31 ekim 2025 cuma | birim: milyon tl"
+}

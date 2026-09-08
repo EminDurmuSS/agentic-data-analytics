@@ -1,0 +1,31 @@
+{
+  "status": "validated",
+  "diagnosis": "validated_bddk_weekly_html_table",
+  "source_url": "https://www.bddk.org.tr/BultenHaftalik/",
+  "sha256_uncompressed": "72cd512d81a9d5f6083dd04af20a2840b9d4b245f8228c5cdb63f1f465a1b45b",
+  "compressed_bytes": 14547,
+  "uncompressed_bytes": 189981,
+  "served_from_cache": true,
+  "completed_at_utc": "2026-09-08T08:30:20.277339+00:00",
+  "table_id": 292,
+  "table_name": "Mevduat",
+  "group_code": 10006,
+  "group_name": "Yabanci",
+  "period_id": 590,
+  "observation_date": "2025-04-18",
+  "week_number": 16,
+  "source_period_label": "Nisan/18 (16. Hafta)",
+  "source_date_heading": "Tarih: 18 Nisan 2025 Cuma | Birim: Milyon TL",
+  "source_date_parsed": "2025-04-18",
+  "headers": [
+    "",
+    "Mevduat",
+    "TP",
+    "YP",
+    "TOPLAM"
+  ],
+  "rows": 11,
+  "max_cells_per_row": 5,
+  "unit_heading": "Milyon TL",
+  "date_heading_normalized": "tarih: 18 nisan 2025 cuma | birim: milyon tl"
+}

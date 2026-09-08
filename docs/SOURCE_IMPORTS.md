@@ -14,8 +14,8 @@ Bu dosyalar 7 Eylül 2026 tarihinde `/Users/edurmus/Downloads` konumundan kopyal
 da kapsayacak şekilde yeniden üretilir.
 
 Canlı BDDK verileri bu bilgisayarda TLS doğrulaması açık tutularak yeniden
-indirildi. Aylık tam kapsam `data_pipeline/bddk/monthly_all_sector/`, haftalık
-tam kapsam `data_pipeline/bddk/weekly_all_sector/`, FinTürk kapsamı ise
+indirildi. Aylık tam kapsam `data_pipeline/bddk/monthly_all_groups/`, haftalık
+tam kapsam `data_pipeline/bddk/weekly_all_groups/`, FinTürk kapsamı ise
 `data_pipeline/bddk/finturk_all_groups_all_cities/` altında bulunur. İlk
 tüketici kredisi denemesi `monthly_consumer_credit_sector/` altında tarihsel
 kanıt olarak korunur. Bu dosyalar `Downloads` içe aktarımı değildir.

@@ -1,0 +1,31 @@
+{
+  "status": "validated",
+  "diagnosis": "validated_bddk_weekly_html_table",
+  "source_url": "https://www.bddk.org.tr/BultenHaftalik/",
+  "sha256_uncompressed": "170fd815b38db766a2d95e662e033e101724c7682915620796b78bd926178b92",
+  "compressed_bytes": 14725,
+  "uncompressed_bytes": 193601,
+  "served_from_cache": true,
+  "completed_at_utc": "2026-09-08T08:27:06.131575+00:00",
+  "table_id": 291,
+  "table_name": "Menkul Degerler",
+  "group_code": 10003,
+  "group_name": "Kalkinma ve Yatirim",
+  "period_id": 425,
+  "observation_date": "2022-02-18",
+  "week_number": 7,
+  "source_period_label": "Şubat/18 (7. Hafta)",
+  "source_date_heading": "Tarih: 18 Şubat 2022 Cuma | Birim: Milyon TL",
+  "source_date_parsed": "2022-02-18",
+  "headers": [
+    "",
+    "Menkul Değerler",
+    "TP",
+    "YP",
+    "TOPLAM"
+  ],
+  "rows": 13,
+  "max_cells_per_row": 5,
+  "unit_heading": "Milyon TL",
+  "date_heading_normalized": "tarih: 18 subat 2022 cuma | birim: milyon tl"
+}

@@ -1,0 +1,31 @@
+{
+  "status": "validated",
+  "diagnosis": "validated_bddk_weekly_html_table",
+  "source_url": "https://www.bddk.org.tr/BultenHaftalik/",
+  "sha256_uncompressed": "f2400ac5d087d7bf40e2022775c63ce2887cace871f7bba341f2e1e067c8f34f",
+  "compressed_bytes": 14495,
+  "uncompressed_bytes": 190870,
+  "served_from_cache": true,
+  "completed_at_utc": "2026-09-08T08:25:09.996860+00:00",
+  "table_id": 290,
+  "table_name": "Takipteki Alacaklar",
+  "group_code": 10001,
+  "group_name": "Sektor",
+  "period_id": 435,
+  "observation_date": "2022-04-29",
+  "week_number": 17,
+  "source_period_label": "Nisan/29 (17. Hafta)",
+  "source_date_heading": "Tarih: 29 Nisan 2022 Cuma | Birim: Milyon TL",
+  "source_date_parsed": "2022-04-29",
+  "headers": [
+    "",
+    "Takipteki Alacaklar",
+    "TP",
+    "YP",
+    "TOPLAM"
+  ],
+  "rows": 12,
+  "max_cells_per_row": 5,
+  "unit_heading": "Milyon TL",
+  "date_heading_normalized": "tarih: 29 nisan 2022 cuma | birim: milyon tl"
+}

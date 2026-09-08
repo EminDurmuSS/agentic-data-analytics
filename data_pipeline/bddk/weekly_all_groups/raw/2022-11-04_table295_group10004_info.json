@@ -1,0 +1,31 @@
+{
+  "status": "validated",
+  "diagnosis": "validated_bddk_weekly_html_table",
+  "source_url": "https://www.bddk.org.tr/BultenHaftalik/",
+  "sha256_uncompressed": "fdb23075201fa3ea3eb8ecf3a7bd1e0cb4a0bb4be858b97ff63b8b46d7cf1122",
+  "compressed_bytes": 15909,
+  "uncompressed_bytes": 241899,
+  "served_from_cache": true,
+  "completed_at_utc": "2026-09-08T08:28:30.379999+00:00",
+  "table_id": 295,
+  "table_name": "Bankalarda Saklanan Menkul Degerler - 1",
+  "group_code": 10004,
+  "group_name": "Katilim",
+  "period_id": 462,
+  "observation_date": "2022-11-04",
+  "week_number": 44,
+  "source_period_label": "Kasım/04 (44. Hafta)",
+  "source_date_heading": "Tarih: 4 Kasım 2022 Cuma | Birim: Milyon TL",
+  "source_date_parsed": "2022-11-04",
+  "headers": [
+    "",
+    "Bankalarda Saklanan Menkul Değerler - 1",
+    "TP",
+    "YP",
+    "TOPLAM"
+  ],
+  "rows": 45,
+  "max_cells_per_row": 5,
+  "unit_heading": "Milyon TL",
+  "date_heading_normalized": "tarih: 4 kasim 2022 cuma | birim: milyon tl"
+}

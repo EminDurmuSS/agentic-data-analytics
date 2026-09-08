@@ -1,0 +1,31 @@
+{
+  "status": "validated",
+  "diagnosis": "validated_bddk_weekly_html_table",
+  "source_url": "https://www.bddk.org.tr/BultenHaftalik/",
+  "sha256_uncompressed": "8a883ff209914afc972c90eda51d97d2993ad0509201109030253e354b468c0b",
+  "compressed_bytes": 14896,
+  "uncompressed_bytes": 196383,
+  "served_from_cache": true,
+  "completed_at_utc": "2026-09-08T08:28:18.016978+00:00",
+  "table_id": 293,
+  "table_name": "Diger Bilanco Kalemleri",
+  "group_code": 10004,
+  "group_name": "Katilim",
+  "period_id": 506,
+  "observation_date": "2023-09-08",
+  "week_number": 36,
+  "source_period_label": "Eylül/08 (36. Hafta)",
+  "source_date_heading": "Tarih: 8 Eylül 2023 Cuma | Birim: Milyon TL",
+  "source_date_parsed": "2023-09-08",
+  "headers": [
+    "",
+    "Diğer Bilanço Kalemleri",
+    "TP",
+    "YP",
+    "TOPLAM"
+  ],
+  "rows": 16,
+  "max_cells_per_row": 5,
+  "unit_heading": "Milyon TL",
+  "date_heading_normalized": "tarih: 8 eylul 2023 cuma | birim: milyon tl"
+}

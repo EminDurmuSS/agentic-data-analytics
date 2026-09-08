@@ -1,0 +1,29 @@
+{
+  "status": "validated",
+  "diagnosis": "validated_bddk_weekly_html_table",
+  "source_url": "https://www.bddk.org.tr/BultenHaftalik/",
+  "sha256_uncompressed": "e7ad238464724e4daee201da3171ae8082a2eea8f1e66ed7ea3cc5b88106c6ef",
+  "compressed_bytes": 14013,
+  "uncompressed_bytes": 183148,
+  "served_from_cache": true,
+  "completed_at_utc": "2026-09-08T08:27:44.710995+00:00",
+  "table_id": 297,
+  "table_name": "Yabanci Para Pozisyonu",
+  "group_code": 10003,
+  "group_name": "Kalkinma ve Yatirim",
+  "period_id": 382,
+  "observation_date": "2021-04-22",
+  "week_number": 16,
+  "source_period_label": "Nisan/22 (16. Hafta)",
+  "source_date_heading": "Tarih: 22 Nisan 2021 Perşembe | Birim: Milyon TL",
+  "source_date_parsed": "2021-04-22",
+  "headers": [
+    "",
+    "Yabancı Para Pozisyonu",
+    "TOPLAM"
+  ],
+  "rows": 10,
+  "max_cells_per_row": 3,
+  "unit_heading": "Milyon TL",
+  "date_heading_normalized": "tarih: 22 nisan 2021 persembe | birim: milyon tl"
+}

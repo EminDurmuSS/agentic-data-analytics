@@ -1,0 +1,29 @@
+{
+  "status": "validated",
+  "diagnosis": "validated_bddk_weekly_html_table",
+  "source_url": "https://www.bddk.org.tr/BultenHaftalik/",
+  "sha256_uncompressed": "d42c8d0d60a55c7727e344b26f0b8095ea3d4d652c18ebd05cb50108b92be70e",
+  "compressed_bytes": 14029,
+  "uncompressed_bytes": 183210,
+  "served_from_cache": true,
+  "completed_at_utc": "2026-09-08T08:25:53.088496+00:00",
+  "table_id": 297,
+  "table_name": "Yabanci Para Pozisyonu",
+  "group_code": 10001,
+  "group_name": "Sektor",
+  "period_id": 516,
+  "observation_date": "2023-11-17",
+  "week_number": 46,
+  "source_period_label": "Kasım/17 (46. Hafta)",
+  "source_date_heading": "Tarih: 17 Kasım 2023 Cuma | Birim: Milyon TL",
+  "source_date_parsed": "2023-11-17",
+  "headers": [
+    "",
+    "Yabancı Para Pozisyonu",
+    "TOPLAM"
+  ],
+  "rows": 10,
+  "max_cells_per_row": 3,
+  "unit_heading": "Milyon TL",
+  "date_heading_normalized": "tarih: 17 kasim 2023 cuma | birim: milyon tl"
+}

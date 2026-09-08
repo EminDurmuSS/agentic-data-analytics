@@ -1,0 +1,31 @@
+{
+  "status": "validated",
+  "diagnosis": "validated_bddk_weekly_html_table",
+  "source_url": "https://www.bddk.org.tr/BultenHaftalik/",
+  "sha256_uncompressed": "457dbff774f8a2418ec1600e58c5bcde696326f35e393a57b4dd5ddac96c8ba8",
+  "compressed_bytes": 14469,
+  "uncompressed_bytes": 190808,
+  "served_from_cache": true,
+  "completed_at_utc": "2026-09-08T08:30:06.636994+00:00",
+  "table_id": 290,
+  "table_name": "Takipteki Alacaklar",
+  "group_code": 10006,
+  "group_name": "Yabanci",
+  "period_id": 549,
+  "observation_date": "2024-07-05",
+  "week_number": 27,
+  "source_period_label": "Temmuz/05 (27. Hafta)",
+  "source_date_heading": "Tarih: 5 Temmuz 2024 Cuma | Birim: Milyon TL",
+  "source_date_parsed": "2024-07-05",
+  "headers": [
+    "",
+    "Takipteki Alacaklar",
+    "TP",
+    "YP",
+    "TOPLAM"
+  ],
+  "rows": 12,
+  "max_cells_per_row": 5,
+  "unit_heading": "Milyon TL",
+  "date_heading_normalized": "tarih: 5 temmuz 2024 cuma | birim: milyon tl"
+}

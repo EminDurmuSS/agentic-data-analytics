@@ -1,0 +1,31 @@
+{
+  "status": "validated",
+  "diagnosis": "validated_bddk_weekly_html_table",
+  "source_url": "https://www.bddk.org.tr/BultenHaftalik/",
+  "sha256_uncompressed": "f6983ef3a2ac850ed9c65bf4dd94e359cd08924813489e12ce3cac32929151fc",
+  "compressed_bytes": 15063,
+  "uncompressed_bytes": 196579,
+  "served_from_cache": true,
+  "completed_at_utc": "2026-09-08T08:30:24.163285+00:00",
+  "table_id": 293,
+  "table_name": "Diger Bilanco Kalemleri",
+  "group_code": 10006,
+  "group_name": "Yabanci",
+  "period_id": 463,
+  "observation_date": "2022-11-11",
+  "week_number": 45,
+  "source_period_label": "Kasım/11 (45. Hafta)",
+  "source_date_heading": "Tarih: 11 Kasım 2022 Cuma | Birim: Milyon TL",
+  "source_date_parsed": "2022-11-11",
+  "headers": [
+    "",
+    "Diğer Bilanço Kalemleri",
+    "TP",
+    "YP",
+    "TOPLAM"
+  ],
+  "rows": 16,
+  "max_cells_per_row": 5,
+  "unit_heading": "Milyon TL",
+  "date_heading_normalized": "tarih: 11 kasim 2022 cuma | birim: milyon tl"
+}

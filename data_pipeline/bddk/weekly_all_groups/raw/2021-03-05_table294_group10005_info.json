@@ -1,0 +1,31 @@
+{
+  "status": "validated",
+  "diagnosis": "validated_bddk_weekly_html_table",
+  "source_url": "https://www.bddk.org.tr/BultenHaftalik/",
+  "sha256_uncompressed": "3913fc85b2c84749732a1817f3c0dec1b61a59b18e588b12e0146a64fabe5006",
+  "compressed_bytes": 13926,
+  "uncompressed_bytes": 179590,
+  "served_from_cache": true,
+  "completed_at_utc": "2026-09-08T08:29:26.802221+00:00",
+  "table_id": 294,
+  "table_name": "Bilanco Disi Islemler",
+  "group_code": 10005,
+  "group_name": "Kamu",
+  "period_id": 375,
+  "observation_date": "2021-03-05",
+  "week_number": 9,
+  "source_period_label": "Mart/05 (9. Hafta)",
+  "source_date_heading": "Tarih: 5 Mart 2021 Cuma | Birim: Milyon TL",
+  "source_date_parsed": "2021-03-05",
+  "headers": [
+    "",
+    "Bilanço Dışı İşlemler",
+    "TP",
+    "YP",
+    "TOPLAM"
+  ],
+  "rows": 4,
+  "max_cells_per_row": 5,
+  "unit_heading": "Milyon TL",
+  "date_heading_normalized": "tarih: 5 mart 2021 cuma | birim: milyon tl"
+}

@@ -9,10 +9,11 @@ indirilmiş ham kaynaklarını, metadata kayıtlarını ve doğrulanmış Parque
 - Ocak 2021-Haziran 2026
 - 66 ay
 - 17 tablonun tamamı
-- Sektör grubu, kod `10001`
-- 1.122 / 1.122 başarılı istek
-- 33.965 kaynak satırı
-- 133.485 semantik ölçüm
+- 10 resmî banka grubunun tamamı
+- 1.122 / 1.122 başarılı birleşik istek
+- 11.220 tablo-grup kaydı
+- 339.650 kaynak satırı
+- 1.334.850 semantik ölçüm
 
 Kâr-zarar gibi yılbaşından bugüne kümülatif kaynak tabloları ayrı bir semantik
 katmanda aylık akıma çevrilir. Kaynak YTD değeri korunur ve türetilmiş akımların
@@ -23,10 +24,11 @@ yeniden toplamı kaynağa karşı kontrol edilir.
 - Ocak 2021-Haziran 2026
 - 286 hafta
 - 9 tablonun tamamı
-- Sektör grubu, kod `10001`
-- 2.574 / 2.574 doğrulanmış kaynak sayfası
-- 249.070 ham hücre
-- 147.154 normalize ölçüm
+- 7 resmî banka grubunun tamamı
+- 18.018 / 18.018 doğrulanmış kaynak sayfası
+- 1.736.650 ham hücre
+- 1.025.974 normalize ölçüm
+- 2.230 kaynak boşluğunun tamamı yapısal `FX uygulanamaz`, çözümlenmemiş boşluk 0
 
 Her HTML sayfası gzip olarak saklanır. Yanında tarih, dönem kimliği, tablo,
 grup, kaynak şeması ve SHA-256 içeren bir bilgi dosyası bulunur. İşlenmiş veri
@@ -69,12 +71,10 @@ olarak kabul edilmez.
 
 ## Önemli kapsam notu
 
-Aylık ve haftalık bültenlerin bütün tabloları sektör toplamı için alınmıştır.
-FinTürk'te tüm banka grupları ve coğrafyalar bulunur. Sektör toplamı dışındaki
-aylık ve haftalık banka grup kırılımlarını da toplamak teknik olarak mümkündür,
-fakat mevcut nedensellik senaryosu için FinTürk ve EVDS banka grubu serileri bu
-kırılım ihtiyacını karşılar. Gereksiz tekrar veri hacmi bilinçli olarak
-eklenmemiştir.
+Aylık bültenin 10, haftalık bültenin 7 resmî banka grubu alınır. FinTürk'te de
+tüm banka grupları ve coğrafyalar bulunur. Tarayıcıdan doğrulanan istek
+sözleşmesi ve kaynak doğrulama adımları `docs/BDDK_DOWNLOAD_PROTOCOL.md`
+dosyasında açıklanır.
 
 ## 502 erişim sorununun sonucu
 

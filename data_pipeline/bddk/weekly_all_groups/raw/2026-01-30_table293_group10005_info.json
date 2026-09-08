@@ -1,0 +1,31 @@
+{
+  "status": "validated",
+  "diagnosis": "validated_bddk_weekly_html_table",
+  "source_url": "https://www.bddk.org.tr/BultenHaftalik/",
+  "sha256_uncompressed": "36081e6b0a4aeb7b86458f80e5541db4bf5d0ee63aa63dee5d7cf68e234c618a",
+  "compressed_bytes": 15007,
+  "uncompressed_bytes": 196890,
+  "served_from_cache": true,
+  "completed_at_utc": "2026-09-08T08:29:25.319642+00:00",
+  "table_id": 293,
+  "table_name": "Diger Bilanco Kalemleri",
+  "group_code": 10005,
+  "group_name": "Kamu",
+  "period_id": 631,
+  "observation_date": "2026-01-30",
+  "week_number": 5,
+  "source_period_label": "Ocak/30 (5. Hafta)",
+  "source_date_heading": "Tarih: 30 Ocak 2026 Cuma | Birim: Milyon TL",
+  "source_date_parsed": "2026-01-30",
+  "headers": [
+    "",
+    "Diğer Bilanço Kalemleri",
+    "TP",
+    "YP",
+    "TOPLAM"
+  ],
+  "rows": 16,
+  "max_cells_per_row": 5,
+  "unit_heading": "Milyon TL",
+  "date_heading_normalized": "tarih: 30 ocak 2026 cuma | birim: milyon tl"
+}

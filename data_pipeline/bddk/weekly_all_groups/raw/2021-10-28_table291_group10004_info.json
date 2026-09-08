@@ -1,0 +1,31 @@
+{
+  "status": "validated",
+  "diagnosis": "validated_bddk_weekly_html_table",
+  "source_url": "https://www.bddk.org.tr/BultenHaftalik/",
+  "sha256_uncompressed": "26e4f683752166b08006ebb87f85d9c67bb2e96a458b2f1f94858ae7ded10709",
+  "compressed_bytes": 14738,
+  "uncompressed_bytes": 193595,
+  "served_from_cache": true,
+  "completed_at_utc": "2026-09-08T08:28:03.112175+00:00",
+  "table_id": 291,
+  "table_name": "Menkul Degerler",
+  "group_code": 10004,
+  "group_name": "Katilim",
+  "period_id": 409,
+  "observation_date": "2021-10-28",
+  "week_number": 43,
+  "source_period_label": "Ekim/28 (43. Hafta)",
+  "source_date_heading": "Tarih: 28 Ekim 2021 Perşembe | Birim: Milyon TL",
+  "source_date_parsed": "2021-10-28",
+  "headers": [
+    "",
+    "Menkul Değerler",
+    "TP",
+    "YP",
+    "TOPLAM"
+  ],
+  "rows": 13,
+  "max_cells_per_row": 5,
+  "unit_heading": "Milyon TL",
+  "date_heading_normalized": "tarih: 28 ekim 2021 persembe | birim: milyon tl"
+}

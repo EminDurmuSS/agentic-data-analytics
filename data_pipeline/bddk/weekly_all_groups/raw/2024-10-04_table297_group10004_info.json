@@ -1,0 +1,29 @@
+{
+  "status": "validated",
+  "diagnosis": "validated_bddk_weekly_html_table",
+  "source_url": "https://www.bddk.org.tr/BultenHaftalik/",
+  "sha256_uncompressed": "0071cec9b845827a7d85c9937d96f67d12837450db82719409f57fba1ffa70ed",
+  "compressed_bytes": 14026,
+  "uncompressed_bytes": 183118,
+  "served_from_cache": true,
+  "completed_at_utc": "2026-09-08T08:28:50.584909+00:00",
+  "table_id": 297,
+  "table_name": "Yabanci Para Pozisyonu",
+  "group_code": 10004,
+  "group_name": "Katilim",
+  "period_id": 562,
+  "observation_date": "2024-10-04",
+  "week_number": 40,
+  "source_period_label": "Ekim/04 (40. Hafta)",
+  "source_date_heading": "Tarih: 4 Ekim 2024 Cuma | Birim: Milyon TL",
+  "source_date_parsed": "2024-10-04",
+  "headers": [
+    "",
+    "Yabancı Para Pozisyonu",
+    "TOPLAM"
+  ],
+  "rows": 10,
+  "max_cells_per_row": 3,
+  "unit_heading": "Milyon TL",
+  "date_heading_normalized": "tarih: 4 ekim 2024 cuma | birim: milyon tl"
+}

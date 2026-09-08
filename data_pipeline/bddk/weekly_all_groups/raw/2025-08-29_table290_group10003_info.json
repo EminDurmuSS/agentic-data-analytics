@@ -1,0 +1,31 @@
+{
+  "status": "validated",
+  "diagnosis": "validated_bddk_weekly_html_table",
+  "source_url": "https://www.bddk.org.tr/BultenHaftalik/",
+  "sha256_uncompressed": "db56d99c5488d4e2a51529c19d23f02c2183d8f52f2b2cb2f51ef7dca286d5bd",
+  "compressed_bytes": 14384,
+  "uncompressed_bytes": 190681,
+  "served_from_cache": true,
+  "completed_at_utc": "2026-09-08T08:27:03.412230+00:00",
+  "table_id": 290,
+  "table_name": "Takipteki Alacaklar",
+  "group_code": 10003,
+  "group_name": "Kalkinma ve Yatirim",
+  "period_id": 609,
+  "observation_date": "2025-08-29",
+  "week_number": 35,
+  "source_period_label": "Ağustos/29 (35. Hafta)",
+  "source_date_heading": "Tarih: 29 Ağustos 2025 Cuma | Birim: Milyon TL",
+  "source_date_parsed": "2025-08-29",
+  "headers": [
+    "",
+    "Takipteki Alacaklar",
+    "TP",
+    "YP",
+    "TOPLAM"
+  ],
+  "rows": 12,
+  "max_cells_per_row": 5,
+  "unit_heading": "Milyon TL",
+  "date_heading_normalized": "tarih: 29 agustos 2025 cuma | birim: milyon tl"
+}

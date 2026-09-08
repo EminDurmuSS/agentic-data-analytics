@@ -1,0 +1,31 @@
+{
+  "status": "validated",
+  "diagnosis": "validated_bddk_weekly_html_table",
+  "source_url": "https://www.bddk.org.tr/BultenHaftalik/",
+  "sha256_uncompressed": "9e6ddfaec15c3d0ed00632f6f6959087c51c179b6a2bd07a8b463632c786e453",
+  "compressed_bytes": 14919,
+  "uncompressed_bytes": 196402,
+  "served_from_cache": true,
+  "completed_at_utc": "2026-09-08T08:28:17.288326+00:00",
+  "table_id": 293,
+  "table_name": "Diger Bilanco Kalemleri",
+  "group_code": 10004,
+  "group_name": "Katilim",
+  "period_id": 469,
+  "observation_date": "2022-12-23",
+  "week_number": 51,
+  "source_period_label": "Aralık/23 (51. Hafta)",
+  "source_date_heading": "Tarih: 23 Aralık 2022 Cuma | Birim: Milyon TL",
+  "source_date_parsed": "2022-12-23",
+  "headers": [
+    "",
+    "Diğer Bilanço Kalemleri",
+    "TP",
+    "YP",
+    "TOPLAM"
+  ],
+  "rows": 16,
+  "max_cells_per_row": 5,
+  "unit_heading": "Milyon TL",
+  "date_heading_normalized": "tarih: 23 aralik 2022 cuma | birim: milyon tl"
+}

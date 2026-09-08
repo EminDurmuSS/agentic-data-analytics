@@ -1,0 +1,31 @@
+{
+  "status": "validated",
+  "diagnosis": "validated_bddk_weekly_html_table",
+  "source_url": "https://www.bddk.org.tr/BultenHaftalik/",
+  "sha256_uncompressed": "5bf906ef67431ab13a4a1975020688b101b8599e61c25620c55323450092e45f",
+  "compressed_bytes": 14524,
+  "uncompressed_bytes": 189875,
+  "served_from_cache": true,
+  "completed_at_utc": "2026-09-08T08:28:11.148329+00:00",
+  "table_id": 292,
+  "table_name": "Mevduat",
+  "group_code": 10004,
+  "group_name": "Katilim",
+  "period_id": 476,
+  "observation_date": "2023-02-10",
+  "week_number": 6,
+  "source_period_label": "Şubat/10 (6. Hafta)",
+  "source_date_heading": "Tarih: 10 Şubat 2023 Cuma | Birim: Milyon TL",
+  "source_date_parsed": "2023-02-10",
+  "headers": [
+    "",
+    "Mevduat",
+    "TP",
+    "YP",
+    "TOPLAM"
+  ],
+  "rows": 11,
+  "max_cells_per_row": 5,
+  "unit_heading": "Milyon TL",
+  "date_heading_normalized": "tarih: 10 subat 2023 cuma | birim: milyon tl"
+}

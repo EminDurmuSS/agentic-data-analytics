@@ -1,0 +1,31 @@
+{
+  "status": "validated",
+  "diagnosis": "validated_bddk_weekly_html_table",
+  "source_url": "https://www.bddk.org.tr/BultenHaftalik/",
+  "sha256_uncompressed": "4afda8d68a71f27a80abd9ba82f9bbd60596aeaea9ee155314af5b7130490676",
+  "compressed_bytes": 14020,
+  "uncompressed_bytes": 181616,
+  "served_from_cache": true,
+  "completed_at_utc": "2026-09-08T08:26:28.477542+00:00",
+  "table_id": 294,
+  "table_name": "Bilanco Disi Islemler",
+  "group_code": 10002,
+  "group_name": "Mevduat",
+  "period_id": 628,
+  "observation_date": "2026-01-09",
+  "week_number": 2,
+  "source_period_label": "Ocak/09 (2. Hafta)",
+  "source_date_heading": "Tarih: 9 Ocak 2026 Cuma | Birim: Milyon TL",
+  "source_date_parsed": "2026-01-09",
+  "headers": [
+    "",
+    "Bilanço Dışı İşlemler",
+    "TP",
+    "YP",
+    "TOPLAM"
+  ],
+  "rows": 4,
+  "max_cells_per_row": 5,
+  "unit_heading": "Milyon TL",
+  "date_heading_normalized": "tarih: 9 ocak 2026 cuma | birim: milyon tl"
+}

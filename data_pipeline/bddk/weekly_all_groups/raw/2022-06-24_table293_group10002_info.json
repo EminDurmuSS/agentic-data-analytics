@@ -1,0 +1,31 @@
+{
+  "status": "validated",
+  "diagnosis": "validated_bddk_weekly_html_table",
+  "source_url": "https://www.bddk.org.tr/BultenHaftalik/",
+  "sha256_uncompressed": "bb8b0edc05544156e1d67ccfda5f2a88cf233bca790fe3e20f6c0f90fa6d79f6",
+  "compressed_bytes": 15227,
+  "uncompressed_bytes": 198380,
+  "served_from_cache": true,
+  "completed_at_utc": "2026-09-08T08:26:20.231837+00:00",
+  "table_id": 293,
+  "table_name": "Diger Bilanco Kalemleri",
+  "group_code": 10002,
+  "group_name": "Mevduat",
+  "period_id": 443,
+  "observation_date": "2022-06-24",
+  "week_number": 25,
+  "source_period_label": "Haziran/24 (25. Hafta)",
+  "source_date_heading": "Tarih: 24 Haziran 2022 Cuma | Birim: Milyon TL",
+  "source_date_parsed": "2022-06-24",
+  "headers": [
+    "",
+    "Diğer Bilanço Kalemleri",
+    "TP",
+    "YP",
+    "TOPLAM"
+  ],
+  "rows": 16,
+  "max_cells_per_row": 5,
+  "unit_heading": "Milyon TL",
+  "date_heading_normalized": "tarih: 24 haziran 2022 cuma | birim: milyon tl"
+}

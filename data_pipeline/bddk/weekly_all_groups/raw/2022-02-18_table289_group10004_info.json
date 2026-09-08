@@ -1,0 +1,31 @@
+{
+  "status": "validated",
+  "diagnosis": "validated_bddk_weekly_html_table",
+  "source_url": "https://www.bddk.org.tr/BultenHaftalik/",
+  "sha256_uncompressed": "09c6be46e19f07aea101d7ca66853f1bab1b10675ca1fc21b83614e2a75766fb",
+  "compressed_bytes": 15195,
+  "uncompressed_bytes": 203595,
+  "served_from_cache": true,
+  "completed_at_utc": "2026-09-08T08:27:51.534682+00:00",
+  "table_id": 289,
+  "table_name": "Krediler",
+  "group_code": 10004,
+  "group_name": "Katilim",
+  "period_id": 425,
+  "observation_date": "2022-02-18",
+  "week_number": 7,
+  "source_period_label": "Şubat/18 (7. Hafta)",
+  "source_date_heading": "Tarih: 18 Şubat 2022 Cuma | Birim: Milyon TL",
+  "source_date_parsed": "2022-02-18",
+  "headers": [
+    "",
+    "Krediler",
+    "TP",
+    "YP",
+    "TOPLAM"
+  ],
+  "rows": 20,
+  "max_cells_per_row": 5,
+  "unit_heading": "Milyon TL",
+  "date_heading_normalized": "tarih: 18 subat 2022 cuma | birim: milyon tl"
+}

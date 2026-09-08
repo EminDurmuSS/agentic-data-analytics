@@ -2,8 +2,11 @@ import json
 import unittest
 from datetime import date
 
+from tools.BDDK_Indirme_Araci import GROUPS as MONTHLY_GROUPS
+from tools.BDDK_Indirme_Araci import request_batches, validate_requested_groups
 from tools.BDDK_FinTurk_Indirme_Araci import parse_response, quarters
 from tools.BDDK_Haftalik_Indirme_Araci import (
+    GROUPS as WEEKLY_GROUPS,
     Period,
     load_context_with_retry,
     parse_page,
@@ -46,7 +49,24 @@ class FinTurkDownloaderTests(unittest.TestCase):
         self.assertEqual(1, metadata["rows"])
 
 
+class MonthlyDownloaderTests(unittest.TestCase):
+    def test_live_catalog_group_contract_is_complete(self):
+        self.assertEqual(set(range(10001, 10011)), set(MONTHLY_GROUPS))
+        self.assertEqual("Mevduat-Yabancı", MONTHLY_GROUPS[10010])
+
+    def test_combined_request_uses_one_batch_and_validates_all_groups(self):
+        groups = sorted(MONTHLY_GROUPS)
+        self.assertEqual([groups], request_batches(groups, "combined"))
+        rows = [{"BankaAdi": MONTHLY_GROUPS[group]} for group in groups]
+        counts = validate_requested_groups(rows, groups)
+        self.assertEqual(10, len(counts))
+
+
 class WeeklyDownloaderTests(unittest.TestCase):
+    def test_live_catalog_group_contract_is_complete(self):
+        self.assertEqual(set(range(10001, 10008)), set(WEEKLY_GROUPS))
+        self.assertEqual("Kalkinma ve Yatirim", WEEKLY_GROUPS[10003])
+
     def test_context_reload_retries_transient_root_failure(self):
         class Response:
             text = '<form action="/BultenHaftalik/tr/Home/TarafSec"><input name="__RequestVerificationToken" value="token"></form>'

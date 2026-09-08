@@ -1,0 +1,29 @@
+{
+  "status": "validated",
+  "diagnosis": "validated_bddk_weekly_html_table",
+  "source_url": "https://www.bddk.org.tr/BultenHaftalik/",
+  "sha256_uncompressed": "090142fd727e156fced758ff5c2f7cb1601e92001f107a737b1d3a0bcaf12700",
+  "compressed_bytes": 14020,
+  "uncompressed_bytes": 183102,
+  "served_from_cache": true,
+  "completed_at_utc": "2026-09-08T08:29:49.678478+00:00",
+  "table_id": 297,
+  "table_name": "Yabanci Para Pozisyonu",
+  "group_code": 10005,
+  "group_name": "Kamu",
+  "period_id": 426,
+  "observation_date": "2022-02-25",
+  "week_number": 8,
+  "source_period_label": "Şubat/25 (8. Hafta)",
+  "source_date_heading": "Tarih: 25 Şubat 2022 Cuma | Birim: Milyon TL",
+  "source_date_parsed": "2022-02-25",
+  "headers": [
+    "",
+    "Yabancı Para Pozisyonu",
+    "TOPLAM"
+  ],
+  "rows": 10,
+  "max_cells_per_row": 3,
+  "unit_heading": "Milyon TL",
+  "date_heading_normalized": "tarih: 25 subat 2022 cuma | birim: milyon tl"
+}

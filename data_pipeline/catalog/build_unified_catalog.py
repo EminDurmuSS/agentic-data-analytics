@@ -486,7 +486,7 @@ def evds_assets_and_metrics() -> tuple[list[dict[str, Any]], list[dict[str, Any]
 
 
 def monthly_bddk_assets_and_metrics() -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
-    base = PROJECT_ROOT / "data_pipeline" / "bddk" / "processed" / "monthly_all_sector"
+    base = PROJECT_ROOT / "data_pipeline" / "bddk" / "processed" / "monthly_all_groups"
     validation_path = base / "validation.json"
     validation = read_json(validation_path)
     semantic_base = PROJECT_ROOT / "data_pipeline" / "bddk" / "processed" / "monthly_semantic"
@@ -499,7 +499,7 @@ def monthly_bddk_assets_and_metrics() -> tuple[list[dict[str, Any]], list[dict[s
 
     for row in dictionary.to_dict("records"):
         table_no = int(row["table_no"])
-        dataset_id = f"bddk.monthly_all_sector.table_{table_no:02d}"
+        dataset_id = f"bddk.monthly_all_groups.table_{table_no:02d}"
         source_code = str(row["metric_code"])
         metric_name = f"{row['metric_label']} [{row['value_dimension']}]"
         metrics.append(
@@ -520,7 +520,7 @@ def monthly_bddk_assets_and_metrics() -> tuple[list[dict[str, Any]], list[dict[s
                 temporal_semantics=text_value(row["analysis_semantics"]),
                 default_aggregation=text_value(row["quarterly_aggregation"]),
                 geography_grain="national",
-                institution_grain="sector",
+                institution_grain="all_public_bank_groups",
                 coverage_start=text_value(row["first_month"]),
                 coverage_end=text_value(row["last_month"]),
                 observation_available=int(row["observation_count"]) > 0,
@@ -555,7 +555,7 @@ def monthly_bddk_assets_and_metrics() -> tuple[list[dict[str, Any]], list[dict[s
         validation["tables"].items(), key=lambda item: int(item[0])
     ):
         table_no = int(table_key)
-        dataset_id = f"bddk.monthly_all_sector.table_{table_no:02d}"
+        dataset_id = f"bddk.monthly_all_groups.table_{table_no:02d}"
         path = base / f"table_{table_no:02d}.parquet"
         frame = pd.read_parquet(path)
         value_columns = [column for column in frame.columns if column not in MONTHLY_METADATA_COLUMNS]
@@ -572,7 +572,7 @@ def monthly_bddk_assets_and_metrics() -> tuple[list[dict[str, Any]], list[dict[s
                 native_frequency="monthly",
                 temporal_semantics="metric_defined",
                 geography_grain="national",
-                institution_grain="sector",
+                institution_grain="all_public_bank_groups",
                 coverage_start=str(frame["month"].min()),
                 coverage_end=str(frame["month"].max()),
                 row_count=len(frame),
@@ -585,15 +585,15 @@ def monthly_bddk_assets_and_metrics() -> tuple[list[dict[str, Any]], list[dict[s
                 file_format="parquet",
                 validation_file=relative(validation_path),
                 source_url="https://www.bddk.org.tr/BultenAylik/",
-                description=f"BDDK monthly sector table: {table_summary['table_name']}.",
-                searchable_text=f"BDDK monthly sector {table_summary['table_name']}",
+                description=f"BDDK monthly all-groups table: {table_summary['table_name']}.",
+                searchable_text=f"BDDK monthly all groups {table_summary['table_name']}",
             )
         )
     semantic_measurements = pd.read_parquet(semantic_measurements_path)
     assets.append(
         make_asset(
-            asset_id="bddk.monthly_all_sector.semantic_measurements_long",
-            dataset_id="bddk.monthly_all_sector.semantic",
+            asset_id="bddk.monthly_all_groups.semantic_measurements_long",
+            dataset_id="bddk.monthly_all_groups.semantic",
             source_system="BDDK_MONTHLY",
             source_organization="BDDK",
             competition_scope="derived_from_explicit_source",
@@ -602,7 +602,7 @@ def monthly_bddk_assets_and_metrics() -> tuple[list[dict[str, Any]], list[dict[s
             native_frequency="monthly",
             temporal_semantics="stock_flow_ratio_count_separated",
             geography_grain="national",
-            institution_grain="sector",
+            institution_grain="all_public_bank_groups",
             coverage_start=str(semantic_measurements["month"].min()),
             coverage_end=str(semantic_measurements["month"].max()),
             row_count=len(semantic_measurements),
@@ -925,7 +925,7 @@ def tbb_assets_and_metrics() -> tuple[list[dict[str, Any]], list[dict[str, Any]]
 
 
 def weekly_bddk_assets_and_metrics() -> tuple[list[dict[str, Any]], list[dict[str, Any]], dict[str, Any]]:
-    raw_dir = PROJECT_ROOT / "data_pipeline" / "bddk" / "weekly_all_sector"
+    raw_dir = PROJECT_ROOT / "data_pipeline" / "bddk" / "weekly_all_groups"
     config = read_json(raw_dir / "request_config.json")
     expected = int(config["period_count"]) * len(config["tables"]) * len(config["groups"])
     completed = len(list((raw_dir / "raw").glob("*_info.json")))
@@ -934,8 +934,8 @@ def weekly_bddk_assets_and_metrics() -> tuple[list[dict[str, Any]], list[dict[st
     download_complete = summary.get("status") == "complete"
     status = "complete" if download_complete else "in_progress"
     asset = make_asset(
-        asset_id="bddk.weekly_all_sector.raw_snapshot",
-        dataset_id="bddk.weekly_all_sector",
+        asset_id="bddk.weekly_all_groups.raw_snapshot",
+        dataset_id="bddk.weekly_all_groups",
         source_system="BDDK_WEEKLY",
         source_organization="BDDK",
         competition_scope="explicit_required_source",
@@ -944,7 +944,7 @@ def weekly_bddk_assets_and_metrics() -> tuple[list[dict[str, Any]], list[dict[st
         native_frequency="weekly",
         temporal_semantics="source_reported",
         geography_grain="national",
-        institution_grain="sector",
+        institution_grain="all_public_bank_groups",
         coverage_start=config["start"],
         coverage_end=config["end"],
         row_count=completed,
@@ -958,12 +958,12 @@ def weekly_bddk_assets_and_metrics() -> tuple[list[dict[str, Any]], list[dict[st
         validation_file=relative(summary_path) if summary_path.exists() else "",
         source_url=config["source_url"],
         description="BDDK weekly bulletin source pages. Processing starts only after a complete download.",
-        searchable_text="BDDK weekly sector bulletin raw snapshot",
+        searchable_text="BDDK weekly all groups bulletin raw snapshot",
     )
     assets = [asset]
     metrics: list[dict[str, Any]] = []
 
-    processed_dir = PROJECT_ROOT / "data_pipeline" / "bddk" / "processed" / "weekly_all_sector"
+    processed_dir = PROJECT_ROOT / "data_pipeline" / "bddk" / "processed" / "weekly_all_groups"
     processed_validation_path = processed_dir / "validation.json"
     if processed_validation_path.exists():
         validation = read_json(processed_validation_path)
@@ -971,8 +971,8 @@ def weekly_bddk_assets_and_metrics() -> tuple[list[dict[str, Any]], list[dict[st
         measurements = pd.read_parquet(measurements_path)
         assets.append(
             make_asset(
-                asset_id="bddk.weekly_all_sector.measurements_long",
-                dataset_id="bddk.weekly_all_sector",
+                asset_id="bddk.weekly_all_groups.measurements_long",
+                dataset_id="bddk.weekly_all_groups",
                 source_system="BDDK_WEEKLY",
                 source_organization="BDDK",
                 competition_scope="explicit_required_source",
@@ -981,7 +981,7 @@ def weekly_bddk_assets_and_metrics() -> tuple[list[dict[str, Any]], list[dict[st
                 native_frequency="weekly",
                 temporal_semantics="metric_defined_or_review_required",
                 geography_grain="national",
-                institution_grain="sector",
+                institution_grain="all_public_bank_groups",
                 coverage_start=str(measurements["observation_date"].min()),
                 coverage_end=str(measurements["observation_date"].max()),
                 row_count=len(measurements),
@@ -999,7 +999,7 @@ def weekly_bddk_assets_and_metrics() -> tuple[list[dict[str, Any]], list[dict[st
                 validation_file=relative(processed_validation_path),
                 source_url=config["source_url"],
                 description="Validated BDDK weekly measures with source-page lineage.",
-                searchable_text="BDDK weekly sector measurements long",
+                searchable_text="BDDK weekly all groups measurements long",
             )
         )
         missingness_path = processed_dir / "missingness_audit.parquet"
@@ -1007,8 +1007,8 @@ def weekly_bddk_assets_and_metrics() -> tuple[list[dict[str, Any]], list[dict[st
             missingness = pd.read_parquet(missingness_path)
             assets.append(
                 make_asset(
-                    asset_id="bddk.weekly_all_sector.missingness_audit",
-                    dataset_id="bddk.weekly_all_sector",
+                    asset_id="bddk.weekly_all_groups.missingness_audit",
+                    dataset_id="bddk.weekly_all_groups",
                     source_system="BDDK_WEEKLY",
                     source_organization="BDDK",
                     competition_scope="derived_quality_evidence",
@@ -1017,7 +1017,7 @@ def weekly_bddk_assets_and_metrics() -> tuple[list[dict[str, Any]], list[dict[st
                     native_frequency="weekly",
                     temporal_semantics="source_missingness_classification",
                     geography_grain="national",
-                    institution_grain="sector",
+                    institution_grain="all_public_bank_groups",
                     coverage_start=str(measurements["observation_date"].min()),
                     coverage_end=str(measurements["observation_date"].max()),
                     row_count=len(missingness),
@@ -1044,7 +1044,7 @@ def weekly_bddk_assets_and_metrics() -> tuple[list[dict[str, Any]], list[dict[st
             metrics.append(
                 make_metric(
                     metric_id=f"bddk_weekly:{slug(source_code)}",
-                    dataset_id="bddk.weekly_all_sector",
+                    dataset_id="bddk.weekly_all_groups",
                     source_system="BDDK_WEEKLY",
                     source_organization="BDDK",
                     competition_scope="explicit_required_source",
@@ -1059,7 +1059,7 @@ def weekly_bddk_assets_and_metrics() -> tuple[list[dict[str, Any]], list[dict[st
                     temporal_semantics="source_reported_requires_semantic_review",
                     default_aggregation="semantic_policy_required_for_resampling",
                     geography_grain="national",
-                    institution_grain="sector",
+                    institution_grain="all_public_bank_groups",
                     coverage_start=str(rows["observation_date"].min()),
                     coverage_end=str(rows["observation_date"].max()),
                     observation_available=bool(values.notna().any()),
@@ -1180,9 +1180,9 @@ def validate_catalog(
         "evds.housing_causality_v1",
         "evds.housing_causality_controls_v1",
         "evds.market_controls_v2",
-        "bddk.monthly_all_sector.table_01",
+        "bddk.monthly_all_groups.table_01",
         "bddk.finturk_all_groups_all_cities",
-        "bddk.weekly_all_sector",
+        "bddk.weekly_all_groups",
     }
     present_datasets = set(assets["dataset_id"])
     missing_required = sorted(required_datasets - present_datasets)

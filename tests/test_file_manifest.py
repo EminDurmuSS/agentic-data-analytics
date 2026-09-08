@@ -35,8 +35,8 @@ class FileManifestTests(unittest.TestCase):
 
     def test_core_raw_collections_are_covered(self) -> None:
         prefixes = [
-            "bddk/monthly_all_sector/raw/",
-            "bddk/weekly_all_sector/raw/",
+            "bddk/monthly_all_groups/raw/",
+            "bddk/weekly_all_groups/raw/",
             "bddk/finturk_all_groups_all_cities/raw/",
             "evds/housing_causality_v1/raw/",
             "tbb/consumer_credit_reports/raw/",

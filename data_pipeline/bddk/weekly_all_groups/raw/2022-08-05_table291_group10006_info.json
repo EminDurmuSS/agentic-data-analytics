@@ -1,0 +1,31 @@
+{
+  "status": "validated",
+  "diagnosis": "validated_bddk_weekly_html_table",
+  "source_url": "https://www.bddk.org.tr/BultenHaftalik/",
+  "sha256_uncompressed": "8d189413a1e9ebb0ec66f15dd7c50684e98b331f502609cd792955191591da12",
+  "compressed_bytes": 14802,
+  "uncompressed_bytes": 193720,
+  "served_from_cache": true,
+  "completed_at_utc": "2026-09-08T08:30:11.080160+00:00",
+  "table_id": 291,
+  "table_name": "Menkul Degerler",
+  "group_code": 10006,
+  "group_name": "Yabanci",
+  "period_id": 449,
+  "observation_date": "2022-08-05",
+  "week_number": 31,
+  "source_period_label": "Ağustos/05 (31. Hafta)",
+  "source_date_heading": "Tarih: 5 Ağustos 2022 Cuma | Birim: Milyon TL",
+  "source_date_parsed": "2022-08-05",
+  "headers": [
+    "",
+    "Menkul Değerler",
+    "TP",
+    "YP",
+    "TOPLAM"
+  ],
+  "rows": 13,
+  "max_cells_per_row": 5,
+  "unit_heading": "Milyon TL",
+  "date_heading_normalized": "tarih: 5 agustos 2022 cuma | birim: milyon tl"
+}

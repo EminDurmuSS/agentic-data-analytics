@@ -1,0 +1,31 @@
+{
+  "status": "validated",
+  "diagnosis": "validated_bddk_weekly_html_table",
+  "source_url": "https://www.bddk.org.tr/BultenHaftalik/",
+  "sha256_uncompressed": "f406d3d2b38ed02ac726e3d87eba6154a03519796dc7d55dc5310eb8fb21db87",
+  "compressed_bytes": 16184,
+  "uncompressed_bytes": 242083,
+  "served_from_cache": true,
+  "completed_at_utc": "2026-09-08T08:27:39.000502+00:00",
+  "table_id": 296,
+  "table_name": "Bankalarda Saklanan Menkul Degerler - 2",
+  "group_code": 10003,
+  "group_name": "Kalkinma ve Yatirim",
+  "period_id": 463,
+  "observation_date": "2022-11-11",
+  "week_number": 45,
+  "source_period_label": "Kasım/11 (45. Hafta)",
+  "source_date_heading": "Tarih: 11 Kasım 2022 Cuma | Birim: Milyon TL",
+  "source_date_parsed": "2022-11-11",
+  "headers": [
+    "",
+    "Bankalarda Saklanan Menkul Değerler - 2",
+    "TP",
+    "YP",
+    "TOPLAM"
+  ],
+  "rows": 45,
+  "max_cells_per_row": 5,
+  "unit_heading": "Milyon TL",
+  "date_heading_normalized": "tarih: 11 kasim 2022 cuma | birim: milyon tl"
+}

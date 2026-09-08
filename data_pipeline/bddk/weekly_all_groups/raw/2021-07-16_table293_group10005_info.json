@@ -1,0 +1,31 @@
+{
+  "status": "validated",
+  "diagnosis": "validated_bddk_weekly_html_table",
+  "source_url": "https://www.bddk.org.tr/BultenHaftalik/",
+  "sha256_uncompressed": "b442aa74a835bccd35dc667479fff5e491d94cc9d063fd2691374f08f3fcc061",
+  "compressed_bytes": 14996,
+  "uncompressed_bytes": 196525,
+  "served_from_cache": true,
+  "completed_at_utc": "2026-09-08T08:29:20.841904+00:00",
+  "table_id": 293,
+  "table_name": "Diger Bilanco Kalemleri",
+  "group_code": 10005,
+  "group_name": "Kamu",
+  "period_id": 394,
+  "observation_date": "2021-07-16",
+  "week_number": 28,
+  "source_period_label": "Temmuz/16 (28. Hafta)",
+  "source_date_heading": "Tarih: 16 Temmuz 2021 Cuma | Birim: Milyon TL",
+  "source_date_parsed": "2021-07-16",
+  "headers": [
+    "",
+    "Diğer Bilanço Kalemleri",
+    "TP",
+    "YP",
+    "TOPLAM"
+  ],
+  "rows": 16,
+  "max_cells_per_row": 5,
+  "unit_heading": "Milyon TL",
+  "date_heading_normalized": "tarih: 16 temmuz 2021 cuma | birim: milyon tl"
+}

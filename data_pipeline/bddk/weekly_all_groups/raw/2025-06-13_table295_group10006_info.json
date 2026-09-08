@@ -1,0 +1,31 @@
+{
+  "status": "validated",
+  "diagnosis": "validated_bddk_weekly_html_table",
+  "source_url": "https://www.bddk.org.tr/BultenHaftalik/",
+  "sha256_uncompressed": "b9d9eb46f465beafd32d019683c9d2f24cba587ffe8a34c844bc9cad4da16d6f",
+  "compressed_bytes": 16904,
+  "uncompressed_bytes": 243052,
+  "served_from_cache": true,
+  "completed_at_utc": "2026-09-08T08:30:39.842895+00:00",
+  "table_id": 295,
+  "table_name": "Bankalarda Saklanan Menkul Degerler - 1",
+  "group_code": 10006,
+  "group_name": "Yabanci",
+  "period_id": 598,
+  "observation_date": "2025-06-13",
+  "week_number": 24,
+  "source_period_label": "Haziran/13 (24. Hafta)",
+  "source_date_heading": "Tarih: 13 Haziran 2025 Cuma | Birim: Milyon TL",
+  "source_date_parsed": "2025-06-13",
+  "headers": [
+    "",
+    "Bankalarda Saklanan Menkul Değerler - 1",
+    "TP",
+    "YP",
+    "TOPLAM"
+  ],
+  "rows": 45,
+  "max_cells_per_row": 5,
+  "unit_heading": "Milyon TL",
+  "date_heading_normalized": "tarih: 13 haziran 2025 cuma | birim: milyon tl"
+}

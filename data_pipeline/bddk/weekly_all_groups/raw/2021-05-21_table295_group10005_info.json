@@ -1,0 +1,31 @@
+{
+  "status": "validated",
+  "diagnosis": "validated_bddk_weekly_html_table",
+  "source_url": "https://www.bddk.org.tr/BultenHaftalik/",
+  "sha256_uncompressed": "2ddad3f7133986f32045d761a0ec8c0d1187c22e8cff915582cf3e1373a78e75",
+  "compressed_bytes": 16588,
+  "uncompressed_bytes": 242478,
+  "served_from_cache": true,
+  "completed_at_utc": "2026-09-08T08:29:32.443691+00:00",
+  "table_id": 295,
+  "table_name": "Bankalarda Saklanan Menkul Degerler - 1",
+  "group_code": 10005,
+  "group_name": "Kamu",
+  "period_id": 386,
+  "observation_date": "2021-05-21",
+  "week_number": 20,
+  "source_period_label": "Mayıs/21 (20. Hafta)",
+  "source_date_heading": "Tarih: 21 Mayıs 2021 Cuma | Birim: Milyon TL",
+  "source_date_parsed": "2021-05-21",
+  "headers": [
+    "",
+    "Bankalarda Saklanan Menkul Değerler - 1",
+    "TP",
+    "YP",
+    "TOPLAM"
+  ],
+  "rows": 45,
+  "max_cells_per_row": 5,
+  "unit_heading": "Milyon TL",
+  "date_heading_normalized": "tarih: 21 mayis 2021 cuma | birim: milyon tl"
+}

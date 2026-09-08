@@ -1,0 +1,31 @@
+{
+  "status": "validated",
+  "diagnosis": "validated_bddk_weekly_html_table",
+  "source_url": "https://www.bddk.org.tr/BultenHaftalik/",
+  "sha256_uncompressed": "70e21fce5c55e3aeb81a2fd7c3bd6b7d8051a95f0bae461a8a451f169c17d0c5",
+  "compressed_bytes": 14691,
+  "uncompressed_bytes": 193975,
+  "served_from_cache": true,
+  "completed_at_utc": "2026-09-08T08:27:09.643371+00:00",
+  "table_id": 291,
+  "table_name": "Menkul Degerler",
+  "group_code": 10003,
+  "group_name": "Kalkinma ve Yatirim",
+  "period_id": 641,
+  "observation_date": "2026-04-10",
+  "week_number": 15,
+  "source_period_label": "Nisan/10 (15. Hafta)",
+  "source_date_heading": "Tarih: 10 Nisan 2026 Cuma | Birim: Milyon TL",
+  "source_date_parsed": "2026-04-10",
+  "headers": [
+    "",
+    "Menkul Değerler",
+    "TP",
+    "YP",
+    "TOPLAM"
+  ],
+  "rows": 13,
+  "max_cells_per_row": 5,
+  "unit_heading": "Milyon TL",
+  "date_heading_normalized": "tarih: 10 nisan 2026 cuma | birim: milyon tl"
+}

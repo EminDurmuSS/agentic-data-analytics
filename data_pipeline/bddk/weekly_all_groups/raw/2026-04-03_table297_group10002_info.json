@@ -1,0 +1,29 @@
+{
+  "status": "validated",
+  "diagnosis": "validated_bddk_weekly_html_table",
+  "source_url": "https://www.bddk.org.tr/BultenHaftalik/",
+  "sha256_uncompressed": "d0f6683b0de05e82d09c767fd431c555245ace45dc9f0021be58ece59258da1e",
+  "compressed_bytes": 14088,
+  "uncompressed_bytes": 185077,
+  "served_from_cache": true,
+  "completed_at_utc": "2026-09-08T08:26:51.533283+00:00",
+  "table_id": 297,
+  "table_name": "Yabanci Para Pozisyonu",
+  "group_code": 10002,
+  "group_name": "Mevduat",
+  "period_id": 640,
+  "observation_date": "2026-04-03",
+  "week_number": 14,
+  "source_period_label": "Nisan/03 (14. Hafta)",
+  "source_date_heading": "Tarih: 3 Nisan 2026 Cuma | Birim: Milyon TL",
+  "source_date_parsed": "2026-04-03",
+  "headers": [
+    "",
+    "Yabancı Para Pozisyonu",
+    "TOPLAM"
+  ],
+  "rows": 10,
+  "max_cells_per_row": 3,
+  "unit_heading": "Milyon TL",
+  "date_heading_normalized": "tarih: 3 nisan 2026 cuma | birim: milyon tl"
+}

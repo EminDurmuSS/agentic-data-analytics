@@ -1,0 +1,31 @@
+{
+  "status": "validated",
+  "diagnosis": "validated_bddk_weekly_html_table",
+  "source_url": "https://www.bddk.org.tr/BultenHaftalik/",
+  "sha256_uncompressed": "aa19dfe8bc2e48f48750ba84f136bd3eb23d903a263cb5e86158364ffbfea7a0",
+  "compressed_bytes": 15038,
+  "uncompressed_bytes": 196594,
+  "served_from_cache": true,
+  "completed_at_utc": "2026-09-08T08:29:21.847113+00:00",
+  "table_id": 293,
+  "table_name": "Diger Bilanco Kalemleri",
+  "group_code": 10005,
+  "group_name": "Kamu",
+  "period_id": 447,
+  "observation_date": "2022-07-22",
+  "week_number": 29,
+  "source_period_label": "Temmuz/22 (29. Hafta)",
+  "source_date_heading": "Tarih: 22 Temmuz 2022 Cuma | Birim: Milyon TL",
+  "source_date_parsed": "2022-07-22",
+  "headers": [
+    "",
+    "Diğer Bilanço Kalemleri",
+    "TP",
+    "YP",
+    "TOPLAM"
+  ],
+  "rows": 16,
+  "max_cells_per_row": 5,
+  "unit_heading": "Milyon TL",
+  "date_heading_normalized": "tarih: 22 temmuz 2022 cuma | birim: milyon tl"
+}

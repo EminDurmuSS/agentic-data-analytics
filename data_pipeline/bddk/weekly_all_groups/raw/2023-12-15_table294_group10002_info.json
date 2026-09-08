@@ -1,0 +1,31 @@
+{
+  "status": "validated",
+  "diagnosis": "validated_bddk_weekly_html_table",
+  "source_url": "https://www.bddk.org.tr/BultenHaftalik/",
+  "sha256_uncompressed": "7dcba7416189bf0efb59efeab63f097bbceeb742c9a8bf5009ad397ef3a1d2ed",
+  "compressed_bytes": 14045,
+  "uncompressed_bytes": 181394,
+  "served_from_cache": true,
+  "completed_at_utc": "2026-09-08T08:26:26.915330+00:00",
+  "table_id": 294,
+  "table_name": "Bilanco Disi Islemler",
+  "group_code": 10002,
+  "group_name": "Mevduat",
+  "period_id": 520,
+  "observation_date": "2023-12-15",
+  "week_number": 50,
+  "source_period_label": "Aralık/15 (50. Hafta)",
+  "source_date_heading": "Tarih: 15 Aralık 2023 Cuma | Birim: Milyon TL",
+  "source_date_parsed": "2023-12-15",
+  "headers": [
+    "",
+    "Bilanço Dışı İşlemler",
+    "TP",
+    "YP",
+    "TOPLAM"
+  ],
+  "rows": 4,
+  "max_cells_per_row": 5,
+  "unit_heading": "Milyon TL",
+  "date_heading_normalized": "tarih: 15 aralik 2023 cuma | birim: milyon tl"
+}

@@ -1,0 +1,31 @@
+{
+  "status": "validated",
+  "diagnosis": "validated_bddk_weekly_html_table",
+  "source_url": "https://www.bddk.org.tr/BultenHaftalik/",
+  "sha256_uncompressed": "291f26af0f68c201b7b7b4c32239fd43ec81e3e9b93f78c68ba6e04ae858ce70",
+  "compressed_bytes": 15039,
+  "uncompressed_bytes": 196618,
+  "served_from_cache": true,
+  "completed_at_utc": "2026-09-08T08:29:23.509669+00:00",
+  "table_id": 293,
+  "table_name": "Diger Bilanco Kalemleri",
+  "group_code": 10005,
+  "group_name": "Kamu",
+  "period_id": 538,
+  "observation_date": "2024-04-19",
+  "week_number": 16,
+  "source_period_label": "Nisan/19 (16. Hafta)",
+  "source_date_heading": "Tarih: 19 Nisan 2024 Cuma | Birim: Milyon TL",
+  "source_date_parsed": "2024-04-19",
+  "headers": [
+    "",
+    "Diğer Bilanço Kalemleri",
+    "TP",
+    "YP",
+    "TOPLAM"
+  ],
+  "rows": 16,
+  "max_cells_per_row": 5,
+  "unit_heading": "Milyon TL",
+  "date_heading_normalized": "tarih: 19 nisan 2024 cuma | birim: milyon tl"
+}

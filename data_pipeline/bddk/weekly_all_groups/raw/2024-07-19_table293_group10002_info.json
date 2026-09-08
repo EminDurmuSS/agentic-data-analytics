@@ -1,0 +1,31 @@
+{
+  "status": "validated",
+  "diagnosis": "validated_bddk_weekly_html_table",
+  "source_url": "https://www.bddk.org.tr/BultenHaftalik/",
+  "sha256_uncompressed": "99ee43d488f6a729e201894b4ce317c7ba134a1a4dd82f83187515f0bd468fb6",
+  "compressed_bytes": 15224,
+  "uncompressed_bytes": 198411,
+  "served_from_cache": true,
+  "completed_at_utc": "2026-09-08T08:26:22.041527+00:00",
+  "table_id": 293,
+  "table_name": "Diger Bilanco Kalemleri",
+  "group_code": 10002,
+  "group_name": "Mevduat",
+  "period_id": 551,
+  "observation_date": "2024-07-19",
+  "week_number": 29,
+  "source_period_label": "Temmuz/19 (29. Hafta)",
+  "source_date_heading": "Tarih: 19 Temmuz 2024 Cuma | Birim: Milyon TL",
+  "source_date_parsed": "2024-07-19",
+  "headers": [
+    "",
+    "Diğer Bilanço Kalemleri",
+    "TP",
+    "YP",
+    "TOPLAM"
+  ],
+  "rows": 16,
+  "max_cells_per_row": 5,
+  "unit_heading": "Milyon TL",
+  "date_heading_normalized": "tarih: 19 temmuz 2024 cuma | birim: milyon tl"
+}

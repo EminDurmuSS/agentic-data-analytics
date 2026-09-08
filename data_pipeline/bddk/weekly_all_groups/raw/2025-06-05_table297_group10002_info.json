@@ -1,0 +1,29 @@
+{
+  "status": "validated",
+  "diagnosis": "validated_bddk_weekly_html_table",
+  "source_url": "https://www.bddk.org.tr/BultenHaftalik/",
+  "sha256_uncompressed": "7099497a91386fdfafe32059eaa932cc8ae9ce624838bd86f4d24564fe9fcd1d",
+  "compressed_bytes": 14110,
+  "uncompressed_bytes": 184880,
+  "served_from_cache": true,
+  "completed_at_utc": "2026-09-08T08:26:50.845997+00:00",
+  "table_id": 297,
+  "table_name": "Yabanci Para Pozisyonu",
+  "group_code": 10002,
+  "group_name": "Mevduat",
+  "period_id": 597,
+  "observation_date": "2025-06-05",
+  "week_number": 23,
+  "source_period_label": "Haziran/05 (23. Hafta)",
+  "source_date_heading": "Tarih: 5 Haziran 2025 Perşembe | Birim: Milyon TL",
+  "source_date_parsed": "2025-06-05",
+  "headers": [
+    "",
+    "Yabancı Para Pozisyonu",
+    "TOPLAM"
+  ],
+  "rows": 10,
+  "max_cells_per_row": 3,
+  "unit_heading": "Milyon TL",
+  "date_heading_normalized": "tarih: 5 haziran 2025 persembe | birim: milyon tl"
+}

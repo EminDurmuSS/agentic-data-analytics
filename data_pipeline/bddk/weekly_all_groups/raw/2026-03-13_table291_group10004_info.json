@@ -1,0 +1,31 @@
+{
+  "status": "validated",
+  "diagnosis": "validated_bddk_weekly_html_table",
+  "source_url": "https://www.bddk.org.tr/BultenHaftalik/",
+  "sha256_uncompressed": "9d17a22fd0e3041c2952cd22851b2593a0520114f9e8703c64eaa12c3013e166",
+  "compressed_bytes": 14635,
+  "uncompressed_bytes": 193923,
+  "served_from_cache": true,
+  "completed_at_utc": "2026-09-08T08:28:06.998396+00:00",
+  "table_id": 291,
+  "table_name": "Menkul Degerler",
+  "group_code": 10004,
+  "group_name": "Katilim",
+  "period_id": 637,
+  "observation_date": "2026-03-13",
+  "week_number": 11,
+  "source_period_label": "Mart/13 (11. Hafta)",
+  "source_date_heading": "Tarih: 13 Mart 2026 Cuma | Birim: Milyon TL",
+  "source_date_parsed": "2026-03-13",
+  "headers": [
+    "",
+    "Menkul Değerler",
+    "TP",
+    "YP",
+    "TOPLAM"
+  ],
+  "rows": 13,
+  "max_cells_per_row": 5,
+  "unit_heading": "Milyon TL",
+  "date_heading_normalized": "tarih: 13 mart 2026 cuma | birim: milyon tl"
+}

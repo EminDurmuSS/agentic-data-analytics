@@ -6,7 +6,7 @@ import pandas as pd
 
 
 ROOT = Path(__file__).resolve().parents[1]
-PROCESSED = ROOT / "data_pipeline" / "bddk" / "processed" / "weekly_all_sector"
+PROCESSED = ROOT / "data_pipeline" / "bddk" / "processed" / "weekly_all_groups"
 
 
 class BddkWeeklyDatasetTests(unittest.TestCase):
@@ -21,13 +21,16 @@ class BddkWeeklyDatasetTests(unittest.TestCase):
     def test_all_nine_tables_cover_all_286_weeks(self) -> None:
         self.assertEqual("passed", self.validation["status"])
         self.assertEqual("complete", self.validation["source_download_status"])
-        self.assertEqual(2574, self.validation["source_page_count"])
+        self.assertEqual(18018, self.validation["source_page_count"])
         self.assertEqual(286, self.validation["period_count"])
         self.assertEqual(9, self.validation["table_count"])
-        self.assertEqual(1, self.validation["group_count"])
-        self.assertEqual(2574, len(self.catalog))
+        self.assertEqual(7, self.validation["group_count"])
+        self.assertEqual(18018, len(self.catalog))
         self.assertTrue(
-            all(item["source_pages"] == 286 for item in self.validation["tables"].values())
+            all(
+                item["source_pages"] == 2002
+                for item in self.validation["tables"].values()
+            )
         )
 
     def test_source_and_measurement_keys_are_unique(self) -> None:
@@ -67,9 +70,9 @@ class BddkWeeklyDatasetTests(unittest.TestCase):
 
     def test_all_source_nulls_are_structural_tl_only_fx_cells(self) -> None:
         missingness = self.validation["missingness"]
-        self.assertEqual(514, missingness["raw_missing_measurements"])
+        self.assertEqual(2230, missingness["raw_missing_measurements"])
         self.assertEqual(
-            514, missingness["structural_not_applicable_measurements"]
+            2230, missingness["structural_not_applicable_measurements"]
         )
         self.assertEqual(0, missingness["unresolved_missing_measurements"])
         missing = self.measurements.loc[self.measurements["is_missing"]]

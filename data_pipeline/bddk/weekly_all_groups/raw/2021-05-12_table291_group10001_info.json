@@ -1,0 +1,31 @@
+{
+  "status": "validated",
+  "diagnosis": "validated_bddk_weekly_html_table",
+  "source_url": "https://www.bddk.org.tr/BultenHaftalik/",
+  "sha256_uncompressed": "a60edd4315508295028a885dee85b70a65bd2b55cc70492e90574732102481fa",
+  "compressed_bytes": 14828,
+  "uncompressed_bytes": 193811,
+  "served_from_cache": true,
+  "completed_at_utc": "2026-09-08T08:25:14.281660+00:00",
+  "table_id": 291,
+  "table_name": "Menkul Degerler",
+  "group_code": 10001,
+  "group_name": "Sektor",
+  "period_id": 385,
+  "observation_date": "2021-05-12",
+  "week_number": 19,
+  "source_period_label": "Mayıs/12 (19. Hafta)",
+  "source_date_heading": "Tarih: 12 Mayıs 2021 Çarşamba | Birim: Milyon TL",
+  "source_date_parsed": "2021-05-12",
+  "headers": [
+    "",
+    "Menkul Değerler",
+    "TP",
+    "YP",
+    "TOPLAM"
+  ],
+  "rows": 13,
+  "max_cells_per_row": 5,
+  "unit_heading": "Milyon TL",
+  "date_heading_normalized": "tarih: 12 mayis 2021 carsamba | birim: milyon tl"
+}

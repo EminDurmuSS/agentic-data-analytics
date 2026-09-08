@@ -1,0 +1,31 @@
+{
+  "status": "validated",
+  "diagnosis": "validated_bddk_weekly_html_table",
+  "source_url": "https://www.bddk.org.tr/BultenHaftalik/",
+  "sha256_uncompressed": "c5ef57b86b69cc846d60ff3a61bfc9a05fbd5d5729276ea12e3792a5ebb3f810",
+  "compressed_bytes": 13974,
+  "uncompressed_bytes": 179725,
+  "served_from_cache": true,
+  "completed_at_utc": "2026-09-08T08:25:32.551287+00:00",
+  "table_id": 294,
+  "table_name": "Bilanco Disi Islemler",
+  "group_code": 10001,
+  "group_name": "Sektor",
+  "period_id": 534,
+  "observation_date": "2024-03-22",
+  "week_number": 12,
+  "source_period_label": "Mart/22 (12. Hafta)",
+  "source_date_heading": "Tarih: 22 Mart 2024 Cuma | Birim: Milyon TL",
+  "source_date_parsed": "2024-03-22",
+  "headers": [
+    "",
+    "Bilanço Dışı İşlemler",
+    "TP",
+    "YP",
+    "TOPLAM"
+  ],
+  "rows": 4,
+  "max_cells_per_row": 5,
+  "unit_heading": "Milyon TL",
+  "date_heading_normalized": "tarih: 22 mart 2024 cuma | birim: milyon tl"
+}

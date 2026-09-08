@@ -1,0 +1,31 @@
+{
+  "status": "validated",
+  "diagnosis": "validated_bddk_weekly_html_table",
+  "source_url": "https://www.bddk.org.tr/BultenHaftalik/",
+  "sha256_uncompressed": "b3d529f8fc3a5b25f9f2696922fa41ea15860c0ab1cfa4e4347351a577fe0ec7",
+  "compressed_bytes": 15414,
+  "uncompressed_bytes": 207043,
+  "served_from_cache": true,
+  "completed_at_utc": "2026-09-08T08:28:59.828673+00:00",
+  "table_id": 289,
+  "table_name": "Krediler",
+  "group_code": 10005,
+  "group_name": "Kamu",
+  "period_id": 651,
+  "observation_date": "2026-06-19",
+  "week_number": 25,
+  "source_period_label": "Haziran/19 (25. Hafta)",
+  "source_date_heading": "Tarih: 19 Haziran 2026 Cuma | Birim: Milyon TL",
+  "source_date_parsed": "2026-06-19",
+  "headers": [
+    "",
+    "Krediler",
+    "TP",
+    "YP",
+    "TOPLAM"
+  ],
+  "rows": 22,
+  "max_cells_per_row": 5,
+  "unit_heading": "Milyon TL",
+  "date_heading_normalized": "tarih: 19 haziran 2026 cuma | birim: milyon tl"
+}

@@ -1,0 +1,31 @@
+{
+  "status": "validated",
+  "diagnosis": "validated_bddk_weekly_html_table",
+  "source_url": "https://www.bddk.org.tr/BultenHaftalik/",
+  "sha256_uncompressed": "3218311236770724ef8a4f6cac955c5a3f6f3bfb51436a3f61ff0e57e99a3a44",
+  "compressed_bytes": 14776,
+  "uncompressed_bytes": 193817,
+  "served_from_cache": true,
+  "completed_at_utc": "2026-09-08T08:30:11.259663+00:00",
+  "table_id": 291,
+  "table_name": "Menkul Degerler",
+  "group_code": 10006,
+  "group_name": "Yabanci",
+  "period_id": 460,
+  "observation_date": "2022-10-21",
+  "week_number": 42,
+  "source_period_label": "Ekim/21 (42. Hafta)",
+  "source_date_heading": "Tarih: 21 Ekim 2022 Cuma | Birim: Milyon TL",
+  "source_date_parsed": "2022-10-21",
+  "headers": [
+    "",
+    "Menkul Değerler",
+    "TP",
+    "YP",
+    "TOPLAM"
+  ],
+  "rows": 13,
+  "max_cells_per_row": 5,
+  "unit_heading": "Milyon TL",
+  "date_heading_normalized": "tarih: 21 ekim 2022 cuma | birim: milyon tl"
+}

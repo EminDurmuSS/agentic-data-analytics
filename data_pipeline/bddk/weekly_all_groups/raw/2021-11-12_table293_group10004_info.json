@@ -1,0 +1,31 @@
+{
+  "status": "validated",
+  "diagnosis": "validated_bddk_weekly_html_table",
+  "source_url": "https://www.bddk.org.tr/BultenHaftalik/",
+  "sha256_uncompressed": "8f85fb4a03c103ad0054c358db2374b7565eb2d1a05c04728d3d3ed4a5f27bdc",
+  "compressed_bytes": 14835,
+  "uncompressed_bytes": 196304,
+  "served_from_cache": true,
+  "completed_at_utc": "2026-09-08T08:28:16.244123+00:00",
+  "table_id": 293,
+  "table_name": "Diger Bilanco Kalemleri",
+  "group_code": 10004,
+  "group_name": "Katilim",
+  "period_id": 411,
+  "observation_date": "2021-11-12",
+  "week_number": 45,
+  "source_period_label": "Kasım/12 (45. Hafta)",
+  "source_date_heading": "Tarih: 12 Kasım 2021 Cuma | Birim: Milyon TL",
+  "source_date_parsed": "2021-11-12",
+  "headers": [
+    "",
+    "Diğer Bilanço Kalemleri",
+    "TP",
+    "YP",
+    "TOPLAM"
+  ],
+  "rows": 16,
+  "max_cells_per_row": 5,
+  "unit_heading": "Milyon TL",
+  "date_heading_normalized": "tarih: 12 kasim 2021 cuma | birim: milyon tl"
+}

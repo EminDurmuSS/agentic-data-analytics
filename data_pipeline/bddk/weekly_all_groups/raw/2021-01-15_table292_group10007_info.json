@@ -1,0 +1,31 @@
+{
+  "status": "validated",
+  "diagnosis": "validated_bddk_weekly_html_table",
+  "source_url": "https://www.bddk.org.tr/BultenHaftalik/",
+  "sha256_uncompressed": "590bbca1bd9816b9aebd4eb53e28057f8547f55a73733c1491a19696e536764a",
+  "compressed_bytes": 14489,
+  "uncompressed_bytes": 189809,
+  "served_from_cache": true,
+  "completed_at_utc": "2026-09-08T08:31:15.052061+00:00",
+  "table_id": 292,
+  "table_name": "Mevduat",
+  "group_code": 10007,
+  "group_name": "Yerli Ozel",
+  "period_id": 368,
+  "observation_date": "2021-01-15",
+  "week_number": 2,
+  "source_period_label": "Ocak/15 (2. Hafta)",
+  "source_date_heading": "Tarih: 15 Ocak 2021 Cuma | Birim: Milyon TL",
+  "source_date_parsed": "2021-01-15",
+  "headers": [
+    "",
+    "Mevduat",
+    "TP",
+    "YP",
+    "TOPLAM"
+  ],
+  "rows": 11,
+  "max_cells_per_row": 5,
+  "unit_heading": "Milyon TL",
+  "date_heading_normalized": "tarih: 15 ocak 2021 cuma | birim: milyon tl"
+}

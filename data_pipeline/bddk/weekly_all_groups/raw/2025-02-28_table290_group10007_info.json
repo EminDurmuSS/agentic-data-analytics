@@ -1,0 +1,31 @@
+{
+  "status": "validated",
+  "diagnosis": "validated_bddk_weekly_html_table",
+  "source_url": "https://www.bddk.org.tr/BultenHaftalik/",
+  "sha256_uncompressed": "ccf1cf4d4a310c5f5cbacbd9b55de32f3caf064773bca18549cc11a33ceccae8",
+  "compressed_bytes": 14457,
+  "uncompressed_bytes": 190824,
+  "served_from_cache": true,
+  "completed_at_utc": "2026-09-08T08:31:07.094788+00:00",
+  "table_id": 290,
+  "table_name": "Takipteki Alacaklar",
+  "group_code": 10007,
+  "group_name": "Yerli Ozel",
+  "period_id": 583,
+  "observation_date": "2025-02-28",
+  "week_number": 9,
+  "source_period_label": "Şubat/28 (9. Hafta)",
+  "source_date_heading": "Tarih: 28 Şubat 2025 Cuma | Birim: Milyon TL",
+  "source_date_parsed": "2025-02-28",
+  "headers": [
+    "",
+    "Takipteki Alacaklar",
+    "TP",
+    "YP",
+    "TOPLAM"
+  ],
+  "rows": 12,
+  "max_cells_per_row": 5,
+  "unit_heading": "Milyon TL",
+  "date_heading_normalized": "tarih: 28 subat 2025 cuma | birim: milyon tl"
+}

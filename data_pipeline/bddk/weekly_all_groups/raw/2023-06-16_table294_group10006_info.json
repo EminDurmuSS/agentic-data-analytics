@@ -1,0 +1,31 @@
+{
+  "status": "validated",
+  "diagnosis": "validated_bddk_weekly_html_table",
+  "source_url": "https://www.bddk.org.tr/BultenHaftalik/",
+  "sha256_uncompressed": "d8942acc3ac9faccd90f5cab98d9ef0d997275f661e15882b655981aff7fa83b",
+  "compressed_bytes": 13951,
+  "uncompressed_bytes": 179680,
+  "served_from_cache": true,
+  "completed_at_utc": "2026-09-08T08:30:30.639993+00:00",
+  "table_id": 294,
+  "table_name": "Bilanco Disi Islemler",
+  "group_code": 10006,
+  "group_name": "Yabanci",
+  "period_id": 494,
+  "observation_date": "2023-06-16",
+  "week_number": 24,
+  "source_period_label": "Haziran/16 (24. Hafta)",
+  "source_date_heading": "Tarih: 16 Haziran 2023 Cuma | Birim: Milyon TL",
+  "source_date_parsed": "2023-06-16",
+  "headers": [
+    "",
+    "Bilanço Dışı İşlemler",
+    "TP",
+    "YP",
+    "TOPLAM"
+  ],
+  "rows": 4,
+  "max_cells_per_row": 5,
+  "unit_heading": "Milyon TL",
+  "date_heading_normalized": "tarih: 16 haziran 2023 cuma | birim: milyon tl"
+}

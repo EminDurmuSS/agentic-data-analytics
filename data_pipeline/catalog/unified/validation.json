@@ -25,8 +25,8 @@
   "selected_evds_observation_series": 61,
   "weekly_bddk": {
     "status": "complete",
-    "completed": 2574,
-    "expected": 2574,
+    "completed": 18018,
+    "expected": 18018,
     "progress_percent": 100.0
   },
   "duplicate_asset_ids": 0,

@@ -1,0 +1,31 @@
+{
+  "status": "validated",
+  "diagnosis": "validated_bddk_weekly_html_table",
+  "source_url": "https://www.bddk.org.tr/BultenHaftalik/",
+  "sha256_uncompressed": "51be7f01d50a0b0b7f698b899e9a25ba1dee723b6be0a7f25d298c7f3346045e",
+  "compressed_bytes": 14411,
+  "uncompressed_bytes": 190649,
+  "served_from_cache": true,
+  "completed_at_utc": "2026-09-08T08:27:58.512560+00:00",
+  "table_id": 290,
+  "table_name": "Takipteki Alacaklar",
+  "group_code": 10004,
+  "group_name": "Katilim",
+  "period_id": 472,
+  "observation_date": "2023-01-13",
+  "week_number": 2,
+  "source_period_label": "Ocak/13 (2. Hafta)",
+  "source_date_heading": "Tarih: 13 Ocak 2023 Cuma | Birim: Milyon TL",
+  "source_date_parsed": "2023-01-13",
+  "headers": [
+    "",
+    "Takipteki Alacaklar",
+    "TP",
+    "YP",
+    "TOPLAM"
+  ],
+  "rows": 12,
+  "max_cells_per_row": 5,
+  "unit_heading": "Milyon TL",
+  "date_heading_normalized": "tarih: 13 ocak 2023 cuma | birim: milyon tl"
+}

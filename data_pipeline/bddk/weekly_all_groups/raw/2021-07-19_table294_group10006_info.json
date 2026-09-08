@@ -1,0 +1,31 @@
+{
+  "status": "validated",
+  "diagnosis": "validated_bddk_weekly_html_table",
+  "source_url": "https://www.bddk.org.tr/BultenHaftalik/",
+  "sha256_uncompressed": "33e36cc8738206807325d616525cb6f33a802c7d8405d754c8a2830309a88f57",
+  "compressed_bytes": 13958,
+  "uncompressed_bytes": 179668,
+  "served_from_cache": true,
+  "completed_at_utc": "2026-09-08T08:30:28.849000+00:00",
+  "table_id": 294,
+  "table_name": "Bilanco Disi Islemler",
+  "group_code": 10006,
+  "group_name": "Yabanci",
+  "period_id": 395,
+  "observation_date": "2021-07-19",
+  "week_number": 29,
+  "source_period_label": "Temmuz/19 (29. Hafta)",
+  "source_date_heading": "Tarih: 19 Temmuz 2021 Pazartesi | Birim: Milyon TL",
+  "source_date_parsed": "2021-07-19",
+  "headers": [
+    "",
+    "Bilanço Dışı İşlemler",
+    "TP",
+    "YP",
+    "TOPLAM"
+  ],
+  "rows": 4,
+  "max_cells_per_row": 5,
+  "unit_heading": "Milyon TL",
+  "date_heading_normalized": "tarih: 19 temmuz 2021 pazartesi | birim: milyon tl"
+}

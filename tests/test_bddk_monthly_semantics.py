@@ -22,6 +22,7 @@ class BddkMonthlySemanticTests(unittest.TestCase):
         self.assertEqual("passed", self.validation["status"])
         self.assertEqual(17, self.validation["table_count"])
         self.assertEqual(66, self.validation["period_count"])
+        self.assertEqual(10, self.measurements["group_code"].nunique())
         self.assertEqual(len(self.dictionary), self.validation["metric_count"])
         self.assertGreater(self.validation["metric_count"], 2000)
         self.assertFalse(
@@ -33,6 +34,7 @@ class BddkMonthlySemanticTests(unittest.TestCase):
     def test_income_statement_is_differenced_only_within_year(self):
         metric = self.measurements.loc[
             (self.measurements["table_no"] == 2)
+            & (self.measurements["group_code"] == 10001)
             & (self.measurements["source_sequence"] == "53")
             & (self.measurements["value_dimension"] == "Toplam")
         ].sort_values("month")

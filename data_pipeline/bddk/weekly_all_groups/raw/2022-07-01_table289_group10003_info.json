@@ -1,0 +1,31 @@
+{
+  "status": "validated",
+  "diagnosis": "validated_bddk_weekly_html_table",
+  "source_url": "https://www.bddk.org.tr/BultenHaftalik/",
+  "sha256_uncompressed": "f32894c3770cc3bc1270a22f1908130d1939f54313b8801355329f0fc44df384",
+  "compressed_bytes": 14892,
+  "uncompressed_bytes": 203284,
+  "served_from_cache": true,
+  "completed_at_utc": "2026-09-08T08:26:54.663933+00:00",
+  "table_id": 289,
+  "table_name": "Krediler",
+  "group_code": 10003,
+  "group_name": "Kalkinma ve Yatirim",
+  "period_id": 444,
+  "observation_date": "2022-07-01",
+  "week_number": 26,
+  "source_period_label": "Temmuz/01 (26. Hafta)",
+  "source_date_heading": "Tarih: 1 Temmuz 2022 Cuma | Birim: Milyon TL",
+  "source_date_parsed": "2022-07-01",
+  "headers": [
+    "",
+    "Krediler",
+    "TP",
+    "YP",
+    "TOPLAM"
+  ],
+  "rows": 20,
+  "max_cells_per_row": 5,
+  "unit_heading": "Milyon TL",
+  "date_heading_normalized": "tarih: 1 temmuz 2022 cuma | birim: milyon tl"
+}

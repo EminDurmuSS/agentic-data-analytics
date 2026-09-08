@@ -1,0 +1,31 @@
+{
+  "status": "validated",
+  "diagnosis": "validated_bddk_weekly_html_table",
+  "source_url": "https://www.bddk.org.tr/BultenHaftalik/",
+  "sha256_uncompressed": "427238007367d44e994a8230d6874fcab48beb2bc72e01ce4c217299aeb37014",
+  "compressed_bytes": 14993,
+  "uncompressed_bytes": 196508,
+  "served_from_cache": true,
+  "completed_at_utc": "2026-09-08T08:29:20.897843+00:00",
+  "table_id": 293,
+  "table_name": "Diger Bilanco Kalemleri",
+  "group_code": 10005,
+  "group_name": "Kamu",
+  "period_id": 398,
+  "observation_date": "2021-08-13",
+  "week_number": 32,
+  "source_period_label": "Ağustos/13 (32. Hafta)",
+  "source_date_heading": "Tarih: 13 Ağustos 2021 Cuma | Birim: Milyon TL",
+  "source_date_parsed": "2021-08-13",
+  "headers": [
+    "",
+    "Diğer Bilanço Kalemleri",
+    "TP",
+    "YP",
+    "TOPLAM"
+  ],
+  "rows": 16,
+  "max_cells_per_row": 5,
+  "unit_heading": "Milyon TL",
+  "date_heading_normalized": "tarih: 13 agustos 2021 cuma | birim: milyon tl"
+}

@@ -1,0 +1,31 @@
+{
+  "status": "validated",
+  "diagnosis": "validated_bddk_weekly_html_table",
+  "source_url": "https://www.bddk.org.tr/BultenHaftalik/",
+  "sha256_uncompressed": "668a0e47bb8ed496101330948dcfb4e17d60bf861b3caa30481a414e887551b7",
+  "compressed_bytes": 15004,
+  "uncompressed_bytes": 196885,
+  "served_from_cache": true,
+  "completed_at_utc": "2026-09-08T08:31:25.596071+00:00",
+  "table_id": 293,
+  "table_name": "Diger Bilanco Kalemleri",
+  "group_code": 10007,
+  "group_name": "Yerli Ozel",
+  "period_id": 631,
+  "observation_date": "2026-01-30",
+  "week_number": 5,
+  "source_period_label": "Ocak/30 (5. Hafta)",
+  "source_date_heading": "Tarih: 30 Ocak 2026 Cuma | Birim: Milyon TL",
+  "source_date_parsed": "2026-01-30",
+  "headers": [
+    "",
+    "Diğer Bilanço Kalemleri",
+    "TP",
+    "YP",
+    "TOPLAM"
+  ],
+  "rows": 16,
+  "max_cells_per_row": 5,
+  "unit_heading": "Milyon TL",
+  "date_heading_normalized": "tarih: 30 ocak 2026 cuma | birim: milyon tl"
+}

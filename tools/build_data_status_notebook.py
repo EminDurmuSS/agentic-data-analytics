@@ -136,8 +136,8 @@ boşluk olarak korunuyor.
 
 | Kaynak | Yerel kapsam |
 | --- | --- |
-| BDDK aylık | 66 ay, sektör toplamı, 17 tablonun tamamı, 133.485 semantik ölçüm |
-| BDDK haftalık | 286 hafta, sektör toplamı, 9 tablonun tamamı, 147.154 ölçüm |
+| BDDK aylık | 66 ay, 10 resmî banka grubu, 17 tablonun tamamı, 1.334.850 semantik ölçüm |
+| BDDK haftalık | 286 hafta, 7 resmî banka grubu, 9 tablonun tamamı, 1.025.974 ölçüm |
 | BDDK FinTürk | 22 çeyrek, 7 tablo, 7 banka grubu, 81 il ve `YURT DIŞI`, 936.512 ölçüm |
 | TCMB EVDS | 52.696 serilik metadata kataloğu, analitik değeri yüksek {int(summary.iloc[0]['yerel_evds_serisi'])} kaynak serinin yerel gözlemi ve 1 türetilmiş altın serisi |
 | TBB | Mart 2021-Mart 2026 arasında yayımlanmış 21 rapor, 252 ürün ölçümü |

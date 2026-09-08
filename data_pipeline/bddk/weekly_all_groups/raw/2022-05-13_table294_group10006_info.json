@@ -1,0 +1,31 @@
+{
+  "status": "validated",
+  "diagnosis": "validated_bddk_weekly_html_table",
+  "source_url": "https://www.bddk.org.tr/BultenHaftalik/",
+  "sha256_uncompressed": "adbbd2181439428aa9b12bff182c0749faea6780c4021202fe9f4e4b5a931569",
+  "compressed_bytes": 13960,
+  "uncompressed_bytes": 179665,
+  "served_from_cache": true,
+  "completed_at_utc": "2026-09-08T08:30:29.545574+00:00",
+  "table_id": 294,
+  "table_name": "Bilanco Disi Islemler",
+  "group_code": 10006,
+  "group_name": "Yabanci",
+  "period_id": 437,
+  "observation_date": "2022-05-13",
+  "week_number": 19,
+  "source_period_label": "Mayıs/13 (19. Hafta)",
+  "source_date_heading": "Tarih: 13 Mayıs 2022 Cuma | Birim: Milyon TL",
+  "source_date_parsed": "2022-05-13",
+  "headers": [
+    "",
+    "Bilanço Dışı İşlemler",
+    "TP",
+    "YP",
+    "TOPLAM"
+  ],
+  "rows": 4,
+  "max_cells_per_row": 5,
+  "unit_heading": "Milyon TL",
+  "date_heading_normalized": "tarih: 13 mayis 2022 cuma | birim: milyon tl"
+}

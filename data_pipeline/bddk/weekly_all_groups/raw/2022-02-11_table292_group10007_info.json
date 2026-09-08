@@ -1,0 +1,31 @@
+{
+  "status": "validated",
+  "diagnosis": "validated_bddk_weekly_html_table",
+  "source_url": "https://www.bddk.org.tr/BultenHaftalik/",
+  "sha256_uncompressed": "4c556c06d5668a2e26b60bca04070227266fa5125c18f3167bc7c1e58a3f8507",
+  "compressed_bytes": 14487,
+  "uncompressed_bytes": 189849,
+  "served_from_cache": true,
+  "completed_at_utc": "2026-09-08T08:31:15.951055+00:00",
+  "table_id": 292,
+  "table_name": "Mevduat",
+  "group_code": 10007,
+  "group_name": "Yerli Ozel",
+  "period_id": 424,
+  "observation_date": "2022-02-11",
+  "week_number": 6,
+  "source_period_label": "Şubat/11 (6. Hafta)",
+  "source_date_heading": "Tarih: 11 Şubat 2022 Cuma | Birim: Milyon TL",
+  "source_date_parsed": "2022-02-11",
+  "headers": [
+    "",
+    "Mevduat",
+    "TP",
+    "YP",
+    "TOPLAM"
+  ],
+  "rows": 11,
+  "max_cells_per_row": 5,
+  "unit_heading": "Milyon TL",
+  "date_heading_normalized": "tarih: 11 subat 2022 cuma | birim: milyon tl"
+}

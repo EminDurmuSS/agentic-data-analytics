@@ -1,0 +1,31 @@
+{
+  "status": "validated",
+  "diagnosis": "validated_bddk_weekly_html_table",
+  "source_url": "https://www.bddk.org.tr/BultenHaftalik/",
+  "sha256_uncompressed": "a262fbd07caf396f7d2ae9c3ac0ae832abbeac18e07bf99de3c988f9b459f635",
+  "compressed_bytes": 15543,
+  "uncompressed_bytes": 208536,
+  "served_from_cache": true,
+  "completed_at_utc": "2026-09-08T08:25:59.120401+00:00",
+  "table_id": 289,
+  "table_name": "Krediler",
+  "group_code": 10002,
+  "group_name": "Mevduat",
+  "period_id": 505,
+  "observation_date": "2023-09-01",
+  "week_number": 35,
+  "source_period_label": "Eylül/01 (35. Hafta)",
+  "source_date_heading": "Tarih: 1 Eylül 2023 Cuma | Birim: Milyon TL",
+  "source_date_parsed": "2023-09-01",
+  "headers": [
+    "",
+    "Krediler",
+    "TP",
+    "YP",
+    "TOPLAM"
+  ],
+  "rows": 22,
+  "max_cells_per_row": 5,
+  "unit_heading": "Milyon TL",
+  "date_heading_normalized": "tarih: 1 eylul 2023 cuma | birim: milyon tl"
+}

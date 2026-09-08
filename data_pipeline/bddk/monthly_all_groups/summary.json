@@ -1,0 +1,28 @@
+{
+  "status": "complete",
+  "validation_level": "HTTP and schema checks; requested period/group and source units still need export metadata verification.",
+  "expected_requests": 1122,
+  "successful_requests": 1122,
+  "rows": 339650,
+  "group_count": 10,
+  "groups": {
+    "10001": "Sektör",
+    "10002": "Mevduat",
+    "10003": "Katılım",
+    "10004": "Kalkınma ve Yatırım",
+    "10005": "Yerli Özel",
+    "10006": "Kamu",
+    "10007": "Yabancı",
+    "10008": "Mevduat-Yerli Özel",
+    "10009": "Mevduat-Kamu",
+    "10010": "Mevduat-Yabancı"
+  },
+  "request_mode": "combined",
+  "combined_csv_written": false,
+  "missing_requests": 0,
+  "first_failure": null,
+  "notes": [
+    "HTTP200 alone is not data validation.",
+    "No filling, no TLS bypass, no claim of bank-scope equivalence with TCMB."
+  ]
+}

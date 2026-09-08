@@ -1,0 +1,31 @@
+{
+  "status": "validated",
+  "diagnosis": "validated_bddk_weekly_html_table",
+  "source_url": "https://www.bddk.org.tr/BultenHaftalik/",
+  "sha256_uncompressed": "3f94cda51567bf5c1c2bc82786718f05cd10435bca05c4a42475a7fc54f12bf4",
+  "compressed_bytes": 13941,
+  "uncompressed_bytes": 179610,
+  "served_from_cache": true,
+  "completed_at_utc": "2026-09-08T08:28:23.137093+00:00",
+  "table_id": 294,
+  "table_name": "Bilanco Disi Islemler",
+  "group_code": 10004,
+  "group_name": "Katilim",
+  "period_id": 425,
+  "observation_date": "2022-02-18",
+  "week_number": 7,
+  "source_period_label": "Şubat/18 (7. Hafta)",
+  "source_date_heading": "Tarih: 18 Şubat 2022 Cuma | Birim: Milyon TL",
+  "source_date_parsed": "2022-02-18",
+  "headers": [
+    "",
+    "Bilanço Dışı İşlemler",
+    "TP",
+    "YP",
+    "TOPLAM"
+  ],
+  "rows": 4,
+  "max_cells_per_row": 5,
+  "unit_heading": "Milyon TL",
+  "date_heading_normalized": "tarih: 18 subat 2022 cuma | birim: milyon tl"
+}

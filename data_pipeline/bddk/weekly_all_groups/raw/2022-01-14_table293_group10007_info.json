@@ -1,0 +1,31 @@
+{
+  "status": "validated",
+  "diagnosis": "validated_bddk_weekly_html_table",
+  "source_url": "https://www.bddk.org.tr/BultenHaftalik/",
+  "sha256_uncompressed": "1d558baef1c5304c4c21f9f79cc202d002d5a0e97f081abe70348f3d59164837",
+  "compressed_bytes": 14971,
+  "uncompressed_bytes": 196516,
+  "served_from_cache": true,
+  "completed_at_utc": "2026-09-08T08:31:21.721876+00:00",
+  "table_id": 293,
+  "table_name": "Diger Bilanco Kalemleri",
+  "group_code": 10007,
+  "group_name": "Yerli Ozel",
+  "period_id": 420,
+  "observation_date": "2022-01-14",
+  "week_number": 2,
+  "source_period_label": "Ocak/14 (2. Hafta)",
+  "source_date_heading": "Tarih: 14 Ocak 2022 Cuma | Birim: Milyon TL",
+  "source_date_parsed": "2022-01-14",
+  "headers": [
+    "",
+    "Diğer Bilanço Kalemleri",
+    "TP",
+    "YP",
+    "TOPLAM"
+  ],
+  "rows": 16,
+  "max_cells_per_row": 5,
+  "unit_heading": "Milyon TL",
+  "date_heading_normalized": "tarih: 14 ocak 2022 cuma | birim: milyon tl"
+}

@@ -1,0 +1,31 @@
+{
+  "status": "validated",
+  "diagnosis": "validated_bddk_weekly_html_table",
+  "source_url": "https://www.bddk.org.tr/BultenHaftalik/",
+  "sha256_uncompressed": "18e50d4610834a1cebcf6292f1aacb86e0571454a7ea6c42b3f6c94a8c60fb6c",
+  "compressed_bytes": 15207,
+  "uncompressed_bytes": 198345,
+  "served_from_cache": true,
+  "completed_at_utc": "2026-09-08T08:26:20.022128+00:00",
+  "table_id": 293,
+  "table_name": "Diger Bilanco Kalemleri",
+  "group_code": 10002,
+  "group_name": "Mevduat",
+  "period_id": 429,
+  "observation_date": "2022-03-18",
+  "week_number": 11,
+  "source_period_label": "Mart/18 (11. Hafta)",
+  "source_date_heading": "Tarih: 18 Mart 2022 Cuma | Birim: Milyon TL",
+  "source_date_parsed": "2022-03-18",
+  "headers": [
+    "",
+    "Diğer Bilanço Kalemleri",
+    "TP",
+    "YP",
+    "TOPLAM"
+  ],
+  "rows": 16,
+  "max_cells_per_row": 5,
+  "unit_heading": "Milyon TL",
+  "date_heading_normalized": "tarih: 18 mart 2022 cuma | birim: milyon tl"
+}

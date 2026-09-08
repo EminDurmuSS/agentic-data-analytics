@@ -1,0 +1,31 @@
+{
+  "status": "validated",
+  "diagnosis": "validated_bddk_weekly_html_table",
+  "source_url": "https://www.bddk.org.tr/BultenHaftalik/",
+  "sha256_uncompressed": "95722fdbbd4a62c79ab01afa20759048ff78e3c26a6291c234f3ad156086cd42",
+  "compressed_bytes": 13924,
+  "uncompressed_bytes": 179645,
+  "served_from_cache": true,
+  "completed_at_utc": "2026-09-08T08:27:24.194878+00:00",
+  "table_id": 294,
+  "table_name": "Bilanco Disi Islemler",
+  "group_code": 10003,
+  "group_name": "Kalkinma ve Yatirim",
+  "period_id": 498,
+  "observation_date": "2023-07-14",
+  "week_number": 28,
+  "source_period_label": "Temmuz/14 (28. Hafta)",
+  "source_date_heading": "Tarih: 14 Temmuz 2023 Cuma | Birim: Milyon TL",
+  "source_date_parsed": "2023-07-14",
+  "headers": [
+    "",
+    "Bilanço Dışı İşlemler",
+    "TP",
+    "YP",
+    "TOPLAM"
+  ],
+  "rows": 4,
+  "max_cells_per_row": 5,
+  "unit_heading": "Milyon TL",
+  "date_heading_normalized": "tarih: 14 temmuz 2023 cuma | birim: milyon tl"
+}

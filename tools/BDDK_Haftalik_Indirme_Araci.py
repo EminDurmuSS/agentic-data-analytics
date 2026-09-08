@@ -3,10 +3,11 @@
 
 The weekly application is session based. This downloader follows the public
 forms, keeps the ASP.NET session cookie and anti-forgery tokens, stores each
-source page as gzip-compressed HTML, and writes a lossless long-form cell CSV.
+source page as gzip-compressed HTML, and can optionally write a lossless
+long-form cell CSV.
 
-Default scope: all nine weekly tables for the sector group, from 2021-01-01
-through 2026-06-30. Additional groups can be selected explicitly.
+Default scope: all nine weekly tables for all seven public bank groups, from
+2021-01-01 through 2026-06-30.
 """
 
 from __future__ import annotations
@@ -447,8 +448,15 @@ def run(args: argparse.Namespace) -> int:
     end = date.fromisoformat(args.end)
     if start > end:
         raise ValueError("Baslangic tarihi bitis tarihinden sonra.")
-    if args.timeout <= 0 or args.delay < 0 or args.retries < 0:
-        raise ValueError("Timeout pozitif, delay ve retries negatif olmayan sayilar olmali.")
+    if (
+        args.timeout <= 0
+        or args.delay < 0
+        or args.retries < 0
+        or args.checkpoint_every <= 0
+    ):
+        raise ValueError(
+            "Timeout ve checkpoint pozitif, delay ve retries negatif olmayan sayilar olmali."
+        )
     table_ids = sorted(set(args.tables))
     group_codes = sorted(set(args.groups))
     if any(table_id not in TABLES for table_id in table_ids):
@@ -484,6 +492,8 @@ def run(args: argparse.Namespace) -> int:
         "normalized_format": "lossless long-form cell CSV",
         "transport": args.transport,
         "tls_verification": True,
+        "group_catalog_source": BASE_URL + ROOT_PATH,
+        "group_catalog_verified_at": "2026-09-08",
     }
     config_path = output / "request_config.json"
     if config_path.exists():
@@ -497,6 +507,7 @@ def run(args: argparse.Namespace) -> int:
 
     manifest = []
     long_rows: list[dict[str, Any]] = []
+    long_cell_count = 0
     failures = []
     for group_code in group_codes:
         current_html = load_context_with_retry(
@@ -597,12 +608,14 @@ def run(args: argparse.Namespace) -> int:
                 }
                 atomic_json(info_path, info)
                 manifest.append(info)
-                atomic_json(output / "manifest.json", manifest)
+                if len(manifest) % args.checkpoint_every == 0:
+                    atomic_json(output / "manifest.json", manifest)
 
                 for row_index, row in enumerate(rows, start=1):
                     for column_index, value in enumerate(row):
-                        long_rows.append(
-                            {
+                        long_cell_count += 1
+                        if args.write_cell_csv:
+                            long_rows.append({
                                 "observation_date": period.observation_date.isoformat(),
                                 "period_id": period.period_id,
                                 "week_number": period.week_number,
@@ -616,15 +629,16 @@ def run(args: argparse.Namespace) -> int:
                                 if column_index < len(headers)
                                 else f"source_column_{column_index}",
                                 "value_raw": value,
-                            }
-                        )
+                            })
                 print(
                     f"{period.observation_date} tablo={table_id} grup={group_code}: "
                     f"{len(rows)} satir" + (" (kayitli)" if served_from_cache else ""),
                     flush=True,
                 )
 
-    write_long_csv(output / "weekly_cells_long.csv", long_rows)
+    atomic_json(output / "manifest.json", manifest)
+    if args.write_cell_csv:
+        write_long_csv(output / "weekly_cells_long.csv", long_rows)
     expected = len(periods) * len(table_ids) * len(group_codes)
     summary = {
         "status": "complete" if len(manifest) == expected and not failures else "incomplete",
@@ -633,7 +647,8 @@ def run(args: argparse.Namespace) -> int:
         "period_count": len(periods),
         "table_count": len(table_ids),
         "group_count": len(group_codes),
-        "long_cell_rows": len(long_rows),
+        "long_cell_rows": long_cell_count,
+        "cell_csv_written": bool(args.write_cell_csv),
         "first_observation_date": periods[0].observation_date.isoformat(),
         "last_observation_date": periods[-1].observation_date.isoformat(),
         "limits": [
@@ -657,16 +672,18 @@ def main() -> int:
     parser.add_argument("--start", default="2021-01-01")
     parser.add_argument("--end", default="2026-06-30")
     parser.add_argument("--tables", nargs="+", type=int, default=sorted(TABLES))
-    parser.add_argument("--groups", nargs="+", type=int, default=[10001])
+    parser.add_argument("--groups", nargs="+", type=int, default=sorted(GROUPS))
     parser.add_argument("--timeout", type=int, default=60)
     parser.add_argument("--retries", type=int, default=3)
     parser.add_argument("--delay", type=float, default=0.5)
+    parser.add_argument("--checkpoint-every", type=int, default=50)
+    parser.add_argument("--write-cell-csv", action="store_true")
     parser.add_argument(
         "--transport",
         choices=["curl", "requests"],
         default="curl" if shutil.which("curl") else "requests",
     )
-    parser.add_argument("--output", default="data_pipeline/bddk/weekly_all_sector")
+    parser.add_argument("--output", default="data_pipeline/bddk/weekly_all_groups")
     return run(parser.parse_args())
 
 

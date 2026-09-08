@@ -1,0 +1,31 @@
+{
+  "status": "validated",
+  "diagnosis": "validated_bddk_weekly_html_table",
+  "source_url": "https://www.bddk.org.tr/BultenHaftalik/",
+  "sha256_uncompressed": "d67c99ce6216bf7bc984f1ca70389b282e0bc18f3817142ab688a844824981ae",
+  "compressed_bytes": 16839,
+  "uncompressed_bytes": 242825,
+  "served_from_cache": true,
+  "completed_at_utc": "2026-09-08T08:30:42.170232+00:00",
+  "table_id": 296,
+  "table_name": "Bankalarda Saklanan Menkul Degerler - 2",
+  "group_code": 10006,
+  "group_name": "Yabanci",
+  "period_id": 374,
+  "observation_date": "2021-02-26",
+  "week_number": 8,
+  "source_period_label": "Şubat/26 (8. Hafta)",
+  "source_date_heading": "Tarih: 26 Şubat 2021 Cuma | Birim: Milyon TL",
+  "source_date_parsed": "2021-02-26",
+  "headers": [
+    "",
+    "Bankalarda Saklanan Menkul Değerler - 2",
+    "TP",
+    "YP",
+    "TOPLAM"
+  ],
+  "rows": 45,
+  "max_cells_per_row": 5,
+  "unit_heading": "Milyon TL",
+  "date_heading_normalized": "tarih: 26 subat 2021 cuma | birim: milyon tl"
+}

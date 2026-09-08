@@ -8,8 +8,8 @@ de korunur.
 
 | Kaynak | Yerel kapsam | Frekans | Durum |
 | --- | --- | --- | --- |
-| BDDK aylık | 17 tablo, 66 ay, sektör | Aylık | Tamamlandı |
-| BDDK haftalık | 9 tablo, 286 hafta, sektör | Haftalık | Tamamlandı |
+| BDDK aylık | 17 tablo, 66 ay, 10 resmî banka grubu | Aylık | Tamamlandı |
+| BDDK haftalık | 9 tablo, 286 hafta, 7 resmî banka grubu | Haftalık | Tamamlandı |
 | BDDK FinTürk | 7 tablo, 7 grup, 81 il ve yurt dışı, 22 dönem | Çeyreklik | Tamamlandı |
 | TCMB EVDS | 61 seçilmiş kaynak seri ve 1 türetilmiş seri | Günlük, iş günü, haftalık, aylık, çeyreklik | Tamamlandı |
 | TCMB EVDS katalog | 52.696 seri metadata kaydı | Metadata | Tamamlandı |
@@ -55,15 +55,15 @@ Seri seçimi kaynak kataloğundaki kod, ad, birim, frekans ve toplulaştırma
 
 ## Doğrulama özeti
 
-- BDDK aylık: 1.122 kaynak sayfası, 33.965 satır, durum `passed`
-- BDDK haftalık: 2.574 kaynak sayfası, 147.154 ölçüm, 514 yapısal boşluk,
+- BDDK aylık: 1.122 kaynak yanıtı, 11.220 tablo-grup kaydı, 339.650 satır, durum `passed`
+- BDDK haftalık: 18.018 kaynak sayfası, 1.025.974 ölçüm, 2.230 yapısal boşluk,
   0 çözümlenmemiş boşluk, durum `passed`
 - FinTürk: 936.512 ölçüm, 29.564 yapısal boşluk, 1.328 kaynakta
   raporlanmamış hücre, durum `passed`
 - EVDS seçilmiş kaynak seriler: 12.482 gözlem, üç paket de `passed`
 - TBB: 21 yayımlanmış dönem, durum `passed_with_source_gaps`
 - Birleşik katalog: 50 varlık, 55.458 metrik, durum `passed`
-- DuckDB: 38 tablo, durum `passed`
+- DuckDB: 40 tablo, durum `passed`
 
 ## Üretim sırası
 
@@ -96,7 +96,7 @@ ile yeni snapshot sessizce karıştırılmaz.
 - `catalog/unified/queryable_metric_catalog.csv`
 - `lakehouse/analytics.duckdb`
 - `bddk/processed/monthly_semantic/measurements_long.parquet`
-- `bddk/processed/weekly_all_sector/measurements_long.parquet`
+- `bddk/processed/weekly_all_groups/measurements_long.parquet`
 - `bddk/processed/finturk_all_groups_all_cities/measurements_long.parquet`
 - `evds/housing_causality_v1/monthly_panel.parquet`
 - `evds/housing_causality_controls_v1/monthly_panel.parquet`

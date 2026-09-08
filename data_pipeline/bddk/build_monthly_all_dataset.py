@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Normalize and validate all downloaded BDDK monthly sector tables.
+"""Normalize and validate all downloaded BDDK monthly tables and bank groups.
 
 Each source table is written independently because the BDDK schemas differ by
 table and can change over time. Source rows, captions, units, files and hashes
@@ -20,8 +20,8 @@ import pandas as pd
 
 
 BASE_DIR = Path(__file__).resolve().parent
-DEFAULT_INPUT = BASE_DIR / "monthly_all_sector"
-DEFAULT_OUTPUT = BASE_DIR / "processed" / "monthly_all_sector"
+DEFAULT_INPUT = BASE_DIR / "monthly_all_groups"
+DEFAULT_OUTPUT = BASE_DIR / "processed" / "monthly_all_groups"
 
 TABLES = {
     1: "Bilanco",
@@ -43,6 +43,19 @@ TABLES = {
     17: "Yurt Disi Sube Rasyolari",
 }
 
+GROUPS = {
+    10001: "Sektör",
+    10002: "Mevduat",
+    10003: "Katılım",
+    10004: "Kalkınma ve Yatırım",
+    10005: "Yerli Özel",
+    10006: "Kamu",
+    10007: "Yabancı",
+    10008: "Mevduat-Yerli Özel",
+    10009: "Mevduat-Kamu",
+    10010: "Mevduat-Yabancı",
+}
+
 
 def sha256(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
@@ -61,15 +74,25 @@ def load_payload(path: Path) -> dict[str, Any]:
     return payload
 
 
-def parse_file(path: Path) -> tuple[list[dict[str, Any]], dict[str, Any]]:
-    match = re.fullmatch(
+def parse_file(
+    path: Path, configured_groups: dict[int, str]
+) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
+    single_match = re.fullmatch(
         r"(\d{4}-\d{2})_table(\d{2})_group(\d+)\.json", path.name
     )
+    combined_match = re.fullmatch(
+        r"(\d{4}-\d{2})_table(\d{2})_groups([0-9-]+)\.json", path.name
+    )
+    match = single_match or combined_match
     if not match:
         raise ValueError(f"Beklenmeyen BDDK dosya adi: {path.name}")
     requested_period = match.group(1)
     table_no = int(match.group(2))
-    group_code = int(match.group(3))
+    filename_groups = (
+        [int(match.group(3))]
+        if single_match
+        else [int(value) for value in match.group(3).split("-")]
+    )
     info_path = path.with_name(path.stem + "_info.json")
     if not info_path.exists():
         raise ValueError(f"BDDK kaynak istek bilgisi bulunamadi: {info_path}")
@@ -81,9 +104,16 @@ def parse_file(path: Path) -> tuple[list[dict[str, Any]], dict[str, Any]]:
     if (
         request_info.get("period") != requested_period
         or int(request_info.get("table_no")) != table_no
-        or int(request_info.get("group_code")) != group_code
     ):
         raise ValueError(f"BDDK dosya adi ve istek kaydi uyusmuyor: {path}")
+    request_groups = request_info.get("group_codes")
+    if request_groups is None and request_info.get("group_code") is not None:
+        request_groups = [request_info["group_code"]]
+    request_groups = [int(value) for value in request_groups or []]
+    if request_groups != filename_groups:
+        raise ValueError(f"BDDK dosya gruplari ve istek kaydi uyusmuyor: {path}")
+    if any(group not in configured_groups for group in request_groups):
+        raise ValueError(f"BDDK kaynak dosyasinda config disi grup var: {path}")
     payload = load_payload(path)
 
     models = payload.get("colModels")
@@ -121,13 +151,22 @@ def parse_file(path: Path) -> tuple[list[dict[str, Any]], dict[str, Any]]:
     source_file = str(Path("raw") / path.name)
     source_info_file = str(Path("raw") / info_path.name)
 
+    group_name_to_code = {name: code for code, name in configured_groups.items()}
     parsed = []
     exact_rows = []
+    rows_by_group: Counter[int] = Counter()
     for row_index, source_row in enumerate(source_rows, start=1):
         cells = source_row.get("cell") if isinstance(source_row, dict) else None
         if not isinstance(cells, list) or len(cells) != len(names):
             raise ValueError(f"BDDK hucre sayisi kolonlarla uyusmuyor: {path}")
         row = dict(zip(names, cells))
+        source_group_name = str(row.get("BankaAdi"))
+        group_code = group_name_to_code.get(source_group_name)
+        if group_code is None or group_code not in request_groups:
+            raise ValueError(
+                f"BDDK cevap grup adi istek configiyle uyusmuyor: {source_group_name!r}"
+            )
+        rows_by_group[group_code] += 1
         exact_rows.append(json.dumps(row, ensure_ascii=False, sort_keys=True))
         parsed.append(
             {
@@ -150,27 +189,78 @@ def parse_file(path: Path) -> tuple[list[dict[str, Any]], dict[str, Any]]:
         raise ValueError(f"BDDK ayni kaynak dosyada birebir tekrar eden satir var: {path}")
 
     schema_payload = json.dumps(names, ensure_ascii=False, separators=(",", ":"))
-    metadata = {
-        "month": requested_period,
-        "table_no": table_no,
-        "group_code": group_code,
-        "rows": len(parsed),
-        "columns": names,
-        "column_labels": labels,
-        "caption": caption,
-        "caption_period": caption_period,
-        "source_unit": source_unit,
-        "period_validation_source": period_validation_source,
-        "schema_sha256": hashlib.sha256(schema_payload.encode("utf-8")).hexdigest(),
-        "source_file": source_file,
-        "source_sha256": sha256(path),
-        "source_request_info_file": source_info_file,
-        "source_request_info_sha256": sha256(info_path),
-    }
+    if set(rows_by_group) != set(request_groups):
+        raise ValueError(
+            f"BDDK kaynak cevabinda istenen gruplarin tumu yok: {path}, "
+            f"beklenen={request_groups}, gelen={sorted(rows_by_group)}"
+        )
+    metadata = []
+    for group_code in request_groups:
+        metadata.append(
+            {
+                "month": requested_period,
+                "table_no": table_no,
+                "group_code": group_code,
+                "group_name": configured_groups[group_code],
+                "rows": rows_by_group[group_code],
+                "columns": names,
+                "column_labels": labels,
+                "caption": caption,
+                "caption_period": caption_period,
+                "source_unit": source_unit,
+                "period_validation_source": period_validation_source,
+                "schema_sha256": hashlib.sha256(
+                    schema_payload.encode("utf-8")
+                ).hexdigest(),
+                "source_file": source_file,
+                "source_sha256": sha256(path),
+                "source_request_info_file": source_info_file,
+                "source_request_info_sha256": sha256(info_path),
+            }
+        )
     return parsed, metadata
 
 
-def build(input_dir: Path, output_dir: Path) -> dict[str, Any]:
+def validate_group_row_identity(
+    frame: pd.DataFrame, expected_groups: list[int]
+) -> int:
+    checks = 0
+    expected_group_set = set(expected_groups)
+    for month, period_frame in frame.groupby("month", sort=True):
+        actual_groups = set(period_frame["group_code"].astype(int))
+        if actual_groups != expected_group_set:
+            raise ValueError(
+                f"BDDK aylik grup kapsami eksik: {month}, "
+                f"beklenen={sorted(expected_group_set)}, gelen={sorted(actual_groups)}"
+            )
+        identities = {
+            int(group_code): set(
+                zip(
+                    group["BasitSira"].astype(str),
+                    group["Ad"].astype(str),
+                )
+            )
+            for group_code, group in period_frame.groupby("group_code", sort=True)
+        }
+        reference_group = expected_groups[0]
+        reference = identities[reference_group]
+        mismatched = [
+            group_code
+            for group_code, identity in identities.items()
+            if identity != reference
+        ]
+        if mismatched:
+            raise ValueError(
+                f"BDDK aylik satir kimlikleri gruplar arasinda farkli: "
+                f"{month}, gruplar={mismatched}"
+            )
+        checks += 1
+    return checks
+
+
+def build(
+    input_dir: Path, output_dir: Path, write_csv: bool = False
+) -> dict[str, Any]:
     config_path = input_dir / "request_config.json"
     summary_path = input_dir / "summary.json"
     if not config_path.exists() or not summary_path.exists():
@@ -184,13 +274,37 @@ def build(input_dir: Path, output_dir: Path) -> dict[str, Any]:
         request_config["start"], request_config["end"], freq="M"
     ).astype(str).tolist()
     expected_tables = sorted(int(value) for value in request_config["tables"])
-    expected_groups = sorted(int(value) for value in request_config["groups"])
-    expected_files = {
-        f"{period}_table{table_no:02}_group{group_code}.json"
-        for period in expected_periods
-        for table_no in expected_tables
-        for group_code in expected_groups
-    }
+    configured_groups = request_config["groups"]
+    expected_groups = sorted(
+        int(value)
+        for value in (
+            configured_groups.keys()
+            if isinstance(configured_groups, dict)
+            else configured_groups
+        )
+    )
+    group_names = (
+        {int(code): str(name) for code, name in configured_groups.items()}
+        if isinstance(configured_groups, dict)
+        else {int(code): GROUPS[int(code)] for code in configured_groups}
+    )
+    request_mode = request_config.get("request_mode", "separate")
+    if request_mode == "combined":
+        group_suffix = "-".join(str(group) for group in expected_groups)
+        expected_files = {
+            f"{period}_table{table_no:02}_groups{group_suffix}.json"
+            for period in expected_periods
+            for table_no in expected_tables
+        }
+    elif request_mode == "separate":
+        expected_files = {
+            f"{period}_table{table_no:02}_group{group_code}.json"
+            for period in expected_periods
+            for table_no in expected_tables
+            for group_code in expected_groups
+        }
+    else:
+        raise ValueError(f"Bilinmeyen BDDK aylik istek modu: {request_mode}")
     actual_files = {
         path.name
         for path in (input_dir / "raw").glob("*.json")
@@ -207,22 +321,28 @@ def build(input_dir: Path, output_dir: Path) -> dict[str, Any]:
     rows_by_table: dict[int, list[dict[str, Any]]] = defaultdict(list)
     metadata = []
     for filename in sorted(expected_files):
-        rows, source_metadata = parse_file(input_dir / "raw" / filename)
-        rows_by_table[source_metadata["table_no"]].extend(rows)
-        metadata.append(source_metadata)
+        rows, source_metadata = parse_file(
+            input_dir / "raw" / filename, group_names
+        )
+        rows_by_table[source_metadata[0]["table_no"]].extend(rows)
+        metadata.extend(source_metadata)
 
     output_dir.mkdir(parents=True, exist_ok=True)
     table_summaries = {}
+    group_row_identity_checks = 0
     for table_no, rows in sorted(rows_by_table.items()):
         frame = pd.DataFrame(rows)
         frame = frame.sort_values(
             ["month", "group_code", "source_row_index"], kind="stable"
         ).reset_index(drop=True)
-        frame.to_csv(
-            output_dir / f"table_{table_no:02}.csv",
-            index=False,
-            encoding="utf-8-sig",
-        )
+        table_identity_checks = validate_group_row_identity(frame, expected_groups)
+        group_row_identity_checks += table_identity_checks
+        if write_csv:
+            frame.to_csv(
+                output_dir / f"table_{table_no:02}.csv",
+                index=False,
+                encoding="utf-8-sig",
+            )
         frame.to_parquet(output_dir / f"table_{table_no:02}.parquet", index=False)
         table_meta = [item for item in metadata if item["table_no"] == table_no]
         period_counts = Counter(item["month"] for item in table_meta)
@@ -242,6 +362,7 @@ def build(input_dir: Path, output_dir: Path) -> dict[str, Any]:
             "source_units": units,
             "schema_version_count": len(schemas),
             "schema_sha256_values": schemas,
+            "group_row_identity_checks": table_identity_checks,
         }
 
     metadata_frame = pd.DataFrame(metadata).sort_values(
@@ -254,9 +375,12 @@ def build(input_dir: Path, output_dir: Path) -> dict[str, Any]:
         lambda value: json.dumps(value, ensure_ascii=False)
     )
     metadata_frame = metadata_frame.drop(columns=["columns", "column_labels"])
-    metadata_frame.to_csv(
-        output_dir / "source_table_catalog.csv", index=False, encoding="utf-8-sig"
-    )
+    if write_csv:
+        metadata_frame.to_csv(
+            output_dir / "source_table_catalog.csv",
+            index=False,
+            encoding="utf-8-sig",
+        )
     metadata_frame.to_parquet(output_dir / "source_table_catalog.parquet", index=False)
 
     result = {
@@ -265,8 +389,13 @@ def build(input_dir: Path, output_dir: Path) -> dict[str, Any]:
         "period_count": len(expected_periods),
         "table_count": len(expected_tables),
         "group_count": len(expected_groups),
+        "request_mode": request_mode,
         "source_file_count": len(expected_files),
+        "source_table_group_count": len(metadata),
         "total_rows": sum(len(rows) for rows in rows_by_table.values()),
+        "group_row_identity_checks": group_row_identity_checks,
+        "csv_written": write_csv,
+        "primary_output_format": "parquet",
         "tables": table_summaries,
         "quality_policy": [
             "Changing row counts and schemas are reported, not silently coerced.",
@@ -274,6 +403,7 @@ def build(input_dir: Path, output_dir: Path) -> dict[str, Any]:
             "Tables without a period in the source caption are validated against the signed request-info record.",
             "No missing values are imputed.",
             "Each output row retains source file, source hash, caption and unit.",
+            "Each table-period has the same source row identities across all requested bank groups.",
         ],
     }
     (output_dir / "validation.json").write_text(
@@ -286,8 +416,17 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--input", type=Path, default=DEFAULT_INPUT)
     parser.add_argument("--output", type=Path, default=DEFAULT_OUTPUT)
+    parser.add_argument(
+        "--write-csv",
+        action="store_true",
+        help="Parquet dosyalarina ek olarak buyuk CSV kopyalarini da yaz.",
+    )
     args = parser.parse_args()
-    result = build(args.input.expanduser().resolve(), args.output.expanduser().resolve())
+    result = build(
+        args.input.expanduser().resolve(),
+        args.output.expanduser().resolve(),
+        write_csv=args.write_csv,
+    )
     print(json.dumps(result, ensure_ascii=False, indent=2))
     return 0
 

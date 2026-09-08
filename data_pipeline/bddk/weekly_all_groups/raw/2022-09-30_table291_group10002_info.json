@@ -1,0 +1,31 @@
+{
+  "status": "validated",
+  "diagnosis": "validated_bddk_weekly_html_table",
+  "source_url": "https://www.bddk.org.tr/BultenHaftalik/",
+  "sha256_uncompressed": "fc6bc896b1e16f7a52aed538775ab2e082570386d29e24f7a21c71c778d6d20d",
+  "compressed_bytes": 14883,
+  "uncompressed_bytes": 195530,
+  "served_from_cache": true,
+  "completed_at_utc": "2026-09-08T08:26:09.815327+00:00",
+  "table_id": 291,
+  "table_name": "Menkul Degerler",
+  "group_code": 10002,
+  "group_name": "Mevduat",
+  "period_id": 457,
+  "observation_date": "2022-09-30",
+  "week_number": 39,
+  "source_period_label": "Eylül/30 (39. Hafta)",
+  "source_date_heading": "Tarih: 30 Eylül 2022 Cuma | Birim: Milyon TL",
+  "source_date_parsed": "2022-09-30",
+  "headers": [
+    "",
+    "Menkul Değerler",
+    "TP",
+    "YP",
+    "TOPLAM"
+  ],
+  "rows": 13,
+  "max_cells_per_row": 5,
+  "unit_heading": "Milyon TL",
+  "date_heading_normalized": "tarih: 30 eylul 2022 cuma | birim: milyon tl"
+}

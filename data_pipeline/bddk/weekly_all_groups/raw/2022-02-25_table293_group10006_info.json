@@ -1,0 +1,31 @@
+{
+  "status": "validated",
+  "diagnosis": "validated_bddk_weekly_html_table",
+  "source_url": "https://www.bddk.org.tr/BultenHaftalik/",
+  "sha256_uncompressed": "4af3c0db17a5da5b52cf03914a3d4c7bf9ffacfbf0eb747eaa2565bb9fa23545",
+  "compressed_bytes": 15063,
+  "uncompressed_bytes": 196557,
+  "served_from_cache": true,
+  "completed_at_utc": "2026-09-08T08:30:23.299901+00:00",
+  "table_id": 293,
+  "table_name": "Diger Bilanco Kalemleri",
+  "group_code": 10006,
+  "group_name": "Yabanci",
+  "period_id": 426,
+  "observation_date": "2022-02-25",
+  "week_number": 8,
+  "source_period_label": "Şubat/25 (8. Hafta)",
+  "source_date_heading": "Tarih: 25 Şubat 2022 Cuma | Birim: Milyon TL",
+  "source_date_parsed": "2022-02-25",
+  "headers": [
+    "",
+    "Diğer Bilanço Kalemleri",
+    "TP",
+    "YP",
+    "TOPLAM"
+  ],
+  "rows": 16,
+  "max_cells_per_row": 5,
+  "unit_heading": "Milyon TL",
+  "date_heading_normalized": "tarih: 25 subat 2022 cuma | birim: milyon tl"
+}

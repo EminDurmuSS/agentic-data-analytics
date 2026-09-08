@@ -1,0 +1,31 @@
+{
+  "status": "validated",
+  "diagnosis": "validated_bddk_weekly_html_table",
+  "source_url": "https://www.bddk.org.tr/BultenHaftalik/",
+  "sha256_uncompressed": "95a1dc70b1d169ce94004ccb7866e4efc23cbdee2368c98daac3b403e263aaa4",
+  "compressed_bytes": 14931,
+  "uncompressed_bytes": 196444,
+  "served_from_cache": true,
+  "completed_at_utc": "2026-09-08T08:27:17.650550+00:00",
+  "table_id": 293,
+  "table_name": "Diger Bilanco Kalemleri",
+  "group_code": 10003,
+  "group_name": "Kalkinma ve Yatirim",
+  "period_id": 452,
+  "observation_date": "2022-08-26",
+  "week_number": 34,
+  "source_period_label": "Ağustos/26 (34. Hafta)",
+  "source_date_heading": "Tarih: 26 Ağustos 2022 Cuma | Birim: Milyon TL",
+  "source_date_parsed": "2022-08-26",
+  "headers": [
+    "",
+    "Diğer Bilanço Kalemleri",
+    "TP",
+    "YP",
+    "TOPLAM"
+  ],
+  "rows": 16,
+  "max_cells_per_row": 5,
+  "unit_heading": "Milyon TL",
+  "date_heading_normalized": "tarih: 26 agustos 2022 cuma | birim: milyon tl"
+}

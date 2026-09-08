@@ -1,0 +1,31 @@
+{
+  "status": "validated",
+  "diagnosis": "validated_bddk_weekly_html_table",
+  "source_url": "https://www.bddk.org.tr/BultenHaftalik/",
+  "sha256_uncompressed": "4140effba6878dd22536a673f4fbd95d6f274dbf407d8e211aaba116f5369a13",
+  "compressed_bytes": 14538,
+  "uncompressed_bytes": 192518,
+  "served_from_cache": true,
+  "completed_at_utc": "2026-09-08T08:26:06.192725+00:00",
+  "table_id": 290,
+  "table_name": "Takipteki Alacaklar",
+  "group_code": 10002,
+  "group_name": "Mevduat",
+  "period_id": 580,
+  "observation_date": "2025-02-07",
+  "week_number": 6,
+  "source_period_label": "Şubat/07 (6. Hafta)",
+  "source_date_heading": "Tarih: 7 Şubat 2025 Cuma | Birim: Milyon TL",
+  "source_date_parsed": "2025-02-07",
+  "headers": [
+    "",
+    "Takipteki Alacaklar",
+    "TP",
+    "YP",
+    "TOPLAM"
+  ],
+  "rows": 12,
+  "max_cells_per_row": 5,
+  "unit_heading": "Milyon TL",
+  "date_heading_normalized": "tarih: 7 subat 2025 cuma | birim: milyon tl"
+}

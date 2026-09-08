@@ -1,0 +1,31 @@
+{
+  "status": "validated",
+  "diagnosis": "validated_bddk_weekly_html_table",
+  "source_url": "https://www.bddk.org.tr/BultenHaftalik/",
+  "sha256_uncompressed": "d423be7fa0fe0d26dfc012c4227020425ced629820f5afca69d4020d9910930c",
+  "compressed_bytes": 15227,
+  "uncompressed_bytes": 203748,
+  "served_from_cache": true,
+  "completed_at_utc": "2026-09-08T08:30:58.107841+00:00",
+  "table_id": 289,
+  "table_name": "Krediler",
+  "group_code": 10007,
+  "group_name": "Yerli Ozel",
+  "period_id": 443,
+  "observation_date": "2022-06-24",
+  "week_number": 25,
+  "source_period_label": "Haziran/24 (25. Hafta)",
+  "source_date_heading": "Tarih: 24 Haziran 2022 Cuma | Birim: Milyon TL",
+  "source_date_parsed": "2022-06-24",
+  "headers": [
+    "",
+    "Krediler",
+    "TP",
+    "YP",
+    "TOPLAM"
+  ],
+  "rows": 20,
+  "max_cells_per_row": 5,
+  "unit_heading": "Milyon TL",
+  "date_heading_normalized": "tarih: 24 haziran 2022 cuma | birim: milyon tl"
+}

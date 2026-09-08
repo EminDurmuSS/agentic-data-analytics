@@ -1,0 +1,31 @@
+{
+  "status": "validated",
+  "diagnosis": "validated_bddk_weekly_html_table",
+  "source_url": "https://www.bddk.org.tr/BultenHaftalik/",
+  "sha256_uncompressed": "d1d137e6e2bedc8e157518a0f64f055c13b88fe4f3169fb23cc81e33bbb93f29",
+  "compressed_bytes": 15034,
+  "uncompressed_bytes": 196558,
+  "served_from_cache": true,
+  "completed_at_utc": "2026-09-08T08:30:25.281866+00:00",
+  "table_id": 293,
+  "table_name": "Diger Bilanco Kalemleri",
+  "group_code": 10006,
+  "group_name": "Yabanci",
+  "period_id": 527,
+  "observation_date": "2024-02-02",
+  "week_number": 5,
+  "source_period_label": "Şubat/02 (5. Hafta)",
+  "source_date_heading": "Tarih: 2 Şubat 2024 Cuma | Birim: Milyon TL",
+  "source_date_parsed": "2024-02-02",
+  "headers": [
+    "",
+    "Diğer Bilanço Kalemleri",
+    "TP",
+    "YP",
+    "TOPLAM"
+  ],
+  "rows": 16,
+  "max_cells_per_row": 5,
+  "unit_heading": "Milyon TL",
+  "date_heading_normalized": "tarih: 2 subat 2024 cuma | birim: milyon tl"
+}

@@ -1,0 +1,31 @@
+{
+  "status": "validated",
+  "diagnosis": "validated_bddk_weekly_html_table",
+  "source_url": "https://www.bddk.org.tr/BultenHaftalik/",
+  "sha256_uncompressed": "cb154815848ca7fe0ed25785a45f3f989654fe4776c20c34aea8a6cf5cae42b4",
+  "compressed_bytes": 13905,
+  "uncompressed_bytes": 179672,
+  "served_from_cache": true,
+  "completed_at_utc": "2026-09-08T08:27:25.836269+00:00",
+  "table_id": 294,
+  "table_name": "Bilanco Disi Islemler",
+  "group_code": 10003,
+  "group_name": "Kalkinma ve Yatirim",
+  "period_id": 607,
+  "observation_date": "2025-08-15",
+  "week_number": 33,
+  "source_period_label": "Ağustos/15 (33. Hafta)",
+  "source_date_heading": "Tarih: 15 Ağustos 2025 Cuma | Birim: Milyon TL",
+  "source_date_parsed": "2025-08-15",
+  "headers": [
+    "",
+    "Bilanço Dışı İşlemler",
+    "TP",
+    "YP",
+    "TOPLAM"
+  ],
+  "rows": 4,
+  "max_cells_per_row": 5,
+  "unit_heading": "Milyon TL",
+  "date_heading_normalized": "tarih: 15 agustos 2025 cuma | birim: milyon tl"
+}

@@ -1,0 +1,31 @@
+{
+  "status": "validated",
+  "diagnosis": "validated_bddk_weekly_html_table",
+  "source_url": "https://www.bddk.org.tr/BultenHaftalik/",
+  "sha256_uncompressed": "fbae474b8fe975079f65c51279d1d2c6d950a9c710530f713e48ec75a741ea8f",
+  "compressed_bytes": 14463,
+  "uncompressed_bytes": 190747,
+  "served_from_cache": true,
+  "completed_at_utc": "2026-09-08T08:29:02.867073+00:00",
+  "table_id": 290,
+  "table_name": "Takipteki Alacaklar",
+  "group_code": 10005,
+  "group_name": "Kamu",
+  "period_id": 483,
+  "observation_date": "2023-03-31",
+  "week_number": 13,
+  "source_period_label": "Mart/31 (13. Hafta)",
+  "source_date_heading": "Tarih: 31 Mart 2023 Cuma | Birim: Milyon TL",
+  "source_date_parsed": "2023-03-31",
+  "headers": [
+    "",
+    "Takipteki Alacaklar",
+    "TP",
+    "YP",
+    "TOPLAM"
+  ],
+  "rows": 12,
+  "max_cells_per_row": 5,
+  "unit_heading": "Milyon TL",
+  "date_heading_normalized": "tarih: 31 mart 2023 cuma | birim: milyon tl"
+}

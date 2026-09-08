@@ -1,0 +1,29 @@
+{
+  "status": "validated",
+  "diagnosis": "validated_bddk_weekly_html_table",
+  "source_url": "https://www.bddk.org.tr/BultenHaftalik/",
+  "sha256_uncompressed": "9af2cebbe558217a112d8642044e157dc19ba2feb3dbc7061a3346c2ce166602",
+  "compressed_bytes": 14008,
+  "uncompressed_bytes": 183138,
+  "served_from_cache": true,
+  "completed_at_utc": "2026-09-08T08:31:50.550965+00:00",
+  "table_id": 297,
+  "table_name": "Yabanci Para Pozisyonu",
+  "group_code": 10007,
+  "group_name": "Yerli Ozel",
+  "period_id": 397,
+  "observation_date": "2021-08-06",
+  "week_number": 31,
+  "source_period_label": "Ağustos/06 (31. Hafta)",
+  "source_date_heading": "Tarih: 6 Ağustos 2021 Cuma | Birim: Milyon TL",
+  "source_date_parsed": "2021-08-06",
+  "headers": [
+    "",
+    "Yabancı Para Pozisyonu",
+    "TOPLAM"
+  ],
+  "rows": 10,
+  "max_cells_per_row": 3,
+  "unit_heading": "Milyon TL",
+  "date_heading_normalized": "tarih: 6 agustos 2021 cuma | birim: milyon tl"
+}

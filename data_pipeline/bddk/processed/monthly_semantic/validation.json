@@ -5,31 +5,31 @@
   "table_count": 17,
   "period_count": 66,
   "metric_count": 2108,
-  "measurement_row_count": 133485,
+  "measurement_row_count": 1334850,
   "source_missing_value_count": 0,
   "analysis_missing_value_count": 0,
-  "identity_measurement_rows": 122991,
-  "derived_monthly_flow_rows": 10494,
+  "identity_measurement_rows": 1229910,
+  "derived_monthly_flow_rows": 104940,
   "recomposition": {
-    "cumulative_measurement_rows": 10494,
-    "recomposition_comparisons": 10494,
+    "cumulative_measurement_rows": 104940,
+    "recomposition_comparisons": 104940,
     "maximum_recomposition_difference": 0.0,
-    "january_start_rows": 954,
-    "annual_reset_pairs_checked": 795,
-    "annual_reset_pairs_with_lower_january_absolute_value": 738,
-    "annual_reset_share": 0.928302
+    "january_start_rows": 9540,
+    "annual_reset_pairs_checked": 7950,
+    "annual_reset_pairs_with_lower_january_absolute_value": 7069,
+    "annual_reset_share": 0.889182
   },
   "semantic_counts": {
-    "count": 462,
-    "monthly_flow": 10494,
-    "period_end_level": 41205,
-    "period_end_stock": 79014,
-    "ratio": 2310
+    "count": 4620,
+    "monthly_flow": 104940,
+    "period_end_level": 412050,
+    "period_end_stock": 790140,
+    "ratio": 23100
   },
   "confidence_counts": {
-    "high": 105858,
-    "high_inferred": 10494,
-    "medium": 17133
+    "high": 1058580,
+    "high_inferred": 104940,
+    "medium": 171330
   },
   "quality_policy": [
     "Source values and hashes remain attached to every semantic measurement.",

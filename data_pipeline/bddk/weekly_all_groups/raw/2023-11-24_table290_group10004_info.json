@@ -1,0 +1,31 @@
+{
+  "status": "validated",
+  "diagnosis": "validated_bddk_weekly_html_table",
+  "source_url": "https://www.bddk.org.tr/BultenHaftalik/",
+  "sha256_uncompressed": "95464a88d4c5c0aac98b05d3ffa5b923f515fd92d40a50f8dba18f7908f3309b",
+  "compressed_bytes": 14408,
+  "uncompressed_bytes": 190679,
+  "served_from_cache": true,
+  "completed_at_utc": "2026-09-08T08:27:59.217856+00:00",
+  "table_id": 290,
+  "table_name": "Takipteki Alacaklar",
+  "group_code": 10004,
+  "group_name": "Katilim",
+  "period_id": 517,
+  "observation_date": "2023-11-24",
+  "week_number": 47,
+  "source_period_label": "Kasım/24 (47. Hafta)",
+  "source_date_heading": "Tarih: 24 Kasım 2023 Cuma | Birim: Milyon TL",
+  "source_date_parsed": "2023-11-24",
+  "headers": [
+    "",
+    "Takipteki Alacaklar",
+    "TP",
+    "YP",
+    "TOPLAM"
+  ],
+  "rows": 12,
+  "max_cells_per_row": 5,
+  "unit_heading": "Milyon TL",
+  "date_heading_normalized": "tarih: 24 kasim 2023 cuma | birim: milyon tl"
+}

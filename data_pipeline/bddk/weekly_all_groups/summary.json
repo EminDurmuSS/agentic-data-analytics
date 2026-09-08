@@ -1,0 +1,17 @@
+{
+  "status": "complete",
+  "expected_requests": 18018,
+  "successful_requests": 18018,
+  "period_count": 286,
+  "table_count": 9,
+  "group_count": 7,
+  "long_cell_rows": 1736650,
+  "cell_csv_written": false,
+  "first_observation_date": "2021-01-08",
+  "last_observation_date": "2026-06-26",
+  "limits": [
+    "Source HTML tables are preserved because weekly schemas vary by table and period.",
+    "Raw numeric formatting is preserved. Numeric normalization is a separate audited step.",
+    "Missing cells are not imputed."
+  ]
+}

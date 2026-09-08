@@ -1,0 +1,31 @@
+{
+  "status": "validated",
+  "diagnosis": "validated_bddk_weekly_html_table",
+  "source_url": "https://www.bddk.org.tr/BultenHaftalik/",
+  "sha256_uncompressed": "c55777f5c7f181333908008345131be4f35166d575625ffef7fa1746424c1a9e",
+  "compressed_bytes": 14980,
+  "uncompressed_bytes": 196896,
+  "served_from_cache": true,
+  "completed_at_utc": "2026-09-08T08:31:25.734286+00:00",
+  "table_id": 293,
+  "table_name": "Diger Bilanco Kalemleri",
+  "group_code": 10007,
+  "group_name": "Yerli Ozel",
+  "period_id": 639,
+  "observation_date": "2026-03-27",
+  "week_number": 13,
+  "source_period_label": "Mart/27 (13. Hafta)",
+  "source_date_heading": "Tarih: 27 Mart 2026 Cuma | Birim: Milyon TL",
+  "source_date_parsed": "2026-03-27",
+  "headers": [
+    "",
+    "Diğer Bilanço Kalemleri",
+    "TP",
+    "YP",
+    "TOPLAM"
+  ],
+  "rows": 16,
+  "max_cells_per_row": 5,
+  "unit_heading": "Milyon TL",
+  "date_heading_normalized": "tarih: 27 mart 2026 cuma | birim: milyon tl"
+}

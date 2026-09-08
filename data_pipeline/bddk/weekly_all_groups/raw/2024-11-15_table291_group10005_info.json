@@ -1,0 +1,31 @@
+{
+  "status": "validated",
+  "diagnosis": "validated_bddk_weekly_html_table",
+  "source_url": "https://www.bddk.org.tr/BultenHaftalik/",
+  "sha256_uncompressed": "7040baa079f664ddfaf4677640dba6b5d9b30e98184fc89ab21ab59a6befcf57",
+  "compressed_bytes": 14792,
+  "uncompressed_bytes": 193878,
+  "served_from_cache": true,
+  "completed_at_utc": "2026-09-08T08:29:11.316438+00:00",
+  "table_id": 291,
+  "table_name": "Menkul Degerler",
+  "group_code": 10005,
+  "group_name": "Kamu",
+  "period_id": 568,
+  "observation_date": "2024-11-15",
+  "week_number": 46,
+  "source_period_label": "Kasım/15 (46. Hafta)",
+  "source_date_heading": "Tarih: 15 Kasım 2024 Cuma | Birim: Milyon TL",
+  "source_date_parsed": "2024-11-15",
+  "headers": [
+    "",
+    "Menkul Değerler",
+    "TP",
+    "YP",
+    "TOPLAM"
+  ],
+  "rows": 13,
+  "max_cells_per_row": 5,
+  "unit_heading": "Milyon TL",
+  "date_heading_normalized": "tarih: 15 kasim 2024 cuma | birim: milyon tl"
+}

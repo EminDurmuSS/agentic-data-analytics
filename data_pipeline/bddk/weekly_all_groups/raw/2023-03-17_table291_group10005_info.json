@@ -1,0 +1,31 @@
+{
+  "status": "validated",
+  "diagnosis": "validated_bddk_weekly_html_table",
+  "source_url": "https://www.bddk.org.tr/BultenHaftalik/",
+  "sha256_uncompressed": "76de3924656691f32851e255831c2e3d174622b6872da4bff6e859fd8d9821a3",
+  "compressed_bytes": 14747,
+  "uncompressed_bytes": 193832,
+  "served_from_cache": true,
+  "completed_at_utc": "2026-09-08T08:29:09.738823+00:00",
+  "table_id": 291,
+  "table_name": "Menkul Degerler",
+  "group_code": 10005,
+  "group_name": "Kamu",
+  "period_id": 481,
+  "observation_date": "2023-03-17",
+  "week_number": 11,
+  "source_period_label": "Mart/17 (11. Hafta)",
+  "source_date_heading": "Tarih: 17 Mart 2023 Cuma | Birim: Milyon TL",
+  "source_date_parsed": "2023-03-17",
+  "headers": [
+    "",
+    "Menkul Değerler",
+    "TP",
+    "YP",
+    "TOPLAM"
+  ],
+  "rows": 13,
+  "max_cells_per_row": 5,
+  "unit_heading": "Milyon TL",
+  "date_heading_normalized": "tarih: 17 mart 2023 cuma | birim: milyon tl"
+}

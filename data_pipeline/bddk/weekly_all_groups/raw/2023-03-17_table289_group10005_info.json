@@ -1,0 +1,31 @@
+{
+  "status": "validated",
+  "diagnosis": "validated_bddk_weekly_html_table",
+  "source_url": "https://www.bddk.org.tr/BultenHaftalik/",
+  "sha256_uncompressed": "9de17f1c40972205b972227ebbb0ea5a33a48fa7fc298a0fe318db473af5fe70",
+  "compressed_bytes": 15433,
+  "uncompressed_bytes": 206693,
+  "served_from_cache": true,
+  "completed_at_utc": "2026-09-08T08:28:56.355296+00:00",
+  "table_id": 289,
+  "table_name": "Krediler",
+  "group_code": 10005,
+  "group_name": "Kamu",
+  "period_id": 481,
+  "observation_date": "2023-03-17",
+  "week_number": 11,
+  "source_period_label": "Mart/17 (11. Hafta)",
+  "source_date_heading": "Tarih: 17 Mart 2023 Cuma | Birim: Milyon TL",
+  "source_date_parsed": "2023-03-17",
+  "headers": [
+    "",
+    "Krediler",
+    "TP",
+    "YP",
+    "TOPLAM"
+  ],
+  "rows": 22,
+  "max_cells_per_row": 5,
+  "unit_heading": "Milyon TL",
+  "date_heading_normalized": "tarih: 17 mart 2023 cuma | birim: milyon tl"
+}

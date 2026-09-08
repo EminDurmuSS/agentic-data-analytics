@@ -1,0 +1,31 @@
+{
+  "status": "validated",
+  "diagnosis": "validated_bddk_weekly_html_table",
+  "source_url": "https://www.bddk.org.tr/BultenHaftalik/",
+  "sha256_uncompressed": "72a85241cbbae50aad01f922b60d9937a26a73a0db6e551c8f7645854cbb80ee",
+  "compressed_bytes": 15012,
+  "uncompressed_bytes": 196497,
+  "served_from_cache": true,
+  "completed_at_utc": "2026-09-08T08:30:22.679139+00:00",
+  "table_id": 293,
+  "table_name": "Diger Bilanco Kalemleri",
+  "group_code": 10006,
+  "group_name": "Yabanci",
+  "period_id": 391,
+  "observation_date": "2021-06-25",
+  "week_number": 25,
+  "source_period_label": "Haziran/25 (25. Hafta)",
+  "source_date_heading": "Tarih: 25 Haziran 2021 Cuma | Birim: Milyon TL",
+  "source_date_parsed": "2021-06-25",
+  "headers": [
+    "",
+    "Diğer Bilanço Kalemleri",
+    "TP",
+    "YP",
+    "TOPLAM"
+  ],
+  "rows": 16,
+  "max_cells_per_row": 5,
+  "unit_heading": "Milyon TL",
+  "date_heading_normalized": "tarih: 25 haziran 2021 cuma | birim: milyon tl"
+}

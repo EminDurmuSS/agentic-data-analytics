@@ -8,8 +8,8 @@ ve yeniden üretilebilir biçimde hazırlanmasıdır.
 
 | Kaynak | Kapsam | Durum |
 | --- | --- | --- |
-| BDDK aylık | Ocak 2021-Haziran 2026, 66 ay, sektör toplamı, 17 tablonun tamamı | Tamamlandı ve doğrulandı |
-| BDDK haftalık | 286 hafta, sektör toplamı, 9 tablonun tamamı | Tamamlandı ve doğrulandı |
+| BDDK aylık | Ocak 2021-Haziran 2026, 66 ay, 17 tablonun tamamı, 10 resmî banka grubu | Tamamlandı ve doğrulandı |
+| BDDK haftalık | 286 hafta, 9 tablonun tamamı, 7 resmî banka grubu | Tamamlandı ve doğrulandı |
 | BDDK FinTürk | 22 çeyrek, 7 tablo, 7 banka grubu, 81 il ve `YURT DIŞI` | Tamamlandı ve doğrulandı |
 | TCMB EVDS katalog | 676 veri grubu, 52.696 benzersiz seri kaydı | Tamamlandı, metadata kataloğu |
 | TCMB EVDS gözlem | Konut kredisi nedensellik analizi için seçilmiş 61 kaynak seri ve 1 açıkça türetilmiş seri | Tamamlandı ve doğrulandı |
@@ -22,12 +22,12 @@ ayrı tutulur ve çeyreklik veri ara aylara yapay olarak yayılmaz.
 
 ## Ölçek
 
-- BDDK aylık: 1.122 resmî istek, 33.965 kaynak satırı, 133.485 semantik ölçüm
-- BDDK haftalık: 2.574 resmî sayfa, 249.070 ham hücre, 147.154 ölçüm. Kaynaktaki 514 boş hücrenin tamamı yapısal `FX uygulanamaz` olarak açıklandı
+- BDDK aylık: 1.122 resmî istek, 11.220 tablo-grup kaydı, 339.650 kaynak satırı, 1.334.850 semantik ölçüm
+- BDDK haftalık: 18.018 resmî sayfa, 1.736.650 ham hücre, 1.025.974 ölçüm. Kaynaktaki 2.230 boş hücrenin tamamı yapısal `FX uygulanamaz` olarak açıklandı
 - BDDK FinTürk: 84.484 kaynak satırı, 936.512 ölçüm. 30.892 kaynak boşluğunun 29.564'ü yapısal, 1.328'i kaynakta raporlanmamış olarak sınıflandırıldı
 - EVDS: 52.696 seri metadata kaydı, 61 seçilmiş kaynak seride 12.482 gözlem ve 1 türetilmiş altın serisi
 - Birleşik katalog: 50 veri varlığı, 55.458 metrik, 2.821 yerel sorgulanabilir metrik
-- DuckDB: 7 şema, 38 tablo, mutlak dosya yoluna ihtiyaç duymayan tek dosya
+- DuckDB: 7 şema, 40 tablo, mutlak dosya yoluna ihtiyaç duymayan tek dosya
 
 ## Klasörler
 
@@ -73,14 +73,17 @@ python -m unittest discover -s tests -v
 
 ## Önemli kapsam kararı
 
-BDDK aylık ve haftalık bültenlerde bütün tablolar sektör toplamı için alındı.
-FinTürk'te ise bütün banka grupları ve bütün iller alındı. EVDS'nin tüm 52.696
+BDDK aylık bültende bütün tablolar ve 10 resmî banka grubu, haftalık bültende
+bütün tablolar ve 7 resmî banka grubu alındı. FinTürk'te de bütün banka
+grupları ve bütün iller alındı. EVDS'nin tüm 52.696
 serisinin tarihsel gözlemleri indirilmedi. Bunun yerine, yarışmanın konut kredisi
 senaryosunda nedensellik ve alternatif açıklamalar için gerekli 61 kaynak seri
 seçildi. BIST altın kapanış fiyatından `0.001` katsayısıyla TL/kg -> TL/gram
 dönüşümü yapılan 1 ek seri de kaynak ve formül bilgisiyle ayrıca tutulur.
-Bu yaklaşım veri kapsamını güçlü tutarken gereksiz veri hacmini ve yanlış seri
-seçimi riskini sınırlar.
+Katalogdaki herhangi bir başka seri `tools/EVDS_Talep_Uzerine_Indirme_Araci.py`
+ile adı veya kodu üzerinden bulunup ham istek, ham cevap ve SHA-256 iziyle
+indirilebilir. Bu yaklaşım veri kapsamını güçlü tutarken gereksiz veri hacmini
+ve yanlış seri seçimi riskini sınırlar.
 
 Agent, API ve frontend sonraki aşamadır. Güncel ayrıntılar için önce
 `docs/CURRENT_STATE.md` ve `data_pipeline/README.md` dosyalarını okuyun.

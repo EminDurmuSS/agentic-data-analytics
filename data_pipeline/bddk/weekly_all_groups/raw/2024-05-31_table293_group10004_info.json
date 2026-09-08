@@ -1,0 +1,31 @@
+{
+  "status": "validated",
+  "diagnosis": "validated_bddk_weekly_html_table",
+  "source_url": "https://www.bddk.org.tr/BultenHaftalik/",
+  "sha256_uncompressed": "2c5c9c10a6636c6ac7ccff81741099c0524c9a4c0f7d8a33d3c55e01d1362142",
+  "compressed_bytes": 14938,
+  "uncompressed_bytes": 196412,
+  "served_from_cache": true,
+  "completed_at_utc": "2026-09-08T08:28:18.725102+00:00",
+  "table_id": 293,
+  "table_name": "Diger Bilanco Kalemleri",
+  "group_code": 10004,
+  "group_name": "Katilim",
+  "period_id": 544,
+  "observation_date": "2024-05-31",
+  "week_number": 22,
+  "source_period_label": "Mayıs/31 (22. Hafta)",
+  "source_date_heading": "Tarih: 31 Mayıs 2024 Cuma | Birim: Milyon TL",
+  "source_date_parsed": "2024-05-31",
+  "headers": [
+    "",
+    "Diğer Bilanço Kalemleri",
+    "TP",
+    "YP",
+    "TOPLAM"
+  ],
+  "rows": 16,
+  "max_cells_per_row": 5,
+  "unit_heading": "Milyon TL",
+  "date_heading_normalized": "tarih: 31 mayis 2024 cuma | birim: milyon tl"
+}

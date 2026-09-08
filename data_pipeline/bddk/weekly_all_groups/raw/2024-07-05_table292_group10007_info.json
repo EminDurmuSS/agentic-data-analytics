@@ -1,0 +1,31 @@
+{
+  "status": "validated",
+  "diagnosis": "validated_bddk_weekly_html_table",
+  "source_url": "https://www.bddk.org.tr/BultenHaftalik/",
+  "sha256_uncompressed": "2d56bd4f68715285f67ce206c03d0cd17cb237154be0de01847e5a2593b47e35",
+  "compressed_bytes": 14513,
+  "uncompressed_bytes": 189905,
+  "served_from_cache": true,
+  "completed_at_utc": "2026-09-08T08:31:18.109087+00:00",
+  "table_id": 292,
+  "table_name": "Mevduat",
+  "group_code": 10007,
+  "group_name": "Yerli Ozel",
+  "period_id": 549,
+  "observation_date": "2024-07-05",
+  "week_number": 27,
+  "source_period_label": "Temmuz/05 (27. Hafta)",
+  "source_date_heading": "Tarih: 5 Temmuz 2024 Cuma | Birim: Milyon TL",
+  "source_date_parsed": "2024-07-05",
+  "headers": [
+    "",
+    "Mevduat",
+    "TP",
+    "YP",
+    "TOPLAM"
+  ],
+  "rows": 11,
+  "max_cells_per_row": 5,
+  "unit_heading": "Milyon TL",
+  "date_heading_normalized": "tarih: 5 temmuz 2024 cuma | birim: milyon tl"
+}

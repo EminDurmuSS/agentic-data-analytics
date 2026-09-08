@@ -1,0 +1,31 @@
+{
+  "status": "validated",
+  "diagnosis": "validated_bddk_weekly_html_table",
+  "source_url": "https://www.bddk.org.tr/BultenHaftalik/",
+  "sha256_uncompressed": "9cd6afa255b5ef2d59506a3212ad341dedf279f0c9ed54a202bdcf04e1947221",
+  "compressed_bytes": 14448,
+  "uncompressed_bytes": 190772,
+  "served_from_cache": true,
+  "completed_at_utc": "2026-09-08T08:31:06.166701+00:00",
+  "table_id": 290,
+  "table_name": "Takipteki Alacaklar",
+  "group_code": 10007,
+  "group_name": "Yerli Ozel",
+  "period_id": 534,
+  "observation_date": "2024-03-22",
+  "week_number": 12,
+  "source_period_label": "Mart/22 (12. Hafta)",
+  "source_date_heading": "Tarih: 22 Mart 2024 Cuma | Birim: Milyon TL",
+  "source_date_parsed": "2024-03-22",
+  "headers": [
+    "",
+    "Takipteki Alacaklar",
+    "TP",
+    "YP",
+    "TOPLAM"
+  ],
+  "rows": 12,
+  "max_cells_per_row": 5,
+  "unit_heading": "Milyon TL",
+  "date_heading_normalized": "tarih: 22 mart 2024 cuma | birim: milyon tl"
+}

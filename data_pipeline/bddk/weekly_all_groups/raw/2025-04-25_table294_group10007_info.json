@@ -1,0 +1,31 @@
+{
+  "status": "validated",
+  "diagnosis": "validated_bddk_weekly_html_table",
+  "source_url": "https://www.bddk.org.tr/BultenHaftalik/",
+  "sha256_uncompressed": "b63ffd89f99ab4485e0110002b655fab9f52c35940f9b25e21c9bd4d711127ff",
+  "compressed_bytes": 13931,
+  "uncompressed_bytes": 179692,
+  "served_from_cache": true,
+  "completed_at_utc": "2026-09-08T08:31:30.294942+00:00",
+  "table_id": 294,
+  "table_name": "Bilanco Disi Islemler",
+  "group_code": 10007,
+  "group_name": "Yerli Ozel",
+  "period_id": 591,
+  "observation_date": "2025-04-25",
+  "week_number": 17,
+  "source_period_label": "Nisan/25 (17. Hafta)",
+  "source_date_heading": "Tarih: 25 Nisan 2025 Cuma | Birim: Milyon TL",
+  "source_date_parsed": "2025-04-25",
+  "headers": [
+    "",
+    "Bilanço Dışı İşlemler",
+    "TP",
+    "YP",
+    "TOPLAM"
+  ],
+  "rows": 4,
+  "max_cells_per_row": 5,
+  "unit_heading": "Milyon TL",
+  "date_heading_normalized": "tarih: 25 nisan 2025 cuma | birim: milyon tl"
+}

@@ -1,0 +1,31 @@
+{
+  "status": "validated",
+  "diagnosis": "validated_bddk_weekly_html_table",
+  "source_url": "https://www.bddk.org.tr/BultenHaftalik/",
+  "sha256_uncompressed": "b6f7633a82498df14d7f36a05a8dae5b9da66e951d776ef5d8861b6e6c35a801",
+  "compressed_bytes": 15305,
+  "uncompressed_bytes": 203762,
+  "served_from_cache": true,
+  "completed_at_utc": "2026-09-08T08:29:56.430135+00:00",
+  "table_id": 289,
+  "table_name": "Krediler",
+  "group_code": 10006,
+  "group_name": "Yabanci",
+  "period_id": 444,
+  "observation_date": "2022-07-01",
+  "week_number": 26,
+  "source_period_label": "Temmuz/01 (26. Hafta)",
+  "source_date_heading": "Tarih: 1 Temmuz 2022 Cuma | Birim: Milyon TL",
+  "source_date_parsed": "2022-07-01",
+  "headers": [
+    "",
+    "Krediler",
+    "TP",
+    "YP",
+    "TOPLAM"
+  ],
+  "rows": 20,
+  "max_cells_per_row": 5,
+  "unit_heading": "Milyon TL",
+  "date_heading_normalized": "tarih: 1 temmuz 2022 cuma | birim: milyon tl"
+}

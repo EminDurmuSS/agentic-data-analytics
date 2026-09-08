@@ -1,0 +1,31 @@
+{
+  "status": "validated",
+  "diagnosis": "validated_bddk_weekly_html_table",
+  "source_url": "https://www.bddk.org.tr/BultenHaftalik/",
+  "sha256_uncompressed": "281493a3f6e179ded5261583d873584c4a049120a4e88a37c95fe1fb85efd874",
+  "compressed_bytes": 14444,
+  "uncompressed_bytes": 191084,
+  "served_from_cache": true,
+  "completed_at_utc": "2026-09-08T08:31:08.217089+00:00",
+  "table_id": 290,
+  "table_name": "Takipteki Alacaklar",
+  "group_code": 10007,
+  "group_name": "Yerli Ozel",
+  "period_id": 644,
+  "observation_date": "2026-04-30",
+  "week_number": 18,
+  "source_period_label": "Nisan/30 (18. Hafta)",
+  "source_date_heading": "Tarih: 30 Nisan 2026 Perşembe | Birim: Milyon TL",
+  "source_date_parsed": "2026-04-30",
+  "headers": [
+    "",
+    "Takipteki Alacaklar",
+    "TP",
+    "YP",
+    "TOPLAM"
+  ],
+  "rows": 12,
+  "max_cells_per_row": 5,
+  "unit_heading": "Milyon TL",
+  "date_heading_normalized": "tarih: 30 nisan 2026 persembe | birim: milyon tl"
+}

@@ -1,0 +1,31 @@
+{
+  "status": "validated",
+  "diagnosis": "validated_bddk_weekly_html_table",
+  "source_url": "https://www.bddk.org.tr/BultenHaftalik/",
+  "sha256_uncompressed": "413409a04788b91b3f34d59e6f27e5fbebcc9432305b061406d0d9419ca161f2",
+  "compressed_bytes": 16660,
+  "uncompressed_bytes": 242618,
+  "served_from_cache": true,
+  "completed_at_utc": "2026-09-08T08:29:35.420906+00:00",
+  "table_id": 295,
+  "table_name": "Bankalarda Saklanan Menkul Degerler - 1",
+  "group_code": 10005,
+  "group_name": "Kamu",
+  "period_id": 504,
+  "observation_date": "2023-08-25",
+  "week_number": 34,
+  "source_period_label": "Ağustos/25 (34. Hafta)",
+  "source_date_heading": "Tarih: 25 Ağustos 2023 Cuma | Birim: Milyon TL",
+  "source_date_parsed": "2023-08-25",
+  "headers": [
+    "",
+    "Bankalarda Saklanan Menkul Değerler - 1",
+    "TP",
+    "YP",
+    "TOPLAM"
+  ],
+  "rows": 45,
+  "max_cells_per_row": 5,
+  "unit_heading": "Milyon TL",
+  "date_heading_normalized": "tarih: 25 agustos 2023 cuma | birim: milyon tl"
+}

@@ -1,0 +1,33 @@
+{
+  "source_url": "https://www.bddk.org.tr/BultenHaftalik/",
+  "start": "2021-01-01",
+  "end": "2026-06-30",
+  "period_count": 286,
+  "tables": {
+    "289": "Krediler",
+    "290": "Takipteki Alacaklar",
+    "291": "Menkul Degerler",
+    "292": "Mevduat",
+    "293": "Diger Bilanco Kalemleri",
+    "294": "Bilanco Disi Islemler",
+    "295": "Bankalarda Saklanan Menkul Degerler - 1",
+    "296": "Bankalarda Saklanan Menkul Degerler - 2",
+    "297": "Yabanci Para Pozisyonu"
+  },
+  "groups": {
+    "10001": "Sektor",
+    "10002": "Mevduat",
+    "10003": "Kalkinma ve Yatirim",
+    "10004": "Katilim",
+    "10005": "Kamu",
+    "10006": "Yabanci",
+    "10007": "Yerli Ozel"
+  },
+  "currency": "TL",
+  "raw_format": "gzip-compressed source HTML",
+  "normalized_format": "lossless long-form cell CSV",
+  "transport": "curl",
+  "tls_verification": true,
+  "group_catalog_source": "https://www.bddk.org.tr/BultenHaftalik/",
+  "group_catalog_verified_at": "2026-09-08"
+}

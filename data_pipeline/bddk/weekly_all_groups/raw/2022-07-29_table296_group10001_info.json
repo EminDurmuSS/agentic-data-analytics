@@ -1,0 +1,31 @@
+{
+  "status": "validated",
+  "diagnosis": "validated_bddk_weekly_html_table",
+  "source_url": "https://www.bddk.org.tr/BultenHaftalik/",
+  "sha256_uncompressed": "d9d1ccbde32090ff82dbd8ed74a81b379e3c5b6b142e8cb03c68ffc5f2a93707",
+  "compressed_bytes": 17107,
+  "uncompressed_bytes": 243216,
+  "served_from_cache": true,
+  "completed_at_utc": "2026-09-08T08:25:44.685896+00:00",
+  "table_id": 296,
+  "table_name": "Bankalarda Saklanan Menkul Degerler - 2",
+  "group_code": 10001,
+  "group_name": "Sektor",
+  "period_id": 448,
+  "observation_date": "2022-07-29",
+  "week_number": 30,
+  "source_period_label": "Temmuz/29 (30. Hafta)",
+  "source_date_heading": "Tarih: 29 Temmuz 2022 Cuma | Birim: Milyon TL",
+  "source_date_parsed": "2022-07-29",
+  "headers": [
+    "",
+    "Bankalarda Saklanan Menkul Değerler - 2",
+    "TP",
+    "YP",
+    "TOPLAM"
+  ],
+  "rows": 45,
+  "max_cells_per_row": 5,
+  "unit_heading": "Milyon TL",
+  "date_heading_normalized": "tarih: 29 temmuz 2022 cuma | birim: milyon tl"
+}

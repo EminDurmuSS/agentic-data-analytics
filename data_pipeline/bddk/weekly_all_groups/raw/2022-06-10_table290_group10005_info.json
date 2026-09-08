@@ -1,0 +1,31 @@
+{
+  "status": "validated",
+  "diagnosis": "validated_bddk_weekly_html_table",
+  "source_url": "https://www.bddk.org.tr/BultenHaftalik/",
+  "sha256_uncompressed": "d7c05ef106b6a8360881b924786285048d8f8de215ac9c7adddb220e4df3a36d",
+  "compressed_bytes": 14465,
+  "uncompressed_bytes": 190763,
+  "served_from_cache": true,
+  "completed_at_utc": "2026-09-08T08:29:02.094284+00:00",
+  "table_id": 290,
+  "table_name": "Takipteki Alacaklar",
+  "group_code": 10005,
+  "group_name": "Kamu",
+  "period_id": 441,
+  "observation_date": "2022-06-10",
+  "week_number": 23,
+  "source_period_label": "Haziran/10 (23. Hafta)",
+  "source_date_heading": "Tarih: 10 Haziran 2022 Cuma | Birim: Milyon TL",
+  "source_date_parsed": "2022-06-10",
+  "headers": [
+    "",
+    "Takipteki Alacaklar",
+    "TP",
+    "YP",
+    "TOPLAM"
+  ],
+  "rows": 12,
+  "max_cells_per_row": 5,
+  "unit_heading": "Milyon TL",
+  "date_heading_normalized": "tarih: 10 haziran 2022 cuma | birim: milyon tl"
+}

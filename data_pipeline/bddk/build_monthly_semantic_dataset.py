@@ -20,7 +20,7 @@ import pandas as pd
 
 
 BASE_DIR = Path(__file__).resolve().parent
-DEFAULT_INPUT = BASE_DIR / "processed" / "monthly_all_sector"
+DEFAULT_INPUT = BASE_DIR / "processed" / "monthly_all_groups"
 DEFAULT_POLICY = BASE_DIR / "monthly_semantics_v1.json"
 DEFAULT_OUTPUT = BASE_DIR / "processed" / "monthly_semantic"
 

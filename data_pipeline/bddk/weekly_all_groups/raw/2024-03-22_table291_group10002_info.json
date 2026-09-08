@@ -1,0 +1,31 @@
+{
+  "status": "validated",
+  "diagnosis": "validated_bddk_weekly_html_table",
+  "source_url": "https://www.bddk.org.tr/BultenHaftalik/",
+  "sha256_uncompressed": "33a5d25e66f95e1b8944e6162a285a763fb25a007853cc7e176ad70160944988",
+  "compressed_bytes": 14908,
+  "uncompressed_bytes": 195637,
+  "served_from_cache": true,
+  "completed_at_utc": "2026-09-08T08:26:11.019589+00:00",
+  "table_id": 291,
+  "table_name": "Menkul Degerler",
+  "group_code": 10002,
+  "group_name": "Mevduat",
+  "period_id": 534,
+  "observation_date": "2024-03-22",
+  "week_number": 12,
+  "source_period_label": "Mart/22 (12. Hafta)",
+  "source_date_heading": "Tarih: 22 Mart 2024 Cuma | Birim: Milyon TL",
+  "source_date_parsed": "2024-03-22",
+  "headers": [
+    "",
+    "Menkul Değerler",
+    "TP",
+    "YP",
+    "TOPLAM"
+  ],
+  "rows": 13,
+  "max_cells_per_row": 5,
+  "unit_heading": "Milyon TL",
+  "date_heading_normalized": "tarih: 22 mart 2024 cuma | birim: milyon tl"
+}

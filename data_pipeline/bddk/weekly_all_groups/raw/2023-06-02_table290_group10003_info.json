@@ -1,0 +1,31 @@
+{
+  "status": "validated",
+  "diagnosis": "validated_bddk_weekly_html_table",
+  "source_url": "https://www.bddk.org.tr/BultenHaftalik/",
+  "sha256_uncompressed": "dae904431d5a072a1774ee560a7d48b7a1dcb56f6ac03ec7feb142219a56941b",
+  "compressed_bytes": 14375,
+  "uncompressed_bytes": 190634,
+  "served_from_cache": true,
+  "completed_at_utc": "2026-09-08T08:27:01.559883+00:00",
+  "table_id": 290,
+  "table_name": "Takipteki Alacaklar",
+  "group_code": 10003,
+  "group_name": "Kalkinma ve Yatirim",
+  "period_id": 492,
+  "observation_date": "2023-06-02",
+  "week_number": 22,
+  "source_period_label": "Haziran/02 (22. Hafta)",
+  "source_date_heading": "Tarih: 2 Haziran 2023 Cuma | Birim: Milyon TL",
+  "source_date_parsed": "2023-06-02",
+  "headers": [
+    "",
+    "Takipteki Alacaklar",
+    "TP",
+    "YP",
+    "TOPLAM"
+  ],
+  "rows": 12,
+  "max_cells_per_row": 5,
+  "unit_heading": "Milyon TL",
+  "date_heading_normalized": "tarih: 2 haziran 2023 cuma | birim: milyon tl"
+}

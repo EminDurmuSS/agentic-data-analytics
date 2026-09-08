@@ -1,0 +1,31 @@
+{
+  "status": "validated",
+  "diagnosis": "validated_bddk_weekly_html_table",
+  "source_url": "https://www.bddk.org.tr/BultenHaftalik/",
+  "sha256_uncompressed": "01ddf86c69e4441cac2c049c01a2e997ba17a7e8c0e5a5af8a63df690ccc5db0",
+  "compressed_bytes": 14485,
+  "uncompressed_bytes": 190820,
+  "served_from_cache": true,
+  "completed_at_utc": "2026-09-08T08:30:03.433910+00:00",
+  "table_id": 290,
+  "table_name": "Takipteki Alacaklar",
+  "group_code": 10006,
+  "group_name": "Yabanci",
+  "period_id": 385,
+  "observation_date": "2021-05-12",
+  "week_number": 19,
+  "source_period_label": "Mayıs/12 (19. Hafta)",
+  "source_date_heading": "Tarih: 12 Mayıs 2021 Çarşamba | Birim: Milyon TL",
+  "source_date_parsed": "2021-05-12",
+  "headers": [
+    "",
+    "Takipteki Alacaklar",
+    "TP",
+    "YP",
+    "TOPLAM"
+  ],
+  "rows": 12,
+  "max_cells_per_row": 5,
+  "unit_heading": "Milyon TL",
+  "date_heading_normalized": "tarih: 12 mayis 2021 carsamba | birim: milyon tl"
+}

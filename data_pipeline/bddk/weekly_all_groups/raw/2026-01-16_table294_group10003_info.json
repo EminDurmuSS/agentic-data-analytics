@@ -1,0 +1,31 @@
+{
+  "status": "validated",
+  "diagnosis": "validated_bddk_weekly_html_table",
+  "source_url": "https://www.bddk.org.tr/BultenHaftalik/",
+  "sha256_uncompressed": "0f1a6aaa8855367f161280c8205660427ca78af1682f14debda10d65d637c775",
+  "compressed_bytes": 13886,
+  "uncompressed_bytes": 179884,
+  "served_from_cache": true,
+  "completed_at_utc": "2026-09-08T08:27:26.161618+00:00",
+  "table_id": 294,
+  "table_name": "Bilanco Disi Islemler",
+  "group_code": 10003,
+  "group_name": "Kalkinma ve Yatirim",
+  "period_id": 629,
+  "observation_date": "2026-01-16",
+  "week_number": 3,
+  "source_period_label": "Ocak/16 (3. Hafta)",
+  "source_date_heading": "Tarih: 16 Ocak 2026 Cuma | Birim: Milyon TL",
+  "source_date_parsed": "2026-01-16",
+  "headers": [
+    "",
+    "Bilanço Dışı İşlemler",
+    "TP",
+    "YP",
+    "TOPLAM"
+  ],
+  "rows": 4,
+  "max_cells_per_row": 5,
+  "unit_heading": "Milyon TL",
+  "date_heading_normalized": "tarih: 16 ocak 2026 cuma | birim: milyon tl"
+}

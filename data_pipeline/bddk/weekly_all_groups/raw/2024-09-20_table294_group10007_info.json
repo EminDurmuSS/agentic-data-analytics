@@ -1,0 +1,31 @@
+{
+  "status": "validated",
+  "diagnosis": "validated_bddk_weekly_html_table",
+  "source_url": "https://www.bddk.org.tr/BultenHaftalik/",
+  "sha256_uncompressed": "98d27599563a3094a7ab618f3c55b9c06ad25bacc89e6ba2e94862ac63fd09c4",
+  "compressed_bytes": 13950,
+  "uncompressed_bytes": 179698,
+  "served_from_cache": true,
+  "completed_at_utc": "2026-09-08T08:31:29.849386+00:00",
+  "table_id": 294,
+  "table_name": "Bilanco Disi Islemler",
+  "group_code": 10007,
+  "group_name": "Yerli Ozel",
+  "period_id": 560,
+  "observation_date": "2024-09-20",
+  "week_number": 38,
+  "source_period_label": "Eylül/20 (38. Hafta)",
+  "source_date_heading": "Tarih: 20 Eylül 2024 Cuma | Birim: Milyon TL",
+  "source_date_parsed": "2024-09-20",
+  "headers": [
+    "",
+    "Bilanço Dışı İşlemler",
+    "TP",
+    "YP",
+    "TOPLAM"
+  ],
+  "rows": 4,
+  "max_cells_per_row": 5,
+  "unit_heading": "Milyon TL",
+  "date_heading_normalized": "tarih: 20 eylul 2024 cuma | birim: milyon tl"
+}

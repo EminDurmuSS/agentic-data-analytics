@@ -1,0 +1,31 @@
+{
+  "status": "validated",
+  "diagnosis": "validated_bddk_weekly_html_table",
+  "source_url": "https://www.bddk.org.tr/BultenHaftalik/",
+  "sha256_uncompressed": "4a25711758255fb68791bc1a11d9fdde94dd92645be221f329b8923dd26c9c94",
+  "compressed_bytes": 13958,
+  "uncompressed_bytes": 179666,
+  "served_from_cache": true,
+  "completed_at_utc": "2026-09-08T08:25:30.257917+00:00",
+  "table_id": 294,
+  "table_name": "Bilanco Disi Islemler",
+  "group_code": 10001,
+  "group_name": "Sektor",
+  "period_id": 367,
+  "observation_date": "2021-01-08",
+  "week_number": 1,
+  "source_period_label": "Ocak/08 (1. Hafta)",
+  "source_date_heading": "Tarih: 8 Ocak 2021 Cuma | Birim: Milyon TL",
+  "source_date_parsed": "2021-01-08",
+  "headers": [
+    "",
+    "Bilanço Dışı İşlemler",
+    "TP",
+    "YP",
+    "TOPLAM"
+  ],
+  "rows": 4,
+  "max_cells_per_row": 5,
+  "unit_heading": "Milyon TL",
+  "date_heading_normalized": "tarih: 8 ocak 2021 cuma | birim: milyon tl"
+}

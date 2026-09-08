@@ -1,0 +1,31 @@
+{
+  "status": "validated",
+  "diagnosis": "validated_bddk_weekly_html_table",
+  "source_url": "https://www.bddk.org.tr/BultenHaftalik/",
+  "sha256_uncompressed": "f7dcc06e18b2cbc87e3f67e1d6a7bf44aada2f895e040f37bd619843ed9c096e",
+  "compressed_bytes": 16876,
+  "uncompressed_bytes": 242951,
+  "served_from_cache": true,
+  "completed_at_utc": "2026-09-08T08:31:36.084666+00:00",
+  "table_id": 295,
+  "table_name": "Bankalarda Saklanan Menkul Degerler - 1",
+  "group_code": 10007,
+  "group_name": "Yerli Ozel",
+  "period_id": 518,
+  "observation_date": "2023-12-01",
+  "week_number": 48,
+  "source_period_label": "Aralık/01 (48. Hafta)",
+  "source_date_heading": "Tarih: 1 Aralık 2023 Cuma | Birim: Milyon TL",
+  "source_date_parsed": "2023-12-01",
+  "headers": [
+    "",
+    "Bankalarda Saklanan Menkul Değerler - 1",
+    "TP",
+    "YP",
+    "TOPLAM"
+  ],
+  "rows": 45,
+  "max_cells_per_row": 5,
+  "unit_heading": "Milyon TL",
+  "date_heading_normalized": "tarih: 1 aralik 2023 cuma | birim: milyon tl"
+}

@@ -23,14 +23,16 @@ güncel repo durumuyla karşılaştırır.
 ### BDDK aylık bülten
 
 Başlangıç paketinde yalnız tüketici kredileri alt kümesi vardı. Güncel repoda
-Ocak 2021-Haziran 2026 arasındaki 66 ay için 17 tablonun tamamı sektör toplamı
-düzeyinde bulunur. 1.122 resmî istek ve 33.965 kaynak satırı doğrulandı.
+Ocak 2021-Haziran 2026 arasındaki 66 ay için 17 tablonun tamamı ve 10 resmî
+banka grubu bulunur. 1.122 resmî birleşik istek, 11.220 tablo-grup kaydı ve
+339.650 kaynak satırı doğrulandı.
 
 ### BDDK haftalık bülten
 
-Başlangıçta yoktu. Güncel repoda 286 hafta ve 9 tablonun tamamına ait 2.574
-resmî sayfa ile 249.070 ham hücre vardır. 147.154 ölçüm normalize edildi ve
-47.584 döviz bileşeni toplam kontrolü geçti. Kaynaktaki 514 boş hücrenin tamamı
+Başlangıçta yoktu. Güncel repoda 286 hafta, 9 tablonun tamamı ve 7 resmî banka
+grubu için 18.018 resmî sayfa ile 1.736.650 ham hücre vardır. 1.025.974 ölçüm
+normalize edildi ve 333.088 döviz bileşeni toplam kontrolü geçti. Kaynaktaki
+2.230 boş hücrenin tamamı
 TL-only metriklerde uygulanamaz FX alanı olarak açıklandı, çözümlenmemiş boşluk
 kalmadı.
 
@@ -57,15 +59,14 @@ bulunmadığı için açık boşluk olarak işaretlenir.
 ### Sorgulanabilir veri altyapısı
 
 SQLite/Pandas başlangıcının yanında artık birleşik katalog ve self-contained
-DuckDB bulunur. DuckDB 7 şema ve 38 tablo içerir. BDDK aylık, haftalık ve
+DuckDB bulunur. DuckDB 7 şema ve 40 tablo içerir. BDDK aylık, haftalık ve
 FinTürk verileri, TBB raporları, 61 seçilmiş EVDS kaynak serisi, 1 açıkça
 türetilmiş seri, kalite tabloları ve
 olay kayıtları tek sorgu yüzeyinde erişilebilirdir.
 
 ## Bilinçli kapsam sınırları
 
-- BDDK aylık ve haftalık bültenlerde tüm tablolar sektör toplamı için alındı.
-  FinTürk ve seçilmiş EVDS serileri banka grubu kırılımlarını ayrıca sağlar.
+- BDDK aylık bültende 10, haftalık bültende 7 resmî banka grubu alınır.
 - EVDS'nin bütün tarihsel gözlemlerini indirmek yerine tam metadata kataloğu ve
   görevle ilişkili 61 kaynak seri tutulur. Bu, yanlış seri seçimini ve gereksiz veri
   hacmini azaltan bilinçli bir tasarımdır.

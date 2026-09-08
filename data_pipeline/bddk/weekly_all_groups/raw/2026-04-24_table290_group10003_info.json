@@ -1,0 +1,31 @@
+{
+  "status": "validated",
+  "diagnosis": "validated_bddk_weekly_html_table",
+  "source_url": "https://www.bddk.org.tr/BultenHaftalik/",
+  "sha256_uncompressed": "3f5230dcb47b9c6f0f10240b3156e97bdb5c38d21cd6078a48f7aab4a2b1028f",
+  "compressed_bytes": 14350,
+  "uncompressed_bytes": 190929,
+  "served_from_cache": true,
+  "completed_at_utc": "2026-09-08T08:27:03.986785+00:00",
+  "table_id": 290,
+  "table_name": "Takipteki Alacaklar",
+  "group_code": 10003,
+  "group_name": "Kalkinma ve Yatirim",
+  "period_id": 643,
+  "observation_date": "2026-04-24",
+  "week_number": 17,
+  "source_period_label": "Nisan/24 (17. Hafta)",
+  "source_date_heading": "Tarih: 24 Nisan 2026 Cuma | Birim: Milyon TL",
+  "source_date_parsed": "2026-04-24",
+  "headers": [
+    "",
+    "Takipteki Alacaklar",
+    "TP",
+    "YP",
+    "TOPLAM"
+  ],
+  "rows": 12,
+  "max_cells_per_row": 5,
+  "unit_heading": "Milyon TL",
+  "date_heading_normalized": "tarih: 24 nisan 2026 cuma | birim: milyon tl"
+}

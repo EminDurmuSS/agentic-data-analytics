@@ -1,0 +1,31 @@
+{
+  "status": "validated",
+  "diagnosis": "validated_bddk_weekly_html_table",
+  "source_url": "https://www.bddk.org.tr/BultenHaftalik/",
+  "sha256_uncompressed": "695059c1b4ae934d066ce4775ea71e022af4ab629dda9f00189eae7e2030ba1f",
+  "compressed_bytes": 14679,
+  "uncompressed_bytes": 191481,
+  "served_from_cache": true,
+  "completed_at_utc": "2026-09-08T08:25:20.542780+00:00",
+  "table_id": 292,
+  "table_name": "Mevduat",
+  "group_code": 10001,
+  "group_name": "Sektor",
+  "period_id": 447,
+  "observation_date": "2022-07-22",
+  "week_number": 29,
+  "source_period_label": "Temmuz/22 (29. Hafta)",
+  "source_date_heading": "Tarih: 22 Temmuz 2022 Cuma | Birim: Milyon TL",
+  "source_date_parsed": "2022-07-22",
+  "headers": [
+    "",
+    "Mevduat",
+    "TP",
+    "YP",
+    "TOPLAM"
+  ],
+  "rows": 12,
+  "max_cells_per_row": 5,
+  "unit_heading": "Milyon TL",
+  "date_heading_normalized": "tarih: 22 temmuz 2022 cuma | birim: milyon tl"
+}

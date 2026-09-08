@@ -1,0 +1,31 @@
+{
+  "status": "validated",
+  "diagnosis": "validated_bddk_weekly_html_table",
+  "source_url": "https://www.bddk.org.tr/BultenHaftalik/",
+  "sha256_uncompressed": "ec1fd77469ab416f2eea0f231bd61f51f61b6f844f6c8f14f0760ef9e711f1bd",
+  "compressed_bytes": 15200,
+  "uncompressed_bytes": 203587,
+  "served_from_cache": true,
+  "completed_at_utc": "2026-09-08T08:27:51.329492+00:00",
+  "table_id": 289,
+  "table_name": "Krediler",
+  "group_code": 10004,
+  "group_name": "Katilim",
+  "period_id": 413,
+  "observation_date": "2021-11-26",
+  "week_number": 47,
+  "source_period_label": "Kasım/26 (47. Hafta)",
+  "source_date_heading": "Tarih: 26 Kasım 2021 Cuma | Birim: Milyon TL",
+  "source_date_parsed": "2021-11-26",
+  "headers": [
+    "",
+    "Krediler",
+    "TP",
+    "YP",
+    "TOPLAM"
+  ],
+  "rows": 20,
+  "max_cells_per_row": 5,
+  "unit_heading": "Milyon TL",
+  "date_heading_normalized": "tarih: 26 kasim 2021 cuma | birim: milyon tl"
+}

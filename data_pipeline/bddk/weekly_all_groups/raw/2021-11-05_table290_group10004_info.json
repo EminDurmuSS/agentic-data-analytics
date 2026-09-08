@@ -1,0 +1,31 @@
+{
+  "status": "validated",
+  "diagnosis": "validated_bddk_weekly_html_table",
+  "source_url": "https://www.bddk.org.tr/BultenHaftalik/",
+  "sha256_uncompressed": "d4039f83b273b82b9d44506bcc960a4fe1a333c687903951134482864792fa15",
+  "compressed_bytes": 14419,
+  "uncompressed_bytes": 190653,
+  "served_from_cache": true,
+  "completed_at_utc": "2026-09-08T08:27:57.499313+00:00",
+  "table_id": 290,
+  "table_name": "Takipteki Alacaklar",
+  "group_code": 10004,
+  "group_name": "Katilim",
+  "period_id": 410,
+  "observation_date": "2021-11-05",
+  "week_number": 44,
+  "source_period_label": "Kasım/05 (44. Hafta)",
+  "source_date_heading": "Tarih: 5 Kasım 2021 Cuma | Birim: Milyon TL",
+  "source_date_parsed": "2021-11-05",
+  "headers": [
+    "",
+    "Takipteki Alacaklar",
+    "TP",
+    "YP",
+    "TOPLAM"
+  ],
+  "rows": 12,
+  "max_cells_per_row": 5,
+  "unit_heading": "Milyon TL",
+  "date_heading_normalized": "tarih: 5 kasim 2021 cuma | birim: milyon tl"
+}

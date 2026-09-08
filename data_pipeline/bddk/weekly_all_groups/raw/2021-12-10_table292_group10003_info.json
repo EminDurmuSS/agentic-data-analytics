@@ -1,0 +1,31 @@
+{
+  "status": "validated",
+  "diagnosis": "validated_bddk_weekly_html_table",
+  "source_url": "https://www.bddk.org.tr/BultenHaftalik/",
+  "sha256_uncompressed": "581a2fbe02d8c1e9893c015c64f79385e995e2d6280841429af902dd7d0f6cef",
+  "compressed_bytes": 13989,
+  "uncompressed_bytes": 189209,
+  "served_from_cache": true,
+  "completed_at_utc": "2026-09-08T08:27:11.500569+00:00",
+  "table_id": 292,
+  "table_name": "Mevduat",
+  "group_code": 10003,
+  "group_name": "Kalkinma ve Yatirim",
+  "period_id": 415,
+  "observation_date": "2021-12-10",
+  "week_number": 49,
+  "source_period_label": "Aralık/10 (49. Hafta)",
+  "source_date_heading": "Tarih: 10 Aralık 2021 Cuma | Birim: Milyon TL",
+  "source_date_parsed": "2021-12-10",
+  "headers": [
+    "",
+    "Mevduat",
+    "TP",
+    "YP",
+    "TOPLAM"
+  ],
+  "rows": 11,
+  "max_cells_per_row": 5,
+  "unit_heading": "Milyon TL",
+  "date_heading_normalized": "tarih: 10 aralik 2021 cuma | birim: milyon tl"
+}

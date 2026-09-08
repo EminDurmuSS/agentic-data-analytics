@@ -1,0 +1,31 @@
+{
+  "status": "validated",
+  "diagnosis": "validated_bddk_weekly_html_table",
+  "source_url": "https://www.bddk.org.tr/BultenHaftalik/",
+  "sha256_uncompressed": "41a6d3ff04242852c6302f6d6e8e5e50fd7bb383bfa79a2faba97a4b02a63022",
+  "compressed_bytes": 15139,
+  "uncompressed_bytes": 196787,
+  "served_from_cache": true,
+  "completed_at_utc": "2026-09-08T08:25:28.185274+00:00",
+  "table_id": 293,
+  "table_name": "Diger Bilanco Kalemleri",
+  "group_code": 10001,
+  "group_name": "Sektor",
+  "period_id": 575,
+  "observation_date": "2025-01-03",
+  "week_number": 1,
+  "source_period_label": "Ocak/03 (1. Hafta)",
+  "source_date_heading": "Tarih: 3 Ocak 2025 Cuma | Birim: Milyon TL",
+  "source_date_parsed": "2025-01-03",
+  "headers": [
+    "",
+    "Diğer Bilanço Kalemleri",
+    "TP",
+    "YP",
+    "TOPLAM"
+  ],
+  "rows": 16,
+  "max_cells_per_row": 5,
+  "unit_heading": "Milyon TL",
+  "date_heading_normalized": "tarih: 3 ocak 2025 cuma | birim: milyon tl"
+}

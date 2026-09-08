@@ -1,0 +1,31 @@
+{
+  "status": "validated",
+  "diagnosis": "validated_bddk_weekly_html_table",
+  "source_url": "https://www.bddk.org.tr/BultenHaftalik/",
+  "sha256_uncompressed": "1387851b2365b62f51d426c4826a186480758dc7d50be91c18cbb5874fe07579",
+  "compressed_bytes": 14663,
+  "uncompressed_bytes": 193673,
+  "served_from_cache": true,
+  "completed_at_utc": "2026-09-08T08:27:07.349783+00:00",
+  "table_id": 291,
+  "table_name": "Menkul Degerler",
+  "group_code": 10003,
+  "group_name": "Kalkinma ve Yatirim",
+  "period_id": 500,
+  "observation_date": "2023-07-28",
+  "week_number": 30,
+  "source_period_label": "Temmuz/28 (30. Hafta)",
+  "source_date_heading": "Tarih: 28 Temmuz 2023 Cuma | Birim: Milyon TL",
+  "source_date_parsed": "2023-07-28",
+  "headers": [
+    "",
+    "Menkul Değerler",
+    "TP",
+    "YP",
+    "TOPLAM"
+  ],
+  "rows": 13,
+  "max_cells_per_row": 5,
+  "unit_heading": "Milyon TL",
+  "date_heading_normalized": "tarih: 28 temmuz 2023 cuma | birim: milyon tl"
+}

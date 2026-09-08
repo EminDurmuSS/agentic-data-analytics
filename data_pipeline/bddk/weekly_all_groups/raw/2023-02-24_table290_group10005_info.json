@@ -1,0 +1,31 @@
+{
+  "status": "validated",
+  "diagnosis": "validated_bddk_weekly_html_table",
+  "source_url": "https://www.bddk.org.tr/BultenHaftalik/",
+  "sha256_uncompressed": "de135d32f761c7664f94d6c6fd8843101289da3270986759c1126f64f1330035",
+  "compressed_bytes": 14451,
+  "uncompressed_bytes": 190754,
+  "served_from_cache": true,
+  "completed_at_utc": "2026-09-08T08:29:02.754265+00:00",
+  "table_id": 290,
+  "table_name": "Takipteki Alacaklar",
+  "group_code": 10005,
+  "group_name": "Kamu",
+  "period_id": 478,
+  "observation_date": "2023-02-24",
+  "week_number": 8,
+  "source_period_label": "Şubat/24 (8. Hafta)",
+  "source_date_heading": "Tarih: 24 Şubat 2023 Cuma | Birim: Milyon TL",
+  "source_date_parsed": "2023-02-24",
+  "headers": [
+    "",
+    "Takipteki Alacaklar",
+    "TP",
+    "YP",
+    "TOPLAM"
+  ],
+  "rows": 12,
+  "max_cells_per_row": 5,
+  "unit_heading": "Milyon TL",
+  "date_heading_normalized": "tarih: 24 subat 2023 cuma | birim: milyon tl"
+}

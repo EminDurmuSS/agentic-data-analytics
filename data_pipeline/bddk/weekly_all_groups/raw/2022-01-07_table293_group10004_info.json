@@ -1,0 +1,31 @@
+{
+  "status": "validated",
+  "diagnosis": "validated_bddk_weekly_html_table",
+  "source_url": "https://www.bddk.org.tr/BultenHaftalik/",
+  "sha256_uncompressed": "a272c23d0b8467f5d728e2381fe04fd14ba85540017c14cc272735f2bc9c8b9d",
+  "compressed_bytes": 14901,
+  "uncompressed_bytes": 196329,
+  "served_from_cache": true,
+  "completed_at_utc": "2026-09-08T08:28:16.388498+00:00",
+  "table_id": 293,
+  "table_name": "Diger Bilanco Kalemleri",
+  "group_code": 10004,
+  "group_name": "Katilim",
+  "period_id": 419,
+  "observation_date": "2022-01-07",
+  "week_number": 1,
+  "source_period_label": "Ocak/07 (1. Hafta)",
+  "source_date_heading": "Tarih: 7 Ocak 2022 Cuma | Birim: Milyon TL",
+  "source_date_parsed": "2022-01-07",
+  "headers": [
+    "",
+    "Diğer Bilanço Kalemleri",
+    "TP",
+    "YP",
+    "TOPLAM"
+  ],
+  "rows": 16,
+  "max_cells_per_row": 5,
+  "unit_heading": "Milyon TL",
+  "date_heading_normalized": "tarih: 7 ocak 2022 cuma | birim: milyon tl"
+}

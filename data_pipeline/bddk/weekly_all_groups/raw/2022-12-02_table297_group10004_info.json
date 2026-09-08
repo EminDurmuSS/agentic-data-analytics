@@ -1,0 +1,29 @@
+{
+  "status": "validated",
+  "diagnosis": "validated_bddk_weekly_html_table",
+  "source_url": "https://www.bddk.org.tr/BultenHaftalik/",
+  "sha256_uncompressed": "827f45ee7c9c6dcfbbb1073ccf42364be1350a84e358d55e3543fc96f4e6daf1",
+  "compressed_bytes": 13999,
+  "uncompressed_bytes": 183083,
+  "served_from_cache": true,
+  "completed_at_utc": "2026-09-08T08:28:48.976334+00:00",
+  "table_id": 297,
+  "table_name": "Yabanci Para Pozisyonu",
+  "group_code": 10004,
+  "group_name": "Katilim",
+  "period_id": 466,
+  "observation_date": "2022-12-02",
+  "week_number": 48,
+  "source_period_label": "Aralık/02 (48. Hafta)",
+  "source_date_heading": "Tarih: 2 Aralık 2022 Cuma | Birim: Milyon TL",
+  "source_date_parsed": "2022-12-02",
+  "headers": [
+    "",
+    "Yabancı Para Pozisyonu",
+    "TOPLAM"
+  ],
+  "rows": 10,
+  "max_cells_per_row": 3,
+  "unit_heading": "Milyon TL",
+  "date_heading_normalized": "tarih: 2 aralik 2022 cuma | birim: milyon tl"
+}

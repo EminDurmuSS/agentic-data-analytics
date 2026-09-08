@@ -6,7 +6,7 @@ import pandas as pd
 
 
 ROOT = Path(__file__).resolve().parents[1]
-PROCESSED = ROOT / "data_pipeline" / "bddk" / "processed" / "monthly_all_sector"
+PROCESSED = ROOT / "data_pipeline" / "bddk" / "processed" / "monthly_all_groups"
 
 
 class BddkMonthlyAllDatasetTests(unittest.TestCase):
@@ -20,10 +20,14 @@ class BddkMonthlyAllDatasetTests(unittest.TestCase):
     def test_all_17_tables_cover_all_66_months(self):
         self.assertEqual("passed", self.validation["status"])
         self.assertEqual(1122, self.validation["source_file_count"])
+        self.assertEqual(11220, self.validation["source_table_group_count"])
         self.assertEqual(17, self.validation["table_count"])
         self.assertEqual(66, self.validation["period_count"])
-        self.assertEqual(33965, self.validation["total_rows"])
-        self.assertEqual(1122, len(self.catalog))
+        self.assertEqual(10, self.validation["group_count"])
+        self.assertEqual(339650, self.validation["total_rows"])
+        self.assertEqual(1122, self.validation["group_row_identity_checks"])
+        self.assertEqual(11220, len(self.catalog))
+        self.assertEqual(set(range(10001, 10011)), set(self.catalog["group_code"]))
 
     def test_source_keys_are_unique_and_portable(self):
         self.assertFalse(

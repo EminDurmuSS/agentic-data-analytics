@@ -1,0 +1,31 @@
+{
+  "status": "validated",
+  "diagnosis": "validated_bddk_weekly_html_table",
+  "source_url": "https://www.bddk.org.tr/BultenHaftalik/",
+  "sha256_uncompressed": "93c0d48eb136af0bdf593c2d72aa7e1d63b43d6764145312915adff6fe539a3a",
+  "compressed_bytes": 17117,
+  "uncompressed_bytes": 244755,
+  "served_from_cache": true,
+  "completed_at_utc": "2026-09-08T08:26:32.055553+00:00",
+  "table_id": 295,
+  "table_name": "Bankalarda Saklanan Menkul Degerler - 1",
+  "group_code": 10002,
+  "group_name": "Mevduat",
+  "period_id": 461,
+  "observation_date": "2022-10-28",
+  "week_number": 43,
+  "source_period_label": "Ekim/28 (43. Hafta)",
+  "source_date_heading": "Tarih: 28 Ekim 2022 Cuma | Birim: Milyon TL",
+  "source_date_parsed": "2022-10-28",
+  "headers": [
+    "",
+    "Bankalarda Saklanan Menkul Değerler - 1",
+    "TP",
+    "YP",
+    "TOPLAM"
+  ],
+  "rows": 45,
+  "max_cells_per_row": 5,
+  "unit_heading": "Milyon TL",
+  "date_heading_normalized": "tarih: 28 ekim 2022 cuma | birim: milyon tl"
+}

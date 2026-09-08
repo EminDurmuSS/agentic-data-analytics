@@ -1,0 +1,31 @@
+{
+  "status": "validated",
+  "diagnosis": "validated_bddk_weekly_html_table",
+  "source_url": "https://www.bddk.org.tr/BultenHaftalik/",
+  "sha256_uncompressed": "6a4a22e164747cd3d6c655e28ac9cca75e5b33ae3c3a015c64e6ac5400471110",
+  "compressed_bytes": 14494,
+  "uncompressed_bytes": 190846,
+  "served_from_cache": true,
+  "completed_at_utc": "2026-09-08T08:25:11.410441+00:00",
+  "table_id": 290,
+  "table_name": "Takipteki Alacaklar",
+  "group_code": 10001,
+  "group_name": "Sektor",
+  "period_id": 532,
+  "observation_date": "2024-03-08",
+  "week_number": 10,
+  "source_period_label": "Mart/08 (10. Hafta)",
+  "source_date_heading": "Tarih: 8 Mart 2024 Cuma | Birim: Milyon TL",
+  "source_date_parsed": "2024-03-08",
+  "headers": [
+    "",
+    "Takipteki Alacaklar",
+    "TP",
+    "YP",
+    "TOPLAM"
+  ],
+  "rows": 12,
+  "max_cells_per_row": 5,
+  "unit_heading": "Milyon TL",
+  "date_heading_normalized": "tarih: 8 mart 2024 cuma | birim: milyon tl"
+}

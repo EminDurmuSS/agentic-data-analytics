@@ -1,14 +1,16 @@
 #!/usr/bin/env python3
 """BDDK public monthly downloader and explicit access diagnosis (Python 3.9+).
 
-Default: sector consumer-credit table, Jan2021-Jun2026. Standard-library only.
+Default: all 17 tables and all 10 public bank groups, Jan2021-Jun2026.
+Standard-library only.
 The observed server contract was checked against the rbrsa author's source:
 https://github.com/obakis/rbrsa/blob/main/R/fetch_bddk.R
-Live BDDK data retrieval is blocked in the authoring environment by an upstream
-certificate error. This script does NOT claim a successful local-PC run yet.
+Live TLS-verified retrieval and the public 10-group request contract were
+validated on 2026-09-08.
 """
 import argparse
 import csv
+from collections import Counter
 import hashlib
 import json
 import re
@@ -29,6 +31,22 @@ MONTHLY_PATH='/BultenAylik/tr/Home/BasitRaporGetir'
 HEADERS={'Content-Type':'application/x-www-form-urlencoded; charset=UTF-8',
          'Accept':'application/json','X-Requested-With':'XMLHttpRequest',
          'User-Agent':'BDDK-Public-Data-Research/1.0'}
+
+# Verified from the live public monthly page on 2026-09-08. The monthly and
+# weekly applications use different meanings for some of the same codes, so
+# these mappings intentionally remain local to each downloader.
+GROUPS = {
+    10001: 'Sektör',
+    10002: 'Mevduat',
+    10003: 'Katılım',
+    10004: 'Kalkınma ve Yatırım',
+    10005: 'Yerli Özel',
+    10006: 'Kamu',
+    10007: 'Yabancı',
+    10008: 'Mevduat-Yerli Özel',
+    10009: 'Mevduat-Kamu',
+    10010: 'Mevduat-Yabancı',
+}
 
 def now(): return datetime.now(timezone.utc).isoformat()
 def digest(data): return hashlib.sha256(data).hexdigest()
@@ -143,23 +161,52 @@ def make_bundle(output):
             if path.is_file():z.write(path,str(path.relative_to(output.parent)))
     return bundle
 
+def request_batches(groups,mode):
+    if mode=='combined':return [groups]
+    return [[group] for group in groups]
+
+def request_stem(period,table,batch):
+    if len(batch)==1:return f'{period}_table{table:02}_group{batch[0]}'
+    return f'{period}_table{table:02}_groups'+('-'.join(str(group) for group in batch))
+
+def validate_requested_groups(rows,batch):
+    counts=Counter(str(row.get('BankaAdi')) for row in rows)
+    expected={GROUPS[group] for group in batch}
+    actual=set(counts)
+    if actual!=expected:
+        raise ValueError(
+            'BDDK cevap gruplari istekle uyusmuyor: '
+            f'eksik={sorted(expected-actual)}, beklenmeyen={sorted(actual-expected)}'
+        )
+    if any(count<=0 for count in counts.values()):
+        raise ValueError('BDDK cevap grubunda veri satiri yok.')
+    return counts
+
 def run(args):
-    if args.timeout<=0 or args.retries<0 or args.delay<0:
-        raise ValueError('Timeout pozitif; retries ve delay negatif olmayan sayilar olmali.')
+    if args.timeout<=0 or args.retries<0 or args.delay<0 or args.checkpoint_every<=0:
+        raise ValueError('Timeout ve checkpoint pozitif; retries ve delay negatif olmayan sayilar olmali.')
     output=Path(args.output).expanduser().resolve();output.mkdir(parents=True,exist_ok=True)
     raw=output/'raw';raw.mkdir(exist_ok=True)
     periods=months(args.start,args.end)
     tables=list(range(1,18)) if args.all_monthly_tables else sorted(set(args.tables))
     if any(t not in range(1,18) for t in tables):raise ValueError('Aylik tablo numarasi 1..17 olmali.')
-    # One bank group per request keeps attribution independent of response order.
+    # Combined mode reduces the full all-group scope to one request per
+    # table-period. Every returned row is still attributed and validated by
+    # the exact public BankaAdi label.
     groups=sorted(set(args.groups))
-    if any(g < 10001 or g > 99999 for g in groups):raise ValueError('Banka grubu kodunu katalogdan kontrol edin.')
+    if any(g not in GROUPS for g in groups):
+        raise ValueError('Aylik banka grubu kodu resmi katalogdaki 10001..10010 kodlarindan biri olmali.')
     if args.probe:periods=[args.end];tables=[4];groups=[10001]
+    batches=request_batches(groups,args.request_mode)
     config={'start':args.start,'end':args.end,'period_count':len(periods),'tables':tables,
-        'groups':groups,'reporting_currency':'TL','host':args.host,'transport':args.transport,
+        'groups':{str(group):GROUPS[group] for group in groups},'reporting_currency':'TL','host':args.host,'transport':args.transport,
+        'request_mode':args.request_mode,
         'scope':'BDDK monthly public tables; not weekly or FinTurk',
         'unit_policy':'Preserve source columns and jqGrid identifiers; labels/units stay in raw Json. Validate table-specific units against export metadata.',
-        'tls_verification':True,'contract_source':'https://github.com/obakis/rbrsa/blob/main/R/fetch_bddk.R'}
+        'tls_verification':True,
+        'group_catalog_source':'https://www.bddk.org.tr/BultenAylik/tr/',
+        'group_catalog_verified_at':'2026-09-08',
+        'contract_source':'https://github.com/obakis/rbrsa/blob/main/R/fetch_bddk.R'}
     config_file=output/'request_config.json'
     if config_file.exists() and json.loads(config_file.read_text(encoding='utf-8'))!=config:
         raise ValueError('Bu klasor farkli secimlerle kullanilmis; yeni --output klasoru secin.')
@@ -167,22 +214,25 @@ def run(args):
     records=[];combined=[];failure=False
     for period in periods:
         for table in tables:
-            for group in groups:
-                name=f'{period}_table{table:02}_group{group}'
+            for batch in batches:
+                name=request_stem(period,table,batch)
                 response_path=raw/(name+'.json');info_path=raw/(name+'_info.json')
                 cached=False
                 if response_path.exists() and info_path.exists():
                     info=json.loads(info_path.read_text(encoding='utf-8'));data=response_path.read_bytes()
-                    cached=info.get('status')=='validated' and info.get('sha256')==digest(data)
+                    cached=(info.get('status')=='validated' and info.get('sha256')==digest(data)
+                        and [int(value) for value in info.get('group_codes',[])]==batch)
                 if not cached:
                     year,month=period.split('-')
-                    form=[('tabloNo',str(table)),('yil',year),('ay',str(int(month))),('paraBirimi','TL'),('taraf',str(group))]
+                    form=[('tabloNo',str(table)),('yil',year),('ay',str(int(month))),('paraBirimi','TL')]
+                    form.extend(('taraf',str(group)) for group in batch)
                     url='https://'+args.host+MONTHLY_PATH
                     body=urllib.parse.urlencode(form).encode()
                     attempt_history=[]
                     for attempt in range(1,args.retries+2):
                         data,info=fetch(url,body,args.transport,args.timeout,args.ca_bundle)
-                        info.update(period=period,table_no=table,group_code=group,form=form,attempt=attempt)
+                        info.update(period=period,table_no=table,group_codes=batch,
+                            group_names={str(group):GROUPS[group] for group in batch},form=form,attempt=attempt)
                         attempt_history.append({
                             'attempt':attempt,
                             'http_status':info.get('http_status'),
@@ -206,6 +256,7 @@ def run(args):
                     if not info.get('http_status') or not 200<=info['http_status']<300:
                         raise ValueError(info.get('diagnosis','HTTP hatasi'))
                     rows=parse_response(data)
+                    group_counts=validate_requested_groups(rows,batch)
                     # BasitSira is a display order, not a guaranteed primary key. BDDK
                     # occasionally publishes two distinct labels with the same order.
                     # Preserve both rows and reject only a duplicate composite identity.
@@ -218,37 +269,47 @@ def run(args):
                         status='validated',
                         diagnosis='validated_bddk_table',
                         rows=len(rows),
+                        rows_by_group=dict(sorted(group_counts.items())),
                         duplicate_display_orders=duplicate_orders,
                         served_from_cache=cached,
                     )
                     for row_index,row in enumerate(rows, start=1):
+                        group_name=str(row.get('BankaAdi'))
+                        group_code=next(code for code,name in GROUPS.items() if name==group_name)
                         combined.append({'_requested_period':period,'_requested_table_no':table,
-                            '_requested_group_code':group,'_source_row_index':row_index,**row})
-                    print(f'{period} tablo={table} grup={group}: {len(rows)} satir'+(' (kayitli)' if cached else ''),flush=True)
+                            '_requested_group_code':group_code,'_requested_group_name':group_name,
+                            '_source_row_index':row_index,**row})
+                    print(f'{period} tablo={table} gruplar={len(batch)}: {len(rows)} satir'+(' (kayitli)' if cached else ''),flush=True)
                 except Exception as exc:
                     info.update(status='failed',validation_error=str(exc));failure=True
                     print('DURDU:',info.get('diagnosis'),str(exc),flush=True)
                 write_json(info_path,info);records.append(info)
-                write_json(output/'manifest.json',records)
+                if failure or len(records) % args.checkpoint_every == 0:
+                    write_json(output/'manifest.json',records)
                 if failure:break
                 if not cached:time.sleep(args.delay)
             if failure:break
         if failure:break
-    if combined:
+    write_json(output/'manifest.json',records)
+    if combined and args.write_combined_csv:
         columns=list(dict.fromkeys(k for row in combined for k in row))
         with (output/'monthly_rows.csv').open('w',encoding='utf-8-sig',newline='') as handle:
             writer=csv.DictWriter(handle,fieldnames=columns);writer.writeheader();writer.writerows(combined)
-    expected=len(periods)*len(tables)*len(groups)
+    expected=len(periods)*len(tables)*len(batches)
     successes=sum(r.get('status')=='validated' for r in records)
     summary={'status':'complete' if successes==expected and not failure else 'incomplete',
         'validation_level':'HTTP and schema checks; requested period/group and source units still need export metadata verification.',
         'expected_requests':expected,'successful_requests':successes,'rows':len(combined),
+        'group_count':len(groups),'groups':{str(group):GROUPS[group] for group in groups},
+        'request_mode':args.request_mode,
+        'combined_csv_written':bool(args.write_combined_csv),
         'missing_requests':expected-successes,'first_failure':next((r for r in records if r.get('status')=='failed'),None),
         'notes':['HTTP200 alone is not data validation.','No filling, no TLS bypass, no claim of bank-scope equivalence with TCMB.']}
     write_json(output/'summary.json',summary)
-    bundle=make_bundle(output)
     print('\nSonuc:',summary['status'],f'({successes}/{expected} istek)')
-    print('Paylasilabilir dosya:',bundle)
+    if args.bundle:
+        bundle=make_bundle(output)
+        print('Paylasilabilir dosya:',bundle)
     if failure:
         diagnosis=summary['first_failure'].get('diagnosis')
         if diagnosis=='gateway_upstream_certificate_failure':
@@ -261,8 +322,9 @@ def run(args):
 def main():
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--start',default='2021-01');parser.add_argument('--end',default='2026-06')
-    parser.add_argument('--tables',nargs='+',type=int,default=[4])
-    parser.add_argument('--groups',nargs='+',type=int,default=[10001])
+    parser.add_argument('--tables',nargs='+',type=int,default=list(range(1,18)))
+    parser.add_argument('--groups',nargs='+',type=int,default=sorted(GROUPS))
+    parser.add_argument('--request-mode',choices=['combined','separate'],default='combined')
     parser.add_argument('--all-monthly-tables',action='store_true')
     parser.add_argument('--probe',action='store_true',help='Only June2026 consumer-credit sector table (or --end).')
     parser.add_argument('--host',choices=['www.bddk.org.tr','www.bddk.gov.tr'],default='www.bddk.org.tr')
@@ -270,8 +332,11 @@ def main():
     parser.add_argument('--timeout',type=int,default=30)
     parser.add_argument('--retries',type=int,default=4)
     parser.add_argument('--delay',type=float,default=0.6)
+    parser.add_argument('--checkpoint-every',type=int,default=50)
+    parser.add_argument('--write-combined-csv',action='store_true')
+    parser.add_argument('--bundle',action='store_true')
     parser.add_argument('--ca-bundle',type=Path,help='Optional already trusted PEM CA bundle; verification remains enabled.')
-    parser.add_argument('--output',default='BDDK_Verileri')
+    parser.add_argument('--output',default='data_pipeline/bddk/monthly_all_groups')
     args=parser.parse_args()
     try:return run(args)
     except Exception as exc:print('HATA:',exc,file=sys.stderr);return 2

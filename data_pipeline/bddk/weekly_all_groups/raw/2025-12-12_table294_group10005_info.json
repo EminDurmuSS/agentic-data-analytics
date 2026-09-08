@@ -1,0 +1,31 @@
+{
+  "status": "validated",
+  "diagnosis": "validated_bddk_weekly_html_table",
+  "source_url": "https://www.bddk.org.tr/BultenHaftalik/",
+  "sha256_uncompressed": "fe056a5981b301aedf36310844770e6447ee936fc528562d7e0436c1efede915",
+  "compressed_bytes": 13931,
+  "uncompressed_bytes": 179675,
+  "served_from_cache": true,
+  "completed_at_utc": "2026-09-08T08:29:30.610444+00:00",
+  "table_id": 294,
+  "table_name": "Bilanco Disi Islemler",
+  "group_code": 10005,
+  "group_name": "Kamu",
+  "period_id": 624,
+  "observation_date": "2025-12-12",
+  "week_number": 50,
+  "source_period_label": "Aralık/12 (50. Hafta)",
+  "source_date_heading": "Tarih: 12 Aralık 2025 Cuma | Birim: Milyon TL",
+  "source_date_parsed": "2025-12-12",
+  "headers": [
+    "",
+    "Bilanço Dışı İşlemler",
+    "TP",
+    "YP",
+    "TOPLAM"
+  ],
+  "rows": 4,
+  "max_cells_per_row": 5,
+  "unit_heading": "Milyon TL",
+  "date_heading_normalized": "tarih: 12 aralik 2025 cuma | birim: milyon tl"
+}

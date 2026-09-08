@@ -1,0 +1,31 @@
+{
+  "status": "validated",
+  "diagnosis": "validated_bddk_weekly_html_table",
+  "source_url": "https://www.bddk.org.tr/BultenHaftalik/",
+  "sha256_uncompressed": "e102bd0bb771a4b5ec8ce51facff2703074e46dfc956496ca20184596ea91854",
+  "compressed_bytes": 14734,
+  "uncompressed_bytes": 193829,
+  "served_from_cache": true,
+  "completed_at_utc": "2026-09-08T08:31:11.362498+00:00",
+  "table_id": 291,
+  "table_name": "Menkul Degerler",
+  "group_code": 10007,
+  "group_name": "Yerli Ozel",
+  "period_id": 496,
+  "observation_date": "2023-06-27",
+  "week_number": 26,
+  "source_period_label": "Haziran/27 (26. Hafta)",
+  "source_date_heading": "Tarih: 27 Haziran 2023 Salı | Birim: Milyon TL",
+  "source_date_parsed": "2023-06-27",
+  "headers": [
+    "",
+    "Menkul Değerler",
+    "TP",
+    "YP",
+    "TOPLAM"
+  ],
+  "rows": 13,
+  "max_cells_per_row": 5,
+  "unit_heading": "Milyon TL",
+  "date_heading_normalized": "tarih: 27 haziran 2023 sali | birim: milyon tl"
+}
