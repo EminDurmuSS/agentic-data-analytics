@@ -9,13 +9,26 @@
   "measurement_row_count": 936512,
   "missing_measurement_count": 30892,
   "structural_missing_measurement_count": 29564,
-  "unresolved_missing_measurement_count": 1328,
+  "unresolved_missing_measurement_count": 0,
+  "analytically_resolved_missing_measurement_count": 1328,
+  "analytical_null_measurement_count": 29564,
   "missing_kind_counts": {
     "source_not_applicable": 7128,
     "source_not_reported": 1328,
     "structural_undefined": 22436
   },
   "missingness_audit_rows": 47,
+  "branch_zero_fallback_audit_rows": 1328,
+  "branch_function_group_identity": {
+    "identity_formula": "SEKTOR = MEVDUAT + KATILIM + KALKINMA_VE_YATIRIM",
+    "identity_row_count": 1782,
+    "identity_violation_count": 0,
+    "identity_max_abs_residual": 0.0,
+    "source_null_count": 1328,
+    "derived_zero_count": 1328,
+    "unresolved_count": 0,
+    "metadata_url": "https://www.bddk.org.tr/BultenFinturk/tr/Home/MetaveriPdfIndir?tabloNo=6"
+  },
   "column_dictionary_count": 76,
   "tables": {
     "1": {
@@ -183,10 +196,11 @@
     "Every raw response is hash-checked against its validated request record.",
     "Different source table schemas remain separate in wide outputs.",
     "A generic long measurement table is produced without inventing missing rows.",
-    "Missing values remain null and are never converted to zero.",
+    "Raw missing values remain null and are never overwritten.",
+    "A separate usable_value is populated only when an exact source-table identity proves the analytical value.",
     "Every source null is classified as structural_undefined, source_not_applicable or source_not_reported.",
     "Ratios are structurally undefined when their explicit denominator is zero.",
-    "Source-not-reported branch counts remain unresolved instead of being guessed as zero.",
+    "Source-null function-group branch counts are analytically zero only when SEKTOR = MEVDUAT + KATILIM + KALKINMA_VE_YATIRIM holds with zero residual.",
     "FinTurk values are quarterly period-end observations, not monthly flows.",
     "Source row counts, absent group-city combinations and schema changes are reported."
   ]

@@ -18,20 +18,22 @@ ve yeniden üretilebilir biçimde hazırlanmasıdır.
 | TBB tüketici kredileri | 2021 Mart-2026 Mart, 21 yayımlanmış çeyrek | Tamamlandı; 8 Eylül 2026 kontrolünde 2026 Haziran raporu kaynakta yok |
 | Resmî karar belgeleri | 4 BDDK kararı ve 4 TCMB destek belgesi | Tam metin, çıkarılmış metin ve SHA-256 mevcut |
 
-Ham kaynak değerleri değiştirilmez. Eksik gözlemler sıfır yapılmaz, stok ile
-kullandırım akımı karıştırılmaz, kümülatif değer ile türetilen dönemlik akım
-ayrı tutulur ve çeyreklik veri ara aylara yapay olarak yayılmaz.
+Ham kaynak değerleri değiştirilmez. Bir değer yalnız aynı resmî kaynak içindeki
+kesin bir toplamsal kimlikle kanıtlanabiliyorsa ayrı `usable_value` ve audit
+kaydıyla kullanılabilir. Stok ile kullandırım akımı karıştırılmaz, kümülatif
+değer ile türetilen dönemlik akım ayrı tutulur ve çeyreklik veri ara aylara
+yapay olarak yayılmaz.
 
 ## Ölçek
 
 - BDDK aylık: 1.122 resmî istek, 11.220 tablo-grup kaydı, 339.650 kaynak satırı, 1.334.850 semantik ölçüm
 - BDDK haftalık: 18.018 resmî sayfa, 1.736.650 ham hücre, 1.025.974 ölçüm. Kaynaktaki 2.230 boş hücrenin tamamı yapısal `FX uygulanamaz` olarak açıklandı
-- BDDK FinTürk: 84.484 kaynak satırı, 936.512 ölçüm. 30.892 kaynak boşluğunun 29.564'ü yapısal, 1.328'i kaynakta raporlanmamış olarak sınıflandırıldı
+- BDDK FinTürk: 84.484 kaynak satırı, 936.512 ölçüm. 30.892 kaynak boşluğunun 29.564'ü yapısal. 1.328 şube sayısı hücresinin ham null değeri korundu, tamamı fonksiyon grubu kimliğiyle analitik sıfır olarak kanıtlandı, çözümlenmemiş şube boşluğu 0
 - EVDS: 52.696 seri metadata kaydı, 506 seçilmiş kaynak seride 42.980 gözlem ve 1 türetilmiş altın serisi
 - Bölgesel panel: 81 il x 22 çeyrek, 1.782 tekil satır, 26 analitik metrik
 - TÜİK il konut satışları: 31.590 il-ay-metrik satırı, EVDS ile 25.262 birebir eşleşme, 0 değer uyuşmazlığı
-- Birleşik katalog: 65 veri varlığı, 55.489 metrik, 3.297 yerel sorgulanabilir metrik
-- DuckDB: 9 şema, 58 tablo, mutlak dosya yoluna ihtiyaç duymayan tek dosya
+- Birleşik katalog: 66 veri varlığı, 55.489 metrik, 3.297 yerel sorgulanabilir metrik
+- DuckDB: 9 şema, 60 tablo, mutlak dosya yoluna ihtiyaç duymayan tek dosya
 
 ## Klasörler
 

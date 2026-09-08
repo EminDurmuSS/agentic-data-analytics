@@ -651,6 +651,8 @@ def finturk_assets_and_metrics() -> tuple[list[dict[str, Any]], list[dict[str, A
         measurements.groupby(["table_no", "measure_code"], sort=True)
         .agg(
             observation_count=("value", "count"),
+            usable_observation_count=("usable_value", "count"),
+            analytically_resolved_count=("is_analytically_resolved", "sum"),
             total_row_count=("value", "size"),
             coverage_start=("quarter", "min"),
             coverage_end=("quarter", "max"),
@@ -668,6 +670,13 @@ def finturk_assets_and_metrics() -> tuple[list[dict[str, Any]], list[dict[str, A
         metric_stats = stats_lookup[key]
         source_code = f"table{key[0]:02d}:{key[1]}"
         metric_name = text_value(row["measure_label"])
+        notes = f"Official source unit: {text_value(row['source_unit_label'])}"
+        if int(metric_stats["analytically_resolved_count"]) > 0:
+            notes += (
+                "; source-null values resolved for analytics="
+                f"{int(metric_stats['analytically_resolved_count'])} via exact "
+                "FinTurk functional-group identity; raw value remains null"
+            )
         metrics.append(
             make_metric(
                 metric_id=f"bddk_finturk:{source_code}",
@@ -696,7 +705,7 @@ def finturk_assets_and_metrics() -> tuple[list[dict[str, Any]], list[dict[str, A
                 is_archive=False,
                 source_asset=relative(measurements_path),
                 source_metadata_url="https://www.bddk.org.tr/BultenFinturk/",
-                notes=f"Official source unit: {text_value(row['source_unit_label'])}",
+                notes=notes,
                 searchable_text=" | ".join(
                     [source_code, metric_name, text_value(row["table_name"]), text_value(row["unit"])]
                 ),
@@ -761,6 +770,43 @@ def finturk_assets_and_metrics() -> tuple[list[dict[str, Any]], list[dict[str, A
             source_url="https://www.bddk.org.tr/BultenFinturk/",
             description="Explicit classification of every FinTurk source null.",
             searchable_text="BDDK FinTurk missingness structural undefined not applicable source not reported",
+        )
+    )
+    branch_fallback_path = base / "branch_zero_fallback_audit.parquet"
+    branch_fallbacks = pd.read_parquet(branch_fallback_path)
+    assets.append(
+        make_asset(
+            asset_id="bddk.finturk_all_groups_all_cities.branch_zero_fallback_audit",
+            dataset_id="bddk.finturk_all_groups_all_cities",
+            source_system="BDDK_FINTURK",
+            source_organization="BDDK",
+            competition_scope="derived_quality_evidence",
+            status=validation["status"],
+            data_kind="identity_derived_zero_audit",
+            native_frequency="quarterly",
+            temporal_semantics="source_null_preserved_analytical_zero_proven",
+            geography_grain="province",
+            institution_grain="functional_bank_group",
+            coverage_start=str(branch_fallbacks["quarter"].min()),
+            coverage_end=str(branch_fallbacks["quarter"].max()),
+            row_count=len(branch_fallbacks),
+            column_count=len(branch_fallbacks.columns),
+            metric_count=1,
+            missing_value_count=int(branch_fallbacks["source_value"].isna().sum()),
+            progress_completed=int(validation["branch_zero_fallback_audit_rows"]),
+            progress_expected=int(validation["branch_zero_fallback_audit_rows"]),
+            file_path=relative(branch_fallback_path),
+            file_format="parquet",
+            validation_file=relative(validation_path),
+            source_url=validation["branch_function_group_identity"]["metadata_url"],
+            description=(
+                "Audit proving source-null function-group branch counts are zero "
+                "without overwriting the raw FinTurk values."
+            ),
+            searchable_text=(
+                "BDDK FinTurk branch count source null derived zero function "
+                "group identity audit"
+            ),
         )
     )
     for table_no in sorted(validation["tables"], key=int):

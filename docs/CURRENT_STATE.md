@@ -49,8 +49,12 @@ boşluklar açıkça sınıflandırılır. Hiçbir değer tahmin edilmez.
 - 76 sorgulanabilir metrik
 - 30.892 kaynak boş değer: 7.128 `source_not_applicable`, 22.436
   `structural_undefined`, 1.328 `source_not_reported`
-- 29.564 yapısal boşluk ayrı işaretlendi, 1.328 raporlanmamış şube hücresi
-  tahmin edilmeden açık bırakıldı
+- 29.564 yapısal boşluk ayrı işaretlendi
+- 1.328 raporlanmamış şube sayısı hücresinin ham null değeri korundu. Aynı
+  resmî tablodaki `SEKTÖR = MEVDUAT + KATILIM + KALKINMA VE YATIRIM`
+  kimliği 1.782 il-çeyreğin tamamında sıfır farkla geçtiği için bu hücrelerin
+  ayrı `usable_value` değeri 0 olarak kaydedildi
+- Kimlik ihlali: 0, çözümlenmemiş şube sayısı boşluğu: 0
 
 ## TCMB EVDS
 
@@ -169,11 +173,11 @@ Bilinen EVDS sınırları:
 
 ## Sorgulanabilir çıktı
 
-- Birleşik katalog: 65 veri varlığı
+- Birleşik katalog: 66 veri varlığı
 - Toplam katalog metriği: 55.489
 - Yerel gözlemi bulunan sorgulanabilir metrik: 3.297
 - Yerel TCMB EVDS kaynak serisi: 506
-- DuckDB: 9 şema, 58 tablo
+- DuckDB: 9 şema, 60 tablo
 - Aylık analiz tablosu: 66 benzersiz ay
 - Çeyreklik analiz tablosu: 22 benzersiz çeyrek
 - İl bazlı analiz tablosu: 1.782 benzersiz il-çeyrek satırı

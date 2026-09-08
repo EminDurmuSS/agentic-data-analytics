@@ -1,7 +1,7 @@
 {
   "status": "passed",
   "data_readiness_status": "core_sources_complete",
-  "asset_count": 65,
+  "asset_count": 66,
   "metric_count": 55489,
   "queryable_metric_count": 3297,
   "metadata_only_metric_count": 52192,
@@ -16,7 +16,7 @@
     "TUIK_DATA_PORTAL": 5
   },
   "assets_by_source_system": {
-    "BDDK_FINTURK": 9,
+    "BDDK_FINTURK": 10,
     "BDDK_MONTHLY": 18,
     "BDDK_WEEKLY": 3,
     "CROSS_SOURCE_QUALITY": 1,

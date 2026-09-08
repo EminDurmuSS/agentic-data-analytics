@@ -151,6 +151,34 @@ class LakehouseTests(unittest.TestCase):
         ).fetchone()[0]
         self.assertEqual(0, unmatched_metrics)
 
+    def test_finturk_branch_zero_fallbacks_are_queryable_and_audited(self):
+        source_nulls, usable_zeros, derived = self.connection.execute(
+            "SELECT "
+            "count(*) FILTER (WHERE value IS NULL), "
+            "count(*) FILTER (WHERE value IS NULL AND usable_value = 0), "
+            "count(*) FILTER (WHERE is_analytically_resolved) "
+            "FROM bddk.finturk_measurements "
+            "WHERE table_no = 6 AND measure_code = 'SubeSayisi'"
+        ).fetchone()
+        self.assertEqual((1328, 1328, 1328), (source_nulls, usable_zeros, derived))
+        audit_count, violations = self.connection.execute(
+            "SELECT count(*), count(*) FILTER (WHERE NOT identity_holds OR identity_residual <> 0) "
+            "FROM bddk.finturk_branch_zero_fallback_audit"
+        ).fetchone()
+        self.assertEqual((1328, 0), (audit_count, violations))
+
+    def test_finturk_compact_measurements_keep_source_provenance(self):
+        source_count = self.connection.execute(
+            "SELECT count(*) FROM bddk.finturk_source_tables"
+        ).fetchone()[0]
+        self.assertEqual(154, source_count)
+        unmatched = self.connection.execute(
+            "SELECT count(*) FROM bddk.finturk_measurements m "
+            "ANTI JOIN bddk.finturk_source_tables s USING "
+            "(quarter, table_no, source_file, source_sha256)"
+        ).fetchone()[0]
+        self.assertEqual(0, unmatched)
+
     def test_regional_housing_panel_is_queryable_and_unique(self):
         count, distinct_count = self.connection.execute(
             "SELECT count(*), count(DISTINCT province_key || ':' || quarter) "

@@ -24,6 +24,9 @@ class BddkFinTurkDatasetTests(unittest.TestCase):
         cls.catalog = pd.read_parquet(PROCESSED / "source_table_catalog.parquet")
         cls.measurements = pd.read_parquet(PROCESSED / "measurements_long.parquet")
         cls.housing = pd.read_parquet(PROCESSED / "table_03.parquet")
+        cls.branch_fallbacks = pd.read_parquet(
+            PROCESSED / "branch_zero_fallback_audit.parquet"
+        )
 
     def test_complete_fin_turk_scope_is_present(self):
         self.assertEqual("passed", self.validation["status"])
@@ -62,11 +65,45 @@ class BddkFinTurkDatasetTests(unittest.TestCase):
             29564, self.validation["structural_missing_measurement_count"]
         )
         self.assertEqual(
-            1328, self.validation["unresolved_missing_measurement_count"]
+            0, self.validation["unresolved_missing_measurement_count"]
         )
+        self.assertEqual(
+            1328,
+            self.validation["analytically_resolved_missing_measurement_count"],
+        )
+        self.assertEqual(29564, self.validation["analytical_null_measurement_count"])
         missing = self.measurements.loc[self.measurements["is_missing"]]
         self.assertFalse(missing["missing_kind"].eq("observed").any())
         self.assertTrue(missing["value"].isna().all())
+
+    def test_source_null_branch_counts_have_audited_usable_zeros(self):
+        branches = self.measurements.loc[
+            (self.measurements["table_no"] == 6)
+            & self.measurements["measure_code"].eq("SubeSayisi")
+        ]
+        source_nulls = branches.loc[branches["value"].isna()]
+        self.assertEqual(1328, len(source_nulls))
+        self.assertTrue(source_nulls["usable_value"].eq(0).all())
+        self.assertTrue(source_nulls["is_analytically_resolved"].all())
+        self.assertTrue(
+            source_nulls["value_origin"].eq(
+                "derived_zero_function_group_identity"
+            ).all()
+        )
+        self.assertEqual(1328, len(self.branch_fallbacks))
+        self.assertTrue(self.branch_fallbacks["source_value"].isna().all())
+        self.assertTrue(self.branch_fallbacks["usable_value"].eq(0).all())
+        self.assertTrue(self.branch_fallbacks["identity_holds"].all())
+        self.assertEqual(0, self.branch_fallbacks["identity_residual"].abs().max())
+
+    def test_branch_function_group_identity_has_no_violation(self):
+        identity = self.validation["branch_function_group_identity"]
+        self.assertEqual(1782, identity["identity_row_count"])
+        self.assertEqual(0, identity["identity_violation_count"])
+        self.assertEqual(0.0, identity["identity_max_abs_residual"])
+        self.assertEqual(1328, identity["source_null_count"])
+        self.assertEqual(1328, identity["derived_zero_count"])
+        self.assertEqual(0, identity["unresolved_count"])
 
     def test_housing_credit_is_quarterly_stock_not_disbursement(self):
         self.assertEqual(22, self.housing["quarter"].nunique())

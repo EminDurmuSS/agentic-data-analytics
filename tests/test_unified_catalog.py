@@ -59,6 +59,7 @@ class UnifiedCatalogTests(unittest.TestCase):
         expected = {
             "bddk.weekly_all_groups.missingness_audit",
             "bddk.finturk_all_groups_all_cities.missingness_audit",
+            "bddk.finturk_all_groups_all_cities.branch_zero_fallback_audit",
             "evds.housing_causality_v1.coverage_gaps",
             "evds.housing_causality_controls_v1.coverage_gaps",
             "evds.market_controls_v2.coverage_gaps",
@@ -118,6 +119,13 @@ class UnifiedCatalogTests(unittest.TestCase):
         ].iloc[0]
         self.assertEqual(10, mortgage["missing_observation_count"])
         self.assertIn("identity-derived zero=10", mortgage["notes"])
+
+    def test_finturk_branch_metric_discloses_derived_usable_zeros(self):
+        branch = self.metrics.loc[
+            self.metrics["metric_id"].eq("bddk_finturk:table06:SubeSayisi")
+        ].iloc[0]
+        self.assertEqual(1328, branch["missing_observation_count"])
+        self.assertIn("resolved for analytics=1328", branch["notes"])
 
 
 if __name__ == "__main__":

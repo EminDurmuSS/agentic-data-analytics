@@ -6,8 +6,10 @@ wide table per source table and also creates one generic long-form measurement
 table for discovery and analytics. Every output value remains traceable to the
 compressed source response, its validated request record and its SHA-256 hash.
 
-Missing institution, city or metric combinations are kept missing. No value is
-forward-filled, interpolated or inferred from another series.
+Raw missing institution, city or metric combinations remain missing. A separate
+``usable_value`` may be produced only when an exact source-table identity proves
+the analytical value, with the formula and source lineage recorded in an audit.
+No value is forward-filled or interpolated.
 """
 
 from __future__ import annotations
@@ -105,6 +107,20 @@ PER_CAPITA_DEPENDENCIES: dict[str, tuple[int, str]] = {
     "KisiBasiNakdiKredi": (1, "NakdiKrediler"),
     "KisiBasiTakiptekiAlacak": (1, "TakiptekiAlacaklar"),
 }
+
+FINTURK_TABLE_6_METADATA_URL = (
+    "https://www.bddk.org.tr/BultenFinturk/tr/Home/MetaveriPdfIndir?tabloNo=6"
+)
+BRANCH_SECTOR_GROUP_CODE = 10001
+BRANCH_FUNCTION_GROUP_CODES = {
+    10002: "deposit_branch_count",
+    10003: "development_investment_branch_count",
+    10004: "participation_branch_count",
+}
+BRANCH_IDENTITY_FORMULA = (
+    "SEKTOR = MEVDUAT + KATILIM + KALKINMA_VE_YATIRIM"
+)
+BRANCH_ZERO_VALUE_ORIGIN = "derived_zero_function_group_identity"
 
 
 def sha256_bytes(value: bytes) -> str:
@@ -340,14 +356,155 @@ def validate_additive_identities(table_no: int, frame: pd.DataFrame) -> list[str
     return checks
 
 
-def classify_missing_measurements(frame: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame]:
+def build_branch_zero_fallback_audit(
+    frame: pd.DataFrame,
+) -> tuple[pd.DataFrame, dict[str, Any]]:
+    """Prove source-null function-group branch counts are analytical zeros.
+
+    BDDK defines the functional groups as deposit, participation, and
+    development/investment banks. For every province-quarter in the local
+    FinTurk snapshot, the published sector branch count equals the sum of those
+    three non-negative count components when source-null components are treated
+    as zero. The identity has zero residual in every row, so a missing component
+    must be zero. Raw source cells remain null in all source-preserving outputs.
+    """
+
+    key_columns = ["quarter", "city"]
+    branch = frame.loc[
+        frame["table_no"].eq(6) & frame["measure_code"].eq("SubeSayisi")
+    ].copy()
+    if branch.empty:
+        raise ValueError("FinTurk sube sayisi olcumleri bulunamadi.")
+    if branch.duplicated([*key_columns, "group_code"]).any():
+        raise ValueError("FinTurk sube kimligi tekrarlaniyor.")
+
+    required_codes = {BRANCH_SECTOR_GROUP_CODE, *BRANCH_FUNCTION_GROUP_CODES}
+    present_codes = set(branch["group_code"].astype(int).unique())
+    missing_codes = sorted(required_codes - present_codes)
+    if missing_codes:
+        raise ValueError(f"FinTurk sube fonksiyon gruplari eksik: {missing_codes}")
+
+    observed = branch["value"].dropna().astype(float)
+    if observed.lt(0).any():
+        raise ValueError("FinTurk sube sayisi negatif olamaz.")
+    if (observed - observed.round()).abs().gt(1e-9).any():
+        raise ValueError("FinTurk sube sayisi tam sayi olmalidir.")
+
+    identity = branch.pivot(
+        index=key_columns,
+        columns="group_code",
+        values="value",
+    ).reset_index()
+    identity = identity.rename(
+        columns={
+            BRANCH_SECTOR_GROUP_CODE: "sector_branch_count",
+            **BRANCH_FUNCTION_GROUP_CODES,
+        }
+    )
+    component_columns = list(BRANCH_FUNCTION_GROUP_CODES.values())
+    if identity["sector_branch_count"].isna().any():
+        raise ValueError("FinTurk sektor sube sayisinda kaynak boslugu var.")
+
+    identity["missing_function_group_count"] = identity[
+        component_columns
+    ].isna().sum(axis=1)
+    identity["observed_function_group_sum"] = identity[
+        component_columns
+    ].fillna(0.0).sum(axis=1)
+    identity["identity_residual"] = (
+        identity["sector_branch_count"]
+        - identity["observed_function_group_sum"]
+    )
+    violations = identity["identity_residual"].abs().gt(1e-9)
+    if violations.any():
+        example = identity.loc[violations].iloc[0]
+        raise ValueError(
+            "FinTurk sube fonksiyon-grubu kimligi gecmedi: "
+            f"quarter={example['quarter']}, city={example['city']}, "
+            f"residual={example['identity_residual']}"
+        )
+
+    source_nulls = branch.loc[branch["value"].isna()].copy()
+    unsupported_nulls = source_nulls.loc[
+        ~source_nulls["group_code"].isin(BRANCH_FUNCTION_GROUP_CODES)
+    ]
+    if not unsupported_nulls.empty:
+        raise ValueError(
+            "FinTurk sube kaynak boslugu fonksiyon grubu disinda bulundu."
+        )
+
+    fallback = source_nulls.merge(
+        identity,
+        on=key_columns,
+        how="left",
+        validate="many_to_one",
+    )
+    fallback = fallback.rename(columns={"value": "source_value"})
+    fallback["usable_value"] = 0.0
+    fallback["value_origin"] = BRANCH_ZERO_VALUE_ORIGIN
+    fallback["derivation_formula"] = BRANCH_IDENTITY_FORMULA
+    fallback["proof_basis"] = (
+        "Published sector total equals the sum of the three non-negative "
+        "functional-group branch counts with zero residual."
+    )
+    fallback["source_metadata_url"] = FINTURK_TABLE_6_METADATA_URL
+    fallback["identity_holds"] = True
+    audit_columns = [
+        "quarter",
+        "observation_date",
+        "city",
+        "group_code",
+        "group_name",
+        "measure_code",
+        "measure_label",
+        "source_value",
+        "usable_value",
+        "value_origin",
+        "derivation_formula",
+        "proof_basis",
+        "sector_branch_count",
+        "deposit_branch_count",
+        "development_investment_branch_count",
+        "participation_branch_count",
+        "missing_function_group_count",
+        "observed_function_group_sum",
+        "identity_residual",
+        "identity_holds",
+        "source_file",
+        "source_sha256",
+        "source_request_info_file",
+        "source_request_info_sha256",
+        "source_metadata_url",
+    ]
+    fallback = fallback[audit_columns].sort_values(
+        ["quarter", "city", "group_code"], kind="stable"
+    ).reset_index(drop=True)
+
+    summary = {
+        "identity_formula": BRANCH_IDENTITY_FORMULA,
+        "identity_row_count": len(identity),
+        "identity_violation_count": int(violations.sum()),
+        "identity_max_abs_residual": float(identity["identity_residual"].abs().max()),
+        "source_null_count": len(source_nulls),
+        "derived_zero_count": len(fallback),
+        "unresolved_count": len(source_nulls) - len(fallback),
+        "metadata_url": FINTURK_TABLE_6_METADATA_URL,
+    }
+    return fallback, summary
+
+
+def classify_missing_measurements(
+    frame: pd.DataFrame,
+    branch_zero_fallbacks: pd.DataFrame,
+) -> tuple[pd.DataFrame, pd.DataFrame]:
     """Classify every source null from explicit FinTurk dependencies.
 
     Source values are never overwritten. Ratios with a zero denominator are
     structurally undefined. Deposit-derived measures for institution groups
-    absent from the deposit source table are not applicable. Branch counts
-    that the source leaves empty stay source-not-reported rather than being
-    guessed as zero.
+    absent from the deposit source table are not applicable. Source-null branch
+    counts remain null in ``value``. When the exact FinTurk functional-group
+    identity proves zero, only ``usable_value`` receives zero and the derivation
+    is recorded explicitly.
     """
 
     classified = frame.copy()
@@ -357,6 +514,17 @@ def classify_missing_measurements(frame: pd.DataFrame) -> tuple[pd.DataFrame, pd
     classified["dependency_value"] = pd.NA
     classified["is_structural_na"] = False
     classified["is_unresolved_missing"] = False
+    classified["usable_value"] = classified["value"]
+    classified["value_origin"] = classified["is_missing"].map(
+        {False: "source_observed", True: "source_null"}
+    )
+    classified["derivation_formula"] = ""
+    classified["is_analytically_resolved"] = False
+
+    branch_zero_keys = {
+        (str(row.quarter), int(row.group_code), str(row.city))
+        for row in branch_zero_fallbacks.itertuples(index=False)
+    }
 
     lookup = {
         (
@@ -414,10 +582,17 @@ def classify_missing_measurements(frame: pd.DataFrame) -> tuple[pd.DataFrame, pd
             branch_value = lookup.get((*key_prefix, 6, "SubeSayisi"), absent)
             if branch_value is absent or branch_value is None or pd.isna(branch_value):
                 kind = "structural_undefined"
-                reason = (
-                    "Population per branch is undefined because the source does "
-                    "not report a branch count for the same row."
-                )
+                if key_prefix in branch_zero_keys:
+                    dependency_value = 0.0
+                    reason = (
+                        "Population per branch is undefined because the branch "
+                        "count is zero, proven by the FinTurk functional-group identity."
+                    )
+                else:
+                    reason = (
+                        "Population per branch is undefined because the source does "
+                        "not report a branch count for the same row."
+                    )
             else:
                 dependency_value = float(branch_value)
                 if abs(dependency_value) <= 1e-12:
@@ -425,10 +600,27 @@ def classify_missing_measurements(frame: pd.DataFrame) -> tuple[pd.DataFrame, pd
                     reason = "Population per branch is undefined because branch count is zero."
         elif int(row.table_no) == 6 and row.measure_code == "SubeSayisi":
             kind = "source_not_reported"
-            reason = (
-                "The official FinTurk source leaves branch count empty; it is not "
-                "silently converted to zero."
-            )
+            dependencies = [
+                (6, "SubeSayisi:SEKTOR"),
+                (6, "SubeSayisi:MEVDUAT"),
+                (6, "SubeSayisi:KATILIM"),
+                (6, "SubeSayisi:KALKINMA_VE_YATIRIM"),
+            ]
+            if key_prefix in branch_zero_keys:
+                dependency_value = 0.0
+                reason = (
+                    "The official source cell remains null; analytical zero is "
+                    "proven separately by the exact FinTurk functional-group identity."
+                )
+                classified.at[row.Index, "usable_value"] = 0.0
+                classified.at[row.Index, "value_origin"] = BRANCH_ZERO_VALUE_ORIGIN
+                classified.at[row.Index, "derivation_formula"] = BRANCH_IDENTITY_FORMULA
+                classified.at[row.Index, "is_analytically_resolved"] = True
+            else:
+                reason = (
+                    "The official FinTurk source leaves branch count empty and no "
+                    "exact identity proves an analytical value."
+                )
 
         classified.at[row.Index, "missing_kind"] = kind
         classified.at[row.Index, "missing_reason"] = reason
@@ -444,7 +636,9 @@ def classify_missing_measurements(frame: pd.DataFrame) -> tuple[pd.DataFrame, pd
         classified["is_missing"] & classified["missing_kind"].isin(structural_kinds)
     )
     classified["is_unresolved_missing"] = (
-        classified["is_missing"] & classified["missing_kind"].eq("source_not_reported")
+        classified["is_missing"]
+        & classified["missing_kind"].eq("source_not_reported")
+        & classified["usable_value"].isna()
     )
     missing = classified.loc[classified["is_missing"]]
     if missing["missing_kind"].eq("observed").any():
@@ -461,6 +655,8 @@ def classify_missing_measurements(frame: pd.DataFrame) -> tuple[pd.DataFrame, pd
                 "measure_label",
                 "missing_kind",
                 "missing_reason",
+                "value_origin",
+                "is_analytically_resolved",
             ],
             dropna=False,
             as_index=False,
@@ -633,8 +829,11 @@ def build(input_dir: Path, output_dir: Path) -> dict[str, Any]:
     ]
     if measurement_frame.duplicated(measurement_key).any():
         raise ValueError("FinTurk uzun olcum anahtari tekrarlaniyor.")
-    measurement_frame, missingness_audit = classify_missing_measurements(
+    branch_zero_fallbacks, branch_identity_summary = build_branch_zero_fallback_audit(
         measurement_frame
+    )
+    measurement_frame, missingness_audit = classify_missing_measurements(
+        measurement_frame, branch_zero_fallbacks
     )
     measurement_frame = measurement_frame.sort_values(
         measurement_key, kind="stable"
@@ -645,6 +844,14 @@ def build(input_dir: Path, output_dir: Path) -> dict[str, Any]:
     )
     missingness_audit.to_parquet(
         output_dir / "missingness_audit.parquet", index=False
+    )
+    branch_zero_fallbacks.to_csv(
+        output_dir / "branch_zero_fallback_audit.csv",
+        index=False,
+        encoding="utf-8-sig",
+    )
+    branch_zero_fallbacks.to_parquet(
+        output_dir / "branch_zero_fallback_audit.parquet", index=False
     )
 
     dictionary_frame = pd.DataFrame(dictionaries).sort_values(
@@ -686,6 +893,12 @@ def build(input_dir: Path, output_dir: Path) -> dict[str, Any]:
         "unresolved_missing_measurement_count": int(
             measurement_frame["is_unresolved_missing"].sum()
         ),
+        "analytically_resolved_missing_measurement_count": int(
+            measurement_frame["is_analytically_resolved"].sum()
+        ),
+        "analytical_null_measurement_count": int(
+            measurement_frame["usable_value"].isna().sum()
+        ),
         "missing_kind_counts": {
             str(key): int(value)
             for key, value in measurement_frame.loc[
@@ -693,6 +906,8 @@ def build(input_dir: Path, output_dir: Path) -> dict[str, Any]:
             ].value_counts().sort_index().items()
         },
         "missingness_audit_rows": len(missingness_audit),
+        "branch_zero_fallback_audit_rows": len(branch_zero_fallbacks),
+        "branch_function_group_identity": branch_identity_summary,
         "column_dictionary_count": len(dictionary_frame),
         "tables": table_summaries,
         "additive_checks": additive_checks,
@@ -700,10 +915,11 @@ def build(input_dir: Path, output_dir: Path) -> dict[str, Any]:
             "Every raw response is hash-checked against its validated request record.",
             "Different source table schemas remain separate in wide outputs.",
             "A generic long measurement table is produced without inventing missing rows.",
-            "Missing values remain null and are never converted to zero.",
+            "Raw missing values remain null and are never overwritten.",
+            "A separate usable_value is populated only when an exact source-table identity proves the analytical value.",
             "Every source null is classified as structural_undefined, source_not_applicable or source_not_reported.",
             "Ratios are structurally undefined when their explicit denominator is zero.",
-            "Source-not-reported branch counts remain unresolved instead of being guessed as zero.",
+            "Source-null function-group branch counts are analytically zero only when SEKTOR = MEVDUAT + KATILIM + KALKINMA_VE_YATIRIM holds with zero residual.",
             "FinTurk values are quarterly period-end observations, not monthly flows.",
             "Source row counts, absent group-city combinations and schema changes are reported.",
         ],

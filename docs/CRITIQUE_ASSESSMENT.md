@@ -41,7 +41,10 @@ kalmadı.
 Başlangıçta yoktu. Güncel repoda 22 çeyrek, 7 tablo, 7 banka grubu, 81 il ve
 ayrı `YURT DIŞI` coğrafyası bulunur. 936.512 ölçüm üretildi.
 30.892 kaynak boşluğunun 29.564'ü yapısal, 1.328'i kaynakta raporlanmamış şube
-hücresi olarak açıkça sınıflandırıldı.
+hücresi olarak açıkça sınıflandırıldı. Bu 1.328 ham null değerin tamamı,
+`SEKTÖR = MEVDUAT + KATILIM + KALKINMA VE YATIRIM` kimliğinin 1.782
+il-çeyrekte sıfır farkla geçmesiyle analitik sıfır olarak kanıtlandı. Ham
+değerler değiştirilmedi ve ayrı audit katmanı üretildi.
 
 ### Gerçek kredi kullandırım verisi
 
@@ -59,7 +62,7 @@ bulunmadığı için açık boşluk olarak işaretlenir.
 ### Sorgulanabilir veri altyapısı
 
 SQLite/Pandas başlangıcının yanında artık birleşik katalog ve self-contained
-DuckDB bulunur. DuckDB 9 şema ve 58 tablo içerir. BDDK aylık, haftalık ve
+DuckDB bulunur. DuckDB 9 şema ve 60 tablo içerir. BDDK aylık, haftalık ve
 FinTürk verileri, TBB raporları, 506 seçilmiş EVDS kaynak serisi, 1 açıkça
 türetilmiş seri, TÜİK il satışları, il bazlı konut paneli, kalite tabloları ve
 olay kayıtları tek sorgu yüzeyinde erişilebilirdir.

@@ -159,7 +159,7 @@ boşluk olarak korunuyor.
 | --- | --- |
 | BDDK aylık | 66 ay, 10 resmî banka grubu, 17 tablonun tamamı, 1.334.850 semantik ölçüm |
 | BDDK haftalık | 286 hafta, 7 resmî banka grubu, 9 tablonun tamamı, 1.025.974 ölçüm |
-| BDDK FinTürk | 22 çeyrek, 7 tablo, 7 banka grubu, 81 il ve `YURT DIŞI`, 936.512 ölçüm |
+| BDDK FinTürk | 22 çeyrek, 7 tablo, 7 banka grubu, 81 il ve `YURT DIŞI`, 936.512 ölçüm, 1.328 kaynak-null şube değeri için auditli analitik sıfır |
 | TCMB EVDS | 52.696 serilik metadata kataloğu, analitik değeri yüksek {int(summary.iloc[0]['yerel_evds_serisi'])} kaynak serinin yerel gözlemi ve 1 türetilmiş altın serisi |
 | TÜİK il konut satışları | 81 il, Ocak 2020-Haziran 2026, 5 aylık satış metriği ve EVDS çapraz doğrulaması |
 | İl bazlı konut paneli | {int(summary.iloc[0]['il_sayisi'])} il, 22 çeyrek, {int(summary.iloc[0]['bolgesel_satir'])} tekil satır ve {int(summary.iloc[0]['analize_hazir_bolgesel_satir'])} analize hazır satır |
@@ -303,11 +303,14 @@ display(demo)
 - Kredi stoku, stok değişimi ve yeni kullandırım akımı farklı ölçülerdir.
 - Haftalık faiz aylığa çevrilirken kullanılan yöntem metadata ile birlikte saklanır.
 - Kümülatif BDDK kâr-zarar değerleri kaynak hâliyle korunur, türetilmiş aylık akım ayrıca tutulur.
-- Eksik değerler tahminle doldurulmaz. Sıfır yalnız aynı resmî TÜİK
-  tablosundaki `toplam satış = diğer satış` özdeşliğiyle kesin kanıtlanırsa,
-  ham null korunarak ayrı provenance ile kullanılabilir.
-- BDDK haftalık kaynak boşlukları ile FinTürk yapısal ve raporlanmamış
-  boşlukları ayrı denetim tablolarında tutulur.
+- Eksik değerler tahminle doldurulmaz. Sıfır yalnız aynı resmî kaynak içindeki
+  kesin bir toplamsal kimlikle kanıtlanırsa, ham null korunarak ayrı provenance
+  ile kullanılabilir.
+- FinTürk'teki 1.328 kaynak-null şube değeri, 1.782 il-çeyreğin tamamında sıfır
+  farkla geçen `SEKTÖR = MEVDUAT + KATILIM + KALKINMA VE YATIRIM` kimliğiyle
+  ayrı `usable_value=0` ve audit kaydı olarak tutulur.
+- BDDK haftalık kaynak boşlukları ile FinTürk yapısal boşlukları ayrı denetim
+  tablolarında tutulur.
 - Çeyreklik gözlem ara aylara forward fill edilmez.
 - İl bazlı panelde eksik aylı çeyrekler kısmi toplamla doldurulmaz.
 - İpoteksiz satış, nakit satış olarak yorumlanmaz.

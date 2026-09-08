@@ -60,9 +60,9 @@ Seri seçimi kaynak kataloğundaki kod, ad, birim, frekans ve toplulaştırma
 
 ## Veri doğruluğu ilkeleri
 
-1. Kaynak boş değerler tahmine çevrilmez. Sıfır yalnız aynı resmî TÜİK
-   tablosundaki `toplam satış = diğer satış` özdeşliğiyle kesin kanıtlanırsa,
-   ham null korunarak ayrı provenance ile kullanılabilir.
+1. Kaynak boş değerler tahmine çevrilmez. Sıfır yalnız aynı resmî kaynak
+   içindeki kesin bir toplamsal kimlikle kanıtlanırsa, ham null korunarak ayrı
+   provenance ile kullanılabilir.
 2. Stok, stok değişimi ve yeni kullandırım akımı ayrı kavramlardır.
 3. Kümülatif kaynak değer ile türetilmiş aylık akım birlikte saklanır.
 4. Çeyreklik veri ara aylara forward fill edilmez.
@@ -76,8 +76,10 @@ Seri seçimi kaynak kataloğundaki kod, ad, birim, frekans ve toplulaştırma
 - BDDK aylık: 1.122 kaynak yanıtı, 11.220 tablo-grup kaydı, 339.650 satır, durum `passed`
 - BDDK haftalık: 18.018 kaynak sayfası, 1.025.974 ölçüm, 2.230 yapısal boşluk,
   0 çözümlenmemiş boşluk, durum `passed`
-- FinTürk: 936.512 ölçüm, 29.564 yapısal boşluk, 1.328 kaynakta
-  raporlanmamış hücre, durum `passed`
+- FinTürk: 936.512 ölçüm, 29.564 yapısal boşluk. 1.328 kaynak-null şube
+  hücresinin tamamı `SEKTÖR = MEVDUAT + KATILIM + KALKINMA VE YATIRIM`
+  kimliğiyle analitik sıfır olarak kanıtlandı, ham değerler değişmedi,
+  çözümlenmemiş şube boşluğu 0, durum `passed`
 - EVDS ulusal kaynak seriler: 12.482 gözlem, üç paket de `passed`
 - EVDS bölgesel konut: 441 seri, 30.186 gözlem, durum `passed`
 - EVDS hanehalkı finansmanı: 4 seri, 312 gözlem, durum `passed`
@@ -86,8 +88,8 @@ Seri seçimi kaynak kataloğundaki kod, ad, birim, frekans ve toplulaştırma
 - İl bazlı konut paneli: 1.782 tekil il-çeyrek satırı, 1.620 analize hazır satır,
   ipotekli satışta 0 eksik çeyrek, durum `passed_with_source_gaps`
 - TBB: 21 yayımlanmış dönem, durum `passed_with_source_gaps`
-- Birleşik katalog: 65 varlık, 55.489 metrik, 3.297 sorgulanabilir metrik, durum `passed`
-- DuckDB: 9 şema, 58 tablo, durum `passed`
+- Birleşik katalog: 66 varlık, 55.489 metrik, 3.297 sorgulanabilir metrik, durum `passed`
+- DuckDB: 9 şema, 60 tablo, durum `passed`
 
 ## Üretim sırası
 

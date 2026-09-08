@@ -2,7 +2,7 @@
 
 Kontrol tarihi: 7 Eylül 2026. Bu not, gerçek indirilmiş verileri ve aşağıdaki resmî belgeleri denetler. Veri toplama yönteminin denetlenmesi ile tek tek sayının başka bir yayında eşleştirilmesi ayrı işlerdir; ikincisinin yapılmadığı yerler açıkça belirtilmiştir.
 
-## 1. Konut faizi — TP.KTF12
+## 1. Konut faizi - TP.KTF12
 
 - EVDS kataloğundaki ad: **Konut Kredisi (TL, Akım, %)**. Grup: `bie_kt100h`. Doğal sıklık: cuma tarihli haftalık gözlem.
 - TCMB metaverisi 27 Nisan 2026 güncellemelidir. Seri **yıllık efektif faiz yüzdesidir**; haftalık yayımlanması faizin haftalık oran olduğu anlamına gelmez.
@@ -17,7 +17,7 @@ Kontrol tarihi: 7 Eylül 2026. Bu not, gerçek indirilmiş verileri ve aşağıd
 
 Kaynaklar: [TCMB kredi faizi metaverisi](https://www.tcmb.gov.tr/wps/wcm/connect/33e09fa9-51fb-412f-b38d-0b7cdbaea493/Metaveri_Kredi_Ag%C4%B1rl%C4%B1kl%C4%B1_T%C3%BCrkce.pdf?MOD=AJPERES), [revizyon politikası](https://www.tcmb.gov.tr/wps/wcm/connect/3bcdf883-96d8-4395-9048-d948e6981eab/Revizyon%2BPolitikas%C4%B1.pdf?MOD=AJPERES), yerel resmî katalog `rates_search.json`.
 
-## 2. Konut fiyat endeksi — TP.KFE.TR
+## 2. Konut fiyat endeksi - TP.KFE.TR
 
 - Mevcut temel yıl **2023=100**, sıklık aylıktır. 17 Şubat 2026 güncellemeli TCMB metaverisiyle doğrulandı.
 - Konut kredisi başvuruları sırasında düzenlenen değerleme raporlarına dayalı, gözlemlenebilir kalite etkisinden arındırılmış **hedonik endekstir**. Kredinin kullandırılması veya satışın tamamlanması şart değildir. İlan fiyatı, konut satış adedi veya lira cinsinden ortalama ev fiyatı olarak yorumlanamaz.
@@ -28,7 +28,7 @@ Kaynaklar: [TCMB kredi faizi metaverisi](https://www.tcmb.gov.tr/wps/wcm/connect
 
 Kaynaklar: [KFE metaverisi](https://www.tcmb.gov.tr/wps/wcm/connect/b4628fa9-11a7-4426-aee6-dae67fc56200/KFE-Metaveri.pdf?MOD=AJPERES), [uygulama değişiklikleri](https://www.tcmb.gov.tr/wps/wcm/connect/e7fe7b68-74a3-4162-ae3b-bbf40d0b26fd/KFE-Uygulama-Degisiklikleri.pdf?MOD=AJPERES).
 
-## 3. TÜFE — TP.TUKFIY2025.GENEL
+## 3. TÜFE - TP.TUKFIY2025.GENEL
 
 - Genel endeksin güncel temeli **2025=100**. Ocak 2026'dan itibaren temel yıl/sınıflama/ağırlık sistemi güncellendiği TÜİK duyurusuyla; fiilen yürürlükte olduğu güncel TÜİK bülteni arama kaydı ve TCMB'nin yayımladığı TÜFE tablosuyla doğrulandı.
 - TÜİK, tarihsel seriyi zincir yapı korunarak yeni temele/sınıflamaya dönüştüreceğini; eski dönemin manşet enflasyonunun değişmeyeceğini, bazı alt endekslerde sınıflama farkı oluşabileceğini açıklıyor. Bu yüzden 2021'den itibaren güncel genel seri kullanılabilir. Eski 2003=100 seviyeleriyle 2025=100 seviyelerini doğrudan eklemek hatalıdır.

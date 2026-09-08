@@ -1,4 +1,4 @@
-# Konut satışları — araştırma ve indirilen veri
+# Konut satışları - araştırma ve indirilen veri
 
 ## Tamamlanan iş
 
@@ -32,7 +32,7 @@ DİKKAT: Güncel kodlarda KTRTOPLAM konutu ifade ediyor. Aynı gruptaki TRTOPLAM
 
 Ayrı Diğer Satışlar serisi bulunan dört resmî EVDS grubunda yok. İşlenmiş CSV'deki housing_sales_other_derived_count = toplam - ipotekli olarak TÜRETİLDİ. Toplam = ipotekli + diğer eşitliği bu sebeple bağımsız doğrulama değildir. housing_sales_mortgaged_share_pct = 100 × ipotekli / toplam; bu da türetilmiş ölçüdür.
 
-## 2026 revizyonu — birincil kaynakla doğrulandı
+## 2026 revizyonu - birincil kaynakla doğrulandı
 
 TÜİK'in 19 Şubat 2026 tarihli açıklamasına göre bağımsız bölümlerin konut olarak sınıflandırılması güncellendi ve geçmiş seriler 2013'e kadar yeniden üretildi. Aynı yayın genişlemesiyle iş yeri satışları ve mevsim/takvim etkilerinden arındırılmış seriler eklendi. Bu nedenle bütün dönemleri aynı güncel revizyondan indirin; eski haber bültenlerindeki tarihsel sayıları yeni seriyle birleştirmeyin. Bu paket güncel EVDS snapshot'ıdır, geçmişte o gün bilinen veri (vintage) değildir.
 

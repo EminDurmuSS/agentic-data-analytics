@@ -10,7 +10,7 @@ The generated `analytics.duckdb` copies validated Parquet data into schemas:
 
 - `catalog`: assets, metrics and build manifest
 - `evds`: source observations and aligned panels
-- `bddk`: monthly semantic data, FinTurk and completed weekly data
+- `bddk`: monthly semantic data, FinTurk, its branch-zero audit and completed weekly data
 - `tbb`: quarterly consumer-credit reports
 - `quality`: cross-source reconciliation
 - `evidence`: official event annotations
@@ -36,7 +36,7 @@ absolute paths after it has been built.
 Current validated build:
 
 - 9 schemas
-- 58 tables
+- 59 tables
 - 506 locally available EVDS source series represented in the metric catalog
 - 1,025,974 BDDK weekly measurements
 - 66 unique monthly analysis periods

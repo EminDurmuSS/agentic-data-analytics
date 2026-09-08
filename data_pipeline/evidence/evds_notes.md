@@ -1,4 +1,4 @@
-# EVDS3 public data fetch proof — 2026-09-07
+# EVDS3 public data fetch proof - 2026-09-07
 
 This is an intermediate research note for the root agent to incorporate and persist.
 
