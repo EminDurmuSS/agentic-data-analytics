@@ -14,7 +14,8 @@ de korunur.
 | TCMB EVDS ulusal | 61 seçilmiş kaynak seri ve 1 türetilmiş seri | Günlük, iş günü, haftalık, aylık, çeyreklik | Tamamlandı |
 | TCMB EVDS bölgesel | 441 il ve bölge bazlı konut serisi | Aylık, çeyreklik | Kaynak boşluklarıyla tamamlandı |
 | TCMB EVDS hanehalkı finansmanı | 3 KKM ve 1 hanehalkı mevduat serisi | Aylık | Tamamlandı |
-| İl bazlı konut paneli | 81 il, 22 çeyrek, 26 analitik metrik | Çeyreklik | Kaynak boşluklarıyla tamamlandı |
+| TÜİK il konut satışları | 81 il, 78 ay, 5 satış metriği | Aylık | Tamamlandı ve EVDS ile uzlaştırıldı |
+| İl bazlı konut paneli | 81 il, 22 çeyrek, 26 analitik metrik | Çeyreklik | Yayımlanmayan fiyatlar işaretli |
 | TCMB EVDS katalog | 52.696 seri metadata kaydı | Metadata | Tamamlandı |
 | TBB | 21 yayımlanmış tüketici kredisi raporu | Çeyreklik | Kaynak boşluğuyla tamamlandı |
 | BDDK ve TCMB belgeleri | 8 resmî PDF | Olay/yöntem | Tamamlandı |
@@ -59,7 +60,9 @@ Seri seçimi kaynak kataloğundaki kod, ad, birim, frekans ve toplulaştırma
 
 ## Veri doğruluğu ilkeleri
 
-1. Kaynak boş değerler sıfıra veya tahmine çevrilmez.
+1. Kaynak boş değerler tahmine çevrilmez. Sıfır yalnız aynı resmî TÜİK
+   tablosundaki `toplam satış = diğer satış` özdeşliğiyle kesin kanıtlanırsa,
+   ham null korunarak ayrı provenance ile kullanılabilir.
 2. Stok, stok değişimi ve yeni kullandırım akımı ayrı kavramlardır.
 3. Kümülatif kaynak değer ile türetilmiş aylık akım birlikte saklanır.
 4. Çeyreklik veri ara aylara forward fill edilmez.
@@ -78,10 +81,13 @@ Seri seçimi kaynak kataloğundaki kod, ad, birim, frekans ve toplulaştırma
 - EVDS ulusal kaynak seriler: 12.482 gözlem, üç paket de `passed`
 - EVDS bölgesel konut: 441 seri, 30.186 gözlem, durum `passed`
 - EVDS hanehalkı finansmanı: 4 seri, 312 gözlem, durum `passed`
-- İl bazlı konut paneli: 1.782 tekil il-çeyrek satırı, durum `passed_with_source_gaps`
+- TÜİK il konut satışları: 31.590 satır, 25.262 EVDS birebir eşleşmesi,
+  10 resmî özdeşlikle doğrulanmış sıfır, 0 değer uyuşmazlığı, durum `passed`
+- İl bazlı konut paneli: 1.782 tekil il-çeyrek satırı, 1.620 analize hazır satır,
+  ipotekli satışta 0 eksik çeyrek, durum `passed_with_source_gaps`
 - TBB: 21 yayımlanmış dönem, durum `passed_with_source_gaps`
-- Birleşik katalog: 61 varlık, 55.484 metrik, 3.292 sorgulanabilir metrik, durum `passed`
-- DuckDB: 8 şema, 55 tablo, durum `passed`
+- Birleşik katalog: 65 varlık, 55.489 metrik, 3.297 sorgulanabilir metrik, durum `passed`
+- DuckDB: 9 şema, 58 tablo, durum `passed`
 
 ## Üretim sırası
 
@@ -94,6 +100,7 @@ Mevcut ham dosyalardan çalıştırılabilir temel sıra:
 .venv/bin/python data_pipeline/bddk/build_finturk_dataset.py
 .venv/bin/python data_pipeline/bddk/build_weekly_dataset.py
 .venv/bin/python data_pipeline/tbb/build_consumer_credit_dataset.py
+.venv/bin/python data_pipeline/tuik/build_province_housing_sales.py
 .venv/bin/python data_pipeline/regional/build_housing_panel.py
 .venv/bin/python data_pipeline/quality/build_cross_source_reconciliation.py
 .venv/bin/python data_pipeline/evidence/events/build_events.py
@@ -122,6 +129,8 @@ ile yeni snapshot sessizce karıştırılmaz.
 - `evds/market_controls_v2/monthly_panel.parquet`
 - `evds/regional_housing_v1/observations_long.parquet`
 - `evds/household_finance_v1/monthly_panel.parquet`
+- `tuik/province_housing_sales_v1/processed/monthly_sales_long.parquet`
+- `tuik/province_housing_sales_v1/processed/evds_reconciliation.parquet`
 - `regional/processed/province_quarter_housing_panel.parquet`
 - `tbb/processed/housing_credit_quarterly.parquet`
 - `evidence/events/events.json`

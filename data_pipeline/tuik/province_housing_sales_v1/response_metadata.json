@@ -1,0 +1,15 @@
+{
+  "started_at_utc": "2026-09-08T10:36:31.937226+00:00",
+  "completed_at_utc": "2026-09-08T10:36:48.515893+00:00",
+  "requested_url": "https://veriportali.tuik.gov.tr/api/tr/dataflows/DF_SATIS_SEKLI_DURUMU_ILILCE_V3%2BV1.0/file/csv",
+  "final_url": "https://veriportali.tuik.gov.tr/api/tr/dataflows/DF_SATIS_SEKLI_DURUMU_ILILCE_V3%2BV1.0/file/csv",
+  "http_status": 200,
+  "content_type": "text/csv",
+  "content_disposition": "attachment; filename=\"Sat__ Durumuna ve Sat__ _ekline G_re Sat__ Say_lar_ (_l) (TR,DF_SATIS_SEKLI_DURUMU_ILILCE_V3,1.0).csv\"; filename*=UTF-8''Sat%C4%B1%C5%9F%20Durumuna%20ve%20Sat%C4%B1%C5%9F%20%C5%9Eekline%20G%C3%B6re%20Sat%C4%B1%C5%9F%20Say%C4%B1lar%C4%B1%20%28%C4%B0l%29%20%28TR%2CDF_SATIS_SEKLI_DURUMU_ILILCE_V3%2C1.0%29.csv",
+  "etag": "\"df_satis_sekli_durumu_ililce_v3+v1.0,tr,csv\"",
+  "raw_response_bytes": 33582487,
+  "raw_response_sha256": "433983c1c15af20b7b440b0d57fa2b38939ddc39b30c631d5dd744320de738ec",
+  "stored_gzip_bytes": 1321224,
+  "stored_gzip_sha256": "32e34ed4359521b3dcafcaab48363c38d93d3e75bcf20c53ab0fb3ec25926022",
+  "stored_file": "data_pipeline/tuik/province_housing_sales_v1/raw/province_housing_sales.csv.gz"
+}

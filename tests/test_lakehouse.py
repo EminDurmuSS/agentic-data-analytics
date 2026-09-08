@@ -39,6 +39,7 @@ class LakehouseTests(unittest.TestCase):
                 "tbb",
                 "quality",
                 "evidence",
+                "tuik",
                 "regional",
                 "analysis",
             }
@@ -166,6 +167,26 @@ class LakehouseTests(unittest.TestCase):
             "WHERE province_name = 'İSTANBUL' AND quarter = '2026Q2'"
         ).fetchone()
         self.assertTrue(all(value is not None for value in istanbul))
+
+    def test_tuik_fallback_and_reconciliation_are_queryable(self):
+        monthly_count = self.connection.execute(
+            "SELECT count(*) FROM tuik.province_housing_sales_monthly"
+        ).fetchone()[0]
+        fallback_count = self.connection.execute(
+            "SELECT count(*) FROM tuik.province_housing_sales_identity_zero_fallbacks"
+        ).fetchone()[0]
+        mismatch_count = self.connection.execute(
+            "SELECT count(*) FROM tuik.province_housing_sales_evds_reconciliation "
+            "WHERE reconciliation_status = 'value_mismatch'"
+        ).fetchone()[0]
+        panel_fallback_quarters = self.connection.execute(
+            "SELECT count(*) FROM regional.housing_quarterly "
+            "WHERE mortgaged_sales_fallback_used"
+        ).fetchone()[0]
+        self.assertEqual(31_590, monthly_count)
+        self.assertEqual(10, fallback_count)
+        self.assertEqual(0, mismatch_count)
+        self.assertEqual(8, panel_fallback_quarters)
 
     def test_household_finance_is_available_in_national_analysis(self):
         columns = {

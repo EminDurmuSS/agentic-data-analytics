@@ -14,6 +14,7 @@ The generated `analytics.duckdb` copies validated Parquet data into schemas:
 - `tbb`: quarterly consumer-credit reports
 - `quality`: cross-source reconciliation
 - `evidence`: official event annotations
+- `tuik`: province housing-sales observations, identity fallbacks and EVDS reconciliation
 - `regional`: province-quarter housing, credit, deposit and price analytics
 - `analysis`: ready-to-query monthly and quarterly housing-credit tables
 
@@ -34,10 +35,12 @@ absolute paths after it has been built.
 
 Current validated build:
 
-- 8 schemas
-- 55 tables
+- 9 schemas
+- 58 tables
 - 506 locally available EVDS source series represented in the metric catalog
 - 1,025,974 BDDK weekly measurements
 - 66 unique monthly analysis periods
 - 22 unique quarterly analysis periods
 - 1,782 unique province-quarter regional analysis rows
+- 31,590 TÜİK province-month-metric housing-sales rows
+- 25,262 exact TÜİK-EVDS matches and zero value mismatches

@@ -41,6 +41,7 @@ class FileManifestTests(unittest.TestCase):
             "evds/housing_causality_v1/raw/",
             "evds/regional_housing_v1/raw/",
             "evds/household_finance_v1/raw/",
+            "tuik/province_housing_sales_v1/raw/",
             "tbb/consumer_credit_reports/raw/",
         ]
         for prefix in prefixes:

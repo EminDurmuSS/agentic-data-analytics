@@ -33,6 +33,14 @@ FINTURK = (
     / "finturk_all_groups_all_cities"
     / "measurements_long.parquet"
 )
+TUIK_SALES = (
+    PROJECT_ROOT
+    / "data_pipeline"
+    / "tuik"
+    / "province_housing_sales_v1"
+    / "processed"
+    / "monthly_sales_long.parquet"
+)
 DEFAULT_OUTPUT = PROJECT_ROOT / "data_pipeline" / "regional" / "processed"
 
 TARGET_START = "2021Q1"
@@ -185,8 +193,10 @@ def build_province_dimension(
 
 
 def build_sales_panel(
-    observations: pd.DataFrame, dimension: pd.DataFrame
-) -> tuple[pd.DataFrame, int]:
+    observations: pd.DataFrame,
+    dimension: pd.DataFrame,
+    tuik_sales: pd.DataFrame,
+) -> tuple[pd.DataFrame, dict[str, int], pd.DataFrame]:
     mapping_rows = []
     for output_column in SALES_GROUPS.values():
         source_column = f"{output_column}_series_code"
@@ -200,30 +210,167 @@ def build_sales_panel(
         )
     mapping = pd.DataFrame(mapping_rows)
     rows = observations.merge(mapping, on="series_code", how="inner", validate="many_to_one")
+    rows["month"] = rows["period"].astype(str)
     rows["quarter"] = pd.to_datetime(rows["period_end"]).dt.to_period("Q").astype(str)
     rows = rows.loc[rows["quarter"].isin(target_quarters())]
+    rows["evds_value"] = rows["value"]
+
+    fallback = tuik_sales.loc[
+        tuik_sales["metric_code"].eq("housing_sales_mortgaged_count")
+        & tuik_sales["is_identity_derived"],
+        [
+            "province_name",
+            "month",
+            "metric_code",
+            "value",
+            "source_csv_sha256",
+            "value_origin",
+        ],
+    ].rename(
+        columns={
+            "value": "tuik_fallback_value",
+            "source_csv_sha256": "tuik_source_csv_sha256",
+            "value_origin": "tuik_value_origin",
+        }
+    )
+    rows = rows.merge(
+        fallback,
+        left_on=["province_name", "month", "metric"],
+        right_on=["province_name", "month", "metric_code"],
+        how="left",
+        validate="many_to_one",
+    )
+    fallback_used = (
+        rows["metric"].eq("housing_sales_mortgaged_count")
+        & rows["evds_value"].isna()
+        & rows["tuik_fallback_value"].notna()
+        & rows["tuik_value_origin"].eq(
+            "official_identity_total_equals_other_implies_zero_mortgaged"
+        )
+    )
+    rows["fallback_used"] = fallback_used
+    rows["usable_value"] = rows["evds_value"]
+    rows.loc[fallback_used, "usable_value"] = rows.loc[
+        fallback_used, "tuik_fallback_value"
+    ]
+    rows["fallback_month"] = rows["month"].where(fallback_used)
+    rows["fallback_source_sha256"] = rows["tuik_source_csv_sha256"].where(
+        fallback_used
+    )
+
     grouped = rows.groupby(["province_name", "quarter", "metric"], sort=True)
     audit = grouped.agg(
         source_observation_count=("value", "size"),
-        non_null_observation_count=("value", "count"),
-        value=("value", lambda values: values.sum(min_count=len(values))),
+        evds_non_null_observation_count=("evds_value", "count"),
+        usable_non_null_observation_count=("usable_value", "count"),
+        value=("usable_value", lambda values: values.sum(min_count=len(values))),
+        fallback_month_count=("fallback_used", "sum"),
+        fallback_months=(
+            "fallback_month",
+            lambda values: "|".join(sorted(values.dropna().astype(str))),
+        ),
+        fallback_source_sha256=(
+            "fallback_source_sha256",
+            lambda values: "|".join(sorted(set(values.dropna().astype(str)))),
+        ),
     ).reset_index()
     audit.loc[
         audit["source_observation_count"].ne(3)
-        | audit["non_null_observation_count"].ne(3),
+        | audit["usable_non_null_observation_count"].ne(3),
         "value",
     ] = np.nan
-    incomplete = int(
+    incomplete_before_fallback = int(
         (
             audit["source_observation_count"].ne(3)
-            | audit["non_null_observation_count"].ne(3)
+            | audit["evds_non_null_observation_count"].ne(3)
+        ).sum()
+    )
+    incomplete_after_fallback = int(
+        (
+            audit["source_observation_count"].ne(3)
+            | audit["usable_non_null_observation_count"].ne(3)
         ).sum()
     )
     panel = audit.pivot(
         index=["province_name", "quarter"], columns="metric", values="value"
     ).reset_index()
     panel.columns.name = None
-    return panel, incomplete
+    sales_completeness = (
+        audit.assign(
+            evds_metric_complete=lambda frame: frame[
+                "source_observation_count"
+            ].eq(3)
+            & frame["evds_non_null_observation_count"].eq(3),
+            usable_metric_complete=lambda frame: frame[
+                "source_observation_count"
+            ].eq(3)
+            & frame["usable_non_null_observation_count"].eq(3),
+        )
+        .groupby(["province_name", "quarter"], as_index=False)
+        .agg(
+            sales_evds_source_complete=("evds_metric_complete", "all"),
+            sales_source_complete=("usable_metric_complete", "all"),
+        )
+    )
+    panel = panel.merge(
+        sales_completeness,
+        on=["province_name", "quarter"],
+        how="left",
+        validate="one_to_one",
+    )
+    mortgage_audit = audit.loc[
+        audit["metric"].eq("housing_sales_mortgaged_count"),
+        [
+            "province_name",
+            "quarter",
+            "source_observation_count",
+            "evds_non_null_observation_count",
+            "usable_non_null_observation_count",
+            "fallback_month_count",
+            "fallback_months",
+            "fallback_source_sha256",
+        ],
+    ].copy()
+    mortgage_audit["mortgaged_sales_fallback_used"] = mortgage_audit[
+        "fallback_month_count"
+    ].gt(0)
+    mortgage_audit["mortgaged_sales_source"] = np.where(
+        mortgage_audit["mortgaged_sales_fallback_used"],
+        "TCMB_EVDS+TUIK_DATA_PORTAL_IDENTITY_FALLBACK",
+        "TCMB_EVDS",
+    )
+    mortgage_audit = mortgage_audit.rename(
+        columns={
+            "fallback_month_count": "mortgaged_sales_fallback_month_count",
+            "fallback_months": "mortgaged_sales_fallback_months",
+            "fallback_source_sha256": "mortgaged_sales_tuik_source_sha256",
+        }
+    )
+    panel = panel.merge(
+        mortgage_audit[
+            [
+                "province_name",
+                "quarter",
+                "mortgaged_sales_fallback_used",
+                "mortgaged_sales_fallback_month_count",
+                "mortgaged_sales_fallback_months",
+                "mortgaged_sales_source",
+                "mortgaged_sales_tuik_source_sha256",
+            ]
+        ],
+        on=["province_name", "quarter"],
+        how="left",
+        validate="one_to_one",
+    )
+    stats = {
+        "incomplete_before_fallback": incomplete_before_fallback,
+        "incomplete_after_fallback": incomplete_after_fallback,
+        "fallback_month_count": int(rows["fallback_used"].sum()),
+        "fallback_province_quarter_count": int(
+            mortgage_audit["mortgaged_sales_fallback_used"].sum()
+        ),
+    }
+    return panel, stats, mortgage_audit
 
 
 def build_quarter_end_series(
@@ -315,6 +462,7 @@ def build(output_dir: Path) -> dict[str, Any]:
     regional_observations = pd.read_parquet(REGIONAL_EVDS / "observations_long.parquet")
     core_observations = pd.read_parquet(CORE_EVDS / "observations_long.parquet")
     finturk = pd.read_parquet(FINTURK)
+    tuik_sales = pd.read_parquet(TUIK_SALES)
     finturk_cities = sorted(set(finturk["city"].dropna()) - {"YURT DIŞI"})
     dimension = build_province_dimension(catalog, finturk_cities)
 
@@ -325,7 +473,9 @@ def build(output_dir: Path) -> dict[str, Any]:
         "housing_price_region_name",
     ]].merge(pd.DataFrame({"quarter": target_quarters()}), how="cross")
 
-    sales, incomplete_sales = build_sales_panel(regional_observations, dimension)
+    sales, sales_stats, mortgage_audit = build_sales_panel(
+        regional_observations, dimension, tuik_sales
+    )
     unit_price = build_quarter_end_series(
         regional_observations,
         dimension,
@@ -416,9 +566,10 @@ def build(output_dir: Path) -> dict[str, Any]:
             .mul(100)
         )
 
-    panel["sales_source_complete"] = panel[
-        list(SALES_GROUPS.values())
-    ].notna().all(axis=1)
+    if not panel["sales_source_complete"].eq(
+        panel[list(SALES_GROUPS.values())].notna().all(axis=1)
+    ).all():
+        raise ValueError("Satış kullanılabilirlik bayrağı veri sütunlarıyla tutarsız.")
     panel["regional_price_source_complete"] = panel[
         ["housing_unit_price_try_per_m2", "regional_kfe_index", "regional_ykke_index"]
     ].notna().all(axis=1)
@@ -439,12 +590,30 @@ def build(output_dir: Path) -> dict[str, Any]:
         panel["housing_sales_mortgaged_count"].gt(panel["housing_sales_total_count"]).sum()
     )
     negative_non_mortgaged = int(panel["housing_sales_non_mortgaged_count"].lt(0).sum())
+    unit_price_coverage = panel.groupby("province_name", sort=True)[
+        "housing_unit_price_try_per_m2"
+    ].agg(non_null="count", total="size")
+    unit_price_no_observation_provinces = unit_price_coverage.loc[
+        unit_price_coverage["non_null"].eq(0)
+    ].index.tolist()
+    unit_price_partial_coverage_provinces = unit_price_coverage.loc[
+        unit_price_coverage["non_null"].gt(0)
+        & unit_price_coverage["non_null"].lt(unit_price_coverage["total"])
+    ].index.tolist()
 
     output_dir.mkdir(parents=True, exist_ok=True)
     dimension.to_csv(output_dir / "province_dimension.csv", index=False, encoding="utf-8-sig")
     dimension.to_parquet(output_dir / "province_dimension.parquet", index=False)
     panel.to_csv(output_dir / "province_quarter_housing_panel.csv", index=False, encoding="utf-8-sig")
     panel.to_parquet(output_dir / "province_quarter_housing_panel.parquet", index=False)
+    mortgage_audit.to_csv(
+        output_dir / "mortgaged_sales_fallback_audit.csv",
+        index=False,
+        encoding="utf-8-sig",
+    )
+    mortgage_audit.to_parquet(
+        output_dir / "mortgaged_sales_fallback_audit.parquet", index=False
+    )
     dictionary = metric_dictionary()
     dictionary.to_csv(output_dir / "metric_dictionary.csv", index=False, encoding="utf-8-sig")
     dictionary.to_parquet(output_dir / "metric_dictionary.parquet", index=False)
@@ -462,7 +631,7 @@ def build(output_dir: Path) -> dict[str, Any]:
             negative_non_mortgaged,
         ]
     )
-    explicit_source_gaps = incomplete_sales or panel[
+    explicit_source_gaps = sales_stats["incomplete_after_fallback"] or panel[
         [
             "housing_unit_price_try_per_m2",
             "regional_kfe_index",
@@ -496,11 +665,22 @@ def build(output_dir: Path) -> dict[str, Any]:
                 "series_code",
             ].nunique()
         ),
-        "incomplete_province_quarter_sales_aggregations": incomplete_sales,
+        "incomplete_province_quarter_sales_aggregations_before_fallback": sales_stats[
+            "incomplete_before_fallback"
+        ],
+        "incomplete_province_quarter_sales_aggregations_after_fallback": sales_stats[
+            "incomplete_after_fallback"
+        ],
+        "tuik_identity_fallback_month_count": sales_stats["fallback_month_count"],
+        "tuik_identity_fallback_province_quarter_count": sales_stats[
+            "fallback_province_quarter_count"
+        ],
         "total_equals_first_plus_second_violations": first_second_violations,
         "mortgaged_sales_over_total_violations": mortgaged_over_total,
         "negative_non_mortgaged_sales_violations": negative_non_mortgaged,
         "analysis_ready_rows": int(panel["analysis_ready"].sum()),
+        "housing_unit_price_no_observation_provinces": unit_price_no_observation_provinces,
+        "housing_unit_price_partial_coverage_provinces": unit_price_partial_coverage_provinces,
         "source_null_counts": {
             column: int(panel[column].isna().sum())
             for column in [
@@ -514,6 +694,8 @@ def build(output_dir: Path) -> dict[str, Any]:
         "quality_policy": [
             "The panel contains exactly one row per province and quarter.",
             "Monthly sales are summed only when all three source months are present and non-null.",
+            "EVDS mortgaged-sales nulls use a TÜİK fallback only when official total sales equals official other sales and therefore proves a zero.",
+            "Raw EVDS nulls remain unchanged; fallback provenance and source SHA-256 are stored in separate panel columns.",
             "KFE and YKKE use the observed quarter-end month and are not forward filled.",
             "Quarterly unit prices remain quarter-end levels and are not copied into monthly periods.",
             "FinTurk uses the official SEKTOR total and excludes YURT DISI from the 81-province panel.",

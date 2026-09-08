@@ -230,6 +230,7 @@ def build(output_path: Path) -> dict[str, Any]:
             "tbb",
             "quality",
             "evidence",
+            "tuik",
             "regional",
             "analysis",
         ]:
@@ -453,8 +454,30 @@ def build(output_path: Path) -> dict[str, Any]:
             )
 
         regional_dir = PROJECT_ROOT / "data_pipeline" / "regional" / "processed"
+        tuik_dir = (
+            PROJECT_ROOT
+            / "data_pipeline"
+            / "tuik"
+            / "province_housing_sales_v1"
+            / "processed"
+        )
         parquet_tables.extend(
             [
+                (
+                    "tuik",
+                    "province_housing_sales_monthly",
+                    tuik_dir / "monthly_sales_long.parquet",
+                ),
+                (
+                    "tuik",
+                    "province_housing_sales_evds_reconciliation",
+                    tuik_dir / "evds_reconciliation.parquet",
+                ),
+                (
+                    "tuik",
+                    "province_housing_sales_identity_zero_fallbacks",
+                    tuik_dir / "identity_zero_fallbacks.parquet",
+                ),
                 (
                     "regional",
                     "province_dimension",
@@ -573,7 +596,7 @@ def build(output_path: Path) -> dict[str, Any]:
         "status": "passed",
         "database_file": output_path.name,
         "database_bytes": output_path.stat().st_size,
-        "schema_count": 8,
+        "schema_count": 9,
         "table_count": table_count,
         "monthly_analysis_rows": monthly_count,
         "quarterly_analysis_rows": quarterly_count,
@@ -591,6 +614,7 @@ def build(output_path: Path) -> dict[str, Any]:
             "The monthly analysis table keeps nominal stock, real stock, rates, controls and quality flags separate.",
             "The quarterly analysis table keeps BDDK, FinTurk, EVDS and TBB scope differences visible.",
             "The regional panel keeps province observations distinct from regional KFE and YKKE values.",
+            "TÜİK direct observations, identity-derived zero fallbacks and EVDS reconciliation remain separately queryable.",
             "Weekly BDDK data is loaded only after its processed validation exists.",
         ],
     }

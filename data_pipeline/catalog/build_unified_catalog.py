@@ -834,7 +834,11 @@ def regional_housing_assets_and_metrics() -> tuple[list[dict[str, Any]], list[di
             file_path=relative(panel_path),
             file_format="parquet",
             validation_file=relative(validation_path),
-            source_url="https://evds3.tcmb.gov.tr/ and https://www.bddk.org.tr/BultenFinturk/",
+            source_url=(
+                "https://evds3.tcmb.gov.tr/ and "
+                "https://www.bddk.org.tr/BultenFinturk/ and "
+                "https://veriportali.tuik.gov.tr/"
+            ),
             description=(
                 "One row per province and quarter, combining housing sales, "
                 "prices, regional rent indices and FinTurk household-finance measures."
@@ -864,7 +868,11 @@ def regional_housing_assets_and_metrics() -> tuple[list[dict[str, Any]], list[di
             file_path=relative(dimension_path),
             file_format="parquet",
             validation_file=relative(validation_path),
-            source_url="https://evds3.tcmb.gov.tr/ and https://www.bddk.org.tr/BultenFinturk/",
+            source_url=(
+                "https://evds3.tcmb.gov.tr/ and "
+                "https://www.bddk.org.tr/BultenFinturk/ and "
+                "https://veriportali.tuik.gov.tr/"
+            ),
             description="Validated mapping of 81 provinces to EVDS source series and KFE/YKKE regions.",
             searchable_text="province dimension EVDS KFE YKKE FinTurk mapping",
         ),
@@ -937,6 +945,192 @@ def regional_housing_assets_and_metrics() -> tuple[list[dict[str, Any]], list[di
                     for part in [code, text_value(row.get("metric_name_tr")), derivation, caution]
                     if part
                 ),
+            )
+        )
+    return assets, metrics
+
+
+def tuik_province_sales_assets_and_metrics() -> tuple[
+    list[dict[str, Any]], list[dict[str, Any]]
+]:
+    base = PROJECT_ROOT / "data_pipeline" / "tuik" / "province_housing_sales_v1"
+    processed = base / "processed"
+    validation_path = processed / "validation.json"
+    validation = read_json(validation_path)
+    request = read_json(base / "request.json")
+    response = read_json(base / "response_metadata.json")
+    raw_path = base / "raw" / "province_housing_sales.csv.gz"
+    monthly_path = processed / "monthly_sales_long.parquet"
+    reconciliation_path = processed / "evds_reconciliation.parquet"
+    fallback_path = processed / "identity_zero_fallbacks.parquet"
+    monthly = pd.read_parquet(monthly_path)
+    reconciliation = pd.read_parquet(reconciliation_path)
+    fallbacks = pd.read_parquet(fallback_path)
+
+    assets = [
+        make_asset(
+            asset_id="tuik.province_housing_sales_v1.raw_snapshot",
+            dataset_id="tuik.province_housing_sales_v1",
+            source_system="TUIK_DATA_PORTAL",
+            source_organization="TÜİK",
+            competition_scope="supporting_official_source",
+            status=validation["status"],
+            data_kind="raw_source_export",
+            native_frequency="monthly_and_annual",
+            temporal_semantics="source_reported",
+            geography_grain="province",
+            institution_grain="not_applicable",
+            coverage_start="2013-01",
+            coverage_end="2026-07",
+            row_count=int(validation["raw_source_rows"]),
+            column_count=12,
+            metric_count=None,
+            missing_value_count=None,
+            progress_completed=int(validation["raw_source_rows"]),
+            progress_expected=int(validation["raw_source_rows"]),
+            file_path=relative(raw_path),
+            file_format="gzip_csv",
+            validation_file=relative(validation_path),
+            source_url=request["url"],
+            description=(
+                "Exact TÜİK province housing-sales bulk CSV response with "
+                f"raw SHA-256 {response['raw_response_sha256']}."
+            ),
+            searchable_text="TÜİK province monthly housing sales raw official export",
+        ),
+        make_asset(
+            asset_id="tuik.province_housing_sales_v1.monthly_sales_long",
+            dataset_id="tuik.province_housing_sales_v1",
+            source_system="TUIK_DATA_PORTAL",
+            source_organization="TÜİK",
+            competition_scope="supporting_official_source",
+            status=validation["status"],
+            data_kind="observations_long",
+            native_frequency="monthly",
+            temporal_semantics="monthly_flow",
+            geography_grain="province",
+            institution_grain="not_applicable",
+            coverage_start=validation["coverage_start"],
+            coverage_end=validation["coverage_end"],
+            row_count=len(monthly),
+            column_count=len(monthly.columns),
+            metric_count=int(validation["metric_count"]),
+            missing_value_count=int(monthly["direct_value"].isna().sum()),
+            progress_completed=int(monthly["value"].notna().sum()),
+            progress_expected=len(monthly),
+            file_path=relative(monthly_path),
+            file_format="parquet",
+            validation_file=relative(validation_path),
+            source_url=request["url"],
+            description=(
+                "Province-month housing sales. Direct source-row absence and "
+                "official identity-derived zeros are stored separately."
+            ),
+            searchable_text="TÜİK province monthly housing sales total mortgaged other first second",
+        ),
+        make_asset(
+            asset_id="tuik.province_housing_sales_v1.evds_reconciliation",
+            dataset_id="tuik.province_housing_sales_v1",
+            source_system="TUIK_DATA_PORTAL",
+            source_organization="TÜİK and TCMB EVDS",
+            competition_scope="derived_quality_evidence",
+            status=validation["status"],
+            data_kind="cross_source_reconciliation",
+            native_frequency="monthly",
+            temporal_semantics="exact_value_comparison",
+            geography_grain="province",
+            institution_grain="not_applicable",
+            coverage_start=validation["coverage_start"],
+            coverage_end=validation["coverage_end"],
+            row_count=len(reconciliation),
+            column_count=len(reconciliation.columns),
+            metric_count=0,
+            missing_value_count=int(reconciliation.isna().sum().sum()),
+            progress_completed=int(validation["evds_exact_matches"]),
+            progress_expected=int(validation["evds_exact_matches"]),
+            file_path=relative(reconciliation_path),
+            file_format="parquet",
+            validation_file=relative(validation_path),
+            source_url=request["url"],
+            description="Exact comparison of common TÜİK and EVDS province-month sales values.",
+            searchable_text="TÜİK EVDS province housing sales reconciliation exact match",
+        ),
+        make_asset(
+            asset_id="tuik.province_housing_sales_v1.identity_zero_fallbacks",
+            dataset_id="tuik.province_housing_sales_v1",
+            source_system="TUIK_DATA_PORTAL",
+            source_organization="TÜİK",
+            competition_scope="derived_quality_evidence",
+            status=validation["status"],
+            data_kind="identity_derived_fallback_audit",
+            native_frequency="monthly",
+            temporal_semantics="official_identity_derived_zero",
+            geography_grain="province",
+            institution_grain="not_applicable",
+            coverage_start=str(fallbacks["month"].min()),
+            coverage_end=str(fallbacks["month"].max()),
+            row_count=len(fallbacks),
+            column_count=len(fallbacks.columns),
+            metric_count=1,
+            missing_value_count=int(fallbacks["direct_value"].isna().sum()),
+            progress_completed=len(fallbacks),
+            progress_expected=len(fallbacks),
+            file_path=relative(fallback_path),
+            file_format="parquet",
+            validation_file=relative(validation_path),
+            source_url=request["url"],
+            description=(
+                "Audit rows where an omitted mortgaged-sales source row is "
+                "proven zero by official total sales equalling official other sales."
+            ),
+            searchable_text="TÜİK mortgage sales zero fallback identity audit",
+        ),
+    ]
+
+    labels = {
+        "housing_sales_total_count": "Toplam konut satışı",
+        "housing_sales_mortgaged_count": "İpotekli konut satışı",
+        "housing_sales_other_count": "Diğer konut satışı",
+        "housing_sales_first_hand_count": "İlk el konut satışı",
+        "housing_sales_second_hand_count": "İkinci el konut satışı",
+    }
+    metrics: list[dict[str, Any]] = []
+    for code, rows in monthly.groupby("metric_code", sort=True):
+        direct_missing = int(rows["direct_value"].isna().sum())
+        identity_derived = int(rows["is_identity_derived"].sum())
+        metrics.append(
+            make_metric(
+                metric_id=f"tuik_province_housing_sales:{code}",
+                dataset_id="tuik.province_housing_sales_v1",
+                source_system="TUIK_DATA_PORTAL",
+                source_organization="TÜİK",
+                competition_scope="supporting_official_source",
+                source_metric_code=str(code),
+                metric_name_tr=labels[str(code)],
+                metric_name_en="",
+                group_name="İl bazlı konut satışları",
+                role="housing_market_outcome",
+                dimension="province",
+                native_frequency="monthly",
+                unit="count",
+                temporal_semantics="flow",
+                default_aggregation="sum",
+                geography_grain="province",
+                institution_grain="not_applicable",
+                coverage_start=validation["coverage_start"],
+                coverage_end=validation["coverage_end"],
+                observation_available=bool(rows["value"].notna().any()),
+                observation_count=int(rows["value"].notna().sum()),
+                missing_observation_count=direct_missing,
+                quality_status=validation["status"],
+                is_archive=False,
+                source_asset=relative(monthly_path),
+                source_metadata_url=request["url"],
+                notes=(
+                    f"Direct source-row absence={direct_missing}; "
+                    f"official identity-derived zero={identity_derived}."
+                ),
+                searchable_text=f"{code} {labels[str(code)]} TÜİK il aylık konut satışı",
             )
         )
     return assets, metrics
@@ -1337,6 +1531,7 @@ def validate_catalog(
         "evds.market_controls_v2",
         "evds.regional_housing_v1",
         "evds.household_finance_v1",
+        "tuik.province_housing_sales_v1",
         "bddk.monthly_all_groups.table_01",
         "bddk.finturk_all_groups_all_cities",
         "bddk.weekly_all_groups",
@@ -1404,6 +1599,7 @@ def build(output_dir: Path) -> dict[str, Any]:
         evds_assets_and_metrics,
         monthly_bddk_assets_and_metrics,
         finturk_assets_and_metrics,
+        tuik_province_sales_assets_and_metrics,
         regional_housing_assets_and_metrics,
         tbb_assets_and_metrics,
     ]:

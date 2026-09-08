@@ -23,3 +23,20 @@ SELECT quarter,
        disbursement_amount_million_try AS tbb_disbursement_flow_million_try
 FROM analysis.housing_credit_quarterly
 ORDER BY quarter;
+
+-- Inspect province-quarter rows that used an official TÜİK identity fallback.
+SELECT province_name,
+       quarter,
+       housing_sales_mortgaged_count,
+       mortgaged_sales_fallback_months,
+       mortgaged_sales_source,
+       mortgaged_sales_tuik_source_sha256
+FROM regional.housing_quarterly
+WHERE mortgaged_sales_fallback_used
+ORDER BY province_name, quarter;
+
+-- Verify that common direct TÜİK and EVDS sales observations match exactly.
+SELECT reconciliation_status, count(*) AS observation_count
+FROM tuik.province_housing_sales_evds_reconciliation
+GROUP BY reconciliation_status
+ORDER BY reconciliation_status;

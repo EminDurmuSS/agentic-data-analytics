@@ -1,9 +1,9 @@
 {
   "status": "passed",
   "data_readiness_status": "core_sources_complete",
-  "asset_count": 61,
-  "metric_count": 55484,
-  "queryable_metric_count": 3292,
+  "asset_count": 65,
+  "metric_count": 55489,
+  "queryable_metric_count": 3297,
   "metadata_only_metric_count": 52192,
   "metrics_by_source_system": {
     "BDDK_FINTURK": 76,
@@ -12,7 +12,8 @@
     "REGIONAL_HOUSING_ANALYSIS": 26,
     "TBB_REPORTS": 60,
     "TCMB_EVDS": 52696,
-    "TCMB_EVDS_DERIVED": 1
+    "TCMB_EVDS_DERIVED": 1,
+    "TUIK_DATA_PORTAL": 5
   },
   "assets_by_source_system": {
     "BDDK_FINTURK": 9,
@@ -22,7 +23,8 @@
     "OFFICIAL_DOCUMENTS": 1,
     "REGIONAL_HOUSING_ANALYSIS": 3,
     "TBB_REPORTS": 5,
-    "TCMB_EVDS": 21
+    "TCMB_EVDS": 21,
+    "TUIK_DATA_PORTAL": 4
   },
   "selected_evds_observation_series": 506,
   "weekly_bddk": {

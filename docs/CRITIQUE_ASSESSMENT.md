@@ -59,10 +59,10 @@ bulunmadığı için açık boşluk olarak işaretlenir.
 ### Sorgulanabilir veri altyapısı
 
 SQLite/Pandas başlangıcının yanında artık birleşik katalog ve self-contained
-DuckDB bulunur. DuckDB 8 şema ve 55 tablo içerir. BDDK aylık, haftalık ve
+DuckDB bulunur. DuckDB 9 şema ve 58 tablo içerir. BDDK aylık, haftalık ve
 FinTürk verileri, TBB raporları, 506 seçilmiş EVDS kaynak serisi, 1 açıkça
-türetilmiş seri, il bazlı konut paneli, kalite tabloları ve olay kayıtları tek
-sorgu yüzeyinde erişilebilirdir.
+türetilmiş seri, TÜİK il satışları, il bazlı konut paneli, kalite tabloları ve
+olay kayıtları tek sorgu yüzeyinde erişilebilirdir.
 
 ### Bölgesel konut ve hanehalkı finansmanı
 
@@ -70,8 +70,11 @@ sorgu yüzeyinde erişilebilirdir.
 birim fiyatlar, bölgesel KFE ve YKKE serileri indirildi. Bunlar FinTürk konut
 kredisi, tasarruf mevduatı, altın mevduatı ve nakdi kredi göstergeleriyle 22
 çeyreklik panelde birleştirildi. Ayrıca 3 KKM ve 1 hanehalkı mevduat serisi
-ulusal aylık analize eklendi. Kaynak null değerleri korunur ve eksik ayı olan
-çeyreğe kısmi toplam yazılmaz.
+ulusal aylık analize eklendi. Ham kaynak null değerleri korunur. EVDS'de
+satırı olmayan 10 il-ay ipotekli satış gözlemi, TÜİK'in aynı tabloda yayımladığı
+`toplam satış = diğer satış` özdeşliğiyle sıfır olarak doğrulandı. Yarışma
+dönemindeki 9 gözlem, 8 il-çeyrek toplamında ayrı kaynak ve SHA-256 provenance
+ile kullanılır.
 
 ## Bilinçli kapsam sınırları
 

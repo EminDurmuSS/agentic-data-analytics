@@ -33,6 +33,7 @@ class UnifiedCatalogTests(unittest.TestCase):
                 "BDDK_MONTHLY",
                 "BDDK_WEEKLY",
                 "BDDK_FINTURK",
+                "TUIK_DATA_PORTAL",
                 "CROSS_SOURCE_QUALITY",
             }
             <= systems
@@ -64,6 +65,7 @@ class UnifiedCatalogTests(unittest.TestCase):
             "evds.regional_housing_v1.coverage_gaps",
             "evds.household_finance_v1.coverage_gaps",
             "tbb.consumer_credit_reports.source_gaps",
+            "tuik.province_housing_sales_v1.identity_zero_fallbacks",
         }
         self.assertTrue(expected <= set(self.assets["asset_id"]))
 
@@ -104,6 +106,18 @@ class UnifiedCatalogTests(unittest.TestCase):
             "regional_housing:housing_credit_per_capita_try",
             set(regional["metric_id"]),
         )
+
+    def test_tuik_sales_fallback_source_is_discoverable(self):
+        metrics = self.metrics.loc[
+            self.metrics["source_system"].eq("TUIK_DATA_PORTAL")
+        ]
+        self.assertEqual(5, len(metrics))
+        self.assertTrue(metrics["observation_available"].all())
+        mortgage = metrics.loc[
+            metrics["source_metric_code"].eq("housing_sales_mortgaged_count")
+        ].iloc[0]
+        self.assertEqual(10, mortgage["missing_observation_count"])
+        self.assertIn("identity-derived zero=10", mortgage["notes"])
 
 
 if __name__ == "__main__":

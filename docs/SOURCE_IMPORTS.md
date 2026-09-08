@@ -23,3 +23,9 @@ kanıt olarak korunur. Bu dosyalar `Downloads` içe aktarımı değildir.
 Güncel notebook `tools/build_data_status_notebook.py` ile doğrulanmış DuckDB
 üzerinden üretilir. Eski 25 serilik gömülü snapshot güncel kapsamı temsil
 etmediği için notebook içinde tutulmaz.
+
+8 Eylül 2026 tarihinde TÜİK Veri Portalı'nın
+`DF_SATIS_SEKLI_DURUMU_ILILCE_V3+V1.0` dataflow'u doğrudan indirildi. Tam CSV
+yanıtı `data_pipeline/tuik/province_housing_sales_v1/raw/` altında gzip olarak,
+istek bilgisi ve hem ham hem sıkıştırılmış SHA-256 değerleriyle saklanır. Bu
+kaynak Downloads içe aktarımı değildir.

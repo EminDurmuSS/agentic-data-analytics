@@ -103,8 +103,27 @@ Bilinen EVDS sınırları:
   Kaynak birimi TL/kg'dır; TL/gram dönüşümü ayrı türetilmiş seri olarak tutulur.
 - Ardahan, Bayburt, Gümüşhane, Hakkari ve Tunceli için il bazlı konut birim
   fiyatı serileri kaynakta tamamen boştur. Değer üretilmemiştir.
+- Ağrı, Bitlis, Iğdır, Kars, Muş ve Van birim fiyatları 2023'te, Şırnak birim
+  fiyatı 2022'de başlar. Önceki çeyrekler için aynı metriğin arşiv serisi
+  katalogda bulunmadığından tarihsel seviye üretilmemiştir.
 - Bazı il bazlı ipotekli satış serilerindeki kaynak null değerleri 8 il-çeyrek
-  toplamını etkiler. Eksik ay bulunan çeyreğe kısmi toplam yazılmaz.
+  toplamını ham EVDS katmanında etkiler. TÜİK Veri Portalı çapraz kaynağında
+  aynı aylarda `toplam satış = diğer satış` olduğu doğrulandığı için ipotekli
+  satışın sıfır olduğu açık provenance ile analitik panelde kullanılabilir.
+
+## TÜİK il konut satışları
+
+- Resmî dataflow: `DF_SATIS_SEKLI_DURUMU_ILILCE_V3+V1.0`
+- İşlenmiş dönem: Ocak 2020-Haziran 2026
+- 81 il, 78 ay, 5 satış metriği, 31.590 il-ay-metrik satırı
+- EVDS ile ortak 25.262 doğrudan gözlemin tamamı birebir eşleşti
+- EVDS ve TÜİK arasında değer uyuşmazlığı: 0
+- Kaynak CSV'de doğrudan satırı bulunmayan 10 ipotekli satış gözlemi için aynı
+  resmî tabloda `toplam satış = diğer satış` olduğundan sıfır kesin olarak
+  türetildi
+- Bu 10 gözlemin 9'u yarışma döneminde ve 8 il-çeyrek toplamını etkiliyor
+- Ham EVDS null değerleri ve TÜİK'te doğrudan satır yokluğu aynen korunuyor,
+  kullanılabilir sıfır ayrı `value_origin`, formül ve SHA-256 ile tutuluyor
 
 ### İl bazlı konut analitik paneli
 
@@ -112,7 +131,7 @@ Bilinen EVDS sınırları:
 - 26 kataloglanmış analitik metrik
 - Satış, konut birim fiyatı, bölgesel KFE ve YKKE ile FinTürk kredi ve mevduat
   göstergeleri aynı çeyrek anahtarında birleştirildi
-- 1.619 satır seçilmiş kaynaklar açısından `analysis_ready=true`
+- 1.620 satır seçilmiş kaynaklar açısından `analysis_ready=true`
 - Toplam satış = ilk el + ikinci el denetim ihlali: 0
 - İpotekli satışın toplam satışı aşması ihlali: 0
 - İpoteksiz satış hiçbir yerde nakit satış olarak etiketlenmez
@@ -150,11 +169,11 @@ Bilinen EVDS sınırları:
 
 ## Sorgulanabilir çıktı
 
-- Birleşik katalog: 61 veri varlığı
-- Toplam katalog metriği: 55.484
-- Yerel gözlemi bulunan sorgulanabilir metrik: 3.292
+- Birleşik katalog: 65 veri varlığı
+- Toplam katalog metriği: 55.489
+- Yerel gözlemi bulunan sorgulanabilir metrik: 3.297
 - Yerel TCMB EVDS kaynak serisi: 506
-- DuckDB: 8 şema, 55 tablo
+- DuckDB: 9 şema, 58 tablo
 - Aylık analiz tablosu: 66 benzersiz ay
 - Çeyreklik analiz tablosu: 22 benzersiz çeyrek
 - İl bazlı analiz tablosu: 1.782 benzersiz il-çeyrek satırı

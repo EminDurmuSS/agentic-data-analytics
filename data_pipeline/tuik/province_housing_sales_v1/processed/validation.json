@@ -1,0 +1,29 @@
+{
+  "status": "passed",
+  "dataflow_id": "DF_SATIS_SEKLI_DURUMU_ILILCE_V3+V1.0",
+  "source_url": "https://veriportali.tuik.gov.tr/api/tr/dataflows/DF_SATIS_SEKLI_DURUMU_ILILCE_V3%2BV1.0/file/csv",
+  "raw_source_rows": 269276,
+  "raw_source_sha256": "433983c1c15af20b7b440b0d57fa2b38939ddc39b30c631d5dd744320de738ec",
+  "coverage_start": "2020-01",
+  "coverage_end": "2026-06",
+  "province_count": 81,
+  "month_count": 78,
+  "metric_count": 5,
+  "processed_rows": 31590,
+  "expected_processed_rows": 31590,
+  "direct_source_rows": 31580,
+  "direct_source_rows_absent": 10,
+  "identity_derived_zero_rows": 10,
+  "identity_derived_zero_rows_in_competition_window": 9,
+  "affected_province_quarters_in_competition_window": 8,
+  "usable_value_missing_rows": 0,
+  "evds_exact_matches": 25262,
+  "evds_value_mismatches": 0,
+  "quality_policy": [
+    "The exact TÜİK CSV response is retained as deterministic gzip with SHA-256 metadata.",
+    "Processing is cut at 2026-06 even when the source export contains later observations.",
+    "A missing mortgaged-sales row becomes zero only when official total sales equals official other sales for the same province-month.",
+    "The absent direct row remains null in direct_value and the usable zero is explicitly labelled as identity-derived.",
+    "All common direct TÜİK and EVDS province-month observations must match exactly."
+  ]
+}

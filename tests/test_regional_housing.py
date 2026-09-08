@@ -170,7 +170,44 @@ class ProvinceQuarterPanelTests(unittest.TestCase):
         }
         rows = self.panel.loc[self.panel["province_name"].isin(unavailable)]
         self.assertTrue(rows["housing_unit_price_try_per_m2"].isna().all())
-        self.assertGreater(self.validation["incomplete_province_quarter_sales_aggregations"], 0)
+        self.assertEqual(
+            8,
+            self.validation[
+                "incomplete_province_quarter_sales_aggregations_before_fallback"
+            ],
+        )
+        self.assertEqual(
+            0,
+            self.validation[
+                "incomplete_province_quarter_sales_aggregations_after_fallback"
+            ],
+        )
+        self.assertEqual(
+            ["ARDAHAN", "BAYBURT", "GÜMÜŞHANE", "HAKKARİ", "TUNCELİ"],
+            self.validation["housing_unit_price_no_observation_provinces"],
+        )
+        self.assertEqual(
+            ["AĞRI", "BİTLİS", "IĞDIR", "KARS", "MUŞ", "VAN", "ŞIRNAK"],
+            self.validation["housing_unit_price_partial_coverage_provinces"],
+        )
+
+    def test_tuik_fallback_is_explicit_and_only_used_for_proven_zeros(self):
+        fallback = self.panel.loc[self.panel["mortgaged_sales_fallback_used"]]
+        self.assertEqual(8, len(fallback))
+        self.assertEqual(9, int(fallback["mortgaged_sales_fallback_month_count"].sum()))
+        self.assertTrue(fallback["housing_sales_mortgaged_count"].notna().all())
+        self.assertTrue((~fallback["sales_evds_source_complete"]).all())
+        self.assertTrue(fallback["sales_source_complete"].all())
+        self.assertTrue(
+            fallback["mortgaged_sales_source"]
+            .eq("TCMB_EVDS+TUIK_DATA_PORTAL_IDENTITY_FALLBACK")
+            .all()
+        )
+        self.assertTrue(
+            fallback["mortgaged_sales_tuik_source_sha256"].str.fullmatch(
+                r"[0-9a-f]{64}"
+            ).all()
+        )
 
 
 if __name__ == "__main__":

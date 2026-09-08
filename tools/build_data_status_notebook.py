@@ -144,9 +144,9 @@ def build_notebook() -> dict:
 
 Bu notebook eski 25 serilik başlangıç snapshot'ı değildir. Repodaki güncel,
 self-contained DuckDB dosyasını salt okunur açar ve BDDK aylık, BDDK haftalık,
-BDDK FinTürk, seçilmiş ulusal ve bölgesel TCMB EVDS serileri, TBB tüketici
-kredileri, hanehalkı finansmanı ve resmî bağlam belgelerinin birleşik durumunu
-gösterir.
+BDDK FinTürk, seçilmiş ulusal ve bölgesel TCMB EVDS serileri, TÜİK il konut
+satışları, TBB tüketici kredileri, hanehalkı finansmanı ve resmî bağlam
+belgelerinin birleşik durumunu gösterir.
 
 Ana sonuç: Zorunlu kaynak ailelerinin yayımlanmış veri kapsamı tamamlandı.
 Kaynakta henüz yayımlanmayan TBB Haziran 2026 raporu tahmin edilmedi ve açık
@@ -161,6 +161,7 @@ boşluk olarak korunuyor.
 | BDDK haftalık | 286 hafta, 7 resmî banka grubu, 9 tablonun tamamı, 1.025.974 ölçüm |
 | BDDK FinTürk | 22 çeyrek, 7 tablo, 7 banka grubu, 81 il ve `YURT DIŞI`, 936.512 ölçüm |
 | TCMB EVDS | 52.696 serilik metadata kataloğu, analitik değeri yüksek {int(summary.iloc[0]['yerel_evds_serisi'])} kaynak serinin yerel gözlemi ve 1 türetilmiş altın serisi |
+| TÜİK il konut satışları | 81 il, Ocak 2020-Haziran 2026, 5 aylık satış metriği ve EVDS çapraz doğrulaması |
 | İl bazlı konut paneli | {int(summary.iloc[0]['il_sayisi'])} il, 22 çeyrek, {int(summary.iloc[0]['bolgesel_satir'])} tekil satır ve {int(summary.iloc[0]['analize_hazir_bolgesel_satir'])} analize hazır satır |
 | TBB | Mart 2021-Mart 2026 arasında yayımlanmış 21 rapor, 252 ürün ölçümü |
 | Resmî belgeler | 4 BDDK kararı ve 4 TCMB yöntem veya destek belgesi |
@@ -302,7 +303,9 @@ display(demo)
 - Kredi stoku, stok değişimi ve yeni kullandırım akımı farklı ölçülerdir.
 - Haftalık faiz aylığa çevrilirken kullanılan yöntem metadata ile birlikte saklanır.
 - Kümülatif BDDK kâr-zarar değerleri kaynak hâliyle korunur, türetilmiş aylık akım ayrıca tutulur.
-- Eksik değerler sıfır yapılmaz veya tahminle doldurulmaz.
+- Eksik değerler tahminle doldurulmaz. Sıfır yalnız aynı resmî TÜİK
+  tablosundaki `toplam satış = diğer satış` özdeşliğiyle kesin kanıtlanırsa,
+  ham null korunarak ayrı provenance ile kullanılabilir.
 - BDDK haftalık kaynak boşlukları ile FinTürk yapısal ve raporlanmamış
   boşlukları ayrı denetim tablolarında tutulur.
 - Çeyreklik gözlem ara aylara forward fill edilmez.
@@ -319,8 +322,12 @@ display(demo)
 4. Aktif altın kontrolü `TP.ALTINPIYASA.KAP02` 30 Haziran 2026'ya kadar doludur; TL/gram serisi açık `0.001` dönüşümüyle türetilir.
 5. Ağustos 2025 EVDS ve BDDK konut kredisi kapsam farkı otomatik düzeltilmez.
 6. TBB raporlayan banka kapsamı BDDK sektör toplamından daha dardır.
-7. Beş ilin konut birim fiyatı serisi kaynakta tamamen boştur; 162 il-çeyrek değeri null kalır.
-8. İl bazlı ipotekli satış kaynak null değerleri 8 il-çeyrek toplamını etkiler.
+7. Beş ilin konut birim fiyatı serisi tamamen boştur. Altı ilin serisi 2023'te,
+   Şırnak serisi 2022'de başlar. Bu nedenle toplam 162 il-çeyrek birim fiyatı
+   kaynakta yayımlanmadığı için null kalır.
+8. Ham EVDS'deki 9 yarışma dönemi ipotekli satış null değeri, TÜİK'teki
+   `toplam satış = diğer satış` özdeşliğiyle sıfır olarak doğrulanıp 8
+   il-çeyrek toplamında açık fallback provenance ile kullanılır.
 
 Bu boşluklar veri kaybı gibi gizlenmez. Katalog ve kalite tablolarında açıkça
 görülebilir.

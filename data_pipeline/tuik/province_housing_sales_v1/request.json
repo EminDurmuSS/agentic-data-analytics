@@ -1,0 +1,13 @@
+{
+  "source_organization": "Türkiye İstatistik Kurumu",
+  "source_system": "TÜİK Veri Portalı",
+  "dataflow_id": "DF_SATIS_SEKLI_DURUMU_ILILCE_V3+V1.0",
+  "method": "GET",
+  "url": "https://veriportali.tuik.gov.tr/api/tr/dataflows/DF_SATIS_SEKLI_DURUMU_ILILCE_V3%2BV1.0/file/csv",
+  "headers": {
+    "X-Requested-With": "XMLHttpRequest",
+    "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36",
+    "Referer": "https://veriportali.tuik.gov.tr/tr/bulk-download"
+  },
+  "tls_verification": true
+}
