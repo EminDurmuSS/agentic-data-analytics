@@ -1,0 +1,32 @@
+{
+  "status": "validated",
+  "series_code": "TP.BK.ERZURUM",
+  "frequency": "ÜÇ AYLIK",
+  "aggregation": "avg",
+  "chunk_start": "2020-01-01",
+  "chunk_end": "2026-06-30",
+  "request_file": "raw/TP_BK_ERZURUM_2020-01-01_2026-06-30_request.json",
+  "request_sha256": "21567d72283fc4ab0baeec711ddcd3e4718c523c4860e5429c7641efa81b5eb9",
+  "response_file": "raw/TP_BK_ERZURUM_2020-01-01_2026-06-30_response.json.gz",
+  "response_sha256": "770d8acf14f4a82177c5e35c7af05965eb098ed6a0fe15c4874af5a36e7536d4",
+  "served_from_cache": false,
+  "http_status": 200,
+  "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "content_type": "application/json;charset=UTF-8",
+  "url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "started_at_utc": "2026-09-08T15:44:09.601525+00:00",
+  "completed_at_utc": "2026-09-08T15:44:09.883092+00:00",
+  "bytes": 4285,
+  "sha256": "770d8acf14f4a82177c5e35c7af05965eb098ed6a0fe15c4874af5a36e7536d4",
+  "transport": "curl",
+  "tls_verification": true,
+  "response_total_count": 26,
+  "retained_rows": 26,
+  "outside_requested_range_rows": 0,
+  "series_names": {
+    "TP_BK_ERZURUM": "Erzurum Konut Birim Kiraları"
+  },
+  "frequency_conversion": {
+    "TP.BK.ERZURUM": true
+  }
+}

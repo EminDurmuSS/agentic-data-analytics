@@ -1,0 +1,32 @@
+{
+  "status": "validated",
+  "series_code": "TP.BK.KUTAHYA",
+  "frequency": "ÜÇ AYLIK",
+  "aggregation": "avg",
+  "chunk_start": "2020-01-01",
+  "chunk_end": "2026-06-30",
+  "request_file": "raw/TP_BK_KUTAHYA_2020-01-01_2026-06-30_request.json",
+  "request_sha256": "ac3c764a937220f77f142f054b6f4c3a87df2f651b37db4d120b1d42fe651042",
+  "response_file": "raw/TP_BK_KUTAHYA_2020-01-01_2026-06-30_response.json.gz",
+  "response_sha256": "0cc7bf9352a166e4768867ef3e7704194d1a0dfe5469f6f5e142a1953f258117",
+  "served_from_cache": false,
+  "http_status": 200,
+  "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "content_type": "application/json;charset=UTF-8",
+  "url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "started_at_utc": "2026-09-08T15:44:17.892322+00:00",
+  "completed_at_utc": "2026-09-08T15:44:18.182601+00:00",
+  "bytes": 4287,
+  "sha256": "0cc7bf9352a166e4768867ef3e7704194d1a0dfe5469f6f5e142a1953f258117",
+  "transport": "curl",
+  "tls_verification": true,
+  "response_total_count": 26,
+  "retained_rows": 26,
+  "outside_requested_range_rows": 0,
+  "series_names": {
+    "TP_BK_KUTAHYA": "Kütahya Konut Birim Kiraları"
+  },
+  "frequency_conversion": {
+    "TP.BK.KUTAHYA": true
+  }
+}

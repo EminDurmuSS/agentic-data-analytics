@@ -28,8 +28,8 @@ class RegionalHousingManifestTests(unittest.TestCase):
         manifest, validation = build_manifest(catalog, excluded)
         codes = [item["series_code"] for item in manifest["series"]]
         self.assertEqual("passed", validation["status"])
-        self.assertEqual(441, len(codes))
-        self.assertEqual(441, len(set(codes)))
+        self.assertEqual(519, len(codes))
+        self.assertEqual(519, len(set(codes)))
         self.assertEqual(EXPECTED_ROLE_COUNTS, validation["role_counts"])
         self.assertFalse(set(codes) & excluded)
 
@@ -45,8 +45,8 @@ class RegionalHousingSnapshotTests(unittest.TestCase):
 
     def test_all_selected_series_are_stored_once(self):
         self.assertEqual("passed", self.validation["status"])
-        self.assertEqual(441, self.validation["series_count"])
-        self.assertEqual(441, self.observations["series_code"].nunique())
+        self.assertEqual(519, self.validation["series_count"])
+        self.assertEqual(519, self.observations["series_code"].nunique())
         self.assertFalse(
             self.observations.duplicated(["series_code", "period"]).any()
         )
@@ -54,8 +54,8 @@ class RegionalHousingSnapshotTests(unittest.TestCase):
     def test_source_nulls_are_preserved_and_classified(self):
         null_rows = self.observations.loc[self.observations["is_missing"]]
         self.assertTrue(null_rows["value"].isna().all())
-        self.assertEqual(220, len(null_rows))
-        self.assertEqual(140, int(null_rows["is_unresolved_missing"].sum()))
+        self.assertEqual(482, len(null_rows))
+        self.assertEqual(322, int(null_rows["is_unresolved_missing"].sum()))
         self.assertEqual(
             {
                 "TP.BIRIMFIYAT.ARDAHAN",
@@ -63,6 +63,13 @@ class RegionalHousingSnapshotTests(unittest.TestCase):
                 "TP.BIRIMFIYAT.GUMUSHANE",
                 "TP.BIRIMFIYAT.HAKKARI",
                 "TP.BIRIMFIYAT.TUNCELI",
+                "TP.BK.ARDAHAN",
+                "TP.BK.BAYBURT",
+                "TP.BK.BINGOL",
+                "TP.BK.GUMUSHANE",
+                "TP.BK.HAKKARI",
+                "TP.BK.SIRNAK",
+                "TP.BK.TUNCELI",
             },
             set(self.validation["series_with_no_non_null_observations"]),
         )
@@ -159,6 +166,7 @@ class ProvinceQuarterPanelTests(unittest.TestCase):
         self.assertFalse(self.dimension.isna().any().any())
         self.assertEqual(19, self.dimension["regional_kfe_series_code"].nunique())
         self.assertEqual(19, self.dimension["regional_ykke_series_code"].nunique())
+        self.assertEqual(81, self.dimension["housing_unit_rent_series_code"].nunique())
 
     def test_known_source_gaps_remain_null(self):
         unavailable = {
@@ -189,6 +197,21 @@ class ProvinceQuarterPanelTests(unittest.TestCase):
         self.assertEqual(
             ["AĞRI", "BİTLİS", "IĞDIR", "KARS", "MUŞ", "VAN", "ŞIRNAK"],
             self.validation["housing_unit_price_partial_coverage_provinces"],
+        )
+        self.assertEqual(
+            [
+                "ARDAHAN",
+                "BAYBURT",
+                "BİNGÖL",
+                "GÜMÜŞHANE",
+                "HAKKARİ",
+                "TUNCELİ",
+                "ŞIRNAK",
+            ],
+            self.validation["housing_unit_rent_no_observation_provinces"],
+        )
+        self.assertTrue(
+            rows["housing_unit_rent_try_per_m2"].isna().all()
         )
 
     def test_tuik_fallback_is_explicit_and_only_used_for_proven_zeros(self):

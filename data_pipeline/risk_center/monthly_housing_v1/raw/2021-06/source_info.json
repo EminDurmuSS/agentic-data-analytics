@@ -1,0 +1,20 @@
+{
+  "publication_period": "2021-06",
+  "status": "validated",
+  "report_title": "2021 Haziran - Risk Merkezi Aylık Bülteni",
+  "attachment_title": "Risk_Merkezi_Aylik_Bulteni_Haziran_2021.pdf",
+  "source_url": "https://www.riskmerkezi.org/download/node/13627/field_raporlar_ekler/15435",
+  "local_file": "raw/2021-06/risk_center_monthly_bulletin.pdf",
+  "fetch": {
+    "started_at_utc": "2026-09-08T15:54:34.859639+00:00",
+    "completed_at_utc": "2026-09-08T15:54:35.306544+00:00",
+    "requested_url": "https://www.riskmerkezi.org/download/node/13627/field_raporlar_ekler/15435",
+    "final_url": "https://www.riskmerkezi.org/download/node/13627/field_raporlar_ekler/15435",
+    "http_status": 200,
+    "content_type": "application/pdf",
+    "bytes": 1390245,
+    "sha256": "440c98f9bc6d4c1417618c542e9a66f72d40bd5356efed40f1b2cd5a15d5a219",
+    "attempt": 1,
+    "tls_verification": true
+  }
+}

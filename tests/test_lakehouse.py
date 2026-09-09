@@ -41,6 +41,7 @@ class LakehouseTests(unittest.TestCase):
                 "evidence",
                 "tuik",
                 "regional",
+                "risk_center",
                 "analysis",
             }
             <= schemas
@@ -77,7 +78,7 @@ class LakehouseTests(unittest.TestCase):
             "FROM catalog.metrics WHERE source_system = 'TCMB_EVDS'"
         ).fetchone()
         self.assertEqual(52696, total)
-        self.assertEqual(506, available)
+        self.assertEqual(584, available)
         derived = self.connection.execute(
             "SELECT count(*) FROM catalog.metrics "
             "WHERE source_system = 'TCMB_EVDS_DERIVED' "
@@ -231,6 +232,39 @@ class LakehouseTests(unittest.TestCase):
             "FROM analysis.housing_credit_monthly WHERE month = '2026-06'"
         ).fetchone()
         self.assertTrue(all(value is not None for value in june))
+
+    def test_risk_center_monthly_data_is_queryable_and_kept_separate(self):
+        count, distinct_count = self.connection.execute(
+            "SELECT count(*), count(DISTINCT month) "
+            "FROM risk_center.housing_credit_monthly"
+        ).fetchone()
+        self.assertEqual((66, 66), (count, distinct_count))
+        june = self.connection.execute(
+            "SELECT risk_center_housing_credit_balance_billion_try, "
+            "risk_center_housing_credit_borrower_count_million_person, "
+            "risk_center_housing_credit_average_balance_try, "
+            "risk_center_housing_credit_npl_ratio_pct, "
+            "risk_center_first_time_housing_credit_users_thousand_person "
+            "FROM analysis.housing_credit_monthly WHERE month = '2026-06'"
+        ).fetchone()
+        self.assertEqual((810.0, 1.6, 509549.0, 0.1, 13.0), june)
+        revision_count = self.connection.execute(
+            "SELECT count(*) FROM risk_center.overlap_revision_audit "
+            "WHERE value_changed"
+        ).fetchone()[0]
+        self.assertEqual(6, revision_count)
+
+    def test_unpublished_tbb_disbursement_is_not_filled_from_risk_center(self):
+        tbb_value = self.connection.execute(
+            "SELECT disbursement_amount_million_try "
+            "FROM analysis.housing_credit_quarterly WHERE quarter = '2026-06'"
+        ).fetchone()[0]
+        first_time_users = self.connection.execute(
+            "SELECT risk_center_first_time_housing_credit_users_thousand_person "
+            "FROM analysis.housing_credit_monthly WHERE month = '2026-06'"
+        ).fetchone()[0]
+        self.assertIsNone(tbb_value)
+        self.assertEqual(13.0, first_time_users)
 
     def test_demo_query_returns_only_quality_screened_rows(self):
         rows = self.connection.execute(

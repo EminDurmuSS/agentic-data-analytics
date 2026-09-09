@@ -1,0 +1,32 @@
+{
+  "status": "validated",
+  "series_code": "TP.BK.CORUM",
+  "frequency": "ÜÇ AYLIK",
+  "aggregation": "avg",
+  "chunk_start": "2020-01-01",
+  "chunk_end": "2026-06-30",
+  "request_file": "raw/TP_BK_CORUM_2020-01-01_2026-06-30_request.json",
+  "request_sha256": "db0c39cfedfd2982c848be54f4759045c10b8d89180c596e870feda7bfac200d",
+  "response_file": "raw/TP_BK_CORUM_2020-01-01_2026-06-30_response.json.gz",
+  "response_sha256": "b3068015ce07023054e8e101c0448724a5e2de5d56585c7d0b82f9adca41f04c",
+  "served_from_cache": false,
+  "http_status": 200,
+  "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "content_type": "application/json;charset=UTF-8",
+  "url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "started_at_utc": "2026-09-08T15:44:06.481830+00:00",
+  "completed_at_utc": "2026-09-08T15:44:06.760770+00:00",
+  "bytes": 4223,
+  "sha256": "b3068015ce07023054e8e101c0448724a5e2de5d56585c7d0b82f9adca41f04c",
+  "transport": "curl",
+  "tls_verification": true,
+  "response_total_count": 26,
+  "retained_rows": 26,
+  "outside_requested_range_rows": 0,
+  "series_names": {
+    "TP_BK_CORUM": "Çorum Konut Birim Kiraları"
+  },
+  "frequency_conversion": {
+    "TP.BK.CORUM": true
+  }
+}

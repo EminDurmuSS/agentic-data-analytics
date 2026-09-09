@@ -1,0 +1,32 @@
+{
+  "status": "validated",
+  "series_code": "TP.BK.OSMANIYE",
+  "frequency": "ÜÇ AYLIK",
+  "aggregation": "avg",
+  "chunk_start": "2020-01-01",
+  "chunk_end": "2026-06-30",
+  "request_file": "raw/TP_BK_OSMANIYE_2020-01-01_2026-06-30_request.json",
+  "request_sha256": "0ae466695080428efebf17a1bf0a08be34fb3bedee3a5b82c106194b40866243",
+  "response_file": "raw/TP_BK_OSMANIYE_2020-01-01_2026-06-30_response.json.gz",
+  "response_sha256": "9ac3fc915dc4c1e8cd80deb1d7210b12dd1d464188299639286e561393a695a2",
+  "served_from_cache": false,
+  "http_status": 200,
+  "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "content_type": "application/json;charset=UTF-8",
+  "url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "started_at_utc": "2026-09-08T15:44:21.943694+00:00",
+  "completed_at_utc": "2026-09-08T15:44:22.329520+00:00",
+  "bytes": 4314,
+  "sha256": "9ac3fc915dc4c1e8cd80deb1d7210b12dd1d464188299639286e561393a695a2",
+  "transport": "curl",
+  "tls_verification": true,
+  "response_total_count": 26,
+  "retained_rows": 26,
+  "outside_requested_range_rows": 0,
+  "series_names": {
+    "TP_BK_OSMANIYE": "Osmaniye Konut Birim Kiraları"
+  },
+  "frequency_conversion": {
+    "TP.BK.OSMANIYE": true
+  }
+}

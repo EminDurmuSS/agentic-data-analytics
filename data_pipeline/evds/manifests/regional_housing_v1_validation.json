@@ -1,13 +1,14 @@
 {
   "status": "passed",
   "dataset_id": "regional_housing_v1",
-  "series_count": 441,
+  "series_count": 519,
   "role_counts": {
     "province_housing_sales_first_hand": 81,
     "province_housing_sales_mortgaged": 81,
     "province_housing_sales_second_hand": 81,
     "province_housing_sales_total": 81,
     "province_housing_unit_price": 81,
+    "province_housing_unit_rent": 78,
     "regional_housing_price_index": 16,
     "regional_new_tenant_rent_index": 20
   },
@@ -18,6 +19,7 @@
     "Only active EVDS series are selected.",
     "Housing sales include 81 provinces and exclude national and workplace series.",
     "Unit prices include 81 provinces and exclude the national series already stored elsewhere.",
+    "Unit rents include all province series and exclude the national and three metropolitan series already stored elsewhere.",
     "Regional KFE excludes the four series already stored in housing_causality_v1.",
     "All 20 active YKKE series are selected."
   ]

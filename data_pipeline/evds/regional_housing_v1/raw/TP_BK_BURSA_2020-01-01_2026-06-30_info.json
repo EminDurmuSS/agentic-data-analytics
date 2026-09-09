@@ -1,0 +1,32 @@
+{
+  "status": "validated",
+  "series_code": "TP.BK.BURSA",
+  "frequency": "ÜÇ AYLIK",
+  "aggregation": "avg",
+  "chunk_start": "2020-01-01",
+  "chunk_end": "2026-06-30",
+  "request_file": "raw/TP_BK_BURSA_2020-01-01_2026-06-30_request.json",
+  "request_sha256": "5b901a7e65627dcd062d541fdbb92cede80268bedd7d8a1b3e13d1f8f7f983be",
+  "response_file": "raw/TP_BK_BURSA_2020-01-01_2026-06-30_response.json.gz",
+  "response_sha256": "b9584d553cc61c0c698320c98532d49ee9ef33429bc9184296e4f874a039d3da",
+  "served_from_cache": false,
+  "http_status": 200,
+  "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "content_type": "application/json;charset=UTF-8",
+  "url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "started_at_utc": "2026-09-08T15:44:05.275432+00:00",
+  "completed_at_utc": "2026-09-08T15:44:05.568325+00:00",
+  "bytes": 4243,
+  "sha256": "b9584d553cc61c0c698320c98532d49ee9ef33429bc9184296e4f874a039d3da",
+  "transport": "curl",
+  "tls_verification": true,
+  "response_total_count": 26,
+  "retained_rows": 26,
+  "outside_requested_range_rows": 0,
+  "series_names": {
+    "TP_BK_BURSA": "Bursa Konut Birim Kiraları"
+  },
+  "frequency_conversion": {
+    "TP.BK.BURSA": true
+  }
+}

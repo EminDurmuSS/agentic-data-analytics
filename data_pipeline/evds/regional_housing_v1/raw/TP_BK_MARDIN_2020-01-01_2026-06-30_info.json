@@ -1,0 +1,32 @@
+{
+  "status": "validated",
+  "series_code": "TP.BK.MARDIN",
+  "frequency": "ÜÇ AYLIK",
+  "aggregation": "avg",
+  "chunk_start": "2020-01-01",
+  "chunk_end": "2026-06-30",
+  "request_file": "raw/TP_BK_MARDIN_2020-01-01_2026-06-30_request.json",
+  "request_sha256": "8ad07800f6c614d504f15afcadc03f0a1e374083471b3136ef5ba6724938718e",
+  "response_file": "raw/TP_BK_MARDIN_2020-01-01_2026-06-30_response.json.gz",
+  "response_sha256": "ede88298241f5c166ba41e3f366ee2ea7e5ab254b8e0a496a03285d6c8ca2733",
+  "served_from_cache": false,
+  "http_status": 200,
+  "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "content_type": "application/json;charset=UTF-8",
+  "url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "started_at_utc": "2026-09-08T15:44:19.270103+00:00",
+  "completed_at_utc": "2026-09-08T15:44:19.657129+00:00",
+  "bytes": 4244,
+  "sha256": "ede88298241f5c166ba41e3f366ee2ea7e5ab254b8e0a496a03285d6c8ca2733",
+  "transport": "curl",
+  "tls_verification": true,
+  "response_total_count": 26,
+  "retained_rows": 26,
+  "outside_requested_range_rows": 0,
+  "series_names": {
+    "TP_BK_MARDIN": "Mardin Konut Birim Kiraları"
+  },
+  "frequency_conversion": {
+    "TP.BK.MARDIN": true
+  }
+}

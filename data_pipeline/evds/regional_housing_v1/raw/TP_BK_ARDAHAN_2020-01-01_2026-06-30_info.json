@@ -1,0 +1,32 @@
+{
+  "status": "validated",
+  "series_code": "TP.BK.ARDAHAN",
+  "frequency": "ÜÇ AYLIK",
+  "aggregation": "avg",
+  "chunk_start": "2020-01-01",
+  "chunk_end": "2026-06-30",
+  "request_file": "raw/TP_BK_ARDAHAN_2020-01-01_2026-06-30_request.json",
+  "request_sha256": "98134b736839865ff1628df78260c1c84aa044cbd7012f0ba0d0d8ce6b9476d9",
+  "response_file": "raw/TP_BK_ARDAHAN_2020-01-01_2026-06-30_response.json.gz",
+  "response_sha256": "31358a6353907c9bfe80ea2eaebe405854a1949568c62feef716eec0adfe766c",
+  "served_from_cache": false,
+  "http_status": 200,
+  "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "content_type": "application/json;charset=UTF-8",
+  "url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "started_at_utc": "2026-09-08T15:44:00.774917+00:00",
+  "completed_at_utc": "2026-09-08T15:44:00.910750+00:00",
+  "bytes": 3819,
+  "sha256": "31358a6353907c9bfe80ea2eaebe405854a1949568c62feef716eec0adfe766c",
+  "transport": "curl",
+  "tls_verification": true,
+  "response_total_count": 26,
+  "retained_rows": 26,
+  "outside_requested_range_rows": 0,
+  "series_names": {
+    "TP_BK_ARDAHAN": "Ardahan Konut Birim Kiraları"
+  },
+  "frequency_conversion": {
+    "TP.BK.ARDAHAN": true
+  }
+}

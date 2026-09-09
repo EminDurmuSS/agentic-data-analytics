@@ -1,0 +1,32 @@
+{
+  "status": "validated",
+  "series_code": "TP.BK.KARS",
+  "frequency": "ÜÇ AYLIK",
+  "aggregation": "avg",
+  "chunk_start": "2020-01-01",
+  "chunk_end": "2026-06-30",
+  "request_file": "raw/TP_BK_KARS_2020-01-01_2026-06-30_request.json",
+  "request_sha256": "4b98ac8ad2f75e3c5364c07cf8e6b4b72cba961ad429a40c6b822ba3284dccff",
+  "response_file": "raw/TP_BK_KARS_2020-01-01_2026-06-30_response.json.gz",
+  "response_sha256": "028bd388f4780238e824db0ab879a5f312aad65493e7754e132d5b593e5c488b",
+  "served_from_cache": false,
+  "http_status": 200,
+  "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "content_type": "application/json;charset=UTF-8",
+  "url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "started_at_utc": "2026-09-08T15:44:14.317378+00:00",
+  "completed_at_utc": "2026-09-08T15:44:14.460262+00:00",
+  "bytes": 3988,
+  "sha256": "028bd388f4780238e824db0ab879a5f312aad65493e7754e132d5b593e5c488b",
+  "transport": "curl",
+  "tls_verification": true,
+  "response_total_count": 26,
+  "retained_rows": 26,
+  "outside_requested_range_rows": 0,
+  "series_names": {
+    "TP_BK_KARS": "Kars Konut Birim Kiraları"
+  },
+  "frequency_conversion": {
+    "TP.BK.KARS": true
+  }
+}

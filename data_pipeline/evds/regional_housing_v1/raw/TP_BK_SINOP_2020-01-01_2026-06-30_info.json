@@ -1,0 +1,32 @@
+{
+  "status": "validated",
+  "series_code": "TP.BK.SINOP",
+  "frequency": "ÜÇ AYLIK",
+  "aggregation": "avg",
+  "chunk_start": "2020-01-01",
+  "chunk_end": "2026-06-30",
+  "request_file": "raw/TP_BK_SINOP_2020-01-01_2026-06-30_request.json",
+  "request_sha256": "2f898148b20b49bb4252450921994e270250020cda1f5460ab1159e59b361702",
+  "response_file": "raw/TP_BK_SINOP_2020-01-01_2026-06-30_response.json.gz",
+  "response_sha256": "aabb5ef08a6235887dcf1f36ff74eaa360b960bec07ff1c552c3a8b674a8f3ad",
+  "served_from_cache": false,
+  "http_status": 200,
+  "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "content_type": "application/json;charset=UTF-8",
+  "url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "started_at_utc": "2026-09-08T15:44:24.651593+00:00",
+  "completed_at_utc": "2026-09-08T15:44:24.932637+00:00",
+  "bytes": 4241,
+  "sha256": "aabb5ef08a6235887dcf1f36ff74eaa360b960bec07ff1c552c3a8b674a8f3ad",
+  "transport": "curl",
+  "tls_verification": true,
+  "response_total_count": 26,
+  "retained_rows": 26,
+  "outside_requested_range_rows": 0,
+  "series_names": {
+    "TP_BK_SINOP": "Sinop Konut Birim Kiraları"
+  },
+  "frequency_conversion": {
+    "TP.BK.SINOP": true
+  }
+}

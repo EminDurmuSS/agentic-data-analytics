@@ -1,0 +1,32 @@
+{
+  "status": "validated",
+  "series_code": "TP.BK.GUMUSHANE",
+  "frequency": "ÜÇ AYLIK",
+  "aggregation": "avg",
+  "chunk_start": "2020-01-01",
+  "chunk_end": "2026-06-30",
+  "request_file": "raw/TP_BK_GUMUSHANE_2020-01-01_2026-06-30_request.json",
+  "request_sha256": "7d3db32e135238ce387ae9bbca388dc50bc12e811725fe4b9259f15317744526",
+  "response_file": "raw/TP_BK_GUMUSHANE_2020-01-01_2026-06-30_response.json.gz",
+  "response_sha256": "c06e898ff69a2698e28e405b74cee44df2f957a9d8f4bc087bcdb5cf3f56b1bf",
+  "served_from_cache": false,
+  "http_status": 200,
+  "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "content_type": "application/json;charset=UTF-8",
+  "url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "started_at_utc": "2026-09-08T15:44:11.212088+00:00",
+  "completed_at_utc": "2026-09-08T15:44:11.340739+00:00",
+  "bytes": 3887,
+  "sha256": "c06e898ff69a2698e28e405b74cee44df2f957a9d8f4bc087bcdb5cf3f56b1bf",
+  "transport": "curl",
+  "tls_verification": true,
+  "response_total_count": 26,
+  "retained_rows": 26,
+  "outside_requested_range_rows": 0,
+  "series_names": {
+    "TP_BK_GUMUSHANE": "Gümüşhane Konut Birim Kiraları"
+  },
+  "frequency_conversion": {
+    "TP.BK.GUMUSHANE": true
+  }
+}

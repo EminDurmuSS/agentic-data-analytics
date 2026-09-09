@@ -9,6 +9,7 @@ non_mortgaged_sales_share_pct,İpoteksiz satış payı,percent,derived_ratio,100
 first_hand_sales_share_pct,İlk el satış payı,percent,derived_ratio,100 * ilk el satış / toplam satış,
 second_hand_sales_share_pct,İkinci el satış payı,percent,derived_ratio,100 * ikinci el satış / toplam satış,
 housing_unit_price_try_per_m2,Konut birim fiyatı,try_per_m2,quarter_end_level,EVDS il bazlı kaynak gözlemi,
+housing_unit_rent_try_per_m2,Konut birim kirası,try_per_m2,quarterly_level,EVDS il bazlı kaynak gözlemi,Konut satış fiyatındaki eksik gözlemlerin yerine kullanılmaz.
 regional_kfe_index,Bölgesel konut fiyat endeksi,index,quarter_end_index,İlin bağlı olduğu EVDS KFE bölgesinin çeyrek sonu gözlemi,"İl özelinde değil, bölgesel değerdir."
 regional_ykke_index,Bölgesel yeni kiracı kira endeksi,index,quarter_end_index,İlin bağlı olduğu EVDS YKKE bölgesinin çeyrek sonu gözlemi,"İl özelinde değil, bölgesel değerdir."
 housing_credit_stock_thousand_try,Konut kredisi bakiyesi,thousand_try,period_end_stock,BDDK FinTurk sektör toplamı,Yeni kullandırım akımı değildir.
@@ -22,6 +23,7 @@ implied_population_person,FinTurk metriklerinden türetilmiş nüfus,person,deri
 housing_credit_per_capita_try,Kişi başı konut kredisi,try_per_person,derived_ratio,konut kredisi * 1000 / türetilmiş nüfus,Nüfus paydası FinTurk metriklerinden ters hesaplanır.
 housing_credit_to_savings_deposit_pct,Konut kredisi / tasarruf mevduatı,percent,derived_ratio,100 * konut kredisi / tasarruf mevduatı,
 housing_unit_price_yoy_pct,Konut birim fiyatı yıllık değişimi,percent,derived_growth,Dört çeyrek önceki il birim fiyatına göre değişim,Kaynak gözlem yoksa hesaplanmaz.
+housing_unit_rent_yoy_pct,Konut birim kirası yıllık değişimi,percent,derived_growth,Dört çeyrek önceki il birim kirasına göre değişim,Kaynak gözlem yoksa hesaplanmaz.
 regional_kfe_yoy_pct,Bölgesel KFE yıllık değişimi,percent,derived_growth,Dört çeyrek önceki bölgesel KFE değerine göre değişim,"İl özelinde değil, bölgesel değerdir."
 regional_ykke_yoy_pct,Bölgesel YKKE yıllık değişimi,percent,derived_growth,Dört çeyrek önceki bölgesel YKKE değerine göre değişim,"İl özelinde değil, bölgesel değerdir."
 housing_credit_yoy_pct,Konut kredisi bakiyesi yıllık değişimi,percent,derived_growth,Dört çeyrek önceki FinTurk konut kredisi bakiyesine göre değişim,Yeni kullandırım akımı değildir.

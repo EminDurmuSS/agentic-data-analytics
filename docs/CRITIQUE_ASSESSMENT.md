@@ -13,7 +13,7 @@ güncel repo durumuyla karşılaştırır.
 3. Birlikte hareket nedensellik kanıtı değildir. Faiz, reel kredi ve satış
    karşılaştırmaları önce betimleyici bulgu üretir.
 4. EVDS'nin 52.696 serisinin bütün tarihsel gözlemleri yerelde değildir. Tam
-   metadata kataloğu bulunur, gözlem olarak analitik değeri yüksek 506 kaynak
+   metadata kataloğu bulunur, gözlem olarak analitik değeri yüksek 584 kaynak
    seri seçilmiştir.
 5. Aynı veri ve dönüşümler üzerinde devam eden kullanıcı oturumu henüz ürün
    olarak uygulanmadı.
@@ -53,6 +53,13 @@ Kullandırım tutarı ve kişi sayısı, dönem sonu bakiye ve kişi sayısında
 tutulur. Haziran 2026 raporu 8 Eylül 2026 tarihli resmî liste kontrolünde
 bulunmadığı için açık boşluk olarak işaretlenir.
 
+TBB Risk Merkezi'nin Haziran 2021-Haziran 2026 arasındaki 6 aylık bülteni de
+indirildi. Bu bültenlerin 13 aylık grafiklerinden yarışma dönemi için 66 aylık
+ve 5 metrikli eksiksiz panel çıkarıldı. İlk kez konut kredisi kullanan kişi
+sayısı gerçek bir aylık olay sayısıdır, fakat parasal kullandırım tutarı
+değildir. Bu nedenle yayımlanmayan TBB Haziran 2026 kullandırım tutarının yerine
+geçirilmez.
+
 ### BDDK kararlarının tam metni
 
 10249, 10525, 10656 ve 11364 sayılı kararların resmî PDF'leri indirildi. Önceki
@@ -62,15 +69,15 @@ bulunmadığı için açık boşluk olarak işaretlenir.
 ### Sorgulanabilir veri altyapısı
 
 SQLite/Pandas başlangıcının yanında artık birleşik katalog ve self-contained
-DuckDB bulunur. DuckDB 9 şema ve 60 tablo içerir. BDDK aylık, haftalık ve
-FinTürk verileri, TBB raporları, 506 seçilmiş EVDS kaynak serisi, 1 açıkça
+DuckDB bulunur. DuckDB 10 şema ve 64 tablo veya view içerir. BDDK aylık,
+haftalık ve FinTürk verileri, TBB ve Risk Merkezi raporları, 584 seçilmiş EVDS kaynak serisi, 1 açıkça
 türetilmiş seri, TÜİK il satışları, il bazlı konut paneli, kalite tabloları ve
 olay kayıtları tek sorgu yüzeyinde erişilebilirdir.
 
 ### Bölgesel konut ve hanehalkı finansmanı
 
 81 ilin toplam, ipotekli, ilk el ve ikinci el konut satışları ile il bazlı
-birim fiyatlar, bölgesel KFE ve YKKE serileri indirildi. Bunlar FinTürk konut
+birim fiyatlar, il bazlı birim kiralar, bölgesel KFE ve YKKE serileri indirildi. Bunlar FinTürk konut
 kredisi, tasarruf mevduatı, altın mevduatı ve nakdi kredi göstergeleriyle 22
 çeyreklik panelde birleştirildi. Ayrıca 3 KKM ve 1 hanehalkı mevduat serisi
 ulusal aylık analize eklendi. Ham kaynak null değerleri korunur. EVDS'de
@@ -83,10 +90,12 @@ ile kullanılır.
 
 - BDDK aylık bültende 10, haftalık bültende 7 resmî banka grubu alınır.
 - EVDS'nin bütün tarihsel gözlemlerini indirmek yerine tam metadata kataloğu ve
-  görevle ilişkili 506 kaynak seri tutulur. Bunların 61'i ulusal, 441'i
+  görevle ilişkili 584 kaynak seri tutulur. Bunların 61'i ulusal, 519'u
   bölgesel konut, 4'ü hanehalkı finansmanı serisidir. Bu, yanlış seri seçimini
   ve gereksiz veri hacmini azaltan bilinçli bir tasarımdır.
-- TBB Haziran 2026 raporu yayımlanmadığı için mevcut değildir.
+- TBB Haziran 2026 çeyreklik tüketici kredileri raporu yayımlanmadığı için
+  parasal kullandırım akımı mevcut değildir. Risk Merkezi aylık bülteni ayrı
+  ölçülerle mevcuttur.
 - Ağustos 2025 EVDS ve BDDK konut kredisi farkı otomatik düzeltilmez, kaynak
   kapsamı uyarısı olarak korunur.
 

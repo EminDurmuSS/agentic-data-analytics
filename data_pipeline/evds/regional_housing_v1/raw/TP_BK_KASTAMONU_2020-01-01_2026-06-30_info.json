@@ -1,0 +1,32 @@
+{
+  "status": "validated",
+  "series_code": "TP.BK.KASTAMONU",
+  "frequency": "ÜÇ AYLIK",
+  "aggregation": "avg",
+  "chunk_start": "2020-01-01",
+  "chunk_end": "2026-06-30",
+  "request_file": "raw/TP_BK_KASTAMONU_2020-01-01_2026-06-30_request.json",
+  "request_sha256": "6fcefd277f74baf1206a1f3ab5f463f11c786d4fcf5aae1f0e4cb32d65b68df4",
+  "response_file": "raw/TP_BK_KASTAMONU_2020-01-01_2026-06-30_response.json.gz",
+  "response_sha256": "bb945eb7f44a5ae894d6fde42c8de07cb2e8c1fb65208be05206b9cec7a95ccf",
+  "served_from_cache": false,
+  "http_status": 200,
+  "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "content_type": "application/json;charset=UTF-8",
+  "url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "started_at_utc": "2026-09-08T15:44:14.562193+00:00",
+  "completed_at_utc": "2026-09-08T15:44:14.934402+00:00",
+  "bytes": 4351,
+  "sha256": "bb945eb7f44a5ae894d6fde42c8de07cb2e8c1fb65208be05206b9cec7a95ccf",
+  "transport": "curl",
+  "tls_verification": true,
+  "response_total_count": 26,
+  "retained_rows": 26,
+  "outside_requested_range_rows": 0,
+  "series_names": {
+    "TP_BK_KASTAMONU": "Kastamonu Konut Birim Kiraları"
+  },
+  "frequency_conversion": {
+    "TP.BK.KASTAMONU": true
+  }
+}

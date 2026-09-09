@@ -1,0 +1,32 @@
+{
+  "status": "validated",
+  "series_code": "TP.BK.KARABUK",
+  "frequency": "ÜÇ AYLIK",
+  "aggregation": "avg",
+  "chunk_start": "2020-01-01",
+  "chunk_end": "2026-06-30",
+  "request_file": "raw/TP_BK_KARABUK_2020-01-01_2026-06-30_request.json",
+  "request_sha256": "e100eb3f51fa70c1a9c93e5e27b8aec4643482677a8bdeb396018ba693c14a39",
+  "response_file": "raw/TP_BK_KARABUK_2020-01-01_2026-06-30_response.json.gz",
+  "response_sha256": "944b663bd9bc929e03c9293ae3f0e8a8931d382a725ad031d957b480ecdb5434",
+  "served_from_cache": false,
+  "http_status": 200,
+  "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "content_type": "application/json;charset=UTF-8",
+  "url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "started_at_utc": "2026-09-08T15:44:13.469476+00:00",
+  "completed_at_utc": "2026-09-08T15:44:13.777847+00:00",
+  "bytes": 4293,
+  "sha256": "944b663bd9bc929e03c9293ae3f0e8a8931d382a725ad031d957b480ecdb5434",
+  "transport": "curl",
+  "tls_verification": true,
+  "response_total_count": 26,
+  "retained_rows": 26,
+  "outside_requested_range_rows": 0,
+  "series_names": {
+    "TP_BK_KARABUK": "Karabük Konut Birim Kiraları"
+  },
+  "frequency_conversion": {
+    "TP.BK.KARABUK": true
+  }
+}

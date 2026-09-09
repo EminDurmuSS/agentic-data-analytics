@@ -25,6 +25,9 @@ PROJECT_ROOT = Path(__file__).resolve().parents[2]
 EVDS_CATALOG = PROJECT_ROOT / "data_pipeline" / "catalog" / "evds_series_catalog.parquet"
 REGIONAL_EVDS = PROJECT_ROOT / "data_pipeline" / "evds" / "regional_housing_v1"
 CORE_EVDS = PROJECT_ROOT / "data_pipeline" / "evds" / "housing_causality_v1"
+CONTROL_EVDS = (
+    PROJECT_ROOT / "data_pipeline" / "evds" / "housing_causality_controls_v1"
+)
 FINTURK = (
     PROJECT_ROOT
     / "data_pipeline"
@@ -142,6 +145,27 @@ def build_province_dimension(
     dimension = dimension.merge(
         unit_prices[["province_name", "series_code"]].rename(
             columns={"series_code": "housing_unit_price_series_code"}
+        ),
+        on="province_name",
+        validate="one_to_one",
+    )
+
+    unit_rents = catalog.loc[
+        catalog["group_code"].eq("bie_bk")
+        & ~catalog["series_code"].eq("TP.BK.TR")
+        & ~catalog["is_archive"].astype(bool)
+    ].copy()
+    unit_rents["province_name"] = unit_rents["series_name_tr"].astype(str).str.replace(
+        " Konut Birim Kiraları", "", regex=False
+    )
+    unit_rents["province_name"] = unit_rents["province_name"].map(normalize_key).map(
+        canonical_by_key
+    )
+    if len(unit_rents) != 81 or unit_rents["province_name"].isna().any():
+        raise ValueError("Konut birim kirasinda 81 il serisi eslenemedi.")
+    dimension = dimension.merge(
+        unit_rents[["province_name", "series_code"]].rename(
+            columns={"series_code": "housing_unit_rent_series_code"}
         ),
         on="province_name",
         validate="one_to_one",
@@ -427,6 +451,7 @@ def metric_dictionary() -> pd.DataFrame:
         ("first_hand_sales_share_pct", "İlk el satış payı", "percent", "derived_ratio", "100 * ilk el satış / toplam satış", ""),
         ("second_hand_sales_share_pct", "İkinci el satış payı", "percent", "derived_ratio", "100 * ikinci el satış / toplam satış", ""),
         ("housing_unit_price_try_per_m2", "Konut birim fiyatı", "try_per_m2", "quarter_end_level", "EVDS il bazlı kaynak gözlemi", ""),
+        ("housing_unit_rent_try_per_m2", "Konut birim kirası", "try_per_m2", "quarterly_level", "EVDS il bazlı kaynak gözlemi", "Konut satış fiyatındaki eksik gözlemlerin yerine kullanılmaz."),
         ("regional_kfe_index", "Bölgesel konut fiyat endeksi", "index", "quarter_end_index", "İlin bağlı olduğu EVDS KFE bölgesinin çeyrek sonu gözlemi", "İl özelinde değil, bölgesel değerdir."),
         ("regional_ykke_index", "Bölgesel yeni kiracı kira endeksi", "index", "quarter_end_index", "İlin bağlı olduğu EVDS YKKE bölgesinin çeyrek sonu gözlemi", "İl özelinde değil, bölgesel değerdir."),
         ("housing_credit_stock_thousand_try", "Konut kredisi bakiyesi", "thousand_try", "period_end_stock", "BDDK FinTurk sektör toplamı", "Yeni kullandırım akımı değildir."),
@@ -440,6 +465,7 @@ def metric_dictionary() -> pd.DataFrame:
         ("housing_credit_per_capita_try", "Kişi başı konut kredisi", "try_per_person", "derived_ratio", "konut kredisi * 1000 / türetilmiş nüfus", "Nüfus paydası FinTurk metriklerinden ters hesaplanır."),
         ("housing_credit_to_savings_deposit_pct", "Konut kredisi / tasarruf mevduatı", "percent", "derived_ratio", "100 * konut kredisi / tasarruf mevduatı", ""),
         ("housing_unit_price_yoy_pct", "Konut birim fiyatı yıllık değişimi", "percent", "derived_growth", "Dört çeyrek önceki il birim fiyatına göre değişim", "Kaynak gözlem yoksa hesaplanmaz."),
+        ("housing_unit_rent_yoy_pct", "Konut birim kirası yıllık değişimi", "percent", "derived_growth", "Dört çeyrek önceki il birim kirasına göre değişim", "Kaynak gözlem yoksa hesaplanmaz."),
         ("regional_kfe_yoy_pct", "Bölgesel KFE yıllık değişimi", "percent", "derived_growth", "Dört çeyrek önceki bölgesel KFE değerine göre değişim", "İl özelinde değil, bölgesel değerdir."),
         ("regional_ykke_yoy_pct", "Bölgesel YKKE yıllık değişimi", "percent", "derived_growth", "Dört çeyrek önceki bölgesel YKKE değerine göre değişim", "İl özelinde değil, bölgesel değerdir."),
         ("housing_credit_yoy_pct", "Konut kredisi bakiyesi yıllık değişimi", "percent", "derived_growth", "Dört çeyrek önceki FinTurk konut kredisi bakiyesine göre değişim", "Yeni kullandırım akımı değildir."),
@@ -461,6 +487,9 @@ def build(output_dir: Path) -> dict[str, Any]:
     catalog = pd.read_parquet(EVDS_CATALOG)
     regional_observations = pd.read_parquet(REGIONAL_EVDS / "observations_long.parquet")
     core_observations = pd.read_parquet(CORE_EVDS / "observations_long.parquet")
+    control_observations = pd.read_parquet(
+        CONTROL_EVDS / "observations_long.parquet"
+    )
     finturk = pd.read_parquet(FINTURK)
     tuik_sales = pd.read_parquet(TUIK_SALES)
     finturk_cities = sorted(set(finturk["city"].dropna()) - {"YURT DIŞI"})
@@ -481,6 +510,27 @@ def build(output_dir: Path) -> dict[str, Any]:
         dimension,
         "housing_unit_price_series_code",
         "housing_unit_price_try_per_m2",
+    )
+
+    rent_observations = pd.concat(
+        [
+            control_observations.loc[
+                control_observations["series_code"].str.startswith("TP.BK.")
+                & ~control_observations["series_code"].eq("TP.BK.TR")
+            ],
+            regional_observations.loc[
+                regional_observations["series_code"].str.startswith("TP.BK.")
+            ],
+        ],
+        ignore_index=True,
+    )
+    if rent_observations["series_code"].nunique() != 81:
+        raise ValueError("Bolgesel panel icin 81 il konut birim kira serisi bulunmadi.")
+    unit_rent = build_quarter_end_series(
+        rent_observations,
+        dimension,
+        "housing_unit_rent_series_code",
+        "housing_unit_rent_try_per_m2",
     )
 
     kfe_observations = pd.concat(
@@ -509,7 +559,7 @@ def build(output_dir: Path) -> dict[str, Any]:
     finturk_panel = build_finturk_panel(finturk)
 
     panel = base
-    for source in [sales, unit_price, kfe, ykke, finturk_panel]:
+    for source in [sales, unit_price, unit_rent, kfe, ykke, finturk_panel]:
         panel = panel.merge(
             source, on=["province_name", "quarter"], how="left", validate="one_to_one"
         )
@@ -556,6 +606,7 @@ def build(output_dir: Path) -> dict[str, Any]:
     )
     for source_column, output_column in [
         ("housing_unit_price_try_per_m2", "housing_unit_price_yoy_pct"),
+        ("housing_unit_rent_try_per_m2", "housing_unit_rent_yoy_pct"),
         ("regional_kfe_index", "regional_kfe_yoy_pct"),
         ("regional_ykke_index", "regional_ykke_yoy_pct"),
         ("housing_credit_stock_thousand_try", "housing_credit_yoy_pct"),
@@ -573,6 +624,9 @@ def build(output_dir: Path) -> dict[str, Any]:
     panel["regional_price_source_complete"] = panel[
         ["housing_unit_price_try_per_m2", "regional_kfe_index", "regional_ykke_index"]
     ].notna().all(axis=1)
+    panel["housing_unit_rent_source_available"] = panel[
+        "housing_unit_rent_try_per_m2"
+    ].notna()
     panel["finturk_source_complete"] = panel[list(FINTURK_METRICS.values())].notna().all(
         axis=1
     )
@@ -599,6 +653,16 @@ def build(output_dir: Path) -> dict[str, Any]:
     unit_price_partial_coverage_provinces = unit_price_coverage.loc[
         unit_price_coverage["non_null"].gt(0)
         & unit_price_coverage["non_null"].lt(unit_price_coverage["total"])
+    ].index.tolist()
+    unit_rent_coverage = panel.groupby("province_name", sort=True)[
+        "housing_unit_rent_try_per_m2"
+    ].agg(non_null="count", total="size")
+    unit_rent_no_observation_provinces = unit_rent_coverage.loc[
+        unit_rent_coverage["non_null"].eq(0)
+    ].index.tolist()
+    unit_rent_partial_coverage_provinces = unit_rent_coverage.loc[
+        unit_rent_coverage["non_null"].gt(0)
+        & unit_rent_coverage["non_null"].lt(unit_rent_coverage["total"])
     ].index.tolist()
 
     output_dir.mkdir(parents=True, exist_ok=True)
@@ -665,6 +729,9 @@ def build(output_dir: Path) -> dict[str, Any]:
                 "series_code",
             ].nunique()
         ),
+        "housing_unit_rent_source_series_count": int(
+            rent_observations["series_code"].nunique()
+        ),
         "incomplete_province_quarter_sales_aggregations_before_fallback": sales_stats[
             "incomplete_before_fallback"
         ],
@@ -681,11 +748,14 @@ def build(output_dir: Path) -> dict[str, Any]:
         "analysis_ready_rows": int(panel["analysis_ready"].sum()),
         "housing_unit_price_no_observation_provinces": unit_price_no_observation_provinces,
         "housing_unit_price_partial_coverage_provinces": unit_price_partial_coverage_provinces,
+        "housing_unit_rent_no_observation_provinces": unit_rent_no_observation_provinces,
+        "housing_unit_rent_partial_coverage_provinces": unit_rent_partial_coverage_provinces,
         "source_null_counts": {
             column: int(panel[column].isna().sum())
             for column in [
                 *SALES_GROUPS.values(),
                 "housing_unit_price_try_per_m2",
+                "housing_unit_rent_try_per_m2",
                 "regional_kfe_index",
                 "regional_ykke_index",
                 *FINTURK_METRICS.values(),
@@ -698,6 +768,7 @@ def build(output_dir: Path) -> dict[str, Any]:
             "Raw EVDS nulls remain unchanged; fallback provenance and source SHA-256 are stored in separate panel columns.",
             "KFE and YKKE use the observed quarter-end month and are not forward filled.",
             "Quarterly unit prices remain quarter-end levels and are not copied into monthly periods.",
+            "Province unit rents remain a separate control and never replace missing province sale prices.",
             "FinTurk uses the official SEKTOR total and excludes YURT DISI from the 81-province panel.",
             "Non-mortgaged sales are not labelled as cash sales.",
             "Implied population is an explicit approximation from two published FinTurk metrics.",

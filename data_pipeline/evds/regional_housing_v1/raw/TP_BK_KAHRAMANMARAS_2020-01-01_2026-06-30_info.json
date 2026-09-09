@@ -1,0 +1,32 @@
+{
+  "status": "validated",
+  "series_code": "TP.BK.KAHRAMANMARAS",
+  "frequency": "ÜÇ AYLIK",
+  "aggregation": "avg",
+  "chunk_start": "2020-01-01",
+  "chunk_end": "2026-06-30",
+  "request_file": "raw/TP_BK_KAHRAMANMARAS_2020-01-01_2026-06-30_request.json",
+  "request_sha256": "62b802838be5041e2b60a818fc1f8c89d77cd02ff1e51fa0904abdf1d1a697e5",
+  "response_file": "raw/TP_BK_KAHRAMANMARAS_2020-01-01_2026-06-30_response.json.gz",
+  "response_sha256": "1c2787c909d87effbf03e0a17a0f23139764179733480475694fbced25800f57",
+  "served_from_cache": false,
+  "http_status": 200,
+  "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "content_type": "application/json;charset=UTF-8",
+  "url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "started_at_utc": "2026-09-08T15:44:12.996813+00:00",
+  "completed_at_utc": "2026-09-08T15:44:13.367797+00:00",
+  "bytes": 4479,
+  "sha256": "1c2787c909d87effbf03e0a17a0f23139764179733480475694fbced25800f57",
+  "transport": "curl",
+  "tls_verification": true,
+  "response_total_count": 26,
+  "retained_rows": 26,
+  "outside_requested_range_rows": 0,
+  "series_names": {
+    "TP_BK_KAHRAMANMARAS": "Kahramanmaraş Konut Birim Kiraları"
+  },
+  "frequency_conversion": {
+    "TP.BK.KAHRAMANMARAS": true
+  }
+}

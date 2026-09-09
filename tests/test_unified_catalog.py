@@ -35,6 +35,7 @@ class UnifiedCatalogTests(unittest.TestCase):
                 "BDDK_FINTURK",
                 "TUIK_DATA_PORTAL",
                 "CROSS_SOURCE_QUALITY",
+                "TBB_RISK_CENTER",
             }
             <= systems
         )
@@ -43,7 +44,7 @@ class UnifiedCatalogTests(unittest.TestCase):
     def test_evds_metadata_and_local_observations_are_not_confused(self):
         evds = self.metrics.loc[self.metrics["source_system"].eq("TCMB_EVDS")]
         self.assertEqual(52696, len(evds))
-        self.assertEqual(506, int(evds["observation_available"].sum()))
+        self.assertEqual(584, int(evds["observation_available"].sum()))
         metadata_only = evds.loc[~evds["observation_available"]]
         self.assertTrue(metadata_only["quality_status"].eq("metadata_only").all())
         self.assertTrue(metadata_only["observation_count"].eq(0).all())
@@ -101,7 +102,7 @@ class UnifiedCatalogTests(unittest.TestCase):
         regional = self.metrics.loc[
             self.metrics["source_system"].eq("REGIONAL_HOUSING_ANALYSIS")
         ]
-        self.assertEqual(26, len(regional))
+        self.assertEqual(28, len(regional))
         self.assertTrue(regional["observation_available"].all())
         self.assertIn(
             "regional_housing:housing_credit_per_capita_try",
@@ -119,6 +120,23 @@ class UnifiedCatalogTests(unittest.TestCase):
         ].iloc[0]
         self.assertEqual(10, mortgage["missing_observation_count"])
         self.assertIn("identity-derived zero=10", mortgage["notes"])
+
+    def test_risk_center_metrics_are_monthly_and_semantically_separate(self):
+        metrics = self.metrics.loc[
+            self.metrics["source_system"].eq("TBB_RISK_CENTER")
+        ]
+        self.assertEqual(5, len(metrics))
+        self.assertTrue(metrics["observation_available"].all())
+        self.assertTrue(metrics["observation_count"].eq(66).all())
+        first_time = metrics.loc[
+            metrics["source_metric_code"].eq(
+                "first_time_housing_credit_users_thousand_person"
+            )
+        ].iloc[0]
+        self.assertEqual("thousand_person", first_time["unit"])
+        self.assertEqual("first_time_credit_users", first_time["role"])
+        self.assertNotEqual("credit_disbursement", first_time["role"])
+        self.assertIn("Kredi kullandırım tutarı değildir", first_time["notes"])
 
     def test_finturk_branch_metric_discloses_derived_usable_zeros(self):
         branch = self.metrics.loc[

@@ -1,0 +1,32 @@
+{
+  "status": "validated",
+  "series_code": "TP.BK.ISPARTA",
+  "frequency": "ÜÇ AYLIK",
+  "aggregation": "avg",
+  "chunk_start": "2020-01-01",
+  "chunk_end": "2026-06-30",
+  "request_file": "raw/TP_BK_ISPARTA_2020-01-01_2026-06-30_request.json",
+  "request_sha256": "48a91bd7d368d2cb0da3424bbad450b737a09ff65d2e2ca14aa74b11a73140bf",
+  "response_file": "raw/TP_BK_ISPARTA_2020-01-01_2026-06-30_response.json.gz",
+  "response_sha256": "4b4bfabdec47bf591018b426d2aacdf43347ea17ac7a45f68f7e050493d14aec",
+  "served_from_cache": false,
+  "http_status": 200,
+  "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "content_type": "application/json;charset=UTF-8",
+  "url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "started_at_utc": "2026-09-08T15:44:12.471415+00:00",
+  "completed_at_utc": "2026-09-08T15:44:12.891982+00:00",
+  "bytes": 4299,
+  "sha256": "4b4bfabdec47bf591018b426d2aacdf43347ea17ac7a45f68f7e050493d14aec",
+  "transport": "curl",
+  "tls_verification": true,
+  "response_total_count": 26,
+  "retained_rows": 26,
+  "outside_requested_range_rows": 0,
+  "series_names": {
+    "TP_BK_ISPARTA": "Isparta Konut Birim Kiraları"
+  },
+  "frequency_conversion": {
+    "TP.BK.ISPARTA": true
+  }
+}

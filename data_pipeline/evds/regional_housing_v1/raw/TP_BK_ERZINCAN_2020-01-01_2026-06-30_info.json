@@ -1,0 +1,32 @@
+{
+  "status": "validated",
+  "series_code": "TP.BK.ERZINCAN",
+  "frequency": "ÜÇ AYLIK",
+  "aggregation": "avg",
+  "chunk_start": "2020-01-01",
+  "chunk_end": "2026-06-30",
+  "request_file": "raw/TP_BK_ERZINCAN_2020-01-01_2026-06-30_request.json",
+  "request_sha256": "d2234e8b739bed3e39605a3220eb654774be26c2c550cd2c96747b1e9509a875",
+  "response_file": "raw/TP_BK_ERZINCAN_2020-01-01_2026-06-30_response.json.gz",
+  "response_sha256": "a06f969be7943d0147a2fe4f274d6de0d06feadc65de95118192048978ff8410",
+  "served_from_cache": false,
+  "http_status": 200,
+  "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "content_type": "application/json;charset=UTF-8",
+  "url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "started_at_utc": "2026-09-08T15:44:09.117644+00:00",
+  "completed_at_utc": "2026-09-08T15:44:09.493882+00:00",
+  "bytes": 4324,
+  "sha256": "a06f969be7943d0147a2fe4f274d6de0d06feadc65de95118192048978ff8410",
+  "transport": "curl",
+  "tls_verification": true,
+  "response_total_count": 26,
+  "retained_rows": 26,
+  "outside_requested_range_rows": 0,
+  "series_names": {
+    "TP_BK_ERZINCAN": "Erzincan Konut Birim Kiraları"
+  },
+  "frequency_conversion": {
+    "TP.BK.ERZINCAN": true
+  }
+}

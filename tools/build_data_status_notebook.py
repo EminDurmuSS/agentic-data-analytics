@@ -54,6 +54,7 @@ def build_notebook() -> dict:
                  AND observation_available) AS yerel_evds_serisi,
               (SELECT count(*) FROM analysis.housing_credit_monthly) AS aylik_donem,
               (SELECT count(*) FROM analysis.housing_credit_quarterly) AS ceyreklik_donem,
+              (SELECT count(*) FROM risk_center.housing_credit_monthly) AS risk_merkezi_ayi,
               (SELECT count(*) FROM regional.housing_quarterly) AS bolgesel_satir,
               (SELECT count(DISTINCT province_key)
                FROM regional.housing_quarterly) AS il_sayisi,
@@ -79,7 +80,11 @@ def build_notebook() -> dict:
                    round(TP_KTF12, 2) AS konut_kredisi_faizi_yuzde,
                    round(TP_TUKFIY2025_GENEL, 2) AS tufe_endeksi,
                    round(TP_KFE_TR, 2) AS konut_fiyat_endeksi,
-                   round(mortgaged_sales_share_pct, 2) AS ipotekli_satis_payi_yuzde
+                   round(mortgaged_sales_share_pct, 2) AS ipotekli_satis_payi_yuzde,
+                   risk_center_housing_credit_balance_billion_try
+                       AS risk_merkezi_bakiyesi_milyar_tl,
+                   risk_center_first_time_housing_credit_users_thousand_person
+                       AS ilk_kullanan_bin_kisi
             FROM analysis.housing_credit_monthly
             ORDER BY month DESC
             LIMIT 12
@@ -145,12 +150,14 @@ def build_notebook() -> dict:
 Bu notebook eski 25 serilik başlangıç snapshot'ı değildir. Repodaki güncel,
 self-contained DuckDB dosyasını salt okunur açar ve BDDK aylık, BDDK haftalık,
 BDDK FinTürk, seçilmiş ulusal ve bölgesel TCMB EVDS serileri, TÜİK il konut
-satışları, TBB tüketici kredileri, hanehalkı finansmanı ve resmî bağlam
+satışları, TBB tüketici kredileri, TBB Risk Merkezi aylık bültenleri,
+hanehalkı finansmanı ve resmî bağlam
 belgelerinin birleşik durumunu gösterir.
 
 Ana sonuç: Zorunlu kaynak ailelerinin yayımlanmış veri kapsamı tamamlandı.
-Kaynakta henüz yayımlanmayan TBB Haziran 2026 raporu tahmin edilmedi ve açık
-boşluk olarak korunuyor.
+Kaynakta henüz yayımlanmayan TBB Haziran 2026 çeyreklik tüketici kredileri
+raporu tahmin edilmedi ve açık boşluk olarak korunuyor. Ayrı Risk Merkezi
+Haziran 2026 aylık bülteni kendi metrikleriyle sisteme eklendi.
 """
 
     scope = f"""## Kapsam
@@ -164,6 +171,7 @@ boşluk olarak korunuyor.
 | TÜİK il konut satışları | 81 il, Ocak 2020-Haziran 2026, 5 aylık satış metriği ve EVDS çapraz doğrulaması |
 | İl bazlı konut paneli | {int(summary.iloc[0]['il_sayisi'])} il, 22 çeyrek, {int(summary.iloc[0]['bolgesel_satir'])} tekil satır ve {int(summary.iloc[0]['analize_hazir_bolgesel_satir'])} analize hazır satır |
 | TBB | Mart 2021-Mart 2026 arasında yayımlanmış 21 rapor, 252 ürün ölçümü |
+| TBB Risk Merkezi | Ocak 2021-Haziran 2026, 66 ay, 5 konut kredisi metriği, 6 Haziran bülteni ve tüm kaynak vintageları |
 | Resmî belgeler | 4 BDDK kararı ve 4 TCMB yöntem veya destek belgesi |
 
 EVDS katalog kaydı, gözlemin indirildiği anlamına gelmez. Bu ayrım
@@ -201,6 +209,7 @@ print(f"Boyut: {DB_PATH.stat().st_size / 1024 / 1024:.2f} MiB")
          AND observation_available) AS yerel_evds_serisi,
       (SELECT count(*) FROM analysis.housing_credit_monthly) AS aylik_donem,
       (SELECT count(*) FROM analysis.housing_credit_quarterly) AS ceyreklik_donem,
+      (SELECT count(*) FROM risk_center.housing_credit_monthly) AS risk_merkezi_ayi,
       (SELECT count(*) FROM regional.housing_quarterly) AS bolgesel_satir,
       (SELECT count(DISTINCT province_key)
        FROM regional.housing_quarterly) AS il_sayisi,
@@ -230,7 +239,11 @@ print(f"Boyut: {DB_PATH.stat().st_size / 1024 / 1024:.2f} MiB")
            round(TP_KTF12, 2) AS konut_kredisi_faizi_yuzde,
            round(TP_TUKFIY2025_GENEL, 2) AS tufe_endeksi,
            round(TP_KFE_TR, 2) AS konut_fiyat_endeksi,
-           round(mortgaged_sales_share_pct, 2) AS ipotekli_satis_payi_yuzde
+           round(mortgaged_sales_share_pct, 2) AS ipotekli_satis_payi_yuzde,
+           risk_center_housing_credit_balance_billion_try
+               AS risk_merkezi_bakiyesi_milyar_tl,
+           risk_center_first_time_housing_credit_users_thousand_person
+               AS ilk_kullanan_bin_kisi
     FROM analysis.housing_credit_monthly
     ORDER BY month DESC
     LIMIT 12
@@ -301,6 +314,8 @@ display(demo)
     quality = """## Analitik sözleşme
 
 - Kredi stoku, stok değişimi ve yeni kullandırım akımı farklı ölçülerdir.
+- Risk Merkezi ilk kez konut kredisi kullanan kişi sayısı, parasal kredi
+  kullandırım tutarı değildir ve onun boşluğunu doldurmaz.
 - Haftalık faiz aylığa çevrilirken kullanılan yöntem metadata ile birlikte saklanır.
 - Kümülatif BDDK kâr-zarar değerleri kaynak hâliyle korunur, türetilmiş aylık akım ayrıca tutulur.
 - Eksik değerler tahminle doldurulmaz. Sıfır yalnız aynı resmî kaynak içindeki
@@ -319,7 +334,10 @@ display(demo)
 
     known_gaps = """## Açık kalite notları
 
-1. TBB Haziran 2026 tüketici kredileri raporu 8 Eylül 2026 kontrolünde kaynakta yayımlanmamıştır.
+1. TBB Haziran 2026 çeyreklik tüketici kredileri raporu 8 Eylül 2026
+   kontrolünde kaynakta yayımlanmamıştır. Ayrı bir yayın ailesi olan Risk
+   Merkezi Haziran 2026 aylık bülteni mevcuttur, ancak parasal kullandırım
+   tutarı yayımlamaz.
 2. EVDS `TP.MK.KUL.YTL` serisinin Haziran 2026 gözlemi kaynak cevabında yoktur.
 3. Eski EVDS `TP.ALTINPIYASA.KAP05` serisi seyrektir ve 24 Kasım 2025'te biter.
 4. Aktif altın kontrolü `TP.ALTINPIYASA.KAP02` 30 Haziran 2026'ya kadar doludur; TL/gram serisi açık `0.001` dönüşümüyle türetilir.
@@ -331,6 +349,8 @@ display(demo)
 8. Ham EVDS'deki 9 yarışma dönemi ipotekli satış null değeri, TÜİK'teki
    `toplam satış = diğer satış` özdeşliğiyle sıfır olarak doğrulanıp 8
    il-çeyrek toplamında açık fallback provenance ile kullanılır.
+9. Yedi ilin konut birim kira serisi tamamen boştur, altı ilin serisi ise
+   kısmi kapsama sahiptir. Kira kontrolü eksik satış fiyatının yerine konmaz.
 
 Bu boşluklar veri kaybı gibi gizlenmez. Katalog ve kalite tablolarında açıkça
 görülebilir.

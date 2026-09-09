@@ -1,0 +1,32 @@
+{
+  "status": "validated",
+  "series_code": "TP.BK.SAMSUN",
+  "frequency": "ÜÇ AYLIK",
+  "aggregation": "avg",
+  "chunk_start": "2020-01-01",
+  "chunk_end": "2026-06-30",
+  "request_file": "raw/TP_BK_SAMSUN_2020-01-01_2026-06-30_request.json",
+  "request_sha256": "e6d71db70843679749d6e73214b405d815fd7bfb7a5228625cc21f36ec0cfab8",
+  "response_file": "raw/TP_BK_SAMSUN_2020-01-01_2026-06-30_response.json.gz",
+  "response_sha256": "99b244ad553629a8e946e5f2cea9d51eaf33791e77011afe5402a460bd9bfb29",
+  "served_from_cache": false,
+  "http_status": 200,
+  "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "content_type": "application/json;charset=UTF-8",
+  "url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "started_at_utc": "2026-09-08T15:44:23.423176+00:00",
+  "completed_at_utc": "2026-09-08T15:44:23.736330+00:00",
+  "bytes": 4260,
+  "sha256": "99b244ad553629a8e946e5f2cea9d51eaf33791e77011afe5402a460bd9bfb29",
+  "transport": "curl",
+  "tls_verification": true,
+  "response_total_count": 26,
+  "retained_rows": 26,
+  "outside_requested_range_rows": 0,
+  "series_names": {
+    "TP_BK_SAMSUN": "Samsun Konut Birim Kiraları"
+  },
+  "frequency_conversion": {
+    "TP.BK.SAMSUN": true
+  }
+}

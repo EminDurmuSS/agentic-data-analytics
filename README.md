@@ -12,10 +12,11 @@ ve yeniden üretilebilir biçimde hazırlanmasıdır.
 | BDDK haftalık | 286 hafta, 9 tablonun tamamı, 7 resmî banka grubu | Tamamlandı ve doğrulandı |
 | BDDK FinTürk | 22 çeyrek, 7 tablo, 7 banka grubu, 81 il ve `YURT DIŞI` | Tamamlandı ve doğrulandı |
 | TCMB EVDS katalog | 676 veri grubu, 52.696 benzersiz seri kaydı | Tamamlandı, metadata kataloğu |
-| TCMB EVDS gözlem | 61 ulusal, 441 bölgesel ve 4 hanehalkı finansmanı serisi, ayrıca 1 açıkça türetilmiş seri | Tamamlandı ve doğrulandı |
+| TCMB EVDS gözlem | 61 ulusal, 519 bölgesel ve 4 hanehalkı finansmanı serisi, ayrıca 1 açıkça türetilmiş seri | Tamamlandı ve doğrulandı |
 | TÜİK il konut satışları | 81 il, Ocak 2020-Haziran 2026, 5 aylık satış metriği | Tamamlandı ve EVDS ile çapraz doğrulandı |
-| İl bazlı konut paneli | 81 il, 22 çeyrek, satış, fiyat, kredi, mevduat, KFE ve YKKE göstergeleri | Tamamlandı, yayımlanmayan fiyatlar işaretli |
+| İl bazlı konut paneli | 81 il, 22 çeyrek, satış, fiyat, kira, kredi, mevduat, KFE ve YKKE göstergeleri | Tamamlandı, yayımlanmayan değerler işaretli |
 | TBB tüketici kredileri | 2021 Mart-2026 Mart, 21 yayımlanmış çeyrek | Tamamlandı; 8 Eylül 2026 kontrolünde 2026 Haziran raporu kaynakta yok |
+| TBB Risk Merkezi | 2021 Ocak-2026 Haziran, 66 ay, 5 konut kredisi metriği | Tamamlandı; 6 resmî bülten ve tüm kaynak vintageları saklandı |
 | Resmî karar belgeleri | 4 BDDK kararı ve 4 TCMB destek belgesi | Tam metin, çıkarılmış metin ve SHA-256 mevcut |
 
 Ham kaynak değerleri değiştirilmez. Bir değer yalnız aynı resmî kaynak içindeki
@@ -29,11 +30,12 @@ yapay olarak yayılmaz.
 - BDDK aylık: 1.122 resmî istek, 11.220 tablo-grup kaydı, 339.650 kaynak satırı, 1.334.850 semantik ölçüm
 - BDDK haftalık: 18.018 resmî sayfa, 1.736.650 ham hücre, 1.025.974 ölçüm. Kaynaktaki 2.230 boş hücrenin tamamı yapısal `FX uygulanamaz` olarak açıklandı
 - BDDK FinTürk: 84.484 kaynak satırı, 936.512 ölçüm. 30.892 kaynak boşluğunun 29.564'ü yapısal. 1.328 şube sayısı hücresinin ham null değeri korundu, tamamı fonksiyon grubu kimliğiyle analitik sıfır olarak kanıtlandı, çözümlenmemiş şube boşluğu 0
-- EVDS: 52.696 seri metadata kaydı, 506 seçilmiş kaynak seride 42.980 gözlem ve 1 türetilmiş altın serisi
-- Bölgesel panel: 81 il x 22 çeyrek, 1.782 tekil satır, 26 analitik metrik
+- EVDS: 52.696 seri metadata kaydı, 584 seçilmiş kaynak seri, 1 türetilmiş altın serisi ve toplam 45.008 yerel gözlem satırı
+- Bölgesel panel: 81 il x 22 çeyrek, 1.782 tekil satır, 28 analitik metrik
 - TÜİK il konut satışları: 31.590 il-ay-metrik satırı, EVDS ile 25.262 birebir eşleşme, 0 değer uyuşmazlığı
-- Birleşik katalog: 66 veri varlığı, 55.489 metrik, 3.297 yerel sorgulanabilir metrik
-- DuckDB: 9 şema, 60 tablo, mutlak dosya yoluna ihtiyaç duymayan tek dosya
+- TBB Risk Merkezi: 6 PDF, 390 vintage gözlem, 66 aylık eksiksiz panel, 5 metrik ve 6 resmî revizyon
+- Birleşik katalog: 70 veri varlığı, 55.496 metrik, 3.382 yerel sorgulanabilir metrik
+- DuckDB: 10 şema, 64 tablo veya view, mutlak dosya yoluna ihtiyaç duymayan tek dosya
 
 ## Klasörler
 
@@ -44,6 +46,7 @@ yapay olarak yayılmaz.
 | `data_pipeline/tuik/` | TÜİK il konut satışlarının ham ihracı, işlenmiş gözlemleri ve EVDS uzlaştırması |
 | `data_pipeline/regional/` | İl bazlı konut, kredi, mevduat ve fiyat analitik paneli |
 | `data_pipeline/tbb/` | Tüketici kredisi raporları, gerçek kullandırım akımı ve bakiye verileri |
+| `data_pipeline/risk_center/` | TBB Risk Merkezi aylık bültenleri, konut kredisi grafikleri ve vintage denetimi |
 | `data_pipeline/catalog/` | Tam EVDS metadata kataloğu ve birleşik veri sözlüğü |
 | `data_pipeline/quality/` | Kurumlar arası kapsam ve tutarlılık kontrolleri |
 | `data_pipeline/evidence/` | Resmî yöntem ve karar belgeleri |
@@ -71,6 +74,7 @@ python -m unittest discover -s tests -v
 .venv/bin/python data_pipeline/bddk/build_finturk_dataset.py
 .venv/bin/python data_pipeline/bddk/build_weekly_dataset.py
 .venv/bin/python data_pipeline/tbb/build_consumer_credit_dataset.py
+.venv/bin/python data_pipeline/risk_center/build_monthly_housing_dataset.py
 .venv/bin/python data_pipeline/tuik/build_province_housing_sales.py
 .venv/bin/python data_pipeline/regional/build_housing_panel.py
 .venv/bin/python data_pipeline/quality/build_cross_source_reconciliation.py
@@ -87,11 +91,11 @@ BDDK aylık bültende bütün tablolar ve 10 resmî banka grubu, haftalık bült
 bütün tablolar ve 7 resmî banka grubu alındı. FinTürk'te de bütün banka
 grupları ve bütün iller alındı. EVDS'nin tüm 52.696 serisinin tarihsel
 gözlemleri indirilmedi. Bunun yerine 61 ulusal nedensellik ve piyasa serisi,
-441 il veya bölge bazlı konut serisi ve KKM ile hanehalkı mevduatını kapsayan
+519 il veya bölge bazlı konut serisi ve KKM ile hanehalkı mevduatını kapsayan
 4 seri seçildi. BIST altın kapanış fiyatından `0.001` katsayısıyla TL/kg ->
 TL/gram dönüşümü yapılan 1 ek seri de kaynak ve formül bilgisiyle ayrıca
-tutulur. Bölgesel katmanda 81 ilin konut satışları, birim fiyatları, bölgesel
-KFE ve YKKE değerleri FinTürk kredi ve mevduat göstergeleriyle aynı çeyrek
+tutulur. Bölgesel katmanda 81 ilin konut satışları, birim fiyatları, birim
+kiraları, bölgesel KFE ve YKKE değerleri FinTürk kredi ve mevduat göstergeleriyle aynı çeyrek
 anahtarında birleştirilir. EVDS'de satırı bulunmayan 10 ipotekli satış
 gözleminin sıfır olduğu, TÜİK'in aynı il ve ay için yayımladığı `toplam = diğer`
 özdeşliğiyle doğrulanmıştır. Bunların 9'u yarışma dönemindedir ve 8 il-çeyrek
@@ -101,6 +105,12 @@ Katalogdaki herhangi bir başka seri `tools/EVDS_Talep_Uzerine_Indirme_Araci.py`
 ile adı veya kodu üzerinden bulunup ham istek, ham cevap ve SHA-256 iziyle
 indirilebilir. Bu yaklaşım veri kapsamını güçlü tutarken gereksiz veri hacmini
 ve yanlış seri seçimi riskini sınırlar.
+
+TBB'nin Haziran 2026 çeyreklik tüketici kredileri raporu yayımlanmadığı için
+parasal kullandırım tutarı null kalır. Ayrı kaynak ailesindeki Risk Merkezi
+Haziran 2026 aylık bülteni mevcuttur ve bakiye, borçlu sayısı, ortalama risk,
+tasfiye oranı ve ilk kez kullanan kişi sayısını sağlar. İlk kez kullanan kişi
+sayısı parasal kullandırım değildir ve bu boşluğun yerine geçirilmez.
 
 Agent, API ve frontend sonraki aşamadır. Güncel ayrıntılar için önce
 `docs/CURRENT_STATE.md` ve `data_pipeline/README.md` dosyalarını okuyun.

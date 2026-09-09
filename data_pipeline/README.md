@@ -12,21 +12,25 @@ de korunur.
 | BDDK haftalık | 9 tablo, 286 hafta, 7 resmî banka grubu | Haftalık | Tamamlandı |
 | BDDK FinTürk | 7 tablo, 7 grup, 81 il ve yurt dışı, 22 dönem | Çeyreklik | Tamamlandı |
 | TCMB EVDS ulusal | 61 seçilmiş kaynak seri ve 1 türetilmiş seri | Günlük, iş günü, haftalık, aylık, çeyreklik | Tamamlandı |
-| TCMB EVDS bölgesel | 441 il ve bölge bazlı konut serisi | Aylık, çeyreklik | Kaynak boşluklarıyla tamamlandı |
+| TCMB EVDS bölgesel | 519 il ve bölge bazlı konut serisi | Aylık, çeyreklik | Kaynak boşluklarıyla tamamlandı |
 | TCMB EVDS hanehalkı finansmanı | 3 KKM ve 1 hanehalkı mevduat serisi | Aylık | Tamamlandı |
 | TÜİK il konut satışları | 81 il, 78 ay, 5 satış metriği | Aylık | Tamamlandı ve EVDS ile uzlaştırıldı |
-| İl bazlı konut paneli | 81 il, 22 çeyrek, 26 analitik metrik | Çeyreklik | Yayımlanmayan fiyatlar işaretli |
+| İl bazlı konut paneli | 81 il, 22 çeyrek, 28 analitik metrik | Çeyreklik | Yayımlanmayan fiyat ve kiralar işaretli |
 | TCMB EVDS katalog | 52.696 seri metadata kaydı | Metadata | Tamamlandı |
 | TBB | 21 yayımlanmış tüketici kredisi raporu | Çeyreklik | Kaynak boşluğuyla tamamlandı |
+| TBB Risk Merkezi | 6 Haziran bülteni, 66 aylık panel, 5 konut kredisi metriği | Aylık | Tamamlandı ve vintage revizyonları denetlendi |
 | BDDK ve TCMB belgeleri | 8 resmî PDF | Olay/yöntem | Tamamlandı |
 
-TBB Haziran 2026 raporu 8 Eylül 2026 itibarıyla kaynakta yayımlanmamıştır.
-Bu dönem boş bırakılmış, tahmin veya başka seriden kopyalama yapılmamıştır.
+TBB Haziran 2026 çeyreklik tüketici kredileri raporu 8 Eylül 2026 itibarıyla
+kaynakta yayımlanmamıştır. Bu dönemin parasal kullandırım tutarı boş bırakılmış,
+tahmin veya başka seriden kopyalama yapılmamıştır. Ayrı yayın ailesindeki Risk
+Merkezi Haziran 2026 aylık bülteni mevcuttur, fakat ilk kez kullanan kişi sayısı
+parasal kredi kullandırım tutarı değildir.
 
 ## EVDS seçim mantığı
 
 EVDS'deki her tarihsel gözlemi indirmek yerine tam metadata kataloğu yerelde
-tutulur. Yerel 506 kaynak seri üç katmana ayrılır.
+tutulur. Yerel 584 kaynak seri üç katmana ayrılır.
 
 Ulusal 61 kaynak seri şunları kapsar:
 
@@ -39,10 +43,12 @@ Ulusal 61 kaynak seri şunları kapsar:
 - Reel GSYİH ve hanehalkı tüketimi
 - Yapı ruhsatı ve yapı kullanma izni göstergeleri
 
-Bölgesel 441 kaynak seri şunları kapsar:
+Bölgesel 519 kaynak seri şunları kapsar:
 
 - 81 il için toplam, ipotekli, ilk el ve ikinci el konut satışları
 - 81 il için konut birim fiyatı serileri
+- 81 il için araştırılan ve 78 benzersiz EVDS koduyla temsil edilen konut
+  birim kira serileri
 - 20 bölgesel KFE ve 20 bölgesel YKKE serisi
 
 Hanehalkı finansmanı katmanı 3 KKM serisi ile 1 hanehalkı mevduat serisini
@@ -70,6 +76,8 @@ Seri seçimi kaynak kataloğundaki kod, ad, birim, frekans ve toplulaştırma
 6. Kaynak kapsam farkları zorla eşitlenmez.
 7. Birlikte hareket nedensellik kanıtı olarak sunulmaz.
 8. Her işlenmiş satırın kaynak dosyası ve hash bilgisi korunur.
+9. Risk Merkezi ilk kullanıcı sayısı, TBB parasal kullandırım akımıyla
+   birleştirilmez veya onun yerine geçirilmez.
 
 ## Doğrulama özeti
 
@@ -81,15 +89,18 @@ Seri seçimi kaynak kataloğundaki kod, ad, birim, frekans ve toplulaştırma
   kimliğiyle analitik sıfır olarak kanıtlandı, ham değerler değişmedi,
   çözümlenmemiş şube boşluğu 0, durum `passed`
 - EVDS ulusal kaynak seriler: 12.482 gözlem, üç paket de `passed`
-- EVDS bölgesel konut: 441 seri, 30.186 gözlem, durum `passed`
+- EVDS bölgesel konut: 519 seri, 32.214 gözlem, 31.732 dolu değer ve 482
+  kaynak null, durum `passed`
 - EVDS hanehalkı finansmanı: 4 seri, 312 gözlem, durum `passed`
 - TÜİK il konut satışları: 31.590 satır, 25.262 EVDS birebir eşleşmesi,
   10 resmî özdeşlikle doğrulanmış sıfır, 0 değer uyuşmazlığı, durum `passed`
 - İl bazlı konut paneli: 1.782 tekil il-çeyrek satırı, 1.620 analize hazır satır,
   ipotekli satışta 0 eksik çeyrek, durum `passed_with_source_gaps`
 - TBB: 21 yayımlanmış dönem, durum `passed_with_source_gaps`
-- Birleşik katalog: 66 varlık, 55.489 metrik, 3.297 sorgulanabilir metrik, durum `passed`
-- DuckDB: 9 şema, 60 tablo, durum `passed`
+- TBB Risk Merkezi: 6 PDF, 390 vintage gözlem, 365 en güncel gözlem, 66 aylık
+  eksiksiz hedef panel ve 6 kaynak revizyonu, durum `passed`
+- Birleşik katalog: 70 varlık, 55.496 metrik, 3.382 sorgulanabilir metrik, durum `passed`
+- DuckDB: 10 şema, 64 tablo veya view, durum `passed`
 
 ## Üretim sırası
 
@@ -102,6 +113,7 @@ Mevcut ham dosyalardan çalıştırılabilir temel sıra:
 .venv/bin/python data_pipeline/bddk/build_finturk_dataset.py
 .venv/bin/python data_pipeline/bddk/build_weekly_dataset.py
 .venv/bin/python data_pipeline/tbb/build_consumer_credit_dataset.py
+.venv/bin/python data_pipeline/risk_center/build_monthly_housing_dataset.py
 .venv/bin/python data_pipeline/tuik/build_province_housing_sales.py
 .venv/bin/python data_pipeline/regional/build_housing_panel.py
 .venv/bin/python data_pipeline/quality/build_cross_source_reconciliation.py
@@ -135,6 +147,9 @@ ile yeni snapshot sessizce karıştırılmaz.
 - `tuik/province_housing_sales_v1/processed/evds_reconciliation.parquet`
 - `regional/processed/province_quarter_housing_panel.parquet`
 - `tbb/processed/housing_credit_quarterly.parquet`
+- `risk_center/monthly_housing_v1/processed/housing_credit_monthly.parquet`
+- `risk_center/monthly_housing_v1/processed/housing_metric_vintages.parquet`
+- `risk_center/monthly_housing_v1/processed/overlap_revision_audit.parquet`
 - `evidence/events/events.json`
 
 `lakehouse/analytics.duckdb` verileri kendi içine kopyalar. Sorgu sırasında bu

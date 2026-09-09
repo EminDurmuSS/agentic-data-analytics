@@ -1,0 +1,32 @@
+{
+  "status": "validated",
+  "series_code": "TP.BK.YOZGAT",
+  "frequency": "ÜÇ AYLIK",
+  "aggregation": "avg",
+  "chunk_start": "2020-01-01",
+  "chunk_end": "2026-06-30",
+  "request_file": "raw/TP_BK_YOZGAT_2020-01-01_2026-06-30_request.json",
+  "request_sha256": "ca1c24e9ab0b3a38c6abf066ef80e451c06894e45d61dd21b044191fa5cbde7c",
+  "response_file": "raw/TP_BK_YOZGAT_2020-01-01_2026-06-30_response.json.gz",
+  "response_sha256": "2108504ed1da1a330dfdbd1c8442c7bc398d666a7342f3bfa4fc0b41c4c21d6e",
+  "served_from_cache": false,
+  "http_status": 200,
+  "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "content_type": "application/json;charset=UTF-8",
+  "url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "started_at_utc": "2026-09-08T15:44:29.748893+00:00",
+  "completed_at_utc": "2026-09-08T15:44:30.133742+00:00",
+  "bytes": 4250,
+  "sha256": "2108504ed1da1a330dfdbd1c8442c7bc398d666a7342f3bfa4fc0b41c4c21d6e",
+  "transport": "curl",
+  "tls_verification": true,
+  "response_total_count": 26,
+  "retained_rows": 26,
+  "outside_requested_range_rows": 0,
+  "series_names": {
+    "TP_BK_YOZGAT": "Yozgat Konut Birim Kiraları"
+  },
+  "frequency_conversion": {
+    "TP.BK.YOZGAT": true
+  }
+}

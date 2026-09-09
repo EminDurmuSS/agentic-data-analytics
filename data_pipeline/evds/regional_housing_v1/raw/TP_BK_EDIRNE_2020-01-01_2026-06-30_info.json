@@ -1,0 +1,32 @@
+{
+  "status": "validated",
+  "series_code": "TP.BK.EDIRNE",
+  "frequency": "ÜÇ AYLIK",
+  "aggregation": "avg",
+  "chunk_start": "2020-01-01",
+  "chunk_end": "2026-06-30",
+  "request_file": "raw/TP_BK_EDIRNE_2020-01-01_2026-06-30_request.json",
+  "request_sha256": "e873cdd47e8db4f9feb7402a515e33f61aaea7efea4f660aaf0d49eb8d2df967",
+  "response_file": "raw/TP_BK_EDIRNE_2020-01-01_2026-06-30_response.json.gz",
+  "response_sha256": "0b71255917d84d7c560541644f43513230f31076841b5010a9d294b16ca26222",
+  "served_from_cache": false,
+  "http_status": 200,
+  "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "content_type": "application/json;charset=UTF-8",
+  "url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "started_at_utc": "2026-09-08T15:44:08.266952+00:00",
+  "completed_at_utc": "2026-09-08T15:44:08.624046+00:00",
+  "bytes": 4278,
+  "sha256": "0b71255917d84d7c560541644f43513230f31076841b5010a9d294b16ca26222",
+  "transport": "curl",
+  "tls_verification": true,
+  "response_total_count": 26,
+  "retained_rows": 26,
+  "outside_requested_range_rows": 0,
+  "series_names": {
+    "TP_BK_EDIRNE": "Edirne Konut Birim Kiraları"
+  },
+  "frequency_conversion": {
+    "TP.BK.EDIRNE": true
+  }
+}

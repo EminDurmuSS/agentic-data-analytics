@@ -1,0 +1,34 @@
+{
+  "status": "passed",
+  "publication_count": 6,
+  "publication_periods": [
+    "2021-06",
+    "2022-06",
+    "2023-06",
+    "2024-06",
+    "2025-06",
+    "2026-06"
+  ],
+  "source_coverage_start": "2020-06",
+  "source_coverage_end": "2026-06",
+  "target_coverage_start": "2021-01",
+  "target_coverage_end": "2026-06",
+  "vintage_observation_rows": 390,
+  "latest_observation_rows": 365,
+  "monthly_panel_rows": 66,
+  "metric_count": 5,
+  "duplicate_vintage_keys": 0,
+  "missing_target_months": [],
+  "missing_target_metric_values": 0,
+  "overlap_metric_months": 25,
+  "overlap_value_revisions": 6,
+  "latest_vintage_policy": "latest_official_publication",
+  "quality_policy": [
+    "All six source PDFs are hash-verified before extraction.",
+    "Every source chart vintage is retained before selecting the latest official publication.",
+    "Overlapping June observations are compared and revisions remain explicit.",
+    "Published chart rounding is preserved and no interpolation is applied.",
+    "First-time housing-credit user counts are people, not monetary disbursement amounts.",
+    "Risk Center balances are a separate reporting scope and do not overwrite BDDK, EVDS or TBB values."
+  ]
+}

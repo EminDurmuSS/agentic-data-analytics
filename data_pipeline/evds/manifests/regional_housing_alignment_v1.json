@@ -23,6 +23,10 @@
       "temporal_semantics": "quarter_end_level",
       "subperiod_aggregation": "last"
     },
+    "province_housing_unit_rent": {
+      "temporal_semantics": "quarterly_level",
+      "subperiod_aggregation": "last"
+    },
     "regional_housing_price_index": {
       "temporal_semantics": "index",
       "subperiod_aggregation": "last"

@@ -1,0 +1,32 @@
+{
+  "status": "validated",
+  "series_code": "TP.BK.BAYBURT",
+  "frequency": "ÜÇ AYLIK",
+  "aggregation": "avg",
+  "chunk_start": "2020-01-01",
+  "chunk_end": "2026-06-30",
+  "request_file": "raw/TP_BK_BAYBURT_2020-01-01_2026-06-30_request.json",
+  "request_sha256": "ce1a1629086a8a5be3bc52fe585e39da852582e8443545281580b5358cbb07d0",
+  "response_file": "raw/TP_BK_BAYBURT_2020-01-01_2026-06-30_response.json.gz",
+  "response_sha256": "60e48987842164cbfb299424dabb36d533cd74a45335c872a3fc1e4bd54cfac8",
+  "served_from_cache": false,
+  "http_status": 200,
+  "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "content_type": "application/json;charset=UTF-8",
+  "url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "started_at_utc": "2026-09-08T15:44:03.137202+00:00",
+  "completed_at_utc": "2026-09-08T15:44:03.290346+00:00",
+  "bytes": 3819,
+  "sha256": "60e48987842164cbfb299424dabb36d533cd74a45335c872a3fc1e4bd54cfac8",
+  "transport": "curl",
+  "tls_verification": true,
+  "response_total_count": 26,
+  "retained_rows": 26,
+  "outside_requested_range_rows": 0,
+  "series_names": {
+    "TP_BK_BAYBURT": "Bayburt Konut Birim Kiraları"
+  },
+  "frequency_conversion": {
+    "TP.BK.BAYBURT": true
+  }
+}

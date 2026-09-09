@@ -71,6 +71,23 @@ def build_monthly_analysis() -> pd.DataFrame:
             / "monthly_panel.parquet"
         ).rename(columns={"target_period": "month"})
         frame = frame.merge(controls, on="month", how="left", validate="one_to_one")
+
+    risk_center = pd.read_parquet(
+        PROJECT_ROOT
+        / "data_pipeline"
+        / "risk_center"
+        / "monthly_housing_v1"
+        / "processed"
+        / "housing_credit_monthly.parquet"
+    )
+    risk_center = risk_center.rename(
+        columns={
+            column: f"risk_center_{column}"
+            for column in risk_center.columns
+            if column != "month"
+        }
+    )
+    frame = frame.merge(risk_center, on="month", how="left", validate="one_to_one")
     if len(frame) != 66:
         raise ValueError(f"Aylık analiz tablosu 66 satır olmalı, bulunan={len(frame)}")
 
@@ -232,6 +249,7 @@ def build(output_path: Path) -> dict[str, Any]:
             "evidence",
             "tuik",
             "regional",
+            "risk_center",
             "analysis",
         ]:
             connection.execute(f"CREATE SCHEMA {schema}")
@@ -389,6 +407,16 @@ def build(output_path: Path) -> dict[str, Any]:
                 "tbb",
                 "source_gaps",
                 PROJECT_ROOT / "data_pipeline" / "tbb" / "processed" / "source_gaps.parquet",
+            ),
+            (
+                "risk_center",
+                "housing_metric_vintages",
+                PROJECT_ROOT
+                / "data_pipeline"
+                / "risk_center"
+                / "monthly_housing_v1"
+                / "processed"
+                / "housing_metric_vintages.parquet",
             ),
             (
                 "quality",
@@ -577,9 +605,97 @@ def build(output_path: Path) -> dict[str, Any]:
                 "schema_name": "analysis",
                 "table_name": "housing_credit_monthly",
                 "row_count": len(monthly),
-                "source_path": "derived from validated BDDK, EVDS and event assets",
+                "source_path": "derived from validated BDDK, EVDS, Risk Center and event assets",
             }
         )
+
+        connection.execute(
+            """
+            CREATE VIEW risk_center.housing_credit_monthly AS
+            SELECT
+                month,
+                risk_center_first_time_housing_credit_users_thousand_person
+                    AS first_time_housing_credit_users_thousand_person,
+                risk_center_housing_credit_average_balance_try
+                    AS housing_credit_average_balance_try,
+                risk_center_housing_credit_balance_billion_try
+                    AS housing_credit_balance_billion_try,
+                risk_center_housing_credit_borrower_count_million_person
+                    AS housing_credit_borrower_count_million_person,
+                risk_center_housing_credit_npl_ratio_pct
+                    AS housing_credit_npl_ratio_pct,
+                risk_center_selected_source_publication_month
+                    AS selected_source_publication_month,
+                risk_center_has_source_revision AS has_source_revision,
+                risk_center_housing_credit_balance_million_try_from_rounded_chart
+                    AS housing_credit_balance_million_try_from_rounded_chart
+            FROM analysis.housing_credit_monthly
+            """
+        )
+        connection.execute(
+            """
+            CREATE VIEW risk_center.metric_dictionary AS
+            SELECT
+                source_metric_code AS metric_code,
+                metric_name_tr,
+                unit,
+                temporal_semantics,
+                default_aggregation,
+                notes AS caution,
+                source_system,
+                source_organization,
+                native_frequency,
+                TRUE AS source_value_is_rounded_chart_label
+            FROM catalog.metrics
+            WHERE source_system = 'TBB_RISK_CENTER'
+            """
+        )
+        connection.execute(
+            """
+            CREATE VIEW risk_center.overlap_revision_audit AS
+            SELECT
+                observation_month,
+                metric_code,
+                min(publication_month) AS earliest_publication_month,
+                max(publication_month) AS latest_publication_month,
+                arg_min(value, publication_month) AS earliest_value,
+                arg_max(value, publication_month) AS latest_value,
+                arg_max(value, publication_month) - arg_min(value, publication_month)
+                    AS difference,
+                arg_max(value, publication_month) <> arg_min(value, publication_month)
+                    AS value_changed,
+                arg_min(source_sha256, publication_month) AS earliest_source_sha256,
+                arg_max(source_sha256, publication_month) AS latest_source_sha256
+            FROM risk_center.housing_metric_vintages
+            GROUP BY observation_month, metric_code
+            HAVING count(*) > 1
+            """
+        )
+        for table_name, row_count, source_path in [
+            (
+                "housing_credit_monthly",
+                len(monthly),
+                "data_pipeline/risk_center/monthly_housing_v1/processed/housing_credit_monthly.parquet",
+            ),
+            (
+                "metric_dictionary",
+                5,
+                "data_pipeline/risk_center/monthly_housing_v1/processed/metric_dictionary.parquet",
+            ),
+            (
+                "overlap_revision_audit",
+                25,
+                "data_pipeline/risk_center/monthly_housing_v1/processed/overlap_revision_audit.parquet",
+            ),
+        ]:
+            table_manifest.append(
+                {
+                    "schema_name": "risk_center",
+                    "table_name": table_name,
+                    "row_count": row_count,
+                    "source_path": source_path,
+                }
+            )
 
         quarterly = build_quarterly_analysis()
         connection.register("quarterly_analysis", quarterly)
@@ -624,6 +740,10 @@ def build(output_path: Path) -> dict[str, Any]:
             "SELECT count(*), count(DISTINCT province_key || ':' || quarter) "
             "FROM regional.housing_quarterly"
         ).fetchone()
+        risk_center_count, risk_center_distinct_count = connection.execute(
+            "SELECT count(*), count(DISTINCT month) "
+            "FROM risk_center.housing_credit_monthly"
+        ).fetchone()
         table_count = int(
             connection.execute(
                 "SELECT count(*) FROM information_schema.tables "
@@ -638,7 +758,7 @@ def build(output_path: Path) -> dict[str, Any]:
         "status": "passed",
         "database_file": output_path.name,
         "database_bytes": output_path.stat().st_size,
-        "schema_count": 9,
+        "schema_count": 10,
         "table_count": table_count,
         "monthly_analysis_rows": monthly_count,
         "quarterly_analysis_rows": quarterly_count,
@@ -646,6 +766,8 @@ def build(output_path: Path) -> dict[str, Any]:
         "duplicate_quarters": duplicate_quarters,
         "regional_housing_rows": int(regional_count),
         "regional_housing_distinct_keys": int(regional_distinct_count),
+        "risk_center_monthly_rows": int(risk_center_count),
+        "risk_center_monthly_distinct_months": int(risk_center_distinct_count),
         "weekly_measurements_loaded": weekly_path.exists(),
         "source_table_manifest_rows": len(table_manifest),
         "quality_policy": [
@@ -655,6 +777,7 @@ def build(output_path: Path) -> dict[str, Any]:
             "Weekly measurement rows keep analytical keys and values compact; labels and source hashes are joined through bddk.weekly_metric_dictionary and bddk.weekly_source_tables.",
             "FinTurk measurement rows keep analytical keys and values compact; complete request provenance is joined through bddk.finturk_source_tables.",
             "The monthly analysis table keeps nominal stock, real stock, rates, controls and quality flags separate.",
+            "Risk Center balances, borrower measures and first-time user counts retain explicit source-prefixed columns and do not overwrite BDDK, EVDS or TBB measures.",
             "The quarterly analysis table keeps BDDK, FinTurk, EVDS and TBB scope differences visible.",
             "The regional panel keeps province observations distinct from regional KFE and YKKE values.",
             "TÜİK direct observations, identity-derived zero fallbacks and EVDS reconciliation remain separately queryable.",

@@ -1,6 +1,6 @@
 {
   "dataset_id": "regional_housing_v1",
-  "description": "Il bazinda konut satislari ve birim fiyatlari ile bolgesel KFE ve yeni kiraci kira endekslerini birlestiren EVDS gozlem paketi.",
+  "description": "Il bazinda konut satislari, birim fiyatlari ve birim kiralari ile bolgesel KFE ve yeni kiraci kira endekslerini birlestiren EVDS gozlem paketi.",
   "start_date": "2020-01-01",
   "end_date": "2026-06-30",
   "selection_policy": "catalog_driven_regional_housing_without_cross_dataset_duplicates",
@@ -2434,6 +2434,474 @@
       "role": "province_housing_unit_price",
       "reason": "Il bazinda konut birim fiyat seviyesini olcmek",
       "aggregation": "last"
+    },
+    {
+      "series_code": "TP.BK.ADANA",
+      "role": "province_housing_unit_rent",
+      "reason": "Il bazinda konut kira seviyesini fiyat ve talep analizinde ayri bir kontrol degiskeni olarak kullanmak",
+      "aggregation": "avg"
+    },
+    {
+      "series_code": "TP.BK.ADIYAMAN",
+      "role": "province_housing_unit_rent",
+      "reason": "Il bazinda konut kira seviyesini fiyat ve talep analizinde ayri bir kontrol degiskeni olarak kullanmak",
+      "aggregation": "avg"
+    },
+    {
+      "series_code": "TP.BK.AFYONKARAHISAR",
+      "role": "province_housing_unit_rent",
+      "reason": "Il bazinda konut kira seviyesini fiyat ve talep analizinde ayri bir kontrol degiskeni olarak kullanmak",
+      "aggregation": "avg"
+    },
+    {
+      "series_code": "TP.BK.AGRI",
+      "role": "province_housing_unit_rent",
+      "reason": "Il bazinda konut kira seviyesini fiyat ve talep analizinde ayri bir kontrol degiskeni olarak kullanmak",
+      "aggregation": "avg"
+    },
+    {
+      "series_code": "TP.BK.AKSARAY",
+      "role": "province_housing_unit_rent",
+      "reason": "Il bazinda konut kira seviyesini fiyat ve talep analizinde ayri bir kontrol degiskeni olarak kullanmak",
+      "aggregation": "avg"
+    },
+    {
+      "series_code": "TP.BK.AMASYA",
+      "role": "province_housing_unit_rent",
+      "reason": "Il bazinda konut kira seviyesini fiyat ve talep analizinde ayri bir kontrol degiskeni olarak kullanmak",
+      "aggregation": "avg"
+    },
+    {
+      "series_code": "TP.BK.ANTALYA",
+      "role": "province_housing_unit_rent",
+      "reason": "Il bazinda konut kira seviyesini fiyat ve talep analizinde ayri bir kontrol degiskeni olarak kullanmak",
+      "aggregation": "avg"
+    },
+    {
+      "series_code": "TP.BK.ARDAHAN",
+      "role": "province_housing_unit_rent",
+      "reason": "Il bazinda konut kira seviyesini fiyat ve talep analizinde ayri bir kontrol degiskeni olarak kullanmak",
+      "aggregation": "avg"
+    },
+    {
+      "series_code": "TP.BK.ARTVIN",
+      "role": "province_housing_unit_rent",
+      "reason": "Il bazinda konut kira seviyesini fiyat ve talep analizinde ayri bir kontrol degiskeni olarak kullanmak",
+      "aggregation": "avg"
+    },
+    {
+      "series_code": "TP.BK.AYDIN",
+      "role": "province_housing_unit_rent",
+      "reason": "Il bazinda konut kira seviyesini fiyat ve talep analizinde ayri bir kontrol degiskeni olarak kullanmak",
+      "aggregation": "avg"
+    },
+    {
+      "series_code": "TP.BK.BALIKESIR",
+      "role": "province_housing_unit_rent",
+      "reason": "Il bazinda konut kira seviyesini fiyat ve talep analizinde ayri bir kontrol degiskeni olarak kullanmak",
+      "aggregation": "avg"
+    },
+    {
+      "series_code": "TP.BK.BARTIN",
+      "role": "province_housing_unit_rent",
+      "reason": "Il bazinda konut kira seviyesini fiyat ve talep analizinde ayri bir kontrol degiskeni olarak kullanmak",
+      "aggregation": "avg"
+    },
+    {
+      "series_code": "TP.BK.BATMAN",
+      "role": "province_housing_unit_rent",
+      "reason": "Il bazinda konut kira seviyesini fiyat ve talep analizinde ayri bir kontrol degiskeni olarak kullanmak",
+      "aggregation": "avg"
+    },
+    {
+      "series_code": "TP.BK.BAYBURT",
+      "role": "province_housing_unit_rent",
+      "reason": "Il bazinda konut kira seviyesini fiyat ve talep analizinde ayri bir kontrol degiskeni olarak kullanmak",
+      "aggregation": "avg"
+    },
+    {
+      "series_code": "TP.BK.BILECIK",
+      "role": "province_housing_unit_rent",
+      "reason": "Il bazinda konut kira seviyesini fiyat ve talep analizinde ayri bir kontrol degiskeni olarak kullanmak",
+      "aggregation": "avg"
+    },
+    {
+      "series_code": "TP.BK.BINGOL",
+      "role": "province_housing_unit_rent",
+      "reason": "Il bazinda konut kira seviyesini fiyat ve talep analizinde ayri bir kontrol degiskeni olarak kullanmak",
+      "aggregation": "avg"
+    },
+    {
+      "series_code": "TP.BK.BITLIS",
+      "role": "province_housing_unit_rent",
+      "reason": "Il bazinda konut kira seviyesini fiyat ve talep analizinde ayri bir kontrol degiskeni olarak kullanmak",
+      "aggregation": "avg"
+    },
+    {
+      "series_code": "TP.BK.BOLU",
+      "role": "province_housing_unit_rent",
+      "reason": "Il bazinda konut kira seviyesini fiyat ve talep analizinde ayri bir kontrol degiskeni olarak kullanmak",
+      "aggregation": "avg"
+    },
+    {
+      "series_code": "TP.BK.BURDUR",
+      "role": "province_housing_unit_rent",
+      "reason": "Il bazinda konut kira seviyesini fiyat ve talep analizinde ayri bir kontrol degiskeni olarak kullanmak",
+      "aggregation": "avg"
+    },
+    {
+      "series_code": "TP.BK.BURSA",
+      "role": "province_housing_unit_rent",
+      "reason": "Il bazinda konut kira seviyesini fiyat ve talep analizinde ayri bir kontrol degiskeni olarak kullanmak",
+      "aggregation": "avg"
+    },
+    {
+      "series_code": "TP.BK.CANAKKALE",
+      "role": "province_housing_unit_rent",
+      "reason": "Il bazinda konut kira seviyesini fiyat ve talep analizinde ayri bir kontrol degiskeni olarak kullanmak",
+      "aggregation": "avg"
+    },
+    {
+      "series_code": "TP.BK.CANKIRI",
+      "role": "province_housing_unit_rent",
+      "reason": "Il bazinda konut kira seviyesini fiyat ve talep analizinde ayri bir kontrol degiskeni olarak kullanmak",
+      "aggregation": "avg"
+    },
+    {
+      "series_code": "TP.BK.CORUM",
+      "role": "province_housing_unit_rent",
+      "reason": "Il bazinda konut kira seviyesini fiyat ve talep analizinde ayri bir kontrol degiskeni olarak kullanmak",
+      "aggregation": "avg"
+    },
+    {
+      "series_code": "TP.BK.DENIZLI",
+      "role": "province_housing_unit_rent",
+      "reason": "Il bazinda konut kira seviyesini fiyat ve talep analizinde ayri bir kontrol degiskeni olarak kullanmak",
+      "aggregation": "avg"
+    },
+    {
+      "series_code": "TP.BK.DIYARBAKIR",
+      "role": "province_housing_unit_rent",
+      "reason": "Il bazinda konut kira seviyesini fiyat ve talep analizinde ayri bir kontrol degiskeni olarak kullanmak",
+      "aggregation": "avg"
+    },
+    {
+      "series_code": "TP.BK.DUZCE",
+      "role": "province_housing_unit_rent",
+      "reason": "Il bazinda konut kira seviyesini fiyat ve talep analizinde ayri bir kontrol degiskeni olarak kullanmak",
+      "aggregation": "avg"
+    },
+    {
+      "series_code": "TP.BK.EDIRNE",
+      "role": "province_housing_unit_rent",
+      "reason": "Il bazinda konut kira seviyesini fiyat ve talep analizinde ayri bir kontrol degiskeni olarak kullanmak",
+      "aggregation": "avg"
+    },
+    {
+      "series_code": "TP.BK.ELAZIG",
+      "role": "province_housing_unit_rent",
+      "reason": "Il bazinda konut kira seviyesini fiyat ve talep analizinde ayri bir kontrol degiskeni olarak kullanmak",
+      "aggregation": "avg"
+    },
+    {
+      "series_code": "TP.BK.ERZINCAN",
+      "role": "province_housing_unit_rent",
+      "reason": "Il bazinda konut kira seviyesini fiyat ve talep analizinde ayri bir kontrol degiskeni olarak kullanmak",
+      "aggregation": "avg"
+    },
+    {
+      "series_code": "TP.BK.ERZURUM",
+      "role": "province_housing_unit_rent",
+      "reason": "Il bazinda konut kira seviyesini fiyat ve talep analizinde ayri bir kontrol degiskeni olarak kullanmak",
+      "aggregation": "avg"
+    },
+    {
+      "series_code": "TP.BK.ESKISEHIR",
+      "role": "province_housing_unit_rent",
+      "reason": "Il bazinda konut kira seviyesini fiyat ve talep analizinde ayri bir kontrol degiskeni olarak kullanmak",
+      "aggregation": "avg"
+    },
+    {
+      "series_code": "TP.BK.GAZIANTEP",
+      "role": "province_housing_unit_rent",
+      "reason": "Il bazinda konut kira seviyesini fiyat ve talep analizinde ayri bir kontrol degiskeni olarak kullanmak",
+      "aggregation": "avg"
+    },
+    {
+      "series_code": "TP.BK.GIRESUN",
+      "role": "province_housing_unit_rent",
+      "reason": "Il bazinda konut kira seviyesini fiyat ve talep analizinde ayri bir kontrol degiskeni olarak kullanmak",
+      "aggregation": "avg"
+    },
+    {
+      "series_code": "TP.BK.GUMUSHANE",
+      "role": "province_housing_unit_rent",
+      "reason": "Il bazinda konut kira seviyesini fiyat ve talep analizinde ayri bir kontrol degiskeni olarak kullanmak",
+      "aggregation": "avg"
+    },
+    {
+      "series_code": "TP.BK.HAKKARI",
+      "role": "province_housing_unit_rent",
+      "reason": "Il bazinda konut kira seviyesini fiyat ve talep analizinde ayri bir kontrol degiskeni olarak kullanmak",
+      "aggregation": "avg"
+    },
+    {
+      "series_code": "TP.BK.HATAY",
+      "role": "province_housing_unit_rent",
+      "reason": "Il bazinda konut kira seviyesini fiyat ve talep analizinde ayri bir kontrol degiskeni olarak kullanmak",
+      "aggregation": "avg"
+    },
+    {
+      "series_code": "TP.BK.IGDIR",
+      "role": "province_housing_unit_rent",
+      "reason": "Il bazinda konut kira seviyesini fiyat ve talep analizinde ayri bir kontrol degiskeni olarak kullanmak",
+      "aggregation": "avg"
+    },
+    {
+      "series_code": "TP.BK.ISPARTA",
+      "role": "province_housing_unit_rent",
+      "reason": "Il bazinda konut kira seviyesini fiyat ve talep analizinde ayri bir kontrol degiskeni olarak kullanmak",
+      "aggregation": "avg"
+    },
+    {
+      "series_code": "TP.BK.KAHRAMANMARAS",
+      "role": "province_housing_unit_rent",
+      "reason": "Il bazinda konut kira seviyesini fiyat ve talep analizinde ayri bir kontrol degiskeni olarak kullanmak",
+      "aggregation": "avg"
+    },
+    {
+      "series_code": "TP.BK.KARABUK",
+      "role": "province_housing_unit_rent",
+      "reason": "Il bazinda konut kira seviyesini fiyat ve talep analizinde ayri bir kontrol degiskeni olarak kullanmak",
+      "aggregation": "avg"
+    },
+    {
+      "series_code": "TP.BK.KARAMAN",
+      "role": "province_housing_unit_rent",
+      "reason": "Il bazinda konut kira seviyesini fiyat ve talep analizinde ayri bir kontrol degiskeni olarak kullanmak",
+      "aggregation": "avg"
+    },
+    {
+      "series_code": "TP.BK.KARS",
+      "role": "province_housing_unit_rent",
+      "reason": "Il bazinda konut kira seviyesini fiyat ve talep analizinde ayri bir kontrol degiskeni olarak kullanmak",
+      "aggregation": "avg"
+    },
+    {
+      "series_code": "TP.BK.KASTAMONU",
+      "role": "province_housing_unit_rent",
+      "reason": "Il bazinda konut kira seviyesini fiyat ve talep analizinde ayri bir kontrol degiskeni olarak kullanmak",
+      "aggregation": "avg"
+    },
+    {
+      "series_code": "TP.BK.KAYSERI",
+      "role": "province_housing_unit_rent",
+      "reason": "Il bazinda konut kira seviyesini fiyat ve talep analizinde ayri bir kontrol degiskeni olarak kullanmak",
+      "aggregation": "avg"
+    },
+    {
+      "series_code": "TP.BK.KILIS",
+      "role": "province_housing_unit_rent",
+      "reason": "Il bazinda konut kira seviyesini fiyat ve talep analizinde ayri bir kontrol degiskeni olarak kullanmak",
+      "aggregation": "avg"
+    },
+    {
+      "series_code": "TP.BK.KIRIKKALE",
+      "role": "province_housing_unit_rent",
+      "reason": "Il bazinda konut kira seviyesini fiyat ve talep analizinde ayri bir kontrol degiskeni olarak kullanmak",
+      "aggregation": "avg"
+    },
+    {
+      "series_code": "TP.BK.KIRKLARELI",
+      "role": "province_housing_unit_rent",
+      "reason": "Il bazinda konut kira seviyesini fiyat ve talep analizinde ayri bir kontrol degiskeni olarak kullanmak",
+      "aggregation": "avg"
+    },
+    {
+      "series_code": "TP.BK.KIRSEHIR",
+      "role": "province_housing_unit_rent",
+      "reason": "Il bazinda konut kira seviyesini fiyat ve talep analizinde ayri bir kontrol degiskeni olarak kullanmak",
+      "aggregation": "avg"
+    },
+    {
+      "series_code": "TP.BK.KOCAELI",
+      "role": "province_housing_unit_rent",
+      "reason": "Il bazinda konut kira seviyesini fiyat ve talep analizinde ayri bir kontrol degiskeni olarak kullanmak",
+      "aggregation": "avg"
+    },
+    {
+      "series_code": "TP.BK.KONYA",
+      "role": "province_housing_unit_rent",
+      "reason": "Il bazinda konut kira seviyesini fiyat ve talep analizinde ayri bir kontrol degiskeni olarak kullanmak",
+      "aggregation": "avg"
+    },
+    {
+      "series_code": "TP.BK.KUTAHYA",
+      "role": "province_housing_unit_rent",
+      "reason": "Il bazinda konut kira seviyesini fiyat ve talep analizinde ayri bir kontrol degiskeni olarak kullanmak",
+      "aggregation": "avg"
+    },
+    {
+      "series_code": "TP.BK.MALATYA",
+      "role": "province_housing_unit_rent",
+      "reason": "Il bazinda konut kira seviyesini fiyat ve talep analizinde ayri bir kontrol degiskeni olarak kullanmak",
+      "aggregation": "avg"
+    },
+    {
+      "series_code": "TP.BK.MANISA",
+      "role": "province_housing_unit_rent",
+      "reason": "Il bazinda konut kira seviyesini fiyat ve talep analizinde ayri bir kontrol degiskeni olarak kullanmak",
+      "aggregation": "avg"
+    },
+    {
+      "series_code": "TP.BK.MARDIN",
+      "role": "province_housing_unit_rent",
+      "reason": "Il bazinda konut kira seviyesini fiyat ve talep analizinde ayri bir kontrol degiskeni olarak kullanmak",
+      "aggregation": "avg"
+    },
+    {
+      "series_code": "TP.BK.MERSIN",
+      "role": "province_housing_unit_rent",
+      "reason": "Il bazinda konut kira seviyesini fiyat ve talep analizinde ayri bir kontrol degiskeni olarak kullanmak",
+      "aggregation": "avg"
+    },
+    {
+      "series_code": "TP.BK.MUGLA",
+      "role": "province_housing_unit_rent",
+      "reason": "Il bazinda konut kira seviyesini fiyat ve talep analizinde ayri bir kontrol degiskeni olarak kullanmak",
+      "aggregation": "avg"
+    },
+    {
+      "series_code": "TP.BK.MUS",
+      "role": "province_housing_unit_rent",
+      "reason": "Il bazinda konut kira seviyesini fiyat ve talep analizinde ayri bir kontrol degiskeni olarak kullanmak",
+      "aggregation": "avg"
+    },
+    {
+      "series_code": "TP.BK.NEVSEHIR",
+      "role": "province_housing_unit_rent",
+      "reason": "Il bazinda konut kira seviyesini fiyat ve talep analizinde ayri bir kontrol degiskeni olarak kullanmak",
+      "aggregation": "avg"
+    },
+    {
+      "series_code": "TP.BK.NIGDE",
+      "role": "province_housing_unit_rent",
+      "reason": "Il bazinda konut kira seviyesini fiyat ve talep analizinde ayri bir kontrol degiskeni olarak kullanmak",
+      "aggregation": "avg"
+    },
+    {
+      "series_code": "TP.BK.ORDU",
+      "role": "province_housing_unit_rent",
+      "reason": "Il bazinda konut kira seviyesini fiyat ve talep analizinde ayri bir kontrol degiskeni olarak kullanmak",
+      "aggregation": "avg"
+    },
+    {
+      "series_code": "TP.BK.OSMANIYE",
+      "role": "province_housing_unit_rent",
+      "reason": "Il bazinda konut kira seviyesini fiyat ve talep analizinde ayri bir kontrol degiskeni olarak kullanmak",
+      "aggregation": "avg"
+    },
+    {
+      "series_code": "TP.BK.RIZE",
+      "role": "province_housing_unit_rent",
+      "reason": "Il bazinda konut kira seviyesini fiyat ve talep analizinde ayri bir kontrol degiskeni olarak kullanmak",
+      "aggregation": "avg"
+    },
+    {
+      "series_code": "TP.BK.SAKARYA",
+      "role": "province_housing_unit_rent",
+      "reason": "Il bazinda konut kira seviyesini fiyat ve talep analizinde ayri bir kontrol degiskeni olarak kullanmak",
+      "aggregation": "avg"
+    },
+    {
+      "series_code": "TP.BK.SAMSUN",
+      "role": "province_housing_unit_rent",
+      "reason": "Il bazinda konut kira seviyesini fiyat ve talep analizinde ayri bir kontrol degiskeni olarak kullanmak",
+      "aggregation": "avg"
+    },
+    {
+      "series_code": "TP.BK.SANLIURFA",
+      "role": "province_housing_unit_rent",
+      "reason": "Il bazinda konut kira seviyesini fiyat ve talep analizinde ayri bir kontrol degiskeni olarak kullanmak",
+      "aggregation": "avg"
+    },
+    {
+      "series_code": "TP.BK.SIIRT",
+      "role": "province_housing_unit_rent",
+      "reason": "Il bazinda konut kira seviyesini fiyat ve talep analizinde ayri bir kontrol degiskeni olarak kullanmak",
+      "aggregation": "avg"
+    },
+    {
+      "series_code": "TP.BK.SINOP",
+      "role": "province_housing_unit_rent",
+      "reason": "Il bazinda konut kira seviyesini fiyat ve talep analizinde ayri bir kontrol degiskeni olarak kullanmak",
+      "aggregation": "avg"
+    },
+    {
+      "series_code": "TP.BK.SIRNAK",
+      "role": "province_housing_unit_rent",
+      "reason": "Il bazinda konut kira seviyesini fiyat ve talep analizinde ayri bir kontrol degiskeni olarak kullanmak",
+      "aggregation": "avg"
+    },
+    {
+      "series_code": "TP.BK.SIVAS",
+      "role": "province_housing_unit_rent",
+      "reason": "Il bazinda konut kira seviyesini fiyat ve talep analizinde ayri bir kontrol degiskeni olarak kullanmak",
+      "aggregation": "avg"
+    },
+    {
+      "series_code": "TP.BK.TEKIRDAG",
+      "role": "province_housing_unit_rent",
+      "reason": "Il bazinda konut kira seviyesini fiyat ve talep analizinde ayri bir kontrol degiskeni olarak kullanmak",
+      "aggregation": "avg"
+    },
+    {
+      "series_code": "TP.BK.TOKAT",
+      "role": "province_housing_unit_rent",
+      "reason": "Il bazinda konut kira seviyesini fiyat ve talep analizinde ayri bir kontrol degiskeni olarak kullanmak",
+      "aggregation": "avg"
+    },
+    {
+      "series_code": "TP.BK.TRABZON",
+      "role": "province_housing_unit_rent",
+      "reason": "Il bazinda konut kira seviyesini fiyat ve talep analizinde ayri bir kontrol degiskeni olarak kullanmak",
+      "aggregation": "avg"
+    },
+    {
+      "series_code": "TP.BK.TUNCELI",
+      "role": "province_housing_unit_rent",
+      "reason": "Il bazinda konut kira seviyesini fiyat ve talep analizinde ayri bir kontrol degiskeni olarak kullanmak",
+      "aggregation": "avg"
+    },
+    {
+      "series_code": "TP.BK.USAK",
+      "role": "province_housing_unit_rent",
+      "reason": "Il bazinda konut kira seviyesini fiyat ve talep analizinde ayri bir kontrol degiskeni olarak kullanmak",
+      "aggregation": "avg"
+    },
+    {
+      "series_code": "TP.BK.VAN",
+      "role": "province_housing_unit_rent",
+      "reason": "Il bazinda konut kira seviyesini fiyat ve talep analizinde ayri bir kontrol degiskeni olarak kullanmak",
+      "aggregation": "avg"
+    },
+    {
+      "series_code": "TP.BK.YALOVA",
+      "role": "province_housing_unit_rent",
+      "reason": "Il bazinda konut kira seviyesini fiyat ve talep analizinde ayri bir kontrol degiskeni olarak kullanmak",
+      "aggregation": "avg"
+    },
+    {
+      "series_code": "TP.BK.YOZGAT",
+      "role": "province_housing_unit_rent",
+      "reason": "Il bazinda konut kira seviyesini fiyat ve talep analizinde ayri bir kontrol degiskeni olarak kullanmak",
+      "aggregation": "avg"
+    },
+    {
+      "series_code": "TP.BK.ZONGULDAK",
+      "role": "province_housing_unit_rent",
+      "reason": "Il bazinda konut kira seviyesini fiyat ve talep analizinde ayri bir kontrol degiskeni olarak kullanmak",
+      "aggregation": "avg"
     },
     {
       "series_code": "TP.KFE.TR21",

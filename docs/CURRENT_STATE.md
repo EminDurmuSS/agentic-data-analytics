@@ -7,11 +7,14 @@ Tarih: 8 Eylül 2026
 Zorunlu kaynak ailelerinin veri toplama aşaması tamamlandı. BDDK aylık,
 BDDK haftalık, BDDK FinTürk ve seçilmiş TCMB EVDS gözlemleri yerel olarak
 saklanıyor, kaynak hash'leriyle izleniyor ve doğrulanmış işlenmiş çıktılara
-dönüştürülüyor.
+dönüştürülüyor. TBB Risk Merkezi'nin resmî aylık bültenlerinden çıkarılan
+konut kredisi göstergeleri de ayrı kaynak kapsamı ve vintage geçmişiyle hazırdır.
 
-TBB'nin Haziran 2026 tüketici kredileri raporu 8 Eylül 2026 itibarıyla kaynakta
-yayımlanmamıştır. Ayrıca bazı kaynakların kendi yayın takvimindeki veya tanımındaki
-boşluklar açıkça sınıflandırılır. Hiçbir değer tahmin edilmez.
+TBB'nin Haziran 2026 çeyreklik tüketici kredileri raporu 8 Eylül 2026 itibarıyla
+kaynakta yayımlanmamıştır. Risk Merkezi Haziran 2026 aylık bülteni ayrı bir
+yayındır ve parasal kullandırım tutarının yerine kullanılamaz. Ayrıca bazı
+kaynakların kendi yayın takvimindeki veya tanımındaki boşluklar açıkça
+sınıflandırılır. Hiçbir değer tahmin edilmez.
 
 ## Zorunlu veri kaynakları
 
@@ -66,14 +69,14 @@ boşluklar açıkça sınıflandırılır. Hiçbir değer tahmin edilmez.
 
 ### Yerel gözlem kapsamı
 
-Toplam 506 seçilmiş kaynak seri ve 1 türetilmiş seri bulunuyor:
+Toplam 584 seçilmiş kaynak seri ve 1 türetilmiş seri bulunuyor:
 
 - 47 ana konut kredisi nedensellik serisi
 - 11 ek politika, faaliyet, arz ve kira kontrolü
 - 3 piyasa kaynak kontrolü: BIST 100, aktif BIST altın kapanış fiyatı ve eski
   seyrek altın serisi
-- 441 bölgesel konut serisi: 324 il bazlı satış, 81 il bazlı birim fiyat,
-  16 ek bölgesel KFE ve 20 YKKE serisi
+- 519 bölgesel konut serisi: 324 il bazlı satış, 81 il bazlı birim fiyat,
+  78 il bazlı birim kira, 16 ek bölgesel KFE ve 20 YKKE serisi
 - 4 hanehalkı finansmanı serisi: 3 KKM ve 1 hanehalkı mevduat serisi
 - 1 türetilmiş seri: aktif altın fiyatının açık `0.001` katsayısıyla
   TL/kg'dan TL/grama çevrilmiş hâli
@@ -83,15 +86,15 @@ talebi anketleri, politika faizleri, döviz, güven, işsizlik, sanayi, GSYİH,
 tüketim, yapı izinleri, kiralar, altın ve hisse piyasası gibi alternatif
 açıklamaları kapsar.
 
-Katalogda olup bu 506 serilik seçilmiş sette bulunmayan bir seri,
+Katalogda olup bu 584 serilik seçilmiş sette bulunmayan bir seri,
 `tools/EVDS_Talep_Uzerine_Indirme_Araci.py` ile ad veya kod üzerinden seçilip
 aynı ham istek, ham cevap, eksiklik sınıflandırması ve SHA-256 sözleşmesiyle
 indirilebilir. Bu akış 8 Eylül 2026 tarihinde önceden seçilmemiş bir turizm
 gelirleri serisinin 12 aylık gözlemiyle canlı doğrulandı.
 
-- Toplam kaynak gözlemi: 42.980
-- Dolu gözlem: 40.110
-- Kaynakta boş gözlem: 2.870
+- Toplam yerel gözlem satırı: 45.008
+- Dolu gözlem: 41.876
+- Kaynakta boş gözlem: 3.132
 - Ana dönem: 2020-01-01 ile 2026-06-30
 - 78 aylık ve 26 çeyreklik hizalama tabloları
 - Çeyreklik değerler ara aylara forward fill edilmez
@@ -110,6 +113,10 @@ Bilinen EVDS sınırları:
 - Ağrı, Bitlis, Iğdır, Kars, Muş ve Van birim fiyatları 2023'te, Şırnak birim
   fiyatı 2022'de başlar. Önceki çeyrekler için aynı metriğin arşiv serisi
   katalogda bulunmadığından tarihsel seviye üretilmemiştir.
+- Ardahan, Bayburt, Bingöl, Gümüşhane, Hakkari, Tunceli ve Şırnak için il bazlı
+  konut birim kirası tamamen boştur. Ağrı, Bitlis, Iğdır, Kars, Muş ve Van kira
+  serileri kısmi kapsama sahiptir. Kira hiçbir zaman eksik satış fiyatının
+  yerine kullanılmaz.
 - Bazı il bazlı ipotekli satış serilerindeki kaynak null değerleri 8 il-çeyrek
   toplamını ham EVDS katmanında etkiler. TÜİK Veri Portalı çapraz kaynağında
   aynı aylarda `toplam satış = diğer satış` olduğu doğrulandığı için ipotekli
@@ -132,9 +139,11 @@ Bilinen EVDS sınırları:
 ### İl bazlı konut analitik paneli
 
 - 81 il x 22 çeyrek, 1.782 tekil il-çeyrek satırı
-- 26 kataloglanmış analitik metrik
+- 28 kataloglanmış analitik metrik
 - Satış, konut birim fiyatı, bölgesel KFE ve YKKE ile FinTürk kredi ve mevduat
-  göstergeleri aynı çeyrek anahtarında birleştirildi
+göstergeleri aynı çeyrek anahtarında birleştirildi
+- İl bazlı konut birim kirası ve yıllık kira değişimi ayrı kontrol metrikleri
+  olarak eklendi
 - 1.620 satır seçilmiş kaynaklar açısından `analysis_ready=true`
 - Toplam satış = ilk el + ikinci el denetim ihlali: 0
 - İpotekli satışın toplam satışı aşması ihlali: 0
@@ -152,6 +161,18 @@ Bilinen EVDS sınırları:
 - Gerçek kullandırım akımı ile dönem sonu bakiye ayrı tutulur
 - Haziran 2026 raporu 8 Eylül 2026 tarihli resmî liste kontrolünde bulunmadığı
   için açık kaynak boşluğudur
+
+### TBB Risk Merkezi aylık bültenleri
+
+- Haziran 2021-Haziran 2026 arasındaki 6 resmî tam bülten ve SHA-256 kayıtları
+- Her Haziran bültenindeki 13 aylık grafiklerden Haziran 2020-Haziran 2026
+  kesintisiz kaynak kapsamı
+- Yarışma dönemi için Ocak 2021-Haziran 2026 arasında 66 ay ve 5 eksiksiz metrik
+- Konut kredisi bakiyesi, tekil kişi sayısı, kişi başına ortalama risk,
+  tasfiye olunacak kredi oranı ve ilk kez konut kredisi kullanan kişi sayısı
+- 390 vintage gözlem, 25 örtüşen metrik-ay ve 6 resmî kaynak revizyonu
+- En yeni resmî yayın analiz paneline seçilir, eski değerler audit tablosunda kalır
+- İlk kez kullanan kişi sayısı parasal kredi kullandırım tutarı değildir
 
 ### Resmî karar ve yöntem belgeleri
 
@@ -173,17 +194,19 @@ Bilinen EVDS sınırları:
 
 ## Sorgulanabilir çıktı
 
-- Birleşik katalog: 66 veri varlığı
-- Toplam katalog metriği: 55.489
-- Yerel gözlemi bulunan sorgulanabilir metrik: 3.297
-- Yerel TCMB EVDS kaynak serisi: 506
-- DuckDB: 9 şema, 60 tablo
+- Birleşik katalog: 70 veri varlığı
+- Toplam katalog metriği: 55.496
+- Yerel gözlemi bulunan sorgulanabilir metrik: 3.382
+- Yerel TCMB EVDS kaynak serisi: 584
+- DuckDB: 10 şema, 64 tablo veya view
 - Aylık analiz tablosu: 66 benzersiz ay
 - Çeyreklik analiz tablosu: 22 benzersiz çeyrek
 - İl bazlı analiz tablosu: 1.782 benzersiz il-çeyrek satırı
 - Haftalık BDDK ölçümleri DuckDB içine kopyalandı
 - EVDS ana, ek nedensellik, piyasa, bölgesel konut ve hanehalkı finansmanı
   katmanları DuckDB içine eklendi
+- Risk Merkezi aylık paneli, bütün vintage gözlemleri ve revizyon görünümü
+  DuckDB içinde ayrı `risk_center` şemasında sorgulanabilir
 
 ## Henüz yapılmayan ürün parçaları
 

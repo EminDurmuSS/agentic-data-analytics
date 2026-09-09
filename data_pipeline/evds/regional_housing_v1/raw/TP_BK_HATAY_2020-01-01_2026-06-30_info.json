@@ -1,0 +1,32 @@
+{
+  "status": "validated",
+  "series_code": "TP.BK.HATAY",
+  "frequency": "ÜÇ AYLIK",
+  "aggregation": "avg",
+  "chunk_start": "2020-01-01",
+  "chunk_end": "2026-06-30",
+  "request_file": "raw/TP_BK_HATAY_2020-01-01_2026-06-30_request.json",
+  "request_sha256": "c8ee9a8a8b596f7f42daeb3f46499b26e38a036c176956c5d60fae48c19ee4bd",
+  "response_file": "raw/TP_BK_HATAY_2020-01-01_2026-06-30_response.json.gz",
+  "response_sha256": "fbaf881b331f47e0914084190126991db1914bdade297162545a9af65561b66c",
+  "served_from_cache": false,
+  "http_status": 200,
+  "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "content_type": "application/json;charset=UTF-8",
+  "url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "started_at_utc": "2026-09-08T15:44:11.751594+00:00",
+  "completed_at_utc": "2026-09-08T15:44:12.121318+00:00",
+  "bytes": 4229,
+  "sha256": "fbaf881b331f47e0914084190126991db1914bdade297162545a9af65561b66c",
+  "transport": "curl",
+  "tls_verification": true,
+  "response_total_count": 26,
+  "retained_rows": 26,
+  "outside_requested_range_rows": 0,
+  "series_names": {
+    "TP_BK_HATAY": "Hatay Konut Birim Kiraları"
+  },
+  "frequency_conversion": {
+    "TP.BK.HATAY": true
+  }
+}

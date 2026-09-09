@@ -1,0 +1,32 @@
+{
+  "status": "validated",
+  "series_code": "TP.BK.BINGOL",
+  "frequency": "ÜÇ AYLIK",
+  "aggregation": "avg",
+  "chunk_start": "2020-01-01",
+  "chunk_end": "2026-06-30",
+  "request_file": "raw/TP_BK_BINGOL_2020-01-01_2026-06-30_request.json",
+  "request_sha256": "6022003e53170f8c5e3e4f19f1ede4f8bfaa9dfddbc28694c5a8991e14ad5fa9",
+  "response_file": "raw/TP_BK_BINGOL_2020-01-01_2026-06-30_response.json.gz",
+  "response_sha256": "e807ac4dee1b2cc767224fbe4e940fcf37552306cf39c26d472490002f9b0cf2",
+  "served_from_cache": false,
+  "http_status": 200,
+  "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "content_type": "application/json;charset=UTF-8",
+  "url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "started_at_utc": "2026-09-08T15:44:03.827760+00:00",
+  "completed_at_utc": "2026-09-08T15:44:04.097869+00:00",
+  "bytes": 3790,
+  "sha256": "e807ac4dee1b2cc767224fbe4e940fcf37552306cf39c26d472490002f9b0cf2",
+  "transport": "curl",
+  "tls_verification": true,
+  "response_total_count": 26,
+  "retained_rows": 26,
+  "outside_requested_range_rows": 0,
+  "series_names": {
+    "TP_BK_BINGOL": "Bingöl Konut Birim Kiraları"
+  },
+  "frequency_conversion": {
+    "TP.BK.BINGOL": true
+  }
+}

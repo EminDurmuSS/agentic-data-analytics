@@ -1,0 +1,32 @@
+{
+  "status": "validated",
+  "series_code": "TP.BK.AMASYA",
+  "frequency": "ÜÇ AYLIK",
+  "aggregation": "avg",
+  "chunk_start": "2020-01-01",
+  "chunk_end": "2026-06-30",
+  "request_file": "raw/TP_BK_AMASYA_2020-01-01_2026-06-30_request.json",
+  "request_sha256": "44970a074e49d61a9f5669449207a91a9d2adabd6a1330e405c4633e05a159fc",
+  "response_file": "raw/TP_BK_AMASYA_2020-01-01_2026-06-30_response.json.gz",
+  "response_sha256": "99b6db5298685412ad89cb0cdf33faa63da0f148960a807cc9abd2f6cd68a9ff",
+  "served_from_cache": false,
+  "http_status": 200,
+  "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "content_type": "application/json;charset=UTF-8",
+  "url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "started_at_utc": "2026-09-08T15:43:59.962772+00:00",
+  "completed_at_utc": "2026-09-08T15:44:00.297167+00:00",
+  "bytes": 4258,
+  "sha256": "99b6db5298685412ad89cb0cdf33faa63da0f148960a807cc9abd2f6cd68a9ff",
+  "transport": "curl",
+  "tls_verification": true,
+  "response_total_count": 26,
+  "retained_rows": 26,
+  "outside_requested_range_rows": 0,
+  "series_names": {
+    "TP_BK_AMASYA": "Amasya Konut Birim Kiraları"
+  },
+  "frequency_conversion": {
+    "TP.BK.AMASYA": true
+  }
+}

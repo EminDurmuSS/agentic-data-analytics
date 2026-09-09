@@ -1,0 +1,32 @@
+{
+  "status": "validated",
+  "series_code": "TP.BK.DIYARBAKIR",
+  "frequency": "ÜÇ AYLIK",
+  "aggregation": "avg",
+  "chunk_start": "2020-01-01",
+  "chunk_end": "2026-06-30",
+  "request_file": "raw/TP_BK_DIYARBAKIR_2020-01-01_2026-06-30_request.json",
+  "request_sha256": "eb572058a16a5e80ed63b2236ae65bd3a64ede438473ab9970d5986bce075592",
+  "response_file": "raw/TP_BK_DIYARBAKIR_2020-01-01_2026-06-30_response.json.gz",
+  "response_sha256": "240f3724441b4588a46f957662aa9a551a803edbdd02963656e737b4abb216b2",
+  "served_from_cache": false,
+  "http_status": 200,
+  "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "content_type": "application/json;charset=UTF-8",
+  "url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "started_at_utc": "2026-09-08T15:44:07.312640+00:00",
+  "completed_at_utc": "2026-09-08T15:44:07.715015+00:00",
+  "bytes": 4388,
+  "sha256": "240f3724441b4588a46f957662aa9a551a803edbdd02963656e737b4abb216b2",
+  "transport": "curl",
+  "tls_verification": true,
+  "response_total_count": 26,
+  "retained_rows": 26,
+  "outside_requested_range_rows": 0,
+  "series_names": {
+    "TP_BK_DIYARBAKIR": "Diyarbakır Konut Birim Kiraları"
+  },
+  "frequency_conversion": {
+    "TP.BK.DIYARBAKIR": true
+  }
+}

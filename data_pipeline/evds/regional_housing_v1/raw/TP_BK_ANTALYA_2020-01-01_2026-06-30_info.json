@@ -1,0 +1,32 @@
+{
+  "status": "validated",
+  "series_code": "TP.BK.ANTALYA",
+  "frequency": "ÜÇ AYLIK",
+  "aggregation": "avg",
+  "chunk_start": "2020-01-01",
+  "chunk_end": "2026-06-30",
+  "request_file": "raw/TP_BK_ANTALYA_2020-01-01_2026-06-30_request.json",
+  "request_sha256": "4efc415eee06d529f2c5a064b79c89d84cc5e77388fac593296233a9db158784",
+  "response_file": "raw/TP_BK_ANTALYA_2020-01-01_2026-06-30_response.json.gz",
+  "response_sha256": "c10f2f52b6247af8bcd1d941ef7839aea2ea45796547e20c4c0766f08d931fa4",
+  "served_from_cache": false,
+  "http_status": 200,
+  "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "content_type": "application/json;charset=UTF-8",
+  "url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "started_at_utc": "2026-09-08T15:44:00.391917+00:00",
+  "completed_at_utc": "2026-09-08T15:44:00.688141+00:00",
+  "bytes": 4313,
+  "sha256": "c10f2f52b6247af8bcd1d941ef7839aea2ea45796547e20c4c0766f08d931fa4",
+  "transport": "curl",
+  "tls_verification": true,
+  "response_total_count": 26,
+  "retained_rows": 26,
+  "outside_requested_range_rows": 0,
+  "series_names": {
+    "TP_BK_ANTALYA": "Antalya Konut Birim Kiraları"
+  },
+  "frequency_conversion": {
+    "TP.BK.ANTALYA": true
+  }
+}

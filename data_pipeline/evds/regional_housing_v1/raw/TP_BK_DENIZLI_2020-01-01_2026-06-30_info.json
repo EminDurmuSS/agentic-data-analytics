@@ -1,0 +1,32 @@
+{
+  "status": "validated",
+  "series_code": "TP.BK.DENIZLI",
+  "frequency": "ÜÇ AYLIK",
+  "aggregation": "avg",
+  "chunk_start": "2020-01-01",
+  "chunk_end": "2026-06-30",
+  "request_file": "raw/TP_BK_DENIZLI_2020-01-01_2026-06-30_request.json",
+  "request_sha256": "7e9aa5706061cab27f611db2696fae48572a55a8988391fcf2839bbc34c0d066",
+  "response_file": "raw/TP_BK_DENIZLI_2020-01-01_2026-06-30_response.json.gz",
+  "response_sha256": "319a4f016c441ffa1686cf8e577abf33cb7763946319becdec5989975b147c04",
+  "served_from_cache": false,
+  "http_status": 200,
+  "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "content_type": "application/json;charset=UTF-8",
+  "url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "started_at_utc": "2026-09-08T15:44:06.858532+00:00",
+  "completed_at_utc": "2026-09-08T15:44:07.208568+00:00",
+  "bytes": 4297,
+  "sha256": "319a4f016c441ffa1686cf8e577abf33cb7763946319becdec5989975b147c04",
+  "transport": "curl",
+  "tls_verification": true,
+  "response_total_count": 26,
+  "retained_rows": 26,
+  "outside_requested_range_rows": 0,
+  "series_names": {
+    "TP_BK_DENIZLI": "Denizli Konut Birim Kiraları"
+  },
+  "frequency_conversion": {
+    "TP.BK.DENIZLI": true
+  }
+}

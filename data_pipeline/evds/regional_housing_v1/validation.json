@@ -1,17 +1,17 @@
 {
   "status": "passed",
   "dataset_id": "regional_housing_v1",
-  "series_count": 441,
-  "request_count": 441,
-  "observation_count": 30186,
-  "non_null_observation_count": 29966,
-  "missing_observation_count": 220,
-  "structural_missing_observation_count": 80,
-  "unresolved_missing_observation_count": 140,
+  "series_count": 519,
+  "request_count": 519,
+  "observation_count": 32214,
+  "non_null_observation_count": 31732,
+  "missing_observation_count": 482,
+  "structural_missing_observation_count": 160,
+  "unresolved_missing_observation_count": 322,
   "missing_kind_counts": {
-    "before_series_start": 80,
+    "before_series_start": 160,
     "interior_source_null": 10,
-    "source_not_published": 130
+    "source_not_published": 312
   },
   "expected_period_without_source_row_count": 0,
   "expected_period_gap_kind_counts": {},
@@ -19,7 +19,7 @@
   "last_period_end": "2026-06-30",
   "frequency_counts": {
     "AYLIK": 360,
-    "ÜÇ AYLIK": 81
+    "ÜÇ AYLIK": 159
   },
   "series_with_no_observations": [],
   "series_with_no_non_null_observations": [
@@ -27,7 +27,14 @@
     "TP.BIRIMFIYAT.BAYBURT",
     "TP.BIRIMFIYAT.GUMUSHANE",
     "TP.BIRIMFIYAT.HAKKARI",
-    "TP.BIRIMFIYAT.TUNCELI"
+    "TP.BIRIMFIYAT.TUNCELI",
+    "TP.BK.ARDAHAN",
+    "TP.BK.BAYBURT",
+    "TP.BK.BINGOL",
+    "TP.BK.GUMUSHANE",
+    "TP.BK.HAKKARI",
+    "TP.BK.SIRNAK",
+    "TP.BK.TUNCELI"
   ],
   "quality_policy": [
     "Series must exist uniquely in the downloaded EVDS metadata catalog.",

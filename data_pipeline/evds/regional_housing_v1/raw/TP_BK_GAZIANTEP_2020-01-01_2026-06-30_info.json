@@ -1,0 +1,32 @@
+{
+  "status": "validated",
+  "series_code": "TP.BK.GAZIANTEP",
+  "frequency": "ÜÇ AYLIK",
+  "aggregation": "avg",
+  "chunk_start": "2020-01-01",
+  "chunk_end": "2026-06-30",
+  "request_file": "raw/TP_BK_GAZIANTEP_2020-01-01_2026-06-30_request.json",
+  "request_sha256": "e8373b6cf55436183e1397b42831e7c717d73220094d30df470c4184e3abfbae",
+  "response_file": "raw/TP_BK_GAZIANTEP_2020-01-01_2026-06-30_response.json.gz",
+  "response_sha256": "4b3007e1b1236a407f1e808bcace7cf69b85109f5628f8ae9afc50fdb54de21a",
+  "served_from_cache": false,
+  "http_status": 200,
+  "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "content_type": "application/json;charset=UTF-8",
+  "url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "started_at_utc": "2026-09-08T15:44:10.369572+00:00",
+  "completed_at_utc": "2026-09-08T15:44:10.730941+00:00",
+  "bytes": 4367,
+  "sha256": "4b3007e1b1236a407f1e808bcace7cf69b85109f5628f8ae9afc50fdb54de21a",
+  "transport": "curl",
+  "tls_verification": true,
+  "response_total_count": 26,
+  "retained_rows": 26,
+  "outside_requested_range_rows": 0,
+  "series_names": {
+    "TP_BK_GAZIANTEP": "Gaziantep Konut Birim Kiraları"
+  },
+  "frequency_conversion": {
+    "TP.BK.GAZIANTEP": true
+  }
+}

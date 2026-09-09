@@ -1,0 +1,32 @@
+{
+  "status": "validated",
+  "series_code": "TP.BK.AYDIN",
+  "frequency": "ÜÇ AYLIK",
+  "aggregation": "avg",
+  "chunk_start": "2020-01-01",
+  "chunk_end": "2026-06-30",
+  "request_file": "raw/TP_BK_AYDIN_2020-01-01_2026-06-30_request.json",
+  "request_sha256": "2ff9f81375bf8f4670c81c6ae98001c390f5fd7cc5b66a4a31c958009b87a530",
+  "response_file": "raw/TP_BK_AYDIN_2020-01-01_2026-06-30_response.json.gz",
+  "response_sha256": "3031adaf3aefb4e76ebd047956e26689b684bdda826955c5c43db4a7c3f9a681",
+  "served_from_cache": false,
+  "http_status": 200,
+  "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "content_type": "application/json;charset=UTF-8",
+  "url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "started_at_utc": "2026-09-08T15:44:01.462364+00:00",
+  "completed_at_utc": "2026-09-08T15:44:01.846987+00:00",
+  "bytes": 4247,
+  "sha256": "3031adaf3aefb4e76ebd047956e26689b684bdda826955c5c43db4a7c3f9a681",
+  "transport": "curl",
+  "tls_verification": true,
+  "response_total_count": 26,
+  "retained_rows": 26,
+  "outside_requested_range_rows": 0,
+  "series_names": {
+    "TP_BK_AYDIN": "Aydın Konut Birim Kiraları"
+  },
+  "frequency_conversion": {
+    "TP.BK.AYDIN": true
+  }
+}

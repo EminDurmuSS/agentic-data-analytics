@@ -43,6 +43,7 @@ EXPECTED_ROLE_COUNTS = {
     "province_housing_sales_first_hand": 81,
     "province_housing_sales_second_hand": 81,
     "province_housing_unit_price": 81,
+    "province_housing_unit_rent": 78,
     "regional_housing_price_index": 16,
     "regional_new_tenant_rent_index": 20,
 }
@@ -112,6 +113,26 @@ def build_manifest(
             }
         )
 
+    province_rents = active.loc[
+        active["group_code"].eq("bie_bk")
+        & ~active["series_code"].eq("TP.BK.TR")
+    ]
+    for row in province_rents.sort_values("series_code").to_dict("records"):
+        code = str(row["series_code"])
+        if code in excluded_series:
+            continue
+        selections.append(
+            {
+                "series_code": code,
+                "role": "province_housing_unit_rent",
+                "reason": (
+                    "Il bazinda konut kira seviyesini fiyat ve talep analizinde "
+                    "ayri bir kontrol degiskeni olarak kullanmak"
+                ),
+                "aggregation": "avg",
+            }
+        )
+
     regional_kfe = active.loc[active["group_code"].eq("bie_kfe")]
     for row in regional_kfe.sort_values("series_code").to_dict("records"):
         code = str(row["series_code"])
@@ -156,8 +177,9 @@ def build_manifest(
     manifest = {
         "dataset_id": "regional_housing_v1",
         "description": (
-            "Il bazinda konut satislari ve birim fiyatlari ile bolgesel KFE ve "
-            "yeni kiraci kira endekslerini birlestiren EVDS gozlem paketi."
+            "Il bazinda konut satislari, birim fiyatlari ve birim kiralari ile "
+            "bolgesel KFE ve yeni kiraci kira endekslerini birlestiren EVDS "
+            "gozlem paketi."
         ),
         "start_date": "2020-01-01",
         "end_date": "2026-06-30",
@@ -176,6 +198,7 @@ def build_manifest(
             "Only active EVDS series are selected.",
             "Housing sales include 81 provinces and exclude national and workplace series.",
             "Unit prices include 81 provinces and exclude the national series already stored elsewhere.",
+            "Unit rents include all province series and exclude the national and three metropolitan series already stored elsewhere.",
             "Regional KFE excludes the four series already stored in housing_causality_v1.",
             "All 20 active YKKE series are selected.",
         ],

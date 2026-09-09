@@ -1,0 +1,32 @@
+{
+  "status": "validated",
+  "series_code": "TP.BK.YALOVA",
+  "frequency": "ÜÇ AYLIK",
+  "aggregation": "avg",
+  "chunk_start": "2020-01-01",
+  "chunk_end": "2026-06-30",
+  "request_file": "raw/TP_BK_YALOVA_2020-01-01_2026-06-30_request.json",
+  "request_sha256": "5edd29daca8fb83ac92f03f8660729e191e8a8f273d6905319471a15a66c7f5b",
+  "response_file": "raw/TP_BK_YALOVA_2020-01-01_2026-06-30_response.json.gz",
+  "response_sha256": "1b51ce6167e8a74d78db05d5f4e8eb1b3e9182857d80552bdeeaa64fac1443c4",
+  "served_from_cache": false,
+  "http_status": 200,
+  "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "content_type": "application/json;charset=UTF-8",
+  "url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "started_at_utc": "2026-09-08T15:44:29.280281+00:00",
+  "completed_at_utc": "2026-09-08T15:44:29.644564+00:00",
+  "bytes": 4276,
+  "sha256": "1b51ce6167e8a74d78db05d5f4e8eb1b3e9182857d80552bdeeaa64fac1443c4",
+  "transport": "curl",
+  "tls_verification": true,
+  "response_total_count": 26,
+  "retained_rows": 26,
+  "outside_requested_range_rows": 0,
+  "series_names": {
+    "TP_BK_YALOVA": "Yalova Konut Birim Kiraları"
+  },
+  "frequency_conversion": {
+    "TP.BK.YALOVA": true
+  }
+}

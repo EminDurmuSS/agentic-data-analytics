@@ -1319,6 +1319,180 @@ def tbb_assets_and_metrics() -> tuple[list[dict[str, Any]], list[dict[str, Any]]
     return assets, metrics
 
 
+def risk_center_assets_and_metrics() -> tuple[
+    list[dict[str, Any]], list[dict[str, Any]]
+]:
+    base = (
+        PROJECT_ROOT
+        / "data_pipeline"
+        / "risk_center"
+        / "monthly_housing_v1"
+    )
+    processed = base / "processed"
+    manifest_path = base / "manifest.json"
+    validation_path = processed / "validation.json"
+    manifest = read_json(manifest_path)
+    validation = read_json(validation_path)
+    official_url = str(manifest["official_listing_url"])
+
+    panel_path = processed / "housing_credit_monthly.parquet"
+    vintages_path = processed / "housing_metric_vintages.parquet"
+    overlap_path = processed / "overlap_revision_audit.parquet"
+    dictionary_path = processed / "metric_dictionary.parquet"
+    panel = pd.read_parquet(panel_path)
+    vintages = pd.read_parquet(vintages_path)
+    overlap = pd.read_parquet(overlap_path)
+    dictionary = pd.read_parquet(dictionary_path)
+
+    asset_specs = [
+        (
+            "housing_credit_monthly",
+            panel_path,
+            panel,
+            "monthly_analysis_panel",
+            "metric_defined",
+            "month",
+            len(dictionary),
+            (
+                "Monthly housing-credit balance, borrower, average risk, NPL ratio "
+                "and first-time user measures selected from the latest official "
+                "Risk Center bulletin vintage."
+            ),
+        ),
+        (
+            "housing_metric_vintages",
+            vintages_path,
+            vintages,
+            "source_chart_vintages",
+            "official_publication_vintage",
+            "observation_month",
+            len(dictionary),
+            "All extracted official chart vintages, including overlapping months.",
+        ),
+        (
+            "overlap_revision_audit",
+            overlap_path,
+            overlap,
+            "source_revision_audit",
+            "official_vintage_comparison",
+            "observation_month",
+            0,
+            "Audit of overlapping official chart values and later revisions.",
+        ),
+        (
+            "metric_dictionary",
+            dictionary_path,
+            dictionary,
+            "metric_dictionary",
+            "metadata",
+            None,
+            len(dictionary),
+            "Metric semantics, units, aggregation rules and interpretation cautions.",
+        ),
+    ]
+    assets: list[dict[str, Any]] = []
+    for (
+        asset_name,
+        path,
+        frame,
+        data_kind,
+        semantics,
+        period_column,
+        metric_count,
+        description,
+    ) in asset_specs:
+        coverage_start = str(frame[period_column].min()) if period_column else ""
+        coverage_end = str(frame[period_column].max()) if period_column else ""
+        assets.append(
+            make_asset(
+                asset_id=f"risk_center.monthly_housing_v1.{asset_name}",
+                dataset_id="risk_center.monthly_housing_v1",
+                source_system="TBB_RISK_CENTER",
+                source_organization="Türkiye Bankalar Birliği Risk Merkezi",
+                competition_scope="supporting_source_not_explicitly_required",
+                status=validation["status"],
+                data_kind=data_kind,
+                native_frequency="monthly",
+                temporal_semantics=semantics,
+                geography_grain="national",
+                institution_grain="risk_center_reporting_scope",
+                coverage_start=coverage_start,
+                coverage_end=coverage_end,
+                row_count=len(frame),
+                column_count=len(frame.columns),
+                metric_count=metric_count,
+                missing_value_count=int(frame.isna().sum().sum()),
+                progress_completed=int(validation["publication_count"]),
+                progress_expected=6,
+                file_path=relative(path),
+                file_format="parquet",
+                validation_file=relative(validation_path),
+                source_url=official_url,
+                description=description,
+                searchable_text=(
+                    f"TBB Risk Merkezi monthly housing credit {asset_name}"
+                ),
+            )
+        )
+
+    role_by_metric = {
+        "housing_credit_balance_billion_try": "credit_balance",
+        "housing_credit_borrower_count_million_person": "credit_borrower_count",
+        "housing_credit_average_balance_try": "credit_average_balance",
+        "housing_credit_npl_ratio_pct": "credit_quality",
+        "first_time_housing_credit_users_thousand_person": "first_time_credit_users",
+    }
+    metrics: list[dict[str, Any]] = []
+    for row in dictionary.to_dict("records"):
+        code = str(row["metric_code"])
+        values = pd.to_numeric(panel[code], errors="coerce")
+        caution = text_value(row.get("caution"))
+        metrics.append(
+            make_metric(
+                metric_id=f"tbb_risk_center:{code}",
+                dataset_id="risk_center.monthly_housing_v1",
+                source_system="TBB_RISK_CENTER",
+                source_organization="Türkiye Bankalar Birliği Risk Merkezi",
+                competition_scope="supporting_source_not_explicitly_required",
+                source_metric_code=code,
+                metric_name_tr=text_value(row.get("metric_name_tr")),
+                metric_name_en="",
+                group_name="Risk Merkezi aylık konut kredisi göstergeleri",
+                role=role_by_metric[code],
+                dimension="national",
+                native_frequency="monthly",
+                unit=text_value(row.get("unit")),
+                temporal_semantics=text_value(row.get("temporal_semantics")),
+                default_aggregation=text_value(row.get("default_aggregation")),
+                geography_grain="national",
+                institution_grain="risk_center_reporting_scope",
+                coverage_start=validation["target_coverage_start"],
+                coverage_end=validation["target_coverage_end"],
+                observation_available=bool(values.notna().any()),
+                observation_count=int(values.notna().sum()),
+                missing_observation_count=int(values.isna().sum()),
+                quality_status=validation["status"],
+                is_archive=False,
+                source_asset=relative(panel_path),
+                source_metadata_url=official_url,
+                notes=(
+                    f"{caution} Published chart rounding is preserved. "
+                    "Overlaps use the latest official publication while every "
+                    "vintage remains auditable."
+                ),
+                searchable_text=" | ".join(
+                    [
+                        code,
+                        text_value(row.get("metric_name_tr")),
+                        caution,
+                        "TBB Risk Merkezi monthly housing credit",
+                    ]
+                ),
+            )
+        )
+    return assets, metrics
+
+
 def weekly_bddk_assets_and_metrics() -> tuple[list[dict[str, Any]], list[dict[str, Any]], dict[str, Any]]:
     raw_dir = PROJECT_ROOT / "data_pipeline" / "bddk" / "weekly_all_groups"
     config = read_json(raw_dir / "request_config.json")
@@ -1582,6 +1756,7 @@ def validate_catalog(
         "bddk.finturk_all_groups_all_cities",
         "bddk.weekly_all_groups",
         "regional.housing_v1",
+        "risk_center.monthly_housing_v1",
     }
     present_datasets = set(assets["dataset_id"])
     missing_required = sorted(required_datasets - present_datasets)
@@ -1648,6 +1823,7 @@ def build(output_dir: Path) -> dict[str, Any]:
         tuik_province_sales_assets_and_metrics,
         regional_housing_assets_and_metrics,
         tbb_assets_and_metrics,
+        risk_center_assets_and_metrics,
     ]:
         source_assets, source_metrics = builder()
         assets.extend(source_assets)

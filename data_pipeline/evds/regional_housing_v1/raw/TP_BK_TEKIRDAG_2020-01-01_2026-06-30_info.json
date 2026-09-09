@@ -1,0 +1,32 @@
+{
+  "status": "validated",
+  "series_code": "TP.BK.TEKIRDAG",
+  "frequency": "ÜÇ AYLIK",
+  "aggregation": "avg",
+  "chunk_start": "2020-01-01",
+  "chunk_end": "2026-06-30",
+  "request_file": "raw/TP_BK_TEKIRDAG_2020-01-01_2026-06-30_request.json",
+  "request_sha256": "6a13ce1932e863802a1fa2901cbe7961b33ef2f179b0449777be30a18585b74e",
+  "response_file": "raw/TP_BK_TEKIRDAG_2020-01-01_2026-06-30_response.json.gz",
+  "response_sha256": "cfb79f406a2f99ce8c5e8e4ed441ad85b23e12ff83ccb886fe7d0ebde8b0d769",
+  "served_from_cache": false,
+  "http_status": 200,
+  "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "content_type": "application/json;charset=UTF-8",
+  "url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "started_at_utc": "2026-09-08T15:44:25.747684+00:00",
+  "completed_at_utc": "2026-09-08T15:44:26.047488+00:00",
+  "bytes": 4338,
+  "sha256": "cfb79f406a2f99ce8c5e8e4ed441ad85b23e12ff83ccb886fe7d0ebde8b0d769",
+  "transport": "curl",
+  "tls_verification": true,
+  "response_total_count": 26,
+  "retained_rows": 26,
+  "outside_requested_range_rows": 0,
+  "series_names": {
+    "TP_BK_TEKIRDAG": "Tekirdağ Konut Birim Kiraları"
+  },
+  "frequency_conversion": {
+    "TP.BK.TEKIRDAG": true
+  }
+}

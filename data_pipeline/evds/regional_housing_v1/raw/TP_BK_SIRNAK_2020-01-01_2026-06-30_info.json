@@ -1,0 +1,32 @@
+{
+  "status": "validated",
+  "series_code": "TP.BK.SIRNAK",
+  "frequency": "ÜÇ AYLIK",
+  "aggregation": "avg",
+  "chunk_start": "2020-01-01",
+  "chunk_end": "2026-06-30",
+  "request_file": "raw/TP_BK_SIRNAK_2020-01-01_2026-06-30_request.json",
+  "request_sha256": "df356b25b8a63e280479553f0fb023d614b49381c9dda88450544cd1366c4df1",
+  "response_file": "raw/TP_BK_SIRNAK_2020-01-01_2026-06-30_response.json.gz",
+  "response_sha256": "903310ab9b0acb91def1f4dfd4e48fca1b768cca970461ec50df75efa85f24fd",
+  "served_from_cache": false,
+  "http_status": 200,
+  "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "content_type": "application/json;charset=UTF-8",
+  "url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "started_at_utc": "2026-09-08T15:44:25.034849+00:00",
+  "completed_at_utc": "2026-09-08T15:44:25.253901+00:00",
+  "bytes": 3792,
+  "sha256": "903310ab9b0acb91def1f4dfd4e48fca1b768cca970461ec50df75efa85f24fd",
+  "transport": "curl",
+  "tls_verification": true,
+  "response_total_count": 26,
+  "retained_rows": 26,
+  "outside_requested_range_rows": 0,
+  "series_names": {
+    "TP_BK_SIRNAK": "Şırnak Konut Birim Kiraları"
+  },
+  "frequency_conversion": {
+    "TP.BK.SIRNAK": true
+  }
+}

@@ -1,0 +1,32 @@
+{
+  "status": "validated",
+  "series_code": "TP.BK.MUGLA",
+  "frequency": "ÜÇ AYLIK",
+  "aggregation": "avg",
+  "chunk_start": "2020-01-01",
+  "chunk_end": "2026-06-30",
+  "request_file": "raw/TP_BK_MUGLA_2020-01-01_2026-06-30_request.json",
+  "request_sha256": "07108ce24f856cac1fbb34334926eb1c57889d10c406cb807cc5b1749b58e4a8",
+  "response_file": "raw/TP_BK_MUGLA_2020-01-01_2026-06-30_response.json.gz",
+  "response_sha256": "7706c4a2f7ced85853b7ba90bec2a0d928d3cc8ea38d57dc52b75027a7c6faab",
+  "served_from_cache": false,
+  "http_status": 200,
+  "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "content_type": "application/json;charset=UTF-8",
+  "url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "started_at_utc": "2026-09-08T15:44:20.181882+00:00",
+  "completed_at_utc": "2026-09-08T15:44:20.504491+00:00",
+  "bytes": 4257,
+  "sha256": "7706c4a2f7ced85853b7ba90bec2a0d928d3cc8ea38d57dc52b75027a7c6faab",
+  "transport": "curl",
+  "tls_verification": true,
+  "response_total_count": 26,
+  "retained_rows": 26,
+  "outside_requested_range_rows": 0,
+  "series_names": {
+    "TP_BK_MUGLA": "Muğla Konut Birim Kiraları"
+  },
+  "frequency_conversion": {
+    "TP.BK.MUGLA": true
+  }
+}

@@ -1,0 +1,32 @@
+{
+  "status": "validated",
+  "series_code": "TP.BK.ELAZIG",
+  "frequency": "ÜÇ AYLIK",
+  "aggregation": "avg",
+  "chunk_start": "2020-01-01",
+  "chunk_end": "2026-06-30",
+  "request_file": "raw/TP_BK_ELAZIG_2020-01-01_2026-06-30_request.json",
+  "request_sha256": "2c70fcd27093a7f99a2d4bd41c106acfe7f8fa767194a13a8eed6ef1c5101b12",
+  "response_file": "raw/TP_BK_ELAZIG_2020-01-01_2026-06-30_response.json.gz",
+  "response_sha256": "dfaf53cd3bbdd31a219bdb6391bc269303e8404e84f40ae7baaf7a5c93fe2930",
+  "served_from_cache": false,
+  "http_status": 200,
+  "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "content_type": "application/json;charset=UTF-8",
+  "url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "started_at_utc": "2026-09-08T15:44:08.724267+00:00",
+  "completed_at_utc": "2026-09-08T15:44:09.011570+00:00",
+  "bytes": 4262,
+  "sha256": "dfaf53cd3bbdd31a219bdb6391bc269303e8404e84f40ae7baaf7a5c93fe2930",
+  "transport": "curl",
+  "tls_verification": true,
+  "response_total_count": 26,
+  "retained_rows": 26,
+  "outside_requested_range_rows": 0,
+  "series_names": {
+    "TP_BK_ELAZIG": "Elazığ Konut Birim Kiraları"
+  },
+  "frequency_conversion": {
+    "TP.BK.ELAZIG": true
+  }
+}

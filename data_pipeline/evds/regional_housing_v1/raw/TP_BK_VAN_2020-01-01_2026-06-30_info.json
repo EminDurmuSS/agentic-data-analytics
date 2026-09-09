@@ -1,0 +1,32 @@
+{
+  "status": "validated",
+  "series_code": "TP.BK.VAN",
+  "frequency": "ÜÇ AYLIK",
+  "aggregation": "avg",
+  "chunk_start": "2020-01-01",
+  "chunk_end": "2026-06-30",
+  "request_file": "raw/TP_BK_VAN_2020-01-01_2026-06-30_request.json",
+  "request_sha256": "bee2e4d65feb13464b72c257857ddf4bb3e08326530479b51d78dd8846ff8c54",
+  "response_file": "raw/TP_BK_VAN_2020-01-01_2026-06-30_response.json.gz",
+  "response_sha256": "74c6c79cbc605625c62aa5bf57fb6ae810b5f177dce84dace4d83b0d3f61c1e7",
+  "served_from_cache": false,
+  "http_status": 200,
+  "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "content_type": "application/json;charset=UTF-8",
+  "url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "started_at_utc": "2026-09-08T15:44:29.036091+00:00",
+  "completed_at_utc": "2026-09-08T15:44:29.181220+00:00",
+  "bytes": 3963,
+  "sha256": "74c6c79cbc605625c62aa5bf57fb6ae810b5f177dce84dace4d83b0d3f61c1e7",
+  "transport": "curl",
+  "tls_verification": true,
+  "response_total_count": 26,
+  "retained_rows": 26,
+  "outside_requested_range_rows": 0,
+  "series_names": {
+    "TP_BK_VAN": "Van Konut Birim Kiraları"
+  },
+  "frequency_conversion": {
+    "TP.BK.VAN": true
+  }
+}
