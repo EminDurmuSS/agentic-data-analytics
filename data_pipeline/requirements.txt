@@ -8,3 +8,8 @@ beautifulsoup4==4.13.4
 pypdf==6.18.0
 xlrd>=2.0,<3
 duckdb>=1.1,<2
+openai>=1.68,<3
+openpyxl>=3.1,<4
+scipy>=1.14,<2
+statsmodels>=0.14,<1
+ruptures>=1.1,<2
