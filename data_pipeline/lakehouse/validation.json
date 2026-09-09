@@ -1,7 +1,7 @@
 {
   "status": "passed",
   "database_file": "analytics.duckdb",
-  "database_bytes": 103034880,
+  "database_bytes": 103559168,
   "schema_count": 9,
   "table_count": 60,
   "monthly_analysis_rows": 66,
