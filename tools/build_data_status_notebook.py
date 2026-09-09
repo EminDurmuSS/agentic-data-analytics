@@ -59,7 +59,9 @@ def build_notebook() -> dict:
               (SELECT count(DISTINCT province_key)
                FROM regional.housing_quarterly) AS il_sayisi,
               (SELECT count(*) FROM regional.housing_quarterly
-               WHERE analysis_ready) AS analize_hazir_bolgesel_satir
+               WHERE analysis_ready_source) AS kaynakla_analize_hazir_bolgesel_satir,
+              (SELECT count(*) FROM regional.housing_quarterly
+               WHERE analysis_ready_with_price_proxy) AS proxy_izinli_analize_hazir_bolgesel_satir
             """
         ).fetchdf()
         source_status = connection.execute(
@@ -133,7 +135,12 @@ def build_notebook() -> dict:
                    round(mortgaged_sales_share_pct, 2) AS ipotekli_satis_payi_yuzde,
                    round(housing_credit_per_capita_try, 2) AS kisi_basi_konut_kredisi_tl,
                    round(housing_credit_yoy_pct, 2) AS konut_kredisi_yillik_yuzde,
-                   analysis_ready AS analize_hazir
+                   round(housing_unit_price_try_per_m2, 2) AS resmi_birim_fiyat,
+                   round(housing_unit_price_with_proxy_try_per_m2, 2)
+                       AS proxy_izinli_birim_fiyat,
+                   housing_unit_price_proxy_origin AS fiyat_kokeni,
+                   analysis_ready_source AS kaynakla_analize_hazir,
+                   analysis_ready_with_price_proxy AS proxy_izinli_analize_hazir
             FROM regional.housing_quarterly
             WHERE quarter = '2026Q2'
               AND province_name IN ('ANKARA', 'İSTANBUL', 'İZMİR')
@@ -145,7 +152,7 @@ def build_notebook() -> dict:
 
     title = """# KKB Agentic Data Analytics: güncel veri doğrulama notebook'u
 
-**8 Eylül 2026 veri kapanış sürümü**
+**9 Eylül 2026 veri kapanış sürümü**
 
 Bu notebook eski 25 serilik başlangıç snapshot'ı değildir. Repodaki güncel,
 self-contained DuckDB dosyasını salt okunur açar ve BDDK aylık, BDDK haftalık,
@@ -169,7 +176,7 @@ Haziran 2026 aylık bülteni kendi metrikleriyle sisteme eklendi.
 | BDDK FinTürk | 22 çeyrek, 7 tablo, 7 banka grubu, 81 il ve `YURT DIŞI`, 936.512 ölçüm, 1.328 kaynak-null şube değeri için auditli analitik sıfır |
 | TCMB EVDS | 52.696 serilik metadata kataloğu, analitik değeri yüksek {int(summary.iloc[0]['yerel_evds_serisi'])} kaynak serinin yerel gözlemi ve 1 türetilmiş altın serisi |
 | TÜİK il konut satışları | 81 il, Ocak 2020-Haziran 2026, 5 aylık satış metriği ve EVDS çapraz doğrulaması |
-| İl bazlı konut paneli | {int(summary.iloc[0]['il_sayisi'])} il, 22 çeyrek, {int(summary.iloc[0]['bolgesel_satir'])} tekil satır ve {int(summary.iloc[0]['analize_hazir_bolgesel_satir'])} analize hazır satır |
+| İl bazlı konut paneli | {int(summary.iloc[0]['il_sayisi'])} il, 22 çeyrek, {int(summary.iloc[0]['bolgesel_satir'])} tekil satır, {int(summary.iloc[0]['kaynakla_analize_hazir_bolgesel_satir'])} resmî-kaynak hazır ve {int(summary.iloc[0]['proxy_izinli_analize_hazir_bolgesel_satir'])} açık fiyat-proxy hazır satır |
 | TBB | Mart 2021-Mart 2026 arasında yayımlanmış 21 rapor, 252 ürün ölçümü |
 | TBB Risk Merkezi | Ocak 2021-Haziran 2026, 66 ay, 5 konut kredisi metriği, 6 Haziran bülteni ve tüm kaynak vintageları |
 | Resmî belgeler | 4 BDDK kararı ve 4 TCMB yöntem veya destek belgesi |
@@ -214,7 +221,9 @@ print(f"Boyut: {DB_PATH.stat().st_size / 1024 / 1024:.2f} MiB")
       (SELECT count(DISTINCT province_key)
        FROM regional.housing_quarterly) AS il_sayisi,
       (SELECT count(*) FROM regional.housing_quarterly
-       WHERE analysis_ready) AS analize_hazir_bolgesel_satir
+       WHERE analysis_ready_source) AS kaynakla_analize_hazir_bolgesel_satir,
+      (SELECT count(*) FROM regional.housing_quarterly
+       WHERE analysis_ready_with_price_proxy) AS proxy_izinli_analize_hazir_bolgesel_satir
     \"\"\"
 ).fetchdf()
 """
@@ -302,7 +311,12 @@ display(demo)
            round(mortgaged_sales_share_pct, 2) AS ipotekli_satis_payi_yuzde,
            round(housing_credit_per_capita_try, 2) AS kisi_basi_konut_kredisi_tl,
            round(housing_credit_yoy_pct, 2) AS konut_kredisi_yillik_yuzde,
-           analysis_ready AS analize_hazir
+           round(housing_unit_price_try_per_m2, 2) AS resmi_birim_fiyat,
+           round(housing_unit_price_with_proxy_try_per_m2, 2)
+               AS proxy_izinli_birim_fiyat,
+           housing_unit_price_proxy_origin AS fiyat_kokeni,
+           analysis_ready_source AS kaynakla_analize_hazir,
+           analysis_ready_with_price_proxy AS proxy_izinli_analize_hazir
     FROM regional.housing_quarterly
     WHERE quarter = '2026Q2'
       AND province_name IN ('ANKARA', 'İSTANBUL', 'İZMİR')
@@ -321,6 +335,9 @@ display(demo)
 - Eksik değerler tahminle doldurulmaz. Sıfır yalnız aynı resmî kaynak içindeki
   kesin bir toplamsal kimlikle kanıtlanırsa, ham null korunarak ayrı provenance
   ile kullanılabilir.
+- Kaynakta yayımlanmayan il fiyatları resmî sütunda null kalır. Ayrı analiz
+  proxy'si yalnız aynı KFE bölgesi ve aynı çeyrekteki resmî il fiyatlarının
+  medyanını kullanır, kökeni ve akran il sayısı açıkça tutulur.
 - FinTürk'teki 1.328 kaynak-null şube değeri, 1.782 il-çeyreğin tamamında sıfır
   farkla geçen `SEKTÖR = MEVDUAT + KATILIM + KALKINMA VE YATIRIM` kimliğiyle
   ayrı `usable_value=0` ve audit kaydı olarak tutulur.
@@ -334,7 +351,7 @@ display(demo)
 
     known_gaps = """## Açık kalite notları
 
-1. TBB Haziran 2026 çeyreklik tüketici kredileri raporu 8 Eylül 2026
+1. TBB Haziran 2026 çeyreklik tüketici kredileri raporu 9 Eylül 2026
    kontrolünde kaynakta yayımlanmamıştır. Ayrı bir yayın ailesi olan Risk
    Merkezi Haziran 2026 aylık bülteni mevcuttur, ancak parasal kullandırım
    tutarı yayımlamaz.
@@ -344,8 +361,9 @@ display(demo)
 5. Ağustos 2025 EVDS ve BDDK konut kredisi kapsam farkı otomatik düzeltilmez.
 6. TBB raporlayan banka kapsamı BDDK sektör toplamından daha dardır.
 7. Beş ilin konut birim fiyatı serisi tamamen boştur. Altı ilin serisi 2023'te,
-   Şırnak serisi 2022'de başlar. Bu nedenle toplam 162 il-çeyrek birim fiyatı
-   kaynakta yayımlanmadığı için null kalır.
+   Şırnak serisi 2022'de başlar. Toplam 162 il-çeyrek resmî birim fiyatı null
+   kalır. Ayrı `with_proxy` alanı aynı bölge ve çeyrekteki resmî il fiyatı
+   medyanını kullanır; resmî alanın yerine yazılmaz.
 8. Ham EVDS'deki 9 yarışma dönemi ipotekli satış null değeri, TÜİK'teki
    `toplam satış = diğer satış` özdeşliğiyle sıfır olarak doğrulanıp 8
    il-çeyrek toplamında açık fallback provenance ile kullanılır.

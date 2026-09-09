@@ -1,7 +1,7 @@
 # Kalan veri boşlukları için derin araştırma
 
 Hedef kitle: KKB Agentic Data Analytics Hackathon geliştirme ekibi  
-Araştırma ve canlı kontrol tarihi: 8 Eylül 2026  
+Araştırma ve canlı kontrol tarihi: 9 Eylül 2026
 Coğrafya: Türkiye  
 Ana dönem: Ocak 2021-Haziran 2026
 
@@ -16,12 +16,14 @@ yeniden incelendi. Sonuç şöyledir:
 | FinTürk şube sayısı kaynak null değerleri | Kesin kimlikle ayrı analitik değer üret | 1.328 / 1.328 hücre için `usable_value=0`, ham `value=null` korunur |
 | TBB Haziran 2026 raporu | Bekle ve periyodik yeniden kontrol et | Resmî kaynakta henüz yayımlanmamış, tahmin edilemez |
 | TBB Risk Merkezi aylık bülteni | Ayrı metrik ailesi olarak ekle | Haziran 2026 dahil 66 aylık bakiye ve kişi göstergeleri var, parasal kullandırım yok |
-| İl bazlı konut birim fiyatı | İl metriğini doldurma | 162 il-çeyrek değer kaynakta yok, eş tanımlı arşiv seri bulunamadı |
+| İl bazlı konut birim fiyatı | Resmî alanı doldurma, ayrı proxy üret | 162 il-çeyrek değer kaynakta yok; aynı bölge ve çeyrekteki resmî il fiyatı medyanı ayrı ve denetlenebilir proxy olarak eklendi |
 | Haziran 2026 serbest piyasa altını | Kaynak seriyi doldurma | Aktif BIST altın serisi ayrı proxy ve kontrol olarak kullanılabilir |
 
-Bu araştırmada gerçek anlamda kapatılabilen boşluk FinTürk şube sayısıdır.
-Diğer üç konu, veri çekme hatası değil, kurumun yayımlamadığı gözlem veya farklı
-tanımlı kaynak sorunudur.
+Bu araştırmada gerçek anlamda kapatılabilen kaynak boşluğu FinTürk şube
+sayısıdır. İl fiyatı kaynak boşluğu kapanmamıştır, ancak resmî alanı bozmayan
+ayrı bir analiz proxy'siyle kullanılabilir hâle getirilmiştir. Diğer konular
+veri çekme hatası değil, kurumun yayımlamadığı gözlem veya farklı tanımlı kaynak
+sorunudur.
 
 ## Repoya uygulanan sonuç
 
@@ -40,8 +42,15 @@ birleşik veri kataloğunda ayrı bir varlık ve DuckDB içinde ayrı bir tablo 
 sorgulanabilir. FinTürk ölçüm tablosunun tam istek provenance bilgisi de ayrı
 `bddk.finturk_source_tables` tablosunda korunur.
 
-Güncel birleşik katalog 70 veri varlığı ve 55.496 metrik içerir. Bunların
-3.382'si yerel gözlemi bulunan sorgulanabilir metriktir. Tek dosyalık DuckDB
+İl fiyatı tarafında da resmî `housing_unit_price_try_per_m2` alanı aynen
+korundu. Kaynakta bulunmayan 162 il-çeyrek için yalnız aynı KFE bölgesi ve aynı
+çeyrekteki resmî il fiyatlarının medyanı ayrı
+`housing_unit_price_with_proxy_try_per_m2` alanında sunulur. Köken ve medyana
+giren resmî akran il sayısı ayrı sütunlar ile 162 satırlık audit dosyasında
+tutulur. Resmî-kaynak hazırlığı ile proxy izinli hazırlık ayrı bayraklardır.
+
+Güncel birleşik katalog 71 veri varlığı ve 55.501 metrik içerir. Bunların
+3.387'si yerel gözlemi bulunan sorgulanabilir metriktir. Tek dosyalık DuckDB
 çıktısı 10 şema ve 64 tablo veya view içerir.
 
 ## 1. FinTürk şube sayısı boşlukları
@@ -85,18 +94,18 @@ Bu nedenle o alan sıfıra çevrilmez ve `structural_undefined` olarak korunur.
 ## 2. TBB Haziran 2026 kredi raporu
 
 [TBB Tüketici Kredileri ve Konut Kredileri rapor ailesi](https://www.tbb.org.tr/istatistiki-raporlar/11237)
-8 Eylül 2026 tarihinde canlı indiriciyle yeniden kontrol edildi. Haziran 2026
+9 Eylül 2026 tarihinde canlı indiriciyle yeniden kontrol edildi. Haziran 2026
 için yayımlanmış XLS, PDF veya DOCX eki bulunmadı. Canlı kontrol sonucu:
 
 - Beklenen dönem: 1
 - Yayımlanmış dönem: 0
 - Kaynak boşluğu: `2026-06`
 - Neden: `not_published`
-- Son kontrol: `2026-09-08T15:04:02Z`
+- Son kontrol: `2026-09-09T10:03:13Z`
 
 [TBB İstatistikleri Yayınlama Takvimi](https://www.tbb.org.tr/sites/default/files/docs/tbb_istatistikleri_yayinlama_takvimi.pdf),
 Haziran dönemi Tüketici Kredileri ve Konut Kredileri raporunu Ağustos ayının
-dördüncü haftasında planlar. Buna rağmen 8 Eylül kontrolünde rapor listede yoktur.
+dördüncü haftasında planlar. Buna rağmen 9 Eylül kontrolünde rapor listede yoktur.
 Bu durum gecikmiş yayın olarak kaydedilebilir, ancak veri tahmin edilemez.
 
 Doğru yaklaşım, mevcut indiriciyi günlük veya manuel periyodik çalıştırmak ve
@@ -144,11 +153,13 @@ Yarışma dönemindeki 162 boş il-çeyrek gözlem:
 - Ağrı, Bitlis, Iğdır, Kars, Muş ve Van: 2021Q1-2022Q4
 - Şırnak: 2021Q1-2021Q4
 
-Bu hücreler resmî il birim fiyatı olarak doldurulamaz. Sistemde iki güvenli
+Bu hücreler resmî il birim fiyatı olarak doldurulamaz. Sistemde üç güvenli
 seçenek vardır:
 
 1. İl birim fiyatı isteyen analizde null ve kaynak açıklaması göstermek.
-2. Fiyat eğilimi gerekiyorsa ilgili bölgesel KFE'yi ayrı metrik ve
+2. Seviye analizi için yalnız aynı KFE bölgesi ve aynı çeyrekteki resmî il
+   fiyatlarının medyanını açık `proxy` kökeniyle kullanmak.
+3. Fiyat eğilimi gerekiyorsa ilgili bölgesel KFE'yi ayrı metrik ve
    `proxy_for_trend_only` etiketiyle kullanmak.
 
 Bölgesel KFE bir endekstir, il bazlı TL/m2 fiyat seviyesi değildir. Bu iki
@@ -212,7 +223,8 @@ kaynak boşluğu yoktur.
 | --- | --- | --- | --- |
 | FinTürk kaynak-null şube sayısı | null | 0 | `derived_zero_function_group_identity` |
 | Şubeye düşen nüfus, şube sayısı 0 | null | null | `structural_undefined` |
-| Yayımlanmamış il birim fiyatı | null | null | `source_not_published` |
+| Yayımlanmamış il birim fiyatı, resmî alan | null | null | `source_not_published` |
+| Yayımlanmamış il birim fiyatı, proxy izinli alan | null | aynı bölge ve çeyrek resmî il medyanı | `same_region_same_quarter_official_median_proxy` |
 | Bölgesel KFE proxy'si | kaynak değeri | kaynak değeri | `proxy_for_trend_only` |
 | İl konut birim kirası | kaynak değeri veya null | ayrı kira metriği | `source_observed` / `source_not_published` |
 | TBB Haziran 2026 raporu | yok | null | `not_published` |
@@ -225,12 +237,14 @@ kaynak boşluğu yoktur.
 
 - FinTürk sıfır sonucu yalnız şube sayısı metriği ve belirtilen fonksiyon
   grupları için geçerlidir. Diğer null alanlara genellenmez.
+- Bölgesel fiyat medyanı resmî il gözlemi değildir ve yalnız açık proxy
+  politikasıyla kullanılabilir.
 - Bölgesel KFE, il düzeyinde fiyat seviyesini ölçmez.
 - İl bazlı kira, il bazlı satış fiyatının yerine geçmez.
 - Altın proxy'si kaynak serinin devamı değil, farklı piyasa tanımlı bir kontrol
   serisidir.
 - TBB raporunun gelecekte yayımlanması mümkündür. Bu rapor için sonuç yalnız
-  8 Eylül 2026 canlı kontrolünü ifade eder.
+  9 Eylül 2026 canlı kontrolünü ifade eder.
 - Risk Merkezi PDF grafik değerleri yayımlandıkları hassasiyette ve yuvarlamayla
   saklanır. Daha hassas bir sayı varmış gibi gösterilmez.
 
@@ -249,7 +263,7 @@ için araştırma durduruldu.
 | --- | --- | --- |
 | FinTürk şube tanımı ve fonksiyon grupları | [BDDK FinTürk Tablo 6 metaverisi](https://www.bddk.org.tr/BultenFinturk/tr/Home/MetaveriPdfIndir?tabloNo=6) | BDDK, erişim 8 Eylül 2026 |
 | 1.328 sıfır ve 1.782 kimlik kontrolü | Yerel FinTürk ham snapshot'ı ve [`branch_zero_fallback_audit.parquet`](../../data_pipeline/bddk/processed/finturk_all_groups_all_cities/branch_zero_fallback_audit.parquet) | Hesaplama 8 Eylül 2026 |
-| TBB Haziran 2026 raporu yayımlanmamış | [TBB resmî rapor ailesi](https://www.tbb.org.tr/istatistiki-raporlar/11237) ve canlı indirici çıktısı | Erişim 8 Eylül 2026, 15:04:02 UTC |
+| TBB Haziran 2026 raporu yayımlanmamış | [TBB resmî rapor ailesi](https://www.tbb.org.tr/istatistiki-raporlar/11237) ve canlı indirici çıktısı | Erişim 9 Eylül 2026, 10:03:13 UTC |
 | Risk Merkezi Haziran 2021-Haziran 2026 bültenleri mevcut | [TBB Risk Merkezi resmî bülten listesi](https://www.riskmerkezi.org/istatistiki-raporlar-liste/2541), yerel `manifest.json` ve altı hash doğrulanmış PDF | Erişim 8 Eylül 2026, 15:54 UTC |
 | Risk Merkezi 66 aylık paneli 5 eksiksiz metrik içerir | [`validation.json`](../../data_pipeline/risk_center/monthly_housing_v1/processed/validation.json), vintage ve panel Parquet dosyaları | Hesaplama ve doğrulama 8 Eylül 2026 |
 | Haziran raporu planı Ağustos 4. hafta | [TBB yayınlama takvimi](https://www.tbb.org.tr/sites/default/files/docs/tbb_istatistikleri_yayinlama_takvimi.pdf) | TBB, erişim 8 Eylül 2026 |
@@ -257,4 +271,5 @@ için araştırma durduruldu.
 | Eksik iller için eş tanımlı arşiv seri yok | [`evds_series_catalog.parquet`](../../data_pipeline/catalog/evds_series_catalog.parquet) | 52.696 seri, yerel tarama 8 Eylül 2026 |
 | YKKE ve il bazlı birim kira yayını 17 Şubat 2026'da başladı | [TCMB Yeni Kiracı Kira Endeksi açıklaması](https://www.tcmb.gov.tr/wps/wcm/connect/blog/tr/main+menu/analizler/yeni+kiraci+kira+endeksi+ve+kira+enflasyonu) | TCMB, 17 Şubat 2026, erişim 8 Eylül 2026 |
 | İl kira katmanı 81 ili kapsar, kaynak null değerler korunur | [`regional_housing_v1/validation.json`](../../data_pipeline/evds/regional_housing_v1/validation.json) ve [`regional/processed/validation.json`](../../data_pipeline/regional/processed/validation.json) | Hesaplama ve doğrulama 8 Eylül 2026 |
+| 162 il-çeyrek fiyat proxy'si yalnız aynı bölge ve çeyrekteki resmî il medyanıdır | [`housing_unit_price_proxy_audit.parquet`](../../data_pipeline/regional/processed/housing_unit_price_proxy_audit.parquet) ve [`validation.json`](../../data_pipeline/regional/processed/validation.json) | Hesaplama ve doğrulama 9 Eylül 2026 |
 | Altın serileri yüksek korelasyonlu ama farklı tanımlı | Yerel EVDS ham gözlemleri ve seri metadata kayıtları | 77 ortak ay, hesaplama 8 Eylül 2026 |

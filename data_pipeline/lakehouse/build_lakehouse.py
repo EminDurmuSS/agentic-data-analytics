@@ -779,7 +779,7 @@ def build(output_path: Path) -> dict[str, Any]:
             "The monthly analysis table keeps nominal stock, real stock, rates, controls and quality flags separate.",
             "Risk Center balances, borrower measures and first-time user counts retain explicit source-prefixed columns and do not overwrite BDDK, EVDS or TBB measures.",
             "The quarterly analysis table keeps BDDK, FinTurk, EVDS and TBB scope differences visible.",
-            "The regional panel keeps province observations distinct from regional KFE and YKKE values.",
+            "The regional panel keeps official province observations distinct from regional KFE, YKKE and explicitly labelled same-region price proxies.",
             "TÜİK direct observations, identity-derived zero fallbacks and EVDS reconciliation remain separately queryable.",
             "FinTurk raw branch-count nulls and exact functional-group identity-derived analytical zeros remain separately queryable.",
             "Weekly BDDK data is loaded only after its processed validation exists.",

@@ -14,11 +14,11 @@
       "source_detail": "quarterly_report_not_published",
       "list_url": "https://www.tbb.org.tr/istatistiki-raporlar-liste/11265?rapor_donemi=11411&ay=6",
       "official_listing_url": "https://www.tbb.org.tr/istatistiki-raporlar-liste/11265?rapor_donemi=11411&ay=6",
-      "list_page_sha256": "08beb41e2f8ef49027290094029ec89bcd6309f22bcc12f62120d4b6fd7dbc9e",
-      "last_checked_at_utc": "2026-09-08T06:33:11.657512+00:00"
+      "list_page_sha256": "812314c72587b18ba29040aa7494d0f72fe273606032c815791859972e964e0e",
+      "last_checked_at_utc": "2026-09-09T10:03:13.185608+00:00"
     }
   ],
-  "last_checked_at_utc": "2026-09-08T06:33:00.606286+00:00",
+  "last_checked_at_utc": "2026-09-09T10:02:57.936681+00:00",
   "failed_periods": [],
   "validated_attachment_count": 63,
   "formats": [
@@ -27,14 +27,14 @@
     "docx"
   ],
   "category_fetch": {
-    "started_at_utc": "2026-09-08T06:32:59.136999+00:00",
-    "completed_at_utc": "2026-09-08T06:33:00.606286+00:00",
+    "started_at_utc": "2026-09-09T10:02:57.825914+00:00",
+    "completed_at_utc": "2026-09-09T10:02:57.936681+00:00",
     "requested_url": "https://www.tbb.org.tr/istatistiki-raporlar/11237",
     "final_url": "https://www.tbb.org.tr/istatistiki-raporlar/11237",
     "http_status": 200,
     "content_type": "text/html; charset=utf-8",
     "bytes": 159419,
-    "sha256": "1fa3a0197cdfbea1e018f65be9964b1bd39b66b1f7ea059c8bb8fcaa178ff24c",
+    "sha256": "440501ce6bce24cc6d8b9213e5c233fc9801f09b69d9c51146ca8a0027221ab8",
     "attempt": 1,
     "tls_verification": true
   },

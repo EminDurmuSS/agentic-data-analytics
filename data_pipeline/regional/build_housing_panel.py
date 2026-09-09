@@ -90,6 +90,45 @@ def safe_ratio(numerator: pd.Series, denominator: pd.Series, factor: float) -> p
     return result
 
 
+def add_housing_price_proxy(panel: pd.DataFrame) -> pd.DataFrame:
+    """Add an explicitly labelled same-region, same-quarter price proxy.
+
+    The official province price column is never modified. The proxy is the
+    median of non-null official province prices in the same KFE region and
+    quarter. There is deliberately no Turkey-wide, prior-period or
+    cross-region fallback.
+    """
+
+    result = panel.copy()
+    source_column = "housing_unit_price_try_per_m2"
+    regional_group = result.groupby(
+        ["housing_price_region_code", "quarter"], sort=False
+    )[source_column]
+    regional_median = regional_group.transform("median")
+    regional_peer_count = regional_group.transform("count")
+    source_observed = result[source_column].notna()
+    proxy_applied = ~source_observed & regional_median.notna()
+
+    result["housing_unit_price_regional_median_proxy_try_per_m2"] = (
+        regional_median
+    )
+    result["housing_unit_price_with_proxy_try_per_m2"] = result[source_column].where(
+        source_observed, regional_median
+    )
+    result["housing_unit_price_proxy_origin"] = np.select(
+        [source_observed, proxy_applied],
+        ["official_source", "same_region_same_quarter_official_median_proxy"],
+        default="unavailable",
+    )
+    result["housing_unit_price_proxy_peer_count"] = pd.Series(
+        pd.NA, index=result.index, dtype="Int64"
+    )
+    result.loc[proxy_applied, "housing_unit_price_proxy_peer_count"] = (
+        regional_peer_count.loc[proxy_applied].astype("int64")
+    )
+    return result
+
+
 def target_quarters() -> list[str]:
     return pd.period_range(TARGET_START, TARGET_END, freq="Q").astype(str).tolist()
 
@@ -451,6 +490,10 @@ def metric_dictionary() -> pd.DataFrame:
         ("first_hand_sales_share_pct", "İlk el satış payı", "percent", "derived_ratio", "100 * ilk el satış / toplam satış", ""),
         ("second_hand_sales_share_pct", "İkinci el satış payı", "percent", "derived_ratio", "100 * ikinci el satış / toplam satış", ""),
         ("housing_unit_price_try_per_m2", "Konut birim fiyatı", "try_per_m2", "quarter_end_level", "EVDS il bazlı kaynak gözlemi", ""),
+        ("housing_unit_price_regional_median_proxy_try_per_m2", "Aynı bölge ve çeyrek konut fiyatı medyan proxy'si", "try_per_m2", "derived_same_period_proxy", "Aynı KFE bölgesi ve aynı çeyrekteki yalnız resmî il birim fiyatlarının medyanı", "İl için resmî gözlem değildir. Türkiye geneli, önceki dönem veya başka bölge fallback'i kullanılmaz."),
+        ("housing_unit_price_with_proxy_try_per_m2", "Proxy izinli analiz konut birim fiyatı", "try_per_m2", "source_or_explicit_proxy_level", "Resmî il birim fiyatı; kaynak boşsa aynı bölge ve çeyrek resmî il medyan proxy'si", "Proxy içerebilir. Kullanıcı veya analiz politikası açıkça izin vermeden resmî il fiyatı gibi sunulmamalıdır."),
+        ("housing_unit_price_proxy_origin", "Konut birim fiyatı analiz değerinin kökeni", "category", "provenance_category", "official_source, same_region_same_quarter_official_median_proxy veya unavailable", "Kategorik provenance alanıdır; sayısal metrik değildir."),
+        ("housing_unit_price_proxy_peer_count", "Konut fiyatı proxy akran il sayısı", "count", "proxy_support_count", "Proxy kullanıldıysa aynı bölge ve çeyrekte medyana giren resmî il fiyatı sayısı", "Proxy kullanılmayan satırlarda null kalır."),
         ("housing_unit_rent_try_per_m2", "Konut birim kirası", "try_per_m2", "quarterly_level", "EVDS il bazlı kaynak gözlemi", "Konut satış fiyatındaki eksik gözlemlerin yerine kullanılmaz."),
         ("regional_kfe_index", "Bölgesel konut fiyat endeksi", "index", "quarter_end_index", "İlin bağlı olduğu EVDS KFE bölgesinin çeyrek sonu gözlemi", "İl özelinde değil, bölgesel değerdir."),
         ("regional_ykke_index", "Bölgesel yeni kiracı kira endeksi", "index", "quarter_end_index", "İlin bağlı olduğu EVDS YKKE bölgesinin çeyrek sonu gözlemi", "İl özelinde değil, bölgesel değerdir."),
@@ -465,12 +508,13 @@ def metric_dictionary() -> pd.DataFrame:
         ("housing_credit_per_capita_try", "Kişi başı konut kredisi", "try_per_person", "derived_ratio", "konut kredisi * 1000 / türetilmiş nüfus", "Nüfus paydası FinTurk metriklerinden ters hesaplanır."),
         ("housing_credit_to_savings_deposit_pct", "Konut kredisi / tasarruf mevduatı", "percent", "derived_ratio", "100 * konut kredisi / tasarruf mevduatı", ""),
         ("housing_unit_price_yoy_pct", "Konut birim fiyatı yıllık değişimi", "percent", "derived_growth", "Dört çeyrek önceki il birim fiyatına göre değişim", "Kaynak gözlem yoksa hesaplanmaz."),
+        ("housing_unit_price_with_proxy_yoy_pct", "Proxy izinli konut birim fiyatı yıllık değişimi", "percent", "derived_growth_with_proxy", "Dört çeyrek önceki proxy izinli analiz fiyatına göre değişim", "Resmî il fiyatı eksik olduğunda bölgesel medyan proxy içerebilir; resmî yıllık değişimden ayrı yorumlanmalıdır."),
         ("housing_unit_rent_yoy_pct", "Konut birim kirası yıllık değişimi", "percent", "derived_growth", "Dört çeyrek önceki il birim kirasına göre değişim", "Kaynak gözlem yoksa hesaplanmaz."),
         ("regional_kfe_yoy_pct", "Bölgesel KFE yıllık değişimi", "percent", "derived_growth", "Dört çeyrek önceki bölgesel KFE değerine göre değişim", "İl özelinde değil, bölgesel değerdir."),
         ("regional_ykke_yoy_pct", "Bölgesel YKKE yıllık değişimi", "percent", "derived_growth", "Dört çeyrek önceki bölgesel YKKE değerine göre değişim", "İl özelinde değil, bölgesel değerdir."),
         ("housing_credit_yoy_pct", "Konut kredisi bakiyesi yıllık değişimi", "percent", "derived_growth", "Dört çeyrek önceki FinTurk konut kredisi bakiyesine göre değişim", "Yeni kullandırım akımı değildir."),
     ]
-    return pd.DataFrame(
+    dictionary = pd.DataFrame(
         rows,
         columns=[
             "metric_code",
@@ -481,6 +525,12 @@ def metric_dictionary() -> pd.DataFrame:
             "caution",
         ],
     )
+    dictionary["value_type"] = "numeric"
+    dictionary.loc[
+        dictionary["metric_code"].eq("housing_unit_price_proxy_origin"),
+        "value_type",
+    ] = "categorical"
+    return dictionary
 
 
 def build(output_dir: Path) -> dict[str, Any]:
@@ -600,12 +650,17 @@ def build(output_dir: Path) -> dict[str, Any]:
         panel["savings_deposit_stock_thousand_try"],
         100,
     )
+    panel = add_housing_price_proxy(panel)
 
     panel = panel.sort_values(["province_key", "quarter"], kind="stable").reset_index(
         drop=True
     )
     for source_column, output_column in [
         ("housing_unit_price_try_per_m2", "housing_unit_price_yoy_pct"),
+        (
+            "housing_unit_price_with_proxy_try_per_m2",
+            "housing_unit_price_with_proxy_yoy_pct",
+        ),
         ("housing_unit_rent_try_per_m2", "housing_unit_rent_yoy_pct"),
         ("regional_kfe_index", "regional_kfe_yoy_pct"),
         ("regional_ykke_index", "regional_ykke_yoy_pct"),
@@ -630,8 +685,23 @@ def build(output_dir: Path) -> dict[str, Any]:
     panel["finturk_source_complete"] = panel[list(FINTURK_METRICS.values())].notna().all(
         axis=1
     )
-    panel["analysis_ready"] = panel[
+    panel["analysis_ready_source"] = panel[
         ["sales_source_complete", "regional_price_source_complete", "finturk_source_complete"]
+    ].all(axis=1)
+    panel["analysis_ready"] = panel["analysis_ready_source"]
+    panel["regional_price_with_proxy_complete"] = panel[
+        [
+            "housing_unit_price_with_proxy_try_per_m2",
+            "regional_kfe_index",
+            "regional_ykke_index",
+        ]
+    ].notna().all(axis=1)
+    panel["analysis_ready_with_price_proxy"] = panel[
+        [
+            "sales_source_complete",
+            "regional_price_with_proxy_complete",
+            "finturk_source_complete",
+        ]
     ].all(axis=1)
 
     first_second_difference = (
@@ -664,6 +734,25 @@ def build(output_dir: Path) -> dict[str, Any]:
         unit_rent_coverage["non_null"].gt(0)
         & unit_rent_coverage["non_null"].lt(unit_rent_coverage["total"])
     ].index.tolist()
+    price_proxy_audit = panel.loc[
+        panel["housing_unit_price_try_per_m2"].isna(),
+        [
+            "province_key",
+            "province_name",
+            "quarter",
+            "housing_price_region_code",
+            "housing_price_region_name",
+            "housing_unit_price_try_per_m2",
+            "housing_unit_price_regional_median_proxy_try_per_m2",
+            "housing_unit_price_with_proxy_try_per_m2",
+            "housing_unit_price_proxy_origin",
+            "housing_unit_price_proxy_peer_count",
+        ],
+    ].copy()
+    price_proxy_audit["proxy_method"] = (
+        "median_of_official_province_prices_same_region_same_quarter"
+    )
+    price_proxy_audit["official_source_value_preserved"] = True
 
     output_dir.mkdir(parents=True, exist_ok=True)
     dimension.to_csv(output_dir / "province_dimension.csv", index=False, encoding="utf-8-sig")
@@ -677,6 +766,14 @@ def build(output_dir: Path) -> dict[str, Any]:
     )
     mortgage_audit.to_parquet(
         output_dir / "mortgaged_sales_fallback_audit.parquet", index=False
+    )
+    price_proxy_audit.to_csv(
+        output_dir / "housing_unit_price_proxy_audit.csv",
+        index=False,
+        encoding="utf-8-sig",
+    )
+    price_proxy_audit.to_parquet(
+        output_dir / "housing_unit_price_proxy_audit.parquet", index=False
     )
     dictionary = metric_dictionary()
     dictionary.to_csv(output_dir / "metric_dictionary.csv", index=False, encoding="utf-8-sig")
@@ -746,6 +843,27 @@ def build(output_dir: Path) -> dict[str, Any]:
         "mortgaged_sales_over_total_violations": mortgaged_over_total,
         "negative_non_mortgaged_sales_violations": negative_non_mortgaged,
         "analysis_ready_rows": int(panel["analysis_ready"].sum()),
+        "analysis_ready_source_rows": int(panel["analysis_ready_source"].sum()),
+        "analysis_ready_with_price_proxy_rows": int(
+            panel["analysis_ready_with_price_proxy"].sum()
+        ),
+        "housing_unit_price_official_observation_count": int(
+            panel["housing_unit_price_try_per_m2"].notna().sum()
+        ),
+        "housing_unit_price_regional_median_proxy_available_rows": int(
+            panel[
+                "housing_unit_price_regional_median_proxy_try_per_m2"
+            ].notna().sum()
+        ),
+        "housing_unit_price_regional_median_proxy_applied_count": int(
+            panel["housing_unit_price_proxy_origin"]
+            .eq("same_region_same_quarter_official_median_proxy")
+            .sum()
+        ),
+        "housing_unit_price_proxy_unavailable_count": int(
+            panel["housing_unit_price_proxy_origin"].eq("unavailable").sum()
+        ),
+        "housing_unit_price_proxy_audit_rows": len(price_proxy_audit),
         "housing_unit_price_no_observation_provinces": unit_price_no_observation_provinces,
         "housing_unit_price_partial_coverage_provinces": unit_price_partial_coverage_provinces,
         "housing_unit_rent_no_observation_provinces": unit_rent_no_observation_provinces,
@@ -768,6 +886,8 @@ def build(output_dir: Path) -> dict[str, Any]:
             "Raw EVDS nulls remain unchanged; fallback provenance and source SHA-256 are stored in separate panel columns.",
             "KFE and YKKE use the observed quarter-end month and are not forward filled.",
             "Quarterly unit prices remain quarter-end levels and are not copied into monthly periods.",
+            "Official province unit-price nulls remain null; a separate same-region, same-quarter official median proxy is available only under explicit analysis policy.",
+            "The price proxy never uses a Turkey-wide, prior-period or cross-region fallback, and its origin plus official peer count remain explicit.",
             "Province unit rents remain a separate control and never replace missing province sale prices.",
             "FinTurk uses the official SEKTOR total and excludes YURT DISI from the 81-province panel.",
             "Non-mortgaged sales are not labelled as cash sales.",

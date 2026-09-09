@@ -852,9 +852,11 @@ def regional_housing_assets_and_metrics() -> tuple[list[dict[str, Any]], list[di
     panel_path = base / "province_quarter_housing_panel.parquet"
     dimension_path = base / "province_dimension.parquet"
     dictionary_path = base / "metric_dictionary.parquet"
+    price_proxy_audit_path = base / "housing_unit_price_proxy_audit.parquet"
     panel = pd.read_parquet(panel_path)
     dimension = pd.read_parquet(dimension_path)
     dictionary = pd.read_parquet(dictionary_path)
+    price_proxy_audit = pd.read_parquet(price_proxy_audit_path)
 
     assets = [
         make_asset(
@@ -949,12 +951,51 @@ def regional_housing_assets_and_metrics() -> tuple[list[dict[str, Any]], list[di
             description="Metric semantics, formulas and cautions for the province-quarter panel.",
             searchable_text="regional housing metric dictionary formulas cautions",
         ),
+        make_asset(
+            asset_id="regional.housing_v1.housing_unit_price_proxy_audit",
+            dataset_id="regional.housing_v1",
+            source_system="REGIONAL_HOUSING_ANALYSIS",
+            source_organization="BDDK, TCMB and TÜİK",
+            competition_scope="supporting_derived_analysis",
+            status=validation["status"],
+            data_kind="explicit_proxy_audit",
+            native_frequency="quarterly",
+            temporal_semantics="same_region_same_quarter_proxy",
+            geography_grain="province",
+            institution_grain="not_applicable",
+            coverage_start=validation["coverage_start"],
+            coverage_end=validation["coverage_end"],
+            row_count=len(price_proxy_audit),
+            column_count=len(price_proxy_audit.columns),
+            metric_count=0,
+            missing_value_count=int(price_proxy_audit.isna().sum().sum()),
+            progress_completed=int(
+                validation["housing_unit_price_regional_median_proxy_applied_count"]
+            ),
+            progress_expected=int(validation["housing_unit_price_proxy_audit_rows"]),
+            file_path=relative(price_proxy_audit_path),
+            file_format="parquet",
+            validation_file=relative(validation_path),
+            source_url="https://evds3.tcmb.gov.tr/",
+            description=(
+                "Audit rows for official province unit-price gaps and the explicit "
+                "same-region, same-quarter official-median proxy."
+            ),
+            searchable_text=(
+                "province housing unit price source gap regional median proxy "
+                "provenance peer count audit"
+            ),
+        ),
     ]
 
     metrics: list[dict[str, Any]] = []
     for row in dictionary.to_dict("records"):
         code = str(row["metric_code"])
-        values = pd.to_numeric(panel[code], errors="coerce")
+        value_type = text_value(row.get("value_type")) or "numeric"
+        if value_type == "categorical":
+            values = panel[code].astype("string").replace("", pd.NA)
+        else:
+            values = pd.to_numeric(panel[code], errors="coerce")
         derivation = text_value(row.get("derivation"))
         caution = text_value(row.get("caution"))
         metrics.append(
@@ -985,10 +1026,20 @@ def regional_housing_assets_and_metrics() -> tuple[list[dict[str, Any]], list[di
                 is_archive=False,
                 source_asset=relative(panel_path),
                 source_metadata_url="",
-                notes=" ".join(part for part in [derivation, caution] if part),
+                notes=" ".join(
+                    part
+                    for part in [f"value_type={value_type}.", derivation, caution]
+                    if part
+                ),
                 searchable_text=" | ".join(
                     part
-                    for part in [code, text_value(row.get("metric_name_tr")), derivation, caution]
+                    for part in [
+                        code,
+                        text_value(row.get("metric_name_tr")),
+                        value_type,
+                        derivation,
+                        caution,
+                    ]
                     if part
                 ),
             )

@@ -9,6 +9,7 @@ from data_pipeline.evds.build_regional_housing_manifest import (
     build_manifest,
     selected_series_in_other_manifests,
 )
+from data_pipeline.regional.build_housing_panel import add_housing_price_proxy
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -116,6 +117,9 @@ class ProvinceQuarterPanelTests(unittest.TestCase):
         )
         cls.dimension = pd.read_parquet(REGIONAL_PANEL / "province_dimension.parquet")
         cls.dictionary = pd.read_parquet(REGIONAL_PANEL / "metric_dictionary.parquet")
+        cls.price_proxy_audit = pd.read_parquet(
+            REGIONAL_PANEL / "housing_unit_price_proxy_audit.parquet"
+        )
 
     def test_panel_has_one_row_per_province_and_quarter(self):
         self.assertEqual("passed_with_source_gaps", self.validation["status"])
@@ -212,6 +216,95 @@ class ProvinceQuarterPanelTests(unittest.TestCase):
         )
         self.assertTrue(
             rows["housing_unit_rent_try_per_m2"].isna().all()
+        )
+
+    def test_price_proxy_preserves_official_nulls_and_is_explicit(self):
+        source = self.panel["housing_unit_price_try_per_m2"]
+        with_proxy = self.panel["housing_unit_price_with_proxy_try_per_m2"]
+        observed = source.notna()
+        imputed = self.panel["housing_unit_price_proxy_origin"].eq(
+            "same_region_same_quarter_official_median_proxy"
+        )
+
+        self.assertEqual(1620, int(observed.sum()))
+        self.assertEqual(162, int(imputed.sum()))
+        self.assertEqual(
+            0,
+            int(
+                self.panel["housing_unit_price_proxy_origin"]
+                .eq("unavailable")
+                .sum()
+            ),
+        )
+        self.assertTrue(source.loc[imputed].isna().all())
+        self.assertTrue(with_proxy.loc[observed].eq(source.loc[observed]).all())
+        self.assertTrue(with_proxy.loc[imputed].notna().all())
+        self.assertTrue(
+            self.panel.loc[imputed, "housing_unit_price_proxy_peer_count"].gt(0).all()
+        )
+        self.assertTrue(
+            self.panel.loc[observed, "housing_unit_price_proxy_peer_count"].isna().all()
+        )
+        self.assertEqual(162, len(self.price_proxy_audit))
+        self.assertTrue(self.price_proxy_audit["official_source_value_preserved"].all())
+
+    def test_price_proxy_uses_only_same_region_quarter_official_peers(self):
+        imputed = self.panel.loc[
+            self.panel["housing_unit_price_proxy_origin"].eq(
+                "same_region_same_quarter_official_median_proxy"
+            )
+        ]
+        for row in imputed.itertuples(index=False):
+            peers = self.panel.loc[
+                self.panel["housing_price_region_code"].eq(
+                    row.housing_price_region_code
+                )
+                & self.panel["quarter"].eq(row.quarter),
+                "housing_unit_price_try_per_m2",
+            ].dropna()
+            self.assertEqual(len(peers), row.housing_unit_price_proxy_peer_count)
+            self.assertEqual(
+                peers.median(),
+                row.housing_unit_price_regional_median_proxy_try_per_m2,
+            )
+            self.assertEqual(
+                peers.median(), row.housing_unit_price_with_proxy_try_per_m2
+            )
+
+    def test_price_proxy_has_no_cross_region_or_prior_period_fallback(self):
+        sample = pd.DataFrame(
+            {
+                "housing_price_region_code": ["A", "A", "B", "B"],
+                "quarter": ["2026Q1", "2026Q2", "2026Q1", "2026Q2"],
+                "housing_unit_price_try_per_m2": [None, None, 10.0, 20.0],
+            }
+        )
+        result = add_housing_price_proxy(sample)
+        region_a = result["housing_price_region_code"].eq("A")
+        self.assertTrue(
+            result.loc[
+                region_a, "housing_unit_price_with_proxy_try_per_m2"
+            ].isna().all()
+        )
+        self.assertTrue(
+            result.loc[region_a, "housing_unit_price_proxy_origin"]
+            .eq("unavailable")
+            .all()
+        )
+
+    def test_source_and_proxy_readiness_are_not_confused(self):
+        self.assertTrue(
+            self.panel["analysis_ready"].eq(
+                self.panel["analysis_ready_source"]
+            ).all()
+        )
+        self.assertEqual(1620, int(self.panel["analysis_ready_source"].sum()))
+        self.assertEqual(
+            1782, int(self.panel["analysis_ready_with_price_proxy"].sum())
+        )
+        self.assertEqual(1620, self.validation["analysis_ready_source_rows"])
+        self.assertEqual(
+            1782, self.validation["analysis_ready_with_price_proxy_rows"]
         )
 
     def test_tuik_fallback_is_explicit_and_only_used_for_proven_zeros(self):

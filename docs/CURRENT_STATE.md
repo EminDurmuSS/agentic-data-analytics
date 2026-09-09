@@ -1,6 +1,6 @@
 # Mevcut durum
 
-Tarih: 8 Eylül 2026
+Tarih: 9 Eylül 2026
 
 ## Sonuç
 
@@ -10,7 +10,7 @@ saklanıyor, kaynak hash'leriyle izleniyor ve doğrulanmış işlenmiş çıktı
 dönüştürülüyor. TBB Risk Merkezi'nin resmî aylık bültenlerinden çıkarılan
 konut kredisi göstergeleri de ayrı kaynak kapsamı ve vintage geçmişiyle hazırdır.
 
-TBB'nin Haziran 2026 çeyreklik tüketici kredileri raporu 8 Eylül 2026 itibarıyla
+TBB'nin Haziran 2026 çeyreklik tüketici kredileri raporu 9 Eylül 2026 itibarıyla
 kaynakta yayımlanmamıştır. Risk Merkezi Haziran 2026 aylık bülteni ayrı bir
 yayındır ve parasal kullandırım tutarının yerine kullanılamaz. Ayrıca bazı
 kaynakların kendi yayın takvimindeki veya tanımındaki boşluklar açıkça
@@ -109,7 +109,7 @@ Bilinen EVDS sınırları:
 - Ana altın kontrolü `TP.ALTINPIYASA.KAP02`, 30 Haziran 2026'ya kadar doludur.
   Kaynak birimi TL/kg'dır; TL/gram dönüşümü ayrı türetilmiş seri olarak tutulur.
 - Ardahan, Bayburt, Gümüşhane, Hakkari ve Tunceli için il bazlı konut birim
-  fiyatı serileri kaynakta tamamen boştur. Değer üretilmemiştir.
+  fiyatı serileri kaynakta tamamen boştur. Resmî sütunda değer üretilmemiştir.
 - Ağrı, Bitlis, Iğdır, Kars, Muş ve Van birim fiyatları 2023'te, Şırnak birim
   fiyatı 2022'de başlar. Önceki çeyrekler için aynı metriğin arşiv serisi
   katalogda bulunmadığından tarihsel seviye üretilmemiştir.
@@ -121,6 +121,10 @@ Bilinen EVDS sınırları:
   toplamını ham EVDS katmanında etkiler. TÜİK Veri Portalı çapraz kaynağında
   aynı aylarda `toplam satış = diğer satış` olduğu doğrulandığı için ipotekli
   satışın sıfır olduğu açık provenance ile analitik panelde kullanılabilir.
+- Toplam 162 yayımlanmamış il-çeyrek fiyatı için yalnız aynı KFE bölgesi ve aynı
+  çeyrekteki resmî il fiyatlarının medyanından açık etiketli bir analiz proxy'si
+  üretilir. Resmî fiyat sütunu null kalır. Türkiye geneli, önceki dönem veya
+  başka bölge fallback'i yoktur.
 
 ## TÜİK il konut satışları
 
@@ -139,12 +143,16 @@ Bilinen EVDS sınırları:
 ### İl bazlı konut analitik paneli
 
 - 81 il x 22 çeyrek, 1.782 tekil il-çeyrek satırı
-- 28 kataloglanmış analitik metrik
+- 33 kataloglanmış analitik metrik
 - Satış, konut birim fiyatı, bölgesel KFE ve YKKE ile FinTürk kredi ve mevduat
 göstergeleri aynı çeyrek anahtarında birleştirildi
 - İl bazlı konut birim kirası ve yıllık kira değişimi ayrı kontrol metrikleri
   olarak eklendi
-- 1.620 satır seçilmiş kaynaklar açısından `analysis_ready=true`
+- 1.620 satır resmî kaynaklar açısından `analysis_ready_source=true`
+- 1.782 satır yalnız açık fiyat-proxy politikasına izin verilirse
+  `analysis_ready_with_price_proxy=true`
+- 162 fiyat proxy kaydı ayrı CSV ve Parquet audit dosyasında kaynak kökeni ve
+  medyana giren resmî akran il sayısıyla saklanır
 - Toplam satış = ilk el + ikinci el denetim ihlali: 0
 - İpotekli satışın toplam satışı aşması ihlali: 0
 - İpoteksiz satış hiçbir yerde nakit satış olarak etiketlenmez
@@ -159,7 +167,7 @@ göstergeleri aynı çeyrek anahtarında birleştirildi
 - 63 doğrulanmış XLS, PDF ve DOCX eki
 - 252 ürün bazlı ölçüm
 - Gerçek kullandırım akımı ile dönem sonu bakiye ayrı tutulur
-- Haziran 2026 raporu 8 Eylül 2026 tarihli resmî liste kontrolünde bulunmadığı
+- Haziran 2026 raporu 9 Eylül 2026 tarihli resmî liste kontrolünde bulunmadığı
   için açık kaynak boşluğudur
 
 ### TBB Risk Merkezi aylık bültenleri
@@ -194,9 +202,9 @@ göstergeleri aynı çeyrek anahtarında birleştirildi
 
 ## Sorgulanabilir çıktı
 
-- Birleşik katalog: 70 veri varlığı
-- Toplam katalog metriği: 55.496
-- Yerel gözlemi bulunan sorgulanabilir metrik: 3.382
+- Birleşik katalog: 71 veri varlığı
+- Toplam katalog metriği: 55.501
+- Yerel gözlemi bulunan sorgulanabilir metrik: 3.387
 - Yerel TCMB EVDS kaynak serisi: 584
 - DuckDB: 10 şema, 64 tablo veya view
 - Aylık analiz tablosu: 66 benzersiz ay

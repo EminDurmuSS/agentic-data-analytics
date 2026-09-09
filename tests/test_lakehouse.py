@@ -197,6 +197,17 @@ class LakehouseTests(unittest.TestCase):
         ).fetchone()
         self.assertTrue(all(value is not None for value in istanbul))
 
+    def test_regional_price_proxy_is_queryable_without_overwriting_source(self):
+        source_nulls, proxy_values, proxy_ready = self.connection.execute(
+            "SELECT "
+            "count(*) FILTER (WHERE housing_unit_price_try_per_m2 IS NULL), "
+            "count(*) FILTER (WHERE housing_unit_price_try_per_m2 IS NULL "
+            "AND housing_unit_price_with_proxy_try_per_m2 IS NOT NULL), "
+            "count(*) FILTER (WHERE analysis_ready_with_price_proxy) "
+            "FROM regional.housing_quarterly"
+        ).fetchone()
+        self.assertEqual((162, 162, 1782), (source_nulls, proxy_values, proxy_ready))
+
     def test_tuik_fallback_and_reconciliation_are_queryable(self):
         monthly_count = self.connection.execute(
             "SELECT count(*) FROM tuik.province_housing_sales_monthly"

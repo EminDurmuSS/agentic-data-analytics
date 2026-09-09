@@ -1,6 +1,6 @@
 # İlk paket eleştirisinin güncel değerlendirmesi
 
-Bu dosya, başlangıç ZIP'ine yöneltilen eleştirileri 8 Eylül 2026 tarihindeki
+Bu dosya, başlangıç ZIP'ine yöneltilen eleştirileri 9 Eylül 2026 tarihindeki
 güncel repo durumuyla karşılaştırır.
 
 ## Eleştiride haklı olunan ve hâlâ geçerli noktalar
@@ -50,7 +50,7 @@ değerler değiştirilmedi ve ayrı audit katmanı üretildi.
 
 TBB'nin yayımlanmış 21 çeyreklik tüketici kredisi raporu doğrudan indirildi.
 Kullandırım tutarı ve kişi sayısı, dönem sonu bakiye ve kişi sayısından ayrı
-tutulur. Haziran 2026 raporu 8 Eylül 2026 tarihli resmî liste kontrolünde
+tutulur. Haziran 2026 raporu 9 Eylül 2026 tarihli resmî liste kontrolünde
 bulunmadığı için açık boşluk olarak işaretlenir.
 
 TBB Risk Merkezi'nin Haziran 2021-Haziran 2026 arasındaki 6 aylık bülteni de
@@ -85,6 +85,12 @@ satırı olmayan 10 il-ay ipotekli satış gözlemi, TÜİK'in aynı tabloda yay
 `toplam satış = diğer satış` özdeşliğiyle sıfır olarak doğrulandı. Yarışma
 dönemindeki 9 gözlem, 8 il-çeyrek toplamında ayrı kaynak ve SHA-256 provenance
 ile kullanılır.
+
+Kaynakta yayımlanmayan 162 il-çeyrek birim fiyatı resmî alanda null kalır.
+Bunlar için aynı KFE bölgesi ve aynı çeyrekteki yalnız resmî il fiyatlarının
+medyanından ayrı bir analiz proxy'si üretildi. Proxy kökeni ve akran il sayısı
+saklanır. `analysis_ready_source` ile `analysis_ready_with_price_proxy`
+birbirinden ayrıdır, bu nedenle proxy resmî gözlem gibi gösterilemez.
 
 ## Bilinçli kapsam sınırları
 

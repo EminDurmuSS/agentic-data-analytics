@@ -1,6 +1,6 @@
 # KKB veri katmanı
 
-Araştırma tarihi: 8 Eylül 2026. Ana analiz dönemi: Ocak 2021-Haziran 2026.
+Araştırma tarihi: 9 Eylül 2026. Ana analiz dönemi: Ocak 2021-Haziran 2026.
 Yıllık değişim ve gecikmeli analiz için gerekli yerlerde 2020 hazırlık verisi
 de korunur.
 
@@ -15,13 +15,13 @@ de korunur.
 | TCMB EVDS bölgesel | 519 il ve bölge bazlı konut serisi | Aylık, çeyreklik | Kaynak boşluklarıyla tamamlandı |
 | TCMB EVDS hanehalkı finansmanı | 3 KKM ve 1 hanehalkı mevduat serisi | Aylık | Tamamlandı |
 | TÜİK il konut satışları | 81 il, 78 ay, 5 satış metriği | Aylık | Tamamlandı ve EVDS ile uzlaştırıldı |
-| İl bazlı konut paneli | 81 il, 22 çeyrek, 28 analitik metrik | Çeyreklik | Yayımlanmayan fiyat ve kiralar işaretli |
+| İl bazlı konut paneli | 81 il, 22 çeyrek, 33 analitik metrik | Çeyreklik | Yayımlanmayan fiyat ve kiralar ile ayrı fiyat proxy'si işaretli |
 | TCMB EVDS katalog | 52.696 seri metadata kaydı | Metadata | Tamamlandı |
 | TBB | 21 yayımlanmış tüketici kredisi raporu | Çeyreklik | Kaynak boşluğuyla tamamlandı |
 | TBB Risk Merkezi | 6 Haziran bülteni, 66 aylık panel, 5 konut kredisi metriği | Aylık | Tamamlandı ve vintage revizyonları denetlendi |
 | BDDK ve TCMB belgeleri | 8 resmî PDF | Olay/yöntem | Tamamlandı |
 
-TBB Haziran 2026 çeyreklik tüketici kredileri raporu 8 Eylül 2026 itibarıyla
+TBB Haziran 2026 çeyreklik tüketici kredileri raporu 9 Eylül 2026 itibarıyla
 kaynakta yayımlanmamıştır. Bu dönemin parasal kullandırım tutarı boş bırakılmış,
 tahmin veya başka seriden kopyalama yapılmamıştır. Ayrı yayın ailesindeki Risk
 Merkezi Haziran 2026 aylık bülteni mevcuttur, fakat ilk kez kullanan kişi sayısı
@@ -78,6 +78,8 @@ Seri seçimi kaynak kataloğundaki kod, ad, birim, frekans ve toplulaştırma
 8. Her işlenmiş satırın kaynak dosyası ve hash bilgisi korunur.
 9. Risk Merkezi ilk kullanıcı sayısı, TBB parasal kullandırım akımıyla
    birleştirilmez veya onun yerine geçirilmez.
+10. Resmî il fiyatı null değerleri değiştirilmez. Ayrı fiyat proxy'si yalnız
+    aynı KFE bölgesi ve aynı çeyrekteki resmî il değerlerinin medyanını kullanır.
 
 ## Doğrulama özeti
 
@@ -94,12 +96,13 @@ Seri seçimi kaynak kataloğundaki kod, ad, birim, frekans ve toplulaştırma
 - EVDS hanehalkı finansmanı: 4 seri, 312 gözlem, durum `passed`
 - TÜİK il konut satışları: 31.590 satır, 25.262 EVDS birebir eşleşmesi,
   10 resmî özdeşlikle doğrulanmış sıfır, 0 değer uyuşmazlığı, durum `passed`
-- İl bazlı konut paneli: 1.782 tekil il-çeyrek satırı, 1.620 analize hazır satır,
-  ipotekli satışta 0 eksik çeyrek, durum `passed_with_source_gaps`
+- İl bazlı konut paneli: 1.782 tekil il-çeyrek satırı, 1.620 resmî-kaynak hazır
+  satır, 1.782 açık fiyat-proxy hazır satır, 162 proxy audit kaydı, ipotekli
+  satışta 0 eksik çeyrek, durum `passed_with_source_gaps`
 - TBB: 21 yayımlanmış dönem, durum `passed_with_source_gaps`
 - TBB Risk Merkezi: 6 PDF, 390 vintage gözlem, 365 en güncel gözlem, 66 aylık
   eksiksiz hedef panel ve 6 kaynak revizyonu, durum `passed`
-- Birleşik katalog: 70 varlık, 55.496 metrik, 3.382 sorgulanabilir metrik, durum `passed`
+- Birleşik katalog: 71 varlık, 55.501 metrik, 3.387 sorgulanabilir metrik, durum `passed`
 - DuckDB: 10 şema, 64 tablo veya view, durum `passed`
 
 ## Üretim sırası
@@ -146,6 +149,7 @@ ile yeni snapshot sessizce karıştırılmaz.
 - `tuik/province_housing_sales_v1/processed/monthly_sales_long.parquet`
 - `tuik/province_housing_sales_v1/processed/evds_reconciliation.parquet`
 - `regional/processed/province_quarter_housing_panel.parquet`
+- `regional/processed/housing_unit_price_proxy_audit.parquet`
 - `tbb/processed/housing_credit_quarterly.parquet`
 - `risk_center/monthly_housing_v1/processed/housing_credit_monthly.parquet`
 - `risk_center/monthly_housing_v1/processed/housing_metric_vintages.parquet`

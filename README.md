@@ -14,8 +14,8 @@ ve yeniden üretilebilir biçimde hazırlanmasıdır.
 | TCMB EVDS katalog | 676 veri grubu, 52.696 benzersiz seri kaydı | Tamamlandı, metadata kataloğu |
 | TCMB EVDS gözlem | 61 ulusal, 519 bölgesel ve 4 hanehalkı finansmanı serisi, ayrıca 1 açıkça türetilmiş seri | Tamamlandı ve doğrulandı |
 | TÜİK il konut satışları | 81 il, Ocak 2020-Haziran 2026, 5 aylık satış metriği | Tamamlandı ve EVDS ile çapraz doğrulandı |
-| İl bazlı konut paneli | 81 il, 22 çeyrek, satış, fiyat, kira, kredi, mevduat, KFE ve YKKE göstergeleri | Tamamlandı, yayımlanmayan değerler işaretli |
-| TBB tüketici kredileri | 2021 Mart-2026 Mart, 21 yayımlanmış çeyrek | Tamamlandı; 8 Eylül 2026 kontrolünde 2026 Haziran raporu kaynakta yok |
+| İl bazlı konut paneli | 81 il, 22 çeyrek, satış, fiyat, kira, kredi, mevduat, KFE ve YKKE göstergeleri | Tamamlandı, resmî boşluklar ve ayrı fiyat proxy'si işaretli |
+| TBB tüketici kredileri | 2021 Mart-2026 Mart, 21 yayımlanmış çeyrek | Tamamlandı; 9 Eylül 2026 kontrolünde 2026 Haziran raporu kaynakta yok |
 | TBB Risk Merkezi | 2021 Ocak-2026 Haziran, 66 ay, 5 konut kredisi metriği | Tamamlandı; 6 resmî bülten ve tüm kaynak vintageları saklandı |
 | Resmî karar belgeleri | 4 BDDK kararı ve 4 TCMB destek belgesi | Tam metin, çıkarılmış metin ve SHA-256 mevcut |
 
@@ -31,10 +31,10 @@ yapay olarak yayılmaz.
 - BDDK haftalık: 18.018 resmî sayfa, 1.736.650 ham hücre, 1.025.974 ölçüm. Kaynaktaki 2.230 boş hücrenin tamamı yapısal `FX uygulanamaz` olarak açıklandı
 - BDDK FinTürk: 84.484 kaynak satırı, 936.512 ölçüm. 30.892 kaynak boşluğunun 29.564'ü yapısal. 1.328 şube sayısı hücresinin ham null değeri korundu, tamamı fonksiyon grubu kimliğiyle analitik sıfır olarak kanıtlandı, çözümlenmemiş şube boşluğu 0
 - EVDS: 52.696 seri metadata kaydı, 584 seçilmiş kaynak seri, 1 türetilmiş altın serisi ve toplam 45.008 yerel gözlem satırı
-- Bölgesel panel: 81 il x 22 çeyrek, 1.782 tekil satır, 28 analitik metrik
+- Bölgesel panel: 81 il x 22 çeyrek, 1.782 tekil satır, 33 analitik metrik, 1.620 resmî-kaynak hazır ve 1.782 açık fiyat-proxy hazır satır
 - TÜİK il konut satışları: 31.590 il-ay-metrik satırı, EVDS ile 25.262 birebir eşleşme, 0 değer uyuşmazlığı
 - TBB Risk Merkezi: 6 PDF, 390 vintage gözlem, 66 aylık eksiksiz panel, 5 metrik ve 6 resmî revizyon
-- Birleşik katalog: 70 veri varlığı, 55.496 metrik, 3.382 yerel sorgulanabilir metrik
+- Birleşik katalog: 71 veri varlığı, 55.501 metrik, 3.387 yerel sorgulanabilir metrik
 - DuckDB: 10 şema, 64 tablo veya view, mutlak dosya yoluna ihtiyaç duymayan tek dosya
 
 ## Klasörler
@@ -101,6 +101,11 @@ gözleminin sıfır olduğu, TÜİK'in aynı il ve ay için yayımladığı `top
 özdeşliğiyle doğrulanmıştır. Bunların 9'u yarışma dönemindedir ve 8 il-çeyrek
 toplamını tamamlar. Ham EVDS null değerleri değiştirilmez, fallback kaynağı ve
 SHA-256 izi ayrı sütunlarda tutulur. Çeyreklik değerler ara aylara kopyalanmaz.
+Kaynakta yayımlanmayan 162 il-çeyrek konut birim fiyatı resmî sütunda null
+kalır. İhtiyaç hâlinde yalnız aynı KFE bölgesi ve aynı çeyrekteki resmî il
+fiyatlarının medyanından ayrı ve açık etiketli bir proxy üretilir. Türkiye
+geneli, önceki dönem veya başka bölge fallback'i kullanılmaz. Resmî-kaynak
+hazırlığı ile proxy izinli hazırlık ayrı bayraklarda tutulur.
 Katalogdaki herhangi bir başka seri `tools/EVDS_Talep_Uzerine_Indirme_Araci.py`
 ile adı veya kodu üzerinden bulunup ham istek, ham cevap ve SHA-256 iziyle
 indirilebilir. Bu yaklaşım veri kapsamını güçlü tutarken gereksiz veri hacmini

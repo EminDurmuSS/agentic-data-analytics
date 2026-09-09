@@ -68,6 +68,7 @@ class UnifiedCatalogTests(unittest.TestCase):
             "evds.household_finance_v1.coverage_gaps",
             "tbb.consumer_credit_reports.source_gaps",
             "tuik.province_housing_sales_v1.identity_zero_fallbacks",
+            "regional.housing_v1.housing_unit_price_proxy_audit",
         }
         self.assertTrue(expected <= set(self.assets["asset_id"]))
 
@@ -102,12 +103,25 @@ class UnifiedCatalogTests(unittest.TestCase):
         regional = self.metrics.loc[
             self.metrics["source_system"].eq("REGIONAL_HOUSING_ANALYSIS")
         ]
-        self.assertEqual(28, len(regional))
+        self.assertEqual(33, len(regional))
         self.assertTrue(regional["observation_available"].all())
         self.assertIn(
             "regional_housing:housing_credit_per_capita_try",
             set(regional["metric_id"]),
         )
+        proxy_origin = regional.loc[
+            regional["metric_id"].eq(
+                "regional_housing:housing_unit_price_proxy_origin"
+            )
+        ].iloc[0]
+        self.assertEqual(1782, proxy_origin["observation_count"])
+        self.assertIn("value_type=categorical", proxy_origin["notes"])
+        proxy_value = regional.loc[
+            regional["metric_id"].eq(
+                "regional_housing:housing_unit_price_with_proxy_try_per_m2"
+            )
+        ].iloc[0]
+        self.assertEqual(1782, proxy_value["observation_count"])
 
     def test_tuik_sales_fallback_source_is_discoverable(self):
         metrics = self.metrics.loc[
