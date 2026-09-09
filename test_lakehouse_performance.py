@@ -4,14 +4,19 @@
 Run from the repository root with:
     python test_lakehouse_performance.py
 
-The script is intentionally read-only. It writes only the JSON benchmark report.
+The database is opened read-only. The JSON report at --output is replaced.
+Exit codes: 0 for PASS/WARN, 1 for failed checks, 2 for execution/input errors.
+WARN means checks were skipped or reported warnings; it is not a complete pass.
+Timings measure warm queries, not result correctness or a performance threshold.
 """
 
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import math
+import platform
 import statistics
 import sys
 import time
@@ -25,6 +30,33 @@ import duckdb
 ROOT = Path(__file__).resolve().parent
 DEFAULT_DATABASE = ROOT / "data_pipeline" / "lakehouse" / "analytics.duckdb"
 DEFAULT_REPORT = ROOT / "lakehouse_benchmark_results.json"
+
+
+def report_path(path: Path) -> str:
+    """Use portable repo-relative paths, allowing databases outside the repo."""
+    resolved = path.resolve()
+    try:
+        return resolved.relative_to(ROOT).as_posix()
+    except ValueError:
+        return resolved.as_posix()
+
+
+def file_sha256(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as source:
+        for chunk in iter(lambda: source.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
+def check_status(checks: list[dict[str, Any]]) -> str:
+    """A failed check always fails its report, regardless of its priority."""
+    statuses = {check["status"] for check in checks}
+    if "FAIL" in statuses:
+        return "FAIL"
+    if statuses & {"WARN", "SKIP"}:
+        return "WARN"
+    return "PASS"
 
 
 def qident(value: str) -> str:
@@ -111,8 +143,9 @@ class Diagnostic:
                 **details,
             }
         )
-        if status == "FAIL":
-            self.results[section]["status"] = "FAIL"
+        self.results[section]["status"] = check_status(
+            self.results[section]["checks"]
+        )
 
     def scalar(self, query: str) -> Any:
         return self.connection.execute(query).fetchone()[0]
@@ -126,47 +159,48 @@ class Diagnostic:
             (
                 "bddk.monthly_measurements",
                 "bddk.monthly_metric_dictionary",
-                "m.table_no = d.table_no AND m.metric_code = d.metric_code",
+                ("table_no", "metric_code"),
                 "monthly metric dictionary orphans",
             ),
             (
                 "bddk.weekly_measurements",
                 "bddk.weekly_metric_dictionary",
-                "m.table_id = d.table_id AND m.metric_code = d.metric_code",
+                ("table_id", "metric_code"),
                 "weekly metric dictionary orphans",
             ),
             (
                 "bddk.finturk_measurements",
                 "bddk.finturk_metric_dictionary",
-                "m.measure_code = d.measure_code",
+                ("measure_code",),
                 "FinTurk metric dictionary orphans",
             ),
         ]
-        for measurement, dictionary, predicate, name in relation_specs:
+        for measurement, dictionary, keys, name in relation_specs:
             if not self.has_table(measurement) or not self.has_table(dictionary):
                 self.add_check(
                     "integrity", name, "SKIP", {"reason": "table not present"}
                 )
                 continue
-            required_columns = {
-                column
-                for column in ("table_no", "metric_code", "measure_code")
-                if column in predicate
+            missing_columns = {
+                table: sorted(set(keys) - self.columns.get(table, set()))
+                for table in (measurement, dictionary)
+                if not set(keys) <= self.columns.get(table, set())
             }
-            available_columns = self.columns.get(measurement, set()) | self.columns.get(
-                dictionary, set()
-            )
-            if not required_columns <= available_columns:
+            if missing_columns:
                 self.add_check(
                     "integrity",
                     name,
-                    "SKIP",
+                    "FAIL",
                     {
                         "reason": "relation columns not present",
-                        "required_columns": sorted(required_columns),
+                        "missing_columns": missing_columns,
                     },
+                    critical=True,
                 )
                 continue
+            predicate = " AND ".join(
+                f"m.{qident(key)} = d.{qident(key)}" for key in keys
+            )
             orphan_count = int(
                 self.scalar(
                     f"SELECT count(*) FROM {qident(measurement)} m "
@@ -342,8 +376,9 @@ class Diagnostic:
             checks.append({"name": "table manifest source paths", "status": "SKIP", "reason": "manifest missing"})
 
         self.results["schema_and_lineage"]["checks"].extend(checks)
-        if any(check["status"] == "FAIL" for check in checks):
-            self.results["schema_and_lineage"]["status"] = "FAIL"
+        self.results["schema_and_lineage"]["status"] = check_status(
+            self.results["schema_and_lineage"]["checks"]
+        )
 
     def benchmark(self, name: str, query: str) -> None:
         # Warm-up prevents first-read/catalog initialization from dominating results.
@@ -359,8 +394,17 @@ class Diagnostic:
         ordered = sorted(samples)
         p95_index = min(len(ordered) - 1, max(0, math.ceil(len(ordered) * 0.95) - 1))
         self.results["benchmarks"][name] = {
+            "status": "MEASURED",
+            "query": query,
+            "warmup_iterations": 1,
             "iterations": self.iterations,
             "result_rows": result_rows,
+            "samples_ms": samples,
+            "measurement_note": (
+                "Warm queries including fetchall; no correctness assertion or "
+                "latency threshold. p95 uses the nearest-rank sample and equals "
+                "the maximum with fewer than 20 measured iterations."
+            ),
             "latency_ms": {
                 "min": min(samples),
                 "median": statistics.median(samples),
@@ -407,7 +451,14 @@ class Diagnostic:
             if name == "weekly_large_aggregation" and not self.has_table("bddk.weekly_measurements"):
                 self.results["benchmarks"][name] = {"status": "SKIP", "reason": "table not present"}
                 continue
-            self.benchmark(name, query)
+            try:
+                self.benchmark(name, query)
+            except duckdb.Error as error:
+                self.results["benchmarks"][name] = {
+                    "status": "FAIL",
+                    "query": query,
+                    "reason": str(error),
+                }
 
     def run_storage(self, database_path: Path) -> None:
         file_size = database_path.stat().st_size
@@ -416,7 +467,7 @@ class Diagnostic:
             table_rows.append({"table": table, "row_count": self.table_count(table)})
         database_size_rows = rows_to_dicts(self.connection.execute("PRAGMA database_size"))
         self.results["storage"] = {
-            "database_path": str(database_path.relative_to(ROOT)),
+            "database_path": report_path(database_path),
             "database_file_bytes": file_size,
             "database_file_mib": file_size / (1024 * 1024),
             "database_size": database_size_rows,
@@ -427,7 +478,11 @@ class Diagnostic:
                 if sum(item["row_count"] for item in table_rows)
                 else None
             ),
-            "storage_note": "DuckDB compression details are reported by PRAGMA database_size; table row counts are logical, not physical byte allocation.",
+            "storage_note": (
+                "PRAGMA database_size reports allocated blocks, memory and WAL "
+                "size, not a compression ratio. Table row counts are logical "
+                "and can count derived copies of the same observations."
+            ),
         }
 
     def run(self, database_path: Path) -> dict[str, Any]:
@@ -435,19 +490,41 @@ class Diagnostic:
         self.run_schema_and_lineage()
         self.run_benchmarks()
         self.run_storage(database_path)
-        critical_failures = []
-        for section in ("integrity", "schema_and_lineage"):
-            critical_failures.extend(
-                check["name"]
-                for check in self.results[section]["checks"]
-                if check["status"] == "FAIL" and check.get("critical")
-            )
-        self.results["status"] = "FAIL" if critical_failures else "PASS"
-        self.results["critical_failures"] = critical_failures
+        checks = [
+            check
+            for section in ("integrity", "schema_and_lineage")
+            for check in self.results[section]["checks"]
+        ]
+        checks.extend(
+            {"name": name, **result}
+            for name, result in self.results["benchmarks"].items()
+        )
+        self.results["status"] = check_status(checks)
+        self.results["failed_checks"] = [
+            check["name"] for check in checks if check["status"] == "FAIL"
+        ]
+        self.results["critical_failures"] = [
+            check["name"]
+            for check in checks
+            if check["status"] == "FAIL" and check.get("critical")
+        ]
+        self.results["warnings_and_skips"] = [
+            check["name"] for check in checks if check["status"] in {"WARN", "SKIP"}
+        ]
+        wal_path = Path(str(database_path) + ".wal")
         self.results["database"] = {
-            "path": str(database_path.relative_to(ROOT)),
+            "path": report_path(database_path),
+            "sha256": file_sha256(database_path),
+            "wal_sha256": file_sha256(wal_path) if wal_path.is_file() else None,
             "schemas": self.schemas,
             "table_count": len(self.tables),
+        }
+        self.results["runtime"] = {
+            "python_version": platform.python_version(),
+            "duckdb_version": duckdb.__version__,
+            "system": platform.system(),
+            "machine": platform.machine(),
+            "duckdb_threads": self.scalar("SELECT current_setting('threads')"),
         }
         return self.results
 
@@ -458,21 +535,25 @@ def print_report(report: dict[str, Any], report_path: Path) -> None:
     print(f"Status: {report['status']}")
     print(f"Database: {report['database']['path']}")
     print(f"Schemas: {len(report['database']['schemas'])} | Tables: {report['database']['table_count']}")
-    print("\n[1] Data Integrity & Accuracy")
+    print("\n[1] Data Integrity Checks")
     for check in report["integrity"]["checks"]:
         print(f"  {check['status']:<4} {check['name']}")
+        if "reason" in check:
+            print(f"       {check['reason']}")
     print("\n[2] Schema & Data Lineage")
     for check in report["schema_and_lineage"]["checks"]:
         print(f"  {check['status']:<4} {check['name']}")
+        if "reason" in check:
+            print(f"       {check['reason']}")
         if "coverage_ratio" in check:
             print(f"       coverage: {check['coverage_ratio']:.2%}")
-    print("\n[3] Query Latency (ms)")
+    print("\n[3] Warm Query Latency (ms, no correctness or latency threshold)")
     for name, result in report["benchmarks"].items():
-        if result.get("status") == "SKIP":
-            print(f"  SKIP {name}: {result['reason']}")
+        if result["status"] in {"SKIP", "FAIL"}:
+            print(f"  {result['status']} {name}: {result['reason']}")
             continue
         latency = result["latency_ms"]
-        print(f"  PASS {name}: median={latency['median']:.3f}, p95={latency['p95']:.3f}, rows={result['result_rows']}")
+        print(f"  MEASURED {name}: median={latency['median']:.3f}, p95={latency['p95']:.3f}, rows={result['result_rows']}")
     storage = report["storage"]
     print("\n[4] Storage")
     print(f"  file size: {storage['database_file_mib']:.2f} MiB")
@@ -480,28 +561,36 @@ def print_report(report: dict[str, Any], report_path: Path) -> None:
     print(f"\nJSON report: {report_path}")
 
 
-def main() -> int:
+def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--database", type=Path, default=DEFAULT_DATABASE)
     parser.add_argument("--output", type=Path, default=DEFAULT_REPORT)
     parser.add_argument("--iterations", type=int, default=5)
-    args = parser.parse_args()
+    args = parser.parse_args(argv)
     database_path = args.database.expanduser().resolve()
     report_path = args.output.expanduser().resolve()
     if not database_path.is_file():
         print(f"Database not found: {database_path}", file=sys.stderr)
         return 2
+    if report_path == database_path or report_path == Path(str(database_path) + ".wal"):
+        print("Report output must not overwrite the database or its WAL.", file=sys.stderr)
+        return 2
 
     started = datetime.now(timezone.utc)
-    connection = duckdb.connect(str(database_path), read_only=True)
     try:
-        diagnostic = Diagnostic(connection, args.iterations)
-        report = diagnostic.run(database_path)
-    finally:
-        connection.close()
-    report["generated_at_utc"] = started.isoformat()
-    report["configuration"] = {"iterations": max(1, args.iterations)}
-    report_path.write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+        connection = duckdb.connect(str(database_path), read_only=True)
+        try:
+            diagnostic = Diagnostic(connection, args.iterations)
+            report = diagnostic.run(database_path)
+        finally:
+            connection.close()
+        report["generated_at_utc"] = started.isoformat()
+        report["configuration"] = {"iterations": max(1, args.iterations)}
+        report_path.parent.mkdir(parents=True, exist_ok=True)
+        report_path.write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    except (duckdb.Error, OSError, ValueError) as error:
+        print(f"Diagnostic could not complete: {error}", file=sys.stderr)
+        return 2
     print_report(report, report_path)
     return 1 if report["status"] == "FAIL" else 0
 

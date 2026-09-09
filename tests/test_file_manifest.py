@@ -2,10 +2,50 @@ import hashlib
 import json
 import unittest
 from pathlib import Path
+from tempfile import TemporaryDirectory
+
+from data_pipeline.build_file_manifest import build
 
 
 ROOT = Path(__file__).resolve().parents[1]
 DATA_DIR = ROOT / "data_pipeline"
+
+
+class FileManifestBuildTests(unittest.TestCase):
+    def test_local_download_artifacts_do_not_change_distributed_manifest(self) -> None:
+        with TemporaryDirectory() as directory:
+            base = Path(directory)
+            source = base / "bddk/weekly_all_groups/raw/observation.html.gz"
+            source.parent.mkdir(parents=True)
+            source.write_bytes(b"validated source snapshot")
+            clean = build(base)
+            for relative in [
+                "bddk/weekly_group_10003/raw/download.html.gz",
+                "bddk/weekly_group_10007/manifest.json",
+                "bddk/monthly_all_sector_Paylas.zip",
+                "bddk/__pycache__/downloader.pyc",
+            ]:
+                artifact = base / relative
+                artifact.parent.mkdir(parents=True, exist_ok=True)
+                artifact.write_bytes(b"local temporary output")
+            self.assertEqual(clean, build(base))
+            self.assertEqual(
+                {"bddk/weekly_all_groups/raw/observation.html.gz":
+                 hashlib.sha256(source.read_bytes()).hexdigest()}, clean
+            )
+
+    def test_new_source_files_are_included_without_requiring_git(self) -> None:
+        with TemporaryDirectory() as directory:
+            base = Path(directory)
+            source = base / "evds/new_collection/raw/series.json"
+            source.parent.mkdir(parents=True)
+            source.write_bytes(b'{"value": 10}')
+            manifest = build(base)
+            self.assertEqual(
+                hashlib.sha256(source.read_bytes()).hexdigest(),
+                manifest["evds/new_collection/raw/series.json"],
+            )
+            self.assertEqual(manifest, build(base))
 
 
 class FileManifestTests(unittest.TestCase):

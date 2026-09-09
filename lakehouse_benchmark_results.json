@@ -80,14 +80,14 @@
         "status": "PASS",
         "critical": true,
         "unknown_metric_columns": [],
-        "checked_metric_columns": 441
+        "checked_metric_columns": 519
       },
       {
         "name": "evds.regional_housing_quarterly_panel catalog metric columns",
         "status": "PASS",
         "critical": true,
         "unknown_metric_columns": [],
-        "checked_metric_columns": 441
+        "checked_metric_columns": 519
       },
       {
         "name": "evds.household_finance_observations series catalog orphans",
@@ -223,6 +223,7 @@
           "evidence",
           "quality",
           "regional",
+          "risk_center",
           "tbb",
           "tuik"
         ]
@@ -230,9 +231,9 @@
       {
         "name": "catalog metric observation coverage",
         "status": "PASS",
-        "total_metrics": 55489,
-        "observation_available_metrics": 3297,
-        "coverage_ratio": 0.059417181783776966
+        "total_metrics": 55501,
+        "observation_available_metrics": 3387,
+        "coverage_ratio": 0.061025927460766474
       },
       {
         "name": "table manifest source paths",
@@ -244,65 +245,169 @@
   },
   "benchmarks": {
     "simple_metric_date_lookup": {
-      "iterations": 5,
+      "status": "MEASURED",
+      "query": "SELECT month, bddk_housing_credit_stock_million_tl FROM analysis.housing_credit_monthly WHERE month = '2026-06'",
+      "warmup_iterations": 1,
+      "iterations": 20,
       "result_rows": 1,
+      "samples_ms": [
+        0.077,
+        0.07,
+        0.073792,
+        0.0695,
+        0.070875,
+        0.065791,
+        0.070833,
+        0.070792,
+        0.069625,
+        0.066292,
+        0.070625,
+        0.08075,
+        0.069042,
+        0.070166,
+        0.070333,
+        0.064625,
+        0.069208,
+        0.068459,
+        0.068625,
+        0.071666
+      ],
+      "measurement_note": "Warm queries including fetchall; no correctness assertion or latency threshold. p95 uses the nearest-rank sample and equals the maximum with fewer than 20 measured iterations.",
       "latency_ms": {
-        "min": 0.334,
-        "median": 0.3491,
-        "mean": 0.35728,
-        "p95": 0.3943,
-        "max": 0.3943
+        "min": 0.064625,
+        "median": 0.070083,
+        "mean": 0.07039995,
+        "p95": 0.077,
+        "max": 0.08075
       }
     },
     "monthly_group_by": {
-      "iterations": 5,
+      "status": "MEASURED",
+      "query": "SELECT date_trunc('year', CAST(month || '-01' AS DATE)) AS year, avg(bddk_housing_credit_stock_million_tl) AS average_stock FROM analysis.housing_credit_monthly GROUP BY 1 ORDER BY 1",
+      "warmup_iterations": 1,
+      "iterations": 20,
       "result_rows": 6,
+      "samples_ms": [
+        0.328292,
+        0.307375,
+        0.34975,
+        0.306917,
+        0.307125,
+        0.282959,
+        0.331292,
+        0.310584,
+        0.30525,
+        0.28875,
+        0.302209,
+        0.269542,
+        0.290667,
+        0.273792,
+        0.265167,
+        0.2585,
+        0.285208,
+        0.309292,
+        0.268541,
+        0.267959
+      ],
+      "measurement_note": "Warm queries including fetchall; no correctness assertion or latency threshold. p95 uses the nearest-rank sample and equals the maximum with fewer than 20 measured iterations.",
       "latency_ms": {
-        "min": 1.251,
-        "median": 1.2822,
-        "mean": 1.376,
-        "p95": 1.6593,
-        "max": 1.6593
+        "min": 0.2585,
+        "median": 0.296438,
+        "mean": 0.29545855,
+        "p95": 0.331292,
+        "max": 0.34975
       }
     },
     "monthly_join_and_derived_calculation": {
-      "iterations": 5,
+      "status": "MEASURED",
+      "query": "SELECT a.month, a.bddk_housing_credit_stock_million_tl * 100.0 / NULLIF(a.TP_TUKFIY2025_GENEL, 0) AS real_proxy, c.TP_KKM_K1 FROM analysis.housing_credit_monthly a LEFT JOIN evds.household_finance_monthly_panel c ON c.target_period = a.month WHERE a.month BETWEEN '2021-01' AND '2026-06' ORDER BY a.month",
+      "warmup_iterations": 1,
+      "iterations": 20,
       "result_rows": 66,
+      "samples_ms": [
+        0.322166,
+        0.342708,
+        0.347125,
+        0.304666,
+        0.295583,
+        0.280917,
+        0.26675,
+        0.266125,
+        0.269959,
+        0.338875,
+        0.265375,
+        0.2805,
+        0.330667,
+        0.296083,
+        0.288041,
+        0.278958,
+        0.278333,
+        0.264667,
+        0.285125,
+        0.285833
+      ],
+      "measurement_note": "Warm queries including fetchall; no correctness assertion or latency threshold. p95 uses the nearest-rank sample and equals the maximum with fewer than 20 measured iterations.",
       "latency_ms": {
-        "min": 1.4541,
-        "median": 1.5047,
-        "mean": 1.49896,
-        "p95": 1.56,
-        "max": 1.56
+        "min": 0.264667,
+        "median": 0.28547900000000004,
+        "mean": 0.2944228,
+        "p95": 0.342708,
+        "max": 0.347125
       }
     },
     "weekly_large_aggregation": {
-      "iterations": 5,
+      "status": "MEASURED",
+      "query": "SELECT group_code, table_id, currency_dimension, count(*) AS observations, avg(value) AS average_value FROM bddk.weekly_measurements GROUP BY 1, 2, 3",
+      "warmup_iterations": 1,
+      "iterations": 20,
       "result_rows": 175,
+      "samples_ms": [
+        2.937333,
+        3.159042,
+        2.81775,
+        2.676625,
+        2.749709,
+        2.922834,
+        2.869,
+        2.74975,
+        2.74175,
+        2.784167,
+        2.740208,
+        2.762875,
+        2.856416,
+        2.521542,
+        2.761958,
+        2.835292,
+        2.85125,
+        2.729167,
+        2.797708,
+        2.764708
+      ],
+      "measurement_note": "Warm queries including fetchall; no correctness assertion or latency threshold. p95 uses the nearest-rank sample and equals the maximum with fewer than 20 measured iterations.",
       "latency_ms": {
-        "min": 9.9626,
-        "median": 10.2728,
-        "mean": 10.41508,
-        "p95": 11.2851,
-        "max": 11.2851
+        "min": 2.521542,
+        "median": 2.7744375000000003,
+        "mean": 2.8014542000000002,
+        "p95": 2.937333,
+        "max": 3.159042
       }
     }
   },
   "storage": {
-    "database_path": "data_pipeline\\lakehouse\\analytics.duckdb",
-    "database_file_bytes": 103034880,
-    "database_file_mib": 98.26171875,
+    "database_path": "data_pipeline/lakehouse/analytics.duckdb",
+    "database_file_bytes": 104345600,
+    "database_file_mib": 99.51171875,
     "database_size": [
       {
         "database_name": "analytics",
-        "database_size": "98.2 MiB",
+        "database_size": "99.5 MiB",
         "block_size": 262144,
-        "total_blocks": 393,
-        "used_blocks": 393,
+        "total_blocks": 398,
+        "used_blocks": 398,
         "free_blocks": 0,
         "wal_size": "0 bytes",
-        "memory_usage": "20.5 MiB",
-        "memory_limit": "12.5 GiB"
+        "memory_usage": "21.7 MiB",
+        "memory_limit": "25.5 GiB"
       }
     ],
     "table_rows": [
@@ -364,15 +469,15 @@
       },
       {
         "table": "catalog.data_assets",
-        "row_count": 66
+        "row_count": 71
       },
       {
         "table": "catalog.metrics",
-        "row_count": 55489
+        "row_count": 55501
       },
       {
         "table": "catalog.table_manifest",
-        "row_count": 59
+        "row_count": 63
       },
       {
         "table": "evds.household_finance_coverage_gaps",
@@ -476,7 +581,7 @@
       },
       {
         "table": "evds.regional_housing_monthly_alignment_audit",
-        "row_count": 30186
+        "row_count": 32214
       },
       {
         "table": "evds.regional_housing_monthly_panel",
@@ -484,11 +589,11 @@
       },
       {
         "table": "evds.regional_housing_observations",
-        "row_count": 30186
+        "row_count": 32214
       },
       {
         "table": "evds.regional_housing_quarterly_alignment_audit",
-        "row_count": 11466
+        "row_count": 13494
       },
       {
         "table": "evds.regional_housing_quarterly_panel",
@@ -512,11 +617,27 @@
       },
       {
         "table": "regional.metric_dictionary",
-        "row_count": 26
+        "row_count": 33
       },
       {
         "table": "regional.province_dimension",
         "row_count": 81
+      },
+      {
+        "table": "risk_center.housing_credit_monthly",
+        "row_count": 66
+      },
+      {
+        "table": "risk_center.housing_metric_vintages",
+        "row_count": 390
+      },
+      {
+        "table": "risk_center.metric_dictionary",
+        "row_count": 5
+      },
+      {
+        "table": "risk_center.overlap_revision_audit",
+        "row_count": 25
       },
       {
         "table": "tbb.consumer_credit_product_metrics",
@@ -547,14 +668,18 @@
         "row_count": 31590
       }
     ],
-    "total_rows": 3577918,
-    "bytes_per_logical_row": 28.79744029907896,
-    "storage_note": "DuckDB compression details are reported by PRAGMA database_size; table row counts are logical, not physical byte allocation."
+    "total_rows": 3584516,
+    "bytes_per_logical_row": 29.110094640392177,
+    "storage_note": "PRAGMA database_size reports allocated blocks, memory and WAL size, not a compression ratio. Table row counts are logical and can count derived copies of the same observations."
   },
   "status": "PASS",
+  "failed_checks": [],
   "critical_failures": [],
+  "warnings_and_skips": [],
   "database": {
-    "path": "data_pipeline\\lakehouse\\analytics.duckdb",
+    "path": "data_pipeline/lakehouse/analytics.duckdb",
+    "sha256": "814c6643542c333dd24c22ae54feec567fe667b5cc10f3c28f97e8a366b28d3f",
+    "wal_sha256": null,
     "schemas": [
       "analysis",
       "bddk",
@@ -563,13 +688,21 @@
       "evidence",
       "quality",
       "regional",
+      "risk_center",
       "tbb",
       "tuik"
     ],
-    "table_count": 60
+    "table_count": 64
   },
-  "generated_at_utc": "2026-09-08T15:45:25.666207+00:00",
+  "runtime": {
+    "python_version": "3.12.13",
+    "duckdb_version": "1.5.5",
+    "system": "Darwin",
+    "machine": "arm64",
+    "duckdb_threads": 10
+  },
+  "generated_at_utc": "2026-09-09T19:21:10.681852+00:00",
   "configuration": {
-    "iterations": 5
+    "iterations": 20
   }
 }

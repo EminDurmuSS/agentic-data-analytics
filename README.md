@@ -85,6 +85,33 @@ python -m unittest discover -s tests -v
 .venv/bin/python data_pipeline/build_file_manifest.py
 ```
 
+## Veri keşfi ve performans kontrolü
+
+[Veri keşfi notebooku](lakehouse_veri_kesfi_ve_iliskiler.ipynb), lakehouse'u
+salt okunur inceler; envanter, kaynak ilişkileri, eksiklikler ve örnek analizler
+sunar. Notebooku kurulan `.venv` ortamının çekirdeğiyle baştan sona çalıştırın.
+Terminalden tüm hücreleri çalıştırıp kayıtlı çıktıları yenilemek için:
+
+```bash
+.venv/bin/jupyter-execute lakehouse_veri_kesfi_ve_iliskiler.ipynb --inplace --timeout=180
+```
+
+[Kullanım ve yorumlama rehberi](docs/LAKEHOUSE_VERI_KESFI_SADE_ANLATIM.md),
+çıktıların kapsamını ve analitik sınırlarını açıklar. Bu örnekler veri keşfi
+çalışmalarıdır; genel bir agent platformunun uygulanmış araçları değildir.
+
+[Benchmark betiği](test_lakehouse_performance.py) bütünlük kontrollerini ve
+seçili sorgu sürelerini ölçer:
+
+```bash
+.venv/bin/python test_lakehouse_performance.py
+```
+
+Komut [JSON raporunu](lakehouse_benchmark_results.json) yeniler. Ayrı bir rapor
+için `--output /tmp/lakehouse-benchmark.json`, tekrar sayısı için
+`--iterations 5` kullanılabilir. Veritabanı salt okunur açılır; zamanlama
+sonuçları makineye ve önbelleğe bağlıdır, ekonomik doğruluk kanıtı değildir.
+
 ## Önemli kapsam kararı
 
 BDDK aylık bültende bütün tablolar ve 10 resmî banka grubu, haftalık bültende
