@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1180" height="760" viewBox="0 0 1180 760" role="img" aria-labelledby="title desc">
+  <title id="title">KKB ReAct agent akışı</title>
+  <desc id="desc">Kullanıcı sorusundan araç seçimine, veri gözlemine, nihai yanıta ve güven kanıtlarına giden akış.</desc>
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto"><path d="M0,0 L0,6 L9,3 z" fill="#52657a"/></marker>
+    <style>
+      text{font-family:Arial,sans-serif;fill:#182433}.title{font-size:27px;font-weight:700}.box{stroke:#52657a;stroke-width:2}.normal{fill:#eef5ff}.decision{fill:#fff7df}.action{fill:#eaf8ef}.fallback{fill:#fff0f0}.label{font-size:16px;font-weight:600}.small{font-size:13px}.arrow{stroke:#52657a;stroke-width:2;fill:none;marker-end:url(#arrow)}.yes{font-size:13px;fill:#257240;font-weight:700}.no{font-size:13px;fill:#a06200;font-weight:700}
+    </style>
+  </defs>
+  <rect width="1180" height="760" fill="#ffffff"/>
+  <text x="42" y="48" class="title">KKB ReAct Agent Akışı</text>
+  <text x="42" y="75" class="small">Thought → Action → Observation · araç sonuçlarıyla kanıtlanmış yanıt</text>
+
+  <rect x="60" y="110" width="185" height="62" rx="12" class="box normal"/><text x="152" y="142" text-anchor="middle" class="label">Kullanıcı sorusu</text>
+  <rect x="315" y="110" width="220" height="62" rx="12" class="box normal"/><text x="425" y="142" text-anchor="middle" class="label">Qwen: araç seçimi</text>
+  <polygon points="655,105 760,141 655,177 550,141" class="box decision"/><text x="655" y="138" text-anchor="middle" class="label">Araç çağrısı</text><text x="655" y="156" text-anchor="middle" class="label">var mı?</text>
+  <path d="M245 141 H315 M535 141 H550" class="arrow"/>
+  <path d="M760 141 H875" class="arrow"/><text x="800" y="130" class="no">Hayır</text>
+  <rect x="875" y="110" width="240" height="62" rx="12" class="box action"/><text x="995" y="136" text-anchor="middle" class="label">Türkçe nihai yanıt</text><text x="995" y="156" text-anchor="middle" class="small">4 zorunlu güven başlığı</text>
+
+  <path d="M655 177 V225" class="arrow"/><text x="666" y="211" class="yes">Evet</text>
+  <polygon points="655,225 770,263 655,301 540,263" class="box decision"/><text x="655" y="260" text-anchor="middle" class="label">Aynı çağrı</text><text x="655" y="278" text-anchor="middle" class="label">tekrar mı?</text>
+  <path d="M540 263 H385" class="arrow"/><text x="455" y="252" class="yes">Evet</text>
+  <rect x="80" y="230" width="305" height="66" rx="12" class="box fallback"/><text x="232" y="257" text-anchor="middle" class="label">Tekrarı engelle</text><text x="232" y="277" text-anchor="middle" class="small">DuckDB veya analiz aracına yönlendir</text>
+  <path d="M232 296 V360 H425 V172" class="arrow"/>
+
+  <path d="M655 301 V344" class="arrow"/><text x="666" y="328" class="no">Hayır</text>
+  <rect x="405" y="344" width="500" height="70" rx="12" class="box action"/><text x="655" y="370" text-anchor="middle" class="label">Aracı çalıştır</text><text x="655" y="391" text-anchor="middle" class="small">Katalog (1 kez) · DuckDB · Anomali · Korelasyon/Granger · Kırılma · Web/URL</text>
+  <path d="M655 414 V455" class="arrow"/>
+  <rect x="450" y="455" width="410" height="62" rx="12" class="box normal"/><text x="655" y="481" text-anchor="middle" class="label">Observation: JSON sonuç</text><text x="655" y="501" text-anchor="middle" class="small">veri kanıtı ve istatistikler kaydedilir</text>
+  <path d="M655 517 V555" class="arrow"/>
+  <polygon points="655,555 770,593 655,631 540,593" class="box decision"/><text x="655" y="590" text-anchor="middle" class="label">8 adım doldu mu?</text>
+  <path d="M540 593 H425 V414" class="arrow"/><text x="462" y="581" class="no">Hayır</text>
+  <path d="M770 593 H905" class="arrow"/><text x="805" y="581" class="yes">Evet</text>
+  <rect x="905" y="560" width="225" height="66" rx="12" class="box action"/><text x="1017" y="587" text-anchor="middle" class="label">Araçsız son yanıt</text><text x="1017" y="607" text-anchor="middle" class="small">boşsa kanıt yedeği</text>
+  <path d="M995 172 V560" class="arrow"/>
+  <rect x="825" y="670" width="305" height="56" rx="12" class="box normal"/><text x="977" y="694" text-anchor="middle" class="label">Güven Kanıtları</text><text x="977" y="713" text-anchor="middle" class="small">Araçlar · Provenance · İstatistik</text>
+  <path d="M1017 626 V670" class="arrow"/>
+</svg>
