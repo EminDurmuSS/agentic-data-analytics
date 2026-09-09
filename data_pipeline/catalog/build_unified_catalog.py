@@ -954,7 +954,7 @@ def regional_housing_assets_and_metrics() -> tuple[list[dict[str, Any]], list[di
     metrics: list[dict[str, Any]] = []
     for row in dictionary.to_dict("records"):
         code = str(row["metric_code"])
-        values = pd.to_numeric(panel[code], errors="coerce")
+        values = panel[code]
         derivation = text_value(row.get("derivation"))
         caution = text_value(row.get("caution"))
         metrics.append(

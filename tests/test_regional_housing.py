@@ -117,6 +117,58 @@ class ProvinceQuarterPanelTests(unittest.TestCase):
         self.assertEqual(22, self.panel["quarter"].nunique())
         self.assertFalse(self.panel.duplicated(["province_key", "quarter"]).any())
 
+    def test_regional_median_price_imputation_preserves_raw_values(self):
+        raw = self.panel["housing_unit_price_try_per_m2"]
+        analysis = self.panel["housing_unit_price_for_analysis_try_per_m2"]
+        observed = raw.notna()
+        imputed = self.panel["housing_unit_price_value_origin"].eq(
+            "regional_median_imputed"
+        )
+        unavailable = self.panel["housing_unit_price_value_origin"].eq("unavailable")
+
+        self.assertTrue(analysis.loc[observed].eq(raw.loc[observed]).all())
+        self.assertTrue(raw.loc[imputed].isna().all())
+        self.assertTrue(
+            analysis.loc[imputed]
+            .eq(
+                self.panel.loc[imputed, "housing_unit_price_region_median_try_per_m2"]
+            )
+            .all()
+        )
+        self.assertTrue(
+            self.panel.loc[imputed, "housing_unit_price_region_peer_count"].gt(0).all()
+        )
+        self.assertTrue(analysis.loc[unavailable].isna().all())
+        self.assertEqual(
+            int(observed.sum()),
+            self.validation["housing_unit_price_official_observation_count"],
+        )
+        self.assertEqual(
+            int(imputed.sum()),
+            self.validation["housing_unit_price_regional_median_imputed_count"],
+        )
+        self.assertEqual(
+            int(unavailable.sum()),
+            self.validation["housing_unit_price_unavailable_count"],
+        )
+
+    def test_regional_median_uses_only_observed_prices_in_same_region_quarter(self):
+        imputed = self.panel.loc[
+            self.panel["housing_unit_price_value_origin"].eq(
+                "regional_median_imputed"
+            )
+        ]
+        for row in imputed.itertuples(index=False):
+            peers = self.panel.loc[
+                self.panel["housing_price_region_code"].eq(
+                    row.housing_price_region_code
+                )
+                & self.panel["quarter"].eq(row.quarter),
+                "housing_unit_price_try_per_m2",
+            ].dropna()
+            self.assertEqual(len(peers), row.housing_unit_price_region_peer_count)
+            self.assertEqual(peers.median(), row.housing_unit_price_for_analysis_try_per_m2)
+
     def test_sales_identities_and_names_are_semantically_safe(self):
         complete = self.panel.loc[
             self.panel[
@@ -170,6 +222,10 @@ class ProvinceQuarterPanelTests(unittest.TestCase):
         }
         rows = self.panel.loc[self.panel["province_name"].isin(unavailable)]
         self.assertTrue(rows["housing_unit_price_try_per_m2"].isna().all())
+        self.assertTrue(
+            rows["housing_unit_price_value_origin"].eq("regional_median_imputed").all()
+        )
+        self.assertTrue(rows["housing_unit_price_for_analysis_try_per_m2"].notna().all())
         self.assertEqual(
             8,
             self.validation[

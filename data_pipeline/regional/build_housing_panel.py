@@ -427,6 +427,10 @@ def metric_dictionary() -> pd.DataFrame:
         ("first_hand_sales_share_pct", "İlk el satış payı", "percent", "derived_ratio", "100 * ilk el satış / toplam satış", ""),
         ("second_hand_sales_share_pct", "İkinci el satış payı", "percent", "derived_ratio", "100 * ikinci el satış / toplam satış", ""),
         ("housing_unit_price_try_per_m2", "Konut birim fiyatı", "try_per_m2", "quarter_end_level", "EVDS il bazlı kaynak gözlemi", ""),
+        ("housing_unit_price_region_median_try_per_m2", "Bölge medyan konut birim fiyatı", "try_per_m2", "derived_regional_median", "Aynı çeyrekte aynı konut fiyat bölgesindeki resmî il birim fiyatlarının medyanı", "Resmî il fiyatı değildir; yalnız eksik il fiyatı için analitik fallback kaynağıdır."),
+        ("housing_unit_price_for_analysis_try_per_m2", "Analiz için konut birim fiyatı", "try_per_m2", "source_or_regional_median", "Resmî il fiyatı; yoksa aynı bölge ve çeyrekteki resmî il fiyatlarının medyanı", "Değer kaynağı housing_unit_price_value_origin alanından kontrol edilmelidir."),
+        ("housing_unit_price_value_origin", "Analiz fiyatı kaynak türü", "category", "provenance", "source_observed, regional_median_imputed veya unavailable", "regional_median_imputed resmî il gözlemi değildir."),
+        ("housing_unit_price_region_peer_count", "Bölge medyanı kaynak il sayısı", "count", "provenance", "Eksik il fiyatı tamamlanırken kullanılan aynı bölge-çeyrekteki resmî il fiyatı sayısı", "Yalnız regional_median_imputed satırlarında sıfırdan büyüktür."),
         ("regional_kfe_index", "Bölgesel konut fiyat endeksi", "index", "quarter_end_index", "İlin bağlı olduğu EVDS KFE bölgesinin çeyrek sonu gözlemi", "İl özelinde değil, bölgesel değerdir."),
         ("regional_ykke_index", "Bölgesel yeni kiracı kira endeksi", "index", "quarter_end_index", "İlin bağlı olduğu EVDS YKKE bölgesinin çeyrek sonu gözlemi", "İl özelinde değil, bölgesel değerdir."),
         ("housing_credit_stock_thousand_try", "Konut kredisi bakiyesi", "thousand_try", "period_end_stock", "BDDK FinTurk sektör toplamı", "Yeni kullandırım akımı değildir."),
@@ -440,6 +444,7 @@ def metric_dictionary() -> pd.DataFrame:
         ("housing_credit_per_capita_try", "Kişi başı konut kredisi", "try_per_person", "derived_ratio", "konut kredisi * 1000 / türetilmiş nüfus", "Nüfus paydası FinTurk metriklerinden ters hesaplanır."),
         ("housing_credit_to_savings_deposit_pct", "Konut kredisi / tasarruf mevduatı", "percent", "derived_ratio", "100 * konut kredisi / tasarruf mevduatı", ""),
         ("housing_unit_price_yoy_pct", "Konut birim fiyatı yıllık değişimi", "percent", "derived_growth", "Dört çeyrek önceki il birim fiyatına göre değişim", "Kaynak gözlem yoksa hesaplanmaz."),
+        ("housing_unit_price_for_analysis_yoy_pct", "Analiz fiyatı yıllık değişimi", "percent", "derived_growth", "Dört çeyrek önceki analiz için konut birim fiyatına göre değişim", "Medyanla tamamlanan fiyat içerebilir; resmî il fiyatı yıllık değişiminden ayrı yorumlanmalıdır."),
         ("regional_kfe_yoy_pct", "Bölgesel KFE yıllık değişimi", "percent", "derived_growth", "Dört çeyrek önceki bölgesel KFE değerine göre değişim", "İl özelinde değil, bölgesel değerdir."),
         ("regional_ykke_yoy_pct", "Bölgesel YKKE yıllık değişimi", "percent", "derived_growth", "Dört çeyrek önceki bölgesel YKKE değerine göre değişim", "İl özelinde değil, bölgesel değerdir."),
         ("housing_credit_yoy_pct", "Konut kredisi bakiyesi yıllık değişimi", "percent", "derived_growth", "Dört çeyrek önceki FinTurk konut kredisi bakiyesine göre değişim", "Yeni kullandırım akımı değildir."),
@@ -551,11 +556,41 @@ def build(output_dir: Path) -> dict[str, Any]:
         100,
     )
 
+    price_column = "housing_unit_price_try_per_m2"
+    regional_price_group = panel.groupby(
+        ["housing_price_region_code", "quarter"], sort=False
+    )[price_column]
+    panel["housing_unit_price_region_median_try_per_m2"] = (
+        regional_price_group.transform("median")
+    )
+    regional_price_observation_count = regional_price_group.transform("count")
+    observed_price = panel[price_column].notna()
+    imputed_price = (
+        ~observed_price
+        & panel["housing_unit_price_region_median_try_per_m2"].notna()
+    )
+    panel["housing_unit_price_for_analysis_try_per_m2"] = panel[price_column].where(
+        observed_price,
+        panel["housing_unit_price_region_median_try_per_m2"],
+    )
+    panel["housing_unit_price_value_origin"] = np.select(
+        [observed_price, imputed_price],
+        ["source_observed", "regional_median_imputed"],
+        default="unavailable",
+    )
+    panel["housing_unit_price_region_peer_count"] = np.where(
+        imputed_price, regional_price_observation_count, 0
+    ).astype("int64")
+
     panel = panel.sort_values(["province_key", "quarter"], kind="stable").reset_index(
         drop=True
     )
     for source_column, output_column in [
         ("housing_unit_price_try_per_m2", "housing_unit_price_yoy_pct"),
+        (
+            "housing_unit_price_for_analysis_try_per_m2",
+            "housing_unit_price_for_analysis_yoy_pct",
+        ),
         ("regional_kfe_index", "regional_kfe_yoy_pct"),
         ("regional_ykke_index", "regional_ykke_yoy_pct"),
         ("housing_credit_stock_thousand_try", "housing_credit_yoy_pct"),
@@ -573,11 +608,22 @@ def build(output_dir: Path) -> dict[str, Any]:
     panel["regional_price_source_complete"] = panel[
         ["housing_unit_price_try_per_m2", "regional_kfe_index", "regional_ykke_index"]
     ].notna().all(axis=1)
+    panel["regional_price_analysis_complete"] = panel[
+        [
+            "housing_unit_price_for_analysis_try_per_m2",
+            "regional_kfe_index",
+            "regional_ykke_index",
+        ]
+    ].notna().all(axis=1)
     panel["finturk_source_complete"] = panel[list(FINTURK_METRICS.values())].notna().all(
         axis=1
     )
     panel["analysis_ready"] = panel[
-        ["sales_source_complete", "regional_price_source_complete", "finturk_source_complete"]
+        [
+            "sales_source_complete",
+            "regional_price_analysis_complete",
+            "finturk_source_complete",
+        ]
     ].all(axis=1)
 
     first_second_difference = (
@@ -679,6 +725,11 @@ def build(output_dir: Path) -> dict[str, Any]:
         "mortgaged_sales_over_total_violations": mortgaged_over_total,
         "negative_non_mortgaged_sales_violations": negative_non_mortgaged,
         "analysis_ready_rows": int(panel["analysis_ready"].sum()),
+        "housing_unit_price_official_observation_count": int(observed_price.sum()),
+        "housing_unit_price_regional_median_imputed_count": int(imputed_price.sum()),
+        "housing_unit_price_unavailable_count": int(
+            panel["housing_unit_price_value_origin"].eq("unavailable").sum()
+        ),
         "housing_unit_price_no_observation_provinces": unit_price_no_observation_provinces,
         "housing_unit_price_partial_coverage_provinces": unit_price_partial_coverage_provinces,
         "source_null_counts": {
@@ -698,6 +749,8 @@ def build(output_dir: Path) -> dict[str, Any]:
             "Raw EVDS nulls remain unchanged; fallback provenance and source SHA-256 are stored in separate panel columns.",
             "KFE and YKKE use the observed quarter-end month and are not forward filled.",
             "Quarterly unit prices remain quarter-end levels and are not copied into monthly periods.",
+            "Raw province unit-price observations remain unchanged; missing values may receive a separate same-region, same-quarter median for analysis only.",
+            "Regional-median prices are never replaced by a Turkey-wide, prior-period, or cross-region fallback.",
             "FinTurk uses the official SEKTOR total and excludes YURT DISI from the 81-province panel.",
             "Non-mortgaged sales are not labelled as cash sales.",
             "Implied population is an explicit approximation from two published FinTurk metrics.",

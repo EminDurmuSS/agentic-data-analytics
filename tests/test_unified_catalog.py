@@ -101,10 +101,14 @@ class UnifiedCatalogTests(unittest.TestCase):
         regional = self.metrics.loc[
             self.metrics["source_system"].eq("REGIONAL_HOUSING_ANALYSIS")
         ]
-        self.assertEqual(26, len(regional))
+        self.assertEqual(31, len(regional))
         self.assertTrue(regional["observation_available"].all())
         self.assertIn(
             "regional_housing:housing_credit_per_capita_try",
+            set(regional["metric_id"]),
+        )
+        self.assertIn(
+            "regional_housing:housing_unit_price_for_analysis_try_per_m2",
             set(regional["metric_id"]),
         )
 

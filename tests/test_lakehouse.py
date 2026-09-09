@@ -196,6 +196,24 @@ class LakehouseTests(unittest.TestCase):
         ).fetchone()
         self.assertTrue(all(value is not None for value in istanbul))
 
+    def test_regional_median_price_imputation_is_queryable(self):
+        raw_missing, imputed, unavailable = self.connection.execute(
+            "SELECT "
+            "count(*) FILTER (WHERE housing_unit_price_try_per_m2 IS NULL), "
+            "count(*) FILTER (WHERE housing_unit_price_value_origin = 'regional_median_imputed'), "
+            "count(*) FILTER (WHERE housing_unit_price_value_origin = 'unavailable') "
+            "FROM regional.housing_quarterly"
+        ).fetchone()
+        self.assertEqual(raw_missing, imputed + unavailable)
+        self.assertGreater(imputed, 0)
+        invalid = self.connection.execute(
+            "SELECT count(*) FROM regional.housing_quarterly "
+            "WHERE housing_unit_price_value_origin = 'regional_median_imputed' "
+            "AND (housing_unit_price_for_analysis_try_per_m2 IS NULL "
+            "OR housing_unit_price_region_peer_count <= 0)"
+        ).fetchone()[0]
+        self.assertEqual(0, invalid)
+
     def test_tuik_fallback_and_reconciliation_are_queryable(self):
         monthly_count = self.connection.execute(
             "SELECT count(*) FROM tuik.province_housing_sales_monthly"
