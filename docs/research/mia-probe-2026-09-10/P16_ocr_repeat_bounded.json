@@ -1,0 +1,7 @@
+{
+  "label": "P16_ocr_repeat_bounded",
+  "mode": "ocr",
+  "overrides": {
+    "max_tokens": 512
+  }
+}

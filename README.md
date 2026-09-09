@@ -1,13 +1,82 @@
 # Agentic Data Analytics Hackathon
 
-KKB Agentic Data Analytics Hackathon için yerel lakehouse ve agent'ın
-çağırabileceği deterministik veri araçları. Kaynak verisi, metrik sözleşmeleri,
-hesap planları ve sürümlü analiz sonuçları birlikte yönetilir. Qwen bağlantısı
-ve kullanıcı arayüzü henüz uygulanmadı; EVDS'nin tüm tarihsel gözlem kapsamı
-henüz tamamlanmadı.
+KKB Agentic Data Analytics Hackathon için yerel lakehouse, Kloudeks Qwen ile
+çalışan tek agent döngüsü ve tarayıcıdan kullanılan analiz çalışma alanı.
+Kaynak verisi, metrik sözleşmeleri, hesap planları ve sürümlü analiz sonuçları
+birlikte yönetilir. EVDS'nin tüm tarihsel gözlem kapsamı henüz tamamlanmadı.
 
 Uygulanan araçlar ve çalıştırılabilir örnekler:
 [Agent için lakehouse kullanım rehberi](docs/AGENT_READY_LAKEHOUSE.md).
+
+## Analiz uygulamasını çalıştırma
+
+Python 3.12 ile repo kökünden:
+
+```bash
+uv venv --python python3.12 .venv
+source .venv/bin/activate
+uv pip install -r requirements-app.lock
+python data_pipeline/lakehouse/build_lakehouse.py
+python -m tools.run_agent_app --prompt-key --port 8870
+```
+
+[http://127.0.0.1:8870](http://127.0.0.1:8870) adresini açın. Başlatıcı,
+`MIA_API_KEY` ortam değişkeni tanımlı değilse anahtarı terminalde gizli olarak
+sorar. Anahtar tarayıcıya veya çalışma kayıtlarına gönderilmez. Model adı
+`kkbhackathon2026/Qwen3.8-27B`, servis adresi
+`https://mia.csp.kloudeks.com/v1` olarak kullanılır.
+
+Var olan `.venv` ortamında ilk iki komutu atlayabilirsiniz. Yalnız kendi
+dosyalarınızla çalışacaksanız finans veritabanını üretmeniz gerekmez. Özel
+veritabanı için `--db /dosya/analytics.duckdb`, ayrı kayıt dizini için
+`--runtime-root /dizin/agent-app` kullanılır. Varsayılan kayıt dizini
+`.lakehouse-runtime/app/` içindedir. Başlatıcı yalnız yerel loopback
+adreslerini kabul eder.
+
+`requirements-app.lock`, Python 3.12 için doğrudan ve dolaylı bağımlılıkların
+tam sürümlerini sabitler; `requirements-app.txt` uygulamanın kaynak bağımlılık
+listesidir.
+
+1. **Yeni çalışma alanı** seçin. **KKB finans verileri**, yerel veritabanının
+   doğrulanan snapshot'ını açar. **Boş çalışma alanı**, finans tabloları
+   olmadan kendi zaman serilerinizi eklemenizi sağlar.
+2. Sorunuzu yazın. Örneğin: “2026 ilk çeyrekte tüm bankaların aylık net kârını
+   göster.” Aynı konuşmada “Buna Ocak 2026 TÜFE bazında reel kâr sütunu ekle”
+   diyerek önceki analizi sürdürün. Bunlar denenebilecek örnek sorulardır;
+   bütün doğal dil varyantları için başarı garantisi değildir.
+3. Sonucu **Tablo**, **Grafik**, **Kaynaklar** ve **Hesap adımları**
+   görünümlerinde inceleyin. Sayısal hücreyi seçerek kaynak izini açın;
+   kayıtlı tabloyu **CSV indir** ile alın. **Yapılan işlemler** alanı araç
+   çağrılarını ve hata bilgilerini gösterir.
+4. **Kaynak ekle** ile CSV, XLSX, PDF, PNG/JPEG, HTML veya UTF-8 metin
+   yükleyin ya da herkese açık bir URL verin. Kaynağı konuşmaya bağlayın;
+   kullanılacak tablo, dönem, birim ve hesap amacını belirtin. Dosyanın
+   yüklenmesi veriyi otomatik olarak hesaplara açmaz: seçilen tablo açık
+   sütun, tür, birim, frekans ve tekil anahtar sözleşmesiyle yayımlanır.
+5. Görselden çıkarılan tabloda **Çıkarılan hücreleri kontrol et** ile bütün
+   satırları kaynakla karşılaştırın, gerekli hücreleri düzeltin ve birimleri
+   yazın. **Değerleri doğruladım** bu incelemeyi kaydeder; ardından tabloyu
+   konuşmada analize ekletebilirsiniz.
+
+Altı araç ailesi bağlandı: lakehouse keşif/hesap, web arama, URL/belge okuma,
+anomali, ilişki inceleme ve değişim tespiti. Web arama varsayılan olarak
+anahtarsız Bing RSS kullanır; `SEARXNG_URL` verilirse o servis kullanılır.
+Arama sonucu bir kaynak doğrulaması değildir, ilgili URL ayrıca okunmalıdır.
+İlişki araçları gecikmeli korelasyon ve koşulları sağlanan Granger testini
+sunar; nedensel etki kanıtı üretmez.
+
+Dosya sınırı 16 MiB, doğrudan görsel sınırı 8 MiB'dir. PDF başına en fazla
+30 sayfa incelenir; metinsiz sayfalardan en fazla üçü görsel olarak okunur,
+kalanlar açıkça bildirilir. Eski `.xls`, formüllü Excel sayfaları, karmaşık
+birleşik HTML hücreleri ve büyük belgeler ek hazırlık gerektirebilir.
+Güncel uygulama, testler ve kapsam sınırları
+[uygulama notunda](docs/research/agent-harness-2026-09-10/implementation.md)
+açıklanır. Önceki [canlı sağlayıcı deneyleri](docs/research/mia-probe-2026-09-10/README.md),
+bu arayüzün uçtan uca model başarısı olarak değerlendirilmemelidir.
+
+Canlı çalışma kanıtları, başarısız ilk denemeler ve ekran görüntüleri
+[uygulama doğrulama kaydında](docs/research/agent-harness-2026-09-10/live-validation.md) bulunur.
+
 
 ## Veri aşamasının güncel durumu
 
@@ -63,6 +132,7 @@ sayıları ve durumu `data_pipeline/lakehouse/validation.json`,
 | `notebooks/` | Doğrulama ve örnek analiz notebook'u |
 | `docs/` | Mevcut durum, kaynak ve araştırma notları |
 | `tools/` | Kaynak indiricileri, EVDS kuyruğu, yayın kontrolleri, agent araçları ve sürümlü sonuç deposu |
+| `app/` | Yerel FastAPI uygulaması, konuşma, tablo/grafik, kaynak ve hücre inceleme arayüzü |
 
 ## Kurulum ve doğrulama
 
@@ -71,9 +141,9 @@ Python 3.12 kullanılır:
 ```bash
 uv venv --python python3.12 .venv
 source .venv/bin/activate
-uv pip install -r requirements-dev.txt
+uv pip install -r requirements-app.lock -r requirements-dev.txt
 python data_pipeline/lakehouse/build_lakehouse.py
-python -m unittest discover -s tests -v
+python -m pytest tests -q
 ```
 
 **Temiz klonda testlerden önce veritabanını üretin.** `analytics.duckdb`
@@ -130,8 +200,9 @@ Terminalden tüm hücreleri çalıştırıp kayıtlı çıktıları yenilemek i�
 
 [Kullanım ve yorumlama rehberi](docs/LAKEHOUSE_VERI_KESFI_SADE_ANLATIM.md),
 çıktıların kapsamını ve analitik sınırlarını açıklar. Notebooklar keşif
-çalışmalarıdır; agent'ın çağıracağı uygulanan araçlar
-`tools/lakehouse_service.py` içindedir.
+çalışmalarıdır; agent'ın hesap araçları `tools/lakehouse_service.py`, belge
+araçları `tools/agent_documents.py`, istatistik araçları
+`tools/agent_statistics.py` içindedir.
 
 [Benchmark betiği](test_lakehouse_performance.py) bütünlük kontrollerini ve
 seçili sorgu sürelerini ölçer:
@@ -183,8 +254,11 @@ Haziran 2026 aylık bülteni mevcuttur ve bakiye, borçlu sayısı, ortalama ris
 tasfiye oranı ve ilk kez kullanan kişi sayısını sağlar. İlk kez kullanan kişi
 sayısı parasal kullandırım değildir ve bu boşluğun yerine geçirilmez.
 
-Agent'ın veri araçları uygulanmıştır. Canlı Qwen planlama başarısı, otomatik
-PDF/URL ayrıştırma, tam EVDS kapsamı, istatistik araçlarının tamamı ve frontend
-bu teslimin tamamlanmış özellikleri değildir. Mevcut deterministik API ve
-sınırlar için [uygulama rehberini](docs/AGENT_READY_LAKEHOUSE.md), veri aileleri
-için [veri pipeline rehberini](data_pipeline/README.md) okuyun.
+Yerel arayüz, kalıcı agent döngüsü, belge alımı ve üç istatistik yöntemi
+uygulanmıştır. Tam EVDS kapsamı, bütün belge düzenlerinde çıkarım doğruluğu,
+genel nedensel etki tahmini ve geniş bir soru kümesinde canlı Qwen başarı
+oranı tamamlanmış kabul edilmez. Tablo ve grafik mevcut kayıtlı sonucu
+gösterir; indirilebilir PDF rapor motoru yoktur. Mevcut deterministik API
+için [lakehouse rehberini](docs/AGENT_READY_LAKEHOUSE.md), uygulama davranışı
+için [uygulama notunu](docs/research/agent-harness-2026-09-10/implementation.md),
+veri aileleri için [veri pipeline rehberini](data_pipeline/README.md) okuyun.

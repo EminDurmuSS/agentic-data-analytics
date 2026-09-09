@@ -1,0 +1,962 @@
+{
+  "schema_version": "1.0",
+  "title_tr": "KKB Hackathon açılış kaynakları gereklilik denetimi",
+  "source_event_date": "2026-09-07",
+  "audit_date": "2026-09-10",
+  "source_scope": "Original kickoff PDF and complete automatic transcript only; later Slack notices not included.",
+  "classification_definitions": {
+    "required": "Organizasyonun açık talebi veya kısıtı.",
+    "example": "Örnek soru/kaynak/çıktı; yalnız bu örneğe özelleşme talimatı değil.",
+    "technical_guidance": "Organizasyonun tasarım yönlendirmesi; belirli uygulama teknolojisi zorunlu değil.",
+    "clarification": "Bir şartı açıklayan izin, sınır veya beklenti açıklaması."
+  },
+  "acceptance_checks_are": "Proposed engineering checks, not official jury test cases or weights.",
+  "official_scoring_weights": null,
+  "sources": [
+    {
+      "id": "kickoff_pdf",
+      "filename": "KKB Hackathon 2026 Kick Off Sunum_07092026_FİNAL.pdf",
+      "local_path": "/Users/edurmus/Downloads/KKB Hackathon 2026 Kick Off Sunum_07092026_FİNAL.pdf",
+      "pages": 31,
+      "sha256": "225375fda210672fc571ee894dcc8f9def09297a00bee556884d85a7ead0f796",
+      "page_numbering": "1-based",
+      "coverage": "All page text reread; page12 chart inspected separately."
+    },
+    {
+      "id": "kickoff_asr",
+      "filename": "kayit-transkript.json",
+      "local_path": "/Users/edurmus/Downloads/kkb-hackathon-2026-notlar/kayit-transkript.json",
+      "sha256": "11736639bb8016b36fa57c54513488d4472aefe175639bdf17e529fdca7560ec",
+      "segment_count": 520,
+      "first_segment_start_seconds": 0.0,
+      "last_segment_end_seconds": 2165.36,
+      "coverage": "Entire transcript reread. Not a manually corrected official transcript.",
+      "limitations": [
+        "Model/provider names may be misrecognized.",
+        "ASR log probabilities are not calibrated evidence-confidence probabilities.",
+        "Quotes should be checked against audio if exact wording becomes material."
+      ]
+    },
+    {
+      "id": "pdf_text",
+      "filename": "sunum-metin.txt",
+      "sha256": "2a902c553a705ef16d67ba5520eea9f4b48504a7d713071489a882ff099bae3f",
+      "all_31_pages_text_matches_original_pdf_ignoring_whitespace": true
+    }
+  ],
+  "requirements": [
+    {
+      "id": "R01",
+      "category": "product",
+      "classification": "required",
+      "statement_tr": "Soruyu anlayan, analizi planlayan, uygun araçları kullanan, sonuçlarını doğrulayan ve karar destek çıktısı üreten uçtan uca agentic çözüm.",
+      "evidence": [
+        {
+          "source_id": "kickoff_pdf",
+          "pages_1_based": [
+            7
+          ]
+        },
+        {
+          "source_id": "kickoff_asr",
+          "video_interval": "08:02-09:11"
+        }
+      ],
+      "confidence": "high",
+      "asr_limit": true,
+      "proposed_acceptance_check_tr": "Görülmemiş bir soruda keşif, plan, çalışan hesap, doğrulama ve istenen çıktı izlenebilir.",
+      "interpretation_limit_tr": "Belirli framework veya agent sayısı belirtilmiyor."
+    },
+    {
+      "id": "R02",
+      "category": "data",
+      "classification": "required",
+      "statement_tr": "Kaynak, kapsam, kalite ve eksik veri bilgisi taşıyan, temizlenmiş ve ilişkilendirilebilir lakehouse.",
+      "evidence": [
+        {
+          "source_id": "kickoff_pdf",
+          "pages_1_based": [
+            7
+          ]
+        },
+        {
+          "source_id": "kickoff_asr",
+          "video_interval": "06:44-08:02"
+        }
+      ],
+      "confidence": "high",
+      "asr_limit": true,
+      "proposed_acceptance_check_tr": "Her analitik ölçüm kaynak kaydına bağlanır; kalite kontrolü hesap için kullanılabilirliği etkiler.",
+      "interpretation_limit_tr": "Bronze/silver/gold anlatılıyor; belirli depolama ürünü veya formatı zorunlu tutulmuyor."
+    },
+    {
+      "id": "R03",
+      "category": "data",
+      "classification": "required",
+      "statement_tr": "BDDK Haftalık Bülten, Aylık Bülten ve FinTürk illere göre kaynaklarının alınması.",
+      "evidence": [
+        {
+          "source_id": "kickoff_pdf",
+          "pages_1_based": [
+            8
+          ]
+        },
+        {
+          "source_id": "kickoff_asr",
+          "video_interval": "09:25-10:31"
+        }
+      ],
+      "confidence": "high",
+      "asr_limit": true,
+      "proposed_acceptance_check_tr": "Üç kaynak ailesinin hedef dönem ve tablo kapsamı ayrı doğrulanır.",
+      "interpretation_limit_tr": ""
+    },
+    {
+      "id": "R04",
+      "category": "data",
+      "classification": "required",
+      "statement_tr": "BDDK ve EVDS hedef gözlem dönemi Ocak 2021-Haziran 2026.",
+      "evidence": [
+        {
+          "source_id": "kickoff_pdf",
+          "pages_1_based": [
+            8,
+            9
+          ]
+        },
+        {
+          "source_id": "kickoff_asr",
+          "video_interval": "09:49-10:02"
+        },
+        {
+          "source_id": "kickoff_asr",
+          "video_interval": "10:39-10:56"
+        }
+      ],
+      "confidence": "high",
+      "asr_limit": true,
+      "proposed_acceptance_check_tr": "Aylık hedef 66 aydır; her kaynağın doğal dönemleri hedefle eşlenir.",
+      "interpretation_limit_tr": "Konut örneğinin 60 ayı ile karıştırılmamalı; konuşmadaki yaklaşık beş yıl yazılı tarih aralığını değiştirmez."
+    },
+    {
+      "id": "R05",
+      "category": "data",
+      "classification": "required",
+      "statement_tr": "EVDS serileri içerisindeki tüm verilerin hedef dönemde temini.",
+      "evidence": [
+        {
+          "source_id": "kickoff_pdf",
+          "pages_1_based": [
+            9
+          ]
+        },
+        {
+          "source_id": "kickoff_asr",
+          "video_interval": "10:31-11:12"
+        }
+      ],
+      "confidence": "high",
+      "asr_limit": true,
+      "proposed_acceptance_check_tr": "Metadata, denenen indirme, dönen gözlem ve sayısal kapsam ayrı raporlanır.",
+      "interpretation_limit_tr": "Sadece metadata veya seçilmiş az sayıda seri tam kapsam olarak sunulamaz. Kaynakta olmayan değer uydurulmaz."
+    },
+    {
+      "id": "R06",
+      "category": "data",
+      "classification": "required",
+      "statement_tr": "Verilerin ekipler tarafından kamuya açık kaynaklardan edinilmesi.",
+      "evidence": [
+        {
+          "source_id": "kickoff_asr",
+          "video_interval": "12:18-12:33"
+        }
+      ],
+      "confidence": "high",
+      "asr_limit": true,
+      "proposed_acceptance_check_tr": "Kaynak bağlantıları, indirme konfigürasyonu ve ham yanıtlar teslim edilebilir.",
+      "interpretation_limit_tr": "Organizasyon hazır veri dosyası paylaşmayacağını söylüyor."
+    },
+    {
+      "id": "R07",
+      "category": "data",
+      "classification": "required",
+      "statement_tr": "Tarih, frekans ve birim uyumu; kalite ve eksik veri kontrolü.",
+      "evidence": [
+        {
+          "source_id": "kickoff_pdf",
+          "pages_1_based": [
+            7,
+            8,
+            9
+          ]
+        },
+        {
+          "source_id": "kickoff_asr",
+          "video_interval": "10:15-11:12"
+        }
+      ],
+      "confidence": "high",
+      "asr_limit": true,
+      "proposed_acceptance_check_tr": "Yanlış birim ve eksik alt dönem bulunan hesap reddedilir veya açıkça sınırlanır.",
+      "interpretation_limit_tr": ""
+    },
+    {
+      "id": "R08",
+      "category": "data",
+      "classification": "required",
+      "statement_tr": "Yıllık veya başlangıçtan beri kümülatif giden kaynakların ayrıştırılması.",
+      "evidence": [
+        {
+          "source_id": "kickoff_pdf",
+          "pages_1_based": [
+            8
+          ]
+        },
+        {
+          "source_id": "kickoff_asr",
+          "video_interval": "10:15-10:31"
+        }
+      ],
+      "confidence": "high",
+      "asr_limit": true,
+      "proposed_acceptance_check_tr": "Kaynak kümülatif değer korunur; dönemsel akım için uygun takvim ve tanım koşulları denetlenir.",
+      "interpretation_limit_tr": "Her stok serisini fark almak anlamına gelmez."
+    },
+    {
+      "id": "R09",
+      "category": "generalization",
+      "classification": "required",
+      "statement_tr": "Platformun finans verileri çıkarıldığında sağlık gibi başka alanın verisiyle çalışabilmesi.",
+      "evidence": [
+        {
+          "source_id": "kickoff_asr",
+          "video_interval": "12:33-12:55"
+        }
+      ],
+      "confidence": "high",
+      "asr_limit": true,
+      "proposed_acceptance_check_tr": "Aynı motor sürümünde ikinci alanın verisi ve alan sözleşmesi değiştirilerek keşif, hesap ve çıktı çalışır.",
+      "interpretation_limit_tr": "Tam bir sağlık ürünü veya klinik karar sistemi teslim etme şartı yok."
+    },
+    {
+      "id": "R10",
+      "category": "generalization",
+      "classification": "required",
+      "statement_tr": "Genel agent motorunun yeni araç ve veri kaynaklarıyla genişletilebilmesi.",
+      "evidence": [
+        {
+          "source_id": "kickoff_asr",
+          "video_interval": "13:29-14:05"
+        },
+        {
+          "source_id": "kickoff_asr",
+          "video_interval": "15:40-16:04"
+        }
+      ],
+      "confidence": "high",
+      "asr_limit": true,
+      "proposed_acceptance_check_tr": "Yeni bir araç mevcut planlama/yürütme çekirdeği yeniden yazılmadan eklenir.",
+      "interpretation_limit_tr": ""
+    },
+    {
+      "id": "R11",
+      "category": "tools",
+      "classification": "required",
+      "statement_tr": "Lakehouse Tool: doğal dilde keşif, sorgu, birleştirme ve analiz.",
+      "evidence": [
+        {
+          "source_id": "kickoff_pdf",
+          "pages_1_based": [
+            10
+          ]
+        },
+        {
+          "source_id": "kickoff_asr",
+          "video_interval": "14:05-14:33"
+        }
+      ],
+      "confidence": "high",
+      "asr_limit": true,
+      "proposed_acceptance_check_tr": "Doğru ölçü ve kaynak bulunur; SQL veya eşdeğer kontrollü sorgu gerçekten çalışır; join çoğalması denetlenir.",
+      "interpretation_limit_tr": ""
+    },
+    {
+      "id": "R12",
+      "category": "tools",
+      "classification": "required",
+      "statement_tr": "Web Search Tool: gerekli ek bilgi ve veriyi internetten araştırma.",
+      "evidence": [
+        {
+          "source_id": "kickoff_pdf",
+          "pages_1_based": [
+            10
+          ]
+        },
+        {
+          "source_id": "kickoff_asr",
+          "video_interval": "13:29-13:49"
+        },
+        {
+          "source_id": "kickoff_asr",
+          "video_interval": "14:33-14:46"
+        }
+      ],
+      "confidence": "high",
+      "asr_limit": true,
+      "proposed_acceptance_check_tr": "Gereken dış bağlam aranır ve iddia açılan kaynak içeriğine bağlanır.",
+      "interpretation_limit_tr": ""
+    },
+    {
+      "id": "R13",
+      "category": "tools",
+      "classification": "required",
+      "statement_tr": "Web URL Agent Tool: verilen URL içindeki PDF, Excel, resim ve metinden anlam çıkarma.",
+      "evidence": [
+        {
+          "source_id": "kickoff_pdf",
+          "pages_1_based": [
+            10,
+            13
+          ]
+        },
+        {
+          "source_id": "kickoff_asr",
+          "video_interval": "13:49-14:05"
+        },
+        {
+          "source_id": "kickoff_asr",
+          "video_interval": "14:47-14:53"
+        }
+      ],
+      "confidence": "high",
+      "asr_limit": true,
+      "proposed_acceptance_check_tr": "Yeni URL okunur; kaynak sayfa/hücre ve ölçü anlamı korunarak analize dahil edilir.",
+      "interpretation_limit_tr": ""
+    },
+    {
+      "id": "R14",
+      "category": "tools",
+      "classification": "required",
+      "statement_tr": "Anomali Tool: olağandışı hareket ve aykırı değerleri tespit ve analiz etme.",
+      "evidence": [
+        {
+          "source_id": "kickoff_pdf",
+          "pages_1_based": [
+            10
+          ]
+        },
+        {
+          "source_id": "kickoff_asr",
+          "video_interval": "14:53-15:11"
+        }
+      ],
+      "confidence": "high",
+      "asr_limit": true,
+      "proposed_acceptance_check_tr": "Çalışan yöntem, parametreler, geçerli örnek sayısı ve anomali tarihleri açıklanır.",
+      "interpretation_limit_tr": "Belirli algoritma veya eşik zorunlu değil."
+    },
+    {
+      "id": "R15",
+      "category": "tools",
+      "classification": "required",
+      "statement_tr": "Causality Tool: ilişkinin neden-sonuç taşıyıp taşımadığını incelemeye yardımcı olma.",
+      "evidence": [
+        {
+          "source_id": "kickoff_pdf",
+          "pages_1_based": [
+            10
+          ]
+        },
+        {
+          "source_id": "kickoff_asr",
+          "video_interval": "15:12-15:26"
+        }
+      ],
+      "confidence": "high",
+      "asr_limit": true,
+      "proposed_acceptance_check_tr": "Korelasyon, gecikmeli ilişki ve nedensel iddia ayrılır; veri yetersizliği açıklanır.",
+      "interpretation_limit_tr": "Kesin nedenselliği her gözlemsel soruda kanıtlama şartı yok; belirli yöntem zorunlu değil."
+    },
+    {
+      "id": "R16",
+      "category": "tools",
+      "classification": "required",
+      "statement_tr": "Change Detection Tool: trend, seviye veya davranış değişimleri ve kırılmaları tespit etme.",
+      "evidence": [
+        {
+          "source_id": "kickoff_pdf",
+          "pages_1_based": [
+            10
+          ]
+        },
+        {
+          "source_id": "kickoff_asr",
+          "video_interval": "15:27-15:39"
+        }
+      ],
+      "confidence": "high",
+      "asr_limit": true,
+      "proposed_acceptance_check_tr": "Kalıcı seviye değişimi ile tek aykırı gözlem farklı yöntem çıktıları olarak gösterilir.",
+      "interpretation_limit_tr": ""
+    },
+    {
+      "id": "R17",
+      "category": "tools",
+      "classification": "required",
+      "statement_tr": "Altı araç ailesi minimum pakettir; ek araçlara izin vardır.",
+      "evidence": [
+        {
+          "source_id": "kickoff_pdf",
+          "pages_1_based": [
+            10
+          ]
+        },
+        {
+          "source_id": "kickoff_asr",
+          "video_interval": "15:45-16:04"
+        }
+      ],
+      "confidence": "high",
+      "asr_limit": true,
+      "proposed_acceptance_check_tr": "Altı aileye ait davranışların tümü çalışan senaryolarla gösterilir.",
+      "interpretation_limit_tr": "Tam olarak altı fonksiyon veya altı agent şartı yok."
+    },
+    {
+      "id": "R18",
+      "category": "evidence",
+      "classification": "required",
+      "statement_tr": "Kaynak gösterimi, izlenebilirlik, doğruluk kontrolü ve web ile desteklenen doğrulama.",
+      "evidence": [
+        {
+          "source_id": "kickoff_pdf",
+          "pages_1_based": [
+            7
+          ]
+        },
+        {
+          "source_id": "kickoff_asr",
+          "video_interval": "08:40-09:11"
+        }
+      ],
+      "confidence": "high",
+      "asr_limit": true,
+      "proposed_acceptance_check_tr": "Her temel sayı kaynak, dönem, birim ve hesap adımına bağlanır; desteklenmeyen anlatı başarı diye sunulmaz.",
+      "interpretation_limit_tr": ""
+    },
+    {
+      "id": "R19",
+      "category": "output",
+      "classification": "required",
+      "statement_tr": "İstenen biçimde rapor, grafik, tablo veya uygun karar destek çıktısı.",
+      "evidence": [
+        {
+          "source_id": "kickoff_pdf",
+          "pages_1_based": [
+            7
+          ]
+        },
+        {
+          "source_id": "kickoff_asr",
+          "video_interval": "08:49-09:11"
+        }
+      ],
+      "confidence": "high",
+      "asr_limit": true,
+      "proposed_acceptance_check_tr": "Aynı analiz istenen çıktı türünde, hesap ve kaynak bilgileri korunarak sunulur.",
+      "interpretation_limit_tr": "Her çıktı için ayrı ürün veya dashboard ekranı şartı belirtilmiyor."
+    },
+    {
+      "id": "R20",
+      "category": "state",
+      "classification": "required",
+      "statement_tr": "Aynı konuşmada tabloyu koruyarak yalnız istenen dönüşümü yapmak ve yeni sütun eklemek.",
+      "evidence": [
+        {
+          "source_id": "kickoff_pdf",
+          "pages_1_based": [
+            11
+          ]
+        },
+        {
+          "source_id": "kickoff_asr",
+          "video_interval": "17:04-17:24"
+        }
+      ],
+      "confidence": "high",
+      "asr_limit": true,
+      "proposed_acceptance_check_tr": "Satır anahtarları ve değişmeyen sütunlar korunur; yeni sonuç önceki sonuca izlenebilir biçimde bağlanır.",
+      "interpretation_limit_tr": "Örnek konut kullanır, davranış başka ölçülerde de geçerli olmalı; belirli state-store zorunlu değil."
+    },
+    {
+      "id": "R21",
+      "category": "demo",
+      "classification": "required",
+      "statement_tr": "Demo günü verilecek girdiler ve yeni URL/veri ile gerçek senaryo çalıştırmak.",
+      "evidence": [
+        {
+          "source_id": "kickoff_pdf",
+          "pages_1_based": [
+            13,
+            26
+          ]
+        },
+        {
+          "source_id": "kickoff_asr",
+          "video_interval": "17:49-18:22"
+        },
+        {
+          "source_id": "kickoff_asr",
+          "video_interval": "21:37-21:52"
+        }
+      ],
+      "confidence": "high",
+      "asr_limit": true,
+      "proposed_acceptance_check_tr": "Önceden hazırlanmamış soru ve kaynaktan canlı araç çalışmasıyla sonuç üretilir.",
+      "interpretation_limit_tr": ""
+    },
+    {
+      "id": "R22",
+      "category": "language",
+      "classification": "required",
+      "statement_tr": "Ana geliştirme dili Python; özel gereksinim olmadıkça ek dil kullanılmaması.",
+      "evidence": [
+        {
+          "source_id": "kickoff_pdf",
+          "pages_1_based": [
+            18
+          ]
+        },
+        {
+          "source_id": "kickoff_asr",
+          "video_interval": "19:55-20:07"
+        }
+      ],
+      "confidence": "high",
+      "asr_limit": true,
+      "proposed_acceptance_check_tr": "Backend ve agent çözümü Python ile yeniden kurulabilir.",
+      "interpretation_limit_tr": "Frontend için dil/framework serbestliği açıkça tanınıyor."
+    },
+    {
+      "id": "R23",
+      "category": "dependencies",
+      "classification": "required",
+      "statement_tr": "Açık kaynak kütüphaneler ve açık ağırlıklı modeller kullanılması bekleniyor.",
+      "evidence": [
+        {
+          "source_id": "kickoff_pdf",
+          "pages_1_based": [
+            20
+          ]
+        },
+        {
+          "source_id": "kickoff_asr",
+          "video_interval": "20:09-20:24"
+        },
+        {
+          "source_id": "kickoff_asr",
+          "video_interval": "23:26-24:17"
+        }
+      ],
+      "confidence": "high",
+      "asr_limit": true,
+      "proposed_acceptance_check_tr": "Bağımlılıklar ve kullanılan model hizmetleri teknik teslimde görülebilir.",
+      "interpretation_limit_tr": "PDF içindeki Qwen/Mistral/gpt-oss/Kimi ve pypdf/Pandas/DuckDB/Plotly/LanceDB listeleri örnektir; tümü zorunlu değil."
+    },
+    {
+      "id": "R24",
+      "category": "model_provider",
+      "classification": "required",
+      "statement_tr": "Geliştirme ve demo sırasında yalnız Kloudeks üzerinden erişilen modeller; üçüncü taraf LLM API yasağı.",
+      "evidence": [
+        {
+          "source_id": "kickoff_pdf",
+          "pages_1_based": [
+            28
+          ]
+        },
+        {
+          "source_id": "kickoff_asr",
+          "video_interval": "29:39-30:38"
+        }
+      ],
+      "confidence": "high",
+      "asr_limit": true,
+      "proposed_acceptance_check_tr": "Model çağrı noktaları ve konfigürasyon aynı izinli sağlayıcıya gider.",
+      "interpretation_limit_tr": "Yalnız finalde sağlayıcı değiştirmek yeterliymiş gibi yorumlanmamalı."
+    },
+    {
+      "id": "R25",
+      "category": "architecture",
+      "classification": "technical_guidance",
+      "statement_tr": "Harness güçlü kurulmalı, modele az iş bırakılmalı; büyük veri doğrudan context içine dökülmemeli.",
+      "evidence": [
+        {
+          "source_id": "kickoff_asr",
+          "video_interval": "11:35-12:18"
+        },
+        {
+          "source_id": "kickoff_asr",
+          "video_interval": "28:38-29:09"
+        }
+      ],
+      "confidence": "high",
+      "asr_limit": true,
+      "proposed_acceptance_check_tr": "Model dar görev seçer; araç hesap yapar; bağlam ve hata bütçeleri görünür biçimde yönetilir.",
+      "interpretation_limit_tr": "Belirli framework, planlama dili, çok-agent topolojisi veya native tool-calling zorunlu değil."
+    },
+    {
+      "id": "R26",
+      "category": "architecture",
+      "classification": "required",
+      "statement_tr": "Lakehouse ve agent tarafında genel, modüler yapı; teknik ekibin kodu incelemesi.",
+      "evidence": [
+        {
+          "source_id": "kickoff_asr",
+          "video_interval": "23:09-23:25"
+        },
+        {
+          "source_id": "kickoff_asr",
+          "video_interval": "30:57-31:26"
+        }
+      ],
+      "confidence": "high",
+      "asr_limit": true,
+      "proposed_acceptance_check_tr": "Mimari iddialar modüller, sözleşmeler ve testlerle eşleşir.",
+      "interpretation_limit_tr": ""
+    },
+    {
+      "id": "R27",
+      "category": "architecture",
+      "classification": "clarification",
+      "statement_tr": "Fine-tuning beklenmiyor; genel modeller çevresinde yapılandırma ve kurgu öneriliyor.",
+      "evidence": [
+        {
+          "source_id": "kickoff_asr",
+          "video_interval": "30:46-31:26"
+        }
+      ],
+      "confidence": "high",
+      "asr_limit": true,
+      "proposed_acceptance_check_tr": "Model eğitmeden genel veri/araç akışı çalışır.",
+      "interpretation_limit_tr": "Fine-tuning yapılmaması gerektiğine dair ayrı mutlak yasak yerine beklenti yokluğu olarak okunmalı."
+    },
+    {
+      "id": "R28",
+      "category": "delivery",
+      "classification": "required",
+      "statement_tr": "Repo private tutulmalı ve bildirilecek KKB kullanıcıları collaborator yapılmalı.",
+      "evidence": [
+        {
+          "source_id": "kickoff_pdf",
+          "pages_1_based": [
+            22
+          ]
+        },
+        {
+          "source_id": "kickoff_asr",
+          "video_interval": "22:41-22:54"
+        },
+        {
+          "source_id": "kickoff_asr",
+          "video_interval": "31:27-31:30"
+        }
+      ],
+      "confidence": "high",
+      "asr_limit": true,
+      "proposed_acceptance_check_tr": "Private repo ve yetkili erişim gösterilebilir.",
+      "interpretation_limit_tr": "Kullanıcı adları bu kaynaklarda verilmemiş; Slack ile bildirilecek."
+    },
+    {
+      "id": "R29",
+      "category": "delivery",
+      "classification": "required",
+      "statement_tr": "Çalışmaya hazır çözüm ve mimari, doküman, kod, veri tabanı tanımları/kullanım bilgilerinin teslimi.",
+      "evidence": [
+        {
+          "source_id": "kickoff_pdf",
+          "pages_1_based": [
+            24,
+            26
+          ]
+        },
+        {
+          "source_id": "kickoff_asr",
+          "video_interval": "20:44-21:52"
+        }
+      ],
+      "confidence": "high",
+      "asr_limit": true,
+      "proposed_acceptance_check_tr": "Teslim edilen sürüm tanımlı ortamda kurulup gerçek soruya cevap verir.",
+      "interpretation_limit_tr": ""
+    },
+    {
+      "id": "R30",
+      "category": "delivery",
+      "classification": "required",
+      "statement_tr": "Freeze sonrası repo güncellenmemeli; demo teslim edilen son commit üzerinden yapılmalı.",
+      "evidence": [
+        {
+          "source_id": "kickoff_asr",
+          "video_interval": "22:55-23:09"
+        },
+        {
+          "source_id": "kickoff_asr",
+          "video_interval": "25:46-26:07"
+        }
+      ],
+      "confidence": "high",
+      "asr_limit": true,
+      "proposed_acceptance_check_tr": "Freeze klonu, demo commit kimliği ve kurulum girdileri aynı sürümü gösterir.",
+      "interpretation_limit_tr": "Kesin freeze saati burada verilmemiş; farklılık tespitinde elenme olabileceği konuşmada açık."
+    },
+    {
+      "id": "R31",
+      "category": "deployment",
+      "classification": "clarification",
+      "statement_tr": "Demo yerel bilgisayarda veya bulutta olabilir; zorunlu bulut deployment yok.",
+      "evidence": [
+        {
+          "source_id": "kickoff_pdf",
+          "pages_1_based": [
+            24
+          ]
+        },
+        {
+          "source_id": "kickoff_asr",
+          "video_interval": "24:46-25:11"
+        }
+      ],
+      "confidence": "high",
+      "asr_limit": true,
+      "proposed_acceptance_check_tr": "Yerel ya da bulut ortamda çalışan ve yeniden kurulabilen teslim gösterilir.",
+      "interpretation_limit_tr": "PDFdeki deploy ifadesi soru-cevapla birlikte okunmalı."
+    },
+    {
+      "id": "R32",
+      "category": "dependencies",
+      "classification": "required",
+      "statement_tr": "Hazır lisanslı/bulut çözümüyle temel lakehouse veya analitik görevi dışarıya devretmeme.",
+      "evidence": [
+        {
+          "source_id": "kickoff_asr",
+          "video_interval": "23:31-24:17"
+        },
+        {
+          "source_id": "kickoff_asr",
+          "video_interval": "24:56-25:11"
+        }
+      ],
+      "confidence": "high",
+      "asr_limit": true,
+      "proposed_acceptance_check_tr": "Temel veri/agent davranışı takımın tesliminde bulunur; başka kurum ortamında çalıştırılabilir.",
+      "interpretation_limit_tr": "Tüm bulut barındırmalarının veya küçük yardımcı araçların yasaklandığı söylenmiyor."
+    },
+    {
+      "id": "R33",
+      "category": "security",
+      "classification": "required",
+      "statement_tr": "Takıma ait API anahtarlarını paylaşmama ve private GitHub reposuna dahi yüklememe.",
+      "evidence": [
+        {
+          "source_id": "kickoff_asr",
+          "video_interval": "31:27-32:09"
+        }
+      ],
+      "confidence": "high",
+      "asr_limit": true,
+      "proposed_acceptance_check_tr": "Anahtarlar kod, notebook çıktısı, Git geçmişi ve paylaşılan teknik dosyalarda bulunmaz.",
+      "interpretation_limit_tr": "Güvenlik kaynaklı sızmanın negatif puan getireceği belirtiliyor; puan miktarı yok."
+    },
+    {
+      "id": "R34",
+      "category": "operations",
+      "classification": "clarification",
+      "statement_tr": "Başlangıçta servis limitleri olacak; ihtiyaç halinde Slack üzerinden artırılabilecek.",
+      "evidence": [
+        {
+          "source_id": "kickoff_asr",
+          "video_interval": "32:11-32:43"
+        }
+      ],
+      "confidence": "high",
+      "asr_limit": true,
+      "proposed_acceptance_check_tr": "Hız/kota hataları sınırlı bekleme ve tekrar politikasıyla görünür biçimde yönetilir.",
+      "interpretation_limit_tr": "Sayısal token, istek/dakika veya paralellik kotası açıklanmıyor."
+    },
+    {
+      "id": "R35",
+      "category": "schedule",
+      "classification": "required",
+      "statement_tr": "Online geliştirme 7-20 Eylül; ilk 10 takım 5 Ekim; final 17 Ekim 2026.",
+      "evidence": [
+        {
+          "source_id": "kickoff_pdf",
+          "pages_1_based": [
+            16
+          ]
+        },
+        {
+          "source_id": "kickoff_asr",
+          "video_interval": "19:05-19:37"
+        }
+      ],
+      "confidence": "high",
+      "asr_limit": true,
+      "proposed_acceptance_check_tr": "Teslim planı açıklanan tarihlere göre kurulup sonraki resmi duyurularla güncellenir.",
+      "interpretation_limit_tr": "20 Eylül teslim saati/zaman dilimi ve final demo süresi belirtilmiyor."
+    },
+    {
+      "id": "R36",
+      "category": "example",
+      "classification": "example",
+      "statement_tr": "2021-2025 60 aylık konut kredisi/faiz, reel dönüşüm ve KFE ekleme soru zinciri.",
+      "evidence": [
+        {
+          "source_id": "kickoff_pdf",
+          "pages_1_based": [
+            11,
+            12
+          ]
+        },
+        {
+          "source_id": "kickoff_asr",
+          "video_interval": "16:08-17:49"
+        }
+      ],
+      "confidence": "high",
+      "asr_limit": true,
+      "proposed_acceptance_check_tr": "Bu örnekteki keşif, hesap ve tablo koruma davranışı konut dışındaki serilerde de çalışır.",
+      "interpretation_limit_tr": "Önceden hesaplanmış tek panel veya görseldeki sayıları cevap anahtarı yapmak gerekmiyor."
+    },
+    {
+      "id": "R37",
+      "category": "example",
+      "classification": "example",
+      "statement_tr": "Borsa İstanbul altın PDFsi ve endeks sayfası yeni URL girdisi örnekleri.",
+      "evidence": [
+        {
+          "source_id": "kickoff_pdf",
+          "pages_1_based": [
+            13
+          ]
+        },
+        {
+          "source_id": "kickoff_asr",
+          "video_interval": "17:49-18:22"
+        }
+      ],
+      "confidence": "high",
+      "asr_limit": true,
+      "proposed_acceptance_check_tr": "URLler farklılaştığında aynı edinim/doğrulama akışı kullanılır.",
+      "interpretation_limit_tr": "PDFdeki endeks URLsi ve BIST100 adı aynı seri varsayılmamalı; kaynak kimliği doğrulanmalı."
+    },
+    {
+      "id": "R38",
+      "category": "evaluation",
+      "classification": "technical_guidance",
+      "statement_tr": "İyi tasarım ve farklı çözümler bekleniyor; modülerlik, çalışan demo, güvenlik ve yeniden kurulum değerlendiriliyor.",
+      "evidence": [
+        {
+          "source_id": "kickoff_pdf",
+          "pages_1_based": [
+            7,
+            24,
+            26
+          ]
+        },
+        {
+          "source_id": "kickoff_asr",
+          "video_interval": "21:04-21:28"
+        },
+        {
+          "source_id": "kickoff_asr",
+          "video_interval": "23:09-24:17"
+        },
+        {
+          "source_id": "kickoff_asr",
+          "video_interval": "31:51-32:00"
+        },
+        {
+          "source_id": "kickoff_asr",
+          "video_interval": "33:26-33:40"
+        }
+      ],
+      "confidence": "high",
+      "asr_limit": true,
+      "proposed_acceptance_check_tr": "Değerlendirme paketi yeni soru, yeni veri, hata ve yeniden kurulum senaryoları içerir.",
+      "interpretation_limit_tr": "Sayısal ağırlıklar, barajlar veya belirli özelliğin garanti puanı açıklanmıyor."
+    },
+    {
+      "id": "R39",
+      "category": "communication",
+      "classification": "required",
+      "statement_tr": "Slack yönlendirmeleri, mentor iletişimi ve sonraki duyurular takip edilmeli.",
+      "evidence": [
+        {
+          "source_id": "kickoff_pdf",
+          "pages_1_based": [
+            15,
+            30
+          ]
+        },
+        {
+          "source_id": "kickoff_asr",
+          "video_interval": "18:45-19:04"
+        },
+        {
+          "source_id": "kickoff_asr",
+          "video_interval": "34:35-35:03"
+        }
+      ],
+      "confidence": "high",
+      "asr_limit": true,
+      "proposed_acceptance_check_tr": "Teslim, erişim ve servis konfigürasyonu sonraki resmi duyurularla teyit edilir.",
+      "interpretation_limit_tr": "Bu denetim sonraki Slack mesajlarının tamamına sahip değil."
+    }
+  ],
+  "unknowns": [
+    {
+      "id": "U01",
+      "topic": "Puan cetveli",
+      "unknown": "Resmi kriter ağırlıkları, toplam puan ve barajlar verilmemiş."
+    },
+    {
+      "id": "U02",
+      "topic": "Freeze",
+      "unknown": "Kesin saat, zaman dilimi ve dondurma işleminin ayrıntılı usulü verilmemiş."
+    },
+    {
+      "id": "U03",
+      "topic": "Demo",
+      "unknown": "Takım başına süre, tam soru bankası, kesin URL listesi ve final akışı verilmemiş."
+    },
+    {
+      "id": "U04",
+      "topic": "Model API",
+      "unknown": "Kesin model kimlikleri, context limiti, native tool calling/strict JSON Schema desteği ve sabit gecikme garantisi bu kaynaklarda yok."
+    },
+    {
+      "id": "U05",
+      "topic": "Kota",
+      "unknown": "Sayısal kullanım ve eşzamanlılık kotaları verilmemiş."
+    },
+    {
+      "id": "U06",
+      "topic": "Framework",
+      "unknown": "Belirli lakehouse formatı, agent frameworkü, agent sayısı veya skill sistemi şartı yok."
+    },
+    {
+      "id": "U07",
+      "topic": "Kurulum şablonu",
+      "unknown": "Teslim edilecek teknik dosyalar bekleniyor, ancak özel bir şablon bu kaynaklarda yok."
+    }
+  ],
+  "high_score_distinguishers_are_analytical_recommendations": [
+    "Aynı motorla konut dışındaki para/sayım/oran sorularını çözme.",
+    "Yeni URL veya ikinci alan verisini aynı keşif ve hesap yoluna dahil etme.",
+    "Çok turlu tabloda değişmeyen hücreleri koruyup kaynak zincirini sürdürme.",
+    "Eksik veri ve belirsiz birim durumunda güvenilir biçimde sınırlama veya reddetme.",
+    "Anomali, değişim ve korelasyon/nedensellik araçlarının ayrı davranışlarını gösterme.",
+    "Sınırlı model kapasitesiyle çalışan, ölçülmüş ve tekrar kurulabilir harness."
+  ]
+}

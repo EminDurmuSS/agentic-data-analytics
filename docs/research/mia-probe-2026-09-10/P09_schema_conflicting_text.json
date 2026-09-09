@@ -1,0 +1,36 @@
+{
+  "label": "P09_schema_conflicting_text",
+  "payload": {
+    "model": "kkbhackathon2026/Qwen3.8-27B",
+    "max_tokens": 1536,
+    "temperature": 0,
+    "messages": [
+      {
+        "role": "user",
+        "content": "Yalnız DÜZ METİN yaz. JSON, süslü parantez ve herhangi bir alan kullanma."
+      }
+    ],
+    "response_format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "schema_conflict",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "decision": {
+              "type": "string",
+              "enum": [
+                "schema_ok"
+              ]
+            }
+          },
+          "required": [
+            "decision"
+          ],
+          "additionalProperties": false
+        }
+      }
+    }
+  }
+}

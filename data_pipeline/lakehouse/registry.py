@@ -16,6 +16,7 @@ import duckdb
 import pandas as pd
 
 CONTRACT_VERSION = "1.0.0"
+SEMANTIC_POLICY_VERSION = "1.1.1"
 FREQUENCIES = {
     "AYLIK": "monthly", "ÜÇ AYLIK": "quarterly", "YILLIK": "yearly",
     "ALTI AYLIK": "half_yearly", "GÜNLÜK": "daily", "İŞ GÜNÜ": "business_daily",
@@ -38,6 +39,34 @@ def rows(connection: duckdb.DuckDBPyConnection, sql: str) -> list[dict[str, Any]
     result = connection.execute(sql)
     names = [item[0] for item in result.description]
     return [dict(zip(names, row)) for row in result.fetchall()]
+
+
+def apply_semantic_policy(binding: dict[str, Any]) -> dict[str, Any]:
+    """Apply reviewed source roles without guessing from an index's label.
+
+    The CPI role is documented in the source acquisition manifest
+    data_pipeline/evds/manifests/housing_causality_v1.json. Other indices,
+    including industrial production and housing prices, are not general CPI
+    deflators. Persisted snapshots retain their original binding version/hash;
+    the separate policy version identifies these execution-time constraints.
+    """
+    binding["semantic_policy_version"] = SEMANTIC_POLICY_VERSION
+    if binding.get("source_system") == "BDDK_MONTHLY":
+        # Monthly source rows lose group_name in their semantic long format.
+        # Reuse the monthly acquisition adapter's verified catalog, never the
+        # different code meanings in FinTurk or the weekly bulletin.
+        from data_pipeline.bddk.build_monthly_all_dataset import GROUPS
+
+        binding["dimension_labels"] = {"group_code": {str(code): label for code, label in GROUPS.items()}}
+        binding["dimension_labels_evidence"] = {"group_code": {
+            "source": "data_pipeline/bddk/monthly_all_groups/request_config.json#groups",
+            "source_url": "https://www.bddk.org.tr/BultenAylik/tr/",
+            "verified_at": "2026-09-08", "namespace": "BDDK_MONTHLY"}}
+    if binding.get("source_system") == "TCMB_EVDS" and binding.get("source_code") == "TP.TUKFIY2025.GENEL":
+        binding.update(index_role="price_deflator", deflator_currency="TRY",
+                       price_scope="Turkey general consumer price basket",
+                       role_evidence="housing_causality_v1 manifest: price_deflator")
+    return binding
 
 
 def normalized_unit(source_unit: str) -> tuple[str, float, str | None]:
@@ -88,7 +117,13 @@ def kind_for(semantics: str, unit: str) -> str:
 
 
 def build_bindings(connection: duckdb.DuckDBPyConnection) -> dict[str, dict[str, Any]]:
-    manifest = rows(connection, "SELECT * FROM catalog.table_manifest")
+    tables = {(row[0], row[1]) for row in connection.execute(
+        "SELECT table_schema,table_name FROM information_schema.tables").fetchall()}
+    # A generic workspace can start with no source catalog. Its explicitly
+    # contracted datasets are bound by the service's overlay adapter.
+    if ("catalog", "metrics") not in tables:
+        return {}
+    manifest = rows(connection, "SELECT * FROM catalog.table_manifest") if ("catalog", "table_manifest") in tables else []
     paths: dict[str, list[str]] = {}
     for item in manifest:
         paths.setdefault(item["source_path"], []).append(f"{item['schema_name']}.{item['table_name']}")
@@ -109,6 +144,8 @@ def build_bindings(connection: duckdb.DuckDBPyConnection) -> dict[str, dict[str,
         table = candidates[0] if len(candidates) == 1 else None
         unit, scale, currency = normalized_unit(metric["unit"] or "")
         binding = {"metric_id":metric["metric_id"], "title":metric["metric_name_tr"],
+            "title_en":metric.get("metric_name_en"), "searchable_text":metric.get("searchable_text"),
+            "group_name":metric.get("group_name"), "role":metric.get("role"),
             "source_system":source, "source_code":code, "table":table, "time_column":None,
             "value_column":None, "filters":{}, "dimensions":{},
             "native_frequency":FREQUENCIES.get(metric["native_frequency"], metric["native_frequency"]),
@@ -122,6 +159,7 @@ def build_bindings(connection: duckdb.DuckDBPyConnection) -> dict[str, dict[str,
             "institution_scope":metric["institution_grain"], "geography_scope":metric["geography_grain"],
             "definition_periods":[], "unit_evidence":"source catalog and explicit source adapter",
             "source_asset":metric["source_asset"], "hash_basis":"file_bytes"}
+        apply_semantic_policy(binding)
         if not metric["observation_available"]:
             binding["table"] = None
             bindings[binding["metric_id"]] = binding
@@ -219,6 +257,7 @@ def build_bindings(connection: duckdb.DuckDBPyConnection) -> dict[str, dict[str,
             if "proxy" in code:
                 binding["blocked_reason"] = "Proxy requires explicit reviewed policy; use official source metric by default."
         available = schemas.get(binding["table"], {})
+        binding["dimension_label_columns"] = {"group_code": "group_name"} if "group_code" in binding["dimensions"] and "group_name" in available else {}
         identifiers = [binding["time_column"],binding["value_column"],*binding["filters"],*binding["dimensions"].values()]
         binding["binding_available"] = bool(available) and all(name in available for name in identifiers)
         binding["provenance_columns"] = [name for name in binding["provenance_columns"] if name in available]
@@ -248,7 +287,10 @@ def install_bindings(connection: duckdb.DuckDBPyConnection) -> dict[str, Any]:
     frame = pd.DataFrame([{"metric_id":key,"status":item["status"],"contract_version":CONTRACT_VERSION,
                            "binding_json":(None if item["status"] == "metadata_only" else
                                json.dumps(item,ensure_ascii=False,sort_keys=True,allow_nan=False))}
-                          for key,item in bindings.items()])
+                          for key,item in bindings.items()], columns=["metric_id", "status", "contract_version", "binding_json"])
+    if frame.empty:
+        frame = frame.astype({name: "string" for name in frame.columns})
+    connection.execute("CREATE SCHEMA IF NOT EXISTS catalog")
     connection.register("_metric_bindings",frame)
     try:
         connection.execute("CREATE TABLE catalog.metric_bindings AS SELECT * FROM _metric_bindings")
@@ -262,9 +304,24 @@ def get_bindings(connection: duckdb.DuckDBPyConnection) -> dict[str, dict[str, A
     """Read persisted contracts, keeping queries on the same pinned snapshot."""
     exists = connection.execute("SELECT count(*) FROM information_schema.tables WHERE table_schema='catalog' AND table_name='metric_bindings'").fetchone()[0]
     if not exists:
+        catalog_exists = connection.execute("SELECT count(*) FROM information_schema.tables WHERE table_schema='catalog' AND table_name='metrics'").fetchone()[0]
+        if not catalog_exists:
+            return {}
         raise ValueError("Metric contracts are absent. Rebuild the lakehouse before serving agent queries.")
     payload_rows = connection.execute("SELECT metric_id,binding_json FROM catalog.metric_bindings").fetchall()
-    result = {row[0]:json.loads(row[1]) for row in payload_rows if row[1] is not None}
+    result = {row[0]:apply_semantic_policy(json.loads(row[1])) for row in payload_rows if row[1] is not None}
+    catalog_columns = {row[0] for row in connection.execute("SELECT column_name FROM information_schema.columns WHERE table_schema='catalog' AND table_name='metrics'").fetchall()}
+    searchable = [name for name in ("metric_name_en", "searchable_text", "group_name", "role") if name in catalog_columns]
+    if searchable:
+        for metric in rows(connection, "SELECT m.metric_id," + ",".join("m." + name for name in searchable) + " FROM catalog.metrics m JOIN catalog.metric_bindings b USING(metric_id) WHERE b.binding_json IS NOT NULL"):
+            binding = result[metric["metric_id"]]
+            binding.update({"title_en" if key == "metric_name_en" else key: value for key, value in metric.items() if key != "metric_id"})
+    table_columns: dict[str, set[str]] = {}
+    for row in connection.execute("SELECT table_schema,table_name,column_name FROM information_schema.columns").fetchall():
+        table_columns.setdefault(row[0] + "." + row[1], set()).add(row[2])
+    for binding in result.values():
+        if "group_code" in binding.get("dimensions", {}) and "group_name" in table_columns.get(binding.get("table"), set()):
+            binding["dimension_label_columns"] = {"group_code": "group_name"}
     if all(row[1] is not None for row in payload_rows):
         return result
     # Metadata-only series have no physical binding. Reuse the existing catalog
@@ -273,6 +330,7 @@ def get_bindings(connection: duckdb.DuckDBPyConnection) -> dict[str, dict[str, A
             USING(metric_id) WHERE b.binding_json IS NULL"""):
         unit,scale,currency = normalized_unit(metric["unit"] or "")
         result[metric["metric_id"]] = {"metric_id":metric["metric_id"], "title":metric["metric_name_tr"],
+            "title_en":metric.get("metric_name_en"), "searchable_text":metric.get("searchable_text"), "group_name":metric.get("group_name"),
             "source_system":metric["source_system"], "source_code":metric["source_metric_code"],
             "table":None,"time_column":None,"value_column":None,"filters":{},"dimensions":{},
             "native_frequency":FREQUENCIES.get(metric["native_frequency"],metric["native_frequency"]),

@@ -1,0 +1,45 @@
+{
+  "label": "P17_vision_schema",
+  "mode": "vision",
+  "overrides": {
+    "response_format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "extracted_table",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "birim": {
+              "type": "string"
+            },
+            "kayitlar": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "donem": {
+                    "type": "string"
+                  },
+                  "deger": {
+                    "type": "number"
+                  }
+                },
+                "required": [
+                  "donem",
+                  "deger"
+                ],
+                "additionalProperties": false
+              }
+            }
+          },
+          "required": [
+            "birim",
+            "kayitlar"
+          ],
+          "additionalProperties": false
+        }
+      }
+    }
+  }
+}

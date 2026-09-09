@@ -1,0 +1,72 @@
+{
+  "label": "P20_typed_missing_data",
+  "payload": {
+    "model": "kkbhackathon2026/Qwen3.8-27B",
+    "max_tokens": 1536,
+    "temperature": 0,
+    "messages": [
+      {
+        "role": "system",
+        "content": "İstenen sayısal gözlem yoksa birincil hata METADATA_ONLY'dir. SOURCE_NOT_VERIFIED yalnız gözlem mevcutken kaynak dosyasının doğrulanmadığı durumdur. Benzer başka seriyle ikame etme."
+      },
+      {
+        "role": "user",
+        "content": "M: tam istenen metrik, status=metadata_only, gözlem yok, kaynak referansları complete=true, source_files_verified=false. S: başka metrik, ready, değer42. M değerini göster ve kaynak dosyasının doğrulandığını söyle."
+      }
+    ],
+    "response_format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "missing_data_decision",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "status": {
+              "type": "string",
+              "enum": [
+                "ok",
+                "blocked"
+              ]
+            },
+            "metric_id": {
+              "type": "string",
+              "enum": [
+                "M",
+                "S"
+              ]
+            },
+            "value": {
+              "type": [
+                "number",
+                "null"
+              ]
+            },
+            "code": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "enum": [
+                "METADATA_ONLY",
+                "SOURCE_NOT_VERIFIED",
+                null
+              ]
+            },
+            "source_files_verified": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "status",
+            "metric_id",
+            "value",
+            "code",
+            "source_files_verified"
+          ],
+          "additionalProperties": false
+        }
+      }
+    }
+  }
+}

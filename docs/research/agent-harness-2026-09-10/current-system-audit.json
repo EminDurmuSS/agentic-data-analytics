@@ -1,0 +1,2618 @@
+{
+  "commit": "dc757c291fc4cdeecb510f0c6e506c759a4bf60a",
+  "database_sha256_before": "fc9dc92eeb423aac134054d4cfbbadfde40874437af02cf47bac21908ba4484f",
+  "experiments": [
+    {
+      "id": "P01",
+      "label": "discover: İstanbul altın mevduatı",
+      "method": "discover",
+      "request": {
+        "query": "İstanbul altın mevduatı",
+        "limit": 5
+      },
+      "purpose": "",
+      "response": {
+        "status": "ok",
+        "snapshot_id": "snapshot_a3c7163541383b2574fa35428ebf5d318d1c6cffdf42c789197f9dd055b91db2",
+        "total": 0,
+        "metrics": []
+      },
+      "elapsed_seconds": 0.55791
+    },
+    {
+      "id": "P02",
+      "label": "discover: Altın Mevduatı",
+      "method": "discover",
+      "request": {
+        "query": "Altın Mevduatı",
+        "limit": 5
+      },
+      "purpose": "",
+      "response": {
+        "status": "ok",
+        "snapshot_id": "snapshot_a3c7163541383b2574fa35428ebf5d318d1c6cffdf42c789197f9dd055b91db2",
+        "total": 6,
+        "metrics": [
+          {
+            "metric_id": "bddk_finturk:table07:AltinDepoGercek",
+            "title": "Altın Mevduatı-Gerçek Kişi",
+            "source_system": "BDDK_FINTURK",
+            "native_frequency": "quarterly",
+            "kind": "stock",
+            "unit": "TRY",
+            "scale": 1000.0,
+            "currency": "TRY",
+            "status": "ready",
+            "dimensions": {
+              "city": "city",
+              "group_code": "group_code"
+            },
+            "institution_scope": "BDDK_FINTURK group namespace",
+            "geography_scope": "province_and_abroad",
+            "notes": "Official source unit: Bin TL"
+          },
+          {
+            "metric_id": "bddk_finturk:table07:AltinDepoToplam",
+            "title": "Toplam Altın Mevduatı",
+            "source_system": "BDDK_FINTURK",
+            "native_frequency": "quarterly",
+            "kind": "stock",
+            "unit": "TRY",
+            "scale": 1000.0,
+            "currency": "TRY",
+            "status": "ready",
+            "dimensions": {
+              "city": "city",
+              "group_code": "group_code"
+            },
+            "institution_scope": "BDDK_FINTURK group namespace",
+            "geography_scope": "province_and_abroad",
+            "notes": "Official source unit: Bin TL"
+          },
+          {
+            "metric_id": "bddk_finturk:table07:AltinDepoTuzel",
+            "title": "Altın Mevduatı-Tüzel Kişi",
+            "source_system": "BDDK_FINTURK",
+            "native_frequency": "quarterly",
+            "kind": "stock",
+            "unit": "TRY",
+            "scale": 1000.0,
+            "currency": "TRY",
+            "status": "ready",
+            "dimensions": {
+              "city": "city",
+              "group_code": "group_code"
+            },
+            "institution_scope": "BDDK_FINTURK group namespace",
+            "geography_scope": "province_and_abroad",
+            "notes": "Official source unit: Bin TL"
+          },
+          {
+            "metric_id": "regional_housing:gold_deposit_stock_thousand_try",
+            "title": "Toplam altın mevduatı",
+            "source_system": "REGIONAL_HOUSING_ANALYSIS",
+            "native_frequency": "quarterly",
+            "kind": "stock",
+            "unit": "TRY",
+            "scale": 1000.0,
+            "currency": "TRY",
+            "status": "review_required",
+            "dimensions": {
+              "province_key": "province_key"
+            },
+            "institution_scope": "banking_sector_total_or_not_applicable",
+            "geography_scope": "province",
+            "notes": "value_type=numeric. BDDK FinTurk sektör toplamı Derived panel. Query-specific missingness applies; source/proxy lineage differs by column."
+          },
+          {
+            "metric_id": "regional_housing:real_person_gold_deposit_share_pct",
+            "title": "Altın mevduatında gerçek kişi payı",
+            "source_system": "REGIONAL_HOUSING_ANALYSIS",
+            "native_frequency": "quarterly",
+            "kind": "ratio",
+            "unit": "percent",
+            "scale": 1.0,
+            "currency": null,
+            "status": "review_required",
+            "dimensions": {
+              "province_key": "province_key"
+            },
+            "institution_scope": "banking_sector_total_or_not_applicable",
+            "geography_scope": "province",
+            "notes": "value_type=numeric. 100 * gerçek kişi altın mevduatı / toplam altın mevduatı Derived panel. Query-specific missingness applies; source/proxy lineage differs by column."
+          }
+        ]
+      },
+      "elapsed_seconds": 0.517295
+    },
+    {
+      "id": "P03",
+      "label": "discover: sermaye yeterlilik",
+      "method": "discover",
+      "request": {
+        "query": "sermaye yeterlilik",
+        "limit": 5
+      },
+      "purpose": "",
+      "response": {
+        "status": "ok",
+        "snapshot_id": "snapshot_a3c7163541383b2574fa35428ebf5d318d1c6cffdf42c789197f9dd055b91db2",
+        "total": 0,
+        "metrics": []
+      },
+      "elapsed_seconds": 0.542195
+    },
+    {
+      "id": "P04",
+      "label": "discover: işsizlik",
+      "method": "discover",
+      "request": {
+        "query": "işsizlik",
+        "limit": 5
+      },
+      "purpose": "",
+      "response": {
+        "status": "ok",
+        "snapshot_id": "snapshot_a3c7163541383b2574fa35428ebf5d318d1c6cffdf42c789197f9dd055b91db2",
+        "total": 13,
+        "metrics": [
+          {
+            "metric_id": "evds:TP.TIG08",
+            "title": "8.İşsizlik oranı (%)",
+            "source_system": "TCMB_EVDS",
+            "native_frequency": "monthly",
+            "kind": "rate",
+            "unit": "percent",
+            "scale": 1.0,
+            "currency": null,
+            "status": "ready",
+            "dimensions": {},
+            "institution_scope": "series_defined",
+            "geography_scope": "series_defined",
+            "notes": "Mevsim etkisinden arindirilmis issizlik orani"
+          },
+          {
+            "metric_id": "evds:TP.ISGUCARSIV.G7",
+            "title": "İşsizlik oranı (%)(Arşiv)",
+            "source_system": "TCMB_EVDS",
+            "native_frequency": "monthly",
+            "kind": "unknown",
+            "unit": "unknown",
+            "scale": 1.0,
+            "currency": null,
+            "status": "metadata_only",
+            "dimensions": {},
+            "institution_scope": null,
+            "geography_scope": null,
+            "notes": "Observation values are not stored locally."
+          },
+          {
+            "metric_id": "evds:TP.ISGUCARSIV.G8",
+            "title": "Tarım dışı işsizlik oranı (%)(Arşiv)",
+            "source_system": "TCMB_EVDS",
+            "native_frequency": "monthly",
+            "kind": "unknown",
+            "unit": "unknown",
+            "scale": 1.0,
+            "currency": null,
+            "status": "metadata_only",
+            "dimensions": {},
+            "institution_scope": null,
+            "geography_scope": null,
+            "notes": "Observation values are not stored locally."
+          },
+          {
+            "metric_id": "evds:TP.KB.GI37",
+            "title": "1.4.1.4.İşsizlik Sigortası Fonu'na Transfer (Arşiv)",
+            "source_system": "TCMB_EVDS",
+            "native_frequency": "monthly",
+            "kind": "unknown",
+            "unit": "TRY",
+            "scale": 1000.0,
+            "currency": "TRY",
+            "status": "metadata_only",
+            "dimensions": {},
+            "institution_scope": null,
+            "geography_scope": null,
+            "notes": "Observation values are not stored locally."
+          },
+          {
+            "metric_id": "evds:TP.KB.GID038",
+            "title": "_İşsizlik Sigorta Fonu",
+            "source_system": "TCMB_EVDS",
+            "native_frequency": "monthly",
+            "kind": "unknown",
+            "unit": "TRY",
+            "scale": 1000.0,
+            "currency": "TRY",
+            "status": "metadata_only",
+            "dimensions": {},
+            "institution_scope": null,
+            "geography_scope": null,
+            "notes": "Observation values are not stored locally."
+          }
+        ]
+      },
+      "elapsed_seconds": 0.512075
+    },
+    {
+      "id": "P05",
+      "label": "discover: unemployment",
+      "method": "discover",
+      "request": {
+        "query": "unemployment",
+        "limit": 5
+      },
+      "purpose": "",
+      "response": {
+        "status": "ok",
+        "snapshot_id": "snapshot_a3c7163541383b2574fa35428ebf5d318d1c6cffdf42c789197f9dd055b91db2",
+        "total": 0,
+        "metrics": []
+      },
+      "elapsed_seconds": 0.536782
+    },
+    {
+      "id": "P06",
+      "label": "discover: KOBİ",
+      "method": "discover",
+      "request": {
+        "query": "KOBİ",
+        "limit": 5
+      },
+      "purpose": "",
+      "response": {
+        "status": "ok",
+        "snapshot_id": "snapshot_a3c7163541383b2574fa35428ebf5d318d1c6cffdf42c789197f9dd055b91db2",
+        "total": 29,
+        "metrics": [
+          {
+            "metric_id": "bddk_monthly:table06:1:38c9ed21984d:GayriNakdiKrediToplam",
+            "title": "Toplam KOBİ Kredileri (2+3+4) [GayriNakdiKrediToplam]",
+            "source_system": "BDDK_MONTHLY",
+            "native_frequency": "monthly",
+            "kind": "stock",
+            "unit": "TRY",
+            "scale": 1000000.0,
+            "currency": "TRY",
+            "status": "ready",
+            "dimensions": {
+              "group_code": "group_code"
+            },
+            "institution_scope": "BDDK_MONTHLY group namespace",
+            "geography_scope": "national",
+            "notes": "Transformation=identity; semantic_confidence=high; label_variant_count=1. Unit evidence=table_caption; deduplication=not_applicable; caveat=. "
+          },
+          {
+            "metric_id": "bddk_monthly:table06:1:38c9ed21984d:GayriNakdiKrediTp",
+            "title": "Toplam KOBİ Kredileri (2+3+4) [GayriNakdiKrediTp]",
+            "source_system": "BDDK_MONTHLY",
+            "native_frequency": "monthly",
+            "kind": "stock",
+            "unit": "TRY",
+            "scale": 1000000.0,
+            "currency": "TRY",
+            "status": "ready",
+            "dimensions": {
+              "group_code": "group_code"
+            },
+            "institution_scope": "BDDK_MONTHLY group namespace",
+            "geography_scope": "national",
+            "notes": "Transformation=identity; semantic_confidence=high; label_variant_count=1. Unit evidence=table_caption; deduplication=not_applicable; caveat=. "
+          },
+          {
+            "metric_id": "bddk_monthly:table06:1:38c9ed21984d:GayriNakdiKrediYp",
+            "title": "Toplam KOBİ Kredileri (2+3+4) [GayriNakdiKrediYp]",
+            "source_system": "BDDK_MONTHLY",
+            "native_frequency": "monthly",
+            "kind": "stock",
+            "unit": "TRY",
+            "scale": 1000000.0,
+            "currency": "TRY",
+            "status": "ready",
+            "dimensions": {
+              "group_code": "group_code"
+            },
+            "institution_scope": "BDDK_MONTHLY group namespace",
+            "geography_scope": "national",
+            "notes": "Transformation=identity; semantic_confidence=high; label_variant_count=1. Unit evidence=table_caption; deduplication=not_applicable; caveat=. "
+          },
+          {
+            "metric_id": "bddk_monthly:table06:1:38c9ed21984d:NakdiKrediToplam",
+            "title": "Toplam KOBİ Kredileri (2+3+4) [NakdiKrediToplam]",
+            "source_system": "BDDK_MONTHLY",
+            "native_frequency": "monthly",
+            "kind": "stock",
+            "unit": "TRY",
+            "scale": 1000000.0,
+            "currency": "TRY",
+            "status": "ready",
+            "dimensions": {
+              "group_code": "group_code"
+            },
+            "institution_scope": "BDDK_MONTHLY group namespace",
+            "geography_scope": "national",
+            "notes": "Transformation=identity; semantic_confidence=high; label_variant_count=1. Unit evidence=table_caption; deduplication=not_applicable; caveat=. "
+          },
+          {
+            "metric_id": "bddk_monthly:table06:1:38c9ed21984d:NakdiKrediTp",
+            "title": "Toplam KOBİ Kredileri (2+3+4) [NakdiKrediTp]",
+            "source_system": "BDDK_MONTHLY",
+            "native_frequency": "monthly",
+            "kind": "stock",
+            "unit": "TRY",
+            "scale": 1000000.0,
+            "currency": "TRY",
+            "status": "ready",
+            "dimensions": {
+              "group_code": "group_code"
+            },
+            "institution_scope": "BDDK_MONTHLY group namespace",
+            "geography_scope": "national",
+            "notes": "Transformation=identity; semantic_confidence=high; label_variant_count=1. Unit evidence=table_caption; deduplication=not_applicable; caveat=. "
+          }
+        ]
+      },
+      "elapsed_seconds": 0.514083
+    },
+    {
+      "id": "P07",
+      "label": "discover: bddk_monthly:table06",
+      "method": "discover",
+      "request": {
+        "query": "bddk_monthly:table06",
+        "limit": 5
+      },
+      "purpose": "",
+      "response": {
+        "status": "ok",
+        "snapshot_id": "snapshot_a3c7163541383b2574fa35428ebf5d318d1c6cffdf42c789197f9dd055b91db2",
+        "total": 80,
+        "metrics": [
+          {
+            "metric_id": "bddk_monthly:table06:1:38c9ed21984d:GayriNakdiKrediToplam",
+            "title": "Toplam KOBİ Kredileri (2+3+4) [GayriNakdiKrediToplam]",
+            "source_system": "BDDK_MONTHLY",
+            "native_frequency": "monthly",
+            "kind": "stock",
+            "unit": "TRY",
+            "scale": 1000000.0,
+            "currency": "TRY",
+            "status": "ready",
+            "dimensions": {
+              "group_code": "group_code"
+            },
+            "institution_scope": "BDDK_MONTHLY group namespace",
+            "geography_scope": "national",
+            "notes": "Transformation=identity; semantic_confidence=high; label_variant_count=1. Unit evidence=table_caption; deduplication=not_applicable; caveat=. "
+          },
+          {
+            "metric_id": "bddk_monthly:table06:1:38c9ed21984d:GayriNakdiKrediTp",
+            "title": "Toplam KOBİ Kredileri (2+3+4) [GayriNakdiKrediTp]",
+            "source_system": "BDDK_MONTHLY",
+            "native_frequency": "monthly",
+            "kind": "stock",
+            "unit": "TRY",
+            "scale": 1000000.0,
+            "currency": "TRY",
+            "status": "ready",
+            "dimensions": {
+              "group_code": "group_code"
+            },
+            "institution_scope": "BDDK_MONTHLY group namespace",
+            "geography_scope": "national",
+            "notes": "Transformation=identity; semantic_confidence=high; label_variant_count=1. Unit evidence=table_caption; deduplication=not_applicable; caveat=. "
+          },
+          {
+            "metric_id": "bddk_monthly:table06:1:38c9ed21984d:GayriNakdiKrediYp",
+            "title": "Toplam KOBİ Kredileri (2+3+4) [GayriNakdiKrediYp]",
+            "source_system": "BDDK_MONTHLY",
+            "native_frequency": "monthly",
+            "kind": "stock",
+            "unit": "TRY",
+            "scale": 1000000.0,
+            "currency": "TRY",
+            "status": "ready",
+            "dimensions": {
+              "group_code": "group_code"
+            },
+            "institution_scope": "BDDK_MONTHLY group namespace",
+            "geography_scope": "national",
+            "notes": "Transformation=identity; semantic_confidence=high; label_variant_count=1. Unit evidence=table_caption; deduplication=not_applicable; caveat=. "
+          },
+          {
+            "metric_id": "bddk_monthly:table06:1:38c9ed21984d:NakdiKrediToplam",
+            "title": "Toplam KOBİ Kredileri (2+3+4) [NakdiKrediToplam]",
+            "source_system": "BDDK_MONTHLY",
+            "native_frequency": "monthly",
+            "kind": "stock",
+            "unit": "TRY",
+            "scale": 1000000.0,
+            "currency": "TRY",
+            "status": "ready",
+            "dimensions": {
+              "group_code": "group_code"
+            },
+            "institution_scope": "BDDK_MONTHLY group namespace",
+            "geography_scope": "national",
+            "notes": "Transformation=identity; semantic_confidence=high; label_variant_count=1. Unit evidence=table_caption; deduplication=not_applicable; caveat=. "
+          },
+          {
+            "metric_id": "bddk_monthly:table06:1:38c9ed21984d:NakdiKrediTp",
+            "title": "Toplam KOBİ Kredileri (2+3+4) [NakdiKrediTp]",
+            "source_system": "BDDK_MONTHLY",
+            "native_frequency": "monthly",
+            "kind": "stock",
+            "unit": "TRY",
+            "scale": 1000000.0,
+            "currency": "TRY",
+            "status": "ready",
+            "dimensions": {
+              "group_code": "group_code"
+            },
+            "institution_scope": "BDDK_MONTHLY group namespace",
+            "geography_scope": "national",
+            "notes": "Transformation=identity; semantic_confidence=high; label_variant_count=1. Unit evidence=table_caption; deduplication=not_applicable; caveat=. "
+          }
+        ]
+      },
+      "elapsed_seconds": 0.543521
+    },
+    {
+      "id": "P08",
+      "label": "Aylık net kâr, kaynak kümülatifi ayrı",
+      "method": "execute",
+      "request": {
+        "start": "2026-01",
+        "end": "2026-06",
+        "frequency": "monthly",
+        "columns": [
+          {
+            "name": "profit",
+            "metric_id": "bddk_monthly:table02:53:ef40239f1db4:Toplam",
+            "dimensions": {
+              "group_code": 10001
+            }
+          }
+        ]
+      },
+      "purpose": "",
+      "response": {
+        "status": "ok",
+        "analysis_id": "analysis_094906c7404f57a7c47bc20336d9aa2a3629d73a44a64e7cb77bce9a15db0caf",
+        "parent_analysis_id": null,
+        "snapshot_id": "snapshot_a3c7163541383b2574fa35428ebf5d318d1c6cffdf42c789197f9dd055b91db2",
+        "workspace_version": 1,
+        "row_count": 6,
+        "columns": [
+          "period",
+          "profit"
+        ],
+        "schema": {
+          "profit": {
+            "currency": "TRY",
+            "kind": "flow",
+            "metric_id": "bddk_monthly:table02:53:ef40239f1db4:Toplam",
+            "scale": 1000000.0,
+            "scope": {
+              "dimensions": {
+                "group_code": 10001
+              },
+              "geography_scope": "national",
+              "institution_scope": "BDDK_MONTHLY group namespace",
+              "namespace": "BDDK_MONTHLY"
+            },
+            "status": "ready",
+            "unit": "TRY"
+          }
+        },
+        "preview": [
+          {
+            "period": "2026-01",
+            "profit": 87249.0
+          },
+          {
+            "period": "2026-02",
+            "profit": 82152.0
+          },
+          {
+            "period": "2026-03",
+            "profit": 119287.0
+          },
+          {
+            "period": "2026-04",
+            "profit": 74625.0
+          },
+          {
+            "period": "2026-05",
+            "profit": 58476.0
+          },
+          {
+            "period": "2026-06",
+            "profit": 106642.0
+          }
+        ],
+        "preview_truncated": false,
+        "warnings": [],
+        "result_ref": "analysis_094906c7404f57a7c47bc20336d9aa2a3629d73a44a64e7cb77bce9a15db0caf",
+        "join_contract": {
+          "cardinality": "one_value_per_column_per_period",
+          "key": "period",
+          "population_equivalence_asserted": false
+        }
+      },
+      "result_rows": [
+        {
+          "period": "2026-01",
+          "profit": 87249.0
+        },
+        {
+          "period": "2026-02",
+          "profit": 82152.0
+        },
+        {
+          "period": "2026-03",
+          "profit": 119287.0
+        },
+        {
+          "period": "2026-04",
+          "profit": 74625.0
+        },
+        {
+          "period": "2026-05",
+          "profit": 58476.0
+        },
+        {
+          "period": "2026-06",
+          "profit": 106642.0
+        }
+      ],
+      "last_value_lineage": {
+        "value": 106642.0,
+        "source_references_complete": true,
+        "source_files_verified": false,
+        "lineage_issues": []
+      },
+      "reference_sql": "SELECT month,source_value,analysis_value,transformation,prior_source_month FROM bddk.monthly_measurements WHERE metric_code='table02:53:ef40239f1db4:Toplam' AND group_code=10001 AND month BETWEEN '2026-01' AND '2026-06' ORDER BY month",
+      "reference_rows": [
+        {
+          "month": "2026-01",
+          "source_value": 87249.0,
+          "analysis_value": 87249.0,
+          "transformation": "difference_within_calendar_year",
+          "prior_source_month": null
+        },
+        {
+          "month": "2026-02",
+          "source_value": 169401.0,
+          "analysis_value": 82152.0,
+          "transformation": "difference_within_calendar_year",
+          "prior_source_month": "2026-01"
+        },
+        {
+          "month": "2026-03",
+          "source_value": 288688.0,
+          "analysis_value": 119287.0,
+          "transformation": "difference_within_calendar_year",
+          "prior_source_month": "2026-02"
+        },
+        {
+          "month": "2026-04",
+          "source_value": 363313.0,
+          "analysis_value": 74625.0,
+          "transformation": "difference_within_calendar_year",
+          "prior_source_month": "2026-03"
+        },
+        {
+          "month": "2026-05",
+          "source_value": 421789.0,
+          "analysis_value": 58476.0,
+          "transformation": "difference_within_calendar_year",
+          "prior_source_month": "2026-04"
+        },
+        {
+          "month": "2026-06",
+          "source_value": 528431.0,
+          "analysis_value": 106642.0,
+          "transformation": "difference_within_calendar_year",
+          "prior_source_month": "2026-05"
+        }
+      ],
+      "elapsed_seconds": 0.458985
+    },
+    {
+      "id": "P09",
+      "label": "Çeyreklik net kâr, üç ay toplamı",
+      "method": "execute",
+      "request": {
+        "start": "2026-Q1",
+        "end": "2026-Q2",
+        "frequency": "quarterly",
+        "columns": [
+          {
+            "name": "profit",
+            "metric_id": "bddk_monthly:table02:53:ef40239f1db4:Toplam",
+            "dimensions": {
+              "group_code": 10001
+            },
+            "alignment": "sum"
+          }
+        ]
+      },
+      "purpose": "",
+      "response": {
+        "status": "ok",
+        "analysis_id": "analysis_654111fc1f9a5ef0b45d383958be67f40d5b05f4a78d0effa24a60010fb313d0",
+        "parent_analysis_id": null,
+        "snapshot_id": "snapshot_a3c7163541383b2574fa35428ebf5d318d1c6cffdf42c789197f9dd055b91db2",
+        "workspace_version": 2,
+        "row_count": 2,
+        "columns": [
+          "period",
+          "profit"
+        ],
+        "schema": {
+          "profit": {
+            "currency": "TRY",
+            "kind": "flow",
+            "metric_id": "bddk_monthly:table02:53:ef40239f1db4:Toplam",
+            "scale": 1000000.0,
+            "scope": {
+              "dimensions": {
+                "group_code": 10001
+              },
+              "geography_scope": "national",
+              "institution_scope": "BDDK_MONTHLY group namespace",
+              "namespace": "BDDK_MONTHLY"
+            },
+            "status": "ready",
+            "unit": "TRY"
+          }
+        },
+        "preview": [
+          {
+            "period": "2026-Q1",
+            "profit": 288688.0
+          },
+          {
+            "period": "2026-Q2",
+            "profit": 239743.0
+          }
+        ],
+        "preview_truncated": false,
+        "warnings": [],
+        "result_ref": "analysis_654111fc1f9a5ef0b45d383958be67f40d5b05f4a78d0effa24a60010fb313d0",
+        "join_contract": {
+          "cardinality": "one_value_per_column_per_period",
+          "key": "period",
+          "population_equivalence_asserted": false
+        }
+      },
+      "result_rows": [
+        {
+          "period": "2026-Q1",
+          "profit": 288688.0
+        },
+        {
+          "period": "2026-Q2",
+          "profit": 239743.0
+        }
+      ],
+      "last_value_lineage": {
+        "value": 239743.0,
+        "source_references_complete": true,
+        "source_files_verified": false,
+        "lineage_issues": []
+      },
+      "elapsed_seconds": 0.406982
+    },
+    {
+      "id": "P10",
+      "label": "Çeyreklik net kâr, last ile semantik kayma",
+      "method": "execute",
+      "request": {
+        "start": "2026-Q1",
+        "end": "2026-Q2",
+        "frequency": "quarterly",
+        "columns": [
+          {
+            "name": "profit",
+            "metric_id": "bddk_monthly:table02:53:ef40239f1db4:Toplam",
+            "dimensions": {
+              "group_code": 10001
+            },
+            "alignment": "last"
+          }
+        ]
+      },
+      "purpose": "last quarter flow result must be distinguished from a sum; inspect warnings and kind",
+      "response": {
+        "status": "ok",
+        "analysis_id": "analysis_ac841d091f7a3b76549e7436af19d676291d42489e0b11f2e56e8281d48fff03",
+        "parent_analysis_id": null,
+        "snapshot_id": "snapshot_a3c7163541383b2574fa35428ebf5d318d1c6cffdf42c789197f9dd055b91db2",
+        "workspace_version": 3,
+        "row_count": 2,
+        "columns": [
+          "period",
+          "profit"
+        ],
+        "schema": {
+          "profit": {
+            "currency": "TRY",
+            "kind": "flow",
+            "metric_id": "bddk_monthly:table02:53:ef40239f1db4:Toplam",
+            "scale": 1000000.0,
+            "scope": {
+              "dimensions": {
+                "group_code": 10001
+              },
+              "geography_scope": "national",
+              "institution_scope": "BDDK_MONTHLY group namespace",
+              "namespace": "BDDK_MONTHLY"
+            },
+            "status": "ready",
+            "unit": "TRY"
+          }
+        },
+        "preview": [
+          {
+            "period": "2026-Q1",
+            "profit": 119287.0
+          },
+          {
+            "period": "2026-Q2",
+            "profit": 106642.0
+          }
+        ],
+        "preview_truncated": false,
+        "warnings": [],
+        "result_ref": "analysis_ac841d091f7a3b76549e7436af19d676291d42489e0b11f2e56e8281d48fff03",
+        "join_contract": {
+          "cardinality": "one_value_per_column_per_period",
+          "key": "period",
+          "population_equivalence_asserted": false
+        }
+      },
+      "result_rows": [
+        {
+          "period": "2026-Q1",
+          "profit": 119287.0
+        },
+        {
+          "period": "2026-Q2",
+          "profit": 106642.0
+        }
+      ],
+      "last_value_lineage": {
+        "value": 106642.0,
+        "source_references_complete": true,
+        "source_files_verified": false,
+        "lineage_issues": []
+      },
+      "elapsed_seconds": 0.397122
+    },
+    {
+      "id": "P11",
+      "label": "FinTürk İstanbul altın mevduatı doğal çeyrek",
+      "method": "execute",
+      "request": {
+        "start": "2025-Q2",
+        "end": "2026-Q2",
+        "frequency": "quarterly",
+        "columns": [
+          {
+            "name": "gold",
+            "metric_id": "bddk_finturk:table07:AltinDepoToplam",
+            "dimensions": {
+              "group_code": 10001,
+              "city": "İSTANBUL"
+            }
+          }
+        ]
+      },
+      "purpose": "",
+      "response": {
+        "status": "ok",
+        "analysis_id": "analysis_fdc35ef67cbb93c4edf32617a2301ccace43f97e5426594d787e32783fdffb06",
+        "parent_analysis_id": null,
+        "snapshot_id": "snapshot_a3c7163541383b2574fa35428ebf5d318d1c6cffdf42c789197f9dd055b91db2",
+        "workspace_version": 4,
+        "row_count": 5,
+        "columns": [
+          "period",
+          "gold"
+        ],
+        "schema": {
+          "gold": {
+            "currency": "TRY",
+            "kind": "stock",
+            "metric_id": "bddk_finturk:table07:AltinDepoToplam",
+            "scale": 1000.0,
+            "scope": {
+              "dimensions": {
+                "city": "İSTANBUL",
+                "group_code": 10001
+              },
+              "geography_scope": "province_and_abroad",
+              "institution_scope": "BDDK_FINTURK group namespace",
+              "namespace": "BDDK_FINTURK"
+            },
+            "status": "ready",
+            "unit": "TRY"
+          }
+        },
+        "preview": [
+          {
+            "period": "2025-Q2",
+            "gold": 705463020.0
+          },
+          {
+            "period": "2025-Q3",
+            "gold": 907143271.0
+          },
+          {
+            "period": "2025-Q4",
+            "gold": 1183891567.0
+          },
+          {
+            "period": "2026-Q1",
+            "gold": 1467239227.0
+          },
+          {
+            "period": "2026-Q2",
+            "gold": 1383016212.0
+          }
+        ],
+        "preview_truncated": false,
+        "warnings": [],
+        "result_ref": "analysis_fdc35ef67cbb93c4edf32617a2301ccace43f97e5426594d787e32783fdffb06",
+        "join_contract": {
+          "cardinality": "one_value_per_column_per_period",
+          "key": "period",
+          "population_equivalence_asserted": false
+        }
+      },
+      "result_rows": [
+        {
+          "period": "2025-Q2",
+          "gold": 705463020.0
+        },
+        {
+          "period": "2025-Q3",
+          "gold": 907143271.0
+        },
+        {
+          "period": "2025-Q4",
+          "gold": 1183891567.0
+        },
+        {
+          "period": "2026-Q1",
+          "gold": 1467239227.0
+        },
+        {
+          "period": "2026-Q2",
+          "gold": 1383016212.0
+        }
+      ],
+      "last_value_lineage": {
+        "value": 1383016212.0,
+        "source_references_complete": true,
+        "source_files_verified": false,
+        "lineage_issues": []
+      },
+      "reference_sql": "SELECT quarter,usable_value FROM bddk.finturk_measurements WHERE table_no=7 AND measure_code='AltinDepoToplam' AND group_code=10001 AND city='İSTANBUL' AND quarter BETWEEN '2025-06' AND '2026-06' ORDER BY quarter",
+      "reference_rows": [
+        {
+          "quarter": "2025-06",
+          "usable_value": 705463020.0
+        },
+        {
+          "quarter": "2025-09",
+          "usable_value": 907143271.0
+        },
+        {
+          "quarter": "2025-12",
+          "usable_value": 1183891567.0
+        },
+        {
+          "quarter": "2026-03",
+          "usable_value": 1467239227.0
+        },
+        {
+          "quarter": "2026-06",
+          "usable_value": 1383016212.0
+        }
+      ],
+      "elapsed_seconds": 0.434227
+    },
+    {
+      "id": "P12",
+      "label": "FinTürk Ankara şube sayısı yıllık büyüme",
+      "method": "execute",
+      "request": {
+        "start": "2026-Q1",
+        "end": "2026-Q2",
+        "frequency": "quarterly",
+        "columns": [
+          {
+            "name": "branches",
+            "metric_id": "bddk_finturk:table06:SubeSayisi",
+            "dimensions": {
+              "group_code": 10001,
+              "city": "ANKARA"
+            }
+          }
+        ],
+        "operations": [
+          {
+            "op": "growth",
+            "column": "branches",
+            "output": "yoy",
+            "periods": 4
+          }
+        ]
+      },
+      "purpose": "",
+      "response": {
+        "status": "ok",
+        "analysis_id": "analysis_1ef1ebfd22683a623c2406d507ba10a9a78920edc5476cff45d1a647ff651176",
+        "parent_analysis_id": null,
+        "snapshot_id": "snapshot_a3c7163541383b2574fa35428ebf5d318d1c6cffdf42c789197f9dd055b91db2",
+        "workspace_version": 5,
+        "row_count": 2,
+        "columns": [
+          "period",
+          "branches",
+          "yoy"
+        ],
+        "schema": {
+          "branches": {
+            "currency": null,
+            "kind": "count_stock",
+            "metric_id": "bddk_finturk:table06:SubeSayisi",
+            "scale": 1.0,
+            "scope": {
+              "dimensions": {
+                "city": "ANKARA",
+                "group_code": 10001
+              },
+              "geography_scope": "province_and_abroad",
+              "institution_scope": "BDDK_FINTURK group namespace",
+              "namespace": "BDDK_FINTURK"
+            },
+            "status": "ready",
+            "unit": "count"
+          },
+          "yoy": {
+            "currency": null,
+            "kind": "ratio",
+            "metric_id": "bddk_finturk:table06:SubeSayisi",
+            "scale": 1,
+            "scope": {
+              "dimensions": {
+                "city": "ANKARA",
+                "group_code": 10001
+              },
+              "geography_scope": "province_and_abroad",
+              "institution_scope": "BDDK_FINTURK group namespace",
+              "namespace": "BDDK_FINTURK"
+            },
+            "status": "ready",
+            "unit": "percent"
+          }
+        },
+        "preview": [
+          {
+            "period": "2026-Q1",
+            "branches": 973.0,
+            "yoy": -0.9164969450101812
+          },
+          {
+            "period": "2026-Q2",
+            "branches": 967.0,
+            "yoy": -1.4271151885830835
+          }
+        ],
+        "preview_truncated": false,
+        "warnings": [],
+        "result_ref": "analysis_1ef1ebfd22683a623c2406d507ba10a9a78920edc5476cff45d1a647ff651176",
+        "join_contract": {
+          "cardinality": "one_value_per_column_per_period",
+          "key": "period",
+          "population_equivalence_asserted": false
+        }
+      },
+      "result_rows": [
+        {
+          "period": "2026-Q1",
+          "branches": 973.0,
+          "yoy": -0.9164969450101812
+        },
+        {
+          "period": "2026-Q2",
+          "branches": 967.0,
+          "yoy": -1.4271151885830835
+        }
+      ],
+      "last_value_lineage": {
+        "value": -1.4271151885830835,
+        "source_references_complete": true,
+        "source_files_verified": false,
+        "lineage_issues": []
+      },
+      "elapsed_seconds": 0.455995
+    },
+    {
+      "id": "P13",
+      "label": "FinTürk kişi başı kredi büyümesi",
+      "method": "validate_plan",
+      "request": {
+        "start": "2026-Q1",
+        "end": "2026-Q2",
+        "frequency": "quarterly",
+        "columns": [
+          {
+            "name": "per_capita",
+            "metric_id": "bddk_finturk:table06:KisiBasiNakdiKredi",
+            "dimensions": {
+              "group_code": 10001,
+              "city": "ANKARA"
+            }
+          }
+        ],
+        "operations": [
+          {
+            "op": "growth",
+            "column": "per_capita",
+            "output": "yoy",
+            "periods": 4
+          }
+        ]
+      },
+      "purpose": "",
+      "response": {
+        "status": "blocked",
+        "errors": [
+          {
+            "code": "UNIT_MISMATCH",
+            "message": "Use difference for rates and ratios to obtain percentage points"
+          }
+        ]
+      },
+      "elapsed_seconds": 0.354997
+    },
+    {
+      "id": "P14",
+      "label": "FinTürk kişi başı kredi TL değişimi",
+      "method": "validate_plan",
+      "request": {
+        "start": "2026-Q1",
+        "end": "2026-Q2",
+        "frequency": "quarterly",
+        "columns": [
+          {
+            "name": "per_capita",
+            "metric_id": "bddk_finturk:table06:KisiBasiNakdiKredi",
+            "dimensions": {
+              "group_code": 10001,
+              "city": "ANKARA"
+            }
+          }
+        ],
+        "operations": [
+          {
+            "op": "difference",
+            "column": "per_capita",
+            "output": "change",
+            "periods": 1
+          }
+        ]
+      },
+      "purpose": "",
+      "response": {
+        "status": "blocked",
+        "errors": [
+          {
+            "code": "UNIT_MISMATCH",
+            "message": "Percentage-point differences require percent-valued inputs"
+          }
+        ]
+      },
+      "elapsed_seconds": 0.386774
+    },
+    {
+      "id": "P15",
+      "label": "FinTürk tüm iller tek seçim",
+      "method": "validate_plan",
+      "request": {
+        "start": "2026-Q2",
+        "end": "2026-Q2",
+        "frequency": "quarterly",
+        "columns": [
+          {
+            "name": "gold",
+            "metric_id": "bddk_finturk:table07:AltinDepoToplam",
+            "dimensions": {
+              "group_code": 10001,
+              "city": [
+                "İSTANBUL",
+                "ANKARA"
+              ]
+            }
+          }
+        ]
+      },
+      "purpose": "The same scalar-only restriction prevents all-city group/ranking queries",
+      "response": {
+        "status": "blocked",
+        "errors": [
+          {
+            "code": "INVALID_PLAN",
+            "message": "Dimension values must be finite scalar strings or numbers"
+          }
+        ]
+      },
+      "elapsed_seconds": 0.361932
+    },
+    {
+      "id": "P16",
+      "label": "Haftalık ticari kredi doğal seçim",
+      "method": "execute",
+      "request": {
+        "start": "2026-06-05",
+        "end": "2026-06-26",
+        "frequency": "weekly_friday",
+        "columns": [
+          {
+            "name": "commercial_credit",
+            "metric_id": "bddk_weekly:table289_289_10_total",
+            "dimensions": {
+              "group_code": 10001
+            }
+          }
+        ]
+      },
+      "purpose": "",
+      "response": {
+        "status": "ok",
+        "analysis_id": "analysis_35eab9d64a0a3b0fdf8103ee3f778ef2f7a3dbb505531d5238b0117aa0b8ed58",
+        "parent_analysis_id": null,
+        "snapshot_id": "snapshot_a3c7163541383b2574fa35428ebf5d318d1c6cffdf42c789197f9dd055b91db2",
+        "workspace_version": 6,
+        "row_count": 4,
+        "columns": [
+          "period",
+          "commercial_credit"
+        ],
+        "schema": {
+          "commercial_credit": {
+            "currency": "TRY",
+            "kind": "unknown",
+            "metric_id": "bddk_weekly:table289_289_10_total",
+            "scale": 1000000.0,
+            "scope": {
+              "dimensions": {
+                "group_code": 10001
+              },
+              "geography_scope": "national",
+              "institution_scope": "BDDK_WEEKLY group namespace",
+              "namespace": "BDDK_WEEKLY"
+            },
+            "status": "review_required",
+            "unit": "TRY"
+          }
+        },
+        "preview": [
+          {
+            "period": "2026-06-05",
+            "commercial_credit": 19608870.0
+          },
+          {
+            "period": "2026-06-12",
+            "commercial_credit": 19704155.0
+          },
+          {
+            "period": "2026-06-19",
+            "commercial_credit": 19742304.0
+          },
+          {
+            "period": "2026-06-26",
+            "commercial_credit": 19949040.0
+          }
+        ],
+        "preview_truncated": false,
+        "warnings": [
+          {
+            "code": "semantics_unreviewed",
+            "column": "commercial_credit",
+            "detail": "Raw values only; calculations are blocked"
+          }
+        ],
+        "result_ref": "analysis_35eab9d64a0a3b0fdf8103ee3f778ef2f7a3dbb505531d5238b0117aa0b8ed58",
+        "join_contract": {
+          "cardinality": "one_value_per_column_per_period",
+          "key": "period",
+          "population_equivalence_asserted": false
+        }
+      },
+      "result_rows": [
+        {
+          "period": "2026-06-05",
+          "commercial_credit": 19608870.0
+        },
+        {
+          "period": "2026-06-12",
+          "commercial_credit": 19704155.0
+        },
+        {
+          "period": "2026-06-19",
+          "commercial_credit": 19742304.0
+        },
+        {
+          "period": "2026-06-26",
+          "commercial_credit": 19949040.0
+        }
+      ],
+      "last_value_lineage": {
+        "value": 19949040.0,
+        "source_references_complete": true,
+        "source_files_verified": false,
+        "lineage_issues": []
+      },
+      "elapsed_seconds": 0.443822
+    },
+    {
+      "id": "P17",
+      "label": "Haftalık ticari kredi büyümesi",
+      "method": "validate_plan",
+      "request": {
+        "start": "2026-06-05",
+        "end": "2026-06-26",
+        "frequency": "weekly_friday",
+        "columns": [
+          {
+            "name": "commercial_credit",
+            "metric_id": "bddk_weekly:table289_289_10_total",
+            "dimensions": {
+              "group_code": 10001
+            }
+          }
+        ],
+        "operations": [
+          {
+            "op": "growth",
+            "column": "commercial_credit",
+            "output": "wow",
+            "periods": 1
+          }
+        ]
+      },
+      "purpose": "",
+      "response": {
+        "status": "blocked",
+        "errors": [
+          {
+            "code": "SEMANTICS_REVIEW_REQUIRED",
+            "message": "Unreviewed semantics permit raw selection only"
+          }
+        ]
+      },
+      "elapsed_seconds": 0.357759
+    },
+    {
+      "id": "P18",
+      "label": "EVDS işsizlik yüzde puan farkı",
+      "method": "execute",
+      "request": {
+        "start": "2026-05",
+        "end": "2026-06",
+        "frequency": "monthly",
+        "columns": [
+          {
+            "name": "unemployment",
+            "metric_id": "evds:TP.TIG08"
+          }
+        ],
+        "operations": [
+          {
+            "op": "difference",
+            "column": "unemployment",
+            "output": "yoy_pp",
+            "periods": 12
+          }
+        ]
+      },
+      "purpose": "",
+      "response": {
+        "status": "ok",
+        "analysis_id": "analysis_686229a9995afa5a0c004e21fbf71e2e9dba8496884f5312fcfccc6e489c84f0",
+        "parent_analysis_id": null,
+        "snapshot_id": "snapshot_a3c7163541383b2574fa35428ebf5d318d1c6cffdf42c789197f9dd055b91db2",
+        "workspace_version": 7,
+        "row_count": 2,
+        "columns": [
+          "period",
+          "unemployment",
+          "yoy_pp"
+        ],
+        "schema": {
+          "unemployment": {
+            "currency": null,
+            "kind": "rate",
+            "metric_id": "evds:TP.TIG08",
+            "scale": 1.0,
+            "scope": {
+              "dimensions": {},
+              "geography_scope": "series_defined",
+              "institution_scope": "series_defined",
+              "namespace": "TCMB_EVDS"
+            },
+            "status": "ready",
+            "unit": "percent"
+          },
+          "yoy_pp": {
+            "currency": null,
+            "kind": "difference",
+            "metric_id": "evds:TP.TIG08",
+            "scale": 1,
+            "scope": {
+              "dimensions": {},
+              "geography_scope": "series_defined",
+              "institution_scope": "series_defined",
+              "namespace": "TCMB_EVDS"
+            },
+            "status": "ready",
+            "unit": "percentage_points"
+          }
+        },
+        "preview": [
+          {
+            "period": "2026-05",
+            "unemployment": 8.1,
+            "yoy_pp": -0.3000000000000007
+          },
+          {
+            "period": "2026-06",
+            "unemployment": 7.6,
+            "yoy_pp": -1.0999999999999996
+          }
+        ],
+        "preview_truncated": false,
+        "warnings": [],
+        "result_ref": "analysis_686229a9995afa5a0c004e21fbf71e2e9dba8496884f5312fcfccc6e489c84f0",
+        "join_contract": {
+          "cardinality": "one_value_per_column_per_period",
+          "key": "period",
+          "population_equivalence_asserted": false
+        }
+      },
+      "result_rows": [
+        {
+          "period": "2026-05",
+          "unemployment": 8.1,
+          "yoy_pp": -0.3000000000000007
+        },
+        {
+          "period": "2026-06",
+          "unemployment": 7.6,
+          "yoy_pp": -1.0999999999999996
+        }
+      ],
+      "last_value_lineage": {
+        "value": -1.0999999999999996,
+        "source_references_complete": true,
+        "source_files_verified": false,
+        "lineage_issues": []
+      },
+      "elapsed_seconds": 0.400064
+    },
+    {
+      "id": "P19",
+      "label": "EVDS sanayi endeksi yıllık büyüme",
+      "method": "execute",
+      "request": {
+        "start": "2026-05",
+        "end": "2026-06",
+        "frequency": "monthly",
+        "columns": [
+          {
+            "name": "industry",
+            "metric_id": "evds:TP.TSANAYMT2021.Y1"
+          }
+        ],
+        "operations": [
+          {
+            "op": "growth",
+            "column": "industry",
+            "output": "yoy",
+            "periods": 12
+          }
+        ]
+      },
+      "purpose": "",
+      "response": {
+        "status": "ok",
+        "analysis_id": "analysis_4ce22737aad21972988c33b08aafc25c37b8047b1c4e04afeeca8e86bb24e0fa",
+        "parent_analysis_id": null,
+        "snapshot_id": "snapshot_a3c7163541383b2574fa35428ebf5d318d1c6cffdf42c789197f9dd055b91db2",
+        "workspace_version": 8,
+        "row_count": 2,
+        "columns": [
+          "period",
+          "industry",
+          "yoy"
+        ],
+        "schema": {
+          "industry": {
+            "currency": null,
+            "kind": "index",
+            "metric_id": "evds:TP.TSANAYMT2021.Y1",
+            "scale": 1.0,
+            "scope": {
+              "dimensions": {},
+              "geography_scope": "series_defined",
+              "institution_scope": "series_defined",
+              "namespace": "TCMB_EVDS"
+            },
+            "status": "ready",
+            "unit": "index"
+          },
+          "yoy": {
+            "currency": null,
+            "kind": "ratio",
+            "metric_id": "evds:TP.TSANAYMT2021.Y1",
+            "scale": 1,
+            "scope": {
+              "dimensions": {},
+              "geography_scope": "series_defined",
+              "institution_scope": "series_defined",
+              "namespace": "TCMB_EVDS"
+            },
+            "status": "ready",
+            "unit": "percent"
+          }
+        },
+        "preview": [
+          {
+            "period": "2026-05",
+            "industry": 110.53633,
+            "yoy": -0.4975539445565835
+          },
+          {
+            "period": "2026-06",
+            "industry": 110.67082236,
+            "yoy": -0.9196663488979517
+          }
+        ],
+        "preview_truncated": false,
+        "warnings": [],
+        "result_ref": "analysis_4ce22737aad21972988c33b08aafc25c37b8047b1c4e04afeeca8e86bb24e0fa",
+        "join_contract": {
+          "cardinality": "one_value_per_column_per_period",
+          "key": "period",
+          "population_equivalence_asserted": false
+        }
+      },
+      "result_rows": [
+        {
+          "period": "2026-05",
+          "industry": 110.53633,
+          "yoy": -0.4975539445565835
+        },
+        {
+          "period": "2026-06",
+          "industry": 110.67082236,
+          "yoy": -0.9196663488979517
+        }
+      ],
+      "last_value_lineage": {
+        "value": -0.9196663488979517,
+        "source_references_complete": true,
+        "source_files_verified": false,
+        "lineage_issues": []
+      },
+      "elapsed_seconds": 0.477777
+    },
+    {
+      "id": "P20",
+      "label": "EVDS altın son iş günü",
+      "method": "execute",
+      "request": {
+        "start": "2026-05",
+        "end": "2026-06",
+        "frequency": "monthly",
+        "columns": [
+          {
+            "name": "gold_price",
+            "metric_id": "evds:TP.ALTINPIYASA.KAP02",
+            "alignment": "last"
+          }
+        ]
+      },
+      "purpose": "",
+      "response": {
+        "status": "ok",
+        "analysis_id": "analysis_77793b50548f0ba43fadd0c5408e2e587b4821af79d3fb3bb1b32f35cdd2f303",
+        "parent_analysis_id": null,
+        "snapshot_id": "snapshot_a3c7163541383b2574fa35428ebf5d318d1c6cffdf42c789197f9dd055b91db2",
+        "workspace_version": 9,
+        "row_count": 2,
+        "columns": [
+          "period",
+          "gold_price"
+        ],
+        "schema": {
+          "gold_price": {
+            "currency": "TRY",
+            "kind": "price",
+            "metric_id": "evds:TP.ALTINPIYASA.KAP02",
+            "scale": 1.0,
+            "scope": {
+              "dimensions": {},
+              "geography_scope": "series_defined",
+              "institution_scope": "series_defined",
+              "namespace": "TCMB_EVDS"
+            },
+            "status": "ready",
+            "unit": "TRY/kg"
+          }
+        },
+        "preview": [
+          {
+            "period": "2026-05",
+            "gold_price": null
+          },
+          {
+            "period": "2026-06",
+            "gold_price": 6051500.0
+          }
+        ],
+        "preview_truncated": false,
+        "warnings": [
+          {
+            "code": "missing_result",
+            "column": "gold_price",
+            "periods": [
+              "2026-05"
+            ],
+            "count": 1
+          }
+        ],
+        "result_ref": "analysis_77793b50548f0ba43fadd0c5408e2e587b4821af79d3fb3bb1b32f35cdd2f303",
+        "join_contract": {
+          "cardinality": "one_value_per_column_per_period",
+          "key": "period",
+          "population_equivalence_asserted": false
+        }
+      },
+      "result_rows": [
+        {
+          "period": "2026-05",
+          "gold_price": null
+        },
+        {
+          "period": "2026-06",
+          "gold_price": 6051500.0
+        }
+      ],
+      "last_value_lineage": {
+        "value": 6051500.0,
+        "source_references_complete": true,
+        "source_files_verified": false,
+        "lineage_issues": []
+      },
+      "elapsed_seconds": 0.466972
+    },
+    {
+      "id": "P21",
+      "label": "EVDS doğal çeyrek kaynak tarihi",
+      "method": "execute",
+      "request": {
+        "start": "2026-Q1",
+        "end": "2026-Q2",
+        "frequency": "quarterly",
+        "columns": [
+          {
+            "name": "price",
+            "metric_id": "evds:TP.BIRIMFIYAT.ANK"
+          }
+        ]
+      },
+      "purpose": "Quarterly EVDS family is housing data; this one deliberately checks its native date encoding",
+      "response": {
+        "status": "ok",
+        "analysis_id": "analysis_8f79591a3c29ee4a3909c5a0f2bdb70f3e03630e5b5e6463aef096e78cec05c6",
+        "parent_analysis_id": null,
+        "snapshot_id": "snapshot_a3c7163541383b2574fa35428ebf5d318d1c6cffdf42c789197f9dd055b91db2",
+        "workspace_version": 10,
+        "row_count": 2,
+        "columns": [
+          "period",
+          "price"
+        ],
+        "schema": {
+          "price": {
+            "currency": "TRY",
+            "kind": "price",
+            "metric_id": "evds:TP.BIRIMFIYAT.ANK",
+            "scale": 1.0,
+            "scope": {
+              "dimensions": {},
+              "geography_scope": "series_defined",
+              "institution_scope": "series_defined",
+              "namespace": "TCMB_EVDS"
+            },
+            "status": "ready",
+            "unit": "TRY/m2"
+          }
+        },
+        "preview": [
+          {
+            "period": "2026-Q1",
+            "price": 44035.5
+          },
+          {
+            "period": "2026-Q2",
+            "price": 47262.7
+          }
+        ],
+        "preview_truncated": false,
+        "warnings": [],
+        "result_ref": "analysis_8f79591a3c29ee4a3909c5a0f2bdb70f3e03630e5b5e6463aef096e78cec05c6",
+        "join_contract": {
+          "cardinality": "one_value_per_column_per_period",
+          "key": "period",
+          "population_equivalence_asserted": false
+        }
+      },
+      "result_rows": [
+        {
+          "period": "2026-Q1",
+          "price": 44035.5
+        },
+        {
+          "period": "2026-Q2",
+          "price": 47262.7
+        }
+      ],
+      "last_value_lineage": {
+        "value": 47262.7,
+        "source_references_complete": true,
+        "source_files_verified": false,
+        "lineage_issues": []
+      },
+      "elapsed_seconds": 0.40595
+    },
+    {
+      "id": "P22",
+      "label": "EVDS legacy kaynak referansı",
+      "method": "execute",
+      "request": {
+        "start": "2026-05",
+        "end": "2026-06",
+        "frequency": "monthly",
+        "columns": [
+          {
+            "name": "participation_consumer",
+            "metric_id": "evds:TP.KB.KRE09"
+          }
+        ]
+      },
+      "purpose": "",
+      "response": {
+        "status": "ok",
+        "analysis_id": "analysis_95db630b45f2fc99aa63071af7411f5d57119329db87ddac134ebfd9d0f24ec2",
+        "parent_analysis_id": null,
+        "snapshot_id": "snapshot_a3c7163541383b2574fa35428ebf5d318d1c6cffdf42c789197f9dd055b91db2",
+        "workspace_version": 11,
+        "row_count": 2,
+        "columns": [
+          "period",
+          "participation_consumer"
+        ],
+        "schema": {
+          "participation_consumer": {
+            "currency": "TRY",
+            "kind": "stock",
+            "metric_id": "evds:TP.KB.KRE09",
+            "scale": 1000.0,
+            "scope": {
+              "dimensions": {},
+              "geography_scope": "series_defined",
+              "institution_scope": "series_defined",
+              "namespace": "TCMB_EVDS"
+            },
+            "status": "ready",
+            "unit": "TRY"
+          }
+        },
+        "preview": [
+          {
+            "period": "2026-05",
+            "participation_consumer": 102373417.0
+          },
+          {
+            "period": "2026-06",
+            "participation_consumer": 106931726.0
+          }
+        ],
+        "preview_truncated": false,
+        "warnings": [],
+        "result_ref": "analysis_95db630b45f2fc99aa63071af7411f5d57119329db87ddac134ebfd9d0f24ec2",
+        "join_contract": {
+          "cardinality": "one_value_per_column_per_period",
+          "key": "period",
+          "population_equivalence_asserted": false
+        }
+      },
+      "result_rows": [
+        {
+          "period": "2026-05",
+          "participation_consumer": 102373417.0
+        },
+        {
+          "period": "2026-06",
+          "participation_consumer": 106931726.0
+        }
+      ],
+      "last_value_lineage": {
+        "value": 106931726.0,
+        "source_references_complete": false,
+        "source_files_verified": false,
+        "lineage_issues": [
+          "evds:TP.KB.KRE09: raw source hash and locator are not both bound"
+        ]
+      },
+      "elapsed_seconds": 0.43863
+    },
+    {
+      "id": "P23",
+      "label": "TBB ihtiyaç kullandırım akımı doğal çeyrek",
+      "method": "execute",
+      "request": {
+        "start": "2025-Q4",
+        "end": "2026-Q1",
+        "frequency": "quarterly",
+        "columns": [
+          {
+            "name": "disbursement",
+            "metric_id": "tbb:disbursement_amount_million_try_need_total"
+          }
+        ]
+      },
+      "purpose": "",
+      "response": {
+        "status": "ok",
+        "analysis_id": "analysis_fab27719968a3d851fed37c6e6c9903bcd110790a68bc1513ca800d42aec7fbb",
+        "parent_analysis_id": null,
+        "snapshot_id": "snapshot_a3c7163541383b2574fa35428ebf5d318d1c6cffdf42c789197f9dd055b91db2",
+        "workspace_version": 12,
+        "row_count": 2,
+        "columns": [
+          "period",
+          "disbursement"
+        ],
+        "schema": {
+          "disbursement": {
+            "currency": "TRY",
+            "kind": "flow",
+            "metric_id": "tbb:disbursement_amount_million_try_need_total",
+            "scale": 1000000.0,
+            "scope": {
+              "dimensions": {},
+              "geography_scope": "national",
+              "institution_scope": "reporting_banks_variable_by_period",
+              "namespace": "TBB_REPORTS"
+            },
+            "status": "ready",
+            "unit": "TRY"
+          }
+        },
+        "preview": [
+          {
+            "period": "2025-Q4",
+            "disbursement": 729217.6760570001
+          },
+          {
+            "period": "2026-Q1",
+            "disbursement": 655500.795406
+          }
+        ],
+        "preview_truncated": false,
+        "warnings": [],
+        "result_ref": "analysis_fab27719968a3d851fed37c6e6c9903bcd110790a68bc1513ca800d42aec7fbb",
+        "join_contract": {
+          "cardinality": "one_value_per_column_per_period",
+          "key": "period",
+          "population_equivalence_asserted": false
+        }
+      },
+      "result_rows": [
+        {
+          "period": "2025-Q4",
+          "disbursement": 729217.6760570001
+        },
+        {
+          "period": "2026-Q1",
+          "disbursement": 655500.795406
+        }
+      ],
+      "last_value_lineage": {
+        "value": 655500.795406,
+        "source_references_complete": true,
+        "source_files_verified": false,
+        "lineage_issues": []
+      },
+      "elapsed_seconds": 0.431974
+    },
+    {
+      "id": "P24",
+      "label": "Risk Merkezi aylık takip oranı",
+      "method": "execute",
+      "request": {
+        "start": "2026-05",
+        "end": "2026-06",
+        "frequency": "monthly",
+        "columns": [
+          {
+            "name": "npl",
+            "metric_id": "tbb_risk_center:housing_credit_npl_ratio_pct"
+          }
+        ],
+        "operations": [
+          {
+            "op": "difference",
+            "column": "npl",
+            "output": "change_pp",
+            "periods": 1
+          }
+        ]
+      },
+      "purpose": "",
+      "response": {
+        "status": "ok",
+        "analysis_id": "analysis_7092473421c18248f6dd58ed42a23938024416b88778a71d1a15b3cca1f36c30",
+        "parent_analysis_id": null,
+        "snapshot_id": "snapshot_a3c7163541383b2574fa35428ebf5d318d1c6cffdf42c789197f9dd055b91db2",
+        "workspace_version": 13,
+        "row_count": 2,
+        "columns": [
+          "period",
+          "npl",
+          "change_pp"
+        ],
+        "schema": {
+          "change_pp": {
+            "currency": null,
+            "kind": "difference",
+            "metric_id": "tbb_risk_center:housing_credit_npl_ratio_pct",
+            "scale": 1,
+            "scope": {
+              "dimensions": {},
+              "geography_scope": "national",
+              "institution_scope": "risk_center_reporting_scope",
+              "namespace": "TBB_RISK_CENTER"
+            },
+            "status": "ready",
+            "unit": "percentage_points"
+          },
+          "npl": {
+            "currency": null,
+            "kind": "ratio",
+            "metric_id": "tbb_risk_center:housing_credit_npl_ratio_pct",
+            "scale": 1.0,
+            "scope": {
+              "dimensions": {},
+              "geography_scope": "national",
+              "institution_scope": "risk_center_reporting_scope",
+              "namespace": "TBB_RISK_CENTER"
+            },
+            "status": "ready",
+            "unit": "percent"
+          }
+        },
+        "preview": [
+          {
+            "period": "2026-05",
+            "npl": 0.1,
+            "change_pp": 0.0
+          },
+          {
+            "period": "2026-06",
+            "npl": 0.1,
+            "change_pp": 0.0
+          }
+        ],
+        "preview_truncated": false,
+        "warnings": [],
+        "result_ref": "analysis_7092473421c18248f6dd58ed42a23938024416b88778a71d1a15b3cca1f36c30",
+        "join_contract": {
+          "cardinality": "one_value_per_column_per_period",
+          "key": "period",
+          "population_equivalence_asserted": false
+        }
+      },
+      "result_rows": [
+        {
+          "period": "2026-05",
+          "npl": 0.1,
+          "change_pp": 0.0
+        },
+        {
+          "period": "2026-06",
+          "npl": 0.1,
+          "change_pp": 0.0
+        }
+      ],
+      "last_value_lineage": {
+        "value": 0.0,
+        "source_references_complete": true,
+        "source_files_verified": false,
+        "lineage_issues": []
+      },
+      "elapsed_seconds": 0.430191
+    },
+    {
+      "id": "P25",
+      "label": "Deflatör olarak sanayi endeksi kabulü",
+      "method": "validate_plan",
+      "request": {
+        "start": "2026-01",
+        "end": "2026-06",
+        "frequency": "monthly",
+        "columns": [
+          {
+            "name": "profit",
+            "metric_id": "bddk_monthly:table02:53:ef40239f1db4:Toplam",
+            "dimensions": {
+              "group_code": 10001
+            }
+          },
+          {
+            "name": "industry",
+            "metric_id": "evds:TP.TSANAYMT2021.Y1"
+          }
+        ],
+        "operations": [
+          {
+            "op": "deflate",
+            "column": "profit",
+            "index": "industry",
+            "base_period": "2026-01",
+            "output": "real_profit"
+          }
+        ]
+      },
+      "purpose": "An index is not necessarily an inflation deflator; requires role/intent contract",
+      "response": {
+        "status": "valid",
+        "schema": {
+          "profit": {
+            "kind": "flow",
+            "unit": "TRY",
+            "scale": 1000000.0,
+            "currency": "TRY",
+            "status": "ready",
+            "metric_id": "bddk_monthly:table02:53:ef40239f1db4:Toplam",
+            "scope": {
+              "namespace": "BDDK_MONTHLY",
+              "institution_scope": "BDDK_MONTHLY group namespace",
+              "geography_scope": "national",
+              "dimensions": {
+                "group_code": 10001
+              }
+            }
+          },
+          "industry": {
+            "kind": "index",
+            "unit": "index",
+            "scale": 1.0,
+            "currency": null,
+            "status": "ready",
+            "metric_id": "evds:TP.TSANAYMT2021.Y1",
+            "scope": {
+              "namespace": "TCMB_EVDS",
+              "institution_scope": "series_defined",
+              "geography_scope": "series_defined",
+              "dimensions": {}
+            }
+          },
+          "real_profit": {
+            "kind": "flow",
+            "unit": "TRY",
+            "scale": 1000000.0,
+            "currency": "TRY",
+            "status": "ready",
+            "metric_id": "bddk_monthly:table02:53:ef40239f1db4:Toplam",
+            "scope": {
+              "namespace": "BDDK_MONTHLY",
+              "institution_scope": "BDDK_MONTHLY group namespace",
+              "geography_scope": "national",
+              "dimensions": {
+                "group_code": 10001
+              }
+            },
+            "price_basis": "2026-01"
+          }
+        },
+        "warnings": [
+          {
+            "code": "heterogeneous_scopes_aligned",
+            "detail": "Columns align by period only; identical source populations are not asserted",
+            "column_scopes": {
+              "profit": {
+                "namespace": "BDDK_MONTHLY",
+                "institution_scope": "BDDK_MONTHLY group namespace",
+                "geography_scope": "national",
+                "dimensions": {
+                  "group_code": 10001
+                }
+              },
+              "industry": {
+                "namespace": "TCMB_EVDS",
+                "institution_scope": "series_defined",
+                "geography_scope": "series_defined",
+                "dimensions": {}
+              }
+            }
+          }
+        ]
+      },
+      "elapsed_seconds": 0.479667
+    },
+    {
+      "id": "P26",
+      "label": "Yıllık kullandırım last ile eksik toplam",
+      "method": "validate_plan",
+      "request": {
+        "start": "2025",
+        "end": "2025",
+        "frequency": "annual",
+        "columns": [
+          {
+            "name": "disbursement",
+            "metric_id": "tbb:disbursement_amount_million_try_need_total",
+            "alignment": "last"
+          }
+        ]
+      },
+      "purpose": "Annual flow last is Q4 only, inspect preserved kind and warning",
+      "response": {
+        "status": "valid",
+        "schema": {
+          "disbursement": {
+            "kind": "flow",
+            "unit": "TRY",
+            "scale": 1000000.0,
+            "currency": "TRY",
+            "status": "ready",
+            "metric_id": "tbb:disbursement_amount_million_try_need_total",
+            "scope": {
+              "namespace": "TBB_REPORTS",
+              "institution_scope": "reporting_banks_variable_by_period",
+              "geography_scope": "national",
+              "dimensions": {}
+            }
+          }
+        },
+        "warnings": []
+      },
+      "elapsed_seconds": 0.394361
+    },
+    {
+      "id": "P27",
+      "label": "Yıllık kullandırım sum desteklenmiyor",
+      "method": "validate_plan",
+      "request": {
+        "start": "2025",
+        "end": "2025",
+        "frequency": "annual",
+        "columns": [
+          {
+            "name": "disbursement",
+            "metric_id": "tbb:disbursement_amount_million_try_need_total",
+            "alignment": "sum"
+          }
+        ]
+      },
+      "purpose": "",
+      "response": {
+        "status": "blocked",
+        "errors": [
+          {
+            "code": "INVALID_TEMPORAL_AGGREGATION",
+            "message": "Only complete monthly flows may be summed to quarters"
+          }
+        ]
+      },
+      "elapsed_seconds": 0.393509
+    },
+    {
+      "id": "P28",
+      "label": "Metadata-only doğru bloklanıyor",
+      "method": "validate_plan",
+      "request": {
+        "start": "2026-01",
+        "end": "2026-06",
+        "frequency": "monthly",
+        "columns": [
+          {
+            "name": "missing",
+            "metric_id": "evds:TP.01TKFE"
+          }
+        ]
+      },
+      "purpose": "",
+      "response": {
+        "status": "blocked",
+        "errors": [
+          {
+            "code": "METADATA_ONLY",
+            "message": "evds:TP.01TKFE: metadata_only; observations must be acquired first"
+          }
+        ]
+      },
+      "elapsed_seconds": 0.357061
+    },
+    {
+      "id": "P29",
+      "label": "Sentetik sağlık doğal okuma ve büyüme",
+      "method": "execute",
+      "request": {
+        "start": "2026-01",
+        "end": "2026-03",
+        "frequency": "monthly",
+        "columns": [
+          {
+            "name": "visits",
+            "metric_id": "overlay:dataset_b5704b0fe5d41b6a38a7f44f4aa705c39b4513f7ed5a73fc471015b15030c918:visits",
+            "dimensions": {
+              "clinic": "A"
+            }
+          },
+          {
+            "name": "population",
+            "metric_id": "overlay:dataset_b5704b0fe5d41b6a38a7f44f4aa705c39b4513f7ed5a73fc471015b15030c918:population",
+            "dimensions": {
+              "clinic": "A"
+            }
+          }
+        ],
+        "operations": [
+          {
+            "op": "growth",
+            "column": "visits",
+            "output": "mom",
+            "periods": 1
+          }
+        ]
+      },
+      "purpose": "",
+      "response": {
+        "status": "ok",
+        "analysis_id": "analysis_45bc6cfe178b98a4c7b5fe7793cea8ed1609ead84099a6535f9b498b3fa9a4ed",
+        "parent_analysis_id": null,
+        "snapshot_id": "snapshot_a3c7163541383b2574fa35428ebf5d318d1c6cffdf42c789197f9dd055b91db2",
+        "workspace_version": 15,
+        "row_count": 3,
+        "columns": [
+          "period",
+          "visits",
+          "population",
+          "mom"
+        ],
+        "schema": {
+          "mom": {
+            "currency": null,
+            "kind": "ratio",
+            "metric_id": "overlay:dataset_b5704b0fe5d41b6a38a7f44f4aa705c39b4513f7ed5a73fc471015b15030c918:visits",
+            "scale": 1,
+            "scope": {
+              "dimensions": {
+                "clinic": "A"
+              },
+              "geography_scope": "unspecified",
+              "institution_scope": "unspecified",
+              "namespace": "dataset_b5704b0fe5d41b6a38a7f44f4aa705c39b4513f7ed5a73fc471015b15030c918"
+            },
+            "status": "ready",
+            "unit": "percent"
+          },
+          "population": {
+            "currency": null,
+            "kind": "count_stock",
+            "metric_id": "overlay:dataset_b5704b0fe5d41b6a38a7f44f4aa705c39b4513f7ed5a73fc471015b15030c918:population",
+            "scale": 1,
+            "scope": {
+              "dimensions": {
+                "clinic": "A"
+              },
+              "geography_scope": "unspecified",
+              "institution_scope": "unspecified",
+              "namespace": "dataset_b5704b0fe5d41b6a38a7f44f4aa705c39b4513f7ed5a73fc471015b15030c918"
+            },
+            "status": "ready",
+            "unit": "person"
+          },
+          "visits": {
+            "currency": null,
+            "kind": "count_flow",
+            "metric_id": "overlay:dataset_b5704b0fe5d41b6a38a7f44f4aa705c39b4513f7ed5a73fc471015b15030c918:visits",
+            "scale": 1,
+            "scope": {
+              "dimensions": {
+                "clinic": "A"
+              },
+              "geography_scope": "unspecified",
+              "institution_scope": "unspecified",
+              "namespace": "dataset_b5704b0fe5d41b6a38a7f44f4aa705c39b4513f7ed5a73fc471015b15030c918"
+            },
+            "status": "ready",
+            "unit": "visits"
+          }
+        },
+        "preview": [
+          {
+            "period": "2026-01",
+            "visits": 10,
+            "population": 100,
+            "mom": null
+          },
+          {
+            "period": "2026-02",
+            "visits": 20,
+            "population": 100,
+            "mom": 100.0
+          },
+          {
+            "period": "2026-03",
+            "visits": 30,
+            "population": 100,
+            "mom": 50.0
+          }
+        ],
+        "preview_truncated": false,
+        "warnings": [
+          {
+            "code": "missing_result",
+            "column": "mom",
+            "periods": [
+              "2026-01"
+            ],
+            "count": 1
+          }
+        ],
+        "result_ref": "analysis_45bc6cfe178b98a4c7b5fe7793cea8ed1609ead84099a6535f9b498b3fa9a4ed",
+        "join_contract": {
+          "cardinality": "one_value_per_column_per_period",
+          "key": "period",
+          "population_equivalence_asserted": false
+        }
+      },
+      "result_rows": [
+        {
+          "period": "2026-01",
+          "visits": 10,
+          "population": 100,
+          "mom": null
+        },
+        {
+          "period": "2026-02",
+          "visits": 20,
+          "population": 100,
+          "mom": 100.0
+        },
+        {
+          "period": "2026-03",
+          "visits": 30,
+          "population": 100,
+          "mom": 50.0
+        }
+      ],
+      "last_value_lineage": {
+        "value": 50.0,
+        "source_references_complete": true,
+        "source_files_verified": false,
+        "lineage_issues": []
+      },
+      "elapsed_seconds": 0.424296
+    },
+    {
+      "id": "P30",
+      "label": "Sentetik sağlık ziyaret nüfus oranı",
+      "method": "validate_plan",
+      "request": {
+        "start": "2026-01",
+        "end": "2026-03",
+        "frequency": "monthly",
+        "columns": [
+          {
+            "name": "visits",
+            "metric_id": "overlay:dataset_b5704b0fe5d41b6a38a7f44f4aa705c39b4513f7ed5a73fc471015b15030c918:visits",
+            "dimensions": {
+              "clinic": "A"
+            }
+          },
+          {
+            "name": "population",
+            "metric_id": "overlay:dataset_b5704b0fe5d41b6a38a7f44f4aa705c39b4513f7ed5a73fc471015b15030c918:population",
+            "dimensions": {
+              "clinic": "A"
+            }
+          }
+        ],
+        "operations": [
+          {
+            "op": "ratio",
+            "column": "visits",
+            "denominator": "population",
+            "output": "per_person",
+            "multiplier": 1
+          }
+        ]
+      },
+      "purpose": "A valid cross-dimensional rate is unavailable with identical-kind/unit-only ratio",
+      "response": {
+        "status": "blocked",
+        "errors": [
+          {
+            "code": "UNIT_MISMATCH",
+            "message": "Ratios require compatible reviewed metric kinds, units, currencies and price bases"
+          }
+        ]
+      },
+      "elapsed_seconds": 0.388325
+    }
+  ],
+  "local_synthetic_overlays_only": true,
+  "inventory": {
+    "relations": 70,
+    "binding_status": [
+      [
+        "metadata_only",
+        52099
+      ],
+      [
+        "no_numeric",
+        14
+      ],
+      [
+        "ready",
+        2824
+      ],
+      [
+        "review_required",
+        564
+      ]
+    ],
+    "observed_frequency": [
+      [
+        "AYLIK",
+        388
+      ],
+      [
+        "GÜNLÜK",
+        1
+      ],
+      [
+        "HAFTALIK(CUMA)",
+        2
+      ],
+      [
+        "monthly",
+        15
+      ],
+      [
+        "ÜÇ AYLIK",
+        189
+      ],
+      [
+        "İŞ GÜNÜ",
+        4
+      ]
+    ]
+  },
+  "database_sha256_after": "fc9dc92eeb423aac134054d4cfbbadfde40874437af02cf47bac21908ba4484f",
+  "source_unchanged": true,
+  "additional_readonly_evidence": {
+    "all_binding_json_characters": 43396763,
+    "five_gold_discovery_cards_characters": 2507,
+    "gold_last_native_rows_may2026": [
+      [
+        "2026-05-20",
+        6595000.0
+      ],
+      [
+        "2026-05-21",
+        6606000.0
+      ],
+      [
+        "2026-05-22",
+        6637100.0
+      ],
+      [
+        "2026-05-25",
+        6737900.0
+      ],
+      [
+        "2026-05-26",
+        null
+      ],
+      [
+        "2026-05-27",
+        null
+      ],
+      [
+        "2026-05-28",
+        null
+      ],
+      [
+        "2026-05-29",
+        null
+      ]
+    ],
+    "tbb_yP_misleading_visible_title": [
+      [
+        "tbb:balance_amount_million_try_need_fx_linked",
+        "İhtiyaç kredisi dönem sonu bakiyesi (FX-linked)",
+        "2026-06 publication is absent at the source and is not imputed. YP means foreign-currency loans reported in TRY, not necessarily FX-linked loans. Person counts are not deduplicated across banks or products."
+      ]
+    ],
+    "risk_person_kind": {
+      "aggregation": "last",
+      "binding_available": true,
+      "binding_sha256": "34a59a42efe1c2ef72607b9afb02a10224edd3012e37ca2ccda1df9beb97328b",
+      "contract_version": "1.0.0",
+      "coverage_end": "2026-06",
+      "coverage_start": "2021-01",
+      "currency": null,
+      "definition_periods": [],
+      "dimension_types": {},
+      "dimensions": {},
+      "filters": {
+        "metric_code": "housing_credit_borrower_count_million_person"
+      },
+      "geography_scope": "national",
+      "hash_basis": "file_bytes",
+      "institution_scope": "risk_center_reporting_scope",
+      "kind": "unknown",
+      "metric_id": "tbb_risk_center:housing_credit_borrower_count_million_person",
+      "missing_observation_count": 0,
+      "native_frequency": "monthly",
+      "notes": "Bültendeki grafik yuvarlaması korunur. Published chart rounding is preserved. Overlaps use the latest official publication while every vintage remains auditable. Publication-month label is source vintage, not verified actual release date.",
+      "observation_count": 66,
+      "physical_grain": [
+        "observation_month",
+        "metric_code"
+      ],
+      "provenance_columns": [
+        "source_file",
+        "source_sha256",
+        "source_page_number",
+        "publication_month",
+        "source_display_precision",
+        "source_value_raw"
+      ],
+      "scale": 1000000.0,
+      "source_asset": "data_pipeline/risk_center/monthly_housing_v1/processed/housing_credit_monthly.parquet",
+      "source_base": "",
+      "source_code": "housing_credit_borrower_count_million_person",
+      "source_system": "TBB_RISK_CENTER",
+      "source_unit": "million_person",
+      "status": "review_required",
+      "table": "risk_center.housing_metrics_latest",
+      "time_column": "observation_month",
+      "title": "Konut kredisi tekil kişi sayısı",
+      "unit": "person",
+      "unit_evidence": "source catalog and explicit source adapter",
+      "value_column": "value"
+    },
+    "source_system_status": [
+      [
+        "BDDK_FINTURK",
+        "no_numeric",
+        1
+      ],
+      [
+        "BDDK_FINTURK",
+        "ready",
+        75
+      ],
+      [
+        "BDDK_MONTHLY",
+        "ready",
+        2101
+      ],
+      [
+        "BDDK_MONTHLY",
+        "review_required",
+        7
+      ],
+      [
+        "BDDK_WEEKLY",
+        "metadata_only",
+        2
+      ],
+      [
+        "BDDK_WEEKLY",
+        "review_required",
+        515
+      ],
+      [
+        "REGIONAL_HOUSING_ANALYSIS",
+        "no_numeric",
+        1
+      ],
+      [
+        "REGIONAL_HOUSING_ANALYSIS",
+        "review_required",
+        32
+      ],
+      [
+        "TBB_REPORTS",
+        "ready",
+        60
+      ],
+      [
+        "TBB_RISK_CENTER",
+        "ready",
+        4
+      ],
+      [
+        "TBB_RISK_CENTER",
+        "review_required",
+        1
+      ],
+      [
+        "TCMB_EVDS",
+        "metadata_only",
+        52097
+      ],
+      [
+        "TCMB_EVDS",
+        "no_numeric",
+        12
+      ],
+      [
+        "TCMB_EVDS",
+        "ready",
+        579
+      ],
+      [
+        "TCMB_EVDS",
+        "review_required",
+        8
+      ],
+      [
+        "TCMB_EVDS_DERIVED",
+        "review_required",
+        1
+      ],
+      [
+        "TUIK_DATA_PORTAL",
+        "ready",
+        5
+      ]
+    ]
+  },
+  "health_only_competition_gate": {
+    "status": "blocked",
+    "errors": [
+      {
+        "code": "INVALID_INPUT",
+        "message": "Lakehouse release missing required contract/source tables: ['analysis.housing_credit_monthly', 'analysis.housing_credit_quarterly', 'bddk.finturk_measurements', 'bddk.monthly_measurements', 'bddk.weekly_measurements_resolved', 'bddk.weekly_metric_versions', 'catalog.metric_bindings', 'catalog.metrics', 'catalog.table_manifest', 'evds.legacy_observations', 'regional.housing_quarterly', 'risk_center.housing_metrics_latest']"
+      }
+    ]
+  },
+  "health_only_default_service": {
+    "status": "blocked",
+    "errors": [
+      {
+        "code": "INVALID_INPUT",
+        "message": "Metric contracts are absent. Rebuild the lakehouse before serving agent queries."
+      }
+    ]
+  },
+  "health_only_store_default_publish": "succeeded; generic storage works, but current financial registry/gate not substitutable"
+}

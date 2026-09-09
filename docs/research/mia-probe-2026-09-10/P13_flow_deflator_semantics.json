@@ -1,0 +1,17 @@
+{
+  "label": "P13_flow_deflator_semantics",
+  "payload": {
+    "model": "kkbhackathon2026/Qwen3.8-27B",
+    "max_tokens": 1536,
+    "temperature": 0,
+    "messages": [
+      {
+        "role": "user",
+        "content": "Sentetik sözleşmeler: profit, aylık net kâr akımı, birim milyon TL; Ocak 10, Şubat 20, Mart 30. CPI, tüketici fiyat endeksi, role=price_index. INDUSTRY, sanayi üretim endeksi, role=volume_index. İlk çeyrek toplam kârı için zaman yöntemini ve enflasyondan arındırma endeksini seç. Yalnız JSON yaz: {\"aggregation\":\"sum veya last\",\"quarter_total\":sayı,\"deflator\":\"CPI veya INDUSTRY\"}."
+      }
+    ],
+    "response_format": {
+      "type": "json_object"
+    }
+  }
+}

@@ -1,0 +1,77 @@
+{
+  "label": "P07_nested_json_schema",
+  "payload": {
+    "model": "kkbhackathon2026/Qwen3.8-27B",
+    "max_tokens": 1536,
+    "temperature": 0,
+    "messages": [
+      {
+        "role": "user",
+        "content": "S: İstanbul kredi stoku, milyon TL. R: İstanbul takip oranı, yüzde. Stok için plan seç; açıklama ihtiyacı yok. Yalnız JSON yaz. Beklenen biçim: {\"plan\":{\"metric_id\":\"S veya R\",\"filters\":{\"city\":\"İSTANBUL\"},\"unit\":\"TRY_million veya percent\"},\"clarification\":null}."
+      }
+    ],
+    "response_format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "metric_plan",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "plan": {
+              "type": "object",
+              "properties": {
+                "metric_id": {
+                  "type": "string",
+                  "enum": [
+                    "S",
+                    "R"
+                  ]
+                },
+                "filters": {
+                  "type": "object",
+                  "properties": {
+                    "city": {
+                      "type": "string",
+                      "enum": [
+                        "İSTANBUL"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "city"
+                  ],
+                  "additionalProperties": false
+                },
+                "unit": {
+                  "type": "string",
+                  "enum": [
+                    "TRY_million",
+                    "percent"
+                  ]
+                }
+              },
+              "required": [
+                "metric_id",
+                "filters",
+                "unit"
+              ],
+              "additionalProperties": false
+            },
+            "clarification": {
+              "type": [
+                "string",
+                "null"
+              ]
+            }
+          },
+          "required": [
+            "plan",
+            "clarification"
+          ],
+          "additionalProperties": false
+        }
+      }
+    }
+  }
+}

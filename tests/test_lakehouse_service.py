@@ -39,6 +39,8 @@ class LakehouseServiceTests(unittest.TestCase):
         }
         for metric, (kind, unit, scale, currency, frequency, status) in definitions.items():
             binding = {"metric_id": metric, "title": "KOBİ " + metric, "source_system": "FIXTURE", "table": "observations", "time_column": "month", "value_column": "value", "filters": {"metric": metric}, "dimensions": {"group_code": "group_code"}, "native_frequency": frequency, "kind": kind, "unit": unit, "scale": scale, "currency": currency, "aggregation": "last", "source_base": "fixtures", "provenance_columns": ["source_file", "source_sha256", "source_row_index"], "status": status, "notes": [], "contract_version": "test-1"}
+            if metric == "cpi":
+                binding.update(index_role="price_deflator", deflator_currency="TRY", price_scope="Fixture consumer basket")
             if metric == "other_population":
                 binding["institution_scope"] = "A different set of reporting institutions"
                 binding["geography_scope"] = "A different geographic population"

@@ -1,3 +1,4 @@
--r data_pipeline/requirements.txt
+-r requirements-app.txt
 ipykernel>=6.29,<8
 nbclient>=0.10,<1
+pytest==9.1.1

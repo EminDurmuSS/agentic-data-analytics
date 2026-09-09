@@ -1,0 +1,17 @@
+{
+  "desktop": {
+    "title": "KKB Hackathon | Veri, analitik motor ve teslim planı",
+    "mainSections": 12,
+    "appendices": 5,
+    "svg": 1,
+    "missingHashTargets": [],
+    "width": 1440,
+    "scrollWidth": 1440
+  },
+  "mobile": {
+    "width": 390,
+    "scrollWidth": 390
+  },
+  "opensAppendix": true,
+  "errors": []
+}

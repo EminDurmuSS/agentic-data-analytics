@@ -1,0 +1,294 @@
+<!doctype html>
+<html lang="tr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Agentic Minds | Analiz çalışma alanı</title>
+    <link rel="stylesheet" href="/static/app.css" />
+    <script src="/static/app.js" defer></script>
+  </head>
+  <body>
+    <aside class="sidebar">
+      <a class="brand" href="/" aria-label="Agentic Minds ana sayfa"
+        ><span class="brand-mark">a<span>m</span></span
+        ><span>Agentic Minds<small>Analiz çalışma alanı</small></span></a
+      >
+      <button id="new-workspace" class="primary">＋ Yeni çalışma alanı</button>
+      <div class="section-label">ÇALIŞMA ALANLARI</div>
+      <div id="workspace-list" class="workspace-list"></div>
+      <div class="sidebar-bottom">
+        <span class="status-dot" id="provider-dot"></span
+        ><span id="provider-label">Bağlantı kontrol ediliyor</span
+        ><small>KKB Hackathon 2026</small>
+      </div>
+    </aside>
+    <main>
+      <header class="topbar">
+        <div>
+          <span class="eyebrow" id="profile-label">VERİ ANALİZİ</span>
+          <h1 id="workspace-title">Çalışma alanınız</h1>
+        </div>
+        <div class="header-actions">
+          <button id="sources-button" class="quiet">Kaynak ekle</button
+          ><span id="workspace-version" class="version">Yeni çalışma</span>
+        </div>
+      </header>
+      <div id="notice" class="notice" role="status" hidden></div>
+      <section class="workspace-grid">
+        <div class="conversation-pane">
+          <div class="pane-heading">
+            <h2>Konuşma</h2>
+            <button id="new-conversation" class="text-button">
+              Yeni konuşma
+            </button>
+          </div>
+          <div id="messages" class="messages" aria-live="polite">
+            <div class="welcome" id="welcome">
+              <span class="welcome-icon">↗</span>
+              <h2>Veriyi birlikte inceleyelim.</h2>
+              <p>
+                Bir soru sorun. Hesabı, tablosu ve kaynaklarıyla birlikte takip
+                edin.
+              </p>
+              <div id="examples" class="examples"></div>
+            </div>
+          </div>
+          <details class="activity" id="activity" hidden>
+            <summary>
+              <span id="activity-title">Yapılan işlemler</span
+              ><span id="activity-count"></span>
+            </summary>
+            <ol id="events"></ol>
+          </details>
+          <form id="composer" class="composer">
+            <label class="sr-only" for="question">Analiz sorunuz</label
+            ><textarea
+              id="question"
+              rows="3"
+              placeholder="Örneğin: 2026'nın ilk çeyreğinde bankacılık sektörünün aylık net kârını göster."
+            ></textarea>
+            <div class="composer-bottom">
+              <span id="composer-hint"
+                >Enter ile gönder · Shift + Enter ile yeni satır</span
+              ><button id="send" class="primary" type="submit">
+                Gönder <span>↗</span>
+              </button>
+            </div>
+          </form>
+        </div>
+        <section class="result-pane">
+          <div class="result-heading">
+            <div>
+              <span class="eyebrow">ANALİZ SONUCU</span>
+              <h2 id="result-title">Hesabın tamamı, tek yerde.</h2>
+            </div>
+            <a id="csv-download" class="quiet" hidden>CSV indir ↓</a>
+          </div>
+          <div id="result-empty" class="result-empty">
+            <svg
+              width="190"
+              height="130"
+              viewBox="0 0 190 130"
+              aria-hidden="true"
+            >
+              <path
+                d="M20 15V110H176"
+                fill="none"
+                stroke="#b9c7c1"
+                stroke-width="1.5"
+              />
+              <path
+                d="M25 92L58 74L88 83L123 43L164 20"
+                fill="none"
+                stroke="#27674d"
+                stroke-width="3"
+              />
+              <circle cx="123" cy="43" r="5" fill="#27674d" />
+              <path
+                d="M25 92L58 74L88 83L123 43L164 20V109H25Z"
+                fill="#eaf0ec"
+                opacity=".8"
+              />
+            </svg>
+            <h3>İlk sorunuzla başlayın</h3>
+            <p>Tablonuz, görselleştirme ve kaynak izi burada oluşacak.</p>
+            <div class="capabilities">
+              <span>Veri keşfi</span><span>Gerçek hesap</span
+              ><span>Kaynak izi</span>
+            </div>
+          </div>
+          <div id="result-content" hidden>
+            <div class="result-meta">
+              <span id="row-count"></span><span id="analysis-version"></span>
+            </div>
+            <div class="tabs" role="tablist">
+              <button
+                class="tab active"
+                data-tab="table"
+                role="tab"
+                aria-selected="true"
+              >
+                Tablo</button
+              ><button
+                class="tab"
+                data-tab="chart"
+                role="tab"
+                aria-selected="false"
+              >
+                Grafik</button
+              ><button
+                class="tab"
+                data-tab="sources"
+                role="tab"
+                aria-selected="false"
+              >
+                Kaynaklar</button
+              ><button
+                class="tab"
+                data-tab="method"
+                role="tab"
+                aria-selected="false"
+              >
+                Hesap adımları
+              </button>
+            </div>
+            <div id="tab-table" class="tab-panel">
+              <div id="table-container" class="table-container"></div>
+              <div class="table-footer">
+                <span>Bir sayıya tıklayarak kaynağını inceleyin.</span
+                ><button id="more-rows" class="text-button" hidden>
+                  Diğer satırlar
+                </button>
+              </div>
+            </div>
+            <div id="tab-chart" class="tab-panel" hidden>
+              <div class="chart-controls">
+                <label for="chart-column">Gösterge</label
+                ><select id="chart-column"></select
+                ><span id="chart-unit"></span>
+              </div>
+              <div id="chart" class="chart"></div>
+              <p class="chart-note">
+                Grafik, tablonun ekranda gösterilen satırlarından çizilir. Eksik
+                gözlemler birleştirilmez.
+              </p>
+            </div>
+            <div id="tab-sources" class="tab-panel" hidden>
+              <div id="source-cards"></div>
+            </div>
+            <div id="tab-method" class="tab-panel" hidden>
+              <p class="small-muted">Bu analizin veri seçimi ve dönüşümleri</p>
+              <pre id="analysis-plan"></pre>
+            </div>
+            <div id="warnings" class="warnings"></div>
+            <div id="preserved" class="preserved" hidden></div>
+          </div>
+          <section id="extra-result" class="extra-result" hidden></section>
+        </section>
+      </section>
+    </main>
+    <dialog id="new-dialog">
+      <form id="new-form">
+        <button
+          type="button"
+          class="close-dialog"
+          data-close="new-dialog"
+          aria-label="Kapat"
+        >
+          ×</button
+        ><span class="eyebrow">YENİ ÇALIŞMA ALANI</span>
+        <h2>Bir analiz başlatın</h2>
+        <label for="new-name">Çalışma alanı adı</label
+        ><input
+          id="new-name"
+          value="Yeni analiz"
+          maxlength="100"
+          required
+        /><label for="new-profile">Başlangıç verisi</label
+        ><select id="new-profile">
+          <option value="finance">KKB finans verileri</option>
+          <option value="generic">
+            Boş çalışma alanı, kendi verimi ekleyeceğim
+          </option>
+        </select>
+        <p class="small-muted">
+          Boş çalışma alanında aynı analiz araçlarıyla kendi dosyalarınızı
+          kullanabilirsiniz.
+        </p>
+        <button class="primary" type="submit" id="create-button">
+          Oluştur
+        </button>
+      </form>
+    </dialog>
+    <dialog id="source-dialog">
+      <button
+        type="button"
+        class="close-dialog"
+        data-close="source-dialog"
+        aria-label="Kapat"
+      >
+        ×</button
+      ><span class="eyebrow">VERİ VE BELGE</span>
+      <h2>Yeni bir kaynak ekleyin</h2>
+      <p class="small-muted">
+        CSV, XLSX, PDF, görsel, HTML veya metin. En fazla 16 MiB; görseller 8
+        MiB. Kaynak, analize eklenmeden önce incelenir.
+      </p>
+      <label for="upload">Dosya seçin</label
+      ><input
+        id="upload"
+        type="file"
+        accept=".csv,.xlsx,.pdf,.png,.jpg,.jpeg,.html,.htm,.txt"
+      />
+      <div class="or">veya</div>
+      <form id="url-form">
+        <label for="source-url">Herkese açık belge bağlantısı</label
+        ><input
+          id="source-url"
+          type="url"
+          placeholder="https://…"
+          required
+        /><button class="primary" type="submit" id="url-button">
+          Kaynağı incele
+        </button>
+      </form>
+      <div
+        id="source-feedback"
+        class="source-feedback"
+        aria-live="polite"
+      ></div>
+    </dialog>
+    <dialog id="evidence-dialog" class="evidence-dialog">
+      <button
+        type="button"
+        class="close-dialog"
+        data-close="evidence-dialog"
+        aria-label="Kapat"
+      >
+        ×</button
+      ><span class="eyebrow">HÜCRENİN KAYNAĞI</span>
+      <h2 id="evidence-title">Kaynak izi</h2>
+      <div id="evidence-content"></div>
+    </dialog>
+    <dialog id="review-dialog" class="evidence-dialog">
+      <button
+        type="button"
+        class="close-dialog"
+        data-close="review-dialog"
+        aria-label="Kapat"
+      >
+        ×</button
+      ><span class="eyebrow">GÖRSELDEN ÇIKARILAN VERİ</span>
+      <h2>Hücreleri kontrol edin</h2>
+      <p class="small-muted">
+        Görselden çıkarılan değerleri kaynakla karşılaştırın. Düzeltmeler ve
+        verdiğiniz birimler kaynak kaydında tutulur.
+      </p>
+      <div id="review-table"></div>
+      <form id="review-form">
+        <div id="review-units"></div>
+        <button class="primary" type="submit">Değerleri doğruladım</button>
+      </form>
+    </dialog>
+  </body>
+</html>

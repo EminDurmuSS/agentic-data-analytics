@@ -92,7 +92,55 @@ def _fold(value: str) -> str:
     return "".join(c for c in unicodedata.normalize("NFKD", value.casefold().replace("ı", "i")) if not unicodedata.combining(c))
 
 
+def _search_terms(value: str) -> list[str]:
+    # Small, explicit vocabulary only. Search proposes candidates; it never
+    # changes metric definitions, dimension values or readiness.
+    aliases = {"unemployment": "issiz", "inflation": "enflasyon", "cpi": "tufe",
+               "deposits": "mevduat", "deposit": "mevduat", "gold": "altin",
+               "credit": "kredi", "loans": "kredi", "capital": "sermaye",
+               "adequacy": "yeterli", "yeterlilik": "yeterli", "yeterliligi": "yeterli",
+               "issizlik": "issiz", "mevduati": "mevduat",
+               "kredisi": "kredi", "kredileri": "kredi", "krediler": "kredi",
+               "kredisinin": "kredi", "kredisini": "kredi", "kredilerinin": "kredi", "kredilerini": "kredi",
+               "stock": "bakiye", "stok": "bakiye", "stoku": "bakiye", "stoklari": "bakiye",
+               "bakiyesi": "bakiye", "bakiyeleri": "bakiye", "bakiyesini": "bakiye", "bakiyesinin": "bakiye",
+               "bulteni": "bulten", "bultenleri": "bulten", "bulletin": "bulten",
+               "kari": "kar", "karin": "kar", "karini": "kar", "karinin": "kar", "karlari": "kar",
+               "bank": "banka", "banks": "banka", "banking": "banka", "bankalar": "banka",
+               "bankalarin": "banka", "bankalarinin": "banka", "bankacilik": "banka", "bankaciligi": "banka",
+               "bankaciligin": "banka", "bankaciliginin": "banka", "sektoru": "sektor", "sektorunun": "sektor"}
+    return [aliases.get(word, word) for word in re.findall(r"[a-z0-9_:.]+", _fold(value))]
+
+
+def _term_matches(term: str, text: str) -> bool:
+    if len(term) <= 3:
+        return re.search(r"(?<![a-z0-9_])" + re.escape(term) + r"(?![a-z0-9_])", text) is not None
+    return term in text or (len(term) >= 5 and term.endswith("i") and term[:-1] in text)
+
+
+def _query_terms(value: str) -> tuple[list[str], set[str]]:
+    """Separate query intent/calendar hints from searchable metric meaning."""
+    stopwords = {"lutfen", "bana", "bir", "ve", "ile", "icin", "mi", "nedir", "ne", "kadar",
+                 "hesapla", "hesaplayabilir", "goster", "analiz", "et", "eder", "misin", "istiyorum",
+                 "ver", "veri", "verileri", "sonuc", "sonuclari", "tablo", "tablosu", "tum", "butun",
+                 "ilk", "son", "ikinci", "ucuncu", "dorduncu", "yil", "yili", "yilin", "ay", "ayi",
+                 "ayin", "ceyrek", "ceyrekte", "ceyreginde", "en", "yuksek", "dusuk", "sirala", "olarak"}
+    frequency_hints = {"aylik": "monthly", "monthly": "monthly", "ceyreklik": "quarterly",
+                       "quarterly": "quarterly", "haftalik": "weekly", "weekly": "weekly",
+                       "gunluk": "daily", "daily": "daily", "yillik": "annual", "annual": "annual"}
+    terms = _search_terms(value)
+    return (list(dict.fromkeys(term for term in terms if term not in stopwords and term not in frequency_hints and not term.isdecimal())),
+            {frequency_hints[term] for term in terms if term in frequency_hints})
+
+
+def _flow_period_count(native: str, target: str) -> int | None:
+    return {("monthly", "quarterly"): 3, ("monthly", "annual"): 12,
+            ("monthly", "yearly"): 12, ("quarterly", "annual"): 4,
+            ("quarterly", "yearly"): 4}.get((native, target))
+
+
 _FREQUENCIES = {"monthly": "M", "quarterly": "Q", "weekly_friday": "W-FRI", "weekly_wednesday": "W-WED", "weekly": "W-FRI", "daily": "D", "business_daily": "B", "annual": "Y", "yearly": "Y"}
+_FREQUENCY_RANK = {"daily": 0, "business_daily": 0, "weekly_friday": 1, "weekly_wednesday": 1, "weekly": 1, "twice_monthly": 1, "monthly": 2, "quarterly": 3, "half_yearly": 4, "annual": 5, "yearly": 5}
 
 
 def _period(value: Any, frequency: str) -> pd.Period:
@@ -117,7 +165,7 @@ def _label(period: pd.Period) -> str:
 
 
 class LakehouseService:
-    """Six small tools: discover, describe, validate, execute, revise and explain."""
+    """Typed discovery, dimension, scalar, grouped, revision and evidence tools."""
 
     def __init__(self, store: LakehouseStore, workspace_id: str):
         self.store = store
@@ -155,6 +203,15 @@ class LakehouseService:
                         "source_base": "", "provenance_columns": [], "status": "ready" if kind != "unknown" else "review_required",
                         "notes": ["User-supplied explicit data contract"], "contract_version": "1",
                         "dataset_id": dataset_id, "source_sha256": manifest["source_sha256"],
+                        # A declared origin is provenance, not proof that two
+                        # datasets cover the same population. Keep execution
+                        # scope tied to the immutable ingested dataset.
+                        "scope_namespace": dataset_id,
+                        "source_namespace": contract.get("source_namespace"),
+                        "document_provenance": copy.deepcopy(contract.get("document_provenance")),
+                        "index_role": definition.get("index_role"),
+                        "deflator_currency": definition.get("deflator_currency"),
+                        "price_scope": definition.get("price_scope"),
                     }
             yield connection, bindings, workspace
         finally:
@@ -162,7 +219,7 @@ class LakehouseService:
 
     @staticmethod
     def _card(binding: dict) -> dict:
-        fields = ("metric_id", "title", "source_system", "native_frequency", "kind", "unit", "scale", "currency", "status", "dimensions", "institution_scope", "geography_scope", "notes")
+        fields = ("metric_id", "title", "source_system", "source_namespace", "native_frequency", "kind", "unit", "scale", "currency", "status", "dimensions", "institution_scope", "geography_scope", "notes", "index_role", "deflator_currency", "price_scope", "semantic_policy_version")
         return {key: binding.get(key) for key in fields}
 
     def discover(self, request: dict) -> dict:
@@ -174,11 +231,116 @@ class LakehouseService:
             raise PlanError("limit must be between 1 and 25")
         if request.get("status") is not None and (not isinstance(request["status"], str) or request["status"] not in {"ready", "review_required", "metadata_only", "no_numeric"}):
             raise PlanError("Unknown readiness status")
-        terms = _fold(request["query"]).split()
-        with self._context() as (_, bindings, workspace):
-            matches = [b for b in bindings.values() if all(term in _fold(f"{b['metric_id']} {b.get('title', '')}") for term in terms) and (not request.get("status") or b["status"] == request["status"])]
-            matches.sort(key=lambda b: (b["status"] != "ready", b["metric_id"]))
-            return {"status": "ok", "snapshot_id": workspace["snapshot_id"], "total": len(matches), "metrics": [self._card(b) for b in matches[:limit]]}
+        terms, frequencies = _query_terms(request["query"])
+        with self._context() as (connection, bindings, workspace):
+            matches, dimension_cache = [], {}
+            for binding in bindings.values():
+                if request.get("status") and binding["status"] != request["status"]:
+                    continue
+                searchable = " ".join(_search_terms(" ".join(str(binding.get(key) or "") for key in ("metric_id", "title", "title_en", "searchable_text", "group_name"))))
+                title = " ".join(_search_terms(str(binding.get("title") or "") + " " + str(binding.get("title_en") or "")))
+                if str(binding.get("source_system", "")).startswith("BDDK_"):
+                    searchable += " banka sektor bddk"
+                if binding.get("source_system") in {"BDDK_MONTHLY", "BDDK_WEEKLY"}:
+                    searchable += " bulten"
+                if binding.get("kind") == "stock" and binding.get("currency"):
+                    searchable += " bakiye"
+                if binding.get("index_role") == "price_deflator":
+                    searchable += " tufe enflasyon inflation cpi"
+                missing = [term for term in terms if not _term_matches(term, searchable)]
+                matched_dimensions = {}
+                # Examine dimensions only for plausible metric candidates; a
+                # city-only query should use dimension_values after discovery.
+                if missing and len(missing) < len(terms) and binding.get("table"):
+                    for dimension, physical in binding.get("dimensions", {}).items():
+                        cache_key = (binding["table"], physical)
+                        if cache_key not in dimension_cache:
+                            values = connection.execute(f"SELECT DISTINCT {_identifier(physical)} FROM {_identifier(binding['table'])} WHERE {_identifier(physical)} IS NOT NULL LIMIT 1001").fetchall()
+                            dimension_cache[cache_key] = [row[0] for row in values] if len(values) <= 1000 else []
+                        found = [value for value in dimension_cache[cache_key] if any(_term_matches(term, _fold(str(value))) for term in missing)]
+                        if found:
+                            matched_dimensions[dimension] = found[:10]
+                            missing = [term for term in missing if not any(_term_matches(term, _fold(str(value))) for value in found)]
+                if not missing:
+                    card = self._card(binding)
+                    title_matches = sum(_term_matches(term, title) for term in terms)
+                    concept_terms = [term for term in terms if term not in {"banka", "sektor", "bddk"}]
+                    title_words = title.split()
+                    adjacent_matches = sum(any(_term_matches(left, first) and _term_matches(right, second)
+                                               for first, second in zip(title_words, title_words[1:]))
+                                           for left, right in zip(concept_terms, concept_terms[1:]))
+                    reversed_matches = sum(any(_term_matches(right, first) and _term_matches(left, second)
+                                               for first, second in zip(title_words, title_words[1:]))
+                                           for left, right in zip(concept_terms, concept_terms[1:]))
+                    native = binding.get("native_frequency", "")
+                    frequency_match = any(native == hint or native.startswith(hint + "_") for hint in frequencies)
+                    compatible = all(_FREQUENCY_RANK.get(native, 999) <= _FREQUENCY_RANK[hint] for hint in frequencies)
+                    # Exact title meaning outranks incidental terms in a long
+                    # source/group description. No metric ID gets a special score.
+                    score = title_matches * 10 + (adjacent_matches + reversed_matches) * 30 + int(frequency_match) * 3 + len(matched_dimensions) * 2
+                    if frequencies:
+                        card["frequency_hint_requires_upsampling"] = not compatible
+                    if matched_dimensions:
+                        card["matched_dimensions"] = _json(matched_dimensions)
+                    matches.append((compatible, score, card))
+            matches.sort(key=lambda item: (item[2]["status"] != "ready", not item[0], -item[1], item[2]["metric_id"]))
+            return {"status": "ok", "snapshot_id": workspace["snapshot_id"], "total": len(matches), "metrics": [card for _, _, card in matches[:limit]]}
+
+    def _dimension_rows(self, connection: Any, binding: dict, dimension: str, dimensions: dict | None = None) -> list[dict]:
+        if not isinstance(dimension, str) or dimension not in binding.get("dimensions", {}):
+            raise PlanError("Unknown dimension", code="DIMENSION_NOT_FOUND")
+        if not binding.get("table"):
+            raise PlanError("Metric has no observation data", code="METADATA_ONLY")
+        column = binding["dimensions"][dimension]
+        label_column = binding.get("dimension_label_columns", {}).get(dimension)
+        selected = _identifier(column) + " AS value"
+        if label_column:
+            selected += f", list(DISTINCT {_identifier(label_column)} ORDER BY {_identifier(label_column)}) AS labels"
+        predicates, params = [f"{_identifier(column)} IS NOT NULL"], []
+        filters = {**binding.get("filters", {}), **{binding["dimensions"][key]: value for key, value in (dimensions or {}).items()}}
+        for key, value in filters.items():
+            values = value if isinstance(value, list) else [value]
+            if not values:
+                raise PlanError("Empty registry filter")
+            predicates.append(f"{_identifier(key)} IN ({','.join('?' for _ in values)})")
+            params.extend(values)
+        try:
+            cursor = connection.execute(f"SELECT {selected}, count(*) AS observation_count FROM {_identifier(binding['table'])} WHERE {' AND '.join(predicates)} GROUP BY {_identifier(column)} ORDER BY {_identifier(column)} LIMIT 1001", params)
+        except duckdb.Error as error:
+            raise PlanError("Dimension values or labels do not match the source contract", code="INVALID_DIMENSION_VALUE") from error
+        rows = [dict(zip([col[0] for col in cursor.description], row)) for row in cursor.fetchall()]
+        if len(rows) > 1000:
+            raise PlanError("Dimension has more than 1000 values; a narrower dimension contract is required", code="DIMENSION_CARDINALITY_LIMIT")
+        declared_labels = binding.get("dimension_labels", {}).get(dimension, {})
+        for row in rows:
+            if label_column:
+                row["labels"] = [label for label in row["labels"] if label is not None]
+                row["label_evidence"] = {"source_column": label_column, "source_system": binding.get("source_system")}
+            elif declared_labels:
+                label = declared_labels.get(str(row["value"]))
+                row["labels"] = [] if label is None else [label]
+                row["label_evidence"] = copy.deepcopy(binding.get("dimension_labels_evidence", {}).get(dimension))
+            if "labels" in row:
+                row["label"] = row["labels"][0] if len(row["labels"]) == 1 else None
+                if binding.get("source_system", "").startswith("BDDK_") and any(_fold(label) == "sektor" for label in row["labels"]):
+                    row["aliases"] = ["tüm bankalar", "bankacılık sektörü", "all banks"]
+            row["scope"] = binding.get("institution_scope") if dimension == "group_code" else binding.get("geography_scope")
+        return rows
+
+    def dimension_values(self, request: dict) -> dict:
+        _object(request, {"metric_id", "dimension", "query", "limit"}, {"metric_id", "dimension"}, "dimension_values")
+        query, limit = request.get("query", ""), request.get("limit", 100)
+        if not isinstance(query, str) or len(query) > 300:
+            raise PlanError("query must be a string of at most 300 characters")
+        if isinstance(limit, bool) or not isinstance(limit, int) or not 1 <= limit <= 250:
+            raise PlanError("limit must be between 1 and 250")
+        with self._context() as (connection, bindings, workspace):
+            if not isinstance(request["metric_id"], str) or request["metric_id"] not in bindings:
+                raise PlanError("Unknown metric_id", code="METRIC_NOT_FOUND")
+            rows = self._dimension_rows(connection, bindings[request["metric_id"]], request["dimension"])
+            terms = _search_terms(query)
+            rows = [row for row in rows if all(_term_matches(term, _fold(str(row["value"]) + " " + " ".join(row.get("labels", []) + row.get("aliases", [])))) for term in terms)]
+            return _json({"status": "ok", "snapshot_id": workspace["snapshot_id"], "metric_id": request["metric_id"], "dimension": request["dimension"], "total": len(rows), "values": rows[:limit], "truncated": len(rows) > limit})
 
     def describe(self, request: dict) -> dict:
         _object(request, {"metric_id"}, {"metric_id"}, "describe")
@@ -222,7 +384,7 @@ class LakehouseService:
                 raise PlanError("Dimension values must be finite scalar strings or numbers")
             alignment = selection.get("alignment", "native")
             native = binding["native_frequency"]
-            rank = {"daily": 0, "business_daily": 0, "weekly_friday": 1, "weekly_wednesday": 1, "weekly": 1, "twice_monthly": 1, "monthly": 2, "quarterly": 3, "half_yearly": 4, "annual": 5, "yearly": 5}
+            rank = _FREQUENCY_RANK
             if native not in rank:
                 raise PlanError(f"Unsupported native frequency {native}")
             if rank[native] > rank[frequency]:
@@ -232,14 +394,16 @@ class LakehouseService:
             if native != frequency and alignment == "native":
                 raise PlanError("Frequency conversion requires an explicit alignment", code="INVALID_TEMPORAL_AGGREGATION")
             if native == frequency and alignment != "native":
-                raise PlanError("Native frequency selection must use native alignment")
-            if alignment == "sum" and (binding["kind"] not in {"flow", "count_flow"} or native != "monthly" or frequency != "quarterly"):
-                raise PlanError("Only complete monthly flows may be summed to quarters", code="INVALID_TEMPORAL_AGGREGATION")
+                raise PlanError(f"Column {name!r}: source frequency={native}, output frequency={frequency}. Set THIS column's alignment to 'native'. Aggregation is only for changing frequency; keep other columns' explicit conversions.", code="REDUNDANT_ALIGNMENT")
+            if alignment == "last" and binding["kind"] in {"flow", "count_flow"}:
+                raise PlanError("The last subperiod flow is not the whole-period flow; use a complete sum", code="INVALID_TEMPORAL_AGGREGATION")
+            if alignment == "sum" and (binding["kind"] not in {"flow", "count_flow"} or _flow_period_count(native, frequency) is None):
+                raise PlanError("Only complete monthly flows to quarters/years or quarterly flows to years may be summed", code="INVALID_TEMPORAL_AGGREGATION")
             if alignment == "mean" and binding["kind"] not in {"rate", "ratio", "index", "price"}:
                 raise PlanError("Mean alignment requires a rate, ratio, index or price", code="INVALID_TEMPORAL_AGGREGATION")
             if native != frequency and binding["status"] != "ready":
                 raise PlanError("Unreviewed semantics permit native raw selection only", code="SEMANTICS_REVIEW_REQUIRED")
-            schemas[name] = {key: binding.get(key) for key in ("kind", "unit", "scale", "currency", "status")}
+            schemas[name] = {key: binding.get(key) for key in ("kind", "unit", "scale", "currency", "status", "index_role", "deflator_currency", "price_scope", "semantic_policy_version")}
             schemas[name]["metric_id"] = metric_id
             schemas[name]["scope"] = {
                 "namespace": binding.get("scope_namespace") or binding.get("dataset_id") or binding.get("source_system"),
@@ -272,6 +436,8 @@ class LakehouseService:
             if source["status"] != "ready" or source["kind"] == "unknown":
                 raise PlanError("Unreviewed semantics permit raw selection only", code="SEMANTICS_REVIEW_REQUIRED")
             schema = copy.deepcopy(source)
+            schema.pop("index_role", None)
+            schema.pop("deflator_currency", None)
             if op in {"growth", "difference"}:
                 periods = operation.get("periods", 1)
                 if isinstance(periods, bool) or not isinstance(periods, int) or not 1 <= periods <= 120:
@@ -279,19 +445,19 @@ class LakehouseService:
                 # Sum is conservative for chained operations and preserves warmup.
                 warmup += periods
                 if op == "growth":
-                    if source["kind"] in {"rate", "ratio"}:
+                    if source["kind"] in {"rate", "ratio"} and source["unit"] in {"percent", "%", "ratio"}:
                         raise PlanError("Use difference for rates and ratios to obtain percentage points", code="UNIT_MISMATCH")
                     schema.update(kind="ratio", unit="percent", scale=1, currency=None)
-                elif source["kind"] in {"rate", "ratio"}:
-                    if source["unit"] not in {"percent", "%"}:
-                        raise PlanError("Percentage-point differences require percent-valued inputs", code="UNIT_MISMATCH")
+                elif source["kind"] in {"rate", "ratio"} and source["unit"] in {"percent", "%"}:
                     schema.update(kind="difference", unit="percentage_points", scale=1, currency=None)
             elif op == "deflate":
                 index = operation["index"]
                 if not isinstance(index, str) or index not in schemas or schemas[index]["kind"] != "index" or schemas[index]["status"] != "ready":
                     raise PlanError("Deflation requires a reviewed index column", code="UNIT_MISMATCH")
-                if source["kind"] not in {"stock", "flow", "price"} or not source.get("currency"):
+                if source["kind"] not in {"stock", "flow", "price", "ratio"} or not source.get("currency"):
                     raise PlanError("Only monetary stocks, flows and prices may be deflated", code="UNIT_MISMATCH")
+                if schemas[index].get("index_role") != "price_deflator" or schemas[index].get("deflator_currency") != source.get("currency"):
+                    raise PlanError("Deflation requires an explicitly reviewed price deflator for the monetary input's currency", code="INVALID_DEFLATOR_ROLE")
                 base = _period(operation["base_period"], frequency)
                 if base > end:
                     raise PlanError("Base period must not be after the selected end")
@@ -375,6 +541,8 @@ class LakehouseService:
             else:
                 dates = pd.to_datetime(raw_dates, format="mixed", errors="raise")
             frame["_period"] = pd.PeriodIndex(dates, freq=calendar.freqstr)
+            native_calendar = _FREQUENCIES.get(binding["native_frequency"])
+            frame["_native_period"] = pd.PeriodIndex(dates, freq=native_calendar) if native_calendar else raw_dates
         except (ValueError, TypeError) as exc:
             raise PlanError(f"Invalid source period for {selection['name']}") from exc
         frame["_date"] = raw_dates
@@ -382,7 +550,7 @@ class LakehouseService:
         frame = frame[frame["_period"].between(calendar[0], calendar[-1])].sort_values("_date")
         if frame.empty:
             raise PlanError(f"No observations in the requested window for {selection['name']}", code="MISSING_OBSERVATIONS")
-        if frame["_date"].duplicated().any():
+        if frame["_native_period"].duplicated().any():
             raise PlanError(f"Ambiguous grain for {selection['name']}: more than one row per native period", code="AMBIGUOUS_GRAIN")
         numeric = pd.to_numeric(frame[value], errors="coerce")
         if (frame[value].notna() & numeric.isna()).any() or np.isinf(numeric).any():
@@ -406,9 +574,18 @@ class LakehouseService:
             series = grouped[value].mean()
             warnings.append({"code": "observed_sample_mean", "column": selection["name"], "detail": "Arithmetic mean of observed native values; a complete publication calendar is not asserted"})
         else:
+            target = "quarterly" if calendar.freqstr.startswith("Q") else "annual"
+            expected_count = _flow_period_count(binding["native_frequency"], target)
+            if expected_count is None:
+                raise PlanError("Unsupported flow aggregation", code="INVALID_TEMPORAL_AGGREGATION")
             sizes, numeric_sizes = grouped.size(), grouped[value].count()
-            complete = (sizes == 3) & (numeric_sizes == 3)
-            series = grouped[value].sum(min_count=3).where(complete)
+            complete = (sizes == expected_count) & (numeric_sizes == expected_count)
+            # Counts alone cannot certify the calendar when native periods are
+            # mislabeled, duplicated, or missing. Compare the actual period set.
+            for period, group in grouped:
+                expected = set(pd.period_range(period.start_time, period.end_time, freq=_FREQUENCIES[binding["native_frequency"]]))
+                complete.loc[period] = bool(complete.loc[period] and set(group["_native_period"]) == expected)
+            series = grouped[value].sum(min_count=expected_count).where(complete)
             if (~complete).any():
                 warnings.append({"code": "partial_period_blocked", "column": selection["name"], "periods": [_label(p) for p in complete.index[~complete]]})
         cells = {}
@@ -504,14 +681,114 @@ class LakehouseService:
 
     @staticmethod
     def _envelope(frame: pd.DataFrame, manifest: dict, warnings: list) -> dict:
+        # Reload and interrupted-write recovery use the same durable warnings
+        # as the original response. Recovery-specific notes may be appended.
+        durable_warnings = copy.deepcopy(manifest.get("lineage", {}).get("warnings", []))
+        for warning in warnings:
+            if warning not in durable_warnings:
+                durable_warnings.append(copy.deepcopy(warning))
+        warnings = durable_warnings
         return _json({"status": "ok", "analysis_id": manifest["analysis_id"], "parent_analysis_id": manifest.get("parent_analysis_id"), "snapshot_id": manifest["snapshot_id"], "workspace_version": manifest["new_workspace_version"], "row_count": len(frame), "columns": list(frame), "schema": manifest.get("schema"), "preview": (frame if len(frame) <= 10 else pd.concat([frame.head(5), frame.tail(5)])).to_dict("records"), "preview_truncated": len(frame) > 10, "warnings": warnings, "result_ref": manifest["analysis_id"], "join_contract": manifest["lineage"].get("join_contract")})
 
     def execute(self, plan: dict) -> dict:
         with self._context() as (connection, bindings, workspace):
             validated = self._validate(plan, bindings)
             frame, lineage, warnings = self._evaluate(connection, bindings, plan, validated)
+            lineage["warnings"] = copy.deepcopy(warnings)
             manifest = self.store.save_analysis(self.workspace_id, frame, copy.deepcopy(plan), _json(lineage), schema=validated["schema"], expected_version=workspace["version"])
             return self._envelope(frame, manifest, warnings)
+
+    def query_grouped(self, request: dict) -> dict:
+        """Rank independently validated dimension members within each period.
+
+        This does not sum bank populations, countries or cities together. Every
+        member retains the same native-read, temporal and source-cell contract
+        used by scalar analyses. Limits apply per period after ranking.
+        """
+        _object(request, {"metric_id", "group_by", "dimensions", "start", "end", "frequency", "alignment", "order", "limit"},
+                {"metric_id", "group_by", "dimensions", "start", "end", "frequency"}, "query_grouped")
+        group_by, limit, order = request["group_by"], request.get("limit", 10), request.get("order", "desc")
+        if isinstance(limit, bool) or not isinstance(limit, int) or not 1 <= limit <= 100:
+            raise PlanError("limit must be between 1 and 100")
+        if not isinstance(order, str) or order not in {"asc", "desc"}:
+            raise PlanError("order must be asc or desc")
+        if not isinstance(group_by, str) or group_by in {"period", "value", "rank"}:
+            raise PlanError("Grouping dimension conflicts with reserved result columns")
+        with self._context() as (connection, bindings, workspace):
+            metric_id = request["metric_id"]
+            if not isinstance(metric_id, str) or metric_id not in bindings:
+                raise PlanError("Unknown metric_id", code="METRIC_NOT_FOUND")
+            binding = bindings[metric_id]
+            if binding["status"] != "ready":
+                raise PlanError("Ranking requires reviewed numeric semantics", code="SEMANTICS_REVIEW_REQUIRED")
+            if not isinstance(group_by, str) or group_by not in binding.get("dimensions", {}):
+                raise PlanError("Unknown grouping dimension", code="DIMENSION_NOT_FOUND")
+            fixed = request["dimensions"]
+            if not isinstance(fixed, dict) or set(fixed) != set(binding["dimensions"]) - {group_by}:
+                raise PlanError("Fix exactly every other dimension; the grouped dimension must be left free")
+            # Validate all scalar values and semantic operations before querying
+            # distinct dimension members or persisting any result.
+            seed = {"start": request["start"], "end": request["end"], "frequency": request["frequency"],
+                    "columns": [{"name": "value", "metric_id": metric_id,
+                                 "dimensions": {**fixed, group_by: "__validation_only__"},
+                                 "alignment": request.get("alignment", "native")}]}
+            self._validate(seed, bindings)
+            members = self._dimension_rows(connection, binding, group_by, fixed)
+            if not members:
+                raise PlanError("No groups match the fixed dimensions", code="MISSING_OBSERVATIONS")
+            if len(members) > 250:
+                raise PlanError("Grouped query exceeds 250 dimension members", code="DIMENSION_CARDINALITY_LIMIT")
+            first, last = _period(request["start"], request["frequency"]), _period(request["end"], request["frequency"])
+            if len(members) * (last.ordinal - first.ordinal + 1) > 10000:
+                raise PlanError("Grouped query exceeds 10000 result cells; narrow the period window")
+            frames, groups, warnings, schema = [], {}, [], {}
+            for member in members:
+                plan = copy.deepcopy(seed)
+                plan["columns"][0]["dimensions"][group_by] = member["value"]
+                validated = self._validate(plan, bindings)
+                try:
+                    frame, lineage, notes = self._evaluate(connection, bindings, plan, validated)
+                except PlanError as error:
+                    if error.code != "MISSING_OBSERVATIONS":
+                        raise
+                    warnings.append({"code": "group_missing_observations", "dimensions": {group_by: member["value"]}, "detail": str(error)})
+                    continue
+                frame.insert(1, group_by, member["value"])
+                frames.append(frame)
+                groups[json.dumps(_json(member["value"]), ensure_ascii=False, sort_keys=True)] = lineage
+                warnings.extend({**note, "dimensions": {group_by: member["value"]}} for note in notes)
+                schema = validated["schema"]
+            if not frames:
+                raise PlanError("No groups have observations in the requested window", code="MISSING_OBSERVATIONS")
+            frame = pd.concat(frames, ignore_index=True)
+            frame = frame.sort_values(["period", "value", group_by], ascending=[True, order == "asc", True], na_position="last", kind="stable")
+            # Rank exact integers without coercing them through float64. Native
+            # counters above 2**53 remain distinct, including tied values.
+            frame["rank"] = pd.Series(pd.NA, index=frame.index, dtype="Int64")
+            for _, group in frame.groupby("period", sort=False):
+                previous, rank = None, 0
+                for position, (index, value) in enumerate(group["value"].items(), start=1):
+                    if pd.isna(value):
+                        continue
+                    if previous is None or value != previous:
+                        rank = position
+                    frame.loc[index, "rank"] = rank
+                    previous = value
+            total_rows = len(frame)
+            frame = frame.groupby("period", sort=False).head(limit).reset_index(drop=True)
+            schema["value"]["scope"]["dimensions"] = {**fixed, group_by: "per_result_row"}
+            schema[group_by] = {"kind": "dimension", "unit": "label", "status": "ready"}
+            schema["rank"] = {"kind": "rank", "unit": "ordinal", "status": "ready", "ties": "minimum_rank", "nulls": "unranked"}
+            warnings.append({"code": "group_populations_not_summed", "detail": "Members retain source scopes and labels, including any abroad or aggregate member; no cross-group additive total is asserted"})
+            lineage = {"frequency": request["frequency"], "group_by": group_by, "groups": groups,
+                       "warnings": copy.deepcopy(warnings),
+                       "join_contract": {"key": ["period", group_by], "cardinality": "one_value_per_dimension_member_per_period", "population_equivalence_asserted": False}}
+            stored_plan = {"query_type": "grouped", "request": copy.deepcopy(request)}
+            manifest = self.store.save_analysis(self.workspace_id, frame, stored_plan, _json(lineage), schema=_json(schema), expected_version=workspace["version"])
+            result = self._envelope(frame, manifest, warnings)
+            result.update(group_by=group_by, group_count=len(frames), order=order, limit_per_period=limit,
+                          total_rows_before_limit=total_rows, truncated=total_rows > len(frame))
+            return result
 
     def revise_analysis(self, request: dict) -> dict:
         _object(request, {"analysis_id", "add_columns", "operations"}, {"analysis_id"}, "revision")
@@ -524,6 +801,8 @@ class LakehouseService:
         parent, parent_manifest = self.store.load_analysis(request["analysis_id"])
         if parent_manifest["workspace_id"] != self.workspace_id:
             raise PlanError("Analysis belongs to another workspace")
+        if parent_manifest["plan"].get("query_type") == "grouped":
+            raise PlanError("Grouped analyses require a new explicit grouped query; scalar revisions are unavailable", code="GROUPED_REVISION_UNSUPPORTED")
         for selection in request.get("add_columns", []):
             if isinstance(selection, dict) and selection.get("name") in parent.columns:
                 raise PlanError("An added column must have a new name; use an operation for explicit replacement")
@@ -543,6 +822,18 @@ class LakehouseService:
                 # Preserve the saved parent's cells, even if a new operation reuses
                 # a source name. Revision semantics are explicit column replacement.
                 frame[column] = parent[column]
+                if column in parent_manifest.get("schema", {}):
+                    validated["schema"][column] = copy.deepcopy(parent_manifest["schema"][column])
+            # Preserve the evidence used for preserved cells even if a future
+            # source-policy version or added warmup changes reevaluated lineage.
+            lineage["preserved_columns"] = {column: {"analysis_id": request["analysis_id"], "column": column}
+                                            for column in preserved if column != "period"}
+            if "warnings" in parent_manifest["lineage"]:
+                warnings = [warning for warning in warnings if warning.get("column") not in preserved]
+                for warning in parent_manifest["lineage"]["warnings"]:
+                    if (not warning.get("column") or warning["column"] in preserved) and warning not in warnings:
+                        warnings.append(copy.deepcopy(warning))
+            lineage["warnings"] = copy.deepcopy(warnings)
             manifest = self.store.save_analysis(self.workspace_id, frame, plan, _json(lineage), schema=validated["schema"], parent_analysis_id=request["analysis_id"], expected_version=workspace["version"])
             result = self._envelope(frame, manifest, warnings)
             result["preserved_columns"] = preserved
@@ -556,8 +847,8 @@ class LakehouseService:
         the original external files. ``lineage_complete`` is a compatibility
         alias for ``source_references_complete``.
         """
-        _object(request, {"analysis_id", "column", "period"}, {"analysis_id", "column", "period"}, "explanation")
-        if not all(isinstance(value, str) for value in request.values()):
+        _object(request, {"analysis_id", "column", "period", "dimensions"}, {"analysis_id", "column", "period"}, "explanation")
+        if not all(isinstance(request[key], str) for key in ("analysis_id", "column", "period")):
             raise PlanError("Explanation fields must be strings")
         frame, manifest = self.store.load_analysis(request["analysis_id"])
         if manifest["workspace_id"] != self.workspace_id:
@@ -566,9 +857,38 @@ class LakehouseService:
         if column == "period" or column not in frame:
             raise PlanError("Unknown result column")
         selected = frame[frame["period"] == request["period"]]
+        lineage = manifest["lineage"]
+        inherited = lineage.get("preserved_columns", {}).get(column)
+        if inherited:
+            if request.get("dimensions"):
+                raise PlanError("Scalar analysis explanations do not accept grouping dimensions")
+            if len(selected) != 1:
+                raise PlanError("Unknown result period")
+            result = self.explain_value({"analysis_id": inherited["analysis_id"], "column": inherited["column"], "period": request["period"]})
+            if _json(selected.iloc[0][column]) != result["value"]:
+                raise PlanError("Preserved cell differs from its parent evidence", code="PRESERVED_VALUE_MISMATCH")
+            result.update(analysis_id=request["analysis_id"], inherited_from_analysis_id=inherited["analysis_id"],
+                          schema=manifest.get("schema", {}).get(column))
+            return result
+        if "group_by" in lineage:
+            group_by = lineage["group_by"]
+            dimensions = request.get("dimensions")
+            if not isinstance(dimensions, dict) or set(dimensions) != {group_by}:
+                raise PlanError(f"Grouped explanation requires dimensions containing exactly {group_by}")
+            if column != "value":
+                raise PlanError("Explain the grouped value column; rank policy is recorded in its result schema")
+            group_value = dimensions[group_by]
+            if isinstance(group_value, (dict, list, bool)) or group_value is None:
+                raise PlanError("Grouping dimension must be a scalar value")
+            selected = selected[selected[group_by] == group_value]
+            key = json.dumps(_json(group_value), ensure_ascii=False, sort_keys=True)
+            if key not in lineage["groups"]:
+                raise PlanError("Unknown result group")
+            lineage = lineage["groups"][key]
+        elif request.get("dimensions"):
+            raise PlanError("Scalar analysis explanations do not accept grouping dimensions")
         if len(selected) != 1:
             raise PlanError("Unknown result period")
-        lineage = manifest["lineage"]
         period = _period(request["period"], lineage["frequency"])
         operations = lineage["operations"]
         explanation_nodes = 0
@@ -605,7 +925,7 @@ class LakehouseService:
                     lineage_issues.add(f"{binding['metric_id']}: raw source hash and locator are not both bound")
                 if "previous_cumulative_source_cells" in cell and not cell["previous_cumulative_source_cells"]:
                     lineage_issues.add(f"{binding['metric_id']} at {_label(at)}: previous cumulative source cell is unavailable")
-            return {"column": name, "period": _label(at), "metric_id": binding["metric_id"], "contract_version": binding.get("contract_version"), "unit": binding.get("unit"), "scale": binding.get("scale"), "source_base": binding.get("source_base"), "hash_basis": binding.get("hash_basis", "file_bytes"), "source_sha256": binding.get("source_sha256"), "dataset_id": binding.get("dataset_id"), "dimensions": proof["dimensions"], "alignment": proof["alignment"], "source_cells": proof["cells"].get(_label(at), [])}
+            return {"column": name, "period": _label(at), "metric_id": binding["metric_id"], "contract_version": binding.get("contract_version"), "unit": binding.get("unit"), "scale": binding.get("scale"), "source_base": binding.get("source_base"), "hash_basis": binding.get("hash_basis", "file_bytes"), "source_sha256": binding.get("source_sha256"), "dataset_id": binding.get("dataset_id"), "source_namespace": binding.get("source_namespace"), "document_provenance": copy.deepcopy(binding.get("document_provenance")), "dimensions": proof["dimensions"], "alignment": proof["alignment"], "source_cells": proof["cells"].get(_label(at), [])}
 
         proof = explain(column, period, len(operations))
         return _json({"status": "ok", "analysis_id": request["analysis_id"], "snapshot_id": manifest["snapshot_id"], "column": column, "period": request["period"], "value": selected.iloc[0][column], "schema": manifest.get("schema", {}).get(column), "lineage": proof, "lineage_complete": not lineage_issues, "source_references_complete": not lineage_issues, "source_files_verified": False, "lineage_issues": sorted(lineage_issues)})

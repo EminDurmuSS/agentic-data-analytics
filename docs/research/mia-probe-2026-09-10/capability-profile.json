@@ -1,0 +1,300 @@
+{
+  "date_local": "2026-09-10",
+  "timezone": "Europe/Istanbul",
+  "request_count": 20,
+  "scope": "Small synthetic live capability probes, not production task accuracy or load benchmark",
+  "observations": [
+    {
+      "name": "all_requests_http_200",
+      "observed": true,
+      "evidence": [
+        "P01_text_baseline",
+        "P02_native_auto",
+        "P03_native_named",
+        "P04_tool_result_a",
+        "P05_tool_result_b",
+        "P06_no_unnecessary_tool",
+        "P07_nested_json_schema",
+        "P08_json_object",
+        "P09_schema_conflicting_text",
+        "P10_embedding_batch",
+        "P11_ocr_single_image",
+        "P12_vision_single_image",
+        "P13_flow_deflator_semantics",
+        "P14_missing_data_semantics",
+        "P15_ocr_second_document",
+        "P16_ocr_repeat_bounded",
+        "P17_vision_schema",
+        "P18_ocr_square_table",
+        "P19_ocr_square_same_cap",
+        "P20_typed_missing_data"
+      ]
+    },
+    {
+      "name": "turkish_text_exact",
+      "observed": true,
+      "evidence": [
+        "P01"
+      ]
+    },
+    {
+      "name": "P02_native_call_valid",
+      "observed": true,
+      "evidence": [
+        "P02"
+      ]
+    },
+    {
+      "name": "P03_native_call_valid",
+      "observed": true,
+      "evidence": [
+        "P03"
+      ]
+    },
+    {
+      "name": "named_call_stop_finish_reason",
+      "observed": true,
+      "evidence": [
+        "P03"
+      ]
+    },
+    {
+      "name": "P04_tool_result_exact",
+      "observed": true,
+      "evidence": [
+        "P04"
+      ]
+    },
+    {
+      "name": "P05_tool_result_exact",
+      "observed": true,
+      "evidence": [
+        "P05"
+      ]
+    },
+    {
+      "name": "tool_not_called_when_unnecessary",
+      "observed": true,
+      "evidence": [
+        "P06"
+      ]
+    },
+    {
+      "name": "P07_schema_valid",
+      "observed": true,
+      "evidence": [
+        "P07"
+      ]
+    },
+    {
+      "name": "P09_schema_valid",
+      "observed": true,
+      "evidence": [
+        "P09"
+      ]
+    },
+    {
+      "name": "P17_schema_valid",
+      "observed": true,
+      "evidence": [
+        "P17"
+      ]
+    },
+    {
+      "name": "P20_schema_valid",
+      "observed": true,
+      "evidence": [
+        "P20"
+      ]
+    },
+    {
+      "name": "nested_plan_semantics_exact",
+      "observed": true,
+      "evidence": [
+        "P07",
+        "P08"
+      ]
+    },
+    {
+      "name": "schema_holds_in_conflicting_prompt",
+      "observed": true,
+      "evidence": [
+        "P09"
+      ]
+    },
+    {
+      "name": "embedding_batch_indices",
+      "observed": true,
+      "evidence": [
+        "P10"
+      ]
+    },
+    {
+      "name": "embedding_4096_finite_near_unit_norm",
+      "observed": true,
+      "evidence": [
+        "P10"
+      ]
+    },
+    {
+      "name": "embedding_related_card_ranked_first",
+      "observed": true,
+      "evidence": [
+        "P10"
+      ]
+    },
+    {
+      "name": "unconstrained_vision_added_code_fence",
+      "observed": true,
+      "evidence": [
+        "P12"
+      ]
+    },
+    {
+      "name": "vision_table_values_exact",
+      "observed": true,
+      "evidence": [
+        "P12",
+        "P17"
+      ]
+    },
+    {
+      "name": "flow_and_deflator_selected_correctly",
+      "observed": true,
+      "evidence": [
+        "P13"
+      ]
+    },
+    {
+      "name": "untyped_missing_data_safely_blocked",
+      "observed": true,
+      "evidence": [
+        "P14"
+      ]
+    },
+    {
+      "name": "untyped_error_code_differs_from_service",
+      "observed": true,
+      "evidence": [
+        "P14"
+      ]
+    },
+    {
+      "name": "typed_missing_data_contract_exact",
+      "observed": true,
+      "evidence": [
+        "P20"
+      ]
+    },
+    {
+      "name": "P11_landscape_ocr_failed",
+      "observed": true,
+      "evidence": [
+        "P11"
+      ]
+    },
+    {
+      "name": "P16_landscape_ocr_failed",
+      "observed": true,
+      "evidence": [
+        "P16"
+      ]
+    },
+    {
+      "name": "plain_document_ocr_read_identifiers",
+      "observed": true,
+      "evidence": [
+        "P15"
+      ]
+    },
+    {
+      "name": "P18_square_ocr_table_exact",
+      "observed": true,
+      "evidence": [
+        "P18"
+      ]
+    },
+    {
+      "name": "P19_square_ocr_table_exact",
+      "observed": true,
+      "evidence": [
+        "P19"
+      ]
+    },
+    {
+      "name": "original_table_pixels_preserved_in_square",
+      "observed": true,
+      "evidence": [
+        "synthetic-table.png",
+        "synthetic-table-square.png"
+      ]
+    },
+    {
+      "name": "square_comparison_only_image_changed",
+      "observed": true,
+      "evidence": [
+        "P16",
+        "P19"
+      ]
+    }
+  ],
+  "observed_request_timings": {
+    "kkbhackathon2026/Qwen3.8-27B": {
+      "requests": 14,
+      "min_seconds": 0.421,
+      "median_seconds": 1.014,
+      "max_seconds": 3.927
+    },
+    "kkbhackathon2026/Qwen3-Embedding-8B": {
+      "requests": 1,
+      "min_seconds": 0.302,
+      "median_seconds": 0.302,
+      "max_seconds": 0.302
+    },
+    "kkbhackathon2026/Unlimited-OCR": {
+      "requests": 5,
+      "min_seconds": 0.342,
+      "median_seconds": 0.984,
+      "max_seconds": 13.439
+    }
+  },
+  "reported_usage_sum": {
+    "kkbhackathon2026/Qwen3.8-27B": {
+      "prompt_tokens": 4390,
+      "completion_tokens": 2687,
+      "total_tokens": 7077
+    },
+    "kkbhackathon2026/Qwen3-Embedding-8B": {
+      "prompt_tokens": 89,
+      "completion_tokens": 0,
+      "total_tokens": 89
+    },
+    "kkbhackathon2026/Unlimited-OCR": {
+      "prompt_tokens": 3065,
+      "completion_tokens": 9018,
+      "total_tokens": 12083
+    }
+  },
+  "unknown": [
+    "max_context_length",
+    "rate_limits",
+    "streaming",
+    "parallel_tool_calls",
+    "general_real_document_accuracy",
+    "end_to_end_lakehouse_agent_accuracy"
+  ],
+  "fixtures": [
+    {
+      "name": "synthetic-document.png",
+      "sha256": "ed669e6e70bf0e0cc55cb9abbfc8e489bca2e2d891f428ae62f5294de75b26b0"
+    },
+    {
+      "name": "synthetic-table-square.png",
+      "sha256": "e422213ea9d2f542a2d76b3185bd73edba505f00d1f61e62d0e1d505890abed4"
+    },
+    {
+      "name": "synthetic-table.png",
+      "sha256": "e12db6098ae3b930c5a31d98484691ff05d1ec95dcca5af062dbe8ac624836c6"
+    }
+  ]
+}

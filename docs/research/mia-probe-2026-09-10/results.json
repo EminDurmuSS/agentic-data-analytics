@@ -1,0 +1,1476 @@
+{
+  "base_url": "https://mia.csp.kloudeks.com/v1",
+  "credential_persisted": false,
+  "experiments": [
+    {
+      "label": "P01_text_baseline",
+      "at_utc": "2026-09-09T22:01:28.854843+00:00",
+      "endpoint": "/chat/completions",
+      "request": {
+        "model": "kkbhackathon2026/Qwen3.8-27B",
+        "messages": [
+          {
+            "role": "user",
+            "content": "Yalnız şu metni yaz: İstanbul, işsizlik, yüzde puan."
+          }
+        ],
+        "max_tokens": 1024,
+        "temperature": 0
+      },
+      "http_status": 200,
+      "response": {
+        "id": "chatcmpl-826dab3e-df4c-46aa-9fb6-515354fde26c",
+        "object": "chat.completion",
+        "created": 1788991289,
+        "model": "kkbhackathon2026/Qwen3.8-27B",
+        "system_fingerprint": "vllm-0.28.0-ec41ed27",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "\n\nİstanbul, işsizlik, yüzde puan.",
+              "reasoning_characters": 345,
+              "tool_calls": []
+            },
+            "logprobs": null,
+            "finish_reason": "stop"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 68,
+          "completion_tokens": 96,
+          "total_tokens": 164,
+          "completion_tokens_details": {
+            "reasoning_tokens": 83
+          }
+        }
+      },
+      "elapsed_seconds": 1.525
+    },
+    {
+      "label": "P02_native_auto",
+      "at_utc": "2026-09-09T22:02:02.830713+00:00",
+      "endpoint": "/chat/completions",
+      "request": {
+        "model": "kkbhackathon2026/Qwen3.8-27B",
+        "messages": [
+          {
+            "role": "system",
+            "content": "Veriyi yalnız araçtan al. Araç sonucu geldiğinde value, unit ve nonce alanlarını değiştirmeden tek JSON nesnesi olarak yaz. JSON dışında açıklama yazma."
+          },
+          {
+            "role": "user",
+            "content": "I34 kaydının değerini araçtan al."
+          }
+        ],
+        "tools": [
+          {
+            "type": "function",
+            "function": {
+              "name": "lookup_fixture",
+              "description": "Sentetik kaydın sayısal değerini, birimini ve doğrulama kodunu getirir. Bu üç alan yalnız araç sonucunda bulunur.",
+              "parameters": {
+                "type": "object",
+                "properties": {
+                  "key": {
+                    "type": "string",
+                    "enum": [
+                      "I34"
+                    ]
+                  }
+                },
+                "required": [
+                  "key"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        ],
+        "tool_choice": "auto",
+        "max_tokens": 1536,
+        "temperature": 0
+      },
+      "http_status": 200,
+      "response": {
+        "id": "chatcmpl-338f835e-af9a-4b14-8c4c-eaae535bd948",
+        "object": "chat.completion",
+        "created": 1788991322,
+        "model": "kkbhackathon2026/Qwen3.8-27B",
+        "system_fingerprint": "vllm-0.28.0-ec41ed27",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "reasoning_characters": 134,
+              "tool_calls": [
+                {
+                  "id": "chatcmpl-tool-bcf28714d8f4d5b8",
+                  "type": "function",
+                  "function": {
+                    "name": "lookup_fixture",
+                    "arguments": "{\"key\": \"I34\"}"
+                  }
+                }
+              ]
+            },
+            "logprobs": null,
+            "finish_reason": "tool_calls"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 395,
+          "completion_tokens": 64,
+          "total_tokens": 459,
+          "completion_tokens_details": {
+            "reasoning_tokens": 34
+          }
+        }
+      },
+      "elapsed_seconds": 0.426
+    },
+    {
+      "label": "P03_native_named",
+      "at_utc": "2026-09-09T22:02:18.035345+00:00",
+      "endpoint": "/chat/completions",
+      "request": {
+        "model": "kkbhackathon2026/Qwen3.8-27B",
+        "messages": [
+          {
+            "role": "system",
+            "content": "Veriyi yalnız araçtan al. Araç sonucu geldiğinde value, unit ve nonce alanlarını değiştirmeden tek JSON nesnesi olarak yaz. JSON dışında açıklama yazma."
+          },
+          {
+            "role": "user",
+            "content": "I34 kaydının değerini araçtan al."
+          }
+        ],
+        "tools": [
+          {
+            "type": "function",
+            "function": {
+              "name": "lookup_fixture",
+              "description": "Sentetik kaydın sayısal değerini, birimini ve doğrulama kodunu getirir. Bu üç alan yalnız araç sonucunda bulunur.",
+              "parameters": {
+                "type": "object",
+                "properties": {
+                  "key": {
+                    "type": "string",
+                    "enum": [
+                      "I34"
+                    ]
+                  }
+                },
+                "required": [
+                  "key"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        ],
+        "max_tokens": 1536,
+        "temperature": 0,
+        "tool_choice": {
+          "type": "function",
+          "function": {
+            "name": "lookup_fixture"
+          }
+        }
+      },
+      "http_status": 200,
+      "response": {
+        "id": "chatcmpl-b90ae10f-dff1-4863-9a72-ad260be44238",
+        "object": "chat.completion",
+        "created": 1788991338,
+        "model": "kkbhackathon2026/Qwen3.8-27B",
+        "system_fingerprint": "vllm-0.28.0-ec41ed27",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "reasoning_characters": 134,
+              "tool_calls": [
+                {
+                  "id": "chatcmpl-tool-964d53dfe98d9d18",
+                  "type": "function",
+                  "function": {
+                    "name": "lookup_fixture",
+                    "arguments": "{\"key\": \"I34\"}"
+                  }
+                }
+              ]
+            },
+            "logprobs": null,
+            "finish_reason": "stop"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 395,
+          "completion_tokens": 64,
+          "total_tokens": 459,
+          "completion_tokens_details": {
+            "reasoning_tokens": 34
+          }
+        }
+      },
+      "elapsed_seconds": 0.421
+    },
+    {
+      "label": "P04_tool_result_a",
+      "at_utc": "2026-09-09T22:02:18.458237+00:00",
+      "endpoint": "/chat/completions",
+      "request": {
+        "model": "kkbhackathon2026/Qwen3.8-27B",
+        "tools": [
+          {
+            "type": "function",
+            "function": {
+              "name": "lookup_fixture",
+              "description": "Sentetik kaydın sayısal değerini, birimini ve doğrulama kodunu getirir. Bu üç alan yalnız araç sonucunda bulunur.",
+              "parameters": {
+                "type": "object",
+                "properties": {
+                  "key": {
+                    "type": "string",
+                    "enum": [
+                      "I34"
+                    ]
+                  }
+                },
+                "required": [
+                  "key"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        ],
+        "tool_choice": "auto",
+        "max_tokens": 1536,
+        "temperature": 0,
+        "messages": [
+          {
+            "role": "system",
+            "content": "Veriyi yalnız araçtan al. Araç sonucu geldiğinde value, unit ve nonce alanlarını değiştirmeden tek JSON nesnesi olarak yaz. JSON dışında açıklama yazma."
+          },
+          {
+            "role": "user",
+            "content": "I34 kaydının değerini araçtan al."
+          },
+          {
+            "role": "assistant",
+            "content": "",
+            "tool_calls": [
+              {
+                "id": "chatcmpl-tool-bcf28714d8f4d5b8",
+                "type": "function",
+                "function": {
+                  "name": "lookup_fixture",
+                  "arguments": "{\"key\": \"I34\"}"
+                }
+              }
+            ]
+          },
+          {
+            "role": "tool",
+            "tool_call_id": "chatcmpl-tool-bcf28714d8f4d5b8",
+            "content": "{\"value\": 17.375, \"unit\": \"TRY_million\", \"nonce\": \"a9c74e-probe-713\"}"
+          }
+        ]
+      },
+      "http_status": 200,
+      "response": {
+        "id": "chatcmpl-aaf3e7f9-340a-4022-b441-06c279b07985",
+        "object": "chat.completion",
+        "created": 1788991338,
+        "model": "kkbhackathon2026/Qwen3.8-27B",
+        "system_fingerprint": "vllm-0.28.0-ec41ed27",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "\n\n{\"value\": 17.375, \"unit\": \"TRY_million\", \"nonce\": \"a9c74e-probe-713\"}",
+              "reasoning_characters": 154,
+              "tool_calls": []
+            },
+            "logprobs": null,
+            "finish_reason": "stop"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 476,
+          "completion_tokens": 71,
+          "total_tokens": 547,
+          "completion_tokens_details": {
+            "reasoning_tokens": 32
+          }
+        }
+      },
+      "elapsed_seconds": 0.458
+    },
+    {
+      "label": "P05_tool_result_b",
+      "at_utc": "2026-09-09T22:02:18.918427+00:00",
+      "endpoint": "/chat/completions",
+      "request": {
+        "model": "kkbhackathon2026/Qwen3.8-27B",
+        "tools": [
+          {
+            "type": "function",
+            "function": {
+              "name": "lookup_fixture",
+              "description": "Sentetik kaydın sayısal değerini, birimini ve doğrulama kodunu getirir. Bu üç alan yalnız araç sonucunda bulunur.",
+              "parameters": {
+                "type": "object",
+                "properties": {
+                  "key": {
+                    "type": "string",
+                    "enum": [
+                      "I34"
+                    ]
+                  }
+                },
+                "required": [
+                  "key"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        ],
+        "tool_choice": "auto",
+        "max_tokens": 1536,
+        "temperature": 0,
+        "messages": [
+          {
+            "role": "system",
+            "content": "Veriyi yalnız araçtan al. Araç sonucu geldiğinde value, unit ve nonce alanlarını değiştirmeden tek JSON nesnesi olarak yaz. JSON dışında açıklama yazma."
+          },
+          {
+            "role": "user",
+            "content": "I34 kaydının değerini araçtan al."
+          },
+          {
+            "role": "assistant",
+            "content": "",
+            "tool_calls": [
+              {
+                "id": "chatcmpl-tool-bcf28714d8f4d5b8",
+                "type": "function",
+                "function": {
+                  "name": "lookup_fixture",
+                  "arguments": "{\"key\": \"I34\"}"
+                }
+              }
+            ]
+          },
+          {
+            "role": "tool",
+            "tool_call_id": "chatcmpl-tool-bcf28714d8f4d5b8",
+            "content": "{\"value\": 64.125, \"unit\": \"TRY_million\", \"nonce\": \"b47f1d-probe-902\"}"
+          }
+        ]
+      },
+      "http_status": 200,
+      "response": {
+        "id": "chatcmpl-7b032843-6c94-4a90-ae47-f1536bcd5ba6",
+        "object": "chat.completion",
+        "created": 1788991339,
+        "model": "kkbhackathon2026/Qwen3.8-27B",
+        "system_fingerprint": "vllm-0.28.0-ec41ed27",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "\n\n{\"value\": 64.125, \"unit\": \"TRY_million\", \"nonce\": \"b47f1d-probe-902\"}",
+              "reasoning_characters": 154,
+              "tool_calls": []
+            },
+            "logprobs": null,
+            "finish_reason": "stop"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 476,
+          "completion_tokens": 71,
+          "total_tokens": 547,
+          "completion_tokens_details": {
+            "reasoning_tokens": 32
+          }
+        }
+      },
+      "elapsed_seconds": 0.464
+    },
+    {
+      "label": "P06_no_unnecessary_tool",
+      "at_utc": "2026-09-09T22:02:48.804711+00:00",
+      "endpoint": "/chat/completions",
+      "request": {
+        "model": "kkbhackathon2026/Qwen3.8-27B",
+        "max_tokens": 1536,
+        "temperature": 0,
+        "messages": [
+          {
+            "role": "user",
+            "content": "Araç kullanmadan yalnız MERHABA yaz."
+          }
+        ],
+        "tools": [
+          {
+            "type": "function",
+            "function": {
+              "name": "lookup_fixture",
+              "description": "Sentetik kaydın sayısal değerini, birimini ve doğrulama kodunu getirir. Bu üç alan yalnız araç sonucunda bulunur.",
+              "parameters": {
+                "type": "object",
+                "properties": {
+                  "key": {
+                    "type": "string",
+                    "enum": [
+                      "I34"
+                    ]
+                  }
+                },
+                "required": [
+                  "key"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        ],
+        "tool_choice": "auto"
+      },
+      "http_status": 200,
+      "response": {
+        "id": "chatcmpl-6926ef44-e909-4cec-a1da-613a08a6a709",
+        "object": "chat.completion",
+        "created": 1788991368,
+        "model": "kkbhackathon2026/Qwen3.8-27B",
+        "system_fingerprint": "vllm-0.28.0-ec41ed27",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "\n\nMERHABA",
+              "reasoning_characters": 160,
+              "tool_calls": []
+            },
+            "logprobs": null,
+            "finish_reason": "stop"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 355,
+          "completion_tokens": 49,
+          "total_tokens": 404,
+          "completion_tokens_details": {
+            "reasoning_tokens": 43
+          }
+        }
+      },
+      "elapsed_seconds": 0.426
+    },
+    {
+      "label": "P07_nested_json_schema",
+      "at_utc": "2026-09-09T22:04:34.102116+00:00",
+      "endpoint": "/chat/completions",
+      "request": {
+        "model": "kkbhackathon2026/Qwen3.8-27B",
+        "max_tokens": 1536,
+        "temperature": 0,
+        "messages": [
+          {
+            "role": "user",
+            "content": "S: İstanbul kredi stoku, milyon TL. R: İstanbul takip oranı, yüzde. Stok için plan seç; açıklama ihtiyacı yok. Yalnız JSON yaz. Beklenen biçim: {\"plan\":{\"metric_id\":\"S veya R\",\"filters\":{\"city\":\"İSTANBUL\"},\"unit\":\"TRY_million veya percent\"},\"clarification\":null}."
+          }
+        ],
+        "response_format": {
+          "type": "json_schema",
+          "json_schema": {
+            "name": "metric_plan",
+            "strict": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "plan": {
+                  "type": "object",
+                  "properties": {
+                    "metric_id": {
+                      "type": "string",
+                      "enum": [
+                        "S",
+                        "R"
+                      ]
+                    },
+                    "filters": {
+                      "type": "object",
+                      "properties": {
+                        "city": {
+                          "type": "string",
+                          "enum": [
+                            "İSTANBUL"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "city"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "unit": {
+                      "type": "string",
+                      "enum": [
+                        "TRY_million",
+                        "percent"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "metric_id",
+                    "filters",
+                    "unit"
+                  ],
+                  "additionalProperties": false
+                },
+                "clarification": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                }
+              },
+              "required": [
+                "plan",
+                "clarification"
+              ],
+              "additionalProperties": false
+            }
+          }
+        }
+      },
+      "http_status": 200,
+      "response": {
+        "id": "chatcmpl-859b6ead-1383-4c86-8fc1-58180b71e1ad",
+        "object": "chat.completion",
+        "created": 1788991474,
+        "model": "kkbhackathon2026/Qwen3.8-27B",
+        "system_fingerprint": "vllm-0.28.0-ec41ed27",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "{\"plan\":{\"metric_id\":\"S\",\"filters\":{\"city\":\"İSTANBUL\"},\"unit\":\"TRY_million\"},\"clarification\":null}",
+              "reasoning_characters": 572,
+              "tool_calls": []
+            },
+            "logprobs": null,
+            "finish_reason": "stop"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 127,
+          "completion_tokens": 186,
+          "total_tokens": 313,
+          "completion_tokens_details": {
+            "reasoning_tokens": 155
+          }
+        }
+      },
+      "elapsed_seconds": 1.0
+    },
+    {
+      "label": "P08_json_object",
+      "at_utc": "2026-09-09T22:04:35.106728+00:00",
+      "endpoint": "/chat/completions",
+      "request": {
+        "model": "kkbhackathon2026/Qwen3.8-27B",
+        "max_tokens": 1536,
+        "temperature": 0,
+        "messages": [
+          {
+            "role": "user",
+            "content": "S: İstanbul kredi stoku, milyon TL. R: İstanbul takip oranı, yüzde. Stok için plan seç; açıklama ihtiyacı yok. Yalnız JSON yaz. Beklenen biçim: {\"plan\":{\"metric_id\":\"S veya R\",\"filters\":{\"city\":\"İSTANBUL\"},\"unit\":\"TRY_million veya percent\"},\"clarification\":null}."
+          }
+        ],
+        "response_format": {
+          "type": "json_object"
+        }
+      },
+      "http_status": 200,
+      "response": {
+        "id": "chatcmpl-87b377cc-53ac-4707-89c6-f6db48d00027",
+        "object": "chat.completion",
+        "created": 1788991475,
+        "model": "kkbhackathon2026/Qwen3.8-27B",
+        "system_fingerprint": "vllm-0.28.0-ec41ed27",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "{\"plan\":{\"metric_id\":\"S\",\"filters\":{\"city\":\"İSTANBUL\"},\"unit\":\"TRY_million\"},\"clarification\":null}",
+              "reasoning_characters": 572,
+              "tool_calls": []
+            },
+            "logprobs": null,
+            "finish_reason": "stop"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 127,
+          "completion_tokens": 186,
+          "total_tokens": 313,
+          "completion_tokens_details": {
+            "reasoning_tokens": 155
+          }
+        }
+      },
+      "elapsed_seconds": 1.027
+    },
+    {
+      "label": "P09_schema_conflicting_text",
+      "at_utc": "2026-09-09T22:04:36.137689+00:00",
+      "endpoint": "/chat/completions",
+      "request": {
+        "model": "kkbhackathon2026/Qwen3.8-27B",
+        "max_tokens": 1536,
+        "temperature": 0,
+        "messages": [
+          {
+            "role": "user",
+            "content": "Yalnız DÜZ METİN yaz. JSON, süslü parantez ve herhangi bir alan kullanma."
+          }
+        ],
+        "response_format": {
+          "type": "json_schema",
+          "json_schema": {
+            "name": "schema_conflict",
+            "strict": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "decision": {
+                  "type": "string",
+                  "enum": [
+                    "schema_ok"
+                  ]
+                }
+              },
+              "required": [
+                "decision"
+              ],
+              "additionalProperties": false
+            }
+          }
+        }
+      },
+      "http_status": 200,
+      "response": {
+        "id": "chatcmpl-e568e6d6-2be4-4792-88ff-bd99f95fd34e",
+        "object": "chat.completion",
+        "created": 1788991476,
+        "model": "kkbhackathon2026/Qwen3.8-27B",
+        "system_fingerprint": "vllm-0.28.0-ec41ed27",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "{\n  \"decision\": \"schema_ok\"\n}",
+              "reasoning_characters": 385,
+              "tool_calls": []
+            },
+            "logprobs": null,
+            "finish_reason": "stop"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 76,
+          "completion_tokens": 122,
+          "total_tokens": 198,
+          "completion_tokens_details": {
+            "reasoning_tokens": 103
+          }
+        }
+      },
+      "elapsed_seconds": 0.868
+    },
+    {
+      "label": "P10_embedding_batch",
+      "at_utc": "2026-09-09T22:04:55.367955+00:00",
+      "endpoint": "/embeddings",
+      "request": {
+        "model": "kkbhackathon2026/Qwen3-Embedding-8B",
+        "input": [
+          "İstanbul'daki altın mevduatı ne kadar?",
+          "FinTürk: İstanbul ilinde altın mevduatı tutarı. Birim milyon Türk lirası.",
+          "EVDS: Türkiye geneli işsizlik oranı. Birim yüzde.",
+          "BDDK: Bankacılık sektörü aylık net kâr akımı. Birim milyon Türk lirası."
+        ],
+        "encoding_format": "float"
+      },
+      "http_status": 200,
+      "response": {
+        "created": 1788991495,
+        "data": [
+          {
+            "embedding_summary": {
+              "dimension": 4096,
+              "finite": true,
+              "l2_norm": 0.9999999770804926,
+              "first_values": [
+                0.018520928919315338,
+                0.016716942191123962,
+                -0.035598669201135635,
+                0.0008681685430929065,
+                -0.04401727020740509
+              ]
+            },
+            "index": 0,
+            "object": "embedding"
+          },
+          {
+            "embedding_summary": {
+              "dimension": 4096,
+              "finite": true,
+              "l2_norm": 1.0000000160642195,
+              "first_values": [
+                0.02053377404808998,
+                0.0213694516569376,
+                -0.0268610417842865,
+                0.011997932568192482,
+                -0.03629225119948387
+              ]
+            },
+            "index": 1,
+            "object": "embedding"
+          },
+          {
+            "embedding_summary": {
+              "dimension": 4096,
+              "finite": true,
+              "l2_norm": 0.9999999676386445,
+              "first_values": [
+                0.023743992671370506,
+                0.005458732135593891,
+                -0.04438575357198715,
+                -0.028158703818917274,
+                0.040328990668058395
+              ]
+            },
+            "index": 2,
+            "object": "embedding"
+          },
+          {
+            "embedding_summary": {
+              "dimension": 4096,
+              "finite": true,
+              "l2_norm": 1.00000002842414,
+              "first_values": [
+                0.0025397383142262697,
+                -0.0111440634354949,
+                -0.022534405812621117,
+                0.005479677580296993,
+                0.014776659198105335
+              ]
+            },
+            "index": 3,
+            "object": "embedding"
+          }
+        ],
+        "id": "embd-de275493-376c-4c20-bd58-15acdbc86cf7",
+        "model": "kkbhackathon2026/Qwen3-Embedding-8B",
+        "object": "list",
+        "usage": {
+          "completion_tokens": 0,
+          "completion_tokens_details": null,
+          "prompt_tokens": 89,
+          "total_tokens": 89
+        }
+      },
+      "cosine_matrix": [
+        [
+          1.0,
+          0.785563,
+          0.268501,
+          0.225735
+        ],
+        [
+          0.785563,
+          1.0,
+          0.327704,
+          0.317754
+        ],
+        [
+          0.268501,
+          0.327704,
+          1.0,
+          0.283998
+        ],
+        [
+          0.225735,
+          0.317754,
+          0.283998,
+          1.0
+        ]
+      ],
+      "elapsed_seconds": 0.302
+    },
+    {
+      "label": "P11_ocr_single_image",
+      "at_utc": "2026-09-09T22:04:55.809990+00:00",
+      "endpoint": "/chat/completions",
+      "request": {
+        "model": "kkbhackathon2026/Unlimited-OCR",
+        "messages": [
+          {
+            "role": "user",
+            "content": [
+              {
+                "type": "image_url",
+                "image_url": {
+                  "url": "<local image omitted; sha256=372b2bd14fa904be73d10304eebf927e12193ccbbf18b1035309e62480bb51a3>"
+                }
+              },
+              {
+                "type": "text",
+                "text": "<image>\ndocument parsing"
+              }
+            ]
+          }
+        ],
+        "temperature": 0.0,
+        "max_tokens": 8192,
+        "skip_special_tokens": false,
+        "vllm_xargs": {
+          "ngram_size": 35,
+          "window_size": 128
+        }
+      },
+      "http_status": 200,
+      "response": {
+        "id": "chatcmpl-821c6a1b-2ef3-466f-81f1-4649db2dfa3c",
+        "object": "chat.completion",
+        "created": 1788991495,
+        "model": "kkbhackathon2026/Unlimited-OCR",
+        "system_fingerprint": "vllm-0.23.1rc1.dev541+g7aaf016a1-3de49c98",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "ovišatiš\nsuvljanješ\nsuvljanješ\nsuvljanješ\nsuvljanješ\nsuvljanješ\nsuvljan\nsuvljan\nsuvljan\nsuvljan\nsuvljan\nsuvljan\nsuvljan\nsuvlijan\nsuvlijan\nsuvlijan\nsuvlijan\nsuvlijan\nsuvlijan\nsuvlijan\nsuvljan\nsuvljan\nsuvljan\nsuvljan\nsuvljan\nsuvljan\nsuvlujan\nsuvlujan\nsuvlujan\nsuvlujan\nsuvlujan\nsuvlujan\nsuvlujan\nsuvluj\nsuvluj\nsuvluj\nsuvluj\nsuvluj\nsuvluj\nsuvluj\nsuvlujan\nsuvlujan\nsuvlujan\nsuvlujan\nsuvlujan\nsuvlujan\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluj\nsuvluj\nsuvluj\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvlujo\nsuvlujo\nsuvlujo\nsuvlujo\nsuvlujo\nsuvlujo\nsuvlujo\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluj\nsuvluj\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvlujo\nsuvlujo\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvlujo\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluj\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvlujo\nsuvluja\nsuvlujo\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvlujo\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluj\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvlujo\nsuvluja\nsuvlujo\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvlujo\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluj\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvlujo\nsuvluja\nsuvlujo\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvlujo\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluj\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvlujo\nsuvluja\nsuvlujo\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvlujo\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluj\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvlujo\nsuvluja\nsuvlujo\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvlujo\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluj\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvlujo\nsuvluja\nsuvlujo\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvlujo\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluj\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvlujo\nsuvluja\nsuvlujo\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvlujo\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluj\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvlujo\nsuvluja\nsuvlujo\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvlujo\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluj\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvlujo\nsuvluja\nsuvlujo\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvlujo\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluj\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvlujo\nsuvluja\nsuvlujo\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvlujo\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluj\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvlujo\nsuvluja\nsuvlujo\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvlujo\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluj\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvlujo\nsuvluja\nsuvlujo\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvlujo\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluj\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvlujo\nsuvluja\nsuvlujo\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvlujo\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluj\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvlujo\nsuvluja\nsuvlujo\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvlujo\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluj\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvlujo\nsuvluja\nsuvlujo\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvlujo\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluj\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvlujo\nsuvluja\nsuvlujo\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvlujo\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluj\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvlujo\nsuvluja\nsuvlujo\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvlujo\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluj\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvlujo\nsuvluja\nsuvlujo\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvlujo\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluj\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvlujo\nsuvluja\nsuvlujo\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvlujo\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluj\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvlujo\nsuvluja\nsuvlujo\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvlujo\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluj\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvlujo\nsuvluja\nsuvlujo\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvlujo\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluj\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvlujo\nsuvluja\nsuvlujo\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvlujo\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluj\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvlujo\nsuvluja\nsuvlujo\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvlujo\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluj\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvlujo\nsuvluja\nsuvlujo\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvlujo\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluj\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvlujo\nsuvluja\nsuvlujo\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvlujo\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluj\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvlujo\nsuvluja\nsuvlujo\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvlujo\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluj\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvlujo\nsuvluja\nsuvlujo\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvlujo\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluj\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvlujo\nsuvluja\nsuvlujo\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvlujo\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluj\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvlujo\nsuvluja\nsuvlujo\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvlujo\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluj\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvlujo\nsuvluja\nsuvlujo\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvlujo\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluj\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvlujo\nsuvluja\nsuvlujo\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvlujo\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluj\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvlujo\nsuvluja\nsuvlujo\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvlujo\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluj\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvlujo\nsuvluja\nsuvlujo\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvlujo\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluj\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvlujo\nsuvluja\nsuvlujo\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluj\nsuvluja\nsuvluj\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluj\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluj\nsuvluja\nsuvlujo\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvlujo\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvlujo\nsuvluja\nsuvlujo\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluj\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluj\nsuvluja\nsuvluj\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluj\nsuvluja\nsuvlujo\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvlujo\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvlujo\nsuvluja\nsuvlujo\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluj\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluj\nsuvluja\nsuvluj\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluj\nsuvluja\nsuvlujo\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvlujo\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvlujo\nsuvluja\nsuvlujo\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluj\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluj\nsuvluja\nsuvluj\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluj\nsuvluja\nsuvlujo\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvlujo\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvlujo\nsuvluja\nsuvlujo\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluj\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluj\nsuvluja\nsuvluj\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluj\nsuvluja\nsuvlujo\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvlujo\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvlujo\nsuvluja\nsuvlujo\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluj\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluj\nsuvluja\nsuvluj\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluj\nsuvluja\nsuvlujo\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvlujo\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvlujo\nsuvluja\nsuvlujo\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluj\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluj\nsuvluja\nsuvluj\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluj\nsuvluja\nsuvlujo\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvlujo\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvlujo\nsuvluja\nsuvlujo\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluj\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluj\nsuvluja\nsuvluj\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluj\nsuvluja\nsuvlujo\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvlujo\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvlujo\nsuvluja\nsuvlujo\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluj\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluj\nsuvluja\nsuvluj\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluj\nsuvluja\nsuvlujo\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvlujo\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvlujo\nsuvluja\nsuvlujo\nsuvluja\nsuvluja\nsuvlujo\nsuvluja\nsuvlujo\nsuvluja\nsuvlujo\nsuvluja\nsuvlujo\nsuvlujo\nsuvluja\nsuvlujo\nsuvluja\nsuvlujo\nsuvluja\nsuvlajo\nsuvlajo\nsuvlajo\nsuvlajo\nsuvlajo\nsuvlajo\nsuvlajo\nsuvlujo\nsuvlajo\nsuvlajo\nsuvlajo\nsuvlajo\nsuvlajo\nsuvlajo\nsuvlaj\nsuvlajo\nsuvlajo\nsuvlajo\nsuvlajo\nsuvlajo\nsuvlajo\nsuvlado\nsuvlado\nsuvlado\nsuvlado\nsuvlado\nsuvlado\nsuvlado\nsuvlano\nsuvlano\nsuvlano\nsuvlano\nsuvlano\nsuvlano\nsuvlano\nsuvlanto\nsuvlanto\nsuvlanto\nsuvlanto\nsuvlanto\nsuvlanto\nsuvlanto\nsuvlano\nsuvlano\nsuvlano\nsuvlano\nsuvlano\nsuvlano\nsuvlono\nsuvlono\nsuvlono\nsuvlono\nsuvlono\nsuvlono\nsuvlono\nsuvlano\nsuvlano\nsuvlano\nsuvlano\nsuvlano\nsuvlano\nsuvlano\nsuvlanto\nsuvlanto\nsuvlanto\nsuvlanto\nsuvlanto\nsuvlanto\nsuvlanto\nsuvlonto\nsuvlonto\nsuvlonto\nsuvlonto\nsuvlonto\nsuvlonto\nsuvlonto\nsuvlono\nsuvlono\nsuvlono\nsuvlono\nsuvlono\nsuvlono\nsuvlono\nsuvlonto\nsuvlonto\nsuvlonto\nsuvlonto\nsuvlonto\nsuvlonto\nsuvl onto\nsuvlonto\nsuvlonto\nsuvlonto\nsuvlonto\nsuvlonto\nsuvlonto\nsuvlonto\nsuvlono\nsuvlono\nsuvlono\nsuvlonto\nsuvlonto\nsuvlonto\nsuvl onto\nsuvlonto\nsuvlonto\nsuvl onto\nsuvlonto\nsuvlonto\nsuvlonto\nsuvl onto\nsuvlonto\nsuvlonto\nsuvlonto\nsuvlonto\nsuvlonto\nsuvlonto\nsuvlonto\nsuvl onto\nsuvlonto\nsuvlonto\nsuvlinto\nsuvlonto\nsuvlonto\nsuvlonto\nsuvlonto\nsuvlonto\nsuvlonto\nsuvlinto\nsuvlonto\nsuvlonto\nsuvlonto\nsuvlinto\nsuvlonto\nsuvlonto\nsuvlinto\nsuvlonto\nsuvlonto\nsuvlonto\nsuvl onto\nsuvlonto\nsuvlonto\nsuvlonto\nsuvlonto\nsuvlonto\nsuvlonto\nsuvlonto\nsuvl onto\nsuvlonto\nsuvlonto\nsuvl onto\nsuvlonto\nsuvlonto\nsuvlonto\nsuvl onto\nsuvlonto\nsuvlonto\nsuvlinto\nsuvlonto\nsuvlonto\nsuvlonto\nsuvlonto\nsuvlonto\nsuvlonto\nsuvlinto\nsuvlonto\nsuvlonto\nsuvlonto\nsuvl onto\nsuvlonto\nsuvlonto\nsuvlonto\nsuvlonto\nsuvlonto\nsuvlonto\nsuvlonto\nsuvl onto\nsuvlonto\nsuvlonto\nsuvl onto\nsuvlonto\nsuvlonto\nsuvlonto\nsuvl onto\nsuvlonto\nsuvlonto\nsuvlinto\nsuvlonto\nsuvlonto\nsuvlinto\nsuvlonto\nsuvlonto\nsuvlonto\nsuvlonto\nsuvlonto\nsuvlonto\nsuvlonto\nsuvl onto\nsuvlonto\nsuvlonto\nsuvlonto\nsuvlonto\nsuvlonto\nsuvlonto\nsuvlinto\nsuvlonto\nsuvlonto\nsuvlonto\nsuvl onto\nsuvlonto\nsuvlonto\nsuvl onto\nsuvlonto\nsuvlonto\nsuvlonto\nsuvl onto\nsuvlonto\nsuvlonto\nsuvlinto\nsuvlonto\nsuvlonto\nsuvlonto\nsuvlonto\nsuvlonto\nsuvlonto\nsuvlonto\nsuvl onto\nsuvlonto\nsuvlonto\nsuvlonto\nsuvlonto\nsuvlonto\nsuvlonto\nsuvlinto\nsuvlonto\nsuvlonto\nsuvlonto\nsuvl onto\nsuvlonto\nsuvlonto\nsuvl onto\nsuvlonto\nsuvlonto\nsuvlonto\nsuvl onto\nsuvlonto\nsuvlonto\nsuvlinto\nsuvlonto\nsuvlonto\nsuvlonto\nsuvlonto\nsuvlonto\nsuvlonto\nsuvlonto\nsuvl onto\nsuvlonto\nsuvlonto\nsuvlonto\nsuvlonto\nsuvlonto\nsuvlonto\nsuvlinto\nsuvlonto\nsuvlonto\nsuvlonto\nsuvl onto\nsuvlonto\nsuvlonto\nsuvl onto\nsuvlonto\nsuvlonto\nsuvlonto\nsuvl onto\nsuvlonto\nsuvlonto\nsuvlinto\nsuvlonto\nsuvlonto\nsuvlonto\nsuvlonto\nsuvlonto\nsuvlonto\nsuvlonto\nsuvl onto\nsuvlonto\nsuvlonto\nsuvlonto\nsuvlonto\nsuvlonto\nsuvlonto\nsuvlinto\nsuvlonto\nsuvlonto\nsuvlonto\nsuvl onto\nsuvlonto\nsuvlonto\nsuvl onto\nsuvlonto\nsuvlonto\nsuvlonto\nsuvl onto\nsuvlonto\nsuvlonto\nsuvlinto\nsuvlonto\nsuvlonto\nsuvlonto\nsuvlonto\nsuvlonto\nsuvlonto\nsuvlonto\nsuvl onto\nsuvlonto\nsuvlonto\nsuvlonto\nsuvlonto\nsuvlonto\nsuvlonto\nsuvlinto\nsuvlonto\nsuvlonto\nsuvlonto\nsuvl onto\nsuvlonto\nsuvlonto\nsuvl onto\nsuvlonto\nsuvlonto\nsuvlonto\nsuvl onto\nsuvlonto\nsuvlonto\nsuvlinto\nsuvlonto\nsuvlonto\nsuvlonto\nsuvlonto\nsuvlonto\nsuvlonto\nsuvlonto\nsuvl onto\nsuvlonto\nsuvlonto\nsuvlonto\nsuvlonto\nsuvlonto\nsuvlonto\nsuvlinto\nsuvlonto\nsuvlonto\nsuvlonto\nsuvl onto\nsuvlonto\nsuvlonto\nsuvl onto\nsuvlonto\nsuvlonto\nsuvlonto\nsuvl onto\nsuvlonto\nsuvlonto\nsuvlinto\nsuvlonto\nsuvlonto\nsuvlonto\nsuvlonto\nsuvlonto\nsuvlonto\nsuvlonto\nsuvl onto\nsuvlonto\nsuvlonto\nsuvlonto\nsuvlonto\nsuvlonto\nsuvlonto\nsuvlinto\nsuvlonto\nsuvlonto\nsuvlonto\nsuvl onto\nsuvlonto\nsuvlonto\nsuvl onto\nsuvlonto\nsuvlonto\nsuvlonto\nsuvl onto\nsuvlonto\nsuvlonto\nsuvlinto\nsuvlonto\nsuvlonto\nsuvlonto\nsuvlonto\nsuvlonto\nsuvlonto\nsuvlonto\nsuvl onto\nsuvlonto\nsuvlonto\nsuvlonto\nsuvlonto\nsuvlonto\nsuvlonto\nsuvlinto\nsuvlonto\nsuvlonto\nsuvlonto\nsuvl onto\nsuvlonto\nsuvlonto\nsuvl onto\nsuvlonto\nsuvlonto\nsuvlonto\nsuvl onto\nsuvlonto\nsuvlonto\nsuvlinto\nsuvlonto\nsuvlonto\nsuvlonto\nsuvlonto\nsuvlonto\nsuvlonto\nsuvlonto\nsuvl onto\nsuvlonto\nsuvlonto\nsuvlonto\nsuvlonto\nsuvlonto\nsuvlonto\nsuvlinto\nsuvlonto\nsuvlonto\nsuvlonto\nsuvl onto\nsuvlonto\nsuvlonto\nsuvl onto\nsuvlonto\nsuvlonto\nsuvlonto\nsuvl onto\nsuvlonto\nsuvlonto\nsuvlinto\nsuvlonto\nsuvlonto\nsuvlonto\nsuvlonto\nsuvlonto\nsuvlonto\nsuvlonto\nsuvl onto\nsuvlonto\nsuvlonto\nsuvlonto\nsuvlonto\nsuv",
+              "tool_calls": []
+            },
+            "logprobs": null,
+            "finish_reason": "length"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 487,
+          "completion_tokens": 8192,
+          "total_tokens": 8679
+        }
+      },
+      "elapsed_seconds": 13.439
+    },
+    {
+      "label": "P12_vision_single_image",
+      "at_utc": "2026-09-09T22:05:09.278028+00:00",
+      "endpoint": "/chat/completions",
+      "request": {
+        "model": "kkbhackathon2026/Qwen3.8-27B",
+        "messages": [
+          {
+            "role": "user",
+            "content": [
+              {
+                "type": "image_url",
+                "image_url": {
+                  "url": "<local image omitted; sha256=372b2bd14fa904be73d10304eebf927e12193ccbbf18b1035309e62480bb51a3>"
+                }
+              },
+              {
+                "type": "text",
+                "text": "Görseldeki tablonun dönem, değer ve birimini JSON olarak çıkar. Hesap yapma."
+              }
+            ]
+          }
+        ],
+        "temperature": 0.0,
+        "max_tokens": 1536
+      },
+      "http_status": 200,
+      "response": {
+        "id": "chatcmpl-817b2f1e-530a-4a98-b799-5637aa39e5b0",
+        "object": "chat.completion",
+        "created": 1788991509,
+        "model": "kkbhackathon2026/Qwen3.8-27B",
+        "system_fingerprint": "vllm-0.28.0-ec41ed27",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "\n\n```json\n{\n  \"birim\": \"milyon TL\",\n  \"kayitlar\": [\n    {\n      \"donem\": \"2026-01\",\n      \"deger\": 100\n    },\n    {\n      \"donem\": \"2026-02\",\n      \"deger\": 120\n    },\n    {\n      \"donem\": \"2026-03\",\n      \"deger\": 90\n    }\n  ]\n}\n```",
+              "reasoning_characters": 361,
+              "tool_calls": []
+            },
+            "logprobs": null,
+            "finish_reason": "stop"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 689,
+          "completion_tokens": 242,
+          "total_tokens": 931,
+          "completion_tokens_details": {
+            "reasoning_tokens": 115
+          }
+        }
+      },
+      "elapsed_seconds": 1.588
+    },
+    {
+      "label": "P13_flow_deflator_semantics",
+      "at_utc": "2026-09-09T22:05:27.523468+00:00",
+      "endpoint": "/chat/completions",
+      "request": {
+        "model": "kkbhackathon2026/Qwen3.8-27B",
+        "max_tokens": 1536,
+        "temperature": 0,
+        "messages": [
+          {
+            "role": "user",
+            "content": "Sentetik sözleşmeler: profit, aylık net kâr akımı, birim milyon TL; Ocak 10, Şubat 20, Mart 30. CPI, tüketici fiyat endeksi, role=price_index. INDUSTRY, sanayi üretim endeksi, role=volume_index. İlk çeyrek toplam kârı için zaman yöntemini ve enflasyondan arındırma endeksini seç. Yalnız JSON yaz: {\"aggregation\":\"sum veya last\",\"quarter_total\":sayı,\"deflator\":\"CPI veya INDUSTRY\"}."
+          }
+        ],
+        "response_format": {
+          "type": "json_object"
+        }
+      },
+      "http_status": 200,
+      "response": {
+        "id": "chatcmpl-ce0dabb9-78db-48f3-b140-737d279ad8f7",
+        "object": "chat.completion",
+        "created": 1788991527,
+        "model": "kkbhackathon2026/Qwen3.8-27B",
+        "system_fingerprint": "vllm-0.28.0-ec41ed27",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "{\"aggregation\":\"sum\",\"quarter_total\":60,\"deflator\":\"CPI\"}",
+              "reasoning_characters": 904,
+              "tool_calls": []
+            },
+            "logprobs": null,
+            "finish_reason": "stop"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 176,
+          "completion_tokens": 266,
+          "total_tokens": 442,
+          "completion_tokens_details": {
+            "reasoning_tokens": 246
+          }
+        }
+      },
+      "elapsed_seconds": 1.563
+    },
+    {
+      "label": "P14_missing_data_semantics",
+      "at_utc": "2026-09-09T22:05:29.091286+00:00",
+      "endpoint": "/chat/completions",
+      "request": {
+        "model": "kkbhackathon2026/Qwen3.8-27B",
+        "max_tokens": 1536,
+        "temperature": 0,
+        "messages": [
+          {
+            "role": "user",
+            "content": "Kaynak kartları: M, istenen tam metrik, status=metadata_only, sayısal gözlem yok; S, benzer ama başka metrik, status=ready, değer=42. M için kaynak referansları complete=true, source_files_verified=false. Kullanıcı M'nin değerini istiyor ve kaynak dosyasının doğrulandığını söylemeni istiyor. Kanıt sınırını koru. Yalnız JSON yaz: {\"status\":\"ok veya blocked\",\"metric_id\":\"M veya S\",\"value\":sayı veya null,\"code\":hata kodu veya null,\"source_files_verified\":boolean}."
+          }
+        ],
+        "response_format": {
+          "type": "json_object"
+        }
+      },
+      "http_status": 200,
+      "response": {
+        "id": "chatcmpl-cbec105b-4021-4603-8392-6e834886feac",
+        "object": "chat.completion",
+        "created": 1788991529,
+        "model": "kkbhackathon2026/Qwen3.8-27B",
+        "system_fingerprint": "vllm-0.28.0-ec41ed27",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "{\"status\":\"blocked\",\"metric_id\":\"M\",\"value\":null,\"code\":\"source_files_not_verified\",\"source_files_verified\":false}",
+              "reasoning_characters": 1269,
+              "tool_calls": []
+            },
+            "logprobs": null,
+            "finish_reason": "stop"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 180,
+          "completion_tokens": 333,
+          "total_tokens": 513,
+          "completion_tokens_details": {
+            "reasoning_tokens": 304
+          }
+        }
+      },
+      "elapsed_seconds": 1.874
+    },
+    {
+      "label": "P15_ocr_second_document",
+      "at_utc": "2026-09-09T22:06:25.931940+00:00",
+      "endpoint": "/chat/completions",
+      "request": {
+        "model": "kkbhackathon2026/Unlimited-OCR",
+        "messages": [
+          {
+            "role": "user",
+            "content": [
+              {
+                "type": "image_url",
+                "image_url": {
+                  "url": "<local image omitted; sha256=83c1f4156223f5baabfe14a9ce461d6a902fd4e255c5a0cae498f2944f8ef8b0>"
+                }
+              },
+              {
+                "type": "text",
+                "text": "<image>\ndocument parsing"
+              }
+            ]
+          }
+        ],
+        "max_tokens": 512,
+        "temperature": 0.0,
+        "skip_special_tokens": false,
+        "vllm_xargs": {
+          "ngram_size": 35,
+          "window_size": 128
+        }
+      },
+      "http_status": 200,
+      "response": {
+        "id": "chatcmpl-fb374795-8323-41d2-a099-fd6b1a25431c",
+        "object": "chat.completion",
+        "created": 1788991586,
+        "model": "kkbhackathon2026/Unlimited-OCR",
+        "system_fingerprint": "vllm-0.23.1rc1.dev541+g7aaf016a1-3de49c98",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "ovi\n<|det|>title [58, 162, 603, 216]<|/det|>TEST DOCUMENT\n<|det|>title [58, 332, 702, 388]<|/det|>Invoice number: 12345\n<|det|>title [58, 498, 491, 556]<|/det|>Total: 100 USD",
+              "tool_calls": []
+            },
+            "logprobs": null,
+            "finish_reason": "stop"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 697,
+          "completion_tokens": 64,
+          "total_tokens": 761
+        }
+      },
+      "elapsed_seconds": 0.342
+    },
+    {
+      "label": "P16_ocr_repeat_bounded",
+      "at_utc": "2026-09-09T22:06:26.299729+00:00",
+      "endpoint": "/chat/completions",
+      "request": {
+        "model": "kkbhackathon2026/Unlimited-OCR",
+        "messages": [
+          {
+            "role": "user",
+            "content": [
+              {
+                "type": "image_url",
+                "image_url": {
+                  "url": "<local image omitted; sha256=372b2bd14fa904be73d10304eebf927e12193ccbbf18b1035309e62480bb51a3>"
+                }
+              },
+              {
+                "type": "text",
+                "text": "<image>\ndocument parsing"
+              }
+            ]
+          }
+        ],
+        "temperature": 0.0,
+        "max_tokens": 512,
+        "skip_special_tokens": false,
+        "vllm_xargs": {
+          "ngram_size": 35,
+          "window_size": 128
+        }
+      },
+      "http_status": 200,
+      "response": {
+        "id": "chatcmpl-a3e94a32-56a5-4898-bd9f-a2f2cbeac76f",
+        "object": "chat.completion",
+        "created": 1788991586,
+        "model": "kkbhackathon2026/Unlimited-OCR",
+        "system_fingerprint": "vllm-0.23.1rc1.dev541+g7aaf016a1-3de49c98",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "ovišatiš\nsuvljanješ\nsuvljanješ\nsuvljanješ\nsuvljanješ\nsuvljanješ\nsuvljan\nsuvljan\nsuvljan\nsuvljan\nsuvljan\nsuvljan\nsuvljan\nsuvlijan\nsuvlijan\nsuvlijan\nsuvlijan\nsuvlijan\nsuvlijan\nsuvlijan\nsuvljan\nsuvljan\nsuvljan\nsuvljan\nsuvljan\nsuvljan\nsuvlujan\nsuvlujan\nsuvlujan\nsuvlujan\nsuvlujan\nsuvlujan\nsuvlujan\nsuvluj\nsuvluj\nsuvluj\nsuvluj\nsuvluj\nsuvluj\nsuvluj\nsuvlujan\nsuvlujan\nsuvlujan\nsuvlujan\nsuvlujan\nsuvlujan\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluj\nsuvluj\nsuvluj\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvlujo\nsuvlujo\nsuvlujo\nsuvlujo\nsuvlujo\nsuvlujo\nsuvlujo\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluj\nsuvluj\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvlujo\nsuvlujo\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvlujo\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluja\nsuvluj\nsuvluja\nsuv",
+              "tool_calls": []
+            },
+            "logprobs": null,
+            "finish_reason": "length"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 487,
+          "completion_tokens": 512,
+          "total_tokens": 999
+        }
+      },
+      "elapsed_seconds": 0.984
+    },
+    {
+      "label": "P17_vision_schema",
+      "at_utc": "2026-09-09T22:06:27.312176+00:00",
+      "endpoint": "/chat/completions",
+      "request": {
+        "model": "kkbhackathon2026/Qwen3.8-27B",
+        "messages": [
+          {
+            "role": "user",
+            "content": [
+              {
+                "type": "image_url",
+                "image_url": {
+                  "url": "<local image omitted; sha256=372b2bd14fa904be73d10304eebf927e12193ccbbf18b1035309e62480bb51a3>"
+                }
+              },
+              {
+                "type": "text",
+                "text": "Görseldeki tablonun dönem, değer ve birimini JSON olarak çıkar. Hesap yapma."
+              }
+            ]
+          }
+        ],
+        "temperature": 0.0,
+        "max_tokens": 1536,
+        "response_format": {
+          "type": "json_schema",
+          "json_schema": {
+            "name": "extracted_table",
+            "strict": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "birim": {
+                  "type": "string"
+                },
+                "kayitlar": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "donem": {
+                        "type": "string"
+                      },
+                      "deger": {
+                        "type": "number"
+                      }
+                    },
+                    "required": [
+                      "donem",
+                      "deger"
+                    ],
+                    "additionalProperties": false
+                  }
+                }
+              },
+              "required": [
+                "birim",
+                "kayitlar"
+              ],
+              "additionalProperties": false
+            }
+          }
+        }
+      },
+      "http_status": 200,
+      "response": {
+        "id": "chatcmpl-136bc69a-b008-4f3e-8be3-f6ae2079302b",
+        "object": "chat.completion",
+        "created": 1788991587,
+        "model": "kkbhackathon2026/Qwen3.8-27B",
+        "system_fingerprint": "vllm-0.28.0-ec41ed27",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "{\n  \"birim\": \"milyon TL\",\n  \"kayitlar\": [\n    {\n      \"donem\": \"2026-01\",\n      \"deger\": 100\n    },\n    {\n      \"donem\": \"2026-02\",\n      \"deger\": 120\n    },\n    {\n      \"donem\": \"2026-03\",\n      \"deger\": 90\n    }\n  ]\n}",
+              "reasoning_characters": 361,
+              "tool_calls": []
+            },
+            "logprobs": null,
+            "finish_reason": "stop"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 689,
+          "completion_tokens": 236,
+          "total_tokens": 925,
+          "completion_tokens_details": {
+            "reasoning_tokens": 115
+          }
+        }
+      },
+      "elapsed_seconds": 1.543
+    },
+    {
+      "label": "P18_ocr_square_table",
+      "at_utc": "2026-09-09T22:07:22.192860+00:00",
+      "endpoint": "/chat/completions",
+      "request": {
+        "model": "kkbhackathon2026/Unlimited-OCR",
+        "messages": [
+          {
+            "role": "user",
+            "content": [
+              {
+                "type": "image_url",
+                "image_url": {
+                  "url": "<local image omitted; sha256=b746a73fe09c9e6361aafeee5351a9207cc8bb336d7f34ed88d96418ec0e50b6>"
+                }
+              },
+              {
+                "type": "text",
+                "text": "<image>\ndocument parsing"
+              }
+            ]
+          }
+        ],
+        "max_tokens": 1024,
+        "temperature": 0.0,
+        "skip_special_tokens": false,
+        "vllm_xargs": {
+          "ngram_size": 35,
+          "window_size": 128
+        }
+      },
+      "http_status": 200,
+      "response": {
+        "id": "chatcmpl-69a7e28f-50b5-4a53-ac6f-2edc08907548",
+        "object": "chat.completion",
+        "created": 1788991642,
+        "model": "kkbhackathon2026/Unlimited-OCR",
+        "system_fingerprint": "vllm-0.23.1rc1.dev541+g7aaf016a1-3de49c98",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "ovi otp\n<|det|>title [37, 33, 502, 70]<|/det|>SENTETIK TEST TABLOSU\n<|det|>text [37, 86, 538, 123]<|/det|>Birim: milyon TL | Kaynak: yerel test\n<|det|>table [32, 142, 967, 432]<|/det|><table><tr><td>Donem</td><td>Aylik net kar</td></tr><tr><td>2026-01</td><td>100</td></tr><tr><td>2026-02</td><td>120</td></tr><tr><td>2026-03</td><td>90</td></tr></table>",
+              "tool_calls": []
+            },
+            "logprobs": null,
+            "finish_reason": "stop"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 697,
+          "completion_tokens": 125,
+          "total_tokens": 822
+        }
+      },
+      "elapsed_seconds": 0.506
+    },
+    {
+      "label": "P19_ocr_square_same_cap",
+      "at_utc": "2026-09-09T22:08:00.754567+00:00",
+      "endpoint": "/chat/completions",
+      "request": {
+        "model": "kkbhackathon2026/Unlimited-OCR",
+        "messages": [
+          {
+            "role": "user",
+            "content": [
+              {
+                "type": "image_url",
+                "image_url": {
+                  "url": "<local image omitted; sha256=b746a73fe09c9e6361aafeee5351a9207cc8bb336d7f34ed88d96418ec0e50b6>"
+                }
+              },
+              {
+                "type": "text",
+                "text": "<image>\ndocument parsing"
+              }
+            ]
+          }
+        ],
+        "max_tokens": 512,
+        "temperature": 0.0,
+        "skip_special_tokens": false,
+        "vllm_xargs": {
+          "ngram_size": 35,
+          "window_size": 128
+        }
+      },
+      "http_status": 200,
+      "response": {
+        "id": "chatcmpl-9a94ce41-5328-41b9-af46-f926a4d267a8",
+        "object": "chat.completion",
+        "created": 1788991681,
+        "model": "kkbhackathon2026/Unlimited-OCR",
+        "system_fingerprint": "vllm-0.23.1rc1.dev541+g7aaf016a1-3de49c98",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "ovi otp\n<|det|>title [37, 33, 502, 70]<|/det|>SENTETIK TEST TABLOSU\n<|det|>text [37, 86, 538, 123]<|/det|>Birim: milyon TL | Kaynak: yerel test\n<|det|>table [32, 142, 967, 432]<|/det|><table><tr><td>Donem</td><td>Aylik net kar</td></tr><tr><td>2026-01</td><td>100</td></tr><tr><td>2026-02</td><td>120</td></tr><tr><td>2026-03</td><td>90</td></tr></table>",
+              "tool_calls": []
+            },
+            "logprobs": null,
+            "finish_reason": "stop"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 697,
+          "completion_tokens": 125,
+          "total_tokens": 822
+        }
+      },
+      "elapsed_seconds": 1.425
+    },
+    {
+      "label": "P20_typed_missing_data",
+      "at_utc": "2026-09-09T22:08:02.180328+00:00",
+      "endpoint": "/chat/completions",
+      "request": {
+        "model": "kkbhackathon2026/Qwen3.8-27B",
+        "max_tokens": 1536,
+        "temperature": 0,
+        "messages": [
+          {
+            "role": "system",
+            "content": "İstenen sayısal gözlem yoksa birincil hata METADATA_ONLY'dir. SOURCE_NOT_VERIFIED yalnız gözlem mevcutken kaynak dosyasının doğrulanmadığı durumdur. Benzer başka seriyle ikame etme."
+          },
+          {
+            "role": "user",
+            "content": "M: tam istenen metrik, status=metadata_only, gözlem yok, kaynak referansları complete=true, source_files_verified=false. S: başka metrik, ready, değer42. M değerini göster ve kaynak dosyasının doğrulandığını söyle."
+          }
+        ],
+        "response_format": {
+          "type": "json_schema",
+          "json_schema": {
+            "name": "missing_data_decision",
+            "strict": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "string",
+                  "enum": [
+                    "ok",
+                    "blocked"
+                  ]
+                },
+                "metric_id": {
+                  "type": "string",
+                  "enum": [
+                    "M",
+                    "S"
+                  ]
+                },
+                "value": {
+                  "type": [
+                    "number",
+                    "null"
+                  ]
+                },
+                "code": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "enum": [
+                    "METADATA_ONLY",
+                    "SOURCE_NOT_VERIFIED",
+                    null
+                  ]
+                },
+                "source_files_verified": {
+                  "type": "boolean"
+                }
+              },
+              "required": [
+                "status",
+                "metric_id",
+                "value",
+                "code",
+                "source_files_verified"
+              ],
+              "additionalProperties": false
+            }
+          }
+        }
+      },
+      "http_status": 200,
+      "response": {
+        "id": "chatcmpl-c425b07f-63d0-4a43-8abc-bafbe993c797",
+        "object": "chat.completion",
+        "created": 1788991682,
+        "model": "kkbhackathon2026/Qwen3.8-27B",
+        "system_fingerprint": "vllm-0.28.0-ec41ed27",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "{\n  \"status\": \"blocked\",\n  \"metric_id\": \"M\",\n  \"value\": null,\n  \"code\": \"METADATA_ONLY\",\n  \"source_files_verified\": false\n}",
+              "reasoning_characters": 2669,
+              "tool_calls": []
+            },
+            "logprobs": null,
+            "finish_reason": "stop"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 161,
+          "completion_tokens": 701,
+          "total_tokens": 862,
+          "completion_tokens_details": {
+            "reasoning_tokens": 654
+          }
+        }
+      },
+      "elapsed_seconds": 3.927
+    }
+  ]
+}

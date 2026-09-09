@@ -1,0 +1,14 @@
+{
+  "label": "P10_embedding_batch",
+  "mode": "embedding",
+  "payload": {
+    "model": "kkbhackathon2026/Qwen3-Embedding-8B",
+    "input": [
+      "İstanbul'daki altın mevduatı ne kadar?",
+      "FinTürk: İstanbul ilinde altın mevduatı tutarı. Birim milyon Türk lirası.",
+      "EVDS: Türkiye geneli işsizlik oranı. Birim yüzde.",
+      "BDDK: Bankacılık sektörü aylık net kâr akımı. Birim milyon Türk lirası."
+    ],
+    "encoding_format": "float"
+  }
+}

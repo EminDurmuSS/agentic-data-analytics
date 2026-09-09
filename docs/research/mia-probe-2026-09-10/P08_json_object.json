@@ -1,0 +1,17 @@
+{
+  "label": "P08_json_object",
+  "payload": {
+    "model": "kkbhackathon2026/Qwen3.8-27B",
+    "max_tokens": 1536,
+    "temperature": 0,
+    "messages": [
+      {
+        "role": "user",
+        "content": "S: İstanbul kredi stoku, milyon TL. R: İstanbul takip oranı, yüzde. Stok için plan seç; açıklama ihtiyacı yok. Yalnız JSON yaz. Beklenen biçim: {\"plan\":{\"metric_id\":\"S veya R\",\"filters\":{\"city\":\"İSTANBUL\"},\"unit\":\"TRY_million veya percent\"},\"clarification\":null}."
+      }
+    ],
+    "response_format": {
+      "type": "json_object"
+    }
+  }
+}

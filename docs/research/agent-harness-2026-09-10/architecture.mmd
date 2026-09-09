@@ -1,0 +1,23 @@
+flowchart TB
+    U["Soru, takip sorusu veya yeni URL"] --> API["Analiz çalışma alanı<br/>Tablo, grafik, kaynak ve değişiklikler"]
+    API --> RUN["Kalıcı yürütme döngüsü<br/>Keşfet → planla → doğrula → çalıştır → kontrol et"]
+    RUN <--> Q["Kloudeks Qwen<br/>Metrik, araç ve sonraki adımı seçer"]
+    RUN <--> C["Küçük bağlam paketi<br/>Metrik kartı + boyutlar + önceki analiz"]
+    C --> SEM["Genel veri sözleşmesi<br/>Birim, zaman, kapsam ve izinli işlemler"]
+    SEM --> PROFILE["Alan profili<br/>BDDK / EVDS veya başka alan"]
+    RUN --> GATE["Zorunlu yürütme kontrolü<br/>Anlam, kapsam, eksiklik ve işlem kimliği"]
+    GATE --> DATA["Lakehouse araçları<br/>Filtre, grup, join, dönüşüm ve revizyon"]
+    GATE --> WEB["Web arama ve URL alımı<br/>PDF, Excel, metin, MIA OCR"]
+    GATE --> STATS["İstatistik araçları<br/>Anomali, ilişki/nedensellik, değişim"]
+    WEB --> RAW["Kaynak baytları ve hash<br/>Ayrıştırma → kalite kontrolü"]
+    RAW --> STORE["Parquet + DuckDB snapshot<br/>Doğal frekansta veri ve kaynak izleri"]
+    DATA <--> STORE
+    STATS --> RESULT["Değişmez analiz sonucu<br/>Tablo + yöntem + kaynak + parent"]
+    DATA --> RESULT
+    RESULT --> VERIFY["Sayısal ve kaynak kontrolü<br/>Korunacak hücrelerin karşılaştırılması"]
+    VERIFY --> API
+    RESULT --> C
+    classDef base fill:#fff,stroke:#222,color:#111,stroke-width:1.4px;
+    classDef plan fill:#f5f5f5,stroke:#555,color:#111,stroke-width:1px,stroke-dasharray:5 3;
+    class STORE,RESULT base;
+    class U,API,RUN,Q,C,SEM,PROFILE,GATE,DATA,WEB,STATS,RAW,VERIFY plan;

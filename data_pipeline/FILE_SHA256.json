@@ -49076,7 +49076,7 @@
   "lakehouse/README.md": "5c1a2e7a23ff02de5445df9faa2c557ab72e2af6221c9eece965d10f3935e27d",
   "lakehouse/build_lakehouse.py": "46193d88ffe69042189fa6c2546a22771cc61ca2673955811c76e8eb0a7e6773",
   "lakehouse/example_queries.sql": "b009cd585b4a4671636131b277d1d59883e1653bcd6040ddd09f9fd95efb6d00",
-  "lakehouse/registry.py": "977cbf9ace235c8bf3eddfade75b9b6d2dbf79a1e2707f18135581718fa932d0",
+  "lakehouse/registry.py": "30458f46de7d68e6e2b3f18391cde7665bcbd4857220d9d5a122851ded0c2dab",
   "lakehouse/source_views.py": "5c2b0ffafc76ee4cc76c9f03e076d0e149ab35dbcb2204f08eab80205bdb8b97",
   "lakehouse/validation.json": "94efe633289e5f3a84258104abbf1f663910749f869f696990cf19d9adc04918",
   "processed/analytics.sqlite": "9d978aa674666dbb3aebace9dd7ccf127f75a5c8ebb9f18b592100e750e093c5",

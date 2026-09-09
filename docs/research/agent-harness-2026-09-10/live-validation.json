@@ -1,0 +1,531 @@
+{
+  "date": "2026-09-10",
+  "branch": "feat/kloudeks-agent-workspace",
+  "provider": "Kloudeks MIA",
+  "chat_model": "kkbhackathon2026/Qwen3.8-27B",
+  "runtime_enable_thinking": false,
+  "data_notes": {
+    "finance": "Local official-source competition snapshot",
+    "clinic": "Synthetic monthly clinic CSV, not patient records",
+    "image": "Synthetic 3-row table rendered as PNG"
+  },
+  "automated_tests": {
+    "passed": 316,
+    "subtests_passed": 82,
+    "warnings": 2,
+    "warning_notes": "Starlette test-client dependency deprecations; tests pass."
+  },
+  "real_data_acceptance": {
+    "passed": 20,
+    "independent_raw_sources_verified": 3
+  },
+  "independent_live_checks": [
+    {
+      "name": "live_profit_exact_monthly_values",
+      "passed": true,
+      "detail": [
+        {
+          "period": "2026-01",
+          "net_kar": 87249.0
+        },
+        {
+          "period": "2026-02",
+          "net_kar": 82152.0
+        },
+        {
+          "period": "2026-03",
+          "net_kar": 119287.0
+        }
+      ]
+    },
+    {
+      "name": "live_profit_status_completed",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "live_generic_status_completed",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "clinic_12_months",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "clinic_values_preserved",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "generic_snapshot_contains_no_finance_tables",
+      "passed": true,
+      "detail": [
+        "platform_metadata"
+      ]
+    },
+    {
+      "name": "live_all_statistics_tools_completed",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "statistic_three_artifacts",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "expected_september_spike",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "descriptive_not_causal",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "live_vision_three_exact_rows",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "machine_read_image_waits_for_review",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "housing_all_three_live_turns_completed",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "housing_60_periods_preserved",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "housing_only_credit_changed",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "housing_hpi_append_preserves_every_existing_cell",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "housing_original_analysis_immutable",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "housing_matches_independent_gold_calculation",
+      "passed": true,
+      "detail": {
+        "max_absolute_residual": 5.820766091346741e-11
+      }
+    },
+    {
+      "name": "housing_revised_cell_has_source_references",
+      "passed": true,
+      "detail": null
+    }
+  ],
+  "browser": {
+    "errors": [],
+    "exact": "9.007.199.254.740.993",
+    "sourceCellEvidence": true,
+    "safe": {
+      "images": 0,
+      "unsafeLinks": 0,
+      "text": "<img src=x onerror=\"window.unsafe=1\"> safe [bad](javascript:alert(1))"
+    },
+    "widths": {
+      "viewport": 390,
+      "body": 390
+    }
+  },
+  "source_database_sha256": "fc9dc92eeb423aac134054d4cfbbadfde40874437af02cf47bac21908ba4484f",
+  "source_database_matches_immutable_snapshot": true,
+  "final_demo_workspace": "workspace_c37a98c1ba8f4d70a7419474be8bb58e",
+  "attempts": [
+    {
+      "case": "app-live-result-1",
+      "request": "2026 ilk çeyrekte tüm bankacılık sektörünün her ayki net kârını ve çeyrek toplamını hesapla. Aylık tabloyu kaydet, birimini ve kümülatiften aylığa dönüşümü açıkla.",
+      "run_id": "run_805a14bf94ea4141a3e102e551d1e753",
+      "runtime_status": "blocked",
+      "decisions": 10,
+      "repairs": 1,
+      "analysis_id": "analysis_d968c7b231f681e9a543c6b0378fac701e43b575ac9e5f1b7255cc6c46235a49",
+      "tools": [
+        "discover",
+        "discover",
+        "discover",
+        "discover",
+        "discover",
+        "describe",
+        "describe",
+        "describe",
+        "describe",
+        "discover",
+        "discover",
+        "discover",
+        "discover",
+        "describe",
+        "dimension_values",
+        "validate_plan",
+        "validate_plan",
+        "execute"
+      ],
+      "errors": [
+        {
+          "code": "DECISION_BUDGET_EXCEEDED",
+          "message": "Bounded agent decision budget reached."
+        }
+      ],
+      "reported_usage": {
+        "prompt_tokens": 132545,
+        "completion_tokens": 4116,
+        "total_tokens": 136661
+      }
+    },
+    {
+      "case": "app-live-result-2",
+      "request": "2026 ilk çeyrekte bankacılık sektörünün aylık net kârını tablo olarak göster. Birimini ve kümülatiften aylığa dönüşümü açıkla.",
+      "run_id": "run_2d442e4f686c43ab8623d2b73f93c0f4",
+      "runtime_status": "completed",
+      "decisions": 6,
+      "repairs": 0,
+      "analysis_id": "analysis_b66d9d25d4a85d160d0c028ee84d13cf64404db65e33c5fb554af48e38ad431d",
+      "tools": [
+        "discover",
+        "discover",
+        "describe",
+        "dimension_values",
+        "validate_plan",
+        "execute",
+        "explain_value"
+      ],
+      "errors": [],
+      "reported_usage": {
+        "prompt_tokens": 81665,
+        "completion_tokens": 2292,
+        "total_tokens": 83957
+      }
+    },
+    {
+      "case": "app-live-result-generic",
+      "request": "Eklediğim source_5ced3ab033f72b8929ea6decb730546d576143ae18cdaa286f98c7037a7cce41 dosyası bir kliniğin aylık ziyaret ve personel sayılarıdır. Birimler başlıklarda. Veriyi çalışma alanına ekle, 2025 Ocak-Aralık ziyaret ve personel sayılarını aynı aylık tabloda göster. Tarih her ayın ilk günüdür. Ziyaret aylık akımdır, personel sayısı stoktur.",
+      "run_id": "run_467838457fca479cab3500dafe40eb50",
+      "runtime_status": "blocked",
+      "decisions": 4,
+      "repairs": 3,
+      "analysis_id": null,
+      "tools": [
+        "inspect_source",
+        "publish_selected_table",
+        "publish_selected_table"
+      ],
+      "errors": [
+        {
+          "code": "TRUNCATED_MODEL_OUTPUT",
+          "message": "No truncated tool call was executed."
+        }
+      ],
+      "reported_usage": {
+        "prompt_tokens": 38005,
+        "completion_tokens": 5512,
+        "total_tokens": 43517
+      }
+    },
+    {
+      "case": "app-live-result-generic-2",
+      "request": "Eklediğim source_5ced3ab033f72b8929ea6decb730546d576143ae18cdaa286f98c7037a7cce41 dosyası bir kliniğin aylık ziyaret ve personel sayılarıdır. Birimler başlıklarda. Veriyi çalışma alanına ekle, 2025 Ocak-Aralık ziyaret ve personel sayılarını aynı aylık tabloda göster. Tarih her ayın ilk günüdür. Ziyaret aylık akımdır, personel sayısı stoktur.",
+      "run_id": "run_d037298464604e5c9a991a6f3d5c671f",
+      "runtime_status": "completed",
+      "decisions": 7,
+      "repairs": 0,
+      "analysis_id": "analysis_8f597b4e2f2fc702a1779cb920908f81f7e1d8ed2696a87a23fffc2b79cef8ea",
+      "tools": [
+        "inspect_source",
+        "publish_selected_table",
+        "discover",
+        "discover",
+        "validate_plan",
+        "execute"
+      ],
+      "errors": [],
+      "reported_usage": {
+        "prompt_tokens": 79253,
+        "completion_tokens": 2021,
+        "total_tokens": 81274
+      }
+    },
+    {
+      "case": "app-live-result-statistics",
+      "request": "Bu kaydedilmiş tabloda ziyaret için geçmiş 6 gözleme dayanan MAD anomali taraması yap (en az 3 geçmiş gözlem). Ardışık üçer aylık pencerelerle kalıcı değişimleri de incele. Ayrıca ziyaret ve personel arasında gecikmesiz Pearson ilişkisini hesapla; nedensellik iddia etme.",
+      "run_id": "run_849361a4b725404aa1a6040b76f58c3a",
+      "runtime_status": "completed",
+      "decisions": 2,
+      "repairs": 0,
+      "analysis_id": "analysis_8f597b4e2f2fc702a1779cb920908f81f7e1d8ed2696a87a23fffc2b79cef8ea",
+      "tools": [
+        "rolling_anomalies",
+        "detect_changes",
+        "analyze_relationship"
+      ],
+      "errors": [],
+      "reported_usage": {
+        "prompt_tokens": 33544,
+        "completion_tokens": 1240,
+        "total_tokens": 34784
+      }
+    },
+    {
+      "case": "app-live-result-housing",
+      "request": "Ocak 2021-Aralık 2025 için 60 satırlık aylık tablo oluştur: BDDK aylık bültendeki tüm bankacılık sektörünün konut kredisi bakiyesi (toplam TL ve YP), EVDS konut kredisi faiz oranı. Faiz haftalık yayımlanıyorsa gözlenen haftalık oranların aylık aritmetik ortalamasını kullan. Kredi bakiyesi stoktur. Birimleri tabloda göster.",
+      "run_id": "run_3a6d44f04c974c0eb30eddbdc38b06bb",
+      "runtime_status": "blocked",
+      "decisions": 9,
+      "repairs": 0,
+      "analysis_id": null,
+      "tools": [
+        "discover",
+        "discover",
+        "discover",
+        "discover",
+        "describe",
+        "describe",
+        "discover",
+        "discover",
+        "discover",
+        "discover",
+        "discover",
+        "discover",
+        "discover",
+        "discover",
+        "discover",
+        "discover",
+        "discover",
+        "discover",
+        "discover",
+        "discover"
+      ],
+      "errors": [
+        {
+          "code": "CONTEXT_BUDGET_EXCEEDED",
+          "message": "Current task exceeds the configured context budget; use a smaller scope."
+        }
+      ],
+      "reported_usage": {
+        "prompt_tokens": 150715,
+        "completion_tokens": 5165,
+        "total_tokens": 155880
+      }
+    },
+    {
+      "case": "app-live-result-housing-2",
+      "request": "Ocak 2021-Aralık 2025 için 60 satırlık aylık tablo oluştur: BDDK aylık bültendeki tüm bankacılık sektörünün konut kredisi bakiyesi (toplam TL ve YP), EVDS konut kredisi faiz oranı. Faiz haftalık yayımlanıyorsa gözlenen haftalık oranların aylık aritmetik ortalamasını kullan. Kredi bakiyesi stoktur. Birimleri tabloda göster.",
+      "run_id": "run_4953b61e39a1463296ba9f81b7265f55",
+      "runtime_status": "blocked",
+      "decisions": 5,
+      "repairs": 3,
+      "analysis_id": null,
+      "tools": [
+        "discover",
+        "discover",
+        "describe",
+        "describe",
+        "describe",
+        "describe",
+        "describe",
+        "dimension_values"
+      ],
+      "errors": [
+        {
+          "code": "TRUNCATED_MODEL_OUTPUT",
+          "message": "No truncated tool call was executed."
+        }
+      ],
+      "reported_usage": {
+        "prompt_tokens": 60405,
+        "completion_tokens": 13891,
+        "total_tokens": 74296
+      }
+    },
+    {
+      "case": "app-live-result-housing-3",
+      "request": "Ocak 2021-Aralık 2025 için 60 satırlık aylık tablo oluştur: BDDK aylık bültendeki tüm bankacılık sektörünün konut kredisi bakiyesi (toplam TL ve YP), EVDS konut kredisi faiz oranı. Faiz haftalık yayımlanıyorsa gözlenen haftalık oranların aylık aritmetik ortalamasını kullan. Kredi bakiyesi stoktur. Birimleri tabloda göster.",
+      "run_id": "run_15f2d5fec4e1467f9683f260f754fcb9",
+      "runtime_status": "blocked",
+      "decisions": 5,
+      "repairs": 3,
+      "analysis_id": null,
+      "tools": [
+        "discover",
+        "discover",
+        "describe",
+        "describe",
+        "describe",
+        "describe",
+        "describe",
+        "validate_plan",
+        "validate_plan",
+        "validate_plan"
+      ],
+      "errors": [
+        {
+          "code": "INVALID_PLAN",
+          "message": "Native frequency selection must use native alignment"
+        }
+      ],
+      "reported_usage": {
+        "prompt_tokens": 60141,
+        "completion_tokens": 1156,
+        "total_tokens": 61297
+      }
+    },
+    {
+      "case": "app-live-result-housing-4",
+      "request": "Ocak 2021-Aralık 2025 için 60 satırlık aylık tablo oluştur: BDDK aylık bültendeki tüm bankacılık sektörünün konut kredisi bakiyesi (toplam TL ve YP), EVDS konut kredisi faiz oranı. Faiz haftalık yayımlanıyorsa gözlenen haftalık oranların aylık aritmetik ortalamasını kullan. Kredi bakiyesi stoktur. Birimleri tabloda göster.",
+      "run_id": "run_08220d14daee421eae40f4da88f1767f",
+      "runtime_status": "completed",
+      "decisions": 5,
+      "repairs": 0,
+      "analysis_id": "analysis_06aab126fbf1b7ccd0e5fbfde5695193b691a516d98fdd34ff45a48e7f2cfed7",
+      "tools": [
+        "discover",
+        "discover",
+        "describe",
+        "describe",
+        "describe",
+        "describe",
+        "validate_plan",
+        "execute"
+      ],
+      "errors": [],
+      "reported_usage": {
+        "prompt_tokens": 61481,
+        "completion_tokens": 1140,
+        "total_tokens": 62621
+      }
+    },
+    {
+      "case": "app-live-result-revision",
+      "request": "Aynı tablonun yalnız toplam konut kredisi bakiyesi sütununu TÜFE ile Ocak 2021 fiyatlarına çevirerek değiştir. Türkiye genel TÜFE endeksini kullan. YP kredi ve faiz sütunlarının mevcut hücrelerine dokunma. Tarih aralığı ve 60 satır korunsun.",
+      "run_id": "run_8c7c44d159b74d08a9700f1ce3d85078",
+      "runtime_status": "completed",
+      "decisions": 5,
+      "repairs": 0,
+      "analysis_id": "analysis_ee28ac942199250309d5130066159e1fc028a73becc8cf8c813b38483f29bff7",
+      "tools": [
+        "discover",
+        "discover",
+        "discover",
+        "describe",
+        "revise_analysis"
+      ],
+      "errors": [],
+      "reported_usage": {
+        "prompt_tokens": 89796,
+        "completion_tokens": 729,
+        "total_tokens": 90525
+      },
+      "task_conformance_note": "Produced an additional real-credit column instead of replacing the existing column. This completed run is not counted as a successful replacement test. Later demo-housing-replace independently verifies replacement."
+    },
+    {
+      "case": "app-demo-result-initial",
+      "request": "Ocak 2021-Aralık 2025 için 60 satırlık aylık tablo yap. İki gösterge olsun: BDDK aylık tüm sektör konut kredisi toplam bakiyesi (TP+YP toplamı) ve EVDS haftalık konut kredisi faizi. Haftalık faizi gözlenen değerlerin aylık aritmetik ortalamasına çevir. Birimleri de göster.",
+      "run_id": "run_11c657f73d2a40e68d7be551606b8221",
+      "runtime_status": "completed",
+      "decisions": 6,
+      "repairs": 0,
+      "analysis_id": "analysis_2f0f5ff9ab49e863f823dc2631f12f7f33c874019e42fa82c0ff97d55779c115",
+      "tools": [
+        "discover",
+        "discover",
+        "describe",
+        "describe",
+        "dimension_values",
+        "validate_plan",
+        "execute"
+      ],
+      "errors": [],
+      "reported_usage": {
+        "prompt_tokens": 70278,
+        "completion_tokens": 909,
+        "total_tokens": 71187
+      }
+    },
+    {
+      "case": "app-demo-result-replace",
+      "request": "Aynı tabloda yalnız konut kredisi bakiyesi sütununu Türkiye genel TÜFE ile Ocak 2021 fiyatlarına çevirerek değiştir. Mevcut kredi sütununu reel değerle değiştir, faiz sütununun mevcut hücrelerine dokunma. Tarih aralığı ve 60 satır korunsun.",
+      "run_id": "run_36b5ff72d943417e8006a1104f9ce777",
+      "runtime_status": "completed",
+      "decisions": 4,
+      "repairs": 0,
+      "analysis_id": "analysis_dd01615fa0ba8091959d691e322ca979e8a9663a4158ea66b5a18aac9e2969b7",
+      "tools": [
+        "discover",
+        "describe",
+        "revise_analysis"
+      ],
+      "errors": [],
+      "reported_usage": {
+        "prompt_tokens": 63301,
+        "completion_tokens": 571,
+        "total_tokens": 63872
+      }
+    },
+    {
+      "case": "app-demo-result-hpi",
+      "request": "Bu tabloya Türkiye konut fiyat endeksini de ekle. Mevcut reel kredi, faiz ve TÜFE hücrelerinin hiçbirini değiştirme; aynı 60 ayı koru.",
+      "run_id": "run_3d116eb94bab43378f67698bd1e66468",
+      "runtime_status": "completed",
+      "decisions": 5,
+      "repairs": 0,
+      "analysis_id": "analysis_88e79c36da251acdf79704d700c0e154dd43fd507f2036192c88a12e8afc9d6e",
+      "tools": [
+        "discover",
+        "discover",
+        "discover",
+        "describe",
+        "revise_analysis"
+      ],
+      "errors": [],
+      "reported_usage": {
+        "prompt_tokens": 96708,
+        "completion_tokens": 483,
+        "total_tokens": 97191
+      }
+    }
+  ],
+  "code_sha256": {
+    "app/__init__.py": "7c54b3f2a7c662af564a3610de8ffb85f3fb388c7c41e769a6fe31ce90f8a74e",
+    "app/server.py": "6f2eb9ccf9100d7f862208e280407737f2a279c5166501d89aec3afbc63fff1d",
+    "app/static/app.css": "084c1fb7ac12f3e4c756c3c2c93f511fde2daa67039ef1897e2b950a5fcf1241",
+    "app/static/app.js": "1e55447485ecb258d69f808598be0a3b88caa283ecd470586f834170af78f793",
+    "app/static/index.html": "0d47146734917f8a9b1ae40e56a82baf908e1911d738cd4f971c4d14ce1fd5c9",
+    "data_pipeline/lakehouse/registry.py": "30458f46de7d68e6e2b3f18391cde7665bcbd4857220d9d5a122851ded0c2dab",
+    "requirements-app.lock": "a619fb503c9a9eb4db38b5c8626000c2f74d89121b6c8e79b0a52fd3e4d47441",
+    "tools/agent_documents.py": "23188b9d9dccb6d40a34f431762c35129b4c9388bc709320b34d3be7564080ec",
+    "tools/agent_run_store.py": "90de7828d66dffd04d03fba595111cc83203f181663995408d7b05ac23efc200",
+    "tools/agent_runtime.py": "fb9741bbcdf88ad8820b3365de3fa0b3f86e4dcd55004f3bce4590e0504170cf",
+    "tools/agent_statistics.py": "47dc2a9f017d84b6132d9ed004dd7552c0d7a10d40e05f1215c6e312e00dbb01",
+    "tools/lakehouse_service.py": "0bb989d77ef106ef3a378424dd1a8753e4b7f1128175345c6491a8fbfa64292d",
+    "tools/lakehouse_store.py": "4ec9cec2513c8ea625ae9894826fb77aeb945a5184fa70efa809a49f65dda506",
+    "tools/mia_client.py": "36d0916496c7fd7c4a5e1eaaa5814647f936d3c6acc8dd5b4069a21a3e766811",
+    "tools/run_agent_app.py": "282fdc5345240f2db7140ef791cef35d4bb9c93f3a009aad661fe71bbe5c02dc"
+  },
+  "limitations": [
+    "This is a small integration test set, not a broad live accuracy benchmark.",
+    "EVDS 52,696-series metadata catalog exists; 587 source series have target-period numeric data in the active release. All-series historical ingestion is unfinished.",
+    "Embedding client is implemented but catalog discovery uses lexical/metadata matching, not embeddings.",
+    "Image extraction uses Qwen vision plus required independent cell review before publication; Unlimited-OCR is available as a separate client method.",
+    "Statistics are descriptive or predictive-association analyses, not causal-effect identification.",
+    "Public web search backend availability and ranking quality are not guaranteed.",
+    "Local-only application; no production multi-user authentication or hosted deployment."
+  ]
+}
