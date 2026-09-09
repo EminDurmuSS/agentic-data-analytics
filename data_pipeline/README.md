@@ -1,6 +1,6 @@
 # KKB veri katmanı
 
-Araştırma tarihi: 9 Eylül 2026. Ana analiz dönemi: Ocak 2021-Haziran 2026.
+Veri katmanı güncellemesi: 10 Eylül 2026. Ana analiz dönemi: Ocak 2021-Haziran 2026.
 Yıllık değişim ve gecikmeli analiz için gerekli yerlerde 2020 hazırlık verisi
 de korunur.
 
@@ -14,12 +14,18 @@ de korunur.
 | TCMB EVDS ulusal | 61 seçilmiş kaynak seri ve 1 türetilmiş seri | Günlük, iş günü, haftalık, aylık, çeyreklik | Tamamlandı |
 | TCMB EVDS bölgesel | 519 il ve bölge bazlı konut serisi | Aylık, çeyreklik | Kaynak boşluklarıyla tamamlandı |
 | TCMB EVDS hanehalkı finansmanı | 3 KKM ve 1 hanehalkı mevduat serisi | Aylık | Tamamlandı |
+| TCMB EVDS eski yerel paket | Diğer paketlerde olmayan 15 ek seri | Aylık | Kataloğa ve veri tabanına bağlandı |
 | TÜİK il konut satışları | 81 il, 78 ay, 5 satış metriği | Aylık | Tamamlandı ve EVDS ile uzlaştırıldı |
 | İl bazlı konut paneli | 81 il, 22 çeyrek, 33 analitik metrik | Çeyreklik | Yayımlanmayan fiyat ve kiralar ile ayrı fiyat proxy'si işaretli |
 | TCMB EVDS katalog | 52.696 seri metadata kaydı | Metadata | Tamamlandı |
 | TBB | 21 yayımlanmış tüketici kredisi raporu | Çeyreklik | Kaynak boşluğuyla tamamlandı |
 | TBB Risk Merkezi | 6 Haziran bülteni, 66 aylık panel, 5 konut kredisi metriği | Aylık | Tamamlandı ve vintage revizyonları denetlendi |
 | BDDK ve TCMB belgeleri | 8 resmî PDF | Olay/yöntem | Tamamlandı |
+
+Tablodaki tamamlanma durumları ilgili yerel paket içindir. Yarışmadaki EVDS
+"tüm seriler" gereksinimi henüz tamamlanmadı: 52.696 katalog serisinin 599'unda
+yerel gözlem satırı, 587'sinde hedef dönemde sayısal değer var. Veri bulunması,
+birim ve kapsam açısından her analize hazır olduğu anlamına gelmez.
 
 TBB Haziran 2026 çeyreklik tüketici kredileri raporu 9 Eylül 2026 itibarıyla
 kaynakta yayımlanmamıştır. Bu dönemin parasal kullandırım tutarı boş bırakılmış,
@@ -29,8 +35,14 @@ parasal kredi kullandırım tutarı değildir.
 
 ## EVDS seçim mantığı
 
-EVDS'deki her tarihsel gözlemi indirmek yerine tam metadata kataloğu yerelde
-tutulur. Yerel 584 kaynak seri üç katmana ayrılır.
+Tam EVDS metadata kataloğu yerelde tutulur. İlk seçilen 584 kaynak seri aşağıdaki
+üç katmana ayrılır. Eski yerel pakette kalan 15 seri de aynı kataloğa ve sorgu
+katmanına bağlandı, toplam fiziksel seri sayısı 599 oldu.
+
+Tüm katalog için kalıcı ve kaldığı yerden devam eden indirme kuyruğu
+`tools/evds_collection_queue.py` ile oluşturulur. Kuyruğun planlanması gözlemlerin
+indirildiği anlamına gelmez. Yeni indirilen dosyalar ayrıca doğrulanıp katalog ve
+lakehouse üretimine alınana kadar agent sorgularında görünmez.
 
 Ulusal 61 kaynak seri şunları kapsar:
 
@@ -70,16 +82,24 @@ Seri seçimi kaynak kataloğundaki kod, ad, birim, frekans ve toplulaştırma
    içindeki kesin bir toplamsal kimlikle kanıtlanırsa, ham null korunarak ayrı
    provenance ile kullanılabilir.
 2. Stok, stok değişimi ve yeni kullandırım akımı ayrı kavramlardır.
-3. Kümülatif kaynak değer ile türetilmiş aylık akım birlikte saklanır.
+3. Kümülatif kaynak değer ile türetilmiş aylık akım birlikte saklanır. Yıl içi
+   fark yalnız önceki takvim ayı ve uyumlu tanım mevcutsa hesaplanır.
 4. Çeyreklik veri ara aylara forward fill edilmez.
-5. Frekans dönüşümü seri bazlı açık kurala dayanır.
+5. Frekans dönüşümü seri bazlı açık kurala dayanır. Eksik aylardan tam çeyrek
+   toplamı çıkarılmaz. Seçilen kaynak tarihi ve gözlemin yaşı denetim tablosundadır.
 6. Kaynak kapsam farkları zorla eşitlenmez.
 7. Birlikte hareket nedensellik kanıtı olarak sunulmaz.
-8. Her işlenmiş satırın kaynak dosyası ve hash bilgisi korunur.
+8. Kaynak dosyası, hash ve mevcut hücre referansları korunur. Eski pakette dosya
+   konumu eksikse veya türetilmiş panelin kaynak hücre zinciri kurulmamışsa servis
+   bunu eksiksiz kaynak kanıtı olarak sunmaz.
 9. Risk Merkezi ilk kullanıcı sayısı, TBB parasal kullandırım akımıyla
    birleştirilmez veya onun yerine geçirilmez.
 10. Resmî il fiyatı null değerleri değiştirilmez. Ayrı fiyat proxy'si yalnız
     aynı KFE bölgesi ve aynı çeyrekteki resmî il değerlerinin medyanını kullanır.
+11. Müşteri sayıları tablo başlığındaki para birimini miras almaz. Kişi, şube,
+    oran ve süre ölçüleri ayrı tutulur; bankalar arası mükerrer sayım uyarısı korunur.
+12. Haftalık metrik adları tarihli tanımlarla bağlanır. Eski ve yeni tanımın
+    birleşmesi gözlem satırlarını çoğaltmaz.
 
 ## Doğrulama özeti
 
@@ -102,10 +122,25 @@ Seri seçimi kaynak kataloğundaki kod, ad, birim, frekans ve toplulaştırma
 - TBB: 21 yayımlanmış dönem, durum `passed_with_source_gaps`
 - TBB Risk Merkezi: 6 PDF, 390 vintage gözlem, 365 en güncel gözlem, 66 aylık
   eksiksiz hedef panel ve 6 kaynak revizyonu, durum `passed`
-- Birleşik katalog: 71 varlık, 55.501 metrik, 3.387 sorgulanabilir metrik, durum `passed`
-- DuckDB: 10 şema, 64 tablo veya view, durum `passed`
+- Birleşik katalog: 72 varlık, 55.501 metrik, 3.402 yerel gözlem varlığı bulunan
+  metrik, durum `passed`. Eski `queryable_metric_count` alanı gözlem varlığını
+  sayar; semantik hazır olma durumu `catalog.metric_bindings.status` içindedir.
+- DuckDB: 10 şema, 70 tablo veya view. Yayın öncesi anahtar, satır sayısı, birim,
+  tarihli tanım ve kümülatif dönüşüm kontrolleri zorunludur.
 
 ## Üretim sırası
+
+Temiz checkout'ta kaynak Parquet dosyaları hazırdır. DuckDB dosyası Git'te
+tutulmaz, testlerden önce yerelde üretilir:
+
+```bash
+uv pip install --python .venv/bin/python -r requirements-dev.txt
+.venv/bin/python data_pipeline/lakehouse/build_lakehouse.py
+.venv/bin/python -m unittest discover -s tests -v
+```
+
+Agent araçları, değişmez analiz sürümleri, CSV ekleme ve EVDS kuyruğu için
+[uygulama rehberine](../docs/AGENT_READY_LAKEHOUSE.md) bakın.
 
 Mevcut ham dosyalardan çalıştırılabilir temel sıra:
 
@@ -157,4 +192,6 @@ ile yeni snapshot sessizce karıştırılmaz.
 - `evidence/events/events.json`
 
 `lakehouse/analytics.duckdb` verileri kendi içine kopyalar. Sorgu sırasında bu
-bilgisayardaki mutlak dosya yollarına ihtiyaç duymaz.
+bilgisayardaki mutlak dosya yollarına ihtiyaç duymaz. Yeniden üretilebilir bu
+büyük dosya Git ve kaynak dosyası hash envanterinin dışındadır; servis yayını
+oluştururken kendi snapshot hash'ini ayrıca hesaplar.

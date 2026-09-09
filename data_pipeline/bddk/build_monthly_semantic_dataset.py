@@ -56,14 +56,79 @@ def label_fingerprint(value: Any) -> str:
 
 
 def source_unit(row: pd.Series, value_column: str) -> str:
+    """Resolve the metric unit before falling back to its table caption.
+
+    A Rasyo column can contain days, people or monetary values per entity.
+    A monetary table can contain customer counts. Never infer percent merely
+    from the Rasyo column name.
+    """
+    return unit_resolution(row, value_column)[0]
+
+
+def unit_resolution(row: pd.Series, value_column: str) -> tuple[str, str]:
+    label = " ".join(str(row.get("Ad", "")).split()).casefold()
+    for suffix, unit in (("(bin tl)", "bin TL"), ("(kişi)", "person"), ("(gün)", "day")):
+        if label.endswith(suffix):
+            return unit, "explicit_metric_label"
+    if "(adet)" in label or label.startswith("mudi sayısı"):
+        return "count", "explicit_metric_label"
+    if "(%)" in label or "(yüzde)" in label:
+        return "percent", "explicit_metric_label"
+    if int(row.get("table_no", 0)) == 11 and label == "likidite yeterlilik oranı":
+        return "percent", "liquidity_assets_divided_by_liabilities_times_100"
+    if value_column in {"Adet", "NetMusteri"}:
+        return "count", "explicit_value_column"
+    if value_column == "Rasyo":
+        return "percent_or_ratio_source_defined", "unresolved_ratio_scale"
     declared = row.get("source_unit")
     if declared is not None and not pd.isna(declared) and str(declared).strip():
-        return str(declared).strip()
-    if value_column == "Rasyo":
-        return "percent_or_ratio_source_defined"
-    if value_column == "Adet":
-        return "count"
-    return "source_defined"
+        return str(declared).strip(), "table_caption"
+    return "source_defined", "unresolved"
+
+
+def metric_semantics(row: pd.Series, table_policy: dict[str, str]) -> dict[str, str]:
+    unit, evidence = unit_resolution(row, str(row["value_dimension"]))
+    label = " ".join(str(row["Ad"]).split()).casefold()
+    semantics = table_policy["analysis_semantics"]
+    result = {
+        "unit": unit,
+        "unit_evidence": evidence,
+        "source_semantics": table_policy["source_semantics"],
+        "analysis_semantics": semantics,
+        "transformation": table_policy["transformation"],
+        "quarterly_aggregation": table_policy["quarterly_aggregation"],
+        "semantic_confidence": table_policy["confidence"],
+        "measure_kind": "flow" if semantics == "monthly_flow" else "monetary_stock",
+        "denominator_dimension": "",
+        "deduplication_status": "not_applicable",
+        "aggregation_caveat": "",
+    }
+    if unit == "count":
+        result.update(source_semantics="count", analysis_semantics="count", measure_kind="count_stock")
+        if int(row["table_no"]) in {6, 9}:
+            result.update(
+                deduplication_status="not_deduplicated_across_banks",
+                aggregation_caveat="Customer counts are not unique people across banks or product columns.",
+            )
+        if int(row["table_no"]) == 6 and row["value_dimension"] == "NetMusteri" and "(adet)" not in label:
+            result.update(
+                semantic_confidence="not_applicable",
+                aggregation_caveat="Source structural zero in a non-applicable customer column of a loan-amount row; not an observed customer count.",
+            )
+    elif unit in {"percent", "percent_or_ratio_source_defined"}:
+        result.update(source_semantics="ratio", analysis_semantics="ratio", measure_kind="ratio")
+        result["aggregation_caveat"] = "Ratios cannot be summed or averaged across groups without compatible numerators and denominators."
+        if evidence == "unresolved_ratio_scale":
+            result["semantic_confidence"] = "requires_unit_review"
+    elif unit == "day":
+        result.update(source_semantics="period_end_level", analysis_semantics="period_end_level", measure_kind="duration")
+        result["aggregation_caveat"] = "Weighted maturity is a duration, not a percentage or additive balance."
+    elif int(row["table_no"]) == 15 and unit in {"person", "bin TL"}:
+        result.update(source_semantics="ratio", analysis_semantics="ratio", measure_kind="monetary_per_entity" if unit == "bin TL" else "people_per_entity")
+        denominator = label.split(" / ", 1)[-1]
+        result["denominator_dimension"] = "person" if "personel" in denominator else "branch"
+        result["aggregation_caveat"] = "Per-entity ratio; preserve its denominator and never sum it as a monetary balance or person count."
+    return result
 
 
 def to_long(path: Path, table_policy: dict[str, str]) -> pd.DataFrame:
@@ -97,15 +162,18 @@ def to_long(path: Path, table_policy: dict[str, str]) -> pd.DataFrame:
     )
     long["calendar_year"] = long["month"].str[:4].astype(int)
     long["native_frequency"] = "monthly"
-    long["source_semantics"] = table_policy["source_semantics"]
-    long["analysis_semantics"] = table_policy["analysis_semantics"]
-    long["transformation"] = table_policy["transformation"]
-    long["quarterly_aggregation"] = table_policy["quarterly_aggregation"]
-    long["semantic_confidence"] = table_policy["confidence"]
-    long["unit"] = long.apply(
-        lambda row: source_unit(row, str(row["value_dimension"])), axis=1
+    semantic_keys = ["table_no", "Ad", "value_dimension", "source_unit"]
+    definitions = long[semantic_keys].drop_duplicates().reset_index(drop=True)
+    resolved = definitions.apply(
+        lambda row: pd.Series(metric_semantics(row, table_policy)), axis=1
     )
-    return long
+    return long.merge(
+        pd.concat([definitions, resolved], axis=1),
+        on=semantic_keys,
+        how="left",
+        validate="many_to_one",
+        sort=False,
+    )
 
 
 def apply_transformations(frame: pd.DataFrame) -> pd.DataFrame:
@@ -113,15 +181,33 @@ def apply_transformations(frame: pd.DataFrame) -> pd.DataFrame:
         ["table_no", "metric_code", "group_code", "month"], kind="stable"
     ).reset_index(drop=True)
     frame["analysis_value"] = frame["source_value"]
+    frame["transformation_status"] = "identity"
+    frame.loc[frame["source_value"].isna(), "transformation_status"] = "source_missing"
+    frame["prior_source_month"] = pd.Series(None, index=frame.index, dtype="object")
     cumulative = frame["transformation"].eq("difference_within_calendar_year")
     cumulative_frame = frame.loc[cumulative].copy()
     group_columns = ["table_no", "metric_code", "group_code", "calendar_year"]
-    differences = cumulative_frame.groupby(group_columns, sort=False)[
-        "source_value"
-    ].diff()
+    if "source_definition_version" in frame:
+        group_columns.append("source_definition_version")
+    grouped = cumulative_frame.groupby(group_columns, sort=False, dropna=False)
+    prior_month = grouped["month"].shift()
+    prior_value = grouped["source_value"].shift()
+    month_index = cumulative_frame["month"].map(lambda value: int(value[:4]) * 12 + int(value[5:7]))
+    prior_index = grouped["month"].shift().map(
+        lambda value: int(value[:4]) * 12 + int(value[5:7]) if pd.notna(value) else None
+    )
+    adjacent = (month_index - prior_index).eq(1)
+    differences = (cumulative_frame["source_value"] - prior_value).where(adjacent)
     january = cumulative_frame["month"].str.endswith("-01")
     differences.loc[january] = cumulative_frame.loc[january, "source_value"]
     frame.loc[cumulative, "analysis_value"] = differences
+    frame.loc[cumulative, "prior_source_month"] = prior_month
+    status = pd.Series("unavailable_previous_calendar_month", index=cumulative_frame.index)
+    status.loc[adjacent & prior_value.isna()] = "unavailable_previous_source_value"
+    status.loc[adjacent & differences.notna()] = "adjacent_month_difference"
+    status.loc[january] = "january_reset"
+    status.loc[cumulative_frame["source_value"].isna()] = "source_missing"
+    frame.loc[cumulative, "transformation_status"] = status
     return frame
 
 
@@ -130,9 +216,16 @@ def validate_recomposition(frame: pd.DataFrame) -> dict[str, Any]:
         frame["transformation"].eq("difference_within_calendar_year")
     ].copy()
     group_columns = ["table_no", "metric_code", "group_code", "calendar_year"]
-    cumulative["recomposed"] = cumulative.groupby(group_columns, sort=False)[
+    if "source_definition_version" in frame:
+        group_columns.append("source_definition_version")
+    cumulative = cumulative.sort_values([*group_columns, "month"], kind="stable")
+    cumulative["recomposed"] = cumulative.groupby(group_columns, sort=False, dropna=False)[
         "analysis_value"
-    ].cumsum()
+    ].cumsum(skipna=False)
+    # A chain without January has no annual anchor, even if later adjacent
+    # differences are calculable. A missing month also invalidates the chain.
+    first_month = cumulative.groupby(group_columns, sort=False, dropna=False)["month"].transform("first")
+    cumulative.loc[~first_month.str.endswith("-01"), "recomposed"] = float("nan")
     comparable = cumulative["source_value"].notna() & cumulative["recomposed"].notna()
     differences = (
         cumulative.loc[comparable, "source_value"]
@@ -167,6 +260,8 @@ def validate_recomposition(frame: pd.DataFrame) -> dict[str, Any]:
     return {
         "cumulative_measurement_rows": len(cumulative),
         "recomposition_comparisons": len(differences),
+        "recomposition_unavailable_rows": int((cumulative["source_value"].notna() & cumulative["recomposed"].isna()).sum()),
+        "incomplete_cumulative_chains": int(cumulative.groupby(group_columns, dropna=False)["recomposed"].agg(lambda values: values.isna().any()).sum()),
         "maximum_recomposition_difference": float(differences.max()) if len(differences) else 0.0,
         "january_start_rows": len(january),
         "annual_reset_pairs_checked": len(reset_pairs),
@@ -226,6 +321,11 @@ def build(input_dir: Path, policy_path: Path, output_dir: Path) -> dict[str, Any
                 "transformation",
                 "quarterly_aggregation",
                 "semantic_confidence",
+                "measure_kind",
+                "unit_evidence",
+                "denominator_dimension",
+                "deduplication_status",
+                "aggregation_caveat",
             ],
             dropna=False,
             sort=True,
@@ -269,13 +369,17 @@ def build(input_dir: Path, policy_path: Path, output_dir: Path) -> dict[str, Any
             str(key): int(value)
             for key, value in measurements.groupby("semantic_confidence").size().sort_index().items()
         },
+        "transformation_status_counts": {
+            str(key): int(value)
+            for key, value in measurements.groupby("transformation_status").size().items()
+        },
         "quality_policy": [
             "Source values and hashes remain attached to every semantic measurement.",
-            "Year-to-date income-statement values are differenced only within the same calendar year.",
+            "Year-to-date values are differenced only against the immediately preceding calendar month of the same year and metric definition.",
             "January analysis values equal January source values; December is never subtracted across years.",
-            "Derived monthly flows recompose exactly to source cumulative values.",
+            "Complete monthly-flow chains recompose exactly; gaps remain null and incomplete chains are explicitly reported.",
             "No missing value is filled or converted to zero.",
-            "Quarterly aggregation is explicit per table: cumulative monthly flows sum, stocks and ratios use the last observation.",
+            "Metric label and column units override table captions; per-entity ratios and non-deduplicated customer counts retain aggregation caveats.",
         ],
     }
     (output_dir / "validation.json").write_text(

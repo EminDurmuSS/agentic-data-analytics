@@ -17,6 +17,10 @@ def included(path: Path, base_dir: Path = BASE_DIR) -> bool:
     relative = path.relative_to(base_dir)
     if relative.as_posix() == "FILE_SHA256.json":
         return False
+    # The reproducible serving database is built locally and can exceed Git's
+    # single-file hosting limit. Its inputs and build validation remain tracked.
+    if relative.as_posix() in {"lakehouse/analytics.duckdb", "lakehouse/analytics.duckdb.wal"}:
+        return False
     if any(part in {".DS_Store", "__pycache__", ".ipynb_checkpoints", "tmp", "temp"}
            for part in relative.parts):
         return False

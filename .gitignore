@@ -24,3 +24,8 @@ temp/
 # Parallel BDDK weekly downloader workspaces. The validated snapshots are
 # merged into data_pipeline/bddk/weekly_all_groups before commit.
 data_pipeline/bddk/weekly_group_*/
+
+# Local immutable releases, session uploads and analysis results.
+.lakehouse-runtime/
+data_pipeline/lakehouse/analytics.duckdb
+data_pipeline/lakehouse/analytics.duckdb.wal

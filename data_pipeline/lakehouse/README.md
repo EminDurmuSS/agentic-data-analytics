@@ -1,24 +1,69 @@
-# Local DuckDB lakehouse
+# Yerel DuckDB lakehouse
 
-Build the self-contained analytics database with:
+Bu klasör, izlenen kaynak Parquet'lerden kendine yeterli bir DuckDB sorgu
+dosyası üretir. Agent araçları ayrıca bu dosyanın değişmez bir kopyasını
+yayımlar; yeniden derleme eski oturumların verisini değiştirmez.
+
+## Temiz klonda üretim
+
+Repo kökünde, Python 3.12 ortamını kurduktan sonra:
 
 ```bash
-.venv/bin/python data_pipeline/lakehouse/build_lakehouse.py
+python data_pipeline/lakehouse/build_lakehouse.py
+python -m unittest discover -s tests -v
 ```
 
-The generated `analytics.duckdb` copies validated Parquet data into schemas:
+**Testlerden önce build komutunu çalıştırın.** Üretilen `analytics.duckdb`
+GitHub'ın 100 MiB sınırını aştığı için Git'te izlenmez ve `.gitignore`
+içindedir. Kaynak Parquet'ler, kaynak manifestleri ve üretim kodu izlenir.
+Build mevcut yerel girdilerle çalışır, ağdan yeniden veri indirmez.
 
-- `catalog`: assets, metrics and build manifest
-- `evds`: source observations and aligned panels
-- `bddk`: monthly semantic data, FinTurk, its branch-zero audit and completed weekly data
-- `tbb`: quarterly consumer-credit reports
-- `quality`: cross-source reconciliation
-- `evidence`: official event annotations
-- `tuik`: province housing-sales observations, identity fallbacks and EVDS reconciliation
-- `regional`: province-quarter housing, credit, deposit and price analytics, with official values kept separate from explicit price proxies
-- `analysis`: ready-to-query monthly and quarterly housing-credit tables
+## Üretim ve yayın
 
-Example query:
+`build_lakehouse.py`, kaynak doğrulamalarını kontrol eder, verileri geçici
+DuckDB dosyasına kopyalar, kaynak ilişkilerini ve metrik sözleşmelerini kurar.
+`tools/lakehouse_quality.py` kontrolleri geçtikten sonra dosya kapatılır,
+salt okunur yeniden açılıp doğrulanır ve hedef dosyanın yerine atomik olarak
+geçirilir. Başarısız doğrulama mevcut sorgu dosyasını değiştirmez.
+
+`source_views.py`, haftalık BDDK sözlüklerini tarih aralıklarıyla bağlar,
+eski yerel paketten 15 ek EVDS serisini ekler ve Risk Merkezi kaynak
+vintagelarını housing gold tablosuna bağımlı olmadan çözer.
+
+`registry.py`, her katalog metriğine bir durum atar. Fiziksel olarak
+çözülebilen metriklerde tablo, değer sütunu, filtreler, boyutlar, birim,
+ölçek, frekans ve kaynak referansları kaydedilir. `ready`, `review_required`,
+`metadata_only` ve `no_numeric` farklı durumlardır; yalnız metadata bulunması
+sayısal hesap izni vermez. İncelenmemiş metrikler için dönüşümler engellenir.
+
+Agent oturumları `tools/lakehouse_store.py` üzerinden SHA-256 ile doğrulanan
+snapshot'lara bağlanır. CSV ekleri ve analiz sonuçları ayrı değişmez nesneler
+olarak saklanır. Çalışma alanı güncellemeleri kilit ve beklenen sürüm kontrolü
+kullanır; önceki analiz dosyaları üzerine yazılmaz.
+
+## Şemalar
+
+| Şema | İçerik |
+| --- | --- |
+| `catalog` | Veri varlıkları, metrikler, çalıştırılabilir sözleşmeler ve build doğrulaması |
+| `evds` | Doğal frekansta gözlemler, eski paket gözlemleri ve hizalanmış paneller |
+| `bddk` | Aylık semantik ölçümler, FinTürk ve tarihli haftalık kaynak ilişkileri |
+| `tbb` | Çeyreklik tüketici kredisi raporları |
+| `risk_center` | Aylık konut kredisi ölçümleri, kaynak vintageları ve son kaynak sürümü |
+| `quality` | Kaynaklar arası uzlaştırma |
+| `evidence` | Resmî karar ve olay açıklamaları |
+| `tuik` | İl konut satışları, kimlikle kanıtlanan sıfırlar ve EVDS uzlaştırması |
+| `regional` | İl-çeyrek paneli, resmî değerlerden ayrı tutulan fiyat proxy'leri |
+| `analysis` | Aylık ve çeyreklik konut kredisi analiz tabloları |
+
+Mevcut kaynak sürümünde 10 şema ve **70 tablo veya view** vardır. EVDS'de
+**599 fiziksel kaynak seri**, bunların 587'sinde sayısal değer bulunur.
+52.696 serilik metadata kataloğunun tamamı için tarihsel gözlemler henüz
+toplanmadı. Aylık analiz 66, çeyreklik analiz 22, bölgesel panel 1.782 tekil
+anahtar içerir. Bunlar sürüm envanteridir; yeni build için `validation.json`,
+`catalog.build_validation` ve yayımlanan snapshot manifestini esas alın.
+
+Örnek yönetici sorgusu:
 
 ```sql
 SELECT month,
@@ -30,18 +75,7 @@ WHERE rate_down_real_stock_not_up_quality_screened
 ORDER BY month;
 ```
 
-The database contains copied tables, so it does not rely on machine-specific
-absolute paths after it has been built.
-
-Current validated build:
-
-- 10 schemas
-- 64 tables or views
-- 584 locally available EVDS source series represented in the metric catalog
-- 1,025,974 BDDK weekly measurements
-- 66 unique monthly analysis periods
-- 22 unique quarterly analysis periods
-- 1,782 unique province-quarter regional analysis rows
-- 1,620 official-source-ready regional rows and 1,782 rows ready only when the explicit same-region price proxy is allowed
-- 31,590 TÜİK province-month-metric housing-sales rows
-- 25,262 exact TÜİK-EVDS matches and zero value mismatches
+Bu SQL yerel veri incelemesi içindir. Agent araçlarının istek dili serbest
+SQL veya dosya yolu kabul etmez; metrik kimliği ve izinli işlemler kullanır.
+CLI, sürümlü analiz, CSV sözleşmesi, EVDS kuyruğu ve kalan sınırlar için
+[uygulama rehberine](../../docs/AGENT_READY_LAKEHOUSE.md) bakın.

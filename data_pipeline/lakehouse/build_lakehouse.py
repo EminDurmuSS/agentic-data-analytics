@@ -7,7 +7,9 @@ import argparse
 import json
 import os
 from pathlib import Path
+import sys
 from typing import Any
+import uuid
 
 import duckdb
 import pandas as pd
@@ -16,6 +18,11 @@ import pandas as pd
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 BASE_DIR = Path(__file__).resolve().parent
 DEFAULT_OUTPUT = BASE_DIR / "analytics.duckdb"
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
+from data_pipeline.lakehouse.registry import install_bindings
+from data_pipeline.lakehouse.source_views import install_source_views
+from tools.lakehouse_quality import validate_connection, validate_database
 
 
 def read_json(path: Path) -> Any:
@@ -233,9 +240,7 @@ def build(output_path: Path) -> dict[str, Any]:
         raise ValueError("Doğrulanmamış birleşik katalog lakehouse'a yüklenemez.")
 
     output_path.parent.mkdir(parents=True, exist_ok=True)
-    temporary_path = output_path.with_suffix(output_path.suffix + ".tmp")
-    if temporary_path.exists():
-        temporary_path.unlink()
+    temporary_path = output_path.with_name(f".{output_path.name}.{uuid.uuid4().hex}.tmp")
 
     table_manifest: list[dict[str, Any]] = []
     connection = duckdb.connect(str(temporary_path))
@@ -712,13 +717,19 @@ def build(output_path: Path) -> dict[str, Any]:
             }
         )
 
+        table_manifest.extend(install_source_views(connection, PROJECT_ROOT))
         manifest_frame = pd.DataFrame(table_manifest)
         connection.register("table_manifest_frame", manifest_frame)
         connection.execute(
             "CREATE TABLE catalog.table_manifest AS SELECT * FROM table_manifest_frame"
         )
         connection.unregister("table_manifest_frame")
+        binding_summary = install_bindings(connection)
+        release_quality = validate_connection(connection)
+        connection.execute("CREATE TABLE catalog.build_validation(report_json VARCHAR)")
+        connection.execute("INSERT INTO catalog.build_validation VALUES (?)", [json.dumps(release_quality,ensure_ascii=False)])
         connection.execute("ANALYZE")
+        connection.execute("CHECKPOINT")
 
         monthly_count = int(
             connection.execute("SELECT count(*) FROM analysis.housing_credit_monthly").fetchone()[0]
@@ -750,10 +761,29 @@ def build(output_path: Path) -> dict[str, Any]:
                 "WHERE table_schema NOT IN ('information_schema', 'pg_catalog')"
             ).fetchone()[0]
         )
+    except BaseException:
+        connection.close()
+        temporary_path.unlink(missing_ok=True)
+        Path(str(temporary_path)+".wal").unlink(missing_ok=True)
+        raise
     finally:
         connection.close()
 
+    # Reopen the completed copy before making it visible to legacy readers.
+    # Agent sessions additionally pin immutable copies through LakehouseStore.
+    try:
+        validate_database(temporary_path)
+    except BaseException:
+        temporary_path.unlink(missing_ok=True)
+        raise
+    with temporary_path.open("rb") as handle:
+        os.fsync(handle.fileno())
     os.replace(temporary_path, output_path)
+    directory_fd = os.open(output_path.parent, os.O_RDONLY)
+    try:
+        os.fsync(directory_fd)
+    finally:
+        os.close(directory_fd)
     result = {
         "status": "passed",
         "database_file": output_path.name,
@@ -770,11 +800,13 @@ def build(output_path: Path) -> dict[str, Any]:
         "risk_center_monthly_distinct_months": int(risk_center_distinct_count),
         "weekly_measurements_loaded": weekly_path.exists(),
         "source_table_manifest_rows": len(table_manifest),
+        "metric_bindings": binding_summary,
+        "release_quality": release_quality,
         "quality_policy": [
             "The DuckDB file contains copied tables and does not depend on absolute Parquet paths at query time.",
             "Raw source values remain available in source-specific Parquet files with hashes.",
             "The DuckDB copy of the EVDS series catalog keeps discovery-critical columns; the complete source metadata remains in data_pipeline/catalog/evds_series_catalog.parquet.",
-            "Weekly measurement rows keep analytical keys and values compact; labels and source hashes are joined through bddk.weekly_metric_dictionary and bddk.weekly_source_tables.",
+            "Weekly labels and source hashes are served through bddk.weekly_measurements_resolved using dated definitions and exact source keys; the historical dictionary alone is not a safe join.",
             "FinTurk measurement rows keep analytical keys and values compact; complete request provenance is joined through bddk.finturk_source_tables.",
             "The monthly analysis table keeps nominal stock, real stock, rates, controls and quality flags separate.",
             "Risk Center balances, borrower measures and first-time user counts retain explicit source-prefixed columns and do not overwrite BDDK, EVDS or TBB measures.",
@@ -785,9 +817,17 @@ def build(output_path: Path) -> dict[str, Any]:
             "Weekly BDDK data is loaded only after its processed validation exists.",
         ],
     }
-    (output_path.parent / "validation.json").write_text(
-        json.dumps(result, ensure_ascii=False, indent=2), encoding="utf-8"
+    # DuckDB allocation can differ between equivalent builds. Keep physical
+    # byte size in the command result, outside the tracked semantic report so
+    # clean builds preserve the source-file checksum inventory.
+    semantic_report = {key:value for key,value in result.items() if key != "database_bytes"}
+    report_path = output_path.parent / "validation.json"
+    report_temporary = report_path.with_name(f".{report_path.name}.{uuid.uuid4().hex}.tmp")
+    report_temporary.write_text(
+        json.dumps(semantic_report, ensure_ascii=False, indent=2, sort_keys=True) + "\n",
+        encoding="utf-8",
     )
+    os.replace(report_temporary, report_path)
     return result
 
 

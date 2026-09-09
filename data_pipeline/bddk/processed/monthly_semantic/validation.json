@@ -13,6 +13,8 @@
   "recomposition": {
     "cumulative_measurement_rows": 104940,
     "recomposition_comparisons": 104940,
+    "recomposition_unavailable_rows": 0,
+    "incomplete_cumulative_chains": 0,
     "maximum_recomposition_difference": 0.0,
     "january_start_rows": 9540,
     "annual_reset_pairs_checked": 7950,
@@ -20,23 +22,30 @@
     "annual_reset_share": 0.889182
   },
   "semantic_counts": {
-    "count": 4620,
+    "count": 41580,
     "monthly_flow": 104940,
-    "period_end_level": 412050,
-    "period_end_stock": 790140,
-    "ratio": 23100
+    "period_end_level": 408090,
+    "period_end_stock": 753180,
+    "ratio": 27060
   },
   "confidence_counts": {
-    "high": 1058580,
+    "high": 1053960,
     "high_inferred": 104940,
-    "medium": 171330
+    "medium": 171330,
+    "not_applicable": 2640,
+    "requires_unit_review": 1980
+  },
+  "transformation_status_counts": {
+    "adjacent_month_difference": 95400,
+    "identity": 1229910,
+    "january_reset": 9540
   },
   "quality_policy": [
     "Source values and hashes remain attached to every semantic measurement.",
-    "Year-to-date income-statement values are differenced only within the same calendar year.",
+    "Year-to-date values are differenced only against the immediately preceding calendar month of the same year and metric definition.",
     "January analysis values equal January source values; December is never subtracted across years.",
-    "Derived monthly flows recompose exactly to source cumulative values.",
+    "Complete monthly-flow chains recompose exactly; gaps remain null and incomplete chains are explicitly reported.",
     "No missing value is filled or converted to zero.",
-    "Quarterly aggregation is explicit per table: cumulative monthly flows sum, stocks and ratios use the last observation."
+    "Metric label and column units override table captions; per-entity ratios and non-deduplicated customer counts retain aggregation caveats."
   ]
 }

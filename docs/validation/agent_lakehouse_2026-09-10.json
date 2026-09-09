@@ -1,0 +1,175 @@
+{
+  "validated_on": "2026-09-10",
+  "test_suite": {
+    "command": "python -m unittest discover -s tests -v",
+    "passed": 223,
+    "failed": 0
+  },
+  "real_data_acceptance": {
+    "status": "passed",
+    "snapshot_id": "snapshot_3e21099d8456704052cbd7b9d8ea1b3f4a9e6fce2c1d8c71f68579e57e9d7552",
+    "checks": [
+      {
+        "name": "cli_init_and_demo",
+        "passed": true,
+        "detail": null
+      },
+      {
+        "name": "kobi_66_periods",
+        "passed": true,
+        "detail": null
+      },
+      {
+        "name": "first_year_yoy_explicitly_missing",
+        "passed": true,
+        "detail": null
+      },
+      {
+        "name": "kobi_real_yoy",
+        "passed": true,
+        "detail": 12.863134535445763
+      },
+      {
+        "name": "reference_completeness_does_not_claim_file_verification",
+        "passed": true,
+        "detail": null
+      },
+      {
+        "name": "housing_60_months",
+        "passed": true,
+        "detail": null
+      },
+      {
+        "name": "only_credit_replaced",
+        "passed": true,
+        "detail": null
+      },
+      {
+        "name": "hpi_addition_preserves_existing_cells",
+        "passed": true,
+        "detail": null
+      },
+      {
+        "name": "old_result_remains_identical",
+        "passed": true,
+        "detail": null
+      },
+      {
+        "name": "period_join_does_not_assert_population_equivalence",
+        "passed": true,
+        "detail": null
+      },
+      {
+        "name": "housing_matches_independent_gold",
+        "passed": true,
+        "detail": 5.820766091346741e-11
+      },
+      {
+        "name": "kobi_nominal_growth_independent_sql",
+        "passed": true,
+        "detail": 49.1023990705159
+      },
+      {
+        "name": "housing_reference_lineage_complete",
+        "passed": true,
+        "detail": null
+      },
+      {
+        "name": "three_raw_hashes_and_cells_independently_verified",
+        "passed": true,
+        "detail": null
+      },
+      {
+        "name": "real_count_deflation_code",
+        "passed": true,
+        "detail": null
+      },
+      {
+        "name": "different_group_scope_blocked",
+        "passed": true,
+        "detail": null
+      },
+      {
+        "name": "intentional_scope_comparison_auditable",
+        "passed": true,
+        "detail": null
+      },
+      {
+        "name": "cli_structured_metadata_error",
+        "passed": true,
+        "detail": null
+      },
+      {
+        "name": "cli_version_conflict_does_not_change_workspace",
+        "passed": true,
+        "detail": null
+      },
+      {
+        "name": "ytd_flow_includes_predecessor_raw_cell",
+        "passed": true,
+        "detail": null
+      }
+    ],
+    "independent_raw_source_checks": [
+      {
+        "metric_id": "bddk_monthly:table04:2:fffae80eca08:Toplam",
+        "source_file": "data_pipeline/bddk/monthly_all_groups/raw/2025-12_table04_groups10001-10002-10003-10004-10005-10006-10007-10008-10009-10010.json",
+        "source_hash_verified": true,
+        "source_cell_verified": true
+      },
+      {
+        "metric_id": "evds:TP.TUKFIY2025.GENEL",
+        "source_file": "data_pipeline/evds/housing_causality_v1/raw/TP_TUKFIY2025_GENEL_2020-01-01_2026-06-30_response.json.gz",
+        "source_hash_verified": true,
+        "source_cell_verified": true
+      },
+      {
+        "metric_id": "evds:TP.TUKFIY2025.GENEL",
+        "source_file": "data_pipeline/evds/housing_causality_v1/raw/TP_TUKFIY2025_GENEL_2020-01-01_2026-06-30_response.json.gz",
+        "source_hash_verified": true,
+        "source_cell_verified": true
+      }
+    ],
+    "structured_error_examples": [
+      {
+        "status": "blocked",
+        "errors": [
+          {
+            "code": "METADATA_ONLY",
+            "message": "bddk_weekly:table292_292_11_fx: metadata_only; observations must be acquired first"
+          }
+        ]
+      },
+      {
+        "status": "blocked",
+        "errors": [
+          {
+            "code": "VERSION_CONFLICT",
+            "message": "Revision parent is not the current analysis head."
+          }
+        ]
+      }
+    ]
+  },
+  "single_evds_connector_check": {
+    "series": {
+      "series_code": "TP.FHAY.S01.A",
+      "series_name_tr": "1. (İYİLEŞTİ) Son üç aydaki iş durumunuz",
+      "frequency": "AYLIK",
+      "unit": "Yüzde"
+    },
+    "request_count": 1,
+    "status": "succeeded",
+    "target_start": "2021-01-01",
+    "target_end": "2026-06-30",
+    "numeric_rows": 66,
+    "missing_numeric_periods": [],
+    "published_to_lakehouse": false
+  },
+  "limitations": [
+    "EVDS full observation coverage remains incomplete.",
+    "Live Qwen/model integration was not exercised.",
+    "Source file verification above applies only to the explicitly checked cells, not all result cells."
+  ],
+  "rerun_real_data_acceptance": "python -m tools.validate_agent_lakehouse"
+}

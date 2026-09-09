@@ -4,6 +4,8 @@
 from __future__ import annotations
 
 from pathlib import Path
+from datetime import datetime
+from zoneinfo import ZoneInfo
 
 import duckdb
 import nbformat
@@ -16,6 +18,36 @@ OUTPUTS = (
     ROOT / "notebooks" / "KKB_Verileri_Dogrulanmis.ipynb",
     ROOT / "data_pipeline" / "KKB_Verileri_Dogrulanmis.ipynb",
 )
+
+EVDS_COVERAGE_SQL = """
+WITH observations AS (
+    SELECT series_code,value,period_start,period_end FROM evds.housing_observations
+    UNION ALL SELECT series_code,value,period_start,period_end FROM evds.housing_controls_observations
+    UNION ALL SELECT series_code,value,period_start,period_end FROM evds.market_controls_observations
+    UNION ALL SELECT series_code,value,period_start,period_end FROM evds.regional_housing_observations
+    UNION ALL SELECT series_code,value,period_start,period_end FROM evds.household_finance_observations
+    UNION ALL SELECT series_code,value,period_start,period_end FROM evds.legacy_observations
+), coverage AS (
+    SELECT count(DISTINCT series_code) AS fiziksel_seri,
+           count(DISTINCT CASE WHEN value IS NOT NULL
+               AND CAST(period_start AS DATE) <= DATE '2026-06-30'
+               AND CAST(period_end AS DATE) >= DATE '2021-01-01'
+               THEN series_code END) AS hedef_donemde_sayisal_seri
+    FROM observations
+)
+SELECT (SELECT count(*) FROM evds.series_catalog) AS metadata_serisi,
+       fiziksel_seri, hedef_donemde_sayisal_seri,
+       fiziksel_seri - hedef_donemde_sayisal_seri AS hedef_donemde_sayisal_degeri_olmayan_fiziksel_seri,
+       (SELECT count(*) FROM evds.series_catalog) - fiziksel_seri AS yalniz_metadata_serisi
+FROM coverage
+"""
+
+BINDING_STATUS_SQL = """
+SELECT status AS metrik_sozlesmesi_durumu, count(*) AS metrik
+FROM catalog.metric_bindings
+GROUP BY status
+ORDER BY status
+"""
 
 
 def dataframe_output(frame) -> dict:
@@ -47,7 +79,9 @@ def build_notebook() -> dict:
               (SELECT count(*) FROM catalog.data_assets) AS veri_varligi,
               (SELECT count(*) FROM catalog.metrics) AS katalog_metrigi,
               (SELECT count(*) FROM catalog.metrics
-               WHERE observation_available) AS sorgulanabilir_metrik,
+               WHERE observation_available) AS gozlemi_bildirilen_katalog_metrigi,
+              (SELECT count(*) FROM information_schema.tables
+               WHERE table_schema NOT IN ('information_schema','pg_catalog')) AS duckdb_tablo_ve_gorunum,
               (SELECT count(*) FROM evds.series_catalog) AS evds_katalog_serisi,
               (SELECT count(*) FROM catalog.metrics
                WHERE source_system = 'TCMB_EVDS'
@@ -64,6 +98,8 @@ def build_notebook() -> dict:
                WHERE analysis_ready_with_price_proxy) AS proxy_izinli_analize_hazir_bolgesel_satir
             """
         ).fetchdf()
+        evds_coverage = connection.execute(EVDS_COVERAGE_SQL).fetchdf()
+        binding_status = connection.execute(BINDING_STATUS_SQL).fetchdf()
         source_status = connection.execute(
             """
             SELECT source_system AS kaynak,
@@ -150,9 +186,10 @@ def build_notebook() -> dict:
     finally:
         connection.close()
 
-    title = """# KKB Agentic Data Analytics: güncel veri doğrulama notebook'u
+    generated_date = datetime.now(ZoneInfo("Europe/Istanbul")).date().isoformat()
+    title = f"""# KKB Agentic Data Analytics: güncel veri doğrulama notebook'u
 
-**9 Eylül 2026 veri kapanış sürümü**
+**Oluşturulma tarihi: {generated_date}. Hedef gözlem dönemi: Ocak 2021-Haziran 2026.**
 
 Bu notebook eski 25 serilik başlangıç snapshot'ı değildir. Repodaki güncel,
 self-contained DuckDB dosyasını salt okunur açar ve BDDK aylık, BDDK haftalık,
@@ -161,7 +198,9 @@ satışları, TBB tüketici kredileri, TBB Risk Merkezi aylık bültenleri,
 hanehalkı finansmanı ve resmî bağlam
 belgelerinin birleşik durumunu gösterir.
 
-Ana sonuç: Zorunlu kaynak ailelerinin yayımlanmış veri kapsamı tamamlandı.
+BDDK haftalık, aylık ve FinTürk kaynakları hedef dönem için yereldedir.
+EVDS'nin tüm serilerinin gözlem kapsamı henüz tamamlanmadı. Metadata kataloğu,
+fiziksel gözlem, sayısal gözlem ve seçilen hesap için hazır olma ayrı kavramlardır.
 Kaynakta henüz yayımlanmayan TBB Haziran 2026 çeyreklik tüketici kredileri
 raporu tahmin edilmedi ve açık boşluk olarak korunuyor. Ayrı Risk Merkezi
 Haziran 2026 aylık bülteni kendi metrikleriyle sisteme eklendi.
@@ -174,15 +213,19 @@ Haziran 2026 aylık bülteni kendi metrikleriyle sisteme eklendi.
 | BDDK aylık | 66 ay, 10 resmî banka grubu, 17 tablonun tamamı, 1.334.850 semantik ölçüm |
 | BDDK haftalık | 286 hafta, 7 resmî banka grubu, 9 tablonun tamamı, 1.025.974 ölçüm |
 | BDDK FinTürk | 22 çeyrek, 7 tablo, 7 banka grubu, 81 il ve `YURT DIŞI`, 936.512 ölçüm, 1.328 kaynak-null şube değeri için auditli analitik sıfır |
-| TCMB EVDS | 52.696 serilik metadata kataloğu, analitik değeri yüksek {int(summary.iloc[0]['yerel_evds_serisi'])} kaynak serinin yerel gözlemi ve 1 türetilmiş altın serisi |
+| TCMB EVDS | {format(int(evds_coverage.iloc[0]['metadata_serisi']), ',').replace(',', '.')} metadata serisi, {int(evds_coverage.iloc[0]['fiziksel_seri'])} fiziksel kaynak serisi, hedef dönemde {int(evds_coverage.iloc[0]['hedef_donemde_sayisal_seri'])} seride sayısal değer; 1 türetilmiş altın serisi ayrıca tutulur |
 | TÜİK il konut satışları | 81 il, Ocak 2020-Haziran 2026, 5 aylık satış metriği ve EVDS çapraz doğrulaması |
-| İl bazlı konut paneli | {int(summary.iloc[0]['il_sayisi'])} il, 22 çeyrek, {int(summary.iloc[0]['bolgesel_satir'])} tekil satır, {int(summary.iloc[0]['kaynakla_analize_hazir_bolgesel_satir'])} resmî-kaynak hazır ve {int(summary.iloc[0]['proxy_izinli_analize_hazir_bolgesel_satir'])} açık fiyat-proxy hazır satır |
+| İl bazlı konut paneli | {int(summary.iloc[0]['il_sayisi'])} il, 22 çeyrek, {int(summary.iloc[0]['bolgesel_satir'])} tekil satır, {int(summary.iloc[0]['kaynakla_analize_hazir_bolgesel_satir'])} genel kaynak-hazır bayrağı ve {int(summary.iloc[0]['proxy_izinli_analize_hazir_bolgesel_satir'])} fiyat-proxy izinli bayrak; seçilen ölçü ayrıca kontrol edilir |
 | TBB | Mart 2021-Mart 2026 arasında yayımlanmış 21 rapor, 252 ürün ölçümü |
 | TBB Risk Merkezi | Ocak 2021-Haziran 2026, 66 ay, 5 konut kredisi metriği, 6 Haziran bülteni ve tüm kaynak vintageları |
 | Resmî belgeler | 4 BDDK kararı ve 4 TCMB yöntem veya destek belgesi |
 
-EVDS katalog kaydı, gözlemin indirildiği anlamına gelmez. Bu ayrım
-`observation_available` alanında açıkça tutulur.
+52.696 serilik EVDS katalog kaydı, bütün gözlemlerin indirildiği anlamına gelmez.
+`observation_available` fiziksel gözlem varlığını bildirir; sayısal değer,
+tam dönem kapsamı veya belirli bir işlem için kullanılabilirlik garantisi değildir.
+Hedef dönemde {int(evds_coverage.iloc[0]['hedef_donemde_sayisal_degeri_olmayan_fiziksel_seri'])} fiziksel seride sayısal değer bulunmaz.
+Sayısal değeri bulunan bir serinin de tüm hedef dönemleri dolu olmak zorunda değildir.
+Genel bölgesel hazır bayrağı, kira veya fiyat gibi her sütunun dolu olduğunu göstermez.
 """
 
     setup_source = """from pathlib import Path
@@ -209,7 +252,9 @@ print(f"Boyut: {DB_PATH.stat().st_size / 1024 / 1024:.2f} MiB")
       (SELECT count(*) FROM catalog.data_assets) AS veri_varligi,
       (SELECT count(*) FROM catalog.metrics) AS katalog_metrigi,
       (SELECT count(*) FROM catalog.metrics
-       WHERE observation_available) AS sorgulanabilir_metrik,
+       WHERE observation_available) AS gozlemi_bildirilen_katalog_metrigi,
+      (SELECT count(*) FROM information_schema.tables
+       WHERE table_schema NOT IN ('information_schema','pg_catalog')) AS duckdb_tablo_ve_gorunum,
       (SELECT count(*) FROM evds.series_catalog) AS evds_katalog_serisi,
       (SELECT count(*) FROM catalog.metrics
        WHERE source_system = 'TCMB_EVDS'
@@ -332,6 +377,8 @@ display(demo)
   kullandırım tutarı değildir ve onun boşluğunu doldurmaz.
 - Haftalık faiz aylığa çevrilirken kullanılan yöntem metadata ile birlikte saklanır.
 - Kümülatif BDDK kâr-zarar değerleri kaynak hâliyle korunur, türetilmiş aylık akım ayrıca tutulur.
+- Aylık akım yalnız aynı tanım ve yıl içindeki hemen önceki takvim ayı varsa hesaplanır; eksik zincir ayrıca işaretlenir.
+- Metrik etiketi ve sütun birimi tablo başlığından önceliklidir. Müşteri ve mudi sayıları bankalar arasında tekilleştirilmiş kişi sayısı değildir.
 - Eksik değerler tahminle doldurulmaz. Sıfır yalnız aynı resmî kaynak içindeki
   kesin bir toplamsal kimlikle kanıtlanırsa, ham null korunarak ayrı provenance
   ile kullanılabilir.
@@ -345,11 +392,16 @@ display(demo)
   tablolarında tutulur.
 - Çeyreklik gözlem ara aylara forward fill edilmez.
 - İl bazlı panelde eksik aylı çeyrekler kısmi toplamla doldurulmaz.
+- EVDS akım toplamları eksik yerel dönem varsa null kalır; ortalama ve son değer için kapsam, seçilen tarih ve eskilik audit alanlarında tutulur.
 - İpoteksiz satış, nakit satış olarak yorumlanmaz.
 - Birlikte hareket nedensellik kanıtı sayılmaz. Olay belgeleri yalnız araştırma bağlamıdır.
 """
 
     known_gaps = """## Açık kalite notları
+
+EVDS tüm-seri gözlem kapsamı tamamlanmadı. Kalıcı indirme kuyruğu metadata,
+fiziksel seri, sayısal gözlem ve eksik dönemleri ayrı sayar. Yeni indirilen
+dosyalar doğrulanıp yayımlanmadan lakehouse içinde sorgulanabilir sayılmaz.
 
 1. TBB Haziran 2026 çeyreklik tüketici kredileri raporu 9 Eylül 2026
    kontrolünde kaynakta yayımlanmamıştır. Ayrı bir yayın ailesi olan Risk
@@ -374,12 +426,17 @@ Bu boşluklar veri kaybı gibi gizlenmez. Katalog ve kalite tablolarında açık
 görülebilir.
 """
 
-    finish = """## Sonuç
+    finish = """## Devam eden kapsam ve kullanım
 
-Veri toplama ve doğrulama aşaması, kaynakta yayımlanmış zorunlu kapsam için
-tamamlandı. Bir sonraki ürün aşaması bu katalog ve DuckDB üzerinde generic
-ingestion, güvenli sorgulama, analiz durumu, nedensellik iş akışları ve CloudX
-agent katmanını kurmaktır.
+Lakehouse metrik sözleşmeleri ve doğrulanan veri üzerinden kullanılır. Agent,
+bir metriği kullanmadan önce birim, dönem, kapsam ve izinli işlemleri denetlemelidir.
+`catalog.metric_bindings` durumu, genel `observation_available` bayrağından ayrıdır;
+belirli bir sorunun hazır olması ayrıca talep edilen dönem ve hesapla doğrulanır.
+
+EVDS'nin tüm gözlem kapsamını tamamlama işi sürüyor. `tools/evds_collection_queue.py`
+ile yerel kapsam planlanabilir, durum görülebilir ve sınırlı sayıda indirme işi
+devam ettirilebilir. Bu notebook Kloudeks modellerinin plan seçme başarısını veya
+istatistiksel nedenselliği doğrulayan bir model değerlendirmesi değildir.
 """
 
     notebook = new_notebook(
@@ -402,7 +459,11 @@ agent katmanını kurmaktır.
             ),
             new_markdown_cell("## Birleşik katalog özeti"),
             query_cell(summary_source, summary),
-            new_markdown_cell("## Kaynak varlıklarının yükleme durumu"),
+            new_markdown_cell("## EVDS metadata, fiziksel gözlem ve sayısal kapsam\n\nSayısal kapsam sayısı, tüm dönemlerin eksiksiz olduğu anlamına gelmez."),
+            query_cell(f'connection.execute("""{EVDS_COVERAGE_SQL}""").fetchdf()', evds_coverage),
+            new_markdown_cell("## Agent metrik sözleşmelerinin durumu\n\nBu durumlar seçilen soru için dönem ve işlem kontrolleriyle birlikte kullanılır."),
+            query_cell(f'connection.execute("""{BINDING_STATUS_SQL}""").fetchdf()', binding_status),
+            new_markdown_cell("## Kaynak varlıklarının yükleme durumu\n\nAynı kaynak farklı işleme katmanlarında birden fazla varlık olarak listelenebilir; toplam kayıt sayısı bağımsız gözlem sayısı değildir."),
             query_cell(source_status_source, source_status),
             new_markdown_cell(quality),
             new_markdown_cell("## Güncel aylık analiz tablosundan örnek"),

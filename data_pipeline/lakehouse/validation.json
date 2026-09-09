@@ -1,24 +1,23 @@
 {
-  "status": "passed",
   "database_file": "analytics.duckdb",
-  "database_bytes": 104345600,
-  "schema_count": 10,
-  "table_count": 64,
-  "monthly_analysis_rows": 66,
-  "quarterly_analysis_rows": 22,
   "duplicate_months": 0,
   "duplicate_quarters": 0,
-  "regional_housing_rows": 1782,
-  "regional_housing_distinct_keys": 1782,
-  "risk_center_monthly_rows": 66,
-  "risk_center_monthly_distinct_months": 66,
-  "weekly_measurements_loaded": true,
-  "source_table_manifest_rows": 63,
+  "metric_bindings": {
+    "contract_version": "1.0.0",
+    "count": 55501,
+    "status_counts": {
+      "metadata_only": 52099,
+      "no_numeric": 14,
+      "ready": 2824,
+      "review_required": 564
+    }
+  },
+  "monthly_analysis_rows": 66,
   "quality_policy": [
     "The DuckDB file contains copied tables and does not depend on absolute Parquet paths at query time.",
     "Raw source values remain available in source-specific Parquet files with hashes.",
     "The DuckDB copy of the EVDS series catalog keeps discovery-critical columns; the complete source metadata remains in data_pipeline/catalog/evds_series_catalog.parquet.",
-    "Weekly measurement rows keep analytical keys and values compact; labels and source hashes are joined through bddk.weekly_metric_dictionary and bddk.weekly_source_tables.",
+    "Weekly labels and source hashes are served through bddk.weekly_measurements_resolved using dated definitions and exact source keys; the historical dictionary alone is not a safe join.",
     "FinTurk measurement rows keep analytical keys and values compact; complete request provenance is joined through bddk.finturk_source_tables.",
     "The monthly analysis table keeps nominal stock, real stock, rates, controls and quality flags separate.",
     "Risk Center balances, borrower measures and first-time user counts retain explicit source-prefixed columns and do not overwrite BDDK, EVDS or TBB measures.",
@@ -27,5 +26,227 @@
     "TÜİK direct observations, identity-derived zero fallbacks and EVDS reconciliation remain separately queryable.",
     "FinTurk raw branch-count nulls and exact functional-group identity-derived analytical zeros remain separately queryable.",
     "Weekly BDDK data is loaded only after its processed validation exists."
-  ]
+  ],
+  "quarterly_analysis_rows": 22,
+  "regional_housing_distinct_keys": 1782,
+  "regional_housing_rows": 1782,
+  "release_quality": {
+    "checks": [
+      {
+        "check": "metric_identity_unique",
+        "passed": true,
+        "violations": 0
+      },
+      {
+        "check": "nonempty:catalog.metrics",
+        "passed": true,
+        "violations": 0
+      },
+      {
+        "check": "required_keys:catalog.metrics",
+        "passed": true,
+        "violations": 0
+      },
+      {
+        "check": "nonempty:bddk.monthly_measurements",
+        "passed": true,
+        "violations": 0
+      },
+      {
+        "check": "required_keys:bddk.monthly_measurements",
+        "passed": true,
+        "violations": 0
+      },
+      {
+        "check": "nonempty:bddk.weekly_measurements",
+        "passed": true,
+        "violations": 0
+      },
+      {
+        "check": "required_keys:bddk.weekly_measurements",
+        "passed": true,
+        "violations": 0
+      },
+      {
+        "check": "nonempty:bddk.finturk_measurements",
+        "passed": true,
+        "violations": 0
+      },
+      {
+        "check": "required_keys:bddk.finturk_measurements",
+        "passed": true,
+        "violations": 0
+      },
+      {
+        "check": "nonempty:evds.legacy_observations",
+        "passed": true,
+        "violations": 0
+      },
+      {
+        "check": "required_keys:evds.legacy_observations",
+        "passed": true,
+        "violations": 0
+      },
+      {
+        "check": "binding_identity_unique",
+        "passed": true,
+        "violations": 0
+      },
+      {
+        "check": "source_snapshot_rows:bddk.monthly_measurements",
+        "passed": true,
+        "violations": 0
+      },
+      {
+        "check": "source_snapshot_rows:bddk.weekly_measurements",
+        "passed": true,
+        "violations": 0
+      },
+      {
+        "check": "source_snapshot_rows:bddk.finturk_measurements",
+        "passed": true,
+        "violations": 0
+      },
+      {
+        "check": "finturk_observation_key_unique",
+        "passed": true,
+        "violations": 0
+      },
+      {
+        "check": "every_metric_has_contract_status",
+        "passed": true,
+        "violations": 0
+      },
+      {
+        "check": "monthly_observation_key_unique",
+        "passed": true,
+        "violations": 0
+      },
+      {
+        "check": "monthly_count_units",
+        "passed": true,
+        "violations": 0
+      },
+      {
+        "check": "monthly_ratio_not_table_currency",
+        "passed": true,
+        "violations": 0
+      },
+      {
+        "check": "monthly_identity_values_preserved",
+        "passed": true,
+        "violations": 0
+      },
+      {
+        "check": "ytd_requires_adjacent_calendar_month",
+        "passed": true,
+        "violations": 0
+      },
+      {
+        "check": "weekly_parent_source_unique",
+        "passed": true,
+        "violations": 0
+      },
+      {
+        "check": "weekly_definition_intervals_nonoverlapping",
+        "passed": true,
+        "violations": 0
+      },
+      {
+        "check": "weekly_each_observation_has_one_definition",
+        "passed": true,
+        "violations": 0
+      },
+      {
+        "check": "weekly_resolved_join_preserves_rows",
+        "passed": true,
+        "violations": 0
+      },
+      {
+        "check": "weekly_resolved_key_unique",
+        "passed": true,
+        "violations": 0
+      },
+      {
+        "check": "legacy_evds_native_key_unique",
+        "passed": true,
+        "violations": 0
+      },
+      {
+        "check": "risk_center_vintage_identity_unique",
+        "passed": true,
+        "violations": 0
+      },
+      {
+        "check": "unique:analysis.housing_credit_monthly",
+        "passed": true,
+        "violations": 0
+      },
+      {
+        "check": "unique:analysis.housing_credit_quarterly",
+        "passed": true,
+        "violations": 0
+      },
+      {
+        "check": "unique:regional.housing_quarterly",
+        "passed": true,
+        "violations": 0
+      },
+      {
+        "check": "housing_monthly_expected_rows",
+        "passed": true,
+        "violations": 0
+      },
+      {
+        "check": "housing_core_coverage",
+        "passed": true,
+        "violations": 0
+      },
+      {
+        "check": "housing_quarterly_expected_rows",
+        "passed": true,
+        "violations": 0
+      },
+      {
+        "check": "regional_expected_rows",
+        "passed": true,
+        "violations": 0
+      },
+      {
+        "check": "finite:bddk.monthly_measurements",
+        "passed": true,
+        "violations": 0
+      },
+      {
+        "check": "finite:bddk.weekly_measurements",
+        "passed": true,
+        "violations": 0
+      },
+      {
+        "check": "finite:bddk.finturk_measurements",
+        "passed": true,
+        "violations": 0
+      },
+      {
+        "check": "finite:evds.legacy_observations",
+        "passed": true,
+        "violations": 0
+      },
+      {
+        "check": "contract_readiness_known",
+        "passed": true,
+        "violations": 0
+      }
+    ],
+    "evds_full_coverage_complete": false,
+    "scope": "Local source snapshot, contracts and exact relationships. Query-specific readiness is checked at execution.",
+    "status": "passed"
+  },
+  "risk_center_monthly_distinct_months": 66,
+  "risk_center_monthly_rows": 66,
+  "schema_count": 10,
+  "source_table_manifest_rows": 67,
+  "status": "passed",
+  "table_count": 70,
+  "weekly_measurements_loaded": true
 }

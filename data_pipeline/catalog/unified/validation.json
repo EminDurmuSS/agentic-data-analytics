@@ -1,10 +1,10 @@
 {
   "status": "passed",
-  "data_readiness_status": "core_sources_complete",
-  "asset_count": 71,
+  "data_readiness_status": "local_snapshot_validated_evds_coverage_incomplete",
+  "asset_count": 72,
   "metric_count": 55501,
-  "queryable_metric_count": 3387,
-  "metadata_only_metric_count": 52114,
+  "queryable_metric_count": 3402,
+  "metadata_only_metric_count": 52099,
   "metrics_by_source_system": {
     "BDDK_FINTURK": 76,
     "BDDK_MONTHLY": 2108,
@@ -25,10 +25,13 @@
     "REGIONAL_HOUSING_ANALYSIS": 4,
     "TBB_REPORTS": 5,
     "TBB_RISK_CENTER": 4,
-    "TCMB_EVDS": 21,
+    "TCMB_EVDS": 22,
     "TUIK_DATA_PORTAL": 4
   },
-  "selected_evds_observation_series": 584,
+  "selected_evds_observation_series": 599,
+  "evds_metadata_series": 52696,
+  "evds_numeric_series": 587,
+  "evds_full_observation_coverage_complete": false,
   "weekly_bddk": {
     "status": "complete",
     "completed": 18018,
@@ -41,6 +44,7 @@
   "missing_asset_files": [],
   "missing_required_datasets": [],
   "known_source_gaps": [
+    "EVDS full observation coverage is incomplete; metadata count is not a collection-complete measure.",
     "TBB 2026-06 consumer credit report is not published in the source snapshot."
   ],
   "quality_policy": [

@@ -78,7 +78,7 @@ class LakehouseTests(unittest.TestCase):
             "FROM catalog.metrics WHERE source_system = 'TCMB_EVDS'"
         ).fetchone()
         self.assertEqual(52696, total)
-        self.assertEqual(584, available)
+        self.assertEqual(599, available)
         derived = self.connection.execute(
             "SELECT count(*) FROM catalog.metrics "
             "WHERE source_system = 'TCMB_EVDS_DERIVED' "

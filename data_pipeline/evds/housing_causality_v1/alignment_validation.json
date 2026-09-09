@@ -11,10 +11,25 @@
   "quarterly_series_month_rows": 624,
   "quarterly_series_filled_into_intermediate_months": 0,
   "policy_file": "housing_causality_alignment_v1.json",
+  "value_status_counts": {
+    "monthly": {
+      "available": 1969,
+      "available_calendar_unverified": 312,
+      "source_missing": 137
+    },
+    "quarterly": {
+      "available": 1072,
+      "available_calendar_unverified": 104,
+      "source_missing": 45,
+      "available_partial_mean": 1
+    }
+  },
   "quality_policy": [
     "Every aggregation method is selected through an explicit analytical role policy.",
     "Quarterly observations appear only in quarter-end months in the monthly panel.",
-    "Flow variables are summed; rates and survey measures are averaged; period-end levels use the last value.",
+    "Flow sums require every expected native period and numeric value; incomplete sums remain null.",
+    "Partial means and last values retain completeness warnings, actual selected dates and staleness in days.",
+    "High-frequency calendar completeness is unverified unless a source-specific calendar is supplied.",
     "Every panel value has an audit row with source, non-null and missing observation counts.",
     "No interpolation, forward fill or backward fill is applied.",
     "Derived series use explicit declarative operations and retain their source series code and factor."

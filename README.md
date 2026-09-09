@@ -1,8 +1,13 @@
 # Agentic Data Analytics Hackathon
 
-KKB Agentic Data Analytics Hackathon için hazırlanan veri temeli. Bu sürümde
-öncelik agent veya arayüz değil, resmî kaynak verilerinin eksiksiz, izlenebilir
-ve yeniden üretilebilir biçimde hazırlanmasıdır.
+KKB Agentic Data Analytics Hackathon için yerel lakehouse ve agent'ın
+çağırabileceği deterministik veri araçları. Kaynak verisi, metrik sözleşmeleri,
+hesap planları ve sürümlü analiz sonuçları birlikte yönetilir. Qwen bağlantısı
+ve kullanıcı arayüzü henüz uygulanmadı; EVDS'nin tüm tarihsel gözlem kapsamı
+henüz tamamlanmadı.
+
+Uygulanan araçlar ve çalıştırılabilir örnekler:
+[Agent için lakehouse kullanım rehberi](docs/AGENT_READY_LAKEHOUSE.md).
 
 ## Veri aşamasının güncel durumu
 
@@ -12,9 +17,9 @@ ve yeniden üretilebilir biçimde hazırlanmasıdır.
 | BDDK haftalık | 286 hafta, 9 tablonun tamamı, 7 resmî banka grubu | Tamamlandı ve doğrulandı |
 | BDDK FinTürk | 22 çeyrek, 7 tablo, 7 banka grubu, 81 il ve `YURT DIŞI` | Tamamlandı ve doğrulandı |
 | TCMB EVDS katalog | 676 veri grubu, 52.696 benzersiz seri kaydı | Tamamlandı, metadata kataloğu |
-| TCMB EVDS gözlem | 61 ulusal, 519 bölgesel ve 4 hanehalkı finansmanı serisi, ayrıca 1 açıkça türetilmiş seri | Tamamlandı ve doğrulandı |
+| TCMB EVDS gözlem | 584 seçilmiş seri ve eski yerel paketten bağlanan 15 ek seri: 599 fiziksel seri, 587'sinde sayısal değer | Tüm EVDS kapsamı tamamlanmadı; devam ettirilebilir toplama kuyruğu mevcut |
 | TÜİK il konut satışları | 81 il, Ocak 2020-Haziran 2026, 5 aylık satış metriği | Tamamlandı ve EVDS ile çapraz doğrulandı |
-| İl bazlı konut paneli | 81 il, 22 çeyrek, satış, fiyat, kira, kredi, mevduat, KFE ve YKKE göstergeleri | Tamamlandı, resmî boşluklar ve ayrı fiyat proxy'si işaretli |
+| İl bazlı konut paneli | 81 il, 22 çeyrek, satış, fiyat, kira, kredi, mevduat, KFE ve YKKE göstergeleri | Yerel panel mevcut; eksiklikler sütun bazında kontrol edilir, kaynak hücresine eşlenmemiş türevler agent hesaplarına kapalı |
 | TBB tüketici kredileri | 2021 Mart-2026 Mart, 21 yayımlanmış çeyrek | Tamamlandı; 9 Eylül 2026 kontrolünde 2026 Haziran raporu kaynakta yok |
 | TBB Risk Merkezi | 2021 Ocak-2026 Haziran, 66 ay, 5 konut kredisi metriği | Tamamlandı; 6 resmî bülten ve tüm kaynak vintageları saklandı |
 | Resmî karar belgeleri | 4 BDDK kararı ve 4 TCMB destek belgesi | Tam metin, çıkarılmış metin ve SHA-256 mevcut |
@@ -30,12 +35,16 @@ yapay olarak yayılmaz.
 - BDDK aylık: 1.122 resmî istek, 11.220 tablo-grup kaydı, 339.650 kaynak satırı, 1.334.850 semantik ölçüm
 - BDDK haftalık: 18.018 resmî sayfa, 1.736.650 ham hücre, 1.025.974 ölçüm. Kaynaktaki 2.230 boş hücrenin tamamı yapısal `FX uygulanamaz` olarak açıklandı
 - BDDK FinTürk: 84.484 kaynak satırı, 936.512 ölçüm. 30.892 kaynak boşluğunun 29.564'ü yapısal. 1.328 şube sayısı hücresinin ham null değeri korundu, tamamı fonksiyon grubu kimliğiyle analitik sıfır olarak kanıtlandı, çözümlenmemiş şube boşluğu 0
-- EVDS: 52.696 seri metadata kaydı, 584 seçilmiş kaynak seri, 1 türetilmiş altın serisi ve toplam 45.008 yerel gözlem satırı
-- Bölgesel panel: 81 il x 22 çeyrek, 1.782 tekil satır, 33 analitik metrik, 1.620 resmî-kaynak hazır ve 1.782 açık fiyat-proxy hazır satır
+- EVDS: 52.696 seri metadata kaydı, 599 yerel kaynak seri, 46.178 gözlem satırı ve 43.046 sayısal değer; 1 türetilmiş altın metriği ayrıca tutulur
+- Bölgesel panel: 81 il x 22 çeyrek, 1.782 tekil satır, 33 analitik metrik ve 1.620 resmî fiyat gözlemi. Fiyatın bulunması kira ve diğer sütunların da dolu olduğunu göstermez
 - TÜİK il konut satışları: 31.590 il-ay-metrik satırı, EVDS ile 25.262 birebir eşleşme, 0 değer uyuşmazlığı
 - TBB Risk Merkezi: 6 PDF, 390 vintage gözlem, 66 aylık eksiksiz panel, 5 metrik ve 6 resmî revizyon
-- Birleşik katalog: 71 veri varlığı, 55.501 metrik, 3.387 yerel sorgulanabilir metrik
-- DuckDB: 10 şema, 64 tablo veya view, mutlak dosya yoluna ihtiyaç duymayan tek dosya
+- Birleşik katalog: 72 veri varlığı, 55.501 metrik, 3.402 yerel gözlemi bulunan metrik. Fiziksel gözlem bulunması, bütün hesaplara izin verildiği anlamına gelmez
+- DuckDB: 10 şema, 70 tablo veya view, mutlak kaynak dosya yoluna ihtiyaç duymayan yerel sorgu dosyası
+
+Bu sayılar mevcut kaynak sürümünün envanteridir. Yeni bir yayının gerçek
+sayıları ve durumu `data_pipeline/lakehouse/validation.json`,
+`catalog.build_validation` ve yayımlanan snapshot manifestiyle doğrulanır.
 
 ## Klasörler
 
@@ -50,10 +59,10 @@ yapay olarak yayılmaz.
 | `data_pipeline/catalog/` | Tam EVDS metadata kataloğu ve birleşik veri sözlüğü |
 | `data_pipeline/quality/` | Kurumlar arası kapsam ve tutarlılık kontrolleri |
 | `data_pipeline/evidence/` | Resmî yöntem ve karar belgeleri |
-| `data_pipeline/lakehouse/` | Sorgulanabilir, self-contained DuckDB dosyası |
+| `data_pipeline/lakehouse/` | DuckDB üreticisi, kaynak ilişkileri ve çalıştırılabilir metrik sözleşmeleri |
 | `notebooks/` | Doğrulama ve örnek analiz notebook'u |
 | `docs/` | Mevcut durum, kaynak ve araştırma notları |
-| `tools/` | Resmî kaynak indiricileri |
+| `tools/` | Kaynak indiricileri, EVDS kuyruğu, yayın kontrolleri, agent araçları ve sürümlü sonuç deposu |
 
 ## Kurulum ve doğrulama
 
@@ -63,8 +72,31 @@ Python 3.12 kullanılır:
 uv venv --python python3.12 .venv
 source .venv/bin/activate
 uv pip install -r requirements-dev.txt
+python data_pipeline/lakehouse/build_lakehouse.py
 python -m unittest discover -s tests -v
 ```
+
+**Temiz klonda testlerden önce veritabanını üretin.** `analytics.duckdb`
+üretilmiş bir dosyadır ve GitHub'ın 100 MiB dosya sınırını aştığı için artık
+Git'te izlenmez. Kaynak Parquet'ler, üretim kodu ve metrik kuralları repodadır.
+Derleme bunları kullanarak yerel dosyayı üretir; mevcut kaynakları yeniden
+indirmez. `.lakehouse-runtime/` içindeki snapshot, oturum ve sonuçlar da
+yereldir ve Git'e eklenmez.
+
+İlk agent veri akışını çalıştırmak için:
+
+```bash
+mkdir -p tmp/agent-demo
+python -m tools.lakehouse_cli init > tmp/agent-demo/workspace.json
+KKB_WORKSPACE_ID=$(python -c "import json; print(json.load(open('tmp/agent-demo/workspace.json'))['workspace_id'])")
+python -m tools.lakehouse_cli --workspace "$KKB_WORKSPACE_ID" demo
+```
+
+Bu demo gerçek KOBİ kredi verisiyle yıllık büyüme hesaplar, aynı analize TÜFE
+ve reel büyüme ekler, ardından Haziran 2026 sonucunun kaynak referanslarını
+gösterir. Model çağırmaz. Ayrı `discover`, `describe`, `validate_plan`,
+`execute`, `revise_analysis` ve `explain_value` istekleri için
+[kullanım rehberine](docs/AGENT_READY_LAKEHOUSE.md) bakın.
 
 İşlenmiş katmanları mevcut ham kaynaklardan yeniden üretmek için:
 
@@ -97,8 +129,9 @@ Terminalden tüm hücreleri çalıştırıp kayıtlı çıktıları yenilemek i�
 ```
 
 [Kullanım ve yorumlama rehberi](docs/LAKEHOUSE_VERI_KESFI_SADE_ANLATIM.md),
-çıktıların kapsamını ve analitik sınırlarını açıklar. Bu örnekler veri keşfi
-çalışmalarıdır; genel bir agent platformunun uygulanmış araçları değildir.
+çıktıların kapsamını ve analitik sınırlarını açıklar. Notebooklar keşif
+çalışmalarıdır; agent'ın çağıracağı uygulanan araçlar
+`tools/lakehouse_service.py` içindedir.
 
 [Benchmark betiği](test_lakehouse_performance.py) bütünlük kontrollerini ve
 seçili sorgu sürelerini ölçer:
@@ -112,14 +145,20 @@ için `--output /tmp/lakehouse-benchmark.json`, tekrar sayısı için
 `--iterations 5` kullanılabilir. Veritabanı salt okunur açılır; zamanlama
 sonuçları makineye ve önbelleğe bağlıdır, ekonomik doğruluk kanıtı değildir.
 
-## Önemli kapsam kararı
+## Kapsam ve açık işler
 
 BDDK aylık bültende bütün tablolar ve 10 resmî banka grubu, haftalık bültende
 bütün tablolar ve 7 resmî banka grubu alındı. FinTürk'te de bütün banka
 grupları ve bütün iller alındı. EVDS'nin tüm 52.696 serisinin tarihsel
 gözlemleri indirilmedi. Bunun yerine 61 ulusal nedensellik ve piyasa serisi,
 519 il veya bölge bazlı konut serisi ve KKM ile hanehalkı mevduatını kapsayan
-4 seri seçildi. BIST altın kapanış fiyatından `0.001` katsayısıyla TL/kg ->
+4 seri seçildi; eski yerel paketteki 15 ek seri de kataloğa ve sorgu katmanına
+bağlandı. Yarışmanın tüm EVDS gözlemlerini toplama gereksinimi hâlâ açıktır.
+`tools/evds_collection_queue.py`, tüm katalog için yerel plan, sınırlı indirme
+ve yeniden başlatılabilir kuyruk sağlar. İndirme başarısı, sayısal gözlem ve
+takvim bütünlüğü ayrı izlenir. Kuyruk çıktıları doğrulandıktan sonra kaynak
+adaptörüne alınmalıdır; otomatik olarak aktif lakehouse'a yayımlanmaz.
+BIST altın kapanış fiyatından `0.001` katsayısıyla TL/kg ->
 TL/gram dönüşümü yapılan 1 ek seri de kaynak ve formül bilgisiyle ayrıca
 tutulur. Bölgesel katmanda 81 ilin konut satışları, birim fiyatları, birim
 kiraları, bölgesel KFE ve YKKE değerleri FinTürk kredi ve mevduat göstergeleriyle aynı çeyrek
@@ -135,8 +174,8 @@ geneli, önceki dönem veya başka bölge fallback'i kullanılmaz. Resmî-kaynak
 hazırlığı ile proxy izinli hazırlık ayrı bayraklarda tutulur.
 Katalogdaki herhangi bir başka seri `tools/EVDS_Talep_Uzerine_Indirme_Araci.py`
 ile adı veya kodu üzerinden bulunup ham istek, ham cevap ve SHA-256 iziyle
-indirilebilir. Bu yaklaşım veri kapsamını güçlü tutarken gereksiz veri hacmini
-ve yanlış seri seçimi riskini sınırlar.
+indirilebilir. Python HTTP taşımasını kullanan yeni kuyruğun gerçek komutları
+[kullanım rehberindedir](docs/AGENT_READY_LAKEHOUSE.md#evds-toplama-kuyruğu).
 
 TBB'nin Haziran 2026 çeyreklik tüketici kredileri raporu yayımlanmadığı için
 parasal kullandırım tutarı null kalır. Ayrı kaynak ailesindeki Risk Merkezi
@@ -144,5 +183,8 @@ Haziran 2026 aylık bülteni mevcuttur ve bakiye, borçlu sayısı, ortalama ris
 tasfiye oranı ve ilk kez kullanan kişi sayısını sağlar. İlk kez kullanan kişi
 sayısı parasal kullandırım değildir ve bu boşluğun yerine geçirilmez.
 
-Agent, API ve frontend sonraki aşamadır. Güncel ayrıntılar için önce
-`docs/CURRENT_STATE.md` ve `data_pipeline/README.md` dosyalarını okuyun.
+Agent'ın veri araçları uygulanmıştır. Canlı Qwen planlama başarısı, otomatik
+PDF/URL ayrıştırma, tam EVDS kapsamı, istatistik araçlarının tamamı ve frontend
+bu teslimin tamamlanmış özellikleri değildir. Mevcut deterministik API ve
+sınırlar için [uygulama rehberini](docs/AGENT_READY_LAKEHOUSE.md), veri aileleri
+için [veri pipeline rehberini](data_pipeline/README.md) okuyun.

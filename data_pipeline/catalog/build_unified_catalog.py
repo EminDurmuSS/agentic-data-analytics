@@ -147,6 +147,58 @@ def make_metric(**values: Any) -> dict[str, Any]:
     return {column: values.get(column) for column in METRIC_COLUMNS}
 
 
+def include_legacy_evds(assets: list[dict[str, Any]], metrics: list[dict[str, Any]]) -> None:
+    """Expose locally stored native series not present in the newer packages.
+
+    The newer package wins only for overlapping *identical series identities*;
+    this does not overwrite observations or merge different source vintages.
+    """
+    path = PROJECT_ROOT / "data_pipeline" / "processed" / "observations_native.parquet"
+    if not path.exists():
+        return
+    frame = pd.read_parquet(path)
+    existing = {m["source_metric_code"] for m in metrics
+                if m["source_system"] == "TCMB_EVDS" and m["observation_available"]}
+    extra = frame.loc[~frame["series_code"].isin(existing)].copy()
+    if extra.empty:
+        return
+    if extra.duplicated(["series_code", "observation_date"]).any():
+        raise ValueError("Legacy EVDS has ambiguous observation vintages; resolve explicitly.")
+    lookup = {m["source_metric_code"]: m for m in metrics if m["source_system"] == "TCMB_EVDS"}
+    for code, rows in extra.groupby("series_code", sort=True):
+        if code not in lookup:
+            raise ValueError(f"Legacy EVDS series missing from metadata: {code}")
+        units, frequencies = rows["native_unit"].unique(), rows["native_frequency"].unique()
+        if len(units) != 1 or len(frequencies) != 1:
+            raise ValueError(f"Legacy EVDS has conflicting units/frequencies: {code}")
+        unit = str(units[0])
+        semantics = "period_end_stock" if unit.casefold() == "thousand_try" else "requires_semantic_review"
+        metric = lookup[code]
+        metric.update(dataset_id="evds.legacy_native", source_asset=relative(path),
+                      competition_scope="explicit_source_selected_observation",
+                      observation_available=True, observation_count=len(rows),
+                      missing_observation_count=int(rows["value"].isna().sum()),
+                      quality_status="passed_native_source", unit=unit,
+                      native_frequency=str(frequencies[0]), temporal_semantics=semantics,
+                      default_aggregation="last" if semantics == "period_end_stock" else "review_required",
+                      coverage_start=str(rows["observation_date"].min().date()),
+                      coverage_end=str(rows["observation_date"].max().date()),
+                      notes="Existing native observation package; source hashes and vintage retained. No new download.")
+        metric["searchable_text"] += " | native observations available locally"
+    assets.append(make_asset(
+        asset_id="evds.legacy_native.observations", dataset_id="evds.legacy_native",
+        source_system="TCMB_EVDS", source_organization="TCMB",
+        competition_scope="explicit_required_source", status="passed_native_source",
+        data_kind="native_observations", native_frequency="series_defined",
+        temporal_semantics="series_defined", geography_grain="series_defined",
+        institution_grain="series_defined", coverage_start=str(extra["observation_date"].min().date()),
+        coverage_end=str(extra["observation_date"].max().date()), row_count=len(extra),
+        column_count=len(extra.columns), metric_count=extra["series_code"].nunique(),
+        missing_value_count=int(extra["value"].isna().sum()), file_path=relative(path),
+        file_format="parquet", description="Additional native EVDS series, excluding newer-package overlaps.",
+        searchable_text="EVDS native participation development investment deposit banks credit"))
+
+
 def evds_assets_and_metrics() -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
     catalog_path = CATALOG_DIR / "evds_series_catalog.parquet"
     catalog_summary_path = CATALOG_DIR / "evds_series_catalog_summary.json"
@@ -298,6 +350,8 @@ def evds_assets_and_metrics() -> tuple[list[dict[str, Any]], list[dict[str, Any]
             / "monthly_panel.parquet"
         )
         source_code = text_value(observed.get("source_series_code"))
+        served = pd.read_parquet(source_asset)[["target_period", series_code.replace(".", "_").replace("-", "_")]]
+        served_values = served.iloc[:, 1]
         metric_name_tr = text_value(observed.get("series_name_tr"))
         metric_name_en = text_value(observed.get("series_name_en"))
         source_organization = text_value(observed.get("source"))
@@ -314,7 +368,7 @@ def evds_assets_and_metrics() -> tuple[list[dict[str, Any]], list[dict[str, Any]
                 group_name=text_value(observed.get("group_name_tr")),
                 role=text_value(observed.get("role")),
                 dimension="series_defined",
-                native_frequency="derived",
+                native_frequency="monthly",
                 unit=text_value(observed.get("unit")),
                 temporal_semantics=text_value(observed.get("temporal_semantics")),
                 default_aggregation=text_value(observed.get("subperiod_aggregation")),
@@ -323,8 +377,8 @@ def evds_assets_and_metrics() -> tuple[list[dict[str, Any]], list[dict[str, Any]
                 coverage_start=text_value(observed.get("requested_start")),
                 coverage_end=text_value(observed.get("requested_end")),
                 observation_available=True,
-                observation_count=int(observed.get("non_null_observation_count", 0)),
-                missing_observation_count=int(observed.get("missing_observation_count", 0)),
+                observation_count=len(served),
+                missing_observation_count=int(served_values.isna().sum()),
                 quality_status="passed",
                 is_archive=False,
                 source_asset=relative(source_asset),
@@ -334,6 +388,8 @@ def evds_assets_and_metrics() -> tuple[list[dict[str, Any]], list[dict[str, Any]
                     f"Source series: {source_code}; operation: "
                     f"{text_value(observed.get('derivation_operation'))}; factor: "
                     f"{text_value(observed.get('derivation_factor'))}."
+                    f" Native source observations={int(observed.get('observation_count', 0))}; "
+                    "catalog observation count refers to served monthly rows."
                 ),
                 searchable_text=" | ".join(
                     value
@@ -539,8 +595,9 @@ def monthly_bddk_assets_and_metrics() -> tuple[list[dict[str, Any]], list[dict[s
                 observation_count=int(row["observation_count"]),
                 missing_observation_count=int(row["missing_observation_count"]),
                 quality_status=(
-                    "passed_high_confidence_inference"
-                    if row["semantic_confidence"] == "high_inferred"
+                    "not_applicable" if row["semantic_confidence"] == "not_applicable"
+                    else "passed_high_confidence_inference" if row["semantic_confidence"] == "high_inferred"
+                    else "requires_semantic_review" if row["unit"] in {"source_defined", "percent_or_ratio_source_defined"}
                     else semantic_validation["status"]
                 ),
                 is_archive=False,
@@ -550,6 +607,9 @@ def monthly_bddk_assets_and_metrics() -> tuple[list[dict[str, Any]], list[dict[s
                     f"Transformation={row['transformation']}; "
                     f"semantic_confidence={row['semantic_confidence']}; "
                     f"label_variant_count={int(row['label_variant_count'])}."
+                    f" Unit evidence={text_value(row.get('unit_evidence'))}; "
+                    f"deduplication={text_value(row.get('deduplication_status'))}; "
+                    f"caveat={text_value(row.get('aggregation_caveat'))}."
                 ),
                 searchable_text=" | ".join(
                     [
@@ -1822,7 +1882,7 @@ def validate_catalog(
     return {
         "status": status,
         "data_readiness_status": (
-            "core_sources_complete"
+            "local_snapshot_validated_evds_coverage_incomplete"
             if weekly_progress["status"] == "complete"
             else "weekly_bddk_download_in_progress"
         ),
@@ -1839,6 +1899,9 @@ def validate_catalog(
             for key, value in assets.groupby("source_system").size().sort_index().items()
         },
         "selected_evds_observation_series": len(selected_evds),
+        "evds_metadata_series": int(metrics["source_system"].eq("TCMB_EVDS").sum()),
+        "evds_numeric_series": int((selected_evds["observation_count"] > selected_evds["missing_observation_count"]).sum()),
+        "evds_full_observation_coverage_complete": False,
         "weekly_bddk": weekly_progress,
         "duplicate_asset_ids": duplicate_assets,
         "duplicate_metric_ids": duplicate_metrics,
@@ -1846,6 +1909,7 @@ def validate_catalog(
         "missing_asset_files": missing_asset_files,
         "missing_required_datasets": missing_required,
         "known_source_gaps": [
+            "EVDS full observation coverage is incomplete; metadata count is not a collection-complete measure.",
             "TBB 2026-06 consumer credit report is not published in the source snapshot.",
             *(
                 ["BDDK weekly snapshot is still downloading."]
@@ -1885,6 +1949,7 @@ def build(output_dir: Path) -> dict[str, Any]:
     metrics.extend(weekly_metrics)
     assets.extend(event_assets())
     assets.extend(quality_assets())
+    include_legacy_evds(assets, metrics)
 
     asset_frame = pd.DataFrame(assets, columns=ASSET_COLUMNS).sort_values(
         ["source_system", "dataset_id", "asset_id"], kind="stable"

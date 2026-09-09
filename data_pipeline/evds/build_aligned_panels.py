@@ -33,7 +33,7 @@ def aggregate_value(values: pd.Series, method: str) -> float | None:
     if method == "mean":
         return float(non_null.mean())
     if method == "sum":
-        return float(non_null.sum())
+        return None if values.isna().any() else float(non_null.sum())
     if method == "last":
         return float(non_null.iloc[-1])
     if method == "first":
@@ -49,14 +49,67 @@ def aggregate_value(values: pd.Series, method: str) -> float | None:
     raise ValueError(f"Desteklenmeyen toplulastirma: {method}")
 
 
+def coverage_audit(
+    observations: pd.DataFrame,
+    target_period: str,
+    target_frequency: str,
+    native_frequency: str,
+    method: str,
+) -> dict[str, Any]:
+    """Describe coverage without treating market-calendar nulls as proven gaps."""
+    target = pd.Period(target_period, freq="M" if target_frequency == "monthly" else "Q")
+    target_end = target.end_time.normalize()
+    non_null = observations.loc[observations["value"].notna()]
+    expected: set[str] | None = None
+    if native_frequency == "AYLIK":
+        expected = set(pd.period_range(target.start_time, target.end_time, freq="M").astype(str))
+        actual = set(observations["period_end_date"].dt.to_period("M").astype(str))
+        valid = set(non_null["period_end_date"].dt.to_period("M").astype(str))
+    elif native_frequency == "ÜÇ AYLIK":
+        expected = {str(target.asfreq("Q"))}
+        actual = set(observations["period_end_date"].dt.to_period("Q").astype(str))
+        valid = set(non_null["period_end_date"].dt.to_period("Q").astype(str))
+    else:
+        actual, valid = set(), set()
+    missing = sorted(expected - valid) if expected is not None else None
+    complete = not missing if expected is not None else None
+    selected = None
+    if not non_null.empty and method in {"identity", "first", "last"}:
+        selected = non_null.iloc[0 if method in {"identity", "first"} else -1]
+    valid_end = non_null["period_end_date"].max() if not non_null.empty else None
+    selected_end = selected["period_end_date"] if selected is not None else None
+    return {
+        "expected_source_observation_count": len(expected) if expected is not None else None,
+        "absent_source_period_count": len(expected - actual) if expected is not None else None,
+        "missing_source_periods": json.dumps(missing, ensure_ascii=False),
+        "is_complete": complete,
+        "completeness_status": "complete" if complete is True else "partial" if complete is False else "calendar_unverified",
+        "selected_source_period": str(selected["period"]) if selected is not None else None,
+        "selected_source_period_end": selected_end.strftime("%Y-%m-%d") if selected_end is not None else None,
+        "valid_source_period_end_min": non_null["period_end_date"].min().strftime("%Y-%m-%d") if not non_null.empty else None,
+        "valid_source_period_end_max": valid_end.strftime("%Y-%m-%d") if valid_end is not None else None,
+        "staleness_days": int((target_end - (selected_end if selected_end is not None else valid_end)).days) if valid_end is not None else None,
+        "representation": "quarter_end_only" if native_frequency == "ÜÇ AYLIK" and target_frequency == "monthly" else "target_period_aggregate",
+        "value_frequency": "quarterly" if native_frequency == "ÜÇ AYLIK" else target_frequency,
+    }
+
+
 def align_series(
     group: pd.DataFrame,
     target_frequency: str,
     method: str,
 ) -> list[dict[str, Any]]:
     native_frequency = str(group["native_frequency"].iloc[0])
+    if native_frequency not in HIGH_FREQUENCY | {"AYLIK", "ÜÇ AYLIK"}:
+        raise ValueError(f"Bu hedefler icin acik hizalama politikasi yok: {native_frequency}")
+    if group["native_frequency"].nunique() != 1 or group["series_code"].nunique() != 1:
+        raise ValueError("Tek bir seri ve dogal frekans bekleniyordu.")
+    if group.duplicated("period").any() or group.duplicated("period_end").any():
+        raise ValueError("EVDS kaynak donemi tekrarlaniyor; toplulastirma satir cogaltamaz.")
     group = group.sort_values(["period_end", "period"], kind="stable").copy()
     group["period_end_date"] = pd.to_datetime(group["period_end"])
+    if native_frequency == "ÜÇ AYLIK" and not group["period_end_date"].dt.is_quarter_end.all():
+        raise ValueError("Ceyreklik kaynak donem sonu ceyrek sonu olmali.")
     if target_frequency == "monthly":
         if native_frequency == "ÜÇ AYLIK":
             group["target_period"] = group["period_end_date"].dt.to_period("M").astype(str)
@@ -80,6 +133,18 @@ def align_series(
                 f"{group['series_code'].iloc[0]} {target_period} icin tek gozlem bekleniyordu, "
                 f"gelen={len(observations)}"
             )
+        coverage = coverage_audit(observations, target_period, target_frequency, native_frequency, applied_method)
+        value = aggregate_value(observations["value"], applied_method)
+        status = "available"
+        if applied_method == "sum" and coverage["is_complete"] is not True:
+            value = None
+            status = "unavailable_incomplete_sum"
+        elif value is None:
+            status = "source_missing"
+        elif coverage["is_complete"] is False:
+            status = "available_partial_" + applied_method
+        elif coverage["is_complete"] is None:
+            status = "available_calendar_unverified"
         result.append(
             {
                 "target_period": target_period,
@@ -90,13 +155,15 @@ def align_series(
                 "native_frequency": native_frequency,
                 "target_frequency": target_frequency,
                 "aggregation": applied_method,
-                "value": aggregate_value(observations["value"], applied_method),
+                "value": value,
+                "value_status": status,
                 "source_observation_count": len(observations),
                 "non_null_observation_count": int(observations["value"].notna().sum()),
                 "missing_observation_count": int(observations["value"].isna().sum()),
                 "first_source_period": observations["period"].iloc[0],
                 "last_source_period": observations["period"].iloc[-1],
                 "source_period_end_max": observations["period_end"].max(),
+                **coverage,
             }
         )
     return result
@@ -282,10 +349,16 @@ def build(input_dir: Path, policy_path: Path) -> dict[str, Any]:
         "quarterly_series_month_rows": len(monthly_quarterly_rows),
         "quarterly_series_filled_into_intermediate_months": 0,
         "policy_file": policy_path.name,
+        "value_status_counts": {
+            frequency: {str(key): int(value) for key, value in audit["value_status"].value_counts().items()}
+            for frequency, audit in audits.items()
+        },
         "quality_policy": [
             "Every aggregation method is selected through an explicit analytical role policy.",
             "Quarterly observations appear only in quarter-end months in the monthly panel.",
-            "Flow variables are summed; rates and survey measures are averaged; period-end levels use the last value.",
+            "Flow sums require every expected native period and numeric value; incomplete sums remain null.",
+            "Partial means and last values retain completeness warnings, actual selected dates and staleness in days.",
+            "High-frequency calendar completeness is unverified unless a source-specific calendar is supplied.",
             "Every panel value has an audit row with source, non-null and missing observation counts.",
             "No interpolation, forward fill or backward fill is applied.",
             "Derived series use explicit declarative operations and retain their source series code and factor.",

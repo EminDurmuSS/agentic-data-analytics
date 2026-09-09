@@ -24,6 +24,8 @@ class FileManifestBuildTests(unittest.TestCase):
                 "bddk/weekly_group_10007/manifest.json",
                 "bddk/monthly_all_sector_Paylas.zip",
                 "bddk/__pycache__/downloader.pyc",
+                "lakehouse/analytics.duckdb",
+                "lakehouse/analytics.duckdb.wal",
             ]:
                 artifact = base / relative
                 artifact.parent.mkdir(parents=True, exist_ok=True)
