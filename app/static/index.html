@@ -4,21 +4,30 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <title>Agentic Minds | Analiz çalışma alanı</title>
-    <link rel="stylesheet" href="/static/app.css" />
-    <link rel="stylesheet" href="/static/charts.css" />
+    <link rel="stylesheet" href="/static/app.css?v=5" />
+    <link rel="stylesheet" href="/static/charts.css?v=5" />
     <script src="/static/vendor/echarts.min.js" defer></script>
-    <script src="/static/charts.js" defer></script>
-    <script src="/static/app.js" defer></script>
+    <script src="/static/charts.js?v=5" defer></script>
+    <script src="/static/app.js?v=5" defer></script>
   </head>
   <body>
     <aside class="sidebar">
+      <div class="sidebar-org">
+        <img
+          class="kkb-logo"
+          src="/static/kkb-logo.png"
+          alt="Kredi Kayıt Bürosu"
+          width="1217"
+          height="966"
+        />
+      </div>
       <a class="brand" href="/" aria-label="Agentic Minds ana sayfa"
-        ><span class="brand-mark" aria-hidden="true">
-          <span class="robot-antenna"></span>
-          <span class="robot-head"><i></i><i></i></span>
-          <span class="robot-neck"></span>
-          <span class="robot-body"></span>
-        </span
+        ><span class="brand-mark" aria-hidden="true"
+          ><svg viewBox="0 0 24 24" width="22" height="22"
+            ><rect x="4.5" y="12" width="3.6" height="7.5" rx="1.7" fill="#ffffff" /><rect
+              x="10.2" y="8.5" width="3.6" height="11" rx="1.7" fill="#ffffff"
+            /><rect x="15.9" y="5" width="3.6" height="14.5" rx="1.7" fill="#e87000" /></svg
+        ></span
         ><span>Agentic Minds<small>Analiz çalışma alanı</small></span></a
       >
       <button id="new-workspace" class="primary">＋ Yeni çalışma alanı</button>
@@ -26,8 +35,8 @@
       <div id="workspace-list" class="workspace-list"></div>
       <div class="sidebar-bottom">
         <span class="status-dot" id="provider-dot"></span
-        ><span id="provider-label">Bağlantı kontrol ediliyor</span
-        ><small>KKB Hackathon 2026</small>
+        ><span id="provider-label">Bağlantı kontrol ediliyor</span>
+        <small class="hackathon-note">KKB Hackathon 2026</small>
       </div>
     </aside>
     <main>
@@ -109,19 +118,19 @@
               <path
                 d="M20 15V110H176"
                 fill="none"
-                stroke="#b9c7c1"
+                stroke="#b9bfc7"
                 stroke-width="1.5"
               />
               <path
                 d="M25 92L58 74L88 83L123 43L164 20"
                 fill="none"
-                stroke="#27674d"
+                stroke="#002048"
                 stroke-width="3"
               />
-              <circle cx="123" cy="43" r="5" fill="#27674d" />
+              <circle cx="123" cy="43" r="5" fill="#e87000" />
               <path
                 d="M25 92L58 74L88 83L123 43L164 20V109H25Z"
-                fill="#eaf0ec"
+                fill="#eaedf0"
                 opacity=".8"
               />
             </svg>

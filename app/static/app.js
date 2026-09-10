@@ -192,7 +192,8 @@ function workspaceThreadLabel(run) {
   return text.length > 42 ? text.slice(0, 39) + "…" : text;
 }
 function renderWorkspaceThreads(workspace, parent) {
-  const runs = [...((state.workspace?.workspace_id === workspace.workspace_id && state.workspace?.runs) || [])].reverse();
+  // renderWorkspaceThreads is only invoked for the active workspace, so its runs are the source.
+  const runs = [...(state.workspace?.runs || [])].reverse();
   const threads = el("div", null, "workspace-threads");
   const newThread = el("button", "Yeni sohbet", "workspace-thread-button");
   newThread.type = "button";
