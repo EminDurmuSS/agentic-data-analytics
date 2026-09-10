@@ -23,9 +23,9 @@ Repo kökünde Python 3.12 ortamını kurun:
 ```bash
 uv venv --python python3.12 .venv
 source .venv/bin/activate
-uv pip install -r requirements-dev.txt
+uv pip install -r requirements-app.lock -r requirements-dev.txt
 python data_pipeline/lakehouse/build_lakehouse.py
-python -m unittest discover -s tests -v
+python -m pytest tests -q
 ```
 
 Temiz klonda **build, testlerden önce gelmelidir**. `analytics.duckdb`
@@ -78,7 +78,7 @@ doğruladığı anlamına gelmez.
 
 ## Araç arayüzü
 
-`tools/lakehouse_service.py` içindeki `LakehouseService`, şu çağrıları sağlar:
+`agentic_analytics/lakehouse/service.py` içindeki `LakehouseService`, şu çağrıları sağlar:
 
 | Araç | Girdi ve davranış |
 | --- | --- |
@@ -126,7 +126,7 @@ Varsayılan depo `.lakehouse-runtime/` dizinidir.
 
 ```bash
 mkdir -p tmp/agent-demo
-python -m tools.lakehouse_cli init > tmp/agent-demo/workspace.json
+python -m agentic_analytics.lakehouse.cli init > tmp/agent-demo/workspace.json
 KKB_WORKSPACE_ID=$(python -c "import json; print(json.load(open('tmp/agent-demo/workspace.json'))['workspace_id'])")
 ```
 
@@ -155,10 +155,10 @@ for name, request in requests.items():
     (directory / f"{name}.json").write_text(
         json.dumps(request, ensure_ascii=False, indent=2), encoding="utf-8")
 PY
-python -m tools.lakehouse_cli --workspace "$KKB_WORKSPACE_ID" discover --request tmp/agent-demo/discover.json
-python -m tools.lakehouse_cli --workspace "$KKB_WORKSPACE_ID" describe --request tmp/agent-demo/describe.json
-python -m tools.lakehouse_cli --workspace "$KKB_WORKSPACE_ID" validate_plan --request tmp/agent-demo/plan.json
-python -m tools.lakehouse_cli --workspace "$KKB_WORKSPACE_ID" execute --request tmp/agent-demo/plan.json > tmp/agent-demo/first.json
+python -m agentic_analytics.lakehouse.cli --workspace "$KKB_WORKSPACE_ID" discover --request tmp/agent-demo/discover.json
+python -m agentic_analytics.lakehouse.cli --workspace "$KKB_WORKSPACE_ID" describe --request tmp/agent-demo/describe.json
+python -m agentic_analytics.lakehouse.cli --workspace "$KKB_WORKSPACE_ID" validate_plan --request tmp/agent-demo/plan.json
+python -m agentic_analytics.lakehouse.cli --workspace "$KKB_WORKSPACE_ID" execute --request tmp/agent-demo/plan.json > tmp/agent-demo/first.json
 ```
 
 `execute` bir `analysis_id`, sonuç şeması, uyarılar ve kısa önizleme döndürür.
@@ -188,7 +188,7 @@ request = {
 }
 (directory / "revision.json").write_text(json.dumps(request, indent=2))
 PY
-python -m tools.lakehouse_cli --workspace "$KKB_WORKSPACE_ID" revise_analysis --request tmp/agent-demo/revision.json > tmp/agent-demo/revised.json
+python -m agentic_analytics.lakehouse.cli --workspace "$KKB_WORKSPACE_ID" revise_analysis --request tmp/agent-demo/revision.json > tmp/agent-demo/revised.json
 python - <<'PY'
 import json
 from pathlib import Path
@@ -199,7 +199,7 @@ request = {"analysis_id": revised["analysis_id"],
            "column": "real_yoy_pct", "period": "2026-06"}
 (directory / "explain.json").write_text(json.dumps(request))
 PY
-python -m tools.lakehouse_cli --workspace "$KKB_WORKSPACE_ID" explain_value --request tmp/agent-demo/explain.json
+python -m agentic_analytics.lakehouse.cli --workspace "$KKB_WORKSPACE_ID" explain_value --request tmp/agent-demo/explain.json
 ```
 
 Revizyon, değişmesi açıkça istenmeyen önceki sütunları ve dönem anahtarlarını
@@ -215,7 +215,7 @@ belirtir. Kaynak izi eksik türevler tam kaynak kanıtı varmış gibi sunulmaz.
 Aynı KOBİ, reel revizyon ve açıklama akışını tek komutla çalıştırmak için:
 
 ```bash
-python -m tools.lakehouse_cli --workspace "$KKB_WORKSPACE_ID" demo
+python -m agentic_analytics.lakehouse.cli --workspace "$KKB_WORKSPACE_ID" demo
 ```
 
 ## CSV ile yeni bir alan ekleme
@@ -229,8 +229,8 @@ açık sözleşmeyle eklenmesini gösterir:
 import json
 from pathlib import Path
 
-from tools.lakehouse_service import LakehouseService
-from tools.lakehouse_store import LakehouseStore
+from agentic_analytics.lakehouse.service import LakehouseService
+from agentic_analytics.lakehouse.store import LakehouseStore
 
 directory = Path("tmp/agent-demo")
 original = json.loads((directory / "workspace.json").read_text())

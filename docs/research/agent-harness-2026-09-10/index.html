@@ -7,7 +7,7 @@
 @media(max-width:1050px){nav{display:none}main{margin:0 auto;padding:30px 28px 70px}h1{font-size:32px}}
 @media(max-width:600px){body{font-size:16px}main{padding:25px 18px 60px}h1{font-size:29px}h2{font-size:23px}td,th{min-width:155px;padding:9px}.toolbar{justify-content:flex-start;flex-wrap:wrap}.diagram svg{min-width:760px}}
 @media print{nav,.toolbar,.appendices-title,.appendix,.report-end{display:none!important}main{margin:0;padding:0;max-width:none}body{font-size:10.5pt;line-height:1.45}h1{font-size:25pt}h2{font-size:17pt;margin-top:24px}h3{font-size:13pt}table{font-size:8pt}td,th{padding:6px;min-width:0}tr{break-inside:avoid}h1,h2,h3{break-after:avoid}.diagram svg{min-width:0;max-height:650px}.footnotes{font-size:8pt}a{text-decoration:none}pre{white-space:pre-wrap} @page{size:A4;margin:16mm}}
-</style></head><body>
+</style></head><body><aside><p>Dosya düzeni notu: Kod bağlantıları güncel konumlara yönlendirilmiştir. Bulgular, hashler ve dosya/satır atıfları tarihli denetimin commit'ine aittir. <a href="../../README.md#dosya-düzeni-değişikliği">Taşıma açıklaması</a>.</p></aside>
 <nav aria-label="İçindekiler"><strong>KKB Hackathon<br>Veri ve analitik platform</strong><a href="#main-1-yarışmanın-sınayacağı-iş">1. Yarışmanın sınayacağı iş</a><a href="#main-2-bugünkü-temelin-gerçek-durumu">2. Bugünkü temelin gerçek durumu</a><a href="#main-3-bu-veri-için-lakehouse-kararı">3. Bu veri için lakehouse kararı</a><a href="#main-4-önerilen-çalışma-mimarisi">4. Önerilen çalışma mimarisi</a><a href="#main-5-claude-codex-ve-benzer-projelerden-alınacaklar">5. Claude, Codex ve benzer projelerden alınacaklar</a><a href="#main-6-sağlanan-modellerin-somut-görevleri">6. Sağlanan modellerin somut görevleri</a><a href="#main-7-altı-araç-ailesini-tamamlamak">7. Altı araç ailesini tamamlamak</a><a href="#main-8-jüride-gösterilecek-ürün-deneyimi">8. Jüride gösterilecek ürün deneyimi</a><a href="#main-9-değerlendirme-paketi-ve-kalite-kapıları">9. Değerlendirme paketi ve kalite kapıları</a><a href="#main-10-20-eylül-39-e-göre-uygulama-sırası">10. 20 Eylül&#39;e göre uygulama sırası</a><a href="#main-11-açık-belirsizlikler-ve-karar-noktaları">11. Açık belirsizlikler ve karar noktaları</a><a href="#main-kaynaklar-ve-kanıt-dosyaları">Kaynaklar ve kanıt dosyaları</a><a class="appendix-link" href="#appendices">Kanıt dosyaları ve ayrıntılar</a></nav>
 <main><div class="toolbar"><a href="PLAN.md">Markdown kaynağı</a><a href="current-system-audit.json">30 deneyin kaydı</a><button type="button" onclick="window.print()">Yazdır / PDF</button><button type="button" id="expand">Ekleri aç</button></div><article id="doc-main"><h1 id="main-kkb-hackathon-veriye-uygun-analitik-platform-ve-teslim-planı">KKB Hackathon: veriye uygun analitik platform ve teslim planı</h1>
 <p><strong>10 Eylül 2026 | İncelenen uygulama: <code>dc757c29</code> | Araştırma ve plan, uygulanmış özellik listesi değildir.</strong></p>
@@ -528,8 +528,8 @@ sınırları açıkça tanımlayan agent yürütme katmanıdır.</p>
 </tr>
 </tbody></table></div><p>Mevcut yayın kontrolleri ve durum sayıları
 <a href="../../../data_pipeline/lakehouse/validation.json">validation.json</a>,
-<a href="../../../tools/lakehouse_quality.py">kalite kapısı</a> ve
-<a href="../../../data_pipeline/lakehouse/registry.py">registry</a> ile çapraz okundu.</p>
+<a href="../../../agentic_analytics/lakehouse/quality.py">kalite kapısı</a> ve
+<a href="../../../agentic_analytics/lakehouse/registry.py">registry</a> ile çapraz okundu.</p>
 <h2 id="audit-yeni-bulunan-hesap-ve-erişim-açıkları">Yeni bulunan hesap ve erişim açıkları</h2>
 <h3 id="audit-a01-p0-akımın-son-ayı-çeyrek-akımı-gibi-sunulabiliyor">A01, P0: akımın son ayı, çeyrek akımı gibi sunulabiliyor</h3>
 <p>P09 ve P10 aynı net kâr metriği, aynı banka grubu ve aynı dönemleri kullanır.
@@ -564,7 +564,7 @@ sunarsa Q1 için yaklaşık %58,7 düşük bir sayı kullanır.</p>
   }]
 }
 </code></pre>
-<p><a href="../../../tools/lakehouse_service.py#L223">Servis frekans doğrulaması</a>
+<p><a href="../../../agentic_analytics/lakehouse/service.py">Servis frekans doğrulaması</a>
 <code>sum</code> ve <code>mean</code> için anlam denetimi yapar; <code>last</code> için eşdeğer kısıt yoktur.
 P26&#39;da TBB çeyreklik kullandırımına yıllık <code>last</code> da kabul edilirken P27&#39;de
 doğru yıllık <code>sum</code> desteklenmediği için reddedildi.</p>
@@ -585,7 +585,7 @@ enflasyondan arındırılmış kâr diye etiketlenmemelidir.</p>
 <p>Plan: endeksin rolü, fiyat kapsamı, baz ve amaç sözleşmede bulunmalı.
 Enflasyon deflasyonu ile başka bir endekse normalizasyon ayrı işlem/çıktı
 anlamları olmalı. Yanlış ama sayısal olarak çalışabilir plan da reddedilmeli.
-İlgili kod: <a href="../../../tools/lakehouse_service.py#L289">deflate doğrulaması</a>.</p>
+İlgili kod: <a href="../../../agentic_analytics/lakehouse/service.py">deflate doğrulaması</a>.</p>
 <h3 id="audit-a03-p1-günlük-dilde-metrik-ve-boyut-bulma-eksik">A03, P1: günlük dilde metrik ve boyut bulma eksik</h3>
 <p>P01-P07 sonuçları:</p>
 <div class="table-scroll"><table><thead><tr>
@@ -636,7 +636,7 @@ bulunmayınca <code>metadata_only</code> sanılıp gereksiz indirme başlatılma
 <p>Ölçülen bağlam farkı: bütün sözleşmeleri JSON&#39;a açmak 43.396.763 karakter,
 beş altın metrik kartı 2.507 karakterdir. Bunlar karakter ölçümüdür, token
 ve model pencere hesabı değildir. Küçük kart verme yaklaşımı korunmalı.
-Kod: <a href="../../../tools/lakehouse_service.py#L168">discover</a>.</p>
+Kod: <a href="../../../agentic_analytics/lakehouse/service.py">discover</a>.</p>
 <h3 id="audit-a04-p1-grup-rank-soruları-için-sorgu-dili-yeterli-değil">A04, P1: grup/rank soruları için sorgu dili yeterli değil</h3>
 <p>P15&#39;te şehir listesi, “boyutlar yalnız skaler olabilir” hatasıyla reddedildi.
 Bütün boyutların tek değerle sabitlenmesi gerekiyor. Ayrıca plan en fazla
@@ -658,7 +658,7 @@ iki doğal hesap yolu da kapalı.</p>
 kişi başı para, fiyat, süre ve yoğunluk aynı davranışa zorlanmamalı.
 <code>difference</code> uygun özgün birimde fark; yüzde biriminde ise yüzde puan
 üretmeli. Kişi başı tutarın büyüme ve gerektiğinde reel dönüşümü desteklenmeli.
-Kod: <a href="../../../tools/lakehouse_service.py#L275">büyüme/fark kontrolü</a>.</p>
+Kod: <a href="../../../agentic_analytics/lakehouse/service.py">büyüme/fark kontrolü</a>.</p>
 <h3 id="audit-a06-p1-haftalık-kaynak-var-temel-büyümesi-bile-kısıtlı">A06, P1: haftalık kaynak var, temel büyümesi bile kısıtlı</h3>
 <p>P16&#39;da haftalık ticari kredi okunuyor ve kaynak izi var. P17&#39;de aynı
 serinin haftalık büyümesi <code>SEMANTICS_REVIEW_REQUIRED</code> ile reddediliyor.
@@ -787,11 +787,11 @@ paketine bağlı. Plan: genel veri sözleşmesi ve yayın çekirdeği; bunun
 anlamını, izinli hesapları ve kalite beklentilerini eklemeli. Bunun için
 DuckDB yerine başka bir tablo formatına geçmek gerekmiyor.</p>
 <h2 id="audit-notebook-ve-istatistik-araçları">Notebook ve istatistik araçları</h2>
-<p><a href="../../../tools/lakehouse_analysis.py">tools/lakehouse_analysis.py</a> yalnız
+<p><a href="../../../agentic_analytics/lakehouse/analysis.py">tools/lakehouse_analysis.py</a> yalnız
 <code>residualize_fixed_effects</code> sayısal yardımcısını içerir. Anomali, korelasyon,
 nedensellik ve değişim tespiti çağrıları bu modülde veya servis araçları
 arasında uygulanmış değil.</p>
-<p><a href="../../../lakehouse_veri_kesfi_ve_iliskiler.ipynb">Keşif notebook&#39;u</a>, 68 hücre:</p>
+<p><a href="../../../notebooks/lakehouse_veri_kesfi_ve_iliskiler.ipynb">Keşif notebook&#39;u</a>, 68 hücre:</p>
 <div class="table-scroll"><table><thead><tr>
 <th>Hücreler, sıfır tabanlı</th>
 <th>Mevcut çalışma</th>
@@ -1320,9 +1320,9 @@ sessizce düzeltilmedi ve yeni bir model/istatistik hizmeti kurulmadı.</p>
 <p>Resmi ağırlıklı puan cetveli, toplam puan, başarı barajı, kabul edilen gecikme sınırı, değerlendirme soru bankasının tamamı, yeni URL&#39;lerin kesin listesi, freeze saati, final sunum süresi ve sabit API kota rakamları da bulunmuyor. Bunlar sonraki resmi duyurularla netleşmedikçe plan içinde varsayım olarak işaretlenmelidir. Bu belirsizlikler, açıkça tanımlanmış altı araç, veri kapsamı, aynı konuşmada analiz sürdürme veya taşınabilirlik gerekliliklerini erteleme gerekçesi oluşturmaz.<sup><a href="#fn-competition-7" aria-label="Kaynak 7">[7]</a></sup><sup><a href="#fn-competition-9" aria-label="Kaynak 9">[9]</a></sup><sup><a href="#fn-competition-11" aria-label="Kaynak 11">[11]</a></sup><sup><a href="#fn-competition-18" aria-label="Kaynak 18">[18]</a></sup></p>
 <h2 id="competition-kaynaklar">Kaynaklar</h2>
 <ol>
-<li><strong>KKB / Coderspace, “KKB Hackathon 2026 Kick Off Sunum_07092026_FİNAL.pdf”, 7 Eylül 2026.</strong> 31 sayfa. <a href="/Users/edurmus/Downloads/KKB%20Hackathon%202026%20Kick%20Off%20Sunum_07092026_F%C4%B0NAL.pdf">Yerel sunum dosyası</a>. SHA256: <code>225375fda210672fc571ee894dcc8f9def09297a00bee556884d85a7ead0f796</code>. PDF sayfaları 1 tabanlı numaralandırılmıştır. Yerel erişimli paylaşılan kaynak; kamuya açık bir indirme URL&#39;si bu denetimde doğrulanmamıştır.</li>
-<li><strong>“Hackathon 2026 Kick Off”, toplantı kaydından otomatik Türkçe konuşma dökümü.</strong> <a href="/Users/edurmus/Downloads/kkb-hackathon-2026-notlar/kayit-transkript.md">Tam döküm</a> ve <a href="/Users/edurmus/Downloads/kkb-hackathon-2026-notlar/kayit-transkript.json">zamanlı segmentler</a>. 520 segment, 00:00-36:05.36 konuşma aralığı. JSON SHA256: <code>11736639bb8016b36fa57c54513488d4472aefe175639bdf17e529fdca7560ec</code>. İnsan tarafından satır satır düzeltilmiş resmi tutanak değildir; zaman damgaları ilgili konuşma bölümünü bulmak içindir.</li>
-<li><strong>Sunumun metin çıkarımı, “sunum-metin.txt”.</strong> <a href="/Users/edurmus/Downloads/kkb-hackathon-2026-notlar/sunum-metin.txt">Yerel metin</a>. SHA256: <code>2a902c553a705ef16d67ba5520eea9f4b48504a7d713071489a882ff099bae3f</code>. 31 sayfanın metni orijinal PDF ile eşleşir. Grafik sayfası için metin çıkarımı tek başına yeterli değildir.</li>
+<li><strong>KKB / Coderspace, “KKB Hackathon 2026 Kick Off Sunum_07092026_FİNAL.pdf”, 7 Eylül 2026.</strong> 31 sayfa. Yerel sunum dosyası: <code>KKB Hackathon 2026 Kick Off Sunum_07092026_FİNAL.pdf</code> (repo dışı kaynak). SHA256: <code>225375fda210672fc571ee894dcc8f9def09297a00bee556884d85a7ead0f796</code>. PDF sayfaları 1 tabanlı numaralandırılmıştır. Yerel erişimli paylaşılan kaynak; kamuya açık bir indirme URL&#39;si bu denetimde doğrulanmamıştır.</li>
+<li><strong>“Hackathon 2026 Kick Off”, toplantı kaydından otomatik Türkçe konuşma dökümü.</strong> Tam döküm: <code>kayit-transkript.md</code> (repo dışı kaynak) ve zamanlı segmentler: <code>kayit-transkript.json</code> (repo dışı kaynak). 520 segment, 00:00-36:05.36 konuşma aralığı. JSON SHA256: <code>11736639bb8016b36fa57c54513488d4472aefe175639bdf17e529fdca7560ec</code>. İnsan tarafından satır satır düzeltilmiş resmi tutanak değildir; zaman damgaları ilgili konuşma bölümünü bulmak içindir.</li>
+<li><strong>Sunumun metin çıkarımı, “sunum-metin.txt”.</strong> Yerel metin: <code>sunum-metin.txt</code> (repo dışı kaynak). SHA256: <code>2a902c553a705ef16d67ba5520eea9f4b48504a7d713071489a882ff099bae3f</code>. 31 sayfanın metni orijinal PDF ile eşleşir. Grafik sayfası için metin çıkarımı tek başına yeterli değildir.</li>
 </ol>
 <ol class="footnotes"><li id="fn-competition-1" value="1"><p>Sunum PDF&#39;si, s.7: beş aşamalı akış ve “Kaynak gösterimi - İzlenebilirlik - Doğruluk Kontrolü” güven katmanı.</p>
 </li><li id="fn-competition-2" value="2"><p>Video dökümü, 06:44-09:11: lakehouse katmanları, işlenebilir veri, esnek motor ve istenen çıktının sunulması.</p>

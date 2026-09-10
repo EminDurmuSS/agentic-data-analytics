@@ -1,6 +1,6 @@
 # Lakehouse veri keşfi: kullanım ve sonuçların anlamı
 
-[Veri keşfi notebooku](../lakehouse_veri_kesfi_ve_iliskiler.ipynb), mevcut
+[Veri keşfi notebooku](../notebooks/lakehouse_veri_kesfi_ve_iliskiler.ipynb), mevcut
 `data_pipeline/lakehouse/analytics.duckdb` dosyasını salt okunur olarak inceler.
 68 hücrede veri envanteri, kaynak ilişkileri, kalite kontrolleri ve örnek
 analizler bulunur. Bu belge, çıktıların nasıl okunacağını açıklar; sayısal
@@ -161,19 +161,20 @@ raporlanmalıdır. Resmî ve proxy değerler aynı kanıt düzeyinde gösterilme
 
 ## Benchmark ve otomatik kontroller
 
-[Benchmark betiği](../test_lakehouse_performance.py), aynı lakehouse'u salt
+[Benchmark betiği](../evals/benchmark.py), aynı lakehouse'u salt
 okunur açarak bütünlük, şema/kaynak izi ve seçili sorgu sürelerini raporlar.
 Repo kökünden çalıştırılır:
 
 ```bash
-.venv/bin/python test_lakehouse_performance.py
+.venv/bin/python -m evals.benchmark
 ```
 
-Bu komut [kayıtlı JSON raporunu](../lakehouse_benchmark_results.json) yeniler.
+Bu komut yeni raporu `tmp/lakehouse-benchmark/results.json` içine yazar.
+[Tarihli JSON kaydı](validation/lakehouse-benchmark/results.json) korunur.
 Başka bir veritabanı veya ayrı rapor dosyası için:
 
 ```bash
-.venv/bin/python test_lakehouse_performance.py \
+.venv/bin/python -m evals.benchmark \
   --database data_pipeline/lakehouse/analytics.duckdb \
   --output /tmp/lakehouse-benchmark.json \
   --iterations 5
@@ -187,7 +188,7 @@ başarılı bir doğrulama değildir.
 Projenin otomatik doğrulama testleri ayrıca çalıştırılır:
 
 ```bash
-.venv/bin/python -m unittest discover -s tests -v
+.venv/bin/python -m pytest tests -q
 ```
 
 Notebookun bütün hücrelerini çalıştırmak, SQL ve analiz örneklerinin mevcut

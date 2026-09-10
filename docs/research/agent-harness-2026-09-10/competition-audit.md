@@ -128,9 +128,11 @@ Resmi ağırlıklı puan cetveli, toplam puan, başarı barajı, kabul edilen ge
 
 ## Kaynaklar
 
-1. **KKB / Coderspace, “KKB Hackathon 2026 Kick Off Sunum_07092026_FİNAL.pdf”, 7 Eylül 2026.** 31 sayfa. [Yerel sunum dosyası](</Users/edurmus/Downloads/KKB Hackathon 2026 Kick Off Sunum_07092026_FİNAL.pdf>). SHA256: `225375fda210672fc571ee894dcc8f9def09297a00bee556884d85a7ead0f796`. PDF sayfaları 1 tabanlı numaralandırılmıştır. Yerel erişimli paylaşılan kaynak; kamuya açık bir indirme URL'si bu denetimde doğrulanmamıştır.
-2. **“Hackathon 2026 Kick Off”, toplantı kaydından otomatik Türkçe konuşma dökümü.** [Tam döküm](</Users/edurmus/Downloads/kkb-hackathon-2026-notlar/kayit-transkript.md>) ve [zamanlı segmentler](</Users/edurmus/Downloads/kkb-hackathon-2026-notlar/kayit-transkript.json>). 520 segment, 00:00-36:05.36 konuşma aralığı. JSON SHA256: `11736639bb8016b36fa57c54513488d4472aefe175639bdf17e529fdca7560ec`. İnsan tarafından satır satır düzeltilmiş resmi tutanak değildir; zaman damgaları ilgili konuşma bölümünü bulmak içindir.
-3. **Sunumun metin çıkarımı, “sunum-metin.txt”.** [Yerel metin](</Users/edurmus/Downloads/kkb-hackathon-2026-notlar/sunum-metin.txt>). SHA256: `2a902c553a705ef16d67ba5520eea9f4b48504a7d713071489a882ff099bae3f`. 31 sayfanın metni orijinal PDF ile eşleşir. Grafik sayfası için metin çıkarımı tek başına yeterli değildir.
+Aşağıdaki sunum ve toplantı dökümü repo dışında tutulan tarihli kaynaklardır; Git klonuna dahil değildir. Dosya adları ve hashler kaynak kaydını korumak için listelenmiştir.
+
+1. **KKB / Coderspace, “KKB Hackathon 2026 Kick Off Sunum_07092026_FİNAL.pdf”, 7 Eylül 2026.** 31 sayfa. Yerel sunum dosyası: `KKB Hackathon 2026 Kick Off Sunum_07092026_FİNAL.pdf`. SHA256: `225375fda210672fc571ee894dcc8f9def09297a00bee556884d85a7ead0f796`. PDF sayfaları 1 tabanlı numaralandırılmıştır. Yerel erişimli paylaşılan kaynak; kamuya açık bir indirme URL'si bu denetimde doğrulanmamıştır.
+2. **“Hackathon 2026 Kick Off”, toplantı kaydından otomatik Türkçe konuşma dökümü.** Tam döküm: `kayit-transkript.md` ve zamanlı segmentler: `kayit-transkript.json`. 520 segment, 00:00-36:05.36 konuşma aralığı. JSON SHA256: `11736639bb8016b36fa57c54513488d4472aefe175639bdf17e529fdca7560ec`. İnsan tarafından satır satır düzeltilmiş resmi tutanak değildir; zaman damgaları ilgili konuşma bölümünü bulmak içindir.
+3. **Sunumun metin çıkarımı, “sunum-metin.txt”.** Yerel metin: `sunum-metin.txt`. SHA256: `2a902c553a705ef16d67ba5520eea9f4b48504a7d713071489a882ff099bae3f`. 31 sayfanın metni orijinal PDF ile eşleşir. Grafik sayfası için metin çıkarımı tek başına yeterli değildir.
 
 [^1]: Sunum PDF'si, s.7: beş aşamalı akış ve “Kaynak gösterimi - İzlenebilirlik - Doğruluk Kontrolü” güven katmanı.
 [^2]: Video dökümü, 06:44-09:11: lakehouse katmanları, işlenebilir veri, esnek motor ve istenen çıktının sunulması.

@@ -1,0 +1,52 @@
+{
+  "base_commit": "70d688ac175e3386bf6f064921d0ade4132592a1",
+  "scope": "Behavior-preserving package and documentation reorganization",
+  "tests": {
+    "passed": 430,
+    "subtests_passed": 163,
+    "warnings": 2,
+    "duration_seconds": 90.73,
+    "command": ".venv/bin/python -m pytest tests -q"
+  },
+  "architecture_tests_after_final_guard_edit": {
+    "passed": 4,
+    "command": ".venv/bin/python -m pytest tests/architecture tests/evals/test_backend_manifest.py -q"
+  },
+  "registry_comparison": {
+    "bindings": 55501,
+    "differences": 0,
+    "comparison": "Previous HEAD against extracted registry/semantics on the same read-only database"
+  },
+  "app_routes_preserved": 24,
+  "agent_tool_contracts_preserved": 9,
+  "cli_smoke": {
+    "status": "passed",
+    "first_row_count": 66,
+    "revised_row_count": 66,
+    "unchanged_original_columns": true,
+    "first_year_missing_yoy_preserved": true,
+    "source_references_complete": true,
+    "independently_verified_raw_file_count": 3,
+    "independently_verified_raw_cell_count": 6,
+    "source_database_unchanged": true,
+    "model_calls": 0
+  },
+  "source_database": {
+    "bytes": 621031424,
+    "sha256": "c2e6c9fd749efe5c96e9e4dc23b925a792cce57b3d96ad42cc02969d8395b81a"
+  },
+  "evidence": {
+    "tmp/project-structure/tests.log": {
+      "sha256": "13dd179103c99b452b71d6347ad8d6e626b71d9f115185b1cd93d44101a3cf4d"
+    },
+    "tmp/project-structure/cli-smoke-init.json": {
+      "sha256": "98369d2826288f291229970216dd3eb1fbf5f8ae9f908805ed163e7c6b4d2860"
+    },
+    "tmp/project-structure/cli-smoke-demo.json": {
+      "sha256": "7d4c83ca4de0bcc74defc1581f9c8171d588f2ac2429843695c2db5cc3132653"
+    },
+    "tmp/project-structure/cli-smoke-report.json": {
+      "sha256": "32d5fe51551b6b3ade97a01768b980240af5788c402965c151b89935a0146b89"
+    }
+  }
+}

@@ -16,7 +16,6 @@ ROOT = Path(__file__).resolve().parents[1]
 DATABASE = ROOT / "data_pipeline" / "lakehouse" / "analytics.duckdb"
 OUTPUTS = (
     ROOT / "notebooks" / "KKB_Verileri_Dogrulanmis.ipynb",
-    ROOT / "data_pipeline" / "KKB_Verileri_Dogrulanmis.ipynb",
 )
 
 EVDS_COVERAGE_SQL = """
