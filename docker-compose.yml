@@ -1,0 +1,13 @@
+services:
+  agent-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    env_file:
+      - .env
+    ports:
+      - "8870:8870"
+    volumes:
+      - ./data_pipeline/lakehouse:/app/data_pipeline/lakehouse:ro
+      - ./.lakehouse-runtime:/app/.lakehouse-runtime
+    restart: unless-stopped

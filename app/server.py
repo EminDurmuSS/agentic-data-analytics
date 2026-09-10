@@ -9,6 +9,7 @@ from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timezone
 import hashlib
 import json
+import logging
 from pathlib import Path
 import threading
 import uuid
@@ -27,6 +28,7 @@ from tools.lakehouse_store import LakehouseStore, StoreError, file_sha256
 REPO = Path(__file__).resolve().parents[1]
 STATIC = Path(__file__).resolve().parent / "static"
 DEFAULT_DB = REPO / "data_pipeline/lakehouse/analytics.duckdb"
+LOGGER = logging.getLogger(__name__)
 
 
 def _write(path: Path, value):
@@ -227,6 +229,7 @@ class AppContext:
                 except Exception as exc:
                     # Provider exceptions must already be scrubbed by MiaClient;
                     # the app returns a generic message for unexpected failures.
+                    LOGGER.exception("Agent job failed: job_id=%s workspace_id=%s", job_id, workspace_id)
                     detail = error_envelope(exc) if isinstance(exc, (PlanError, StoreError)) else {"status": "failed", "message": "Çalışma tamamlanamadı. Kaydedilmiş araç adımlarından yeniden deneyebilirsiniz.", "error_type": type(exc).__name__}
                     _write(job_path, {**values, "status": "failed", "result": detail})
 

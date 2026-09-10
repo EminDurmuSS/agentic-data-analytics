@@ -44,6 +44,138 @@ paketini üretir; tam yerel EVDS yayınını güncellemek için aşağıdaki
 tam sürümlerini sabitler; `requirements-app.txt` uygulamanın kaynak bağımlılık
 listesidir.
 
+## Docker ile çalıştırma
+
+Docker yöntemi, backend'i Linux tabanlı bir container içinde çalıştırır. Böylece
+Windows, macOS ve Linux'ta aynı Python çalışma ortamı kullanılır. Docker Desktop
+kurulu ve çalışır durumda olmalıdır. Docker Desktop'ı indirmek için:
+[docker.com/products/docker-desktop](https://www.docker.com/products/docker-desktop/)
+
+### İlk kurulum
+
+1. Repository'yi bilgisayarınıza alın ve proje köküne geçin:
+
+   ```powershell
+   git clone <repository-url>
+   cd agentic-data-analytics
+   ```
+
+   Zaten indirilmiş bir repository için yalnızca `cd` komutu yeterlidir.
+
+2. Docker'ın çalıştığını kontrol edin:
+
+   ```powershell
+   docker --version
+   docker compose version
+   docker info
+   ```
+
+   `docker info` hata verirse Docker Desktop'ı başlatın ve terminali yeniden
+   açın.
+
+3. API anahtarını repo kökünde `.env` dosyasına yazın. Bu dosya Git'e
+   gönderilmemelidir ve `.gitignore` tarafından dışlanır:
+
+   ```powershell
+   notepad .env
+   ```
+
+   Dosyanın içeriği:
+
+   ```env
+   MIA_API_KEY=gercek_mia_api_anahtari
+   ```
+
+   Anahtarı tırnak içine almayın ve `.env` dosyasını başka kişilerle
+   paylaşmayın.
+
+4. Finans çalışma alanının kullanacağı DuckDB dosyasının mevcut olduğunu
+   kontrol edin:
+
+   ```powershell
+   Test-Path .\data_pipeline\lakehouse\analytics.duckdb
+   ```
+
+   Sonuç `True` olmalıdır. Bu dosya büyük olduğu için Git repository'sinde
+   bulunmayabilir; ekipten doğrulanmış `analytics.duckdb` kopyasını alıp
+   `data_pipeline/lakehouse/` klasörüne yerleştirin. Dosya yoksa container
+   başlayabilir ancak finans çalışma alanı oluşturulamaz.
+
+5. Image'ı oluşturup uygulamayı başlatın:
+
+   ```powershell
+   docker compose up --build
+   ```
+
+   İlk build, Python paketlerini indirdiği için birkaç dakika sürebilir.
+   Uygulama başladıktan sonra tarayıcıda şu adresi açın:
+   [http://127.0.0.1:8870](http://127.0.0.1:8870)
+
+### Günlük kullanım
+
+Container'ı terminali kilitlemeden çalıştırmak için:
+
+```powershell
+docker compose up -d
+```
+
+Çalışma durumunu ve logları görmek için:
+
+```powershell
+docker compose ps
+docker compose logs --tail 200 -f agent-app
+```
+
+Loglarda şu satır uygulamanın başladığını gösterir:
+
+```text
+Agentic Minds: http://0.0.0.0:8870
+```
+
+`0.0.0.0` container'ın dinleme adresidir; tarayıcıda `127.0.0.1:8870` veya
+`localhost:8870` kullanılmalıdır.
+
+Uygulamayı durdurmak için:
+
+```powershell
+docker compose down
+```
+
+API anahtarının container'a aktarılıp aktarılmadığını anahtarı yazdırmadan
+kontrol etmek için:
+
+```powershell
+docker compose exec agent-app python -c "import os; print(bool(os.getenv('MIA_API_KEY')))"
+```
+
+Beklenen çıktı `True` değeridir. Sorgu başarısız olursa gerçek backend
+traceback'ini görmek için `docker compose logs --tail 200 -f agent-app`
+komutunu açık bırakıp sorguyu yeniden gönderin. API anahtarını log veya hata
+çıktısıyla paylaşmayın.
+
+### Temiz başlangıç ve yeniden build
+
+Eski yarım kalmış konuşma veya çalışma kayıtları yeni kullanıcıya görünüyorsa
+uygulamayı durdurup runtime klasörünü yedekleyin:
+
+```powershell
+docker compose down
+Rename-Item .lakehouse-runtime .lakehouse-runtime.backup -ErrorAction SilentlyContinue
+docker compose up -d
+```
+
+Yeni image oluşturmak gerektiğinde:
+
+```powershell
+docker compose down
+docker compose build --no-cache agent-app
+docker compose up -d
+```
+
+`.lakehouse-runtime` çalışma alanı, snapshot ve analiz kayıtlarını içerir;
+`data_pipeline/lakehouse/analytics.duckdb` kaynak veritabanı bundan ayrı ve
+silinmez.
+
 1. **Yeni çalışma alanı** seçin. **KKB finans verileri**, yerel veritabanının
    doğrulanan snapshot'ını açar. **Boş çalışma alanı**, finans tabloları
    olmadan kendi zaman serilerinizi eklemenizi sağlar.
