@@ -14,6 +14,15 @@ BDDK, TCMB EVDS, TÜİK ve TBB kaynaklarıyla finans analizi yapılabilir. Boş 
 
 ## Başlatma
 
+Docker Engine ve Compose ya da Docker Desktop ile, repo kökünden:
+
+```sh
+docker compose up --build -d
+docker compose ps
+```
+
+Anahtar, veri hazırlığı ve dolu port için [Docker rehberini](docs/DOCKER.md) izleyin. İmaj finans verisini içermez; Docker kayıtları yerel Python çalışmasından ayrı tutulur.
+
 Repo kökünde Python 3.12 ve `uv` ile:
 
 ```sh

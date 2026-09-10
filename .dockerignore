@@ -1,0 +1,15 @@
+# Send only the serving code and locked dependencies to the build daemon.
+**
+!Dockerfile
+!requirements-app.lock
+!app/
+!app/**
+!agentic_analytics/
+!agentic_analytics/**
+
+# These stay excluded even inside an allowed source directory.
+**/__pycache__/
+**/*.py[cod]
+**/.env
+**/.env.*
+**/.DS_Store

@@ -27,6 +27,7 @@ data_pipeline/bddk/weekly_group_*/
 
 # Local immutable releases, session uploads and analysis results.
 .lakehouse-runtime/
+/runtime-backup*/
 data_pipeline/lakehouse/analytics.duckdb
 data_pipeline/lakehouse/analytics.duckdb.wal
 

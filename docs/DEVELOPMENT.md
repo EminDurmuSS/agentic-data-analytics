@@ -2,6 +2,8 @@
 
 Bütün komutlar repo kökünden, Python 3.12 ile çalıştırılır. Bu depo kaynak dizininden modülle çalıştırılır; paket yayımlama adımı gerekmez.
 
+Uygulamayı konteynerde çalıştırmak için [Docker rehberine](DOCKER.md) bakın. O akış host üzerinde Python kurulumu gerektirmez; finans veritabanını kaynaklardan üretme adımı bu rehberdeki Python ortamını kullanır.
+
 ## Ortamı kurma
 
 ```sh
@@ -47,7 +49,7 @@ python -m app --prompt-key --port 8870
 
 | Seçenek | Kullanım |
 | --- | --- |
-| `--host` | `127.0.0.1`, `localhost` veya `::1`; varsayılan `127.0.0.1` |
+| `--host` | Varsayılan `127.0.0.1`; `localhost`, `::1` ve konteyner içi dinleme için `0.0.0.0` da kabul edilir |
 | `--port` | Varsayılan `8870` |
 | `--db /dosya/analytics.duckdb` | Finans profili için farklı kaynak veritabanı |
 | `--runtime-root /dizin/agent-app` | Snapshot, konuşma ve sonuç kayıtları için ayrı kök |

@@ -14,6 +14,7 @@ from fastapi import HTTPException
 
 from agentic_analytics.lakehouse.service import PlanError, error_envelope
 from agentic_analytics.lakehouse.store import LakehouseStore, StoreError, file_sha256
+from app.diagnostics import log_job_failure
 from app.models import RunBody
 from app.serialization import browser_json, write_json
 
@@ -171,6 +172,7 @@ class AppContext:
                 except Exception as exc:
                     # Provider exceptions must already be scrubbed by MiaClient;
                     # the app returns a generic message for unexpected failures.
+                    log_job_failure(exc, job_id=job_id, workspace_id=workspace_id)
                     detail = error_envelope(exc) if isinstance(exc, (PlanError, StoreError)) else {"status": "failed", "message": "Çalışma tamamlanamadı. Kaydedilmiş araç adımlarından yeniden deneyebilirsiniz.", "error_type": type(exc).__name__}
                     write_json(job_path, {**values, "status": "failed", "result": detail})
 

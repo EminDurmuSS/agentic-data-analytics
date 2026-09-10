@@ -8,6 +8,7 @@ Uygulamayı başlatmak için [ana README](../README.md), kod üzerinde çalışm
 | --- | --- |
 | [Mimari](ARCHITECTURE.md) | Katmanlar, bağımlılık yönü, agent akışı ve kayıt modeli |
 | [Geliştirme](DEVELOPMENT.md) | Kurulum, yerel uygulama, deterministik CLI, testler ve ölçümler |
+| [Docker](DOCKER.md) | Konteyner kurulumu, veri bağlama, kalıcı kayıtlar ve yedekleme |
 | [Veri kapsamı](DATA.md) | Kaynak aileleri, seçilmiş paket ile tam yerel yayın ayrımı ve veri sınırları |
 | [Lakehouse araçları](AGENT_READY_LAKEHOUSE.md) | Metrik keşfi, hesap planı, revizyon ve kaynak hücresi örnekleri |
 | [Notebook rehberi](LAKEHOUSE_VERI_KESFI_SADE_ANLATIM.md) | Keşif çıktılarının ve analiz sınırlarının açıklaması |
@@ -19,6 +20,7 @@ Uygulamayı başlatmak için [ana README](../README.md), kod üzerinde çalışm
 
 Bu kayıtlar, ilgili tarihte ve kaydedilen commit üzerinde yapılan çalışmaları anlatır. [9 Eylül durum raporu](CURRENT_STATE.md) gibi eski envanterler, daha sonraki veri yayınını temsil etmez.
 
+- [Docker doğrulaması, 10 Eylül 2026](validation/docker-2026-09-10/README.md): imajlar, veri kalıcılığı ve temiz volume'a geri yükleme.
 - [Paket ve klasör düzeni doğrulaması, 10 Eylül 2026](validation/project-structure-2026-09-10/README.md): mimari sınırlar, 430 test ve 163 alt test, veri ve davranış korunması.
 - [Agent tutarlılık başlangıç ölçümü, 10 Eylül 2026](validation/agent-consistency-2026-09-10/README.md): 18 bağımsız deneme, doğru çıktı ile tam görev başarısının ayrımı.
 - [Etkileşimli grafik doğrulaması, 10 Eylül 2026](validation/interactive-charts-2026-09-10/README.md): grafik sözleşmeleri, takip istekleri ve tarayıcı kontrolleri.
