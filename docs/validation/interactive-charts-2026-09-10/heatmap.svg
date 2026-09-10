@@ -1,0 +1,677 @@
+<svg width="1440" height="720" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" baseProfile="full" viewBox="0 0 1440 720">
+<rect width="1440" height="720" x="0" y="0" fill="#ffffff"></rect>
+<path d="M0 0l200.519 0l0 17l-200.519 0Z" transform="translate(36 680)" fill="none" class="zr1-cls-0"></path>
+<text dominant-baseline="central" text-anchor="start" style="font: 11px sans-serif" xml:space="preserve" y="8.5" transform="translate(36 680)" fill="#627568">Kaynak: BDDK FinTürk: Toplam Mevduat</text>
+<path d="M185 210l1221 0l0 29.8182l-1221 0Z" fill="rgb(234,237,245)" fill-opacity="0.5" class="zr1-cls-1"></path>
+<path d="M185 239.8182l1221 0l0 29.8182l-1221 0Z" fill="rgb(255,255,255)" fill-opacity="0" class="zr1-cls-1"></path>
+<path d="M185 269.6364l1221 0l0 29.8182l-1221 0Z" fill="rgb(234,237,245)" fill-opacity="0.5" class="zr1-cls-1"></path>
+<path d="M185 299.4545l1221 0l0 29.8182l-1221 0Z" fill="rgb(255,255,255)" fill-opacity="0" class="zr1-cls-1"></path>
+<path d="M185 329.2727l1221 0l0 29.8182l-1221 0Z" fill="rgb(234,237,245)" fill-opacity="0.5" class="zr1-cls-1"></path>
+<path d="M185 359.0909l1221 0l0 29.8182l-1221 0Z" fill="rgb(255,255,255)" fill-opacity="0" class="zr1-cls-1"></path>
+<path d="M185 388.9091l1221 0l0 29.8182l-1221 0Z" fill="rgb(234,237,245)" fill-opacity="0.5" class="zr1-cls-1"></path>
+<path d="M185 418.7273l1221 0l0 29.8182l-1221 0Z" fill="rgb(255,255,255)" fill-opacity="0" class="zr1-cls-1"></path>
+<path d="M185 448.5455l1221 0l0 29.8182l-1221 0Z" fill="rgb(234,237,245)" fill-opacity="0.5" class="zr1-cls-1"></path>
+<path d="M185 478.3636l1221 0l0 29.8182l-1221 0Z" fill="rgb(255,255,255)" fill-opacity="0" class="zr1-cls-1"></path>
+<path d="M185 508.1818l1221 0l0 29.8182l-1221 0Z" fill="rgb(234,237,245)" fill-opacity="0.5" class="zr1-cls-1"></path>
+<path d="M185.5 210L185.5 538" fill="none" stroke="#ccd9cc" stroke-linecap="round" class="zr1-cls-1"></path>
+<path d="M185 538.5L1406 538.5" fill="none" stroke="#ccd9cc" stroke-linecap="round" class="zr1-cls-1"></path>
+<text dominant-baseline="central" text-anchor="end" style="font-size:11px;font-family:Inter, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif;" transform="translate(177 224.9091)" fill="#526b5a">İSTANBUL</text>
+<text dominant-baseline="central" text-anchor="end" style="font-size:11px;font-family:Inter, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif;" transform="translate(177 254.7273)" fill="#526b5a">ANKARA</text>
+<text dominant-baseline="central" text-anchor="end" style="font-size:11px;font-family:Inter, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif;" xml:space="preserve" transform="translate(177 284.5455)" fill="#526b5a">YURT DIŞI</text>
+<text dominant-baseline="central" text-anchor="end" style="font-size:11px;font-family:Inter, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif;" transform="translate(177 314.3636)" fill="#526b5a">İZMİR</text>
+<text dominant-baseline="central" text-anchor="end" style="font-size:11px;font-family:Inter, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif;" transform="translate(177 344.1818)" fill="#526b5a">ANTALYA</text>
+<text dominant-baseline="central" text-anchor="end" style="font-size:11px;font-family:Inter, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif;" transform="translate(177 374)" fill="#526b5a">BURSA</text>
+<text dominant-baseline="central" text-anchor="end" style="font-size:11px;font-family:Inter, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif;" transform="translate(177 403.8182)" fill="#526b5a">KOCAELİ</text>
+<text dominant-baseline="central" text-anchor="end" style="font-size:11px;font-family:Inter, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif;" transform="translate(177 433.6364)" fill="#526b5a">ADANA</text>
+<text dominant-baseline="central" text-anchor="end" style="font-size:11px;font-family:Inter, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif;" transform="translate(177 463.4545)" fill="#526b5a">KONYA</text>
+<text dominant-baseline="central" text-anchor="end" style="font-size:11px;font-family:Inter, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif;" transform="translate(177 493.2727)" fill="#526b5a">MUĞLA</text>
+<text dominant-baseline="central" text-anchor="end" style="font-size:11px;font-family:Inter, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif;" transform="translate(177 523.0909)" fill="#526b5a">MERSİN</text>
+<text dominant-baseline="central" text-anchor="middle" style="font-size:10px;font-family:Inter, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif;" xml:space="preserve" y="4.9708099365234375" transform="translate(261.3125 551)" fill="#738579">2024 · 1. çeyrek</text>
+<text dominant-baseline="central" text-anchor="middle" style="font-size:10px;font-family:Inter, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif;" xml:space="preserve" y="4.9708099365234375" transform="translate(413.9375 551)" fill="#738579">2024 · 2. çeyrek</text>
+<text dominant-baseline="central" text-anchor="middle" style="font-size:10px;font-family:Inter, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif;" xml:space="preserve" y="4.9708099365234375" transform="translate(566.5625 551)" fill="#738579">2024 · 3. çeyrek</text>
+<text dominant-baseline="central" text-anchor="middle" style="font-size:10px;font-family:Inter, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif;" xml:space="preserve" y="4.9708099365234375" transform="translate(719.1875 551)" fill="#738579">2024 · 4. çeyrek</text>
+<text dominant-baseline="central" text-anchor="middle" style="font-size:10px;font-family:Inter, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif;" xml:space="preserve" y="4.9708099365234375" transform="translate(871.8125 551)" fill="#738579">2025 · 1. çeyrek</text>
+<text dominant-baseline="central" text-anchor="middle" style="font-size:10px;font-family:Inter, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif;" xml:space="preserve" y="4.9708099365234375" transform="translate(1024.4375 551)" fill="#738579">2025 · 2. çeyrek</text>
+<text dominant-baseline="central" text-anchor="middle" style="font-size:10px;font-family:Inter, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif;" xml:space="preserve" y="4.9708099365234375" transform="translate(1177.0625 551)" fill="#738579">2025 · 3. çeyrek</text>
+<text dominant-baseline="central" text-anchor="middle" style="font-size:10px;font-family:Inter, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif;" xml:space="preserve" y="4.9708099365234375" transform="translate(1329.6875 551)" fill="#738579">2025 · 4. çeyrek</text>
+<path d="M187.75 209.75L334.875 209.75A3 3 0 0 1 337.875 212.75L337.875 237.0682A3 3 0 0 1 334.875 240.0682L187.75 240.0682A3 3 0 0 1 184.75 237.0682L184.75 212.75A3 3 0 0 1 187.75 209.75" fill="rgb(146,180,144)" stroke="#fff" stroke-width="2" class="zr1-cls-2"></path>
+<path d="M187.75 239.5682L334.875 239.5682A3 3 0 0 1 337.875 242.5682L337.875 266.8864A3 3 0 0 1 334.875 269.8864L187.75 269.8864A3 3 0 0 1 184.75 266.8864L184.75 242.5682A3 3 0 0 1 187.75 239.5682" fill="rgb(214,227,202)" stroke="#fff" stroke-width="2" class="zr1-cls-3"></path>
+<path d="M187.75 269.3864L334.875 269.3864A3 3 0 0 1 337.875 272.3864L337.875 296.7045A3 3 0 0 1 334.875 299.7045L187.75 299.7045A3 3 0 0 1 184.75 296.7045L184.75 272.3864A3 3 0 0 1 187.75 269.3864" fill="rgb(224,234,211)" stroke="#fff" stroke-width="2" class="zr1-cls-4"></path>
+<path d="M187.75 299.2045L334.875 299.2045A3 3 0 0 1 337.875 302.2045L337.875 326.5227A3 3 0 0 1 334.875 329.5227L187.75 329.5227A3 3 0 0 1 184.75 326.5227L184.75 302.2045A3 3 0 0 1 187.75 299.2045" fill="rgb(229,237,216)" stroke="#fff" stroke-width="2" class="zr1-cls-5"></path>
+<path d="M187.75 329.0227L334.875 329.0227A3 3 0 0 1 337.875 332.0227L337.875 356.3409A3 3 0 0 1 334.875 359.3409L187.75 359.3409A3 3 0 0 1 184.75 356.3409L184.75 332.0227A3 3 0 0 1 187.75 329.0227" fill="rgb(233,241,220)" stroke="#fff" stroke-width="2" class="zr1-cls-6"></path>
+<path d="M187.75 358.8409L334.875 358.8409A3 3 0 0 1 337.875 361.8409L337.875 386.1591A3 3 0 0 1 334.875 389.1591L187.75 389.1591A3 3 0 0 1 184.75 386.1591L184.75 361.8409A3 3 0 0 1 187.75 358.8409" fill="rgb(234,241,220)" stroke="#fff" stroke-width="2" class="zr1-cls-6"></path>
+<path d="M187.75 388.6591L334.875 388.6591A3 3 0 0 1 337.875 391.6591L337.875 415.9773A3 3 0 0 1 334.875 418.9773L187.75 418.9773A3 3 0 0 1 184.75 415.9773L184.75 391.6591A3 3 0 0 1 187.75 388.6591" fill="rgb(236,242,222)" stroke="#fff" stroke-width="2" class="zr1-cls-7"></path>
+<path d="M187.75 418.4773L334.875 418.4773A3 3 0 0 1 337.875 421.4773L337.875 445.7955A3 3 0 0 1 334.875 448.7955L187.75 448.7955A3 3 0 0 1 184.75 445.7955L184.75 421.4773A3 3 0 0 1 187.75 418.4773" fill="rgb(237,243,223)" stroke="#fff" stroke-width="2" class="zr1-cls-8"></path>
+<path d="M187.75 448.2955L334.875 448.2955A3 3 0 0 1 337.875 451.2955L337.875 475.6136A3 3 0 0 1 334.875 478.6136L187.75 478.6136A3 3 0 0 1 184.75 475.6136L184.75 451.2955A3 3 0 0 1 187.75 448.2955" fill="rgb(237,243,223)" stroke="#fff" stroke-width="2" class="zr1-cls-8"></path>
+<path d="M187.75 478.1136L334.875 478.1136A3 3 0 0 1 337.875 481.1136L337.875 505.4318A3 3 0 0 1 334.875 508.4318L187.75 508.4318A3 3 0 0 1 184.75 505.4318L184.75 481.1136A3 3 0 0 1 187.75 478.1136" fill="rgb(237,243,223)" stroke="#fff" stroke-width="2" class="zr1-cls-8"></path>
+<path d="M340.375 209.75L487.5 209.75A3 3 0 0 1 490.5 212.75L490.5 237.0682A3 3 0 0 1 487.5 240.0682L340.375 240.0682A3 3 0 0 1 337.375 237.0682L337.375 212.75A3 3 0 0 1 340.375 209.75" fill="rgb(139,175,139)" stroke="#fff" stroke-width="2" class="zr1-cls-9"></path>
+<path d="M340.375 239.5682L487.5 239.5682A3 3 0 0 1 490.5 242.5682L490.5 266.8864A3 3 0 0 1 487.5 269.8864L340.375 269.8864A3 3 0 0 1 337.375 266.8864L337.375 242.5682A3 3 0 0 1 340.375 239.5682" fill="rgb(212,226,200)" stroke="#fff" stroke-width="2" class="zr1-cls-10"></path>
+<path d="M340.375 269.3864L487.5 269.3864A3 3 0 0 1 490.5 272.3864L490.5 296.7045A3 3 0 0 1 487.5 299.7045L340.375 299.7045A3 3 0 0 1 337.375 296.7045L337.375 272.3864A3 3 0 0 1 340.375 269.3864" fill="rgb(223,233,210)" stroke="#fff" stroke-width="2" class="zr1-cls-11"></path>
+<path d="M340.375 299.2045L487.5 299.2045A3 3 0 0 1 490.5 302.2045L490.5 326.5227A3 3 0 0 1 487.5 329.5227L340.375 329.5227A3 3 0 0 1 337.375 326.5227L337.375 302.2045A3 3 0 0 1 340.375 299.2045" fill="rgb(228,237,215)" stroke="#fff" stroke-width="2" class="zr1-cls-12"></path>
+<path d="M340.375 329.0227L487.5 329.0227A3 3 0 0 1 490.5 332.0227L490.5 356.3409A3 3 0 0 1 487.5 359.3409L340.375 359.3409A3 3 0 0 1 337.375 356.3409L337.375 332.0227A3 3 0 0 1 340.375 329.0227" fill="rgb(233,240,219)" stroke="#fff" stroke-width="2" class="zr1-cls-13"></path>
+<path d="M340.375 358.8409L487.5 358.8409A3 3 0 0 1 490.5 361.8409L490.5 386.1591A3 3 0 0 1 487.5 389.1591L340.375 389.1591A3 3 0 0 1 337.375 386.1591L337.375 361.8409A3 3 0 0 1 340.375 358.8409" fill="rgb(234,241,220)" stroke="#fff" stroke-width="2" class="zr1-cls-6"></path>
+<path d="M340.375 388.6591L487.5 388.6591A3 3 0 0 1 490.5 391.6591L490.5 415.9773A3 3 0 0 1 487.5 418.9773L340.375 418.9773A3 3 0 0 1 337.375 415.9773L337.375 391.6591A3 3 0 0 1 340.375 388.6591" fill="rgb(235,242,221)" stroke="#fff" stroke-width="2" class="zr1-cls-14"></path>
+<path d="M340.375 418.4773L487.5 418.4773A3 3 0 0 1 490.5 421.4773L490.5 445.7955A3 3 0 0 1 487.5 448.7955L340.375 448.7955A3 3 0 0 1 337.375 445.7955L337.375 421.4773A3 3 0 0 1 340.375 418.4773" fill="rgb(236,243,222)" stroke="#fff" stroke-width="2" class="zr1-cls-7"></path>
+<path d="M340.375 448.2955L487.5 448.2955A3 3 0 0 1 490.5 451.2955L490.5 475.6136A3 3 0 0 1 487.5 478.6136L340.375 478.6136A3 3 0 0 1 337.375 475.6136L337.375 451.2955A3 3 0 0 1 340.375 448.2955" fill="rgb(237,243,223)" stroke="#fff" stroke-width="2" class="zr1-cls-8"></path>
+<path d="M340.375 478.1136L487.5 478.1136A3 3 0 0 1 490.5 481.1136L490.5 505.4318A3 3 0 0 1 487.5 508.4318L340.375 508.4318A3 3 0 0 1 337.375 505.4318L337.375 481.1136A3 3 0 0 1 340.375 478.1136" fill="rgb(237,243,223)" stroke="#fff" stroke-width="2" class="zr1-cls-8"></path>
+<path d="M493 209.75L640.125 209.75A3 3 0 0 1 643.125 212.75L643.125 237.0682A3 3 0 0 1 640.125 240.0682L493 240.0682A3 3 0 0 1 490 237.0682L490 212.75A3 3 0 0 1 493 209.75" fill="rgb(129,168,133)" stroke="#fff" stroke-width="2" class="zr1-cls-15"></path>
+<path d="M493 239.5682L640.125 239.5682A3 3 0 0 1 643.125 242.5682L643.125 266.8864A3 3 0 0 1 640.125 269.8864L493 269.8864A3 3 0 0 1 490 266.8864L490 242.5682A3 3 0 0 1 493 239.5682" fill="rgb(208,223,197)" stroke="#fff" stroke-width="2" class="zr1-cls-16"></path>
+<path d="M493 269.3864L640.125 269.3864A3 3 0 0 1 643.125 272.3864L643.125 296.7045A3 3 0 0 1 640.125 299.7045L493 299.7045A3 3 0 0 1 490 296.7045L490 272.3864A3 3 0 0 1 493 269.3864" fill="rgb(222,233,209)" stroke="#fff" stroke-width="2" class="zr1-cls-17"></path>
+<path d="M493 299.2045L640.125 299.2045A3 3 0 0 1 643.125 302.2045L643.125 326.5227A3 3 0 0 1 640.125 329.5227L493 329.5227A3 3 0 0 1 490 326.5227L490 302.2045A3 3 0 0 1 493 299.2045" fill="rgb(227,236,214)" stroke="#fff" stroke-width="2" class="zr1-cls-18"></path>
+<path d="M493 329.0227L640.125 329.0227A3 3 0 0 1 643.125 332.0227L643.125 356.3409A3 3 0 0 1 640.125 359.3409L493 359.3409A3 3 0 0 1 490 356.3409L490 332.0227A3 3 0 0 1 493 329.0227" fill="rgb(232,240,218)" stroke="#fff" stroke-width="2" class="zr1-cls-19"></path>
+<path d="M493 358.8409L640.125 358.8409A3 3 0 0 1 643.125 361.8409L643.125 386.1591A3 3 0 0 1 640.125 389.1591L493 389.1591A3 3 0 0 1 490 386.1591L490 361.8409A3 3 0 0 1 493 358.8409" fill="rgb(234,241,220)" stroke="#fff" stroke-width="2" class="zr1-cls-6"></path>
+<path d="M493 388.6591L640.125 388.6591A3 3 0 0 1 643.125 391.6591L643.125 415.9773A3 3 0 0 1 640.125 418.9773L493 418.9773A3 3 0 0 1 490 415.9773L490 391.6591A3 3 0 0 1 493 388.6591" fill="rgb(235,242,221)" stroke="#fff" stroke-width="2" class="zr1-cls-14"></path>
+<path d="M493 418.4773L640.125 418.4773A3 3 0 0 1 643.125 421.4773L643.125 445.7955A3 3 0 0 1 640.125 448.7955L493 448.7955A3 3 0 0 1 490 445.7955L490 421.4773A3 3 0 0 1 493 418.4773" fill="rgb(236,242,222)" stroke="#fff" stroke-width="2" class="zr1-cls-7"></path>
+<path d="M493 448.2955L640.125 448.2955A3 3 0 0 1 643.125 451.2955L643.125 475.6136A3 3 0 0 1 640.125 478.6136L493 478.6136A3 3 0 0 1 490 475.6136L490 451.2955A3 3 0 0 1 493 448.2955" fill="rgb(237,243,223)" stroke="#fff" stroke-width="2" class="zr1-cls-8"></path>
+<path d="M493 478.1136L640.125 478.1136A3 3 0 0 1 643.125 481.1136L643.125 505.4318A3 3 0 0 1 640.125 508.4318L493 508.4318A3 3 0 0 1 490 505.4318L490 481.1136A3 3 0 0 1 493 478.1136" fill="rgb(236,243,222)" stroke="#fff" stroke-width="2" class="zr1-cls-7"></path>
+<path d="M645.625 209.75L792.75 209.75A3 3 0 0 1 795.75 212.75L795.75 237.0682A3 3 0 0 1 792.75 240.0682L645.625 240.0682A3 3 0 0 1 642.625 237.0682L642.625 212.75A3 3 0 0 1 645.625 209.75" fill="rgb(114,157,123)" stroke="#fff" stroke-width="2" class="zr1-cls-20"></path>
+<path d="M645.625 239.5682L792.75 239.5682A3 3 0 0 1 795.75 242.5682L795.75 266.8864A3 3 0 0 1 792.75 269.8864L645.625 269.8864A3 3 0 0 1 642.625 266.8864L642.625 242.5682A3 3 0 0 1 645.625 239.5682" fill="rgb(207,222,195)" stroke="#fff" stroke-width="2" class="zr1-cls-21"></path>
+<path d="M645.625 269.3864L792.75 269.3864A3 3 0 0 1 795.75 272.3864L795.75 296.7045A3 3 0 0 1 792.75 299.7045L645.625 299.7045A3 3 0 0 1 642.625 296.7045L642.625 272.3864A3 3 0 0 1 645.625 269.3864" fill="rgb(221,232,209)" stroke="#fff" stroke-width="2" class="zr1-cls-22"></path>
+<path d="M645.625 299.2045L792.75 299.2045A3 3 0 0 1 795.75 302.2045L795.75 326.5227A3 3 0 0 1 792.75 329.5227L645.625 329.5227A3 3 0 0 1 642.625 326.5227L642.625 302.2045A3 3 0 0 1 645.625 299.2045" fill="rgb(226,236,213)" stroke="#fff" stroke-width="2" class="zr1-cls-23"></path>
+<path d="M645.625 329.0227L792.75 329.0227A3 3 0 0 1 795.75 332.0227L795.75 356.3409A3 3 0 0 1 792.75 359.3409L645.625 359.3409A3 3 0 0 1 642.625 356.3409L642.625 332.0227A3 3 0 0 1 645.625 329.0227" fill="rgb(232,240,218)" stroke="#fff" stroke-width="2" class="zr1-cls-19"></path>
+<path d="M645.625 358.8409L792.75 358.8409A3 3 0 0 1 795.75 361.8409L795.75 386.1591A3 3 0 0 1 792.75 389.1591L645.625 389.1591A3 3 0 0 1 642.625 386.1591L642.625 361.8409A3 3 0 0 1 645.625 358.8409" fill="rgb(233,240,220)" stroke="#fff" stroke-width="2" class="zr1-cls-6"></path>
+<path d="M645.625 388.6591L792.75 388.6591A3 3 0 0 1 795.75 391.6591L795.75 415.9773A3 3 0 0 1 792.75 418.9773L645.625 418.9773A3 3 0 0 1 642.625 415.9773L642.625 391.6591A3 3 0 0 1 645.625 388.6591" fill="rgb(235,242,221)" stroke="#fff" stroke-width="2" class="zr1-cls-14"></path>
+<path d="M645.625 418.4773L792.75 418.4773A3 3 0 0 1 795.75 421.4773L795.75 445.7955A3 3 0 0 1 792.75 448.7955L645.625 448.7955A3 3 0 0 1 642.625 445.7955L642.625 421.4773A3 3 0 0 1 645.625 418.4773" fill="rgb(236,242,222)" stroke="#fff" stroke-width="2" class="zr1-cls-7"></path>
+<path d="M645.625 478.1136L792.75 478.1136A3 3 0 0 1 795.75 481.1136L795.75 505.4318A3 3 0 0 1 792.75 508.4318L645.625 508.4318A3 3 0 0 1 642.625 505.4318L642.625 481.1136A3 3 0 0 1 645.625 478.1136" fill="rgb(236,242,222)" stroke="#fff" stroke-width="2" class="zr1-cls-7"></path>
+<path d="M645.625 507.9318L792.75 507.9318A3 3 0 0 1 795.75 510.9318L795.75 535.25A3 3 0 0 1 792.75 538.25L645.625 538.25A3 3 0 0 1 642.625 535.25L642.625 510.9318A3 3 0 0 1 645.625 507.9318" fill="rgb(236,243,222)" stroke="#fff" stroke-width="2" class="zr1-cls-7"></path>
+<path d="M798.25 209.75L945.375 209.75A3 3 0 0 1 948.375 212.75L948.375 237.0682A3 3 0 0 1 945.375 240.0682L798.25 240.0682A3 3 0 0 1 795.25 237.0682L795.25 212.75A3 3 0 0 1 798.25 209.75" fill="rgb(92,141,109)" stroke="#fff" stroke-width="2" class="zr1-cls-24"></path>
+<path d="M798.25 239.5682L945.375 239.5682A3 3 0 0 1 948.375 242.5682L948.375 266.8864A3 3 0 0 1 945.375 269.8864L798.25 269.8864A3 3 0 0 1 795.25 266.8864L795.25 242.5682A3 3 0 0 1 798.25 239.5682" fill="rgb(204,221,193)" stroke="#fff" stroke-width="2" class="zr1-cls-25"></path>
+<path d="M798.25 269.3864L945.375 269.3864A3 3 0 0 1 948.375 272.3864L948.375 296.7045A3 3 0 0 1 945.375 299.7045L798.25 299.7045A3 3 0 0 1 795.25 296.7045L795.25 272.3864A3 3 0 0 1 798.25 269.3864" fill="rgb(220,232,208)" stroke="#fff" stroke-width="2" class="zr1-cls-26"></path>
+<path d="M798.25 299.2045L945.375 299.2045A3 3 0 0 1 948.375 302.2045L948.375 326.5227A3 3 0 0 1 945.375 329.5227L798.25 329.5227A3 3 0 0 1 795.25 326.5227L795.25 302.2045A3 3 0 0 1 798.25 299.2045" fill="rgb(225,235,212)" stroke="#fff" stroke-width="2" class="zr1-cls-27"></path>
+<path d="M798.25 329.0227L945.375 329.0227A3 3 0 0 1 948.375 332.0227L948.375 356.3409A3 3 0 0 1 945.375 359.3409L798.25 359.3409A3 3 0 0 1 795.25 356.3409L795.25 332.0227A3 3 0 0 1 798.25 329.0227" fill="rgb(231,239,218)" stroke="#fff" stroke-width="2" class="zr1-cls-28"></path>
+<path d="M798.25 358.8409L945.375 358.8409A3 3 0 0 1 948.375 361.8409L948.375 386.1591A3 3 0 0 1 945.375 389.1591L798.25 389.1591A3 3 0 0 1 795.25 386.1591L795.25 361.8409A3 3 0 0 1 798.25 358.8409" fill="rgb(233,240,219)" stroke="#fff" stroke-width="2" class="zr1-cls-13"></path>
+<path d="M798.25 388.6591L945.375 388.6591A3 3 0 0 1 948.375 391.6591L948.375 415.9773A3 3 0 0 1 945.375 418.9773L798.25 418.9773A3 3 0 0 1 795.25 415.9773L795.25 391.6591A3 3 0 0 1 798.25 388.6591" fill="rgb(234,241,221)" stroke="#fff" stroke-width="2" class="zr1-cls-14"></path>
+<path d="M798.25 418.4773L945.375 418.4773A3 3 0 0 1 948.375 421.4773L948.375 445.7955A3 3 0 0 1 945.375 448.7955L798.25 448.7955A3 3 0 0 1 795.25 445.7955L795.25 421.4773A3 3 0 0 1 798.25 418.4773" fill="rgb(235,242,222)" stroke="#fff" stroke-width="2" class="zr1-cls-7"></path>
+<path d="M798.25 478.1136L945.375 478.1136A3 3 0 0 1 948.375 481.1136L948.375 505.4318A3 3 0 0 1 945.375 508.4318L798.25 508.4318A3 3 0 0 1 795.25 505.4318L795.25 481.1136A3 3 0 0 1 798.25 478.1136" fill="rgb(236,242,222)" stroke="#fff" stroke-width="2" class="zr1-cls-7"></path>
+<path d="M798.25 507.9318L945.375 507.9318A3 3 0 0 1 948.375 510.9318L948.375 535.25A3 3 0 0 1 945.375 538.25L798.25 538.25A3 3 0 0 1 795.25 535.25L795.25 510.9318A3 3 0 0 1 798.25 507.9318" fill="rgb(236,242,222)" stroke="#fff" stroke-width="2" class="zr1-cls-7"></path>
+<path d="M950.875 209.75L1098 209.75A3 3 0 0 1 1101 212.75L1101 237.0682A3 3 0 0 1 1098 240.0682L950.875 240.0682A3 3 0 0 1 947.875 237.0682L947.875 212.75A3 3 0 0 1 950.875 209.75" fill="rgb(74,128,98)" stroke="#fff" stroke-width="2" class="zr1-cls-29"></path>
+<path d="M950.875 239.5682L1098 239.5682A3 3 0 0 1 1101 242.5682L1101 266.8864A3 3 0 0 1 1098 269.8864L950.875 269.8864A3 3 0 0 1 947.875 266.8864L947.875 242.5682A3 3 0 0 1 950.875 239.5682" fill="rgb(201,219,190)" stroke="#fff" stroke-width="2" class="zr1-cls-30"></path>
+<path d="M950.875 269.3864L1098 269.3864A3 3 0 0 1 1101 272.3864L1101 296.7045A3 3 0 0 1 1098 299.7045L950.875 299.7045A3 3 0 0 1 947.875 296.7045L947.875 272.3864A3 3 0 0 1 950.875 269.3864" fill="rgb(218,230,206)" stroke="#fff" stroke-width="2" class="zr1-cls-31"></path>
+<path d="M950.875 299.2045L1098 299.2045A3 3 0 0 1 1101 302.2045L1101 326.5227A3 3 0 0 1 1098 329.5227L950.875 329.5227A3 3 0 0 1 947.875 326.5227L947.875 302.2045A3 3 0 0 1 950.875 299.2045" fill="rgb(223,234,211)" stroke="#fff" stroke-width="2" class="zr1-cls-32"></path>
+<path d="M950.875 329.0227L1098 329.0227A3 3 0 0 1 1101 332.0227L1101 356.3409A3 3 0 0 1 1098 359.3409L950.875 359.3409A3 3 0 0 1 947.875 356.3409L947.875 332.0227A3 3 0 0 1 950.875 329.0227" fill="rgb(230,238,216)" stroke="#fff" stroke-width="2" class="zr1-cls-33"></path>
+<path d="M950.875 358.8409L1098 358.8409A3 3 0 0 1 1101 361.8409L1101 386.1591A3 3 0 0 1 1098 389.1591L950.875 389.1591A3 3 0 0 1 947.875 386.1591L947.875 361.8409A3 3 0 0 1 950.875 358.8409" fill="rgb(232,240,219)" stroke="#fff" stroke-width="2" class="zr1-cls-13"></path>
+<path d="M950.875 388.6591L1098 388.6591A3 3 0 0 1 1101 391.6591L1101 415.9773A3 3 0 0 1 1098 418.9773L950.875 418.9773A3 3 0 0 1 947.875 415.9773L947.875 391.6591A3 3 0 0 1 950.875 388.6591" fill="rgb(234,241,220)" stroke="#fff" stroke-width="2" class="zr1-cls-6"></path>
+<path d="M950.875 418.4773L1098 418.4773A3 3 0 0 1 1101 421.4773L1101 445.7955A3 3 0 0 1 1098 448.7955L950.875 448.7955A3 3 0 0 1 947.875 445.7955L947.875 421.4773A3 3 0 0 1 950.875 418.4773" fill="rgb(235,242,221)" stroke="#fff" stroke-width="2" class="zr1-cls-14"></path>
+<path d="M950.875 448.2955L1098 448.2955A3 3 0 0 1 1101 451.2955L1101 475.6136A3 3 0 0 1 1098 478.6136L950.875 478.6136A3 3 0 0 1 947.875 475.6136L947.875 451.2955A3 3 0 0 1 950.875 448.2955" fill="rgb(235,242,222)" stroke="#fff" stroke-width="2" class="zr1-cls-7"></path>
+<path d="M950.875 478.1136L1098 478.1136A3 3 0 0 1 1101 481.1136L1101 505.4318A3 3 0 0 1 1098 508.4318L950.875 508.4318A3 3 0 0 1 947.875 505.4318L947.875 481.1136A3 3 0 0 1 950.875 478.1136" fill="rgb(236,242,222)" stroke="#fff" stroke-width="2" class="zr1-cls-7"></path>
+<path d="M1103.5 209.75L1250.625 209.75A3 3 0 0 1 1253.625 212.75L1253.625 237.0682A3 3 0 0 1 1250.625 240.0682L1103.5 240.0682A3 3 0 0 1 1100.5 237.0682L1100.5 212.75A3 3 0 0 1 1103.5 209.75" fill="rgb(59,117,88)" stroke="#fff" stroke-width="2" class="zr1-cls-34"></path>
+<path d="M1103.5 239.5682L1250.625 239.5682A3 3 0 0 1 1253.625 242.5682L1253.625 266.8864A3 3 0 0 1 1250.625 269.8864L1103.5 269.8864A3 3 0 0 1 1100.5 266.8864L1100.5 242.5682A3 3 0 0 1 1103.5 239.5682" fill="rgb(195,214,185)" stroke="#fff" stroke-width="2" class="zr1-cls-35"></path>
+<path d="M1103.5 269.3864L1250.625 269.3864A3 3 0 0 1 1253.625 272.3864L1253.625 296.7045A3 3 0 0 1 1250.625 299.7045L1103.5 299.7045A3 3 0 0 1 1100.5 296.7045L1100.5 272.3864A3 3 0 0 1 1103.5 269.3864" fill="rgb(218,230,205)" stroke="#fff" stroke-width="2" class="zr1-cls-36"></path>
+<path d="M1103.5 299.2045L1250.625 299.2045A3 3 0 0 1 1253.625 302.2045L1253.625 326.5227A3 3 0 0 1 1250.625 329.5227L1103.5 329.5227A3 3 0 0 1 1100.5 326.5227L1100.5 302.2045A3 3 0 0 1 1103.5 299.2045" fill="rgb(222,233,210)" stroke="#fff" stroke-width="2" class="zr1-cls-37"></path>
+<path d="M1103.5 329.0227L1250.625 329.0227A3 3 0 0 1 1253.625 332.0227L1253.625 356.3409A3 3 0 0 1 1250.625 359.3409L1103.5 359.3409A3 3 0 0 1 1100.5 356.3409L1100.5 332.0227A3 3 0 0 1 1103.5 329.0227" fill="rgb(229,237,216)" stroke="#fff" stroke-width="2" class="zr1-cls-5"></path>
+<path d="M1103.5 358.8409L1250.625 358.8409A3 3 0 0 1 1253.625 361.8409L1253.625 386.1591A3 3 0 0 1 1250.625 389.1591L1103.5 389.1591A3 3 0 0 1 1100.5 386.1591L1100.5 361.8409A3 3 0 0 1 1103.5 358.8409" fill="rgb(232,240,218)" stroke="#fff" stroke-width="2" class="zr1-cls-19"></path>
+<path d="M1103.5 388.6591L1250.625 388.6591A3 3 0 0 1 1253.625 391.6591L1253.625 415.9773A3 3 0 0 1 1250.625 418.9773L1103.5 418.9773A3 3 0 0 1 1100.5 415.9773L1100.5 391.6591A3 3 0 0 1 1103.5 388.6591" fill="rgb(234,241,220)" stroke="#fff" stroke-width="2" class="zr1-cls-6"></path>
+<path d="M1103.5 418.4773L1250.625 418.4773A3 3 0 0 1 1253.625 421.4773L1253.625 445.7955A3 3 0 0 1 1250.625 448.7955L1103.5 448.7955A3 3 0 0 1 1100.5 445.7955L1100.5 421.4773A3 3 0 0 1 1103.5 418.4773" fill="rgb(235,242,221)" stroke="#fff" stroke-width="2" class="zr1-cls-14"></path>
+<path d="M1103.5 448.2955L1250.625 448.2955A3 3 0 0 1 1253.625 451.2955L1253.625 475.6136A3 3 0 0 1 1250.625 478.6136L1103.5 478.6136A3 3 0 0 1 1100.5 475.6136L1100.5 451.2955A3 3 0 0 1 1103.5 448.2955" fill="rgb(235,242,221)" stroke="#fff" stroke-width="2" class="zr1-cls-14"></path>
+<path d="M1103.5 478.1136L1250.625 478.1136A3 3 0 0 1 1253.625 481.1136L1253.625 505.4318A3 3 0 0 1 1250.625 508.4318L1103.5 508.4318A3 3 0 0 1 1100.5 505.4318L1100.5 481.1136A3 3 0 0 1 1103.5 478.1136" fill="rgb(235,242,221)" stroke="#fff" stroke-width="2" class="zr1-cls-14"></path>
+<path d="M1256.125 209.75L1403.25 209.75A3 3 0 0 1 1406.25 212.75L1406.25 237.0682A3 3 0 0 1 1403.25 240.0682L1256.125 240.0682A3 3 0 0 1 1253.125 237.0682L1253.125 212.75A3 3 0 0 1 1256.125 209.75" fill="rgb(34,99,72)" stroke="#fff" stroke-width="2" class="zr1-cls-38"></path>
+<path d="M1256.125 239.5682L1403.25 239.5682A3 3 0 0 1 1406.25 242.5682L1406.25 266.8864A3 3 0 0 1 1403.25 269.8864L1256.125 269.8864A3 3 0 0 1 1253.125 266.8864L1253.125 242.5682A3 3 0 0 1 1256.125 239.5682" fill="rgb(187,209,177)" stroke="#fff" stroke-width="2" class="zr1-cls-39"></path>
+<path d="M1256.125 269.3864L1403.25 269.3864A3 3 0 0 1 1406.25 272.3864L1406.25 296.7045A3 3 0 0 1 1403.25 299.7045L1256.125 299.7045A3 3 0 0 1 1253.125 296.7045L1253.125 272.3864A3 3 0 0 1 1256.125 269.3864" fill="rgb(217,229,205)" stroke="#fff" stroke-width="2" class="zr1-cls-40"></path>
+<path d="M1256.125 299.2045L1403.25 299.2045A3 3 0 0 1 1406.25 302.2045L1406.25 326.5227A3 3 0 0 1 1403.25 329.5227L1256.125 329.5227A3 3 0 0 1 1253.125 326.5227L1253.125 302.2045A3 3 0 0 1 1256.125 299.2045" fill="rgb(221,232,209)" stroke="#fff" stroke-width="2" class="zr1-cls-22"></path>
+<path d="M1256.125 329.0227L1403.25 329.0227A3 3 0 0 1 1406.25 332.0227L1406.25 356.3409A3 3 0 0 1 1403.25 359.3409L1256.125 359.3409A3 3 0 0 1 1253.125 356.3409L1253.125 332.0227A3 3 0 0 1 1256.125 329.0227" fill="rgb(228,237,215)" stroke="#fff" stroke-width="2" class="zr1-cls-12"></path>
+<path d="M1256.125 358.8409L1403.25 358.8409A3 3 0 0 1 1406.25 361.8409L1406.25 386.1591A3 3 0 0 1 1403.25 389.1591L1256.125 389.1591A3 3 0 0 1 1253.125 386.1591L1253.125 361.8409A3 3 0 0 1 1256.125 358.8409" fill="rgb(231,239,218)" stroke="#fff" stroke-width="2" class="zr1-cls-28"></path>
+<path d="M1256.125 388.6591L1403.25 388.6591A3 3 0 0 1 1406.25 391.6591L1406.25 415.9773A3 3 0 0 1 1403.25 418.9773L1256.125 418.9773A3 3 0 0 1 1253.125 415.9773L1253.125 391.6591A3 3 0 0 1 1256.125 388.6591" fill="rgb(233,240,219)" stroke="#fff" stroke-width="2" class="zr1-cls-13"></path>
+<path d="M1256.125 418.4773L1403.25 418.4773A3 3 0 0 1 1406.25 421.4773L1406.25 445.7955A3 3 0 0 1 1403.25 448.7955L1256.125 448.7955A3 3 0 0 1 1253.125 445.7955L1253.125 421.4773A3 3 0 0 1 1256.125 418.4773" fill="rgb(235,241,221)" stroke="#fff" stroke-width="2" class="zr1-cls-14"></path>
+<path d="M1256.125 448.2955L1403.25 448.2955A3 3 0 0 1 1406.25 451.2955L1406.25 475.6136A3 3 0 0 1 1403.25 478.6136L1256.125 478.6136A3 3 0 0 1 1253.125 475.6136L1253.125 451.2955A3 3 0 0 1 1256.125 448.2955" fill="rgb(235,242,221)" stroke="#fff" stroke-width="2" class="zr1-cls-14"></path>
+<path d="M1256.125 507.9318L1403.25 507.9318A3 3 0 0 1 1406.25 510.9318L1406.25 535.25A3 3 0 0 1 1403.25 538.25L1256.125 538.25A3 3 0 0 1 1253.125 535.25L1253.125 510.9318A3 3 0 0 1 1256.125 507.9318" fill="rgb(235,242,221)" stroke="#fff" stroke-width="2" class="zr1-cls-14"></path>
+<text dominant-baseline="central" text-anchor="middle" style="font-size:11px;font-family:Inter, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif;" xml:space="preserve" transform="translate(261.3125 224.9091)" fill="#333">6,53 mlr</text>
+<text dominant-baseline="central" text-anchor="middle" style="font-size:11px;font-family:Inter, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif;" xml:space="preserve" transform="translate(261.3125 254.7273)" fill="#333">1,9 mlr</text>
+<text dominant-baseline="central" text-anchor="middle" style="font-size:11px;font-family:Inter, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif;" xml:space="preserve" transform="translate(261.3125 284.5455)" fill="#333">1,18 mlr</text>
+<text dominant-baseline="central" text-anchor="middle" style="font-size:11px;font-family:Inter, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif;" xml:space="preserve" transform="translate(261.3125 314.3636)" fill="#333">791,07 mn</text>
+<text dominant-baseline="central" text-anchor="middle" style="font-size:11px;font-family:Inter, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif;" xml:space="preserve" transform="translate(261.3125 344.1818)" fill="#333">456,74 mn</text>
+<text dominant-baseline="central" text-anchor="middle" style="font-size:11px;font-family:Inter, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif;" xml:space="preserve" transform="translate(261.3125 374)" fill="#333">410,49 mn</text>
+<text dominant-baseline="central" text-anchor="middle" style="font-size:11px;font-family:Inter, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif;" xml:space="preserve" transform="translate(261.3125 403.8182)" fill="#333">300,14 mn</text>
+<text dominant-baseline="central" text-anchor="middle" style="font-size:11px;font-family:Inter, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif;" xml:space="preserve" transform="translate(261.3125 433.6364)" fill="#333">223,79 mn</text>
+<text dominant-baseline="central" text-anchor="middle" style="font-size:11px;font-family:Inter, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif;" xml:space="preserve" transform="translate(261.3125 463.4545)" fill="#333">205,75 mn</text>
+<text dominant-baseline="central" text-anchor="middle" style="font-size:11px;font-family:Inter, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif;" xml:space="preserve" transform="translate(261.3125 493.2727)" fill="#333">193,04 mn</text>
+<text dominant-baseline="central" text-anchor="middle" style="font-size:11px;font-family:Inter, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif;" xml:space="preserve" transform="translate(413.9375 224.9091)" fill="#333">6,84 mlr</text>
+<text dominant-baseline="central" text-anchor="middle" style="font-size:11px;font-family:Inter, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif;" xml:space="preserve" transform="translate(413.9375 254.7273)" fill="#333">2,06 mlr</text>
+<text dominant-baseline="central" text-anchor="middle" style="font-size:11px;font-family:Inter, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif;" xml:space="preserve" transform="translate(413.9375 284.5455)" fill="#333">1,24 mlr</text>
+<text dominant-baseline="central" text-anchor="middle" style="font-size:11px;font-family:Inter, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif;" xml:space="preserve" transform="translate(413.9375 314.3636)" fill="#333">848,03 mn</text>
+<text dominant-baseline="central" text-anchor="middle" style="font-size:11px;font-family:Inter, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif;" xml:space="preserve" transform="translate(413.9375 344.1818)" fill="#333">513,84 mn</text>
+<text dominant-baseline="central" text-anchor="middle" style="font-size:11px;font-family:Inter, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif;" xml:space="preserve" transform="translate(413.9375 374)" fill="#333">442,53 mn</text>
+<text dominant-baseline="central" text-anchor="middle" style="font-size:11px;font-family:Inter, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif;" xml:space="preserve" transform="translate(413.9375 403.8182)" fill="#333">319,08 mn</text>
+<text dominant-baseline="central" text-anchor="middle" style="font-size:11px;font-family:Inter, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif;" xml:space="preserve" transform="translate(413.9375 433.6364)" fill="#333">236,14 mn</text>
+<text dominant-baseline="central" text-anchor="middle" style="font-size:11px;font-family:Inter, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif;" xml:space="preserve" transform="translate(413.9375 463.4545)" fill="#333">210,88 mn</text>
+<text dominant-baseline="central" text-anchor="middle" style="font-size:11px;font-family:Inter, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif;" xml:space="preserve" transform="translate(413.9375 493.2727)" fill="#333">211,38 mn</text>
+<text dominant-baseline="central" text-anchor="middle" style="font-size:11px;font-family:Inter, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif;" xml:space="preserve" transform="translate(566.5625 224.9091)" fill="#333">7,3 mlr</text>
+<text dominant-baseline="central" text-anchor="middle" style="font-size:11px;font-family:Inter, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif;" xml:space="preserve" transform="translate(566.5625 254.7273)" fill="#333">2,33 mlr</text>
+<text dominant-baseline="central" text-anchor="middle" style="font-size:11px;font-family:Inter, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif;" xml:space="preserve" transform="translate(566.5625 284.5455)" fill="#333">1,32 mlr</text>
+<text dominant-baseline="central" text-anchor="middle" style="font-size:11px;font-family:Inter, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif;" xml:space="preserve" transform="translate(566.5625 314.3636)" fill="#333">930,6 mn</text>
+<text dominant-baseline="central" text-anchor="middle" style="font-size:11px;font-family:Inter, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif;" xml:space="preserve" transform="translate(566.5625 344.1818)" fill="#333">561,78 mn</text>
+<text dominant-baseline="central" text-anchor="middle" style="font-size:11px;font-family:Inter, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif;" xml:space="preserve" transform="translate(566.5625 374)" fill="#333">444,71 mn</text>
+<text dominant-baseline="central" text-anchor="middle" style="font-size:11px;font-family:Inter, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif;" xml:space="preserve" transform="translate(566.5625 403.8182)" fill="#333">342,62 mn</text>
+<text dominant-baseline="central" text-anchor="middle" style="font-size:11px;font-family:Inter, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif;" xml:space="preserve" transform="translate(566.5625 433.6364)" fill="#333">258,5 mn</text>
+<text dominant-baseline="central" text-anchor="middle" style="font-size:11px;font-family:Inter, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif;" xml:space="preserve" transform="translate(566.5625 463.4545)" fill="#333">229,21 mn</text>
+<text dominant-baseline="central" text-anchor="middle" style="font-size:11px;font-family:Inter, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif;" xml:space="preserve" transform="translate(566.5625 493.2727)" fill="#333">241,66 mn</text>
+<text dominant-baseline="central" text-anchor="middle" style="font-size:11px;font-family:Inter, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif;" xml:space="preserve" transform="translate(719.1875 224.9091)" fill="#333">8 mlr</text>
+<text dominant-baseline="central" text-anchor="middle" style="font-size:11px;font-family:Inter, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif;" xml:space="preserve" transform="translate(719.1875 254.7273)" fill="#333">2,42 mlr</text>
+<text dominant-baseline="central" text-anchor="middle" style="font-size:11px;font-family:Inter, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif;" xml:space="preserve" transform="translate(719.1875 284.5455)" fill="#333">1,33 mlr</text>
+<text dominant-baseline="central" text-anchor="middle" style="font-size:11px;font-family:Inter, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif;" xml:space="preserve" transform="translate(719.1875 314.3636)" fill="#333">969,53 mn</text>
+<text dominant-baseline="central" text-anchor="middle" style="font-size:11px;font-family:Inter, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif;" xml:space="preserve" transform="translate(719.1875 344.1818)" fill="#333">559,36 mn</text>
+<text dominant-baseline="central" text-anchor="middle" style="font-size:11px;font-family:Inter, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif;" xml:space="preserve" transform="translate(719.1875 374)" fill="#333">468,39 mn</text>
+<text dominant-baseline="central" text-anchor="middle" style="font-size:11px;font-family:Inter, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif;" xml:space="preserve" transform="translate(719.1875 403.8182)" fill="#333">347,71 mn</text>
+<text dominant-baseline="central" text-anchor="middle" style="font-size:11px;font-family:Inter, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif;" xml:space="preserve" transform="translate(719.1875 433.6364)" fill="#333">273,07 mn</text>
+<text dominant-baseline="central" text-anchor="middle" style="font-size:11px;font-family:Inter, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif;" xml:space="preserve" transform="translate(719.1875 493.2727)" fill="#333">249 mn</text>
+<text dominant-baseline="central" text-anchor="middle" style="font-size:11px;font-family:Inter, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif;" xml:space="preserve" transform="translate(719.1875 523.0909)" fill="#333">238,5 mn</text>
+<text dominant-baseline="central" text-anchor="middle" style="font-size:11px;font-family:Inter, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif;" xml:space="preserve" transform="translate(871.8125 224.9091)" fill="#eee" stroke="rgb(92,141,109)" stroke-width="2" paint-order="stroke" stroke-miterlimit="2">8,99 mlr</text>
+<text dominant-baseline="central" text-anchor="middle" style="font-size:11px;font-family:Inter, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif;" xml:space="preserve" transform="translate(871.8125 254.7273)" fill="#333">2,59 mlr</text>
+<text dominant-baseline="central" text-anchor="middle" style="font-size:11px;font-family:Inter, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif;" xml:space="preserve" transform="translate(871.8125 284.5455)" fill="#333">1,43 mlr</text>
+<text dominant-baseline="central" text-anchor="middle" style="font-size:11px;font-family:Inter, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif;" xml:space="preserve" transform="translate(871.8125 314.3636)" fill="#333">1,09 mlr</text>
+<text dominant-baseline="central" text-anchor="middle" style="font-size:11px;font-family:Inter, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif;" xml:space="preserve" transform="translate(871.8125 344.1818)" fill="#333">634,47 mn</text>
+<text dominant-baseline="central" text-anchor="middle" style="font-size:11px;font-family:Inter, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif;" xml:space="preserve" transform="translate(871.8125 374)" fill="#333">513,38 mn</text>
+<text dominant-baseline="central" text-anchor="middle" style="font-size:11px;font-family:Inter, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif;" xml:space="preserve" transform="translate(871.8125 403.8182)" fill="#333">381,93 mn</text>
+<text dominant-baseline="central" text-anchor="middle" style="font-size:11px;font-family:Inter, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif;" xml:space="preserve" transform="translate(871.8125 433.6364)" fill="#333">308,46 mn</text>
+<text dominant-baseline="central" text-anchor="middle" style="font-size:11px;font-family:Inter, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif;" xml:space="preserve" transform="translate(871.8125 493.2727)" fill="#333">272,2 mn</text>
+<text dominant-baseline="central" text-anchor="middle" style="font-size:11px;font-family:Inter, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif;" xml:space="preserve" transform="translate(871.8125 523.0909)" fill="#333">277,1 mn</text>
+<text dominant-baseline="central" text-anchor="middle" style="font-size:11px;font-family:Inter, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif;" xml:space="preserve" transform="translate(1024.4375 224.9091)" fill="#eee" stroke="rgb(74,128,98)" stroke-width="2" paint-order="stroke" stroke-miterlimit="2">9,82 mlr</text>
+<text dominant-baseline="central" text-anchor="middle" style="font-size:11px;font-family:Inter, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif;" xml:space="preserve" transform="translate(1024.4375 254.7273)" fill="#333">2,84 mlr</text>
+<text dominant-baseline="central" text-anchor="middle" style="font-size:11px;font-family:Inter, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif;" xml:space="preserve" transform="translate(1024.4375 284.5455)" fill="#333">1,57 mlr</text>
+<text dominant-baseline="central" text-anchor="middle" style="font-size:11px;font-family:Inter, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif;" xml:space="preserve" transform="translate(1024.4375 314.3636)" fill="#333">1,2 mlr</text>
+<text dominant-baseline="central" text-anchor="middle" style="font-size:11px;font-family:Inter, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif;" xml:space="preserve" transform="translate(1024.4375 344.1818)" fill="#333">719,35 mn</text>
+<text dominant-baseline="central" text-anchor="middle" style="font-size:11px;font-family:Inter, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif;" xml:space="preserve" transform="translate(1024.4375 374)" fill="#333">528,33 mn</text>
+<text dominant-baseline="central" text-anchor="middle" style="font-size:11px;font-family:Inter, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif;" xml:space="preserve" transform="translate(1024.4375 403.8182)" fill="#333">410,66 mn</text>
+<text dominant-baseline="central" text-anchor="middle" style="font-size:11px;font-family:Inter, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif;" xml:space="preserve" transform="translate(1024.4375 433.6364)" fill="#333">327,58 mn</text>
+<text dominant-baseline="central" text-anchor="middle" style="font-size:11px;font-family:Inter, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif;" xml:space="preserve" transform="translate(1024.4375 463.4545)" fill="#333">303,2 mn</text>
+<text dominant-baseline="central" text-anchor="middle" style="font-size:11px;font-family:Inter, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif;" xml:space="preserve" transform="translate(1024.4375 493.2727)" fill="#333">296,33 mn</text>
+<text dominant-baseline="central" text-anchor="middle" style="font-size:11px;font-family:Inter, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif;" xml:space="preserve" transform="translate(1177.0625 224.9091)" fill="#eee" stroke="rgb(59,117,88)" stroke-width="2" paint-order="stroke" stroke-miterlimit="2">10,52 mlr</text>
+<text dominant-baseline="central" text-anchor="middle" style="font-size:11px;font-family:Inter, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif;" xml:space="preserve" transform="translate(1177.0625 254.7273)" fill="#333">3,3 mlr</text>
+<text dominant-baseline="central" text-anchor="middle" style="font-size:11px;font-family:Inter, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif;" xml:space="preserve" transform="translate(1177.0625 284.5455)" fill="#333">1,61 mlr</text>
+<text dominant-baseline="central" text-anchor="middle" style="font-size:11px;font-family:Inter, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif;" xml:space="preserve" transform="translate(1177.0625 314.3636)" fill="#333">1,28 mlr</text>
+<text dominant-baseline="central" text-anchor="middle" style="font-size:11px;font-family:Inter, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif;" xml:space="preserve" transform="translate(1177.0625 344.1818)" fill="#333">792,84 mn</text>
+<text dominant-baseline="central" text-anchor="middle" style="font-size:11px;font-family:Inter, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif;" xml:space="preserve" transform="translate(1177.0625 374)" fill="#333">562,94 mn</text>
+<text dominant-baseline="central" text-anchor="middle" style="font-size:11px;font-family:Inter, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif;" xml:space="preserve" transform="translate(1177.0625 403.8182)" fill="#333">436,54 mn</text>
+<text dominant-baseline="central" text-anchor="middle" style="font-size:11px;font-family:Inter, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif;" xml:space="preserve" transform="translate(1177.0625 433.6364)" fill="#333">355,01 mn</text>
+<text dominant-baseline="central" text-anchor="middle" style="font-size:11px;font-family:Inter, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif;" xml:space="preserve" transform="translate(1177.0625 463.4545)" fill="#333">327,62 mn</text>
+<text dominant-baseline="central" text-anchor="middle" style="font-size:11px;font-family:Inter, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif;" xml:space="preserve" transform="translate(1177.0625 493.2727)" fill="#333">334,14 mn</text>
+<text dominant-baseline="central" text-anchor="middle" style="font-size:11px;font-family:Inter, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif;" xml:space="preserve" transform="translate(1329.6875 224.9091)" fill="#eee" stroke="rgb(34,99,72)" stroke-width="2" paint-order="stroke" stroke-miterlimit="2">11,65 mlr</text>
+<text dominant-baseline="central" text-anchor="middle" style="font-size:11px;font-family:Inter, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif;" xml:space="preserve" transform="translate(1329.6875 254.7273)" fill="#333">3,88 mlr</text>
+<text dominant-baseline="central" text-anchor="middle" style="font-size:11px;font-family:Inter, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif;" xml:space="preserve" transform="translate(1329.6875 284.5455)" fill="#333">1,67 mlr</text>
+<text dominant-baseline="central" text-anchor="middle" style="font-size:11px;font-family:Inter, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif;" xml:space="preserve" transform="translate(1329.6875 314.3636)" fill="#333">1,35 mlr</text>
+<text dominant-baseline="central" text-anchor="middle" style="font-size:11px;font-family:Inter, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif;" xml:space="preserve" transform="translate(1329.6875 344.1818)" fill="#333">820,82 mn</text>
+<text dominant-baseline="central" text-anchor="middle" style="font-size:11px;font-family:Inter, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif;" xml:space="preserve" transform="translate(1329.6875 374)" fill="#333">610,28 mn</text>
+<text dominant-baseline="central" text-anchor="middle" style="font-size:11px;font-family:Inter, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif;" xml:space="preserve" transform="translate(1329.6875 403.8182)" fill="#333">478,2 mn</text>
+<text dominant-baseline="central" text-anchor="middle" style="font-size:11px;font-family:Inter, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif;" xml:space="preserve" transform="translate(1329.6875 433.6364)" fill="#333">371,02 mn</text>
+<text dominant-baseline="central" text-anchor="middle" style="font-size:11px;font-family:Inter, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif;" xml:space="preserve" transform="translate(1329.6875 463.4545)" fill="#333">350,86 mn</text>
+<text dominant-baseline="central" text-anchor="middle" style="font-size:11px;font-family:Inter, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif;" xml:space="preserve" transform="translate(1329.6875 523.0909)" fill="#333">350,8 mn</text>
+<path d="M-75.6494 -25l326.626 0l0 40l-326.626 0Z" transform="translate(632.3364 629)" fill="rgb(0,0,0)" fill-opacity="0" stroke="#cfd2d7" stroke-width="0" class="zr1-cls-1"></path>
+<g clip-path="url(#zr1-c0)">
+<polygon points="0 0 10 0 10 150 0 150" transform="matrix(0,-1,1,0,632.3364,629)" fill="url(#zr1-g0)" class="zr1-cls-42"></polygon>
+<polygon points="0 0 10 0 10 150 0 150" transform="matrix(0,-1,1,0,632.3364,629)" fill="url(#zr1-g1)" class="zr1-cls-43"></polygon>
+</g>
+<text dominant-baseline="central" text-anchor="end" style="font-size:10px;font-family:Inter, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif;" xml:space="preserve" x="-10" y="-5" transform="translate(632.3364 629)" fill="#627568">193,04 mn</text>
+<text dominant-baseline="central" text-anchor="start" style="font-size:10px;font-family:Inter, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif;" xml:space="preserve" x="160" y="-4.999999999999989" transform="translate(632.3364 629)" fill="#627568">11,65 mlr bin TL</text>
+<path d="M-5 -5l448.4861 0l0 67l-448.4861 0Z" transform="translate(41 29)" fill="rgb(0,0,0)" fill-opacity="0" stroke="#3c3c41" stroke-width="0" class="zr1-cls-1"></path>
+<path d="M0 0l438.4861 0l0 29l-438.4861 0Z" transform="translate(41 29)" fill="none" class="zr1-cls-1"></path>
+<text dominant-baseline="central" text-anchor="start" style="font-size:23px;font-family:Inter, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif;font-weight:600;" xml:space="preserve" y="14.5" transform="translate(41 29)" fill="#20372d">Mevduatta ilk 10 bölge: çeyreklik görünüm</text>
+<path d="M0 39l330.7031 0l0 18l-330.7031 0Z" transform="translate(41 29)" fill="none" class="zr1-cls-1"></path>
+<text dominant-baseline="central" text-anchor="start" style="font-size:12px;font-family:Inter, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif;" xml:space="preserve" y="48" transform="translate(41 29)" fill="#627568">2024 · 1. çeyrek - 2025 · 4. çeyrek · 80 kayıt · Birim: bin TL</text>
+<defs >
+<clipPath id="zr1-c0">
+<path d="M3 0L7 0A3 3 0 0 1 10 3L10 147A3 3 0 0 1 7 150L3 150A3 3 0 0 1 0 147L0 3A3 3 0 0 1 3 0" transform="matrix(0,-1,1,0,632.3364,629)" fill="#000" class="zr1-cls-41"></path>
+</clipPath>
+<linearGradient gradientUnits="objectBoundingBox" x1="0" y1="0" x2="0" y2="1" id="zr1-g0">
+<stop offset="0%" stop-color="rgb(207,210,215)"></stop>
+<stop offset="1%" stop-color="rgb(207,210,215)"></stop>
+<stop offset="2%" stop-color="rgb(207,210,215)"></stop>
+<stop offset="3%" stop-color="rgb(207,210,215)"></stop>
+<stop offset="4%" stop-color="rgb(207,210,215)"></stop>
+<stop offset="5%" stop-color="rgb(207,210,215)"></stop>
+<stop offset="6%" stop-color="rgb(207,210,215)"></stop>
+<stop offset="7.000000000000001%" stop-color="rgb(207,210,215)"></stop>
+<stop offset="8%" stop-color="rgb(207,210,215)"></stop>
+<stop offset="9%" stop-color="rgb(207,210,215)"></stop>
+<stop offset="10%" stop-color="rgb(207,210,215)"></stop>
+<stop offset="11%" stop-color="rgb(207,210,215)"></stop>
+<stop offset="12%" stop-color="rgb(207,210,215)"></stop>
+<stop offset="13%" stop-color="rgb(207,210,215)"></stop>
+<stop offset="14.000000000000002%" stop-color="rgb(207,210,215)"></stop>
+<stop offset="15%" stop-color="rgb(207,210,215)"></stop>
+<stop offset="16%" stop-color="rgb(207,210,215)"></stop>
+<stop offset="17%" stop-color="rgb(207,210,215)"></stop>
+<stop offset="18%" stop-color="rgb(207,210,215)"></stop>
+<stop offset="19%" stop-color="rgb(207,210,215)"></stop>
+<stop offset="20%" stop-color="rgb(207,210,215)"></stop>
+<stop offset="21%" stop-color="rgb(207,210,215)"></stop>
+<stop offset="22%" stop-color="rgb(207,210,215)"></stop>
+<stop offset="23%" stop-color="rgb(207,210,215)"></stop>
+<stop offset="24%" stop-color="rgb(207,210,215)"></stop>
+<stop offset="25%" stop-color="rgb(207,210,215)"></stop>
+<stop offset="26%" stop-color="rgb(207,210,215)"></stop>
+<stop offset="27%" stop-color="rgb(207,210,215)"></stop>
+<stop offset="28.000000000000004%" stop-color="rgb(207,210,215)"></stop>
+<stop offset="28.999999999999996%" stop-color="rgb(207,210,215)"></stop>
+<stop offset="30%" stop-color="rgb(207,210,215)"></stop>
+<stop offset="31%" stop-color="rgb(207,210,215)"></stop>
+<stop offset="32%" stop-color="rgb(207,210,215)"></stop>
+<stop offset="33%" stop-color="rgb(207,210,215)"></stop>
+<stop offset="34%" stop-color="rgb(207,210,215)"></stop>
+<stop offset="35%" stop-color="rgb(207,210,215)"></stop>
+<stop offset="36%" stop-color="rgb(207,210,215)"></stop>
+<stop offset="37%" stop-color="rgb(207,210,215)"></stop>
+<stop offset="38%" stop-color="rgb(207,210,215)"></stop>
+<stop offset="39%" stop-color="rgb(207,210,215)"></stop>
+<stop offset="40%" stop-color="rgb(207,210,215)"></stop>
+<stop offset="41%" stop-color="rgb(207,210,215)"></stop>
+<stop offset="42%" stop-color="rgb(207,210,215)"></stop>
+<stop offset="43%" stop-color="rgb(207,210,215)"></stop>
+<stop offset="44%" stop-color="rgb(207,210,215)"></stop>
+<stop offset="45%" stop-color="rgb(207,210,215)"></stop>
+<stop offset="46%" stop-color="rgb(207,210,215)"></stop>
+<stop offset="47%" stop-color="rgb(207,210,215)"></stop>
+<stop offset="48%" stop-color="rgb(207,210,215)"></stop>
+<stop offset="49%" stop-color="rgb(207,210,215)"></stop>
+<stop offset="50%" stop-color="rgb(207,210,215)"></stop>
+<stop offset="51%" stop-color="rgb(207,210,215)"></stop>
+<stop offset="52%" stop-color="rgb(207,210,215)"></stop>
+<stop offset="53%" stop-color="rgb(207,210,215)"></stop>
+<stop offset="54%" stop-color="rgb(207,210,215)"></stop>
+<stop offset="55.00000000000001%" stop-color="rgb(207,210,215)"></stop>
+<stop offset="56.00000000000001%" stop-color="rgb(207,210,215)"></stop>
+<stop offset="56.99999999999999%" stop-color="rgb(207,210,215)"></stop>
+<stop offset="57.99999999999999%" stop-color="rgb(207,210,215)"></stop>
+<stop offset="59%" stop-color="rgb(207,210,215)"></stop>
+<stop offset="60%" stop-color="rgb(207,210,215)"></stop>
+<stop offset="61%" stop-color="rgb(207,210,215)"></stop>
+<stop offset="62%" stop-color="rgb(207,210,215)"></stop>
+<stop offset="63%" stop-color="rgb(207,210,215)"></stop>
+<stop offset="64%" stop-color="rgb(207,210,215)"></stop>
+<stop offset="65%" stop-color="rgb(207,210,215)"></stop>
+<stop offset="66%" stop-color="rgb(207,210,215)"></stop>
+<stop offset="67%" stop-color="rgb(207,210,215)"></stop>
+<stop offset="68%" stop-color="rgb(207,210,215)"></stop>
+<stop offset="69%" stop-color="rgb(207,210,215)"></stop>
+<stop offset="70%" stop-color="rgb(207,210,215)"></stop>
+<stop offset="71%" stop-color="rgb(207,210,215)"></stop>
+<stop offset="72%" stop-color="rgb(207,210,215)"></stop>
+<stop offset="73%" stop-color="rgb(207,210,215)"></stop>
+<stop offset="74%" stop-color="rgb(207,210,215)"></stop>
+<stop offset="75%" stop-color="rgb(207,210,215)"></stop>
+<stop offset="76%" stop-color="rgb(207,210,215)"></stop>
+<stop offset="77%" stop-color="rgb(207,210,215)"></stop>
+<stop offset="78%" stop-color="rgb(207,210,215)"></stop>
+<stop offset="79%" stop-color="rgb(207,210,215)"></stop>
+<stop offset="80%" stop-color="rgb(207,210,215)"></stop>
+<stop offset="81%" stop-color="rgb(207,210,215)"></stop>
+<stop offset="82%" stop-color="rgb(207,210,215)"></stop>
+<stop offset="83%" stop-color="rgb(207,210,215)"></stop>
+<stop offset="84%" stop-color="rgb(207,210,215)"></stop>
+<stop offset="85%" stop-color="rgb(207,210,215)"></stop>
+<stop offset="86%" stop-color="rgb(207,210,215)"></stop>
+<stop offset="87%" stop-color="rgb(207,210,215)"></stop>
+<stop offset="88%" stop-color="rgb(207,210,215)"></stop>
+<stop offset="89%" stop-color="rgb(207,210,215)"></stop>
+<stop offset="90%" stop-color="rgb(207,210,215)"></stop>
+<stop offset="91%" stop-color="rgb(207,210,215)"></stop>
+<stop offset="92%" stop-color="rgb(207,210,215)"></stop>
+<stop offset="93%" stop-color="rgb(207,210,215)"></stop>
+<stop offset="94%" stop-color="rgb(207,210,215)"></stop>
+<stop offset="95%" stop-color="rgb(207,210,215)"></stop>
+<stop offset="96%" stop-color="rgb(207,210,215)"></stop>
+<stop offset="97%" stop-color="rgb(207,210,215)"></stop>
+<stop offset="98%" stop-color="rgb(207,210,215)"></stop>
+<stop offset="99%" stop-color="rgb(207,210,215)"></stop>
+<stop offset="100%" stop-color="rgb(207,210,215)"></stop>
+</linearGradient>
+<linearGradient gradientUnits="objectBoundingBox" x1="0" y1="0" x2="0" y2="1" id="zr1-g1">
+<stop offset="0%" stop-color="rgb(237,243,223)"></stop>
+<stop offset="1%" stop-color="rgb(235,242,222)"></stop>
+<stop offset="2%" stop-color="rgb(234,241,220)"></stop>
+<stop offset="3%" stop-color="rgb(232,240,219)"></stop>
+<stop offset="4%" stop-color="rgb(231,239,217)"></stop>
+<stop offset="5%" stop-color="rgb(229,238,216)"></stop>
+<stop offset="6%" stop-color="rgb(228,237,214)"></stop>
+<stop offset="7.000000000000001%" stop-color="rgb(226,236,213)"></stop>
+<stop offset="8%" stop-color="rgb(225,235,212)"></stop>
+<stop offset="9%" stop-color="rgb(223,233,210)"></stop>
+<stop offset="10%" stop-color="rgb(221,232,209)"></stop>
+<stop offset="11%" stop-color="rgb(220,231,207)"></stop>
+<stop offset="12%" stop-color="rgb(218,230,206)"></stop>
+<stop offset="13%" stop-color="rgb(217,229,205)"></stop>
+<stop offset="14.000000000000002%" stop-color="rgb(215,228,203)"></stop>
+<stop offset="15%" stop-color="rgb(214,227,202)"></stop>
+<stop offset="16%" stop-color="rgb(212,226,200)"></stop>
+<stop offset="17%" stop-color="rgb(210,225,199)"></stop>
+<stop offset="18%" stop-color="rgb(209,224,197)"></stop>
+<stop offset="19%" stop-color="rgb(207,223,196)"></stop>
+<stop offset="20%" stop-color="rgb(206,222,195)"></stop>
+<stop offset="21%" stop-color="rgb(204,221,193)"></stop>
+<stop offset="22%" stop-color="rgb(203,220,192)"></stop>
+<stop offset="23%" stop-color="rgb(201,219,190)"></stop>
+<stop offset="24%" stop-color="rgb(200,218,189)"></stop>
+<stop offset="25%" stop-color="rgb(198,217,188)"></stop>
+<stop offset="26%" stop-color="rgb(196,215,186)"></stop>
+<stop offset="27%" stop-color="rgb(195,214,185)"></stop>
+<stop offset="28.000000000000004%" stop-color="rgb(193,213,183)"></stop>
+<stop offset="28.999999999999996%" stop-color="rgb(192,212,182)"></stop>
+<stop offset="30%" stop-color="rgb(190,211,180)"></stop>
+<stop offset="31%" stop-color="rgb(189,210,179)"></stop>
+<stop offset="32%" stop-color="rgb(187,209,178)"></stop>
+<stop offset="33%" stop-color="rgb(186,208,176)"></stop>
+<stop offset="34%" stop-color="rgb(184,207,175)"></stop>
+<stop offset="35%" stop-color="rgb(182,206,173)"></stop>
+<stop offset="36%" stop-color="rgb(181,205,172)"></stop>
+<stop offset="37%" stop-color="rgb(179,204,170)"></stop>
+<stop offset="38%" stop-color="rgb(178,203,169)"></stop>
+<stop offset="39%" stop-color="rgb(176,202,168)"></stop>
+<stop offset="40%" stop-color="rgb(175,201,166)"></stop>
+<stop offset="41%" stop-color="rgb(173,200,165)"></stop>
+<stop offset="42%" stop-color="rgb(171,198,163)"></stop>
+<stop offset="43%" stop-color="rgb(170,197,162)"></stop>
+<stop offset="44%" stop-color="rgb(168,196,161)"></stop>
+<stop offset="45%" stop-color="rgb(167,195,159)"></stop>
+<stop offset="46%" stop-color="rgb(165,194,158)"></stop>
+<stop offset="47%" stop-color="rgb(164,193,156)"></stop>
+<stop offset="48%" stop-color="rgb(162,192,155)"></stop>
+<stop offset="49%" stop-color="rgb(161,191,153)"></stop>
+<stop offset="50%" stop-color="rgb(159,190,152)"></stop>
+<stop offset="51%" stop-color="rgb(157,188,150)"></stop>
+<stop offset="52%" stop-color="rgb(154,186,149)"></stop>
+<stop offset="53%" stop-color="rgb(152,185,147)"></stop>
+<stop offset="54%" stop-color="rgb(149,183,146)"></stop>
+<stop offset="55.00000000000001%" stop-color="rgb(147,181,144)"></stop>
+<stop offset="56.00000000000001%" stop-color="rgb(144,179,142)"></stop>
+<stop offset="56.99999999999999%" stop-color="rgb(142,177,141)"></stop>
+<stop offset="57.99999999999999%" stop-color="rgb(139,175,139)"></stop>
+<stop offset="59%" stop-color="rgb(137,174,138)"></stop>
+<stop offset="60%" stop-color="rgb(134,172,136)"></stop>
+<stop offset="61%" stop-color="rgb(132,170,134)"></stop>
+<stop offset="62%" stop-color="rgb(129,168,133)"></stop>
+<stop offset="63%" stop-color="rgb(127,166,131)"></stop>
+<stop offset="64%" stop-color="rgb(124,165,130)"></stop>
+<stop offset="65%" stop-color="rgb(122,163,128)"></stop>
+<stop offset="66%" stop-color="rgb(119,161,126)"></stop>
+<stop offset="67%" stop-color="rgb(117,159,125)"></stop>
+<stop offset="68%" stop-color="rgb(114,157,123)"></stop>
+<stop offset="69%" stop-color="rgb(112,155,122)"></stop>
+<stop offset="70%" stop-color="rgb(109,154,120)"></stop>
+<stop offset="71%" stop-color="rgb(107,152,118)"></stop>
+<stop offset="72%" stop-color="rgb(104,150,117)"></stop>
+<stop offset="73%" stop-color="rgb(102,148,115)"></stop>
+<stop offset="74%" stop-color="rgb(99,146,114)"></stop>
+<stop offset="75%" stop-color="rgb(97,145,112)"></stop>
+<stop offset="76%" stop-color="rgb(94,143,110)"></stop>
+<stop offset="77%" stop-color="rgb(92,141,109)"></stop>
+<stop offset="78%" stop-color="rgb(89,139,107)"></stop>
+<stop offset="79%" stop-color="rgb(86,137,106)"></stop>
+<stop offset="80%" stop-color="rgb(84,135,104)"></stop>
+<stop offset="81%" stop-color="rgb(81,134,102)"></stop>
+<stop offset="82%" stop-color="rgb(79,132,101)"></stop>
+<stop offset="83%" stop-color="rgb(77,130,99)"></stop>
+<stop offset="84%" stop-color="rgb(74,128,98)"></stop>
+<stop offset="85%" stop-color="rgb(72,126,96)"></stop>
+<stop offset="86%" stop-color="rgb(69,124,94)"></stop>
+<stop offset="87%" stop-color="rgb(67,123,93)"></stop>
+<stop offset="88%" stop-color="rgb(64,121,91)"></stop>
+<stop offset="89%" stop-color="rgb(62,119,90)"></stop>
+<stop offset="90%" stop-color="rgb(59,117,88)"></stop>
+<stop offset="91%" stop-color="rgb(56,115,86)"></stop>
+<stop offset="92%" stop-color="rgb(54,114,85)"></stop>
+<stop offset="93%" stop-color="rgb(51,112,83)"></stop>
+<stop offset="94%" stop-color="rgb(49,110,82)"></stop>
+<stop offset="95%" stop-color="rgb(47,108,80)"></stop>
+<stop offset="96%" stop-color="rgb(44,106,78)"></stop>
+<stop offset="97%" stop-color="rgb(42,104,77)"></stop>
+<stop offset="98%" stop-color="rgb(39,103,75)"></stop>
+<stop offset="99%" stop-color="rgb(37,101,74)"></stop>
+<stop offset="100%" stop-color="rgb(34,99,72)"></stop>
+</linearGradient>
+</defs>
+<style ><![CDATA[
+.zr1-cls-0:hover {
+cursor:pointer;
+}
+.zr1-cls-1:hover {
+pointer-events:none;
+}
+.zr1-cls-2:hover {
+cursor:pointer;
+fill:rgba(160,198,158,1);
+stroke:#235a43;
+stroke-width:2;
+}
+.zr1-cls-3:hover {
+cursor:pointer;
+fill:rgba(235,249,222,1);
+stroke:#235a43;
+stroke-width:2;
+}
+.zr1-cls-4:hover {
+cursor:pointer;
+fill:rgba(246,255,232,1);
+stroke:#235a43;
+stroke-width:2;
+}
+.zr1-cls-5:hover {
+cursor:pointer;
+fill:rgba(251,255,237,1);
+stroke:#235a43;
+stroke-width:2;
+}
+.zr1-cls-6:hover {
+cursor:pointer;
+fill:rgba(255,255,242,1);
+stroke:#235a43;
+stroke-width:2;
+}
+.zr1-cls-7:hover {
+cursor:pointer;
+fill:rgba(255,255,244,1);
+stroke:#235a43;
+stroke-width:2;
+}
+.zr1-cls-8:hover {
+cursor:pointer;
+fill:rgba(255,255,245,1);
+stroke:#235a43;
+stroke-width:2;
+}
+.zr1-cls-9:hover {
+cursor:pointer;
+fill:rgba(152,192,152,1);
+stroke:#235a43;
+stroke-width:2;
+}
+.zr1-cls-10:hover {
+cursor:pointer;
+fill:rgba(233,248,220,1);
+stroke:#235a43;
+stroke-width:2;
+}
+.zr1-cls-11:hover {
+cursor:pointer;
+fill:rgba(245,255,231,1);
+stroke:#235a43;
+stroke-width:2;
+}
+.zr1-cls-12:hover {
+cursor:pointer;
+fill:rgba(250,255,236,1);
+stroke:#235a43;
+stroke-width:2;
+}
+.zr1-cls-13:hover {
+cursor:pointer;
+fill:rgba(255,255,240,1);
+stroke:#235a43;
+stroke-width:2;
+}
+.zr1-cls-14:hover {
+cursor:pointer;
+fill:rgba(255,255,243,1);
+stroke:#235a43;
+stroke-width:2;
+}
+.zr1-cls-15:hover {
+cursor:pointer;
+fill:rgba(141,184,146,1);
+stroke:#235a43;
+stroke-width:2;
+}
+.zr1-cls-16:hover {
+cursor:pointer;
+fill:rgba(228,245,216,1);
+stroke:#235a43;
+stroke-width:2;
+}
+.zr1-cls-17:hover {
+cursor:pointer;
+fill:rgba(244,255,229,1);
+stroke:#235a43;
+stroke-width:2;
+}
+.zr1-cls-18:hover {
+cursor:pointer;
+fill:rgba(249,255,235,1);
+stroke:#235a43;
+stroke-width:2;
+}
+.zr1-cls-19:hover {
+cursor:pointer;
+fill:rgba(255,255,239,1);
+stroke:#235a43;
+stroke-width:2;
+}
+.zr1-cls-20:hover {
+cursor:pointer;
+fill:rgba(125,172,135,1);
+stroke:#235a43;
+stroke-width:2;
+}
+.zr1-cls-21:hover {
+cursor:pointer;
+fill:rgba(227,244,214,1);
+stroke:#235a43;
+stroke-width:2;
+}
+.zr1-cls-22:hover {
+cursor:pointer;
+fill:rgba(243,255,229,1);
+stroke:#235a43;
+stroke-width:2;
+}
+.zr1-cls-23:hover {
+cursor:pointer;
+fill:rgba(248,255,234,1);
+stroke:#235a43;
+stroke-width:2;
+}
+.zr1-cls-24:hover {
+cursor:pointer;
+fill:rgba(101,155,119,1);
+stroke:#235a43;
+stroke-width:2;
+}
+.zr1-cls-25:hover {
+cursor:pointer;
+fill:rgba(224,243,212,1);
+stroke:#235a43;
+stroke-width:2;
+}
+.zr1-cls-26:hover {
+cursor:pointer;
+fill:rgba(242,255,228,1);
+stroke:#235a43;
+stroke-width:2;
+}
+.zr1-cls-27:hover {
+cursor:pointer;
+fill:rgba(247,255,233,1);
+stroke:#235a43;
+stroke-width:2;
+}
+.zr1-cls-28:hover {
+cursor:pointer;
+fill:rgba(254,255,239,1);
+stroke:#235a43;
+stroke-width:2;
+}
+.zr1-cls-29:hover {
+cursor:pointer;
+fill:rgba(81,140,107,1);
+stroke:#235a43;
+stroke-width:2;
+}
+.zr1-cls-30:hover {
+cursor:pointer;
+fill:rgba(221,240,209,1);
+stroke:#235a43;
+stroke-width:2;
+}
+.zr1-cls-31:hover {
+cursor:pointer;
+fill:rgba(239,253,226,1);
+stroke:#235a43;
+stroke-width:2;
+}
+.zr1-cls-32:hover {
+cursor:pointer;
+fill:rgba(245,255,232,1);
+stroke:#235a43;
+stroke-width:2;
+}
+.zr1-cls-33:hover {
+cursor:pointer;
+fill:rgba(253,255,237,1);
+stroke:#235a43;
+stroke-width:2;
+}
+.zr1-cls-34:hover {
+cursor:pointer;
+fill:rgba(64,128,96,1);
+stroke:#235a43;
+stroke-width:2;
+}
+.zr1-cls-35:hover {
+cursor:pointer;
+fill:rgba(214,235,203,1);
+stroke:#235a43;
+stroke-width:2;
+}
+.zr1-cls-36:hover {
+cursor:pointer;
+fill:rgba(239,253,225,1);
+stroke:#235a43;
+stroke-width:2;
+}
+.zr1-cls-37:hover {
+cursor:pointer;
+fill:rgba(244,255,231,1);
+stroke:#235a43;
+stroke-width:2;
+}
+.zr1-cls-38:hover {
+cursor:pointer;
+fill:rgba(37,108,79,1);
+stroke:#235a43;
+stroke-width:2;
+}
+.zr1-cls-39:hover {
+cursor:pointer;
+fill:rgba(205,229,194,1);
+stroke:#235a43;
+stroke-width:2;
+}
+.zr1-cls-40:hover {
+cursor:pointer;
+fill:rgba(238,251,225,1);
+stroke:#235a43;
+stroke-width:2;
+}
+.zr1-cls-41:hover {
+cursor:pointer;
+fill:rgba(0,0,0,1);
+}
+.zr1-cls-42:hover {
+cursor:pointer;
+fill:[object Object];
+}
+.zr1-cls-43:hover {
+cursor:pointer;
+fill:[object Object];
+}
+
+]]>
+
+</style>
+</svg>

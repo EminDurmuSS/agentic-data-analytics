@@ -101,9 +101,74 @@ Yerel dosya yolu, SQL, Python veya kabuk kodu üretip çalıştırma aracı yokt
 sağlanan kaynak ID'lerini ve URL'leri yalnız kayıtlı kaynak araçlarına aktar.
 """
 
+CHART_PROMPT = """
+create_chart aracı varsa kullanıcı grafik/plot istediğinde veya grafiğin biçimini değiştirdiğinde
+önce kayıtlı analysis_id üzerinde create_chart çağır. Sırf görselleştirme için execute veya
+revise_analysis çağırma; tablo değerlerini koru. Yeni veri gerekiyorsa önce analizi oluştur,
+sonra o analysis_id için grafiği kaydet. create_chart sayısal veri veya kod kabul etmez;
+columns ve scatter için x alanına active_schema içindeki gerçek sütun adlarını yaz.
+Zaman eğilimi line, dönem tutarları bar, iki değişken ilişkisi scatter, bölge/dönem matrisi
+heatmap ile gösterilir. Farklı birimleri layout=panels ile ayır; yalnız açıkça istendiğinde
+iki seriyi layout=dual_axis ile iki etiketli eksene koy. normalize=index100 yalnız kullanıcının
+başlangıç=100 veya göreli karşılaştırma isteği için; bunun reel fiyat dönüşümü olmadığını açıkla.
+Grafik başlığı kısa ve açıklayıcı olsun, verinin kanıtlamadığı neden veya sonuç iddiası içermesin.
+Görselleştirme isteği tamamlandı demeden create_chart sonucunun ok olduğunu kontrol et.
+Araçların recommendations alanından amaca uygun en fazla iki sonraki incelemeyi kısa ve isteğe
+bağlı öner. Bir öneriyi hesaplanmış sonuç gibi sunma; kullanıcı seçmeden yeni analiz başlatma.
+Sayısal yorumdaki yüzde, yüzde puan, artış ve düşüş ifadelerini gerçekten hesaplanmış değerlerle
+karşılaştır. Dönem sonu artışı nedensellik veya sürekli yükseliş kanıtı değildir.
+"""
+
 
 def _blocked(code, message):
     return {"status": "blocked", "errors": [{"code": code, "message": message}]}
+
+
+def _requests_chart(message):
+    """Conservative delivery gate for explicit chart creation/change commands.
+
+    This is not a chart parser: the model still selects the validated spec.
+    Questions about an existing chart can be answered without creating a chart.
+    """
+    text = message.casefold().replace("ı", "i").replace("i\u0307", "i")
+    noun = re.search(r"grafi[kğ]|\bplot\b|\bchart\b|görselleştir|visuali[sz]", text)
+    action = re.search(r"çiz|göster|oluştur|hazirla|yap|istiyorum|isterim|çevir|değiştir|dönüştür|eksen|\bbar\b|\bscatter\b|\bdraw\b|\bplot\b|\bcreate\b|\bmake\b|\bshow\b|\bchange\b|görselleştir|visuali[sz]", text)
+    return bool(noun and action)
+
+
+def _chart_confirmation(state, request):
+    """Pure display edits acknowledge the saved view without inventing analysis.
+
+    Analytical requests retain their synthesis. Display-only requests get a
+    concise receipt from the validated chart spec and grounded recommendations.
+    """
+    if not state.get("chart_updated") or state.get("analysis_updated"):
+        return None
+    if not _requests_chart(request) or re.search(r"yorum|neden|analiz et|açıkla|acikla", request.casefold()):
+        return None
+    allowed = {"create_chart", "discover", "describe", "dimension_values", "explain_value"}
+    if any(item["tool"] not in allowed for item in state["tool_results"]):
+        return None
+    saved = next((item["result"] for item in reversed(state["tool_results"])
+                  if item["tool"] == "create_chart" and item["result"].get("status") == "ok"), None)
+    if not saved:
+        return None
+    spec = saved["spec"]
+    kind = {"line": "Çizgi", "bar": "Çubuk", "area": "Alan", "scatter": "Dağılım", "heatmap": "Isı haritası"}.get(spec["kind"], "Analiz")
+    lines = [f"{kind} grafiği kaydedildi: {saved['title']}. {saved['row_count']} kayıt kullanıldı."]
+    if spec.get("normalize") == "index100":
+        lines.append(f"Seçili seriler aynı {spec['base_period']} döneminde 100 kabul edilerek karşılaştırılıyor. Bu görünüm enflasyondan arındırma değildir.")
+    elif spec.get("layout") == "panels":
+        lines.append("Seriler ayrı panellerde, kendi birimleriyle gösteriliyor.")
+    elif spec.get("layout") == "dual_axis":
+        lines.append("İki eksen ayrı birim ve ölçeklerle etiketlendi; serileri kendi eksenlerinden okuyun.")
+    if spec["kind"] == "scatter":
+        lines.append("Noktalar aynı döneme ait gözlemleri eşler; bu görünüm nedensellik kanıtı değildir.")
+    lines.append("Kayıtlı tablonun değerleri korundu.")
+    suggestions = saved.get("recommendations", [])[:2]
+    if suggestions:
+        lines.append("\nİsterseniz şu incelemelerle devam edebiliriz:\n" + "\n".join("- " + item["label"] for item in suggestions))
+    return "\n\n".join(lines)
 
 
 def _normalize_result(result):
@@ -226,6 +291,14 @@ class AgentRuntime:
             _, manifest = self.store.load_analysis(workspace["analysis_head"])
             context["active_plan"] = manifest["plan"]
             context["active_schema"] = manifest.get("schema")
+            if "create_chart" in self.tools:
+                from tools.agent_charts import ChartTools, ChartError
+                try:
+                    chart = ChartTools(self.store, self.workspace_id).get_chart(workspace["analysis_head"])
+                    context["active_chart"] = {key: chart[key] for key in
+                        ("chart_id", "analysis_id", "spec", "title", "recommendations") if key in chart}
+                except (ChartError, OSError):
+                    context["active_chart"] = {"status": "unavailable", "analysis_id": workspace["analysis_head"]}
         context["artifacts"] = state.get("artifacts", [])[-10:]
         context["initial_metric_candidates"] = _model_tool_result("discover", state.get("initial_candidates"))
         return context
@@ -245,7 +318,8 @@ class AgentRuntime:
                     continue
                 message["content"] = canonical(_model_tool_result("discover", result))
                 discovery_messages.append((index, result))
-        system = SYSTEM_PROMPT + "\nGüncel güvenilir çalışma alanı bağlamı:\n" + canonical(_compact(self._context(state)))
+        prompt = SYSTEM_PROMPT + (CHART_PROMPT if "create_chart" in self.tools else "")
+        system = prompt + "\nGüncel güvenilir çalışma alanı bağlamı:\n" + canonical(_compact(self._context(state)))
         # Keep the newest discovery cards detailed; older successful searches
         # need only their metric identity/title/readiness once context is tight.
         if len(system) + len(canonical(messages)) > self.max_context_chars * .75:
@@ -299,8 +373,17 @@ class AgentRuntime:
                     state["pending"].pop(0)
                     if result.get("analysis_id") and result.get("status") in {"ok", "valid"}:
                         state["analysis_id"] = result["analysis_id"]
-                        if self.tools.get(call["function"]["name"], {}).get("mutating"):
+                        if call["function"]["name"] in {"execute", "revise_analysis", "query_grouped"}:
                             state["analysis_updated"] = True
+                            if state.get("chart_analysis_id") != result["analysis_id"]:
+                                state["chart_updated"] = False
+                                state["chart_id"] = None
+                                state["recommendations"] = []
+                    if call["function"]["name"] == "create_chart" and result.get("status") == "ok":
+                        state["chart_id"] = result.get("chart_id")
+                        state["chart_analysis_id"] = result.get("analysis_id")
+                        state["chart_updated"] = bool(result.get("chart_id"))
+                        state["recommendations"] = result.get("recommendations", [])[:3]
                     failed = result.get("status") in {"blocked", "error", "failed", "unavailable"}
                     unresolved = state.setdefault("unresolved_errors", {})
                     tool_name = call["function"]["name"]
@@ -356,11 +439,17 @@ class AgentRuntime:
                     self.run_store.checkpoint(run_id, state)
                     continue
                 if isinstance(content, str) and content.strip():
+                    if ("create_chart" in self.tools and _requests_chart(record["message"])
+                            and not state.get("chart_updated") and not state.get("unresolved_errors")):
+                        return self._finish(record, state, "partial" if state.get("analysis_updated") else "blocked",
+                            "İstenen grafik kaydedilmedi; mevcut tablo korundu. Grafik oluşturma adımı tamamlanmalı.",
+                            errors=[{"code": "CHART_NOT_CREATED", "message": "This turn requested a chart but produced no saved chart artifact."}])
                     if state.get("unresolved_errors"):
                         errors = [error for failures in state["unresolved_errors"].values() for error in failures]
-                        if state.get("analysis_updated"):
+                        if state.get("analysis_updated") or state.get("chart_updated"):
                             return self._finish(record, state, "partial", "Analiz sonucu kaydedildi; bazı araç adımları tamamlanamadı. Sonuç ve hata ayrıntıları birlikte sunuldu.", errors=errors)
                         return self._finish(record, state, "blocked", "İstenen işlem araçlar tarafından tamamlanamadı. Yeni bir analiz sonucu üretilmedi.", errors=errors)
+                    content = _chart_confirmation(state, record["message"]) or content
                     state["messages"].append({"role": "assistant", "content": content})
                     return self._finish(record, state, "completed", content)
                 state["repairs"] += 1
@@ -368,7 +457,7 @@ class AgentRuntime:
                 self.run_store.checkpoint(run_id, state)
                 if state["repairs"] > self.max_repairs:
                     return self._finish(record, state, "blocked", "Model geçerli bir cevap üretmedi.", errors=[{"code": "EMPTY_MODEL_RESPONSE", "message": "No content or tool calls."}])
-            if state.get("analysis_updated") and not state.get("unresolved_errors"):
+            if (state.get("analysis_updated") or state.get("chart_updated")) and not state.get("unresolved_errors"):
                 return self._finish(record, state, "partial", "Analiz kaydedildi; son yanıtı üretme sınırına ulaşıldı. Tablo ve araç sonuçları hazır.", warnings=[{"code": "FINAL_RESPONSE_BUDGET_EXCEEDED", "message": "Verified analysis is available; no additional provider call was made for prose synthesis."}])
             return self._finish(record, state, "blocked", "Bu adımın model çağrı sınırına ulaşıldı; mevcut sonuçlar korundu.", errors=[{"code": "DECISION_BUDGET_EXCEEDED", "message": "Bounded agent decision budget reached."}])
         except MiaError as exc:
@@ -489,6 +578,8 @@ class AgentRuntime:
                   "workspace_id": self.workspace_id, "status": status, "message": message,
                   "analysis_id": state.get("analysis_id"), "analysis_updated": state.get("analysis_updated", False),
                   "active_analysis_id": workspace.get("analysis_head"),
+                  "chart_id": state.get("chart_id"), "chart_updated": state.get("chart_updated", False),
+                  "recommendations": state.get("recommendations", []),
                   "artifacts": state["artifacts"], "tool_results": state["tool_results"],
                   "decisions": state["decisions"], "repairs": state["repairs"], "usage": state["usage"], **extra}
         self.run_store.finish(record["run_id"], state, result)

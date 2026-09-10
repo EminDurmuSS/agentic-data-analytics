@@ -8,6 +8,8 @@ const state = {
   offset: 0,
   job: null,
   review: null,
+  workspaceRequest: 0,
+  analysisRequest: 0,
 };
 const el = (tag, text, cls) => {
   const node = document.createElement(tag);
@@ -213,6 +215,8 @@ async function refreshWorkspaces() {
   return workspaces;
 }
 function clearResult() {
+  state.analysisRequest++;
+  window.AnalysisCharts?.clear();
   state.analysis = null;
   $("#result-content").hidden = true;
   $("#result-empty").hidden = false;
@@ -225,7 +229,11 @@ async function selectWorkspace(id) {
     notice("Çalışma sürerken alan değiştirmek için sonucunu bekleyin.");
     return;
   }
+  const request = ++state.workspaceRequest;
+  state.analysisRequest++;
+  window.AnalysisCharts?.clear();
   const workspace = await api("/api/workspaces/" + id);
+  if (request !== state.workspaceRequest) return;
   state.workspace = workspace;
   state.conversation = null;
   localStorage.setItem("agentic-workspace", id);
@@ -262,6 +270,7 @@ async function selectWorkspace(id) {
     examples();
   }
   if (workspace.analysis_head) await loadAnalysis(workspace.analysis_head);
+  if (request !== state.workspaceRequest) return;
   const recent = runs.at(-1);
   if (recent) {
     showEvents(workspace.latest_events);
@@ -294,6 +303,7 @@ const toolLabels = {
   rolling_anomalies: "Olağandışı dönemler aranıyor",
   detect_changes: "Değişim noktaları inceleniyor",
   analyze_relationship: "Değişkenler arasındaki ilişki hesaplanıyor",
+  create_chart: "Grafik hazırlanıyor",
 };
 function showEvents(events) {
   if (!events?.length) return;
@@ -324,11 +334,13 @@ async function submitQuestion(event) {
   event?.preventDefault();
   const message = $("#question").value.trim();
   if (!message || state.busy) return;
+  if (window.AnalysisCharts.isSaving()) { notice("Grafik görünümü kaydediliyor. Ardından sorunuzu gönderebilirsiniz."); return; }
   notice("");
   if (!state.workspace) {
     await createWorkspace("İlk analiz", "finance");
   }
   state.busy = true;
+  window.AnalysisCharts.updateBusy();
   $("#send").disabled = true;
   $("#question").value = "";
   appendMessage("user", message);
@@ -375,6 +387,7 @@ async function submitQuestion(event) {
     state.conversation =
       result.conversation_id || job.run?.conversation_id || state.conversation;
     if (result.analysis_id) await loadAnalysis(result.analysis_id, result);
+    else if (state.analysis) await window.AnalysisCharts.load(base(), state.analysis.analysis_id, Boolean(result.chart_updated || result.chart_id));
     if (result.status === "blocked" || result.status === "failed")
       notice(result.message);
     showExtraResults(job);
@@ -387,6 +400,7 @@ async function submitQuestion(event) {
     notice(error.message);
   } finally {
     state.busy = false;
+    window.AnalysisCharts.updateBusy();
     $("#send").disabled = false;
     $("#messages").scrollTop = $("#messages").scrollHeight;
     await refreshWorkspaces();
@@ -413,6 +427,7 @@ function showResume(jobId) {
 }
 async function pollExisting(jobId) {
   state.busy = true;
+  window.AnalysisCharts.updateBusy();
   $("#send").disabled = true;
   try {
     for (let i = 0; i < 480; i++) {
@@ -428,14 +443,17 @@ async function pollExisting(jobId) {
     notice("Çalışma kaydı korunuyor. Devam etmek için yeniden deneyin.");
   } finally {
     state.busy = false;
+    window.AnalysisCharts.updateBusy();
     $("#send").disabled = false;
   }
 }
 async function selectAfterRun(job) {
   state.busy = false;
+  window.AnalysisCharts.updateBusy();
   await selectWorkspace(state.workspace.workspace_id);
   showEvents(job.events);
   showExtraResults(job);
+  if (job.result?.chart_updated || job.result?.chart_id) showTab("chart");
 }
 function schemaLabel(column) {
   const s = state.analysis?.schema?.[column];
@@ -632,8 +650,11 @@ function renderAnalysisMethod() {
   holder.append(steps);
 }
 async function loadAnalysis(id, result = {}) {
+  const request = ++state.analysisRequest, workspacePath = base();
   state.offset = 0;
-  state.analysis = await api(base() + "/analyses/" + id + "?limit=250");
+  const analysis = await api(workspacePath + "/analyses/" + id + "?limit=250");
+  if (request !== state.analysisRequest || workspacePath !== base()) return;
+  state.analysis = analysis;
   $("#result-content").hidden = false;
   $("#result-empty").hidden = true;
   $("#result-title").textContent = state.analysis.parent_analysis_id
@@ -652,17 +673,6 @@ async function loadAnalysis(id, result = {}) {
   renderAnalysisMethod();
   renderTable();
   renderSources();
-  const select = $("#chart-column");
-  select.replaceChildren();
-  for (const c of state.analysis.columns) {
-    if (c === "period") continue;
-    if (state.analysis.rows.some((row) => typeof row[c] === "number")) {
-      const option = el("option", c);
-      option.value = c;
-      select.append(option);
-    }
-  }
-  renderChart();
   const toolResults = (result.tool_results || []).map((t) => t.result || {});
   const warnings = [
     ...(state.analysis.warnings || []),
@@ -693,6 +703,7 @@ async function loadAnalysis(id, result = {}) {
     ? "Korunan sütunlar: " + preserved.join(", ")
     : "";
   $("#more-rows").hidden = state.analysis.row_count <= 250;
+  await window.AnalysisCharts.load(workspacePath, id, Boolean(result.chart_updated || result.chart_id));
 }
 function warningText(w) {
   if (w.code === "semantics_unreviewed") {
@@ -786,191 +797,6 @@ function renderSources() {
         "small-muted",
       ),
     );
-}
-function svgEl(tag, attrs = {}, text) {
-  const node = document.createElementNS("http://www.w3.org/2000/svg", tag);
-  for (const [k, v] of Object.entries(attrs)) node.setAttribute(k, String(v));
-  if (text !== undefined) node.textContent = text;
-  return node;
-}
-function renderChart() {
-  const a = state.analysis,
-    c = $("#chart-column").value,
-    container = $("#chart");
-  container.replaceChildren();
-  if (!a) return;
-  if (a.rows.some((row) => Object.values(row).some(isExactInteger)))
-    container.append(
-      el(
-        "p",
-        "Büyük tam sayılar tabloda eksiksiz gösterilir; yuvarlama yapmamak için grafiğe alınmaz.",
-        "small-muted",
-      ),
-    );
-  if (!c) return;
-  $("#chart-unit").textContent = schemaLabel(c);
-  const values = a.rows.map((r, i) => ({
-      i,
-      value: r[c],
-      label: r.period || String(i + 1),
-    })),
-    valid = values.filter(
-      (x) => typeof x.value === "number" && Number.isFinite(x.value),
-    );
-  if (a.plan?.query_type === "grouped") {
-    renderGroupedChart(a, c, container);
-    return;
-  }
-  if (!valid.length) {
-    container.append(el("p", "Grafik için sayısal gözlem yok."));
-    return;
-  }
-  const svg = svgEl("svg", {
-    viewBox: "0 0 720 360",
-    role: "img",
-    "aria-label": c + " grafiği",
-  });
-  const low = Math.min(...valid.map((x) => x.value)),
-    high = Math.max(...valid.map((x) => x.value)),
-    pad =
-      high === low ? Math.max(Math.abs(high) * 0.05, 1) : (high - low) * 0.12,
-    min = low - pad,
-    max = high + pad;
-  const x = (i) => 68 + (i / Math.max(values.length - 1, 1)) * 624,
-    y = (v) => 292 - ((v - min) / (max - min)) * 248;
-  for (let i = 0; i < 5; i++) {
-    const value = min + ((max - min) * i) / 4;
-    svg.append(
-      svgEl("line", {
-        x1: 68,
-        x2: 692,
-        y1: y(value),
-        y2: y(value),
-        stroke: "#e3e9de",
-      }),
-    );
-    svg.append(
-      svgEl(
-        "text",
-        {
-          x: 59,
-          y: y(value) + 4,
-          "text-anchor": "end",
-          fill: "#84907d",
-          "font-size": 10,
-        },
-        new Intl.NumberFormat("tr-TR", {
-          notation: "compact",
-          maximumFractionDigits: 1,
-        }).format(value),
-      ),
-    );
-  }
-  let path = "";
-  for (const v of values) {
-    if (typeof v.value !== "number" || !Number.isFinite(v.value)) {
-      path += "|";
-      continue;
-    }
-    path +=
-      (path === "" || path.endsWith("|") ? "M" : "L") +
-      x(v.i) +
-      "," +
-      y(v.value) +
-      " ";
-  }
-  svg.append(
-    svgEl("path", {
-      d: path.replaceAll("|", ""),
-      fill: "none",
-      stroke: "#28634a",
-      "stroke-width": 2.5,
-    }),
-  );
-  for (const v of valid) {
-    const circle = svgEl("circle", {
-      cx: x(v.i),
-      cy: y(v.value),
-      r: valid.length > 120 ? 1.5 : 3,
-      fill: "#28634a",
-    });
-    circle.append(
-      svgEl("title", {}, v.label + ": " + fmt(v.value) + " " + schemaLabel(c)),
-    );
-    svg.append(circle);
-  }
-  for (const i of [
-    ...new Set([0, Math.floor((values.length - 1) / 2), values.length - 1]),
-  ])
-    svg.append(
-      svgEl(
-        "text",
-        {
-          x: x(i),
-          y: 320,
-          "text-anchor":
-            i === 0 ? "start" : i === values.length - 1 ? "end" : "middle",
-          fill: "#84907d",
-          "font-size": 10,
-        },
-        values[i].label,
-      ),
-    );
-  container.append(svg);
-}
-function renderGroupedChart(a, column, container) {
-  const group = a.plan.request.group_by;
-  const rows = a.rows.filter((r) => typeof r[column] === "number").slice(0, 30);
-  if (!rows.length) return;
-  const height = rows.length * 30 + 35,
-    svg = svgEl("svg", {
-      viewBox: "0 0 720 " + height,
-      role: "img",
-      "aria-label": column + " grup karşılaştırması",
-    }),
-    low = Math.min(0, ...rows.map((r) => r[column])),
-    high = Math.max(0, ...rows.map((r) => r[column])),
-    x = (v) => 160 + ((v - low) / (high - low || 1)) * 470;
-  svg.append(
-    svgEl("line", {
-      x1: x(0),
-      x2: x(0),
-      y1: 5,
-      y2: height - 20,
-      stroke: "#b9c7c1",
-    }),
-  );
-  rows.forEach((row, i) => {
-    const y = 10 + i * 30;
-    svg.append(
-      svgEl(
-        "text",
-        {
-          x: 150,
-          y: y + 13,
-          "text-anchor": "end",
-          fill: "#607666",
-          "font-size": 11,
-        },
-        row[group] + " · " + row.period,
-      ),
-    );
-    const bar = svgEl("rect", {
-      x: Math.min(x(0), x(row[column])),
-      y,
-      width: Math.max(1, Math.abs(x(row[column]) - x(0))),
-      height: 19,
-      rx: 3,
-      fill: "#28634a",
-    });
-    bar.append(
-      svgEl("title", {}, fmt(row[column]) + " " + schemaLabel(column)),
-    );
-    svg.append(bar);
-  });
-  container.append(svg);
-  if (a.rows.length > 30)
-    container.append(el("p", "İlk 30 grup gösteriliyor.", "small-muted"));
 }
 async function showEvidence(column, row) {
   const dialog = $("#evidence-dialog");
@@ -1357,40 +1183,130 @@ $("#url-form").addEventListener("submit", async (event) => {
 });
 for (const button of document.querySelectorAll("[data-close]"))
   button.addEventListener("click", () => $("#" + button.dataset.close).close());
+function showTab(name) {
+  for (const button of document.querySelectorAll(".tab")) {
+    const active = button.dataset.tab === name;
+    button.classList.toggle("active", active);
+    button.setAttribute("aria-selected", String(active));
+  }
+  for (const panel of document.querySelectorAll(".tab-panel"))
+    panel.hidden = panel.id !== "tab-" + name;
+  if (name === "chart") window.AnalysisCharts.render();
+}
 for (const button of document.querySelectorAll(".tab"))
-  button.addEventListener("click", () => {
-    for (const b of document.querySelectorAll(".tab")) {
-      b.classList.toggle("active", b === button);
-      b.setAttribute("aria-selected", b === button ? "true" : "false");
-    }
-    for (const panel of document.querySelectorAll(".tab-panel"))
-      panel.hidden = panel.id !== "tab-" + button.dataset.tab;
-    if (button.dataset.tab === "chart") renderChart();
-  });
-$("#chart-column").addEventListener("change", renderChart);
+  button.addEventListener("click", () => showTab(button.dataset.tab));
+window.AnalysisCharts.configure({ api, periodLabel, showTab, showEvidence,
+  isBusy: () => state.busy,
+  prefill: (prompt) => {
+    $("#question").value = prompt;
+    $("#question").focus();
+    $("#composer").scrollIntoView({ behavior: "smooth", block: "nearest" });
+  },
+});
 $("#more-rows").addEventListener("click", async () => {
   try {
+    const analysisId = state.analysis.analysis_id, workspacePath = base();
     state.offset =
       state.offset + 250 >= state.analysis.row_count ? 0 : state.offset + 250;
     const result = await api(
-      base() +
+      workspacePath +
         "/analyses/" +
-        state.analysis.analysis_id +
+        analysisId +
         "?offset=" +
         state.offset +
         "&limit=250",
     );
+    if (workspacePath !== base() || analysisId !== state.analysis?.analysis_id) return;
     state.analysis.rows = result.rows;
     renderTable();
     $("#more-rows").textContent =
       state.offset + result.rows.length >= state.analysis.row_count
         ? "İlk satırlar"
         : "Diğer satırlar";
-    renderChart();
   } catch (error) {
     notice(error.message);
   }
 });
+function configurePaneDivider() {
+  const grid = $(".workspace-grid"), divider = $("#workspace-divider");
+  const desktop = matchMedia("(min-width: 931px)");
+  const storageKey = "agentic-pane-ratio", initialRatio = 0.396;
+  let ratio = initialRatio, pointer = null, resizeFrame = null, previousWidth = null;
+  try {
+    const saved = localStorage.getItem(storageKey), value = Number(saved);
+    if (saved !== null && Number.isFinite(value) && value > 0 && value < 1) ratio = value;
+  } catch { /* Layout remains usable when browser storage is unavailable. */ }
+  const bounds = () => {
+    const available = Math.max(1, grid.clientWidth - divider.getBoundingClientRect().width);
+    const min = Math.min(320, available * 0.44);
+    return { available, min, max: available - Math.min(420, available * 0.56) };
+  };
+  function update() {
+    divider.tabIndex = desktop.matches ? 0 : -1;
+    if (!desktop.matches) return;
+    const { available, min, max } = bounds();
+    const width = Math.max(min, Math.min(max, ratio * available));
+    grid.style.setProperty("--conversation-width", width + "px");
+    const percent = Math.round(width / available * 100);
+    divider.setAttribute("aria-valuemin", String(Math.round(min / available * 100)));
+    divider.setAttribute("aria-valuemax", String(Math.round(max / available * 100)));
+    divider.setAttribute("aria-valuenow", String(percent));
+    divider.setAttribute("aria-valuetext", "Konuşma %" + percent + ", analiz %" + (100 - percent));
+  }
+  function persist() {
+    try { localStorage.setItem(storageKey, String(ratio)); } catch { /* Optional preference. */ }
+  }
+  function setWidth(width) {
+    const { available, min, max } = bounds();
+    ratio = Math.max(min, Math.min(max, width)) / available;
+    update();
+  }
+  function finish() {
+    if (pointer === null) return;
+    const captured = pointer;
+    pointer = null;
+    divider.classList.remove("is-dragging");
+    document.body.classList.remove("pane-resizing");
+    if (divider.hasPointerCapture(captured)) divider.releasePointerCapture(captured);
+    persist();
+  }
+  divider.addEventListener("pointerdown", (event) => {
+    if (!desktop.matches || !event.isPrimary || event.button !== 0) return;
+    event.preventDefault();
+    pointer = event.pointerId;
+    divider.focus({ preventScroll: true });
+    divider.setPointerCapture(pointer);
+    divider.classList.add("is-dragging");
+    document.body.classList.add("pane-resizing");
+  });
+  divider.addEventListener("pointermove", (event) => {
+    if (pointer !== event.pointerId) return;
+    setWidth(event.clientX - grid.getBoundingClientRect().left - divider.getBoundingClientRect().width / 2);
+  });
+  divider.addEventListener("pointerup", finish);
+  divider.addEventListener("pointercancel", finish);
+  divider.addEventListener("lostpointercapture", finish);
+  divider.addEventListener("dblclick", () => { ratio = initialRatio; update(); persist(); });
+  divider.addEventListener("keydown", (event) => {
+    if (!desktop.matches || !["ArrowLeft", "ArrowRight", "Home", "End"].includes(event.key)) return;
+    event.preventDefault();
+    const { available, min, max } = bounds();
+    const current = Math.max(min, Math.min(max, ratio * available));
+    setWidth(event.key === "Home" ? min : event.key === "End" ? max
+      : current + (event.key === "ArrowLeft" ? -1 : 1) * (event.shiftKey ? 40 : 12));
+    persist();
+  });
+  new ResizeObserver((entries) => {
+    const width = entries[0].contentRect.width;
+    if (width === previousWidth) return;
+    previousWidth = width;
+    cancelAnimationFrame(resizeFrame);
+    resizeFrame = requestAnimationFrame(update);
+  }).observe(grid);
+  desktop.addEventListener("change", () => { finish(); update(); });
+  update();
+}
+configurePaneDivider();
 (async () => {
   try {
     const status = await api("/api/status");

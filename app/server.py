@@ -195,8 +195,10 @@ class AppContext:
     def runtime(self, workspace_id):
         from tools.agent_runtime import AgentRuntime
         from tools.agent_statistics import StatisticsTools
+        from tools.agent_charts import ChartTools
         tools = self.documents(workspace_id).extra_tools()
         tools.update(StatisticsTools(self.store, workspace_id).extra_tools())
+        tools.update(ChartTools(self.store, workspace_id).extra_tools())
         return AgentRuntime(self.store, workspace_id, self.client, self.run_store, extra_tools=tools)
 
     def submit(self, workspace_id, body: RunBody):
@@ -275,6 +277,8 @@ def create_app(*, runtime_root=None, source_db=DEFAULT_DB, client=None, validate
 
     from tools.agent_documents import DocumentError
     app.add_exception_handler(DocumentError, contract_error)
+    from tools.agent_charts import ChartError
+    app.add_exception_handler(ChartError, contract_error)
 
     from tools.mia_client import MiaError
 
@@ -344,6 +348,26 @@ def create_app(*, runtime_root=None, source_db=DEFAULT_DB, client=None, validate
         for column in safe.select_dtypes(include=["object", "string"]):
             safe[column] = safe[column].map(lambda v: "'" + v if isinstance(v, str) and v.startswith(("=", "+", "-", "@", "\t", "\r")) else v)
         return Response(safe.to_csv(index=False).encode("utf-8-sig"), media_type="text/csv; charset=utf-8", headers={"Content-Disposition": 'attachment; filename="analysis.csv"'})
+
+    @app.get("/api/workspaces/{workspace_id}/analyses/{analysis_id}/chart")
+    def analysis_chart(workspace_id: str, analysis_id: str):
+        from tools.agent_charts import ChartTools
+        return _browser_json(ChartTools(context.store, workspace_id).get_chart(analysis_id))
+
+    @app.post("/api/workspaces/{workspace_id}/analyses/{analysis_id}/chart")
+    def save_chart(workspace_id: str, analysis_id: str, body: dict):
+        from tools.agent_charts import ChartTools, ChartError
+        if "analysis_id" in body:
+            raise ChartError("Analiz kimliği URL üzerinden seçilir.")
+        with context.run_store.workspace_lock(workspace_id):
+            charts = ChartTools(context.store, workspace_id)
+            saved = charts.create_chart({**body, "analysis_id": analysis_id})
+            return _browser_json(charts.load_artifact(saved["chart_id"]))
+
+    @app.get("/api/workspaces/{workspace_id}/charts/{chart_id}")
+    def chart_artifact(workspace_id: str, chart_id: str):
+        from tools.agent_charts import ChartTools
+        return _browser_json(ChartTools(context.store, workspace_id).load_artifact(chart_id))
 
     @app.get("/api/workspaces/{workspace_id}/analyses/{analysis_id}/explain")
     def explain(workspace_id: str, analysis_id: str, column: str, period: str, dimensions: str | None = None):

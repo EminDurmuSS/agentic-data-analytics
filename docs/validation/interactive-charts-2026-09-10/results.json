@@ -1,0 +1,308 @@
+{
+  "model": "kkbhackathon2026/Qwen3.8-27B",
+  "date": "2026-09-10",
+  "chart_contract_passes": 9,
+  "live_trials": 9,
+  "trials": [
+    {
+      "phase": "live.json",
+      "name": "panels",
+      "prompt": "Mevcut tablodaki konut_kredisi ve konut_faizi sütunlarını aylık çizgi grafiklerle ayrı panellerde göster. Başlık 'Konut kredileri ve faiz görünümü' olsun. Kayıtlı tabloyu değiştirme.",
+      "chart_contract_passed": true,
+      "checks": {
+        "completed": true,
+        "chart_updated": true,
+        "analysis_unchanged": true,
+        "workspace_unchanged": true,
+        "no_analysis_mutations": true,
+        "full_rows": true,
+        "spec_kind": true,
+        "spec_layout": true,
+        "spec_columns": true,
+        "spec_normalize": true
+      },
+      "message": "Grafik kaydedildi: \"Konut kredileri ve faiz görünümü\" başlığıyla, konut_kredisi (milyon TL) ve konut_faizi (%) ayrı panellerde aylık çizgi grafik olarak gösteriliyor. 2021-01'den 2025-12'ye kadar 60 dönem, eksik gözlem yok. Kayıtlı tablo değiştirilmedi.\n\nİsterseniz:\n- Serileri 2021-01=100 bazında normalize edebilirim (yalnızca görünüm, tablo değişmez).\n- İki değişkenin birlikte değişimini dağılım grafiğiyle inceleyebilirim.",
+      "seconds": 7.32,
+      "chart_id": "chart_22dca6277e8532de127eb442be0c0e59e980e90645f6807e9807b0791805b207",
+      "analysis_id": "analysis_c648791786198af749f2768996a260874dc4238cfde703399f7690eed2aaaf7c",
+      "workspace_id": "workspace_0bf98f8fdf31419681a8c3a42066e990"
+    },
+    {
+      "phase": "live.json",
+      "name": "index100",
+      "prompt": "Sadece grafiği değiştir: konut_kredisi ile konut_fiyat_endeksi sütunlarını Ocak 2021=100 başlangıcıyla aynı eksende çizgi grafikte karşılaştır. Faizi bu grafiğe alma. Özgün tabloyu ve bütün değerlerini koru.",
+      "chart_contract_passed": true,
+      "checks": {
+        "completed": true,
+        "chart_updated": true,
+        "analysis_unchanged": true,
+        "workspace_unchanged": true,
+        "no_analysis_mutations": true,
+        "full_rows": true,
+        "spec_kind": true,
+        "spec_layout": true,
+        "spec_columns": true,
+        "spec_normalize": true
+      },
+      "message": "Grafik güncellendi. Konut kredileri ve konut fiyat endeksi, Ocak 2021=100 bazında aynı eksende çizgi grafik olarak karşılaştırılıyor. Faiz bu grafikte yer almıyor. Özgün tablo ve değerleri aynen korundu; normalizasyon yalnızca görselleştirme katmanında.\n\nÖzet:\n- Konut kredisi: 100 → 245,3 (2025-12)\n- Konut fiyat endeksi: 100 → 1.239,3 (2025-12)\n\nİsterseniz serileri ayrı panellerde de gösterebilirim veya iki değişkenin birlikte değişimini dağılım grafiğiyle inceleyebilirim.",
+      "seconds": 7.46,
+      "chart_id": "chart_5f9bc61b81c2a457783892f3596d7bd30927749892723ad2f4076ff5e5f86183",
+      "analysis_id": "analysis_c648791786198af749f2768996a260874dc4238cfde703399f7690eed2aaaf7c",
+      "workspace_id": "workspace_0bf98f8fdf31419681a8c3a42066e990"
+    },
+    {
+      "phase": "live.json",
+      "name": "scatter",
+      "prompt": "Şimdi konut_faizi X ekseninde, konut_kredisi Y ekseninde olacak şekilde dağılım grafiği oluştur. Özgün birimlerde göster, normalizasyon yapma. Tabloyu değiştirme.",
+      "chart_contract_passed": true,
+      "checks": {
+        "completed": true,
+        "chart_updated": true,
+        "analysis_unchanged": true,
+        "workspace_unchanged": true,
+        "no_analysis_mutations": true,
+        "full_rows": true,
+        "spec_kind": true,
+        "spec_columns": true,
+        "spec_x": true,
+        "spec_normalize": true
+      },
+      "message": "Dağılım grafiği kaydedildi. X ekseninde konut faizi (%), Y ekseninde konut kredisi (milyon TL) yer alıyor; 60 aylık gözlem, normalizasyon yok, tablo değiştirilmedi.\n\nNot: Noktalar aynı döneme ait faiz ve kredi değerlerini eşler; bu görünüm nedensellik kanıtı değildir.\n\nİsterseniz bu iki değişken arasındaki ilişkiyi korelasyon veya gecikmeli ilişki analiziyle sayısal olarak da inceleyebilirim.",
+      "seconds": 7.36,
+      "chart_id": "chart_474c122d6e7de5a0ae7664490b54e8098cd4e2cc5ef842b037795c03f0fd8d61",
+      "analysis_id": "analysis_c648791786198af749f2768996a260874dc4238cfde703399f7690eed2aaaf7c",
+      "workspace_id": "workspace_0bf98f8fdf31419681a8c3a42066e990"
+    },
+    {
+      "phase": "live.json",
+      "name": "dual_axis",
+      "prompt": "Konut kredisi ve faizini tek çizgi grafiğinde iki ayrı etiketli eksende göster: konut_kredisi sol eksende milyon TL, konut_faizi sağ eksende yüzde olsun. Normalizasyon yapma ve tabloyu koru.",
+      "chart_contract_passed": true,
+      "checks": {
+        "completed": true,
+        "chart_updated": true,
+        "analysis_unchanged": true,
+        "workspace_unchanged": true,
+        "no_analysis_mutations": true,
+        "full_rows": true,
+        "spec_kind": true,
+        "spec_layout": true,
+        "spec_columns": true,
+        "spec_normalize": true
+      },
+      "message": "Grafik kaydedildi. Konut kredisi sol eksende (milyon TL), konut faizi sağ eksende (%) tek çizgi grafikte gösteriliyor. Normalizasyon yok, tablo ve değerler aynen korundu.\n\nUyarı: İki eksen farklı ölçek kullandığı için çizgilerin görsel yüksekliği doğrudan karşılaştırılamaz; her seriyi kendi eksen etiketiyle okumak gerekir.\n\nİsterseniz serileri ayrı panellerde de gösterebilirim ya da ilk/son gözlemleri birimleriyle karşılaştırabilirim.",
+      "seconds": 8.48,
+      "chart_id": "chart_9e64152fb7d2fead7c68af4794753cf85c21c3ef26b9bf16a01e0f1987db099e",
+      "analysis_id": "analysis_c648791786198af749f2768996a260874dc4238cfde703399f7690eed2aaaf7c",
+      "workspace_id": "workspace_0bf98f8fdf31419681a8c3a42066e990"
+    },
+    {
+      "phase": "live.json",
+      "name": "bar",
+      "prompt": "Yalnızca konut_kredisi sütununu yatay çubuk grafik olarak göster. Kayıtlı tablonun değerlerini değiştirme.",
+      "chart_contract_passed": true,
+      "checks": {
+        "completed": true,
+        "chart_updated": true,
+        "analysis_unchanged": true,
+        "workspace_unchanged": true,
+        "no_analysis_mutations": true,
+        "full_rows": true,
+        "spec_kind": true,
+        "spec_orientation": true,
+        "spec_columns": true,
+        "spec_normalize": true
+      },
+      "message": "Grafik kaydedildi. Konut kredisi (milyon TL) 2021-01'den 2025-12'ye kadar yatay çubuk grafik olarak gösteriliyor; 60 dönem, eksik gözlem yok. Kayıtlı tablo ve değerleri değiştirilmedi.\n\nİsterseniz ilk ve son gözlemleri birimleriyle karşılaştırabilirim ya da faizle birlikte değişimini dağılım grafiğiyle inceleyebilirim.",
+      "seconds": 7.4,
+      "chart_id": "chart_95aed66f73574aa5bbc1fbe1af5038b29ac328b0a8ce3b7fa663be51a0c11844",
+      "analysis_id": "analysis_c648791786198af749f2768996a260874dc4238cfde703399f7690eed2aaaf7c",
+      "workspace_id": "workspace_0bf98f8fdf31419681a8c3a42066e990"
+    },
+    {
+      "phase": "final-live.json",
+      "name": "natural_scatter",
+      "prompt": "Bunu faiz oranı yatayda, konut kredisi bakiyesi dikeyde olan bir nokta grafiğine çevir. Tutarları olduğu gibi bırak.",
+      "chart_contract_passed": true,
+      "checks": {
+        "completed": true,
+        "chart_updated": true,
+        "all_periods": true,
+        "unchanged": true,
+        "no_data_write": true,
+        "scatter": true,
+        "x_is_rate": true,
+        "y_is_credit": true
+      },
+      "message": "Nokta grafiği hazır: yatay eksen konut kredisi faiz oranı (yüzde), dikey eksen konut kredisi bakiyesi (milyon TL). Tutarlar olduğu gibi bırakıldı, herhangi bir ölçekleme veya reel dönüşüm uygulanmadı.\n\nGrafik 60 aylık gözlemi (Ocak 2021 - Aralık 2025) içeriyor; bakiye 275.130 milyon TL'den 678.970 milyon TL'ye yükselmiş. Uyarı: noktalar yalnızca döneme göre eşleştirilir, bu görünüm nedensellik kanıtı değildir.\n\nİsterseniz ayrıca:\n- Bakiyenin aynı aya göre yıllık yüzde değişimini hesaplayıp ekleyebilirim.\n- İlk ve son gözlemleri birimleriyle karşılaştırıp eksik dönemleri özetleyebilirim.",
+      "seconds": 8.42,
+      "chart_id": "chart_174d8df699d515b5c95803ac5d6ecbb3c588e70816d23079583e7625869fdd87",
+      "analysis_id": "analysis_b854a702411970e8cbf35f83a2696f33e11b2b6b9c2b247b43f8a4610d4cd79a",
+      "workspace_id": "workspace_e4814cc3f4a04877b8425f404b44ceb2"
+    },
+    {
+      "phase": "final-live.json",
+      "name": "natural_index",
+      "prompt": "Bu kez konut kredisiyle konut fiyat endeksini aynı çizgi grafiğinde karşılaştır. Ocak 2021 başlangıcını 100 kabul et, faizi çıkar. Asıl tabloya dokunma.",
+      "chart_contract_passed": true,
+      "checks": {
+        "completed": true,
+        "chart_updated": true,
+        "all_periods": true,
+        "unchanged": true,
+        "no_data_write": true,
+        "normalized": true,
+        "overlay": true,
+        "columns": true,
+        "computed_display_summary": true
+      },
+      "message": "Çizgi grafiği hazır: konut kredisi bakiyesi ve konut fiyat endeksi (KFE) tek ekranda, her ikisi de Ocak 2021 = 100 baz alınarak gösteriliyor. Faiz serisi bu grafikte yer almıyor.\n\nGörselleştirmede:\n- Konut kredisi bakiyesi 100'den 245,3'e (yaklaşık %145 artış)\n- Konut fiyat endeksi 100'den 1.239,3'e (yaklaşık 12,4 kat)\n\nNot: Bu yalnızca grafik görünümündeki bir normalizasyondur; asıl tablodaki değerler ve birimler (milyon TL, endeks) aynen korunuyor. Reel fiyat dönüşümü değildir.\n\nİsterseniz ayrıca:\n- İki seriyi ayrı panellerde göstererek her birinin kendi ölçeğini okunabilir kılabilirim.\n- Bakiyenin aynı aya göre yıllık yüzde değişimini hesaplayıp ekleyebilirim.",
+      "seconds": 8.35,
+      "chart_id": "chart_6d2de2a4f31c8c644a269e8fadd84610fe65e91b8afaba564ab0c5018ac04b16",
+      "analysis_id": "analysis_b854a702411970e8cbf35f83a2696f33e11b2b6b9c2b247b43f8a4610d4cd79a",
+      "workspace_id": "workspace_e4814cc3f4a04877b8425f404b44ceb2"
+    },
+    {
+      "phase": "final-live.json",
+      "name": "suggestion",
+      "prompt": "Konut kredisi bakiyesinin aynı aya göre yıllık yüzde değişimini hesapla ve grafikte göster; önceki yıl gözlemi olmayan dönemleri boş bırak. Mevcut sütunları da koru.",
+      "chart_contract_passed": true,
+      "checks": {
+        "completed": true,
+        "chart_updated": true,
+        "all_periods": true,
+        "growth_operation": true,
+        "old_columns_preserved": true,
+        "new_analysis": true,
+        "new_chart_matches_analysis": true,
+        "growth_plotted": true,
+        "warmup_nulls": true,
+        "growth_value": true
+      },
+      "message": "Yıllık değişim sütunu eklendi ve grafik güncellendi. Mevcut sütunlar (bakiye, faiz, fiyat endeksi) aynen korundu.\n\nHesaplanan yıllık değişim (aynı aya göre, %):\n- İlk dolu gözlem: Ocak 2022, %8,63\n- En yüksek: Eylül 2025, %34,05\n- En düşük: %1,93\n- Son gözlem: Aralık 2025, %32,54\n\n2021'in tamamı (12 ay) önceki yıl gözlemi olmadığı için boş bırakıldı; doldurma yapılmadı. Grafikte bakiye (milyon TL) ve yıllık değişim (%) birim farklılığı nedeniyle ayrı panellerde gösteriliyor.\n\nİsterseniz ayrıca:\n- Bakiye ile faizi aynı dönemlerde dağılım grafiği olarak karşılaştırabilirim.\n- İlk ve son dolu gözlemleri birimleriyle özetleyebilirim.",
+      "seconds": 13.81,
+      "chart_id": "chart_70b78d981ead1046500054d4afd12da599748b31be6eafc1e00f3b7ed250b12f",
+      "analysis_id": "analysis_6c7d3d05f77a0482da76d3763b33616cd758a2e8b98bf3110f2e7742733a71fc",
+      "workspace_id": "workspace_e4814cc3f4a04877b8425f404b44ceb2"
+    },
+    {
+      "phase": "confirmation-live.json",
+      "name": "grounded_confirmation",
+      "prompt": "Faiz oranı yatay eksende, konut kredisi bakiyesi dikey eksende olsun. Nokta grafiği çiz, tutarları değiştirme.",
+      "chart_contract_passed": true,
+      "checks": {
+        "completed": true,
+        "chart_updated": true,
+        "no_data_write": true,
+        "same_head": true,
+        "same_version": true,
+        "grounded_receipt": true
+      },
+      "message": "Dağılım grafiği kaydedildi: Konut Faizi ve Konut Kredisi Bakiyesi. 60 kayıt kullanıldı.\n\nNoktalar aynı döneme ait gözlemleri eşler; bu görünüm nedensellik kanıtı değildir.\n\nKayıtlı tablonun değerleri korundu.\n\n\nİsterseniz şu incelemelerle devam edebiliriz:\n- Yıllık değişimi incele\n- İlk ve son gözlem",
+      "chart_id": "chart_d85103471debd16ef3998dee4ff81bb5f06b04b2611bbf09d04654cd76ead672",
+      "workspace_id": "workspace_e4814cc3f4a04877b8425f404b44ceb2"
+    }
+  ],
+  "prose_review": {
+    "known_before_fix": "natural_scatter correctly rendered the plot but its free-text reply called the minimum balance (275130) the starting balance; actual first balance is276785. Automated chart pass does not grade final narrative.",
+    "correction": "Pure chart edits now return a deterministic receipt from the saved spec and supported suggestions; final confirmation-live trial verified it.",
+    "limit": "Analytical synthesis for new calculations remains model generated. These small live cases are not a general reliability estimate."
+  },
+  "automated_checks": {
+    "test_count": 60,
+    "subtest_count": 21,
+    "result": "passed"
+  },
+  "browser": {
+    "errors": [],
+    "option": {
+      "series": [
+        {
+          "type": "line",
+          "count": 60,
+          "xAxis": 0,
+          "yAxis": 0
+        },
+        {
+          "type": "line",
+          "count": 60,
+          "xAxis": 1,
+          "yAxis": 1
+        }
+      ],
+      "y": [
+        "milyon TL",
+        "%"
+      ],
+      "title": "Konut kredileri ve faiz: beş yıllık görünüm"
+    },
+    "point": [
+      751.457627118644,
+      156.44758000000002
+    ],
+    "pointVisible": true,
+    "recommendationPrefilled": "Bu analizdeki Tüketici Kredileri - Konut [Toplam] (konut_kredisi) sütununun aynı aya göre yıllık yüzde değişimini hesapla ve grafikte göster; önceki yıl gözlemi olmayan dönemleri boş bırak.",
+    "mobile": {
+      "width": 390,
+      "document": 390,
+      "chart": 350
+    }
+  },
+  "divider": {
+    "errors": [],
+    "divider": {
+      "before_chart_width": 810,
+      "after_chart_width": 965,
+      "mobile_hidden": true,
+      "mobile_document_width": 390
+    },
+    "series": [
+      60,
+      60
+    ]
+  },
+  "heatmap_scope": {
+    "workspace_id": "workspace_33d5e61e83b742038d9615c2cf306f09",
+    "analysis_id": "analysis_746395ca14b3abcbefcf064abfa06701dc1a980c09d5ce1d30aa84f126f5377b",
+    "chart_id": "chart_d2cc7ada18b39321b1fb8fd387f8a2d3909d29bb00298cbc8acc758c33784289",
+    "row_count": 80,
+    "title": "Mevduatta ilk 10 bölge: çeyreklik görünüm",
+    "scope_note": "Kaynak city boyutu YURT DIŞI kategorisini de içerir. Her çeyreğin ilk10 kaydı,11 farklı kategori ve80 dolu hücre."
+  },
+  "implementation_sha256": {
+    "app/server.py": "ddcce64fadd373d78774f1303dd7faa674c17521652a01f1a8c388efbc47c5f6",
+    "tools/agent_runtime.py": "d7c1d9a8724d32f7baa0a54000203077dff42b5505d2d03b6de98c1297f19330",
+    "tools/agent_charts.py": "1cc02b9ebd88565b7c3474abc9072bae659cf660bbdf3b812c395acff7d4de25",
+    "app/static/app.js": "4056f81c9c8c599701fadfaf302861bbff9461330bc88f408b1e9d28bc5208fc",
+    "app/static/charts.js": "3a2c91c057c080456702418beddbb7cbc4372e2df960d0d7a1767ba324b718be",
+    "app/static/app.css": "54d75a610083d9326bbc52b25b6af05fb236c1ab91c2bd3a34062346f140d425",
+    "app/static/charts.css": "496d3f926f9f89e17ef4f09f36e86408c9621d81110b805dd4188b878479b82f",
+    "app/static/index.html": "a04bd722a9067b461bb0a2fd7afa38a3aa4c0f828c105ca3d3f6af3586b83648"
+  },
+  "local_evidence": {
+    "live.json": {
+      "path": "tmp/chart-validation-2026-09-10/live.json",
+      "sha256": "07db4789f2ee9405b6fce634a361d7994afd73109fd84d945011560eff8466c3"
+    },
+    "final-live.json": {
+      "path": "tmp/chart-validation-2026-09-10/final-live.json",
+      "sha256": "34ce236ac2b27a1ff450af145619937c3185ce51edbbd9caaa9a1adf1d6e1eec"
+    },
+    "confirmation-live.json": {
+      "path": "tmp/chart-validation-2026-09-10/confirmation-live.json",
+      "sha256": "5fb3d1ea3cb99f9a3b6fc6c0d780dedfc839c7302e4ad3a7c57d428f2ff41d62"
+    },
+    "browser.json": {
+      "path": "tmp/chart-validation-2026-09-10/browser.json",
+      "sha256": "ffa5bad0480b7e342fb363a66c5268fb33142953bbb45d61d5713aea9370f1d2"
+    },
+    "divider-check.json": {
+      "path": "tmp/chart-validation-2026-09-10/divider-check.json",
+      "sha256": "b4b61e480e0365e947e58b2b7c114967cfbabde80a56883e11deec3eb811cde1"
+    },
+    "heatmap-check.json": {
+      "path": "tmp/chart-validation-2026-09-10/heatmap-check.json",
+      "sha256": "129ff415d0cd4936284a871f85135dd18eba3feb7159794baeab5a345aa6122e"
+    }
+  }
+}

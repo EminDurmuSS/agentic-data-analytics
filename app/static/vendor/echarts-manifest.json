@@ -1,0 +1,22 @@
+{
+  "name": "Apache ECharts",
+  "version": "6.0.0",
+  "license": "Apache-2.0",
+  "files": {
+    "echarts.min.js": {
+      "source": "https://raw.githubusercontent.com/apache/echarts/6.0.0/dist/echarts.min.js",
+      "sha256": "baa8dfe7e1d9336b98e8986ba7e20ea15e7cdbea1ef42a59d59478632fa45a1d",
+      "bytes": 1117939
+    },
+    "echarts.LICENSE": {
+      "source": "https://raw.githubusercontent.com/apache/echarts/6.0.0/LICENSE",
+      "sha256": "634293835b43a6dd2094fa39182a3d9a6b9ca43b7fdb9ac354e8037af2a3093a",
+      "bytes": 11990
+    },
+    "echarts.NOTICE": {
+      "source": "https://raw.githubusercontent.com/apache/echarts/6.0.0/NOTICE",
+      "sha256": "dc0d9176413c3d96d0ac40b39b1dbb11e3043b7b010be560f5dfe66bd3774ae1",
+      "bytes": 168
+    }
+  }
+}

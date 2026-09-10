@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <title>Agentic Minds | Analiz çalışma alanı</title>
     <link rel="stylesheet" href="/static/app.css" />
+    <link rel="stylesheet" href="/static/charts.css" />
+    <script src="/static/vendor/echarts.min.js" defer></script>
+    <script src="/static/charts.js" defer></script>
     <script src="/static/app.js" defer></script>
   </head>
   <body>
@@ -35,7 +38,7 @@
       </header>
       <div id="notice" class="notice" role="status" hidden></div>
       <section class="workspace-grid">
-        <div class="conversation-pane">
+        <div id="conversation-pane" class="conversation-pane">
           <div class="pane-heading">
             <h2>Konuşma</h2>
             <button id="new-conversation" class="text-button">
@@ -76,7 +79,14 @@
             </div>
           </form>
         </div>
-        <section class="result-pane">
+        <div id="workspace-divider" class="pane-divider" role="separator"
+          aria-label="Konuşma ve analiz bölmelerinin genişliğini ayarla"
+          aria-orientation="vertical" aria-controls="conversation-pane result-pane"
+          aria-valuemin="20" aria-valuemax="70" aria-valuenow="40" tabindex="0"
+          title="Genişliği ayarlamak için sürükleyin veya ok tuşlarını kullanın. Çift tıklama: sıfırla.">
+          <span aria-hidden="true"></span>
+        </div>
+        <section id="result-pane" class="result-pane">
           <div class="result-heading">
             <div>
               <span class="eyebrow">ANALİZ SONUCU</span>
@@ -162,16 +172,36 @@
               </div>
             </div>
             <div id="tab-chart" class="tab-panel" hidden>
-              <div class="chart-controls">
-                <label for="chart-column">Gösterge</label
-                ><select id="chart-column"></select
-                ><span id="chart-unit"></span>
-              </div>
-              <div id="chart" class="chart"></div>
-              <p class="chart-note">
-                Grafik, tablonun ekranda gösterilen satırlarından çizilir. Eksik
-                gözlemler birleştirilmez.
-              </p>
+              <section id="chart-studio" class="chart-studio" aria-label="Etkileşimli grafik">
+                <div id="chart-status" class="chart-status" role="status">Grafik hazırlanıyor…</div>
+                <div id="chart-body" hidden>
+                  <div class="chart-heading">
+                    <div><span class="eyebrow">VERİYE YAKINDAN BAKIN</span><h3 id="chart-title"></h3><p id="chart-subtitle"></p></div>
+                    <button id="chart-expand" class="chart-action" title="Sunum görünümü" aria-label="Grafiği genişlet">⤢ <span>Genişlet</span></button>
+                  </div>
+                  <div id="chart-kpis" class="chart-kpis"></div>
+                  <div class="chart-toolbar">
+                    <div id="chart-kinds" class="chart-kinds" aria-label="Grafik türü"></div>
+                    <button id="chart-settings-toggle" class="chart-action" aria-expanded="false" aria-controls="chart-settings">Görünümü düzenle</button>
+                  </div>
+                  <form id="chart-settings" class="chart-settings" hidden>
+                    <label class="chart-wide">Grafik başlığı<input id="chart-custom-title" maxlength="160" placeholder="Verinizi anlatan bir başlık" /></label>
+                    <fieldset class="chart-wide"><legend>Gösterilecek seriler</legend><div id="chart-columns" class="chart-columns"></div></fieldset>
+                    <label>Eksen düzeni<select id="chart-layout"><option value="auto">Otomatik, birime göre</option><option value="panels">Ayrı paneller</option><option value="overlay">Tek eksende karşılaştır</option><option value="dual_axis">İki ayrı eksen</option></select></label>
+                    <label>Değerler<select id="chart-normalize"><option value="none">Özgün analiz değerleri</option><option value="index100">İlk ortak dönem = 100</option></select></label>
+                    <label id="chart-x-label" hidden>X ekseni<select id="chart-x"></select></label>
+                    <label id="chart-orientation-label" hidden>Çubuk yönü<select id="chart-orientation"><option value="vertical">Dikey</option><option value="horizontal">Yatay</option></select></label>
+                    <div class="chart-settings-footer chart-wide"><span>Grafiği konuşmada da tarif edebilirsiniz.</span><button class="primary" id="chart-apply" type="submit">Görünümü uygula</button></div>
+                  </form>
+                  <div id="chart-legend" class="chart-legend" aria-label="Grafik serileri"></div>
+                  <div id="chart" class="chart-canvas" role="img" aria-label="Analiz grafiği"></div>
+                  <div id="chart-point" class="chart-point" hidden></div>
+                  <div class="chart-chartnote"><span id="chart-note"></span><button id="chart-reset" class="text-button">Yakınlaştırmayı sıfırla</button></div>
+                  <div id="chart-warnings"></div>
+                  <div class="chart-footnote"><div id="chart-sources"></div><div class="chart-exports"><button id="chart-png" class="chart-action">PNG ↓</button><button id="chart-svg" class="chart-action">SVG ↓</button></div></div>
+                  <section class="chart-next"><h4>Bir sonraki bakış</h4><p>Bir öneri seçin, soruyu düzenleyip gönderin.</p><div id="chart-recommendations" class="chart-recommendations"></div></section>
+                </div>
+              </section>
             </div>
             <div id="tab-sources" class="tab-panel" hidden>
               <div id="source-cards"></div>

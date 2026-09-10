@@ -1179,3 +1179,17 @@ dialog .primary {
   overflow: auto;
   max-height: 480px;
 }
+
+/* The divider participates in the grid, so it never covers either pane. */
+@media (min-width: 931px) {
+  .workspace-grid { grid-template-columns: minmax(0, var(--conversation-width, 39.6%)) 10px minmax(0, 1fr); }
+  .conversation-pane { border-right: 0; }
+}
+.pane-divider { position: sticky; top: 0; height: calc(100vh - 102px); align-self: start; display: grid; place-items: center; cursor: col-resize; touch-action: none; user-select: none; background: #f0f4ed; z-index: 2; }
+.pane-divider::before { content: ""; position: absolute; top: 0; bottom: 0; left: calc(50% - .5px); width: 1px; background: #dbe4d8; }
+.pane-divider > span { position: relative; width: 4px; height: 42px; border-radius: 4px; background: #b5c5b0; box-shadow: 0 0 0 3px #f0f4ed; }
+.pane-divider:hover, .pane-divider:focus-visible, .pane-divider.is-dragging { background: #e6efdf; }
+.pane-divider:hover > span, .pane-divider:focus-visible > span, .pane-divider.is-dragging > span { background: #497749; box-shadow: 0 0 0 3px #e6efdf; }
+.pane-divider:focus-visible { outline: 2px solid #71916b; outline-offset: -2px; }
+body.pane-resizing, body.pane-resizing * { cursor: col-resize !important; user-select: none !important; }
+@media (max-width: 930px) { .pane-divider { display: none; } }
