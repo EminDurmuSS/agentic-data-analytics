@@ -186,31 +186,77 @@ function renderMessage(parent, text) {
     parent.append(block);
   }
 }
+function workspaceThreadLabel(run) {
+  const text = (run?.message || "Sohbet").trim();
+  if (!text) return "Sohbet";
+  return text.length > 42 ? text.slice(0, 39) + "…" : text;
+}
+function renderWorkspaceThreads(workspace, parent) {
+  const runs = [...((state.workspace?.workspace_id === workspace.workspace_id && state.workspace?.runs) || [])].reverse();
+  const threads = el("div", null, "workspace-threads");
+  const newThread = el("button", "Yeni sohbet", "workspace-thread-button");
+  newThread.type = "button";
+  newThread.addEventListener("click", (event) => {
+    event.stopPropagation();
+    if (state.busy) return;
+    state.conversation = null;
+    $("#messages").replaceChildren();
+    appendMessage(
+      "assistant",
+      "Yeni konuşma başladı. Çalışma alanınızdaki veri ve son analiz kullanılabilir.",
+    );
+  });
+  threads.append(newThread);
+
+  for (const run of runs.slice(0, 5)) {
+    const item = el("button", workspaceThreadLabel(run), "workspace-thread");
+    item.type = "button";
+    item.title = run.message || "Sohbet";
+    item.addEventListener("click", (event) => {
+      event.stopPropagation();
+      if (state.workspace?.workspace_id !== workspace.workspace_id) return;
+      state.conversation = run.conversation_id || null;
+      if (run.message) {
+        $("#question").value = run.message;
+        $("#question").focus();
+      }
+    });
+    threads.append(item);
+  }
+
+  parent.append(threads);
+}
 async function refreshWorkspaces() {
   const { workspaces } = await api("/api/workspaces");
   const list = $("#workspace-list");
   list.replaceChildren();
   for (const workspace of workspaces) {
+    const group = el("div", null, "workspace-group");
     const button = el(
       "button",
-      workspace.name,
+      null,
       "workspace-item" +
         (workspace.workspace_id === state.workspace?.workspace_id
           ? " active"
           : ""),
     );
-    button.append(
-      el(
-        "small",
-        workspace.profile === "generic"
-          ? "Kendi veriniz"
-          : "KKB finans verileri",
-      ),
+    const chevron = el("span", workspace.workspace_id === state.workspace?.workspace_id ? "▾" : "▸", "workspace-chevron");
+    button.append(chevron);
+    const label = el("span", workspace.name, "workspace-label");
+    button.append(label);
+    const meta = el(
+      "small",
+      workspace.profile === "generic" ? "Kendi veriniz" : "KKB finans verileri",
     );
+    button.append(meta);
     button.addEventListener("click", () =>
       selectWorkspace(workspace.workspace_id).catch((e) => notice(e.message)),
     );
-    list.append(button);
+    group.append(button);
+    if (workspace.workspace_id === state.workspace?.workspace_id) {
+      renderWorkspaceThreads(workspace, group);
+    }
+    list.append(group);
   }
   return workspaces;
 }
