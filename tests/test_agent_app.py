@@ -3,6 +3,7 @@ import copy
 import csv
 import io
 import json
+import shutil
 from pathlib import Path
 import tempfile
 import threading
@@ -91,6 +92,25 @@ class AgentAppTests(unittest.TestCase):
         response = self.client.post("/api/workspaces", json={"name": "Test workspace", "profile": profile})
         self.assertEqual(response.status_code, 200, response.text)
         return response.json()
+
+    def test_new_workspace_uses_new_database_release_and_old_workspace_keeps_snapshot(self):
+        source = Path(self.temp.name) / "source.duckdb"
+        shutil.copyfile(self.fixture_db, source)
+        self.context.source_db = source
+        first = self.workspace()
+        unchanged = self.workspace()
+        self.assertEqual(first["snapshot_id"], unchanged["snapshot_id"])
+        replacement = source.with_name("replacement.duckdb")
+        shutil.copyfile(source, replacement)
+        with duckdb.connect(str(replacement)) as connection:
+            connection.execute("INSERT INTO observations VALUES ('2021-04',175)")
+        replacement.replace(source)
+        second = self.workspace()
+        self.assertNotEqual(first["snapshot_id"], second["snapshot_id"])
+        self.assertEqual(first["snapshot_id"], self.context.workspace(first["workspace_id"])["snapshot_id"])
+        for workspace, expected_rows in [(first, 3), (second, 4)]:
+            with duckdb.connect(str(self.context.store.snapshot_path(workspace["snapshot_id"])), read_only=True) as connection:
+                self.assertEqual(expected_rows, connection.execute("SELECT count(*) FROM observations").fetchone()[0])
 
     def submit_and_wait(self, workspace_id, message="Kredi tablosu", **fields):
         response = self.client.post(f"/api/workspaces/{workspace_id}/runs", json={"message": message, **fields})

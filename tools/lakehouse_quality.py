@@ -9,6 +9,106 @@ import json
 import duckdb
 
 
+def validate_full_evds(connection: duckdb.DuckDBPyConnection) -> dict:
+    """Validate an optional copied publication without consulting mutable CURRENT.
+
+    Completeness refers to the collector's declared target, and never follows
+    merely from HTTP success, nonempty data, or availability of source metadata.
+    """
+    tables = {f"{r[0]}.{r[1]}" for r in connection.execute(
+        "SELECT table_schema,table_name FROM information_schema.tables").fetchall()}
+    required = {"evds.full_catalog_observations", "evds.full_catalog_series_catalog",
+                "evds.full_catalog_coverage", "evds.full_catalog_publication"}
+    if not tables.intersection(required):
+        return {"present": False, "full_request_scope_complete": False,
+                "full_numeric_coverage_complete": False, "evds_full_observation_coverage_complete": False}
+    if not required.issubset(tables):
+        raise ValueError(f"Partial EVDS bulk installation: {sorted(required - tables)}")
+    checks = []
+
+    def zero(name, sql):
+        violations = int(connection.execute(sql).fetchone()[0])
+        checks.append({"check": name, "violations": violations, "passed": violations == 0})
+
+    zero("full_evds_publication_singleton", "SELECT abs(count(*)-1) FROM evds.full_catalog_publication")
+    zero("full_evds_metadata_identity_unique", "SELECT count(*)-count(DISTINCT series_code) FROM evds.full_catalog_series_catalog")
+    zero("full_evds_coverage_identity_unique", "SELECT count(*)-count(DISTINCT series_code) FROM evds.full_catalog_coverage")
+    zero("full_evds_native_key_unique", """SELECT count(*) FROM (
+        SELECT series_code,period FROM evds.full_catalog_observations GROUP BY ALL HAVING count(*)>1)""")
+    zero("full_evds_required_keys", """SELECT count(*) FROM evds.full_catalog_observations
+        WHERE series_code IS NULL OR period IS NULL OR period_start IS NULL OR period_end IS NULL""")
+    zero("full_evds_values_finite", "SELECT count(*) FROM evds.full_catalog_observations WHERE value IS NOT NULL AND NOT isfinite(value)")
+    zero("full_evds_source_nulls_preserved", "SELECT count(*) FROM evds.full_catalog_observations WHERE is_missing IS DISTINCT FROM (value IS NULL)")
+    zero("full_evds_response_evidence", """SELECT count(*) FROM evds.full_catalog_observations
+        WHERE source_response_file IS NULL OR source_response_file='' OR source_response_sha256 IS NULL
+        OR NOT regexp_full_match(source_response_sha256,'[0-9a-f]{64}') OR source_row_index IS NULL""")
+    zero("full_evds_coverage_metadata_identity", """SELECT count(*) FROM evds.full_catalog_coverage c
+        FULL JOIN evds.full_catalog_series_catalog s USING(series_code) WHERE c.series_code IS NULL OR s.series_code IS NULL""")
+    zero("full_evds_counts_match_canonical_rows", """WITH actual AS (
+        SELECT series_code,count(*) n,count(value) numeric_n,count(*)-count(value) null_n
+        FROM evds.full_catalog_observations GROUP BY series_code)
+        SELECT count(*) FROM evds.full_catalog_coverage c FULL JOIN actual a USING(series_code)
+        WHERE c.series_code IS NULL OR c.observation_count<>coalesce(a.n,0)
+        OR c.numeric_observation_count<>coalesce(a.numeric_n,0)
+        OR c.missing_observation_count<>coalesce(a.null_n,0)
+        OR c.physical_present IS DISTINCT FROM (coalesce(a.n,0)>0)""")
+    zero("full_evds_frequency_matches_coverage", """SELECT count(*) FROM evds.full_catalog_observations o
+        JOIN evds.full_catalog_coverage c USING(series_code) WHERE o.native_frequency IS DISTINCT FROM c.native_frequency""")
+    zero("full_evds_every_series_discoverable", """SELECT count(*) FROM evds.full_catalog_coverage c
+        ANTI JOIN catalog.metrics m ON m.source_system='TCMB_EVDS' AND m.source_metric_code=c.series_code""")
+    zero("full_evds_physical_bindings_resolved", """SELECT count(*) FROM catalog.metrics m
+        LEFT JOIN catalog.metric_bindings b USING(metric_id)
+        WHERE m.dataset_id='evds.full_catalog' AND m.observation_available AND (
+            b.binding_json IS NULL OR coalesce(json_extract_string(b.binding_json,'$.binding_available'),'false')<>'true'
+            OR json_extract_string(b.binding_json,'$.table') IS DISTINCT FROM 'evds.full_catalog_observations')""")
+    failures = [item for item in checks if not item["passed"]]
+    if failures:
+        raise ValueError(f"EVDS bulk release quality failed: {json.dumps(failures)}")
+    publication_id, summary_json, pinned_scope_complete, pinned_scope_series, target_start, target_end = connection.execute(
+        "SELECT publication_id,validation_json,catalog_scope_complete,catalog_scope_series,target_start,target_end FROM evds.full_catalog_publication"
+    ).fetchone()
+    declared = json.loads(summary_json)
+    names = ["metadata_series", "physical_series", "numeric_series", "observation_count", "source_null_count",
+             "completed_request_series", "numeric_complete_series", "attempted_series", "attempted_series_request_count"]
+    values = connection.execute("""SELECT count(*),count(*) FILTER (WHERE physical_present),
+        count(*) FILTER (WHERE numeric_observation_count>0),coalesce(sum(observation_count),0),
+        coalesce(sum(missing_observation_count),0),count(*) FILTER (WHERE request_coverage_complete),
+        count(*) FILTER (WHERE numeric_coverage_complete),count(*) FILTER (WHERE attempted_job_count>0),
+        coalesce(sum(attempted_job_count),0) FROM evds.full_catalog_coverage""").fetchone()
+    counts = dict(zip(names, map(int, values)))
+    for key, value in counts.items():
+        if key in declared and int(declared[key]) != value:
+            raise ValueError(f"EVDS bulk manifest count differs from copied coverage: {key}")
+    scope_missing = int(connection.execute("""SELECT count(*) FROM catalog.metrics m
+        ANTI JOIN evds.full_catalog_coverage c ON m.source_metric_code=c.series_code
+        WHERE m.source_system='TCMB_EVDS'""").fetchone()[0])
+    catalog_count = int(connection.execute("SELECT count(*) FROM catalog.metrics WHERE source_system='TCMB_EVDS'").fetchone()[0])
+    scope_complete = bool(pinned_scope_complete) and scope_missing == 0 and catalog_count == pinned_scope_series
+    request_complete = scope_complete and counts["metadata_series"] > 0 and counts["completed_request_series"] == counts["metadata_series"]
+    numeric_complete = scope_complete and counts["metadata_series"] > 0 and counts["numeric_complete_series"] == counts["metadata_series"]
+    for key, actual in [("full_request_scope_complete", request_complete),
+                        ("full_numeric_coverage_complete", numeric_complete),
+                        ("evds_full_observation_coverage_complete", numeric_complete and request_complete)]:
+        if declared.get(key) and not actual:
+            raise ValueError(f"EVDS bulk manifest overstates {key}")
+    ready, numeric_ready, primary_physical, primary_numeric = connection.execute("""SELECT
+        count(*) FILTER (WHERE b.status='ready'),
+        count(*) FILTER (WHERE b.status='ready' AND m.observation_count>m.missing_observation_count),
+        count(*) FILTER (WHERE m.observation_available),
+        count(*) FILTER (WHERE m.observation_available AND m.observation_count>m.missing_observation_count)
+        FROM catalog.metrics m JOIN catalog.metric_bindings b USING(metric_id) WHERE m.source_system='TCMB_EVDS'""").fetchone()
+    return {**counts, "present": True, "publication_id": publication_id, "catalog_scope_complete": scope_complete,
+            "attempted_job_count": int(declared.get("attempted_job_count", 0)),
+            "catalog_scope_series": catalog_count, "primary_physical_series": int(primary_physical),
+            "primary_numeric_series": int(primary_numeric), "semantic_ready_series": int(ready),
+            "numeric_and_semantic_ready_series": int(numeric_ready),
+            "full_semantic_scope_ready": bool(catalog_count) and ready == catalog_count,
+            "full_request_scope_complete": request_complete and bool(declared.get("full_request_scope_complete")),
+            "full_numeric_coverage_complete": numeric_complete and bool(declared.get("full_numeric_coverage_complete")),
+            "evds_full_observation_coverage_complete": numeric_complete and request_complete and bool(declared.get("evds_full_observation_coverage_complete")),
+            "target_start": target_start, "target_end": target_end, "checks": checks}
+
+
 def validate_connection(connection: duckdb.DuckDBPyConnection) -> dict:
     checks = []
     required = {
@@ -107,7 +207,11 @@ def validate_connection(connection: duckdb.DuckDBPyConnection) -> dict:
     failures = [c for c in checks if not c["passed"]]
     if failures:
         raise ValueError(f"Lakehouse release quality failed: {json.dumps(failures,ensure_ascii=False)}")
-    return {"status":"passed","checks":checks,"evds_full_coverage_complete":False,
+    full_evds = validate_full_evds(connection)
+    return {"status":"passed","checks":checks,
+            "evds_full_coverage_complete":full_evds["evds_full_observation_coverage_complete"],
+            "evds_full_request_scope_complete":full_evds["full_request_scope_complete"],
+            "evds_full_catalog":full_evds,
             "scope":"Local source snapshot, contracts and exact relationships. Query-specific readiness is checked at execution."}
 
 

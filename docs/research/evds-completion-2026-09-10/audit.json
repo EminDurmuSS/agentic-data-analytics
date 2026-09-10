@@ -1,0 +1,307 @@
+{
+  "scope": [
+    "2021-01-01",
+    "2026-06-30"
+  ],
+  "queue_status": {
+    "no_data": 14,
+    "pending": 153894,
+    "succeeded": 608
+  },
+  "metadata_series": 52696,
+  "target_numeric_series_in_published_sources": 587,
+  "archive_series": 22092,
+  "catalog_empty_unit_series": 18869,
+  "same_group_frequency_aggregation_buckets": 685,
+  "estimated_requests_by_max_series_per_batch": {
+    "10": 8045,
+    "20": 4233,
+    "50": 1937
+  },
+  "estimate_assumptions": [
+    "Include every catalog series, including archives; no lifespan exclusions.",
+    "Group by group_code, exact native frequency, and default aggregation.",
+    "Daily and business-day requests use at most900 inclusive calendar days (3 chunks for scope); other frequencies use1 full-scope chunk.",
+    "Counts exclude metadata refresh, retries, adaptive splits, separate validation calls and publication work. These estimates are not executed queue plans."
+  ],
+  "probe": [
+    {
+      "case": "monthly20",
+      "http_status": 200,
+      "seconds": 1.7,
+      "requested_series": 20,
+      "response_bytes": 87893,
+      "sha256": "0f8ecf848feac68a0c290eb79f2b720eba0da5abed8bd84684517704ecfbee4b",
+      "series": [
+        {
+          "code": "TP.TUKFIY2025.01",
+          "rows": 66,
+          "numeric": 66,
+          "first": "2021-01",
+          "last": "2026-06",
+          "outside": 0,
+          "unique_periods": 66
+        },
+        {
+          "code": "TP.TUKFIY2025.011",
+          "rows": 66,
+          "numeric": 66,
+          "first": "2021-01",
+          "last": "2026-06",
+          "outside": 0,
+          "unique_periods": 66
+        },
+        {
+          "code": "TP.TUKFIY2025.0111",
+          "rows": 66,
+          "numeric": 66,
+          "first": "2021-01",
+          "last": "2026-06",
+          "outside": 0,
+          "unique_periods": 66
+        },
+        {
+          "code": "TP.TUKFIY2025.01111",
+          "rows": 66,
+          "numeric": 66,
+          "first": "2021-01",
+          "last": "2026-06",
+          "outside": 0,
+          "unique_periods": 66
+        },
+        {
+          "code": "TP.TUKFIY2025.01112",
+          "rows": 66,
+          "numeric": 66,
+          "first": "2021-01",
+          "last": "2026-06",
+          "outside": 0,
+          "unique_periods": 66
+        },
+        {
+          "code": "TP.TUKFIY2025.01113",
+          "rows": 66,
+          "numeric": 66,
+          "first": "2021-01",
+          "last": "2026-06",
+          "outside": 0,
+          "unique_periods": 66
+        },
+        {
+          "code": "TP.TUKFIY2025.01114",
+          "rows": 66,
+          "numeric": 66,
+          "first": "2021-01",
+          "last": "2026-06",
+          "outside": 0,
+          "unique_periods": 66
+        },
+        {
+          "code": "TP.TUKFIY2025.01115",
+          "rows": 66,
+          "numeric": 66,
+          "first": "2021-01",
+          "last": "2026-06",
+          "outside": 0,
+          "unique_periods": 66
+        },
+        {
+          "code": "TP.TUKFIY2025.0112",
+          "rows": 66,
+          "numeric": 66,
+          "first": "2021-01",
+          "last": "2026-06",
+          "outside": 0,
+          "unique_periods": 66
+        },
+        {
+          "code": "TP.TUKFIY2025.01122",
+          "rows": 66,
+          "numeric": 66,
+          "first": "2021-01",
+          "last": "2026-06",
+          "outside": 0,
+          "unique_periods": 66
+        },
+        {
+          "code": "TP.TUKFIY2025.01123",
+          "rows": 66,
+          "numeric": 66,
+          "first": "2021-01",
+          "last": "2026-06",
+          "outside": 0,
+          "unique_periods": 66
+        },
+        {
+          "code": "TP.TUKFIY2025.01124",
+          "rows": 66,
+          "numeric": 66,
+          "first": "2021-01",
+          "last": "2026-06",
+          "outside": 0,
+          "unique_periods": 66
+        },
+        {
+          "code": "TP.TUKFIY2025.01125",
+          "rows": 66,
+          "numeric": 66,
+          "first": "2021-01",
+          "last": "2026-06",
+          "outside": 0,
+          "unique_periods": 66
+        },
+        {
+          "code": "TP.TUKFIY2025.0113",
+          "rows": 66,
+          "numeric": 66,
+          "first": "2021-01",
+          "last": "2026-06",
+          "outside": 0,
+          "unique_periods": 66
+        },
+        {
+          "code": "TP.TUKFIY2025.01131",
+          "rows": 66,
+          "numeric": 66,
+          "first": "2021-01",
+          "last": "2026-06",
+          "outside": 0,
+          "unique_periods": 66
+        },
+        {
+          "code": "TP.TUKFIY2025.01133",
+          "rows": 66,
+          "numeric": 66,
+          "first": "2021-01",
+          "last": "2026-06",
+          "outside": 0,
+          "unique_periods": 66
+        },
+        {
+          "code": "TP.TUKFIY2025.0114",
+          "rows": 66,
+          "numeric": 66,
+          "first": "2021-01",
+          "last": "2026-06",
+          "outside": 0,
+          "unique_periods": 66
+        },
+        {
+          "code": "TP.TUKFIY2025.01141",
+          "rows": 66,
+          "numeric": 66,
+          "first": "2021-01",
+          "last": "2026-06",
+          "outside": 0,
+          "unique_periods": 66
+        },
+        {
+          "code": "TP.TUKFIY2025.01142",
+          "rows": 66,
+          "numeric": 31,
+          "first": "2021-01",
+          "last": "2026-06",
+          "outside": 0,
+          "unique_periods": 66
+        },
+        {
+          "code": "TP.TUKFIY2025.01143",
+          "rows": 66,
+          "numeric": 7,
+          "first": "2021-01",
+          "last": "2026-06",
+          "outside": 0,
+          "unique_periods": 66
+        }
+      ],
+      "response_count": 66,
+      "response_fields": [
+        "totalCount",
+        "items",
+        "transposedItems",
+        "transposedColumns",
+        "seriesNames",
+        "frequencyConversion"
+      ]
+    },
+    {
+      "case": "weekly2",
+      "http_status": 200,
+      "seconds": 0.555,
+      "requested_series": 2,
+      "response_bytes": 66587,
+      "sha256": "acc314a31b8065ed6e2326e3e004f7bc6fe8dcecc61dc371f5045521ffbf306b",
+      "series": [
+        {
+          "code": "TP.KTF10",
+          "rows": 287,
+          "numeric": 287,
+          "first": "2021-01-01",
+          "last": "2026-06-26",
+          "outside": 1,
+          "unique_periods": 287
+        },
+        {
+          "code": "TP.KTF12",
+          "rows": 287,
+          "numeric": 287,
+          "first": "2021-01-01",
+          "last": "2026-06-26",
+          "outside": 1,
+          "unique_periods": 287
+        }
+      ],
+      "response_count": 288,
+      "response_fields": [
+        "totalCount",
+        "items",
+        "transposedItems",
+        "transposedColumns",
+        "seriesNames",
+        "frequencyConversion"
+      ],
+      "excluded_out_of_scope_labels": [
+        "03-07-2026"
+      ]
+    },
+    {
+      "case": "daily2",
+      "http_status": 200,
+      "seconds": 0.9,
+      "requested_series": 2,
+      "response_bytes": 190381,
+      "sha256": "8da18d1cf4db2635f6ef60443b924497eed37f2a787b84bbfab741c6ea1b8e54",
+      "series": [
+        {
+          "code": "TP.DK.USD.A.YTL",
+          "rows": 900,
+          "numeric": 619,
+          "first": "2021-01-01",
+          "last": "2023-06-19",
+          "outside": 0,
+          "unique_periods": 900
+        },
+        {
+          "code": "TP.DK.EUR.A.YTL",
+          "rows": 900,
+          "numeric": 619,
+          "first": "2021-01-01",
+          "last": "2023-06-19",
+          "outside": 0,
+          "unique_periods": 900
+        }
+      ],
+      "response_count": 900,
+      "response_fields": [
+        "totalCount",
+        "items",
+        "transposedItems",
+        "transposedColumns",
+        "seriesNames",
+        "frequencyConversion"
+      ]
+    }
+  ],
+  "probe_published_to_lakehouse": false,
+  "official_guide": "https://evds3.tcmb.gov.tr/igmevdsms-dis/documents/showDocument?docId=8"
+}

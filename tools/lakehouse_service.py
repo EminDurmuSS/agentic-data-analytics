@@ -139,15 +139,21 @@ def _flow_period_count(native: str, target: str) -> int | None:
             ("quarterly", "yearly"): 4}.get((native, target))
 
 
-_FREQUENCIES = {"monthly": "M", "quarterly": "Q", "weekly_friday": "W-FRI", "weekly_wednesday": "W-WED", "weekly": "W-FRI", "daily": "D", "business_daily": "B", "annual": "Y", "yearly": "Y"}
+_FREQUENCIES = {"monthly": "M", "quarterly": "Q", "weekly_friday": "W-FRI", "weekly_wednesday": "W-WED", "weekly": "W-FRI", "daily": "D", "business_daily": "B", "annual": "Y", "yearly": "Y", "half_yearly": "2Q-DEC", "twice_monthly": "D"}
 _FREQUENCY_RANK = {"daily": 0, "business_daily": 0, "weekly_friday": 1, "weekly_wednesday": 1, "weekly": 1, "twice_monthly": 1, "monthly": 2, "quarterly": 3, "half_yearly": 4, "annual": 5, "yearly": 5}
+_NATIVE_ONLY_FREQUENCIES = {"half_yearly", "twice_monthly"}
 
 
 def _period(value: Any, frequency: str) -> pd.Period:
-    pattern = r"\d{4}-\d{2}" if frequency == "monthly" else r"\d{4}-Q[1-4]" if frequency == "quarterly" else r"\d{4}" if frequency in {"annual", "yearly"} else r"\d{4}-\d{2}-\d{2}"
+    pattern = r"\d{4}-H[12]" if frequency == "half_yearly" else r"\d{4}-\d{2}" if frequency == "monthly" else r"\d{4}-Q[1-4]" if frequency == "quarterly" else r"\d{4}" if frequency in {"annual", "yearly"} else r"\d{4}-\d{2}-\d{2}"
     if not isinstance(value, str) or not re.fullmatch(pattern, value):
         raise PlanError(f"Expected {frequency} period, got {value!r}")
     try:
+        if frequency == "half_yearly":
+            # Anchor on Q1 or Q3 explicitly; a generic six-month stride can
+            # otherwise start in any month and silently shift source periods.
+            quarter = 1 if value.endswith("H1") else 3
+            return pd.Period(f"{value[:4]}Q{quarter}", freq="2Q-DEC")
         period = pd.Period(value, freq=_FREQUENCIES[frequency])
         if frequency.startswith("weekly") and period.end_time.date().isoformat() != value:
             raise PlanError("Weekly bounds must be native week-ending dates")
@@ -157,6 +163,8 @@ def _period(value: Any, frequency: str) -> pd.Period:
 
 
 def _label(period: pd.Period) -> str:
+    if period.freqstr == "2Q-DEC":
+        return f"{period.year:04d}-H{1 if period.quarter == 1 else 2}"
     if period.freqstr.startswith("Q"):
         return str(period).replace("Q", "-Q")
     if period.freqstr.startswith("W"):
@@ -384,6 +392,8 @@ class LakehouseService:
                 raise PlanError("Dimension values must be finite scalar strings or numbers")
             alignment = selection.get("alignment", "native")
             native = binding["native_frequency"]
+            if (native in _NATIVE_ONLY_FREQUENCIES or frequency in _NATIVE_ONLY_FREQUENCIES) and native != frequency:
+                raise PlanError("Half-year and twice-monthly sources currently support native selection only; frequency conversion is unavailable", code="NATIVE_FREQUENCY_CONVERSION_UNSUPPORTED")
             rank = _FREQUENCY_RANK
             if native not in rank:
                 raise PlanError(f"Unsupported native frequency {native}")
@@ -435,6 +445,8 @@ class LakehouseService:
             source = schemas[column]
             if source["status"] != "ready" or source["kind"] == "unknown":
                 raise PlanError("Unreviewed semantics permit raw selection only", code="SEMANTICS_REVIEW_REQUIRED")
+            if frequency in _NATIVE_ONLY_FREQUENCIES:
+                raise PlanError("Transformations for half-year and twice-monthly selections are not implemented; select native source values", code="NATIVE_PERIOD_OPERATIONS_UNSUPPORTED")
             schema = copy.deepcopy(source)
             schema.pop("index_role", None)
             schema.pop("deflator_currency", None)
@@ -536,13 +548,19 @@ class LakehouseService:
             raise PlanError(f"No observations for {selection['name']} and the selected dimensions", code="MISSING_OBSERVATIONS")
         raw_dates = frame[time].astype(str)
         try:
-            if binding["native_frequency"] == "quarterly":
+            if binding["native_frequency"] in _NATIVE_ONLY_FREQUENCIES:
+                native_periods = pd.PeriodIndex([_period(item, binding["native_frequency"]) for item in raw_dates],
+                                               freq=_FREQUENCIES[binding["native_frequency"]])
+                frame["_period"] = native_periods
+                frame["_native_period"] = native_periods
+            elif binding["native_frequency"] == "quarterly":
                 dates = pd.PeriodIndex(raw_dates.str.replace("-Q", "Q", regex=False), freq="Q").to_timestamp(how="end")
             else:
                 dates = pd.to_datetime(raw_dates, format="mixed", errors="raise")
-            frame["_period"] = pd.PeriodIndex(dates, freq=calendar.freqstr)
-            native_calendar = _FREQUENCIES.get(binding["native_frequency"])
-            frame["_native_period"] = pd.PeriodIndex(dates, freq=native_calendar) if native_calendar else raw_dates
+            if binding["native_frequency"] not in _NATIVE_ONLY_FREQUENCIES:
+                frame["_period"] = pd.PeriodIndex(dates, freq=calendar.freqstr)
+                native_calendar = _FREQUENCIES.get(binding["native_frequency"])
+                frame["_native_period"] = pd.PeriodIndex(dates, freq=native_calendar) if native_calendar else raw_dates
         except (ValueError, TypeError) as exc:
             raise PlanError(f"Invalid source period for {selection['name']}") from exc
         frame["_date"] = raw_dates
@@ -634,6 +652,17 @@ class LakehouseService:
             overlapping = [item for item in definitions if str(item.get("start", "0000")) <= str(calendar[-1].end_time.date()) and str(item.get("end") or "9999") >= str(calendar[0].start_time.date())]
             if len({item.get("definition_id", item.get("label")) for item in overlapping}) > 1 and any(selection["name"] in (op.get("column"), op.get("index"), op.get("denominator")) for op in plan.get("operations", [])):
                 raise PlanError(f"{selection['name']}: calculation crosses a source definition change", code="DEFINITION_BREAK")
+        if plan["frequency"] == "twice_monthly":
+            # The metadata does not certify 15th/month-end publication dates.
+            # Keep exact observed date keys, including source-null rows, across
+            # the selected series. Unobserved dates never become synthetic rows.
+            observed = sorted({_period(label, "twice_monthly")
+                               for proof in lineage["sources"].values() for label in proof["cells"]})
+            frame = frame.loc[pd.PeriodIndex(observed, freq="D")]
+            lineage["calendar_policy"] = "union_of_observed_native_dates"
+            warnings.append({"code": "native_calendar_unverified", "detail": "Twice-monthly output retains observed source dates only; no fixed publication days or complete calendar are assumed"})
+        elif plan["frequency"] == "half_yearly":
+            lineage["calendar_policy"] = "calendar_half_years_january_june_and_july_december"
         schemas = {s["name"]: {key: bindings[s["metric_id"]].get(key) for key in ("kind", "unit", "scale", "currency")} for s in plan["columns"]}
         for operation_index, operation in enumerate(plan.get("operations", [])):
             op, column, output = operation["op"], operation["column"], operation["output"]
@@ -925,7 +954,10 @@ class LakehouseService:
                     lineage_issues.add(f"{binding['metric_id']}: raw source hash and locator are not both bound")
                 if "previous_cumulative_source_cells" in cell and not cell["previous_cumulative_source_cells"]:
                     lineage_issues.add(f"{binding['metric_id']} at {_label(at)}: previous cumulative source cell is unavailable")
-            return {"column": name, "period": _label(at), "metric_id": binding["metric_id"], "contract_version": binding.get("contract_version"), "unit": binding.get("unit"), "scale": binding.get("scale"), "source_base": binding.get("source_base"), "hash_basis": binding.get("hash_basis", "file_bytes"), "source_sha256": binding.get("source_sha256"), "dataset_id": binding.get("dataset_id"), "source_namespace": binding.get("source_namespace"), "document_provenance": copy.deepcopy(binding.get("document_provenance")), "dimensions": proof["dimensions"], "alignment": proof["alignment"], "source_cells": proof["cells"].get(_label(at), [])}
+            explanation = {"column": name, "period": _label(at), "metric_id": binding["metric_id"], "contract_version": binding.get("contract_version"), "unit": binding.get("unit"), "scale": binding.get("scale"), "source_base": binding.get("source_base"), "hash_basis": binding.get("hash_basis", "file_bytes"), "source_sha256": binding.get("source_sha256"), "dataset_id": binding.get("dataset_id"), "source_namespace": binding.get("source_namespace"), "document_provenance": copy.deepcopy(binding.get("document_provenance")), "dimensions": proof["dimensions"], "alignment": proof["alignment"], "source_cells": source_cells}
+            if binding.get("source_cell_locator_policy"):
+                explanation["source_cell_locator_policy"] = copy.deepcopy(binding["source_cell_locator_policy"])
+            return explanation
 
         proof = explain(column, period, len(operations))
         return _json({"status": "ok", "analysis_id": request["analysis_id"], "snapshot_id": manifest["snapshot_id"], "column": column, "period": request["period"], "value": selected.iloc[0][column], "schema": manifest.get("schema", {}).get(column), "lineage": proof, "lineage_complete": not lineage_issues, "source_references_complete": not lineage_issues, "source_files_verified": False, "lineage_issues": sorted(lineage_issues)})

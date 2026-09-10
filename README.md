@@ -3,7 +3,9 @@
 KKB Agentic Data Analytics Hackathon için yerel lakehouse, Kloudeks Qwen ile
 çalışan tek agent döngüsü ve tarayıcıdan kullanılan analiz çalışma alanı.
 Kaynak verisi, metrik sözleşmeleri, hesap planları ve sürümlü analiz sonuçları
-birlikte yönetilir. EVDS'nin tüm tarihsel gözlem kapsamı henüz tamamlanmadı.
+birlikte yönetilir. 10 Eylül 2026 yerel yayınında EVDS kataloğundaki 52.696
+serinin Ocak 2021-Haziran 2026 istek kapsamı tamamlandı. Kaynağın sayısal
+veri vermediği dönemler ayrıca korunur ve raporlanır.
 
 Uygulanan araçlar ve çalıştırılabilir örnekler:
 [Agent için lakehouse kullanım rehberi](docs/AGENT_READY_LAKEHOUSE.md).
@@ -32,6 +34,11 @@ veritabanı için `--db /dosya/analytics.duckdb`, ayrı kayıt dizini için
 `--runtime-root /dizin/agent-app` kullanılır. Varsayılan kayıt dizini
 `.lakehouse-runtime/app/` içindedir. Başlatıcı yalnız yerel loopback
 adreslerini kabul eder.
+
+Tam EVDS geçmişini daha önce yayımladıysanız yukarıdaki lakehouse build
+adımını da atlayın. Bu temel build komutu repoyla gelen seçilmiş kaynak
+paketini üretir; tam yerel EVDS yayınını güncellemek için aşağıdaki
+`tools.complete_evds_history` komutunu kullanın.
 
 `requirements-app.lock`, Python 3.12 için doğrudan ve dolaylı bağımlılıkların
 tam sürümlerini sabitler; `requirements-app.txt` uygulamanın kaynak bağımlılık
@@ -86,7 +93,8 @@ Canlı çalışma kanıtları, başarısız ilk denemeler ve ekran görüntüler
 | BDDK haftalık | 286 hafta, 9 tablonun tamamı, 7 resmî banka grubu | Tamamlandı ve doğrulandı |
 | BDDK FinTürk | 22 çeyrek, 7 tablo, 7 banka grubu, 81 il ve `YURT DIŞI` | Tamamlandı ve doğrulandı |
 | TCMB EVDS katalog | 676 veri grubu, 52.696 benzersiz seri kaydı | Tamamlandı, metadata kataloğu |
-| TCMB EVDS gözlem | 584 seçilmiş seri ve eski yerel paketten bağlanan 15 ek seri: 599 fiziksel seri, 587'sinde sayısal değer | Tüm EVDS kapsamı tamamlanmadı; devam ettirilebilir toplama kuyruğu mevcut |
+| TCMB EVDS repo paketi | 599 seçilmiş fiziksel seri, 587'sinde sayısal değer | Önceden incelenmiş kaynaklar ve hesap sözleşmeleri Git ile taşınır |
+| TCMB EVDS yerel tam tarama | 52.696 seri, Ocak 2021-Haziran 2026; 13.519.266 kaynak hücresi | İstek kapsamı tamamlandı; 35.652 seride 6.019.172 sayısal gözlem. Büyük kaynak yayını yereldir, Git'e eklenmez |
 | TÜİK il konut satışları | 81 il, Ocak 2020-Haziran 2026, 5 aylık satış metriği | Tamamlandı ve EVDS ile çapraz doğrulandı |
 | İl bazlı konut paneli | 81 il, 22 çeyrek, satış, fiyat, kira, kredi, mevduat, KFE ve YKKE göstergeleri | Yerel panel mevcut; eksiklikler sütun bazında kontrol edilir, kaynak hücresine eşlenmemiş türevler agent hesaplarına kapalı |
 | TBB tüketici kredileri | 2021 Mart-2026 Mart, 21 yayımlanmış çeyrek | Tamamlandı; 9 Eylül 2026 kontrolünde 2026 Haziran raporu kaynakta yok |
@@ -101,6 +109,12 @@ yapay olarak yayılmaz.
 
 ## Ölçek
 
+Aşağıdaki sayılar repoyla gelen seçilmiş kaynak paketine aittir. Tam yerel
+EVDS yayını 41.909 fiziksel seri içerir; bu yayınla derlenen uygulama
+veritabanı 76 tablo/view ve 44.712 fiziksel gözlemi bulunan metrik taşır.
+Fiziksel gözlem sayısı, bütün hücrelerin sayısal veya bütün dönüşümlerin
+incelenmiş olduğu anlamına gelmez.
+
 - BDDK aylık: 1.122 resmî istek, 11.220 tablo-grup kaydı, 339.650 kaynak satırı, 1.334.850 semantik ölçüm
 - BDDK haftalık: 18.018 resmî sayfa, 1.736.650 ham hücre, 1.025.974 ölçüm. Kaynaktaki 2.230 boş hücrenin tamamı yapısal `FX uygulanamaz` olarak açıklandı
 - BDDK FinTürk: 84.484 kaynak satırı, 936.512 ölçüm. 30.892 kaynak boşluğunun 29.564'ü yapısal. 1.328 şube sayısı hücresinin ham null değeri korundu, tamamı fonksiyon grubu kimliğiyle analitik sıfır olarak kanıtlandı, çözümlenmemiş şube boşluğu 0
@@ -111,9 +125,10 @@ yapay olarak yayılmaz.
 - Birleşik katalog: 72 veri varlığı, 55.501 metrik, 3.402 yerel gözlemi bulunan metrik. Fiziksel gözlem bulunması, bütün hesaplara izin verildiği anlamına gelmez
 - DuckDB: 10 şema, 70 tablo veya view, mutlak kaynak dosya yoluna ihtiyaç duymayan yerel sorgu dosyası
 
-Bu sayılar mevcut kaynak sürümünün envanteridir. Yeni bir yayının gerçek
-sayıları ve durumu `data_pipeline/lakehouse/validation.json`,
-`catalog.build_validation` ve yayımlanan snapshot manifestiyle doğrulanır.
+Seçilmiş paketin raporu `data_pipeline/lakehouse/validation.json`, tam yerel
+EVDS yayınının raporu `.lakehouse-runtime/evds-builds/LATEST.json` içindedir.
+Açılan veritabanının `catalog.build_validation` tablosu ve snapshot manifesti
+o sürümün kesin envanterini verir.
 
 ## Klasörler
 
@@ -135,6 +150,35 @@ sayıları ve durumu `data_pipeline/lakehouse/validation.json`,
 | `app/` | Yerel FastAPI uygulaması, konuşma, tablo/grafik, kaynak ve hücre inceleme arayüzü |
 
 ## Kurulum ve doğrulama
+
+EVDS'nin bütün katalog serileri için Ocak 2021-Haziran 2026 geçmişini
+toplamak ve doğrulanmış lakehouse sürümünü uygulamaya yayımlamak için:
+
+```bash
+.venv/bin/python -m tools.complete_evds_history
+```
+
+Bu komut 100 seriye kadar aynı grup ve doğal frekanstaki serileri birlikte
+ister, günlük veriyi sınırlı tarih aralıklarına böler ve kesintide SQLite
+kuyruğundan devam eder. HTTP erişimi Python ile yapılır. Başarısız veya eksik
+istek kalırsa aktif veritabanını değiştirmez. Ham yanıtlar, kaynak null
+değerleri ve her yayının dosya hashleri korunur.
+
+```bash
+# İndirme ilerlemesi, ağ isteği yapmadan:
+.venv/bin/python -m tools.evds_bulk_collection status
+# Ayrı çalıştırılan collector bittiyse yalnız doğrula, derle ve yayımla:
+.venv/bin/python -m tools.complete_evds_history --publish-only
+```
+
+Toplama kuyruğu `tmp/evds_bulk/`, değişmez veri yayınları
+`data_pipeline/evds/full_catalog/releases/`, derleme ve tamamlama raporu
+`.lakehouse-runtime/evds-builds/LATEST.json` altında tutulur. Bu büyük yerel
+yayınlar kendi SHA256 envanterine sahiptir ve Git'e eklenmez. Repoyla gelen
+seçilmiş kaynak paketi ayrı korunur. Yeni çalışma alanları yeni veritabanını
+kullanır; önceki analizler kendi snapshot'ına bağlı kalır. Tamamlanan istek
+kapsamı, sayısal veri kapsamı ve agent'ın ekonomik işlemlere hazır metrikleri
+ayrı ölçülür. Ayrıntılar: [EVDS uygulama ve doğrulama kaydı](docs/research/evds-completion-2026-09-10/implementation.md).
 
 Python 3.12 kullanılır:
 
@@ -220,15 +264,16 @@ sonuçları makineye ve önbelleğe bağlıdır, ekonomik doğruluk kanıtı de�
 
 BDDK aylık bültende bütün tablolar ve 10 resmî banka grubu, haftalık bültende
 bütün tablolar ve 7 resmî banka grubu alındı. FinTürk'te de bütün banka
-grupları ve bütün iller alındı. EVDS'nin tüm 52.696 serisinin tarihsel
-gözlemleri indirilmedi. Bunun yerine 61 ulusal nedensellik ve piyasa serisi,
-519 il veya bölge bazlı konut serisi ve KKM ile hanehalkı mevduatını kapsayan
-4 seri seçildi; eski yerel paketteki 15 ek seri de kataloğa ve sorgu katmanına
-bağlandı. Yarışmanın tüm EVDS gözlemlerini toplama gereksinimi hâlâ açıktır.
-`tools/evds_collection_queue.py`, tüm katalog için yerel plan, sınırlı indirme
-ve yeniden başlatılabilir kuyruk sağlar. İndirme başarısı, sayısal gözlem ve
-takvim bütünlüğü ayrı izlenir. Kuyruk çıktıları doğrulandıktan sonra kaynak
-adaptörüne alınmalıdır; otomatik olarak aktif lakehouse'a yayımlanmaz.
+grupları ve bütün iller alındı. EVDS'nin 52.696 katalog serisi hedef dönemin
+tamamı için sorgulandı, kaynak yanıtları doğrulandı ve yerel lakehouse'a
+yayımlandı. `tools.complete_evds_history` bu süreci kesintiden devam ederek
+yeniden çalıştırır. Bekleyen veya açıklanmamış başarısız istek kalmadı.
+17.044 seri için kaynak hedef dönemde sayısal değer vermedi; bu durum sıfır
+değer veya serinin tarih boyunca hiç veri içermediği şeklinde yorumlanmaz.
+Kaynak birimi veya ekonomik dönüşümü doğrulanmamış yeni seriler doğal
+frekanslarında okunur, dönüşümleri inceleme bekler. Önceden incelenmiş 599
+serinin kaynak bağları korunur; hedef dönemdeki 39.068 ortak gözlem yeni
+indirmeyle birebir eşleşti. Eski tek-serili kuyruk ve kaynak paketi de korunur.
 BIST altın kapanış fiyatından `0.001` katsayısıyla TL/kg ->
 TL/gram dönüşümü yapılan 1 ek seri de kaynak ve formül bilgisiyle ayrıca
 tutulur. Bölgesel katmanda 81 ilin konut satışları, birim fiyatları, birim
@@ -245,8 +290,8 @@ geneli, önceki dönem veya başka bölge fallback'i kullanılmaz. Resmî-kaynak
 hazırlığı ile proxy izinli hazırlık ayrı bayraklarda tutulur.
 Katalogdaki herhangi bir başka seri `tools/EVDS_Talep_Uzerine_Indirme_Araci.py`
 ile adı veya kodu üzerinden bulunup ham istek, ham cevap ve SHA-256 iziyle
-indirilebilir. Python HTTP taşımasını kullanan yeni kuyruğun gerçek komutları
-[kullanım rehberindedir](docs/AGENT_READY_LAKEHOUSE.md#evds-toplama-kuyruğu).
+indirilebilir. Güncel toplu yayın komutu ile korunan eski tek-serili kuyruğun
+ayrımı [kullanım rehberindedir](docs/AGENT_READY_LAKEHOUSE.md#evds-toplama-kuyruğu).
 
 TBB'nin Haziran 2026 çeyreklik tüketici kredileri raporu yayımlanmadığı için
 parasal kullandırım tutarı null kalır. Ayrı kaynak ailesindeki Risk Merkezi
@@ -255,7 +300,8 @@ tasfiye oranı ve ilk kez kullanan kişi sayısını sağlar. İlk kez kullanan 
 sayısı parasal kullandırım değildir ve bu boşluğun yerine geçirilmez.
 
 Yerel arayüz, kalıcı agent döngüsü, belge alımı ve üç istatistik yöntemi
-uygulanmıştır. Tam EVDS kapsamı, bütün belge düzenlerinde çıkarım doğruluğu,
+uygulanmıştır. EVDS'deki bütün boş dönemlerin ekonomik açıklaması ve yeni
+serilerin tüm dönüşüm sözleşmeleri, bütün belge düzenlerinde çıkarım doğruluğu,
 genel nedensel etki tahmini ve geniş bir soru kümesinde canlı Qwen başarı
 oranı tamamlanmış kabul edilmez. Tablo ve grafik mevcut kayıtlı sonucu
 gösterir; indirilebilir PDF rapor motoru yoktur. Mevcut deterministik API

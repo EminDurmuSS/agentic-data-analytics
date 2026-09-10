@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import os
 from pathlib import Path
@@ -47,6 +48,65 @@ def load_parquet(
         f"SELECT {projection} FROM read_parquet('{sql_path(path)}')"
     )
     return int(connection.execute(f"SELECT count(*) FROM {schema}.{table}").fetchone()[0])
+
+
+def resolve_full_evds(unified_validation: dict[str, Any]) -> tuple[Path, dict[str, Any]] | None:
+    """Pin the same verified immutable publication used to build the catalog."""
+    package = PROJECT_ROOT / "data_pipeline" / "evds" / "full_catalog"
+    expected = unified_validation.get("evds_full_catalog", {})
+    if not expected.get("present"):
+        return None
+    from tools.publish_evds_bulk import resolve_publication
+
+    release, manifest = resolve_publication(package, verify=True,
+        publication_id=expected["publication_id"], manifest_sha256=expected["manifest_sha256"])
+    if manifest.get("dataset_id") != "evds.full_catalog" or manifest.get("format_version") != 1 or manifest["validation"].get("status") != "passed":
+        raise ValueError("EVDS full catalog publication has an unsupported or unvalidated contract")
+    if expected.get("manifest_path") != release.joinpath("manifest.json").relative_to(PROJECT_ROOT).as_posix():
+        raise ValueError("EVDS catalog manifest path does not match the pinned publication")
+    return release, manifest
+
+
+def install_full_evds(
+    connection: duckdb.DuckDBPyConnection, release: Path, manifest: dict[str, Any],
+    catalog_summary: dict[str, Any],
+) -> list[dict[str, Any]]:
+    """Copy native facts and coverage, retaining the exact publication identity."""
+    connection.execute("CREATE SCHEMA IF NOT EXISTS evds")
+    result = []
+    for filename, table in [
+        ("observations_long.parquet", "full_catalog_observations"),
+        ("analysis_series_catalog.parquet", "full_catalog_series_catalog"),
+        ("coverage.parquet", "full_catalog_coverage"),
+        ("request_coverage.parquet", "full_catalog_request_coverage"),
+        ("conflicts.parquet", "full_catalog_conflicts"),
+    ]:
+        if filename not in manifest["files"]:
+            if filename in {"observations_long.parquet", "analysis_series_catalog.parquet", "coverage.parquet"}:
+                raise ValueError(f"EVDS publication lacks required artifact: {filename}")
+            continue
+        path = release / filename
+        count = load_parquet(connection, "evds", table, path)
+        result.append({"schema_name": "evds", "table_name": table, "row_count": count,
+                       "source_path": path.relative_to(PROJECT_ROOT).as_posix(),
+                       "source_sha256": manifest["files"][filename]["sha256"],
+                       "publication_id": manifest["publication_id"]})
+    manifest_path = release / "manifest.json"
+    manifest_hash = hashlib.sha256(manifest_path.read_bytes()).hexdigest()
+    connection.execute("""CREATE TABLE evds.full_catalog_publication(
+        publication_id VARCHAR, manifest_path VARCHAR, manifest_sha256 VARCHAR,
+        validation_json VARCHAR, catalog_scope_complete BOOLEAN, catalog_scope_series BIGINT,
+        target_start VARCHAR, target_end VARCHAR)""")
+    connection.execute("INSERT INTO evds.full_catalog_publication VALUES (?,?,?,?,?,?,?,?)", [
+        manifest["publication_id"], manifest_path.relative_to(PROJECT_ROOT).as_posix(), manifest_hash,
+        json.dumps(manifest["validation"], ensure_ascii=False, sort_keys=True),
+        bool(catalog_summary.get("catalog_scope_complete", False)), int(catalog_summary.get("catalog_scope_series", 0)),
+        manifest["target_start"], manifest["target_end"],
+    ])
+    result.append({"schema_name": "evds", "table_name": "full_catalog_publication", "row_count": 1,
+                   "source_path": manifest_path.relative_to(PROJECT_ROOT).as_posix(),
+                   "source_sha256": manifest_hash, "publication_id": manifest["publication_id"]})
+    return result
 
 
 def build_monthly_analysis() -> pd.DataFrame:
@@ -232,12 +292,12 @@ def simplified_events() -> pd.DataFrame:
     return pd.DataFrame([{column: item.get(column) for column in columns} for item in events])
 
 
-def build(output_path: Path) -> dict[str, Any]:
-    unified_validation = read_json(
-        PROJECT_ROOT / "data_pipeline" / "catalog" / "unified" / "validation.json"
-    )
+def build(output_path: Path, *, catalog_dir: Path | None = None) -> dict[str, Any]:
+    catalog_dir = catalog_dir or PROJECT_ROOT / "data_pipeline" / "catalog" / "unified"
+    unified_validation = read_json(catalog_dir / "validation.json")
     if unified_validation.get("status") != "passed":
         raise ValueError("Doğrulanmamış birleşik katalog lakehouse'a yüklenemez.")
+    full_evds = resolve_full_evds(unified_validation)
 
     output_path.parent.mkdir(parents=True, exist_ok=True)
     temporary_path = output_path.with_name(f".{output_path.name}.{uuid.uuid4().hex}.tmp")
@@ -263,12 +323,12 @@ def build(output_path: Path) -> dict[str, Any]:
             (
                 "catalog",
                 "data_assets",
-                PROJECT_ROOT / "data_pipeline" / "catalog" / "unified" / "unified_data_catalog.parquet",
+                catalog_dir / "unified_data_catalog.parquet",
             ),
             (
                 "catalog",
                 "metrics",
-                PROJECT_ROOT / "data_pipeline" / "catalog" / "unified" / "unified_metric_catalog.parquet",
+                catalog_dir / "unified_metric_catalog.parquet",
             ),
             (
                 "evds",
@@ -586,6 +646,10 @@ def build(output_path: Path) -> dict[str, Any]:
                 }
             )
 
+        if full_evds is not None:
+            table_manifest.extend(install_full_evds(
+                connection, *full_evds, unified_validation["evds_full_catalog"]))
+
         event_frame = simplified_events()
         connection.register("event_frame", event_frame)
         connection.execute("CREATE TABLE evidence.context_events AS SELECT * FROM event_frame")
@@ -834,8 +898,11 @@ def build(output_path: Path) -> dict[str, Any]:
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--output", type=Path, default=DEFAULT_OUTPUT)
+    parser.add_argument("--catalog-dir", type=Path, default=None,
+                        help="Validated unified catalog directory; its EVDS publication pin is honored.")
     args = parser.parse_args()
-    result = build(args.output.expanduser().resolve())
+    result = build(args.output.expanduser().resolve(),
+                   catalog_dir=args.catalog_dir.expanduser().resolve() if args.catalog_dir else None)
     print(json.dumps(result, ensure_ascii=False, indent=2))
     return 0
 

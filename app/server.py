@@ -96,14 +96,13 @@ class AppContext:
         self.pool = ThreadPoolExecutor(max_workers=3, thread_name_prefix="analysis")
         self.futures = {}
         self.snapshots = {}
+        self.snapshot_sources = {}
         self._metadata = self.root / "application"
         for name in ("jobs", "workspaces"):
             (self._metadata / name).mkdir(parents=True, exist_ok=True)
 
     def snapshot(self, profile):
         with self.lock:
-            if profile in self.snapshots:
-                return self.snapshots[profile]
             source = self.source_db
             if profile == "generic":
                 source = self.root / "empty-domain.duckdb"
@@ -113,6 +112,12 @@ class AppContext:
                         conn.execute("INSERT INTO platform_metadata VALUES ('profile', 'generic')")
             if source is None or not source.is_file():
                 raise HTTPException(409, "Veri tabanı hazır değil. Önce lakehouse build komutunu çalıştırın veya boş çalışma alanı açın.")
+            stat = source.stat()
+            # Published databases are atomically replaced. New workspaces see
+            # the new release; existing workspaces retain their own snapshot.
+            source_version = (str(source), stat.st_dev, stat.st_ino, stat.st_size, stat.st_mtime_ns)
+            if profile in self.snapshots and self.snapshot_sources.get(profile) == source_version:
+                return self.snapshots[profile]
             source_hash = file_sha256(source)
             cached = self._metadata / ("snapshot-" + profile + ".json")
             if cached.exists():
@@ -121,6 +126,7 @@ class AppContext:
                     try:
                         self.store.snapshot_path(value["snapshot_id"])
                         self.snapshots[profile] = value["snapshot_id"]
+                        self.snapshot_sources[profile] = source_version
                         return value["snapshot_id"]
                     except StoreError:
                         pass
@@ -130,6 +136,7 @@ class AppContext:
                 validator = validate_database
             release = self.store.publish_snapshot(source, validator)
             self.snapshots[profile] = release["snapshot_id"]
+            self.snapshot_sources[profile] = source_version
             _write(cached, {"snapshot_id": release["snapshot_id"], "source_sha256": source_hash})
             return release["snapshot_id"]
 

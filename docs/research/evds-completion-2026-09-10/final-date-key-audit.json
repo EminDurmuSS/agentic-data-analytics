@@ -1,0 +1,153 @@
+{
+  "checked_at_utc": "2026-09-10T07:41:51.454873+00:00",
+  "scope": "All terminal succeeded/no_data source attempts after queue drain; split/superseded excluded; source DBs and files read-only",
+  "target_start": "2021-01-01",
+  "target_end": "2026-06-30",
+  "catalog_sha256": "ccdd130fb752defb99a295857b56e61b088f8c49708722f9b6e303f454e576da",
+  "metadata_series": 52696,
+  "job_statuses": {
+    "succeeded": 883,
+    "no_data": 364,
+    "split": 10,
+    "superseded": 14
+  },
+  "terminal_job_count": 1247,
+  "terminal_job_ids_sha256": "de285092fc565015247fc4a3d02f3dbaf8c4f4d04074ddb5f6cf23f5ef06b062",
+  "duckdb_memory_limit": "256MB",
+  "duckdb_threads": 1,
+  "implementation": "Stream each source Parquet into a compact temporary disk table, count duplicate keys first; inspect value conflicts only for duplicated keys.",
+  "totals": [
+    {
+      "observation_rows": 13519266,
+      "numeric_rows": 6019172,
+      "source_null_rows": 7500094,
+      "physical_series": 41909,
+      "numeric_series": 35652
+    }
+  ],
+  "date_bounds": [
+    {
+      "extending_period_rows": 91,
+      "extending_numeric_rows": 0,
+      "wholly_outside_period_rows": 0,
+      "annual_2026_rows": 91,
+      "annual_2026_numeric_rows": 0,
+      "unexplained_extending_rows": 0
+    }
+  ],
+  "frequencies": [
+    {
+      "native_frequency": "AYLIK",
+      "observation_rows": 632548,
+      "numeric_rows": 532651,
+      "physical_series": 10395,
+      "first_period_start": "2021-01-01",
+      "last_period_end": "2026-06-30"
+    },
+    {
+      "native_frequency": "GÜNLÜK",
+      "observation_rows": 10977204,
+      "numeric_rows": 4059427,
+      "physical_series": 9796,
+      "first_period_start": "2021-01-01",
+      "last_period_end": "2026-06-30"
+    },
+    {
+      "native_frequency": "HAFTALIK(CUMA)",
+      "observation_rows": 1076777,
+      "numeric_rows": 986655,
+      "physical_series": 6801,
+      "first_period_start": "2021-01-01",
+      "last_period_end": "2026-06-26"
+    },
+    {
+      "native_frequency": "HAFTALIK(ÇARŞAMBA)",
+      "observation_rows": 1430,
+      "numeric_rows": 1430,
+      "physical_series": 5,
+      "first_period_start": "2021-01-06",
+      "last_period_end": "2026-06-24"
+    },
+    {
+      "native_frequency": "YILLIK",
+      "observation_rows": 31861,
+      "numeric_rows": 23371,
+      "physical_series": 8483,
+      "first_period_start": "2021-01-01",
+      "last_period_end": "2026-12-31"
+    },
+    {
+      "native_frequency": "ÜÇ AYLIK",
+      "observation_rows": 123763,
+      "numeric_rows": 119685,
+      "physical_series": 5956,
+      "first_period_start": "2021-01-01",
+      "last_period_end": "2026-06-30"
+    },
+    {
+      "native_frequency": "İŞ GÜNÜ",
+      "observation_rows": 675683,
+      "numeric_rows": 295953,
+      "physical_series": 473,
+      "first_period_start": "2021-01-01",
+      "last_period_end": "2026-06-30"
+    }
+  ],
+  "annual_years": [
+    {
+      "period": "2021",
+      "observation_rows": 8483,
+      "numeric_rows": 4603
+    },
+    {
+      "period": "2022",
+      "observation_rows": 8468,
+      "numeric_rows": 4751
+    },
+    {
+      "period": "2023",
+      "observation_rows": 8468,
+      "numeric_rows": 8294
+    },
+    {
+      "period": "2024",
+      "observation_rows": 4970,
+      "numeric_rows": 4807
+    },
+    {
+      "period": "2025",
+      "observation_rows": 1381,
+      "numeric_rows": 916
+    },
+    {
+      "period": "2026",
+      "observation_rows": 91,
+      "numeric_rows": 0
+    }
+  ],
+  "flags": [
+    {
+      "invalid_missing_flags": 0,
+      "nonfinite_values": 0,
+      "unresolved_null_flag_mismatches": 0
+    }
+  ],
+  "duplicates": [
+    {
+      "duplicate_period_keys": 0,
+      "duplicate_extra_rows": 0,
+      "conflicting_period_keys": 0
+    }
+  ],
+  "annual_2026_source_files": [
+    {
+      "job_id": "dbd48b0bbd6b6b1d165487b7ab0bbc5e6f144e63",
+      "observation_rows": 91,
+      "numeric_rows": 0,
+      "first_series": "TP.SEKBILY01A.01",
+      "last_series": "TP.SEKBILY01A.S",
+      "raw_response_sha256": "db9cd982ee87ac18e9e1eafc671261bfaad283751378177b8c34d6a886e5ac4a"
+    }
+  ],
+  "status": "passed_with_explicit_annual_source_null_boundary"
+}

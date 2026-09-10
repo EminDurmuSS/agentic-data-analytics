@@ -199,8 +199,10 @@ hanehalkı finansmanı ve resmî bağlam
 belgelerinin birleşik durumunu gösterir.
 
 BDDK haftalık, aylık ve FinTürk kaynakları hedef dönem için yereldedir.
-EVDS'nin tüm serilerinin gözlem kapsamı henüz tamamlanmadı. Metadata kataloğu,
-fiziksel gözlem, sayısal gözlem ve seçilen hesap için hazır olma ayrı kavramlardır.
+EVDS'nin metadata kataloğu, tamamlanan istek kapsamı, fiziksel gözlem,
+sayısal gözlem ve seçilen hesap için hazır olma durumları ayrı kavramlardır.
+Tam yerel EVDS yayınının durumu açılan snapshot ve
+`.lakehouse-runtime/evds-builds/LATEST.json` raporuyla doğrulanır.
 Kaynakta henüz yayımlanmayan TBB Haziran 2026 çeyreklik tüketici kredileri
 raporu tahmin edilmedi ve açık boşluk olarak korunuyor. Ayrı Risk Merkezi
 Haziran 2026 aylık bülteni kendi metrikleriyle sisteme eklendi.
@@ -399,9 +401,10 @@ display(demo)
 
     known_gaps = """## Açık kalite notları
 
-EVDS tüm-seri gözlem kapsamı tamamlanmadı. Kalıcı indirme kuyruğu metadata,
-fiziksel seri, sayısal gözlem ve eksik dönemleri ayrı sayar. Yeni indirilen
-dosyalar doğrulanıp yayımlanmadan lakehouse içinde sorgulanabilir sayılmaz.
+EVDS tüm-seri toplama durumu açılan yayına bağlıdır. Kalıcı indirme kuyruğu
+metadata, tamamlanan istek, fiziksel seri, sayısal gözlem ve eksik dönemleri
+ayrı sayar. `python -m tools.complete_evds_history` doğrulanmış yeni yayını
+üretir; kaynakta boş kalan dönemlere değer atamaz.
 
 1. TBB Haziran 2026 çeyreklik tüketici kredileri raporu 9 Eylül 2026
    kontrolünde kaynakta yayımlanmamıştır. Ayrı bir yayın ailesi olan Risk

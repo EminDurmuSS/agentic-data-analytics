@@ -238,7 +238,14 @@
         "violations": 0
       }
     ],
+    "evds_full_catalog": {
+      "evds_full_observation_coverage_complete": false,
+      "full_numeric_coverage_complete": false,
+      "full_request_scope_complete": false,
+      "present": false
+    },
     "evds_full_coverage_complete": false,
+    "evds_full_request_scope_complete": false,
     "scope": "Local source snapshot, contracts and exact relationships. Query-specific readiness is checked at execution.",
     "status": "passed"
   },

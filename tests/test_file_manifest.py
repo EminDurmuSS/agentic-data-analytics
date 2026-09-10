@@ -26,6 +26,9 @@ class FileManifestBuildTests(unittest.TestCase):
                 "bddk/__pycache__/downloader.pyc",
                 "lakehouse/analytics.duckdb",
                 "lakehouse/analytics.duckdb.wal",
+                "evds/full_catalog/releases/test/raw/response.json.gz",
+                "evds/full_catalog/CURRENT.json",
+                "evds/.full_catalog-stage/observations_long.parquet",
             ]:
                 artifact = base / relative
                 artifact.parent.mkdir(parents=True, exist_ok=True)

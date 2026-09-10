@@ -29,3 +29,8 @@ data_pipeline/bddk/weekly_group_*/
 .lakehouse-runtime/
 data_pipeline/lakehouse/analytics.duckdb
 data_pipeline/lakehouse/analytics.duckdb.wal
+
+# Reproducible full EVDS publications and their retained raw vintages.
+# The collector ledger and release manifests document local acquisition.
+data_pipeline/evds/full_catalog/
+data_pipeline/evds/.full_catalog*/

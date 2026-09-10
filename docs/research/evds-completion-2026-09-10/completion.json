@@ -1,0 +1,231 @@
+{
+  "verified_at_utc": "2026-09-10T07:57:16.139320+00:00",
+  "scope": {
+    "start": "2021-01-01",
+    "end": "2026-06-30",
+    "catalog_series": 52696,
+    "catalog_snapshot": "2026-09-10 pinned repository catalog"
+  },
+  "collection": {
+    "status": "passed",
+    "request_attempts": 1303,
+    "job_statuses": {
+      "no_data": 364,
+      "split": 10,
+      "succeeded": 883,
+      "superseded": 14
+    },
+    "attempted_job_count": 1271,
+    "attempted_series": 52696,
+    "catalog_series_count": 52696,
+    "completed_request_series": 52696,
+    "completion_means": "Validated immutable source responses; successful requests do not establish complete numeric history.",
+    "conflict_policy": "Exclude conflicting periods from canonical observations; preserve all vintages and conflict inventory.",
+    "conflicting_period_count": 0,
+    "dataset_id": "evds.full_catalog",
+    "evds_full_observation_coverage_complete": false,
+    "failed_job_count": 0,
+    "full_numeric_coverage_complete": false,
+    "full_request_scope_complete": true,
+    "metadata_scope_complete": true,
+    "metadata_series": 52696,
+    "null_policy": "Source null causes remain unresolved; no inferred lifespan or holiday zero.",
+    "numeric_series": 35652,
+    "observation_count": 13519266,
+    "pending_job_count": 0,
+    "physical_series": 41909,
+    "queue_request_scope_complete": true,
+    "source_null_count": 7500094,
+    "superseded_job_count": 14
+  },
+  "publication": {
+    "manifest_sha256": "4fdfc9dc1f5dc43f654775d167bd9eb90f65d7ca155619aa4011a51d935c5c6e",
+    "publication_id": "9785f908a87de00bb801881a",
+    "serving_database": "data_pipeline/lakehouse/analytics.duckdb",
+    "serving_database_sha256": "c2e6c9fd749efe5c96e9e4dc23b925a792cce57b3d96ad42cc02969d8395b81a",
+    "serving_database_bytes": 621031424,
+    "table_count": 76,
+    "schema_count": 10,
+    "physical_metric_count": 44712,
+    "binding_statuses": {
+      "metadata_only": 10789,
+      "no_numeric": 6259,
+      "ready": 2824,
+      "review_required": 35629
+    }
+  },
+  "independent_data_acceptance": {
+    "status": "passed",
+    "totals": {
+      "rows": 13519266,
+      "numeric_rows": 6019172,
+      "physical_series": 41909,
+      "numeric_series": 35652
+    },
+    "checks": {
+      "duplicate_keys": 0,
+      "periods_disjoint_from_target": 0,
+      "numeric_periods_extending_target": 0,
+      "annual_2026_numeric_rows": 0,
+      "uncovered_catalog_series": 0,
+      "lost_null_flags": 0,
+      "nonfinite_values": 0,
+      "transposed_null_cells_verified": 2640
+    },
+    "partial_native_periods": {
+      "groups": [
+        [
+          "YILLIK",
+          "2026",
+          91,
+          0
+        ]
+      ],
+      "policy": "Keep the 91 source-null annual 2026 rows with their complete native year. They do not represent first-half numeric observations."
+    },
+    "native_queries": [
+      {
+        "plan": {
+          "start": "2026-04",
+          "end": "2026-06",
+          "frequency": "monthly",
+          "columns": [
+            {
+              "name": "deger",
+              "metric_id": "evds:TP.GY1.N2",
+              "alignment": "native"
+            }
+          ]
+        },
+        "rows": [
+          {
+            "period": "2026-04",
+            "deger": 100.6
+          },
+          {
+            "period": "2026-05",
+            "deger": 103.3
+          },
+          {
+            "period": "2026-06",
+            "deger": 103.5
+          }
+        ],
+        "analysis_id": "analysis_db0fe90d1e5e66425ab6355eaef78b8d4140dcec7022c8b8369480ef0a7376f5"
+      },
+      {
+        "plan": {
+          "start": "2026-01-05",
+          "end": "2026-01-09",
+          "frequency": "daily",
+          "columns": [
+            {
+              "name": "deger",
+              "metric_id": "evds:TP.DK.EUR.A.YTL",
+              "alignment": "native"
+            }
+          ]
+        },
+        "rows": [
+          {
+            "period": "2026-01-05",
+            "deger": 50.2933
+          },
+          {
+            "period": "2026-01-06",
+            "deger": 50.2083
+          },
+          {
+            "period": "2026-01-07",
+            "deger": 50.3619
+          },
+          {
+            "period": "2026-01-08",
+            "deger": 50.2287
+          },
+          {
+            "period": "2026-01-09",
+            "deger": 50.1844
+          }
+        ],
+        "analysis_id": "analysis_3d18131e0cabda5e18a7e2c0aae9f275897e481e57b2c1b376eda98e8d9daf12"
+      },
+      {
+        "plan": {
+          "start": "2023",
+          "end": "2025",
+          "frequency": "yearly",
+          "columns": [
+            {
+              "name": "deger",
+              "metric_id": "evds:TP.DBFY.TR",
+              "alignment": "native"
+            }
+          ]
+        },
+        "rows": [
+          {
+            "period": "2023",
+            "deger": 24413.78
+          },
+          {
+            "period": "2024",
+            "deger": 37965.75
+          },
+          {
+            "period": "2025",
+            "deger": 49283.47
+          }
+        ],
+        "analysis_id": "analysis_b061cfe8f03cca2b001bc23d6a00f64b0bb648282b405b3911b918eb5f2a53fc"
+      }
+    ]
+  },
+  "regression_tests": {
+    "pytest_passed": 404,
+    "pytest_subtests_passed": 147,
+    "existing_real_data_acceptance_passed": 20,
+    "existing_raw_source_cells_verified": 3,
+    "active_database_unchanged": true
+  },
+  "live_model_acceptance": {
+    "status": "passed",
+    "model": "kkbhackathon2026/Qwen3.8-27B",
+    "workspace_id": "workspace_8552cd5099c647cba312ec34d11ac60a",
+    "snapshot_id": "snapshot_9f241d6a2b0571c0ecd5617a8426f88a87164abe66597525f302ee1c74083b8b",
+    "analysis_id": "analysis_f5e1c213a9a16a74adc3029310449f910c767c70a12b174b02bb4b10f46180dd",
+    "prompt": "Reel Kesim Güven Endeksi (TP.GY1.N2) için Nisan, Mayıs ve Haziran 2026 ham aylık değerlerini tablo olarak getir. Dönüşüm yapmadan doğal aylık frekansı kullan. Haziran hücresinin kaynak kaydını da göster.",
+    "checks": {
+      "completed_agent_run": true,
+      "three_expected_values": true,
+      "raw_response_sha256": true,
+      "raw_source_cell": true,
+      "csv_values": true
+    },
+    "rows": [
+      {
+        "period": "2026-04",
+        "rkg": 100.6
+      },
+      {
+        "period": "2026-05",
+        "rkg": 103.3
+      },
+      {
+        "period": "2026-06",
+        "rkg": 103.5
+      }
+    ],
+    "source_response_sha256": "51555278b3041f85e8f54c6ae42f6ca2bd8fc9a4ee93702880baa7721bcbee07",
+    "source_cell_path": "/items/65/TP_GY1_N2",
+    "provider_output_note": "The provider content repeated its final text block twice. Stored table and source proof are correct; no claim of general language-model success rate is made."
+  },
+  "limits": [
+    "Request coverage is complete; numeric history is not complete for every catalog series.",
+    "Source null causes and new economic transformation contracts remain under review.",
+    "The 91 annual 2026 source-null rows retain their full-year period and are not first-half numeric observations.",
+    "Large raw publication and runtime databases are local artifacts outside Git.",
+    "One live model question is not a broad model-success evaluation."
+  ],
+  "runtime_report": ".lakehouse-runtime/evds-builds/LATEST.json"
+}

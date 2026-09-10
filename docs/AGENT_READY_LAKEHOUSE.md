@@ -35,10 +35,17 @@ ve metrik sözleşmeleri build girdileridir. Bu komut mevcut kaynakları
 indirmez. Kaynak temizleme kodu değiştirildiğinde ilgili kaynağın işleme
 betiğini ve birleşik kataloğu da önce yeniden üretin.
 
-Mevcut envanter 70 tablo/view ve 599 fiziksel EVDS serisi içerir; 587 seride
-sayısal değer vardır. Bu, tüm EVDS gözlemlerinin toplandığı anlamına gelmez.
-Bir yayının kesin sayıları için `data_pipeline/lakehouse/validation.json`,
-`catalog.build_validation` ve snapshot manifestini kullanın.
+Repoyla gelen seçilmiş kaynak paketi 70 tablo/view ve 599 fiziksel EVDS
+serisi içerir; 587 seride sayısal değer vardır. Bütün katalog için yerel
+toplama ve yayın `python -m tools.complete_evds_history` ile yapılır.
+Tam yerel yayın kullanılıyorsa temel build komutunu yeniden çalıştırmayın;
+yayınlama komutu kendi sabitlenmiş kataloğunu ve veritabanını üretir.
+Seçilmiş paketin raporu `data_pipeline/lakehouse/validation.json`, tam
+EVDS yayınının raporu `.lakehouse-runtime/evds-builds/LATEST.json`
+konumundadır. Açılan veritabanının `catalog.build_validation` tablosu ve
+snapshot manifesti kesin sürümü gösterir. İstek kapsamı, sayısal gözlem
+kapsamı ve ekonomik dönüşümlerin hazır oluşu ayrı değerlendirilir.
+[Uygulama ve kaynak doğrulamaları](research/evds-completion-2026-09-10/implementation.md).
 
 ## Uygulanan veri kuralları
 
@@ -290,7 +297,21 @@ bir yazma servisi veya işletim sistemi düzeyinde SQL sandbox'ı değildir.
 
 ## EVDS toplama kuyruğu
 
-Kuyruk, mevcut bütün metadata üzerinden Ocak 2021-Haziran 2026 isteklerini
+Tam katalog için güncel yol, toplama ile yayını birlikte yürüten komuttur:
+
+```bash
+python -m tools.complete_evds_history
+python -m tools.evds_bulk_collection status
+```
+
+Bu yol `tmp/evds_bulk/queue.sqlite` kullanır. 10 Eylül 2026 yerel yayını
+52.696 serinin istek aralığını tamamladı; sayısal kaynak eksikleri ve
+doğrulanmamış ekonomik dönüşümler ayrıca raporlanır. Yeni çalışma alanları
+tamamlanan yayını açar. [Uygulama kaydı](research/evds-completion-2026-09-10/implementation.md).
+
+Aşağıdaki önceki tek-serili araç ayrı `tmp/evds_collection/queue.sqlite`
+kuyruğuyla korunur. Bu eski kuyruğun durumu yeni toplamanın kapsam raporu
+değildir. Eski araç, mevcut bütün metadata üzerinden Ocak 2021-Haziran 2026 isteklerini
 planlar. Planlama ve durum okuma yereldir; `run` ağ isteği yapar. Mevcut
 gözlemler ve doğrulanabilen istek/cevap izleri yeniden kullanılır. Arşiv
 etiketi tek başına seriyi yarışma penceresinden çıkarmak için yeterli değildir.
@@ -308,16 +329,15 @@ gözlemleri ve doğrulaması ayrı saklanır. `succeeded`, sınırlı isteğin g
 cevap aldığı anlamına gelir; bütün dönemlerde sayısal veri bulunduğu anlamına
 gelmez. Takvimi kanıtlanmamış yüksek frekans boşlukları tamamlanmış sayılmaz.
 
-Kuyruk çıktıları doğrudan aktif analize eklenmez. Yeni gözlemler kaynak
+Eski kuyruğun çıktıları doğrudan aktif analize eklenmez. Yeni gözlemler kaynak
 adaptörleri ve katalogla bütünleştirilip yayın kapısından geçirilmelidir.
-52.696 serinin tüm gözlem kapsamı bu geliştirmeyle tamamlanmış değildir.
+Güncel toplu komut bu doğrulama ve yayınlama adımını da yapar.
 
 ## Kalan işler
 
-Canlı Kloudeks/Qwen planlama ve model başarısı ölçümü, otomatik PDF/görsel/URL
-okuyucusu, bütün EVDS gözlemlerinin toplanıp yayımlanması ve frontend bu
-teslimde tamamlanmadı. Açık CSV sözleşmesi, otomatik belge yorumlama yerine
-geçmez. Yarışmanın web arama, anomali, korelasyon/nedensellik ve değişim
-tespiti araçlarının tamamı da bu altı veri aracıyla karşılanmış değildir.
-Bu katman o araçlara güvenilir veri, kontrollü hesap ve kaynak referansı
-sağlayan uygulanmış temeldir.
+Bu rehber veri servisini anlatır. Çalışan arayüz, Kloudeks agent döngüsü,
+belge ve istatistik araçları [uygulama notunda](research/agent-harness-2026-09-10/implementation.md)
+açıklanır. EVDS kaynak istek kapsamı tamamlandı; bütün kaynak boşluklarının
+ekonomik açıklaması ve yeni serilerin dönüşüm sözleşmeleri ayrıca incelenmelidir.
+Geniş bir soru kümesinde canlı model başarısı, her belge düzeninde doğru
+çıkarım ve genel nedensel etki tahmini tamamlanmış kabul edilmez.

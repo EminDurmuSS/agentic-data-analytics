@@ -27,8 +27,13 @@ class PublishedContractTests(unittest.TestCase):
         evds = [b for b in self.bindings.values() if b["source_system"] == "TCMB_EVDS"]
         self.assertEqual(52696, len(evds))
         physical = [b for b in evds if b.get("binding_available")]
-        self.assertEqual(599, len(physical))
-        self.assertEqual(587, len([b for b in physical if b["status"] != "no_numeric"]))
+        seed = [b for b in physical if b.get("dataset_id") != "evds.full_catalog"]
+        self.assertEqual(599, len(seed))
+        self.assertEqual(587, len([b for b in seed if b["status"] != "no_numeric"]))
+        for binding in physical:
+            if binding.get("dataset_id") == "evds.full_catalog":
+                self.assertEqual("evds.full_catalog_observations", binding["table"])
+                self.assertIn("source_response_sha256", binding["provenance_columns"])
         for binding in evds:
             if binding["status"] == "metadata_only":
                 self.assertIsNone(binding["table"])
@@ -70,10 +75,14 @@ class PublishedContractTests(unittest.TestCase):
             self.assertNotEqual("ready", binding["status"])
             self.assertTrue(binding.get("blocked_reason"))
 
-    def test_release_gates_keep_full_evds_coverage_explicitly_incomplete(self):
+    def test_release_gates_distinguish_full_evds_coverage_from_request_completion(self):
         report = validate_connection(self.connection)
         self.assertEqual("passed", report["status"])
-        self.assertFalse(report["evds_full_coverage_complete"])
+        bulk = report.get("evds_full_catalog", {})
+        if not bulk.get("present"):
+            self.assertFalse(report["evds_full_coverage_complete"])
+        elif report["evds_full_coverage_complete"]:
+            self.assertTrue(bulk["full_request_scope_complete"])
 
 
 class ReleaseRejectionTests(unittest.TestCase):

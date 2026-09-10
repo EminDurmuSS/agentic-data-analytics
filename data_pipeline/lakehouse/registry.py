@@ -143,10 +143,10 @@ def build_bindings(connection: duckdb.DuckDBPyConnection) -> dict[str, dict[str,
         candidates = paths.get(metric["source_asset"], [])
         table = candidates[0] if len(candidates) == 1 else None
         unit, scale, currency = normalized_unit(metric["unit"] or "")
-        binding = {"metric_id":metric["metric_id"], "title":metric["metric_name_tr"],
+        binding = {"metric_id":metric["metric_id"], "dataset_id":metric["dataset_id"], "title":metric["metric_name_tr"],
             "title_en":metric.get("metric_name_en"), "searchable_text":metric.get("searchable_text"),
             "group_name":metric.get("group_name"), "role":metric.get("role"),
-            "source_system":source, "source_code":code, "table":table, "time_column":None,
+            "source_system":source, "scope_namespace":source, "source_code":code, "table":table, "time_column":None,
             "value_column":None, "filters":{}, "dimensions":{},
             "native_frequency":FREQUENCIES.get(metric["native_frequency"], metric["native_frequency"]),
             "kind":kind_for(metric["temporal_semantics"] or "", unit),
@@ -203,6 +203,12 @@ def build_bindings(connection: duckdb.DuckDBPyConnection) -> dict[str, dict[str,
                 source_base=metric["source_asset"].rsplit("/",1)[0],
                 provenance_columns=["source_response_file","source_response_sha256","source_row_index","series_code","period"],
                 hash_basis="decompressed_response")
+            if metric["dataset_id"] == "evds.full_catalog":
+                binding.update(kind="unknown", aggregation="review_required",
+                    provenance_columns=["source_response_file", "source_response_sha256", "source_request_file",
+                        "source_request_sha256", "source_row_index", "source_cell_path", "source_job_id", "source_attempt", "series_code",
+                        "period", "source_date_label", "value_raw", "is_missing", "missing_kind", "is_unresolved_missing"],
+                    unit_evidence="EVDS native metadata unit retained; group-level labels and economic kind require review.")
             if metric["dataset_id"] == "evds.legacy_native":
                 binding.update(source_base="", hash_basis="file_bytes",
                     provenance_columns=["source_sha256","vintage","series_code","period"],
@@ -219,11 +225,12 @@ def build_bindings(connection: duckdb.DuckDBPyConnection) -> dict[str, dict[str,
                 "TP.KKM.K2":("USD",1e9,"USD","stock"),
                 "TP.KKM.K4":("USD",1e9,"USD","stock"),
             }
-            if code in explicit:
+            if code in explicit and metric["dataset_id"] != "evds.full_catalog":
                 binding["unit"],binding["scale"],binding["currency"],binding["kind"] = explicit[code]
                 binding["unit_evidence"] = "Reviewed source-series meaning; group-level unit is not authoritative."
             method = metric["default_aggregation"]
-            binding["aggregation"] = method if method in {"sum","last","mean"} else "last"
+            binding["aggregation"] = ("review_required" if metric["dataset_id"] == "evds.full_catalog"
+                                      else method if method in {"sum","last","mean"} else "last")
             if code == "TP.KTF12":
                 binding["notes"] += " Monthly mean is the unweighted mean of published weekly rates, not a loan-volume-weighted monthly rate."
         elif source == "TCMB_EVDS_DERIVED":
@@ -261,6 +268,12 @@ def build_bindings(connection: duckdb.DuckDBPyConnection) -> dict[str, dict[str,
         identifiers = [binding["time_column"],binding["value_column"],*binding["filters"],*binding["dimensions"].values()]
         binding["binding_available"] = bool(available) and all(name in available for name in identifiers)
         binding["provenance_columns"] = [name for name in binding["provenance_columns"] if name in available]
+        if metric["dataset_id"] == "evds.full_catalog" and "source_cell_path" in binding["provenance_columns"]:
+            binding["source_cell_locator_policy"] = {
+                "value_location": "source_cell_path is authoritative when present",
+                "path_format": "JSON Pointer with zero-based array indices",
+                "source_row_index_role": "one-based items date-row anchor; does not identify the value container",
+            }
         if binding["binding_available"]:
             dtype = available[binding["value_column"]]
             numeric = dtype.startswith(("DOUBLE","FLOAT","BIGINT","INTEGER","DECIMAL","SMALLINT"))
@@ -329,9 +342,9 @@ def get_bindings(connection: duckdb.DuckDBPyConnection) -> dict[str, dict[str, A
     for metric in rows(connection, """SELECT m.* FROM catalog.metrics m JOIN catalog.metric_bindings b
             USING(metric_id) WHERE b.binding_json IS NULL"""):
         unit,scale,currency = normalized_unit(metric["unit"] or "")
-        result[metric["metric_id"]] = {"metric_id":metric["metric_id"], "title":metric["metric_name_tr"],
+        result[metric["metric_id"]] = {"metric_id":metric["metric_id"], "dataset_id":metric["dataset_id"], "title":metric["metric_name_tr"],
             "title_en":metric.get("metric_name_en"), "searchable_text":metric.get("searchable_text"), "group_name":metric.get("group_name"),
-            "source_system":metric["source_system"], "source_code":metric["source_metric_code"],
+            "source_system":metric["source_system"], "scope_namespace":metric["source_system"], "source_code":metric["source_metric_code"],
             "table":None,"time_column":None,"value_column":None,"filters":{},"dimensions":{},
             "native_frequency":FREQUENCIES.get(metric["native_frequency"],metric["native_frequency"]),
             "kind":"unknown","unit":unit,"scale":scale,"currency":currency,

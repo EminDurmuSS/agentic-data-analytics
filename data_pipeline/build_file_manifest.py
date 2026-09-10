@@ -29,6 +29,11 @@ def included(path: Path, base_dir: Path = BASE_DIR) -> bool:
     if (len(relative.parts) > 1 and relative.parts[0] == "bddk"
             and relative.parts[1].startswith("weekly_group_")):
         return False
+    # Full EVDS releases carry their own verified, immutable manifest. They
+    # are local acquisitions rather than part of the distributed seed data.
+    if (len(relative.parts) > 1 and relative.parts[0] == "evds"
+            and (relative.parts[1] == "full_catalog" or relative.parts[1].startswith(".full_catalog"))):
+        return False
     if path.name.endswith("_Paylas.zip"):
         return False
     if path.suffix in {".pyc", ".tmp"}:

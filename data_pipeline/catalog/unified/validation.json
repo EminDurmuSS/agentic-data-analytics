@@ -32,6 +32,10 @@
   "evds_metadata_series": 52696,
   "evds_numeric_series": 587,
   "evds_full_observation_coverage_complete": false,
+  "evds_full_request_scope_complete": false,
+  "evds_full_catalog": {
+    "present": false
+  },
   "weekly_bddk": {
     "status": "complete",
     "completed": 18018,
@@ -44,7 +48,8 @@
   "missing_asset_files": [],
   "missing_required_datasets": [],
   "known_source_gaps": [
-    "EVDS full observation coverage is incomplete; metadata count is not a collection-complete measure.",
+    "EVDS full observation coverage is incomplete; request completion and metadata count do not prove numeric coverage.",
+    "Bulk EVDS native observations require independent semantic review before economic aggregation.",
     "TBB 2026-06 consumer credit report is not published in the source snapshot."
   ],
   "quality_policy": [

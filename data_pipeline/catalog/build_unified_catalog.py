@@ -9,8 +9,10 @@ No source values are changed by this script.
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import re
+import sys
 from pathlib import Path
 from typing import Any
 
@@ -20,6 +22,8 @@ import pandas as pd
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 CATALOG_DIR = Path(__file__).resolve().parent
 DEFAULT_OUTPUT = CATALOG_DIR / "unified"
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
 
 MONTHLY_METADATA_COLUMNS = {
     "month",
@@ -197,6 +201,99 @@ def include_legacy_evds(assets: list[dict[str, Any]], metrics: list[dict[str, An
         missing_value_count=int(extra["value"].isna().sum()), file_path=relative(path),
         file_format="parquet", description="Additional native EVDS series, excluding newer-package overlaps.",
         searchable_text="EVDS native participation development investment deposit banks credit"))
+
+
+def include_full_catalog_evds(
+    assets: list[dict[str, Any]], metrics: list[dict[str, Any]], package: Path | None = None,
+) -> dict[str, Any]:
+    """Add a verified bulk publication while keeping reviewed native bindings.
+
+    Availability means returned physical rows, including source nulls. Collection
+    completion and reviewed economic semantics are separate coverage properties.
+    """
+    package = package or PROJECT_ROOT / "data_pipeline" / "evds" / "full_catalog"
+    if not (package / "CURRENT.json").exists():
+        return {"present": False, "catalog_scope_complete": False,
+                "full_request_scope_complete": False, "full_numeric_coverage_complete": False,
+                "evds_full_observation_coverage_complete": False}
+    from tools.publish_evds_bulk import resolve_publication
+
+    release, manifest = resolve_publication(package, verify=True)
+    if manifest.get("dataset_id") != "evds.full_catalog" or manifest.get("format_version") != 1 or manifest["validation"].get("status") != "passed":
+        raise ValueError("EVDS full catalog publication has an unsupported or unvalidated contract")
+    selected = pd.read_parquet(release / "analysis_series_catalog.parquet")
+    coverage = pd.read_parquet(release / "coverage.parquet")
+    if selected["series_code"].duplicated().any() or coverage["series_code"].duplicated().any():
+        raise ValueError("EVDS full catalog has duplicate series identities")
+    if set(selected["series_code"]) != set(coverage["series_code"]):
+        raise ValueError("EVDS full catalog metadata and coverage identities differ")
+    coverage_lookup = coverage.set_index("series_code").to_dict("index")
+    existing = {m["source_metric_code"]: m for m in metrics if m["source_system"] == "TCMB_EVDS"}
+    preserved = 0
+    for row in selected.to_dict("records"):
+        code = str(row["series_code"])
+        if code in existing and existing[code]["observation_available"]:
+            preserved += 1
+            continue
+        count = coverage_lookup[code]
+        physical = bool(count["physical_present"])
+        name_tr = text_value(row.get("series_name_tr")) or code
+        name_en = text_value(row.get("series_name_en"))
+        group = text_value(row.get("group_name_tr"))
+        unit = text_value(row.get("unit"))
+        metric = make_metric(
+            metric_id=f"evds:{code}", dataset_id="evds.full_catalog", source_system="TCMB_EVDS",
+            source_organization=text_value(row.get("source")) or "TCMB",
+            competition_scope="explicit_source_native_observation" if physical else "explicit_source_metadata_only",
+            source_metric_code=code, metric_name_tr=name_tr, metric_name_en=name_en,
+            group_name=group, role="", dimension="series_defined",
+            native_frequency=text_value(count.get("native_frequency")) or text_value(row.get("frequency")),
+            unit=unit, temporal_semantics="requires_semantic_review", default_aggregation="review_required",
+            geography_grain="series_defined", institution_grain="series_defined",
+            coverage_start=text_value(count.get("observed_start")), coverage_end=text_value(count.get("observed_end")),
+            observation_available=physical, observation_count=int(count["observation_count"]),
+            missing_observation_count=int(count["missing_observation_count"]),
+            quality_status="review_required" if physical else "metadata_only",
+            is_archive=bool(row.get("is_archive", False)) if pd.notna(row.get("is_archive")) else False,
+            source_asset=relative(release / ("observations_long.parquet" if physical else "analysis_series_catalog.parquet")),
+            source_metadata_url=text_value(row.get("metadata_url")),
+            notes=(f"Native bulk publication {manifest['publication_id']}; coverage={count['coverage_status']}; "
+                   f"numeric observations={int(count['numeric_observation_count'])}. "
+                   "Source units and economic aggregation require review; native values retain request/response evidence."),
+            searchable_text=" | ".join(filter(None, [code, name_tr, name_en, group, unit])),
+        )
+        if code in existing:
+            existing[code].update(metric)
+        else:
+            metrics.append(metric)
+            existing[code] = metric
+    summary = dict(manifest["validation"])
+    scope_complete = set(existing).issubset(coverage_lookup)
+    result = {**summary, "present": True, "publication_id": manifest["publication_id"],
+              "manifest_path": relative(release / "manifest.json"),
+              "manifest_sha256": hashlib.sha256((release / "manifest.json").read_bytes()).hexdigest(),
+              "catalog_scope_series": len(existing), "catalog_scope_complete": scope_complete,
+              "preserved_primary_series": preserved}
+    for key in ("full_request_scope_complete", "full_numeric_coverage_complete", "evds_full_observation_coverage_complete"):
+        result[key] = scope_complete and bool(summary.get(key, False))
+    for filename, suffix, kind, row_count, missing_count in [
+        ("observations_long.parquet", "observations", "native_observations", int(summary["observation_count"]), int(summary["source_null_count"])),
+        ("analysis_series_catalog.parquet", "series_catalog", "metadata_catalog", len(selected), None),
+        ("coverage.parquet", "coverage", "coverage_audit", len(coverage), None),
+    ]:
+        assets.append(make_asset(
+            asset_id=f"evds.full_catalog.{suffix}", dataset_id="evds.full_catalog", source_system="TCMB_EVDS",
+            source_organization="TCMB and upstream official producers", competition_scope="explicit_required_source",
+            status="passed", data_kind=kind, native_frequency="series_defined", temporal_semantics="requires_semantic_review",
+            geography_grain="series_defined", institution_grain="series_defined",
+            coverage_start=manifest["target_start"], coverage_end=manifest["target_end"], row_count=row_count,
+            metric_count=len(selected), missing_value_count=missing_count,
+            progress_completed=int(summary["completed_request_series"]), progress_expected=len(selected),
+            file_path=relative(release / filename), file_format="parquet",
+            validation_file=relative(release / "validation.json"), source_url="https://evds3.tcmb.gov.tr/",
+            description="Immutable native EVDS bulk publication; request completion, numeric coverage and semantics are distinct.",
+            searchable_text="EVDS full catalog native observations request numeric coverage source evidence"))
+    return result
 
 
 def evds_assets_and_metrics() -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
@@ -1846,7 +1943,10 @@ def validate_catalog(
     assets: pd.DataFrame,
     metrics: pd.DataFrame,
     weekly_progress: dict[str, Any],
+    full_evds: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
+    full_evds = full_evds or {}
+    full_complete = bool(full_evds.get("evds_full_observation_coverage_complete", False))
     duplicate_assets = int(assets["asset_id"].duplicated().sum())
     duplicate_metrics = int(metrics["metric_id"].duplicated().sum())
     absolute_paths = int(assets["file_path"].fillna("").str.startswith("/").sum())
@@ -1882,7 +1982,8 @@ def validate_catalog(
     return {
         "status": status,
         "data_readiness_status": (
-            "local_snapshot_validated_evds_coverage_incomplete"
+            ("local_snapshot_validated_evds_numeric_coverage_complete" if full_complete
+             else "local_snapshot_validated_evds_coverage_incomplete")
             if weekly_progress["status"] == "complete"
             else "weekly_bddk_download_in_progress"
         ),
@@ -1901,7 +2002,9 @@ def validate_catalog(
         "selected_evds_observation_series": len(selected_evds),
         "evds_metadata_series": int(metrics["source_system"].eq("TCMB_EVDS").sum()),
         "evds_numeric_series": int((selected_evds["observation_count"] > selected_evds["missing_observation_count"]).sum()),
-        "evds_full_observation_coverage_complete": False,
+        "evds_full_observation_coverage_complete": full_complete,
+        "evds_full_request_scope_complete": bool(full_evds.get("full_request_scope_complete", False)),
+        "evds_full_catalog": full_evds,
         "weekly_bddk": weekly_progress,
         "duplicate_asset_ids": duplicate_assets,
         "duplicate_metric_ids": duplicate_metrics,
@@ -1909,7 +2012,8 @@ def validate_catalog(
         "missing_asset_files": missing_asset_files,
         "missing_required_datasets": missing_required,
         "known_source_gaps": [
-            "EVDS full observation coverage is incomplete; metadata count is not a collection-complete measure.",
+            *(["EVDS full observation coverage is incomplete; request completion and metadata count do not prove numeric coverage."] if not full_complete else []),
+            "Bulk EVDS native observations require independent semantic review before economic aggregation.",
             "TBB 2026-06 consumer credit report is not published in the source snapshot.",
             *(
                 ["BDDK weekly snapshot is still downloading."]
@@ -1927,7 +2031,7 @@ def validate_catalog(
     }
 
 
-def build(output_dir: Path) -> dict[str, Any]:
+def build(output_dir: Path, *, include_full_catalog: bool = True) -> dict[str, Any]:
     assets: list[dict[str, Any]] = []
     metrics: list[dict[str, Any]] = []
 
@@ -1950,6 +2054,7 @@ def build(output_dir: Path) -> dict[str, Any]:
     assets.extend(event_assets())
     assets.extend(quality_assets())
     include_legacy_evds(assets, metrics)
+    full_evds = include_full_catalog_evds(assets, metrics) if include_full_catalog else {"present": False}
 
     asset_frame = pd.DataFrame(assets, columns=ASSET_COLUMNS).sort_values(
         ["source_system", "dataset_id", "asset_id"], kind="stable"
@@ -1957,7 +2062,7 @@ def build(output_dir: Path) -> dict[str, Any]:
     metric_frame = pd.DataFrame(metrics, columns=METRIC_COLUMNS).sort_values(
         ["source_system", "dataset_id", "metric_id"], kind="stable"
     )
-    validation = validate_catalog(asset_frame, metric_frame, weekly_progress)
+    validation = validate_catalog(asset_frame, metric_frame, weekly_progress, full_evds)
     if validation["status"] != "passed":
         raise ValueError(f"Birlesik katalog dogrulamasi gecmedi: {validation}")
 
@@ -1979,8 +2084,10 @@ def build(output_dir: Path) -> dict[str, Any]:
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--output", type=Path, default=DEFAULT_OUTPUT)
+    parser.add_argument("--without-full-catalog", action="store_true",
+                        help="Reproduce the distributed seed catalog without optional bulk publications.")
     args = parser.parse_args()
-    result = build(args.output.expanduser().resolve())
+    result = build(args.output.expanduser().resolve(), include_full_catalog=not args.without_full_catalog)
     print(json.dumps(result, ensure_ascii=False, indent=2))
     return 0
 
