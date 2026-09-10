@@ -9,8 +9,8 @@ import sys
 
 import duckdb
 
-from tools.lakehouse_service import LakehouseService
-from tools.lakehouse_store import LakehouseStore
+from agentic_analytics.lakehouse.service import LakehouseService
+from agentic_analytics.lakehouse.store import LakehouseStore
 
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / 'tmp/agent-lakehouse-validation'
@@ -23,7 +23,7 @@ def check(name, passed, detail=None):
     checks.append({'name': name, 'passed': True, 'detail': detail})
 
 def cli(*args, expected=0):
-    response = subprocess.run([sys.executable, '-m', 'tools.lakehouse_cli', '--store', str(STORE), *args], capture_output=True, text=True, cwd=ROOT)
+    response = subprocess.run([sys.executable, '-m', 'agentic_analytics.lakehouse.cli', '--store', str(STORE), *args], capture_output=True, text=True, cwd=ROOT)
     if response.returncode != expected:
         raise AssertionError(response.stderr + response.stdout)
     return json.loads(response.stdout)

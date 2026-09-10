@@ -1,0 +1,259 @@
+{
+  "status": "passed",
+  "date": "2026-09-10",
+  "pr": 3,
+  "base_main": "e0f1e6d0c4f533522068695fe34a0059dd243e75",
+  "original_pr_head": "c6e331b5e0ade7c65885c9a401678a3993b6ca6f",
+  "environment": {
+    "host": "macOS arm64",
+    "docker_engine": "29.2.1",
+    "compose": "5.1.2",
+    "amd64_execution": "emulated"
+  },
+  "unit_tests": {
+    "command": "python -m pytest tests/app tests/architecture -q",
+    "passed": 37,
+    "subtests_passed": 11
+  },
+  "container_logging_tests": {
+    "passed": 6,
+    "subset_of_host_tests": true
+  },
+  "container_probes": {
+    "arm64": {
+      "status": "passed",
+      "platform": "aarch64",
+      "python": "3.12.14",
+      "uid": 10001,
+      "pip_check": true,
+      "binary_imports": true,
+      "pdf_raster": true,
+      "parquet_int64": true,
+      "empty_database_path": true,
+      "build_exclusions": true,
+      "model_calls": 0
+    },
+    "amd64": {
+      "status": "passed",
+      "platform": "x86_64",
+      "python": "3.12.14",
+      "uid": 10001,
+      "pip_check": true,
+      "binary_imports": true,
+      "pdf_raster": true,
+      "parquet_int64": true,
+      "empty_database_path": true,
+      "build_exclusions": true,
+      "model_calls": 0
+    }
+  },
+  "integration": {
+    "status": "passed",
+    "project": "codex-docker-pr3",
+    "port": 18870,
+    "started_at": "2026-09-10T11:20:03.881619+00:00",
+    "provider_calls": 0,
+    "driver_sha256": "82d465dda3b609bf977e96f76ddc33fe0fd4488c0170308c5b1461f4f55b928d",
+    "checks": {
+      "container_config": {
+        "uid": "10001:10001",
+        "read_only": true,
+        "ports": {
+          "8870/tcp": [
+            {
+              "HostIp": "127.0.0.1",
+              "HostPort": "18870"
+            }
+          ]
+        },
+        "mounts": {
+          "/app/.lakehouse-runtime": {
+            "type": "volume",
+            "writable": true
+          },
+          "/app/data_pipeline/lakehouse": {
+            "type": "bind",
+            "writable": false
+          }
+        },
+        "health": "healthy",
+        "image_id": "sha256:0fb045253d1e71e323fc5321d59d43837b0436aa68e6c0515adda605fc49855c",
+        "container_id": "121790a1ec39d6de5e63ebc17c321c796b0e53cd6acc0c3919d948deb8693f29",
+        "cap_drop": [
+          "ALL"
+        ],
+        "cap_add": null,
+        "runtime_volumes": [
+          "codex-docker-pr3_agent-runtime"
+        ]
+      },
+      "static_assets": true,
+      "host_origin_rejection": true,
+      "finance_generic_and_same_origin": true,
+      "real_finance_demo": {
+        "rows": 66,
+        "revised": true,
+        "explain_value_matches": true,
+        "raw_files_verified": false
+      },
+      "upload_publication_exact_integer": {
+        "raw_sha256": "bd4e9a48c57120f479c49fce2cd98a03967b7f53e645483f12f2267844bb0107",
+        "table_explain_csv_exact": true
+      },
+      "restart_persistence": {
+        "responses_preserved": 13
+      },
+      "recreate_persistence": {
+        "responses_preserved": 13
+      },
+      "cold_backup": {
+        "path": "tmp/docker-pr3/runtime-backup-ea46ef8fce",
+        "files": 120,
+        "bytes": 623240532,
+        "snapshot_sha256": "c2e6c9fd749efe5c96e9e4dc23b925a792cce57b3d96ad42cc02969d8395b81a"
+      },
+      "cold_restore": {
+        "project": "codex-docker-pr3-restore",
+        "port": 18871,
+        "responses_preserved": 13,
+        "config": {
+          "uid": "10001:10001",
+          "read_only": true,
+          "ports": {
+            "8870/tcp": [
+              {
+                "HostIp": "127.0.0.1",
+                "HostPort": "18871"
+              }
+            ]
+          },
+          "mounts": {
+            "/app/.lakehouse-runtime": {
+              "type": "volume",
+              "writable": true
+            },
+            "/app/data_pipeline/lakehouse": {
+              "type": "bind",
+              "writable": false
+            }
+          },
+          "health": "healthy",
+          "image_id": "sha256:bcee9a4a50eb8fc94a66c88e840bbb7bced40a31814e8cf4be98d7bfbd7a10a2",
+          "container_id": "f3d603eab5dc3bfa2644d2e18e84b10cc25f7dd0b0b6a07cea4c2e621467570c",
+          "cap_drop": [
+            "ALL"
+          ],
+          "cap_add": null,
+          "runtime_volumes": [
+            "codex-docker-pr3-restore_agent-runtime"
+          ]
+        }
+      },
+      "host_database_unchanged": true,
+      "final_container_config": {
+        "uid": "10001:10001",
+        "read_only": true,
+        "ports": {
+          "8870/tcp": [
+            {
+              "HostIp": "127.0.0.1",
+              "HostPort": "18870"
+            }
+          ]
+        },
+        "mounts": {
+          "/app/data_pipeline/lakehouse": {
+            "type": "bind",
+            "writable": false
+          },
+          "/app/.lakehouse-runtime": {
+            "type": "volume",
+            "writable": true
+          }
+        },
+        "health": "healthy",
+        "image_id": "sha256:0fb045253d1e71e323fc5321d59d43837b0436aa68e6c0515adda605fc49855c",
+        "container_id": "396ca5092cd2706228afed3da4f2f66e24ed752c13e9408f77ff84c1b20c43dc",
+        "cap_drop": [
+          "ALL"
+        ],
+        "cap_add": null,
+        "runtime_volumes": [
+          "codex-docker-pr3_agent-runtime"
+        ]
+      },
+      "image_filesystem_match": {
+        "architecture": "arm64",
+        "filesystem_layers_identical": true,
+        "user_and_command_identical": true,
+        "compose_project_labels": [
+          "codex-docker-pr3",
+          "codex-docker-pr3-restore"
+        ]
+      }
+    },
+    "artifacts": {
+      "finance_workspace": "workspace_bb413cb8d18c4feeae31907cdb58ea6f",
+      "generic_workspace": "workspace_b7f39a6eb6f243499f83a489f1c9bf28",
+      "finance_snapshot": "snapshot_9f241d6a2b0571c0ecd5617a8426f88a87164abe66597525f302ee1c74083b8b",
+      "generic_snapshot": "snapshot_824194ab46a6bf257134823044c593621034dc6d2d3f4efa45aa57425353832f",
+      "first_analysis": "analysis_3d1ae96bbb4d53c63480b7b680a2a7b3b51afb34126a8b40fe9d4b2b997b154d",
+      "revised_analysis": "analysis_c726ae9b9b038d0596efa176962fd2e4591eb03f3c419599503af2498e65f1c1",
+      "chart": "chart_bf15964f713dfdd7673bea6df8c5948a78534d5330ce584355b676e0d7fda122",
+      "upload_source": "source_476ada7c943ba3f4b8fd5f6054f770ed19ccbf8c7c566b929af08f42fabe02da",
+      "integer_analysis": "analysis_b7a752fe1a22e6c6ff584bde41c27d7f133a70bab63f49ae39f14c52c7c824b7",
+      "integer_dataset": "dataset_24aa3be09677ec98e7939f9d629383fe0d8a5d239433fdac17bc0038a10e93b8"
+    },
+    "source_database_sha256_before": "c2e6c9fd749efe5c96e9e4dc23b925a792cce57b3d96ad42cc02969d8395b81a",
+    "artifact_response_sha256": {
+      "finance_workspace": "bb122b89f8d2641d9087a97fe375f8445112eec8dd668e463e3e4b56fff861e4",
+      "first_analysis": "2af5371e60897cc34a38ec982a847a98f071571b78f3c21865a6cf0d2d9846f1",
+      "analysis": "1ea1ca28aae3e92befe45ff64347929794850956541c3dc00463953353e4d034",
+      "chart": "f839611a23d108a2e8ec1f1228f0dfb9df2baa085e4baba57719e4e2de16bae3",
+      "chart_artifact": "f839611a23d108a2e8ec1f1228f0dfb9df2baa085e4baba57719e4e2de16bae3",
+      "explain": "16ddba96af86355c782333084c365525af9090935925436892239f026929762a",
+      "generic_workspace": "1199e2039935e46ae892c1b48aca0480a102934a7ba0c55454f4cb9fa9aef880",
+      "integer_analysis": "7886bbd1cb7e52670210abae9244d5c9b6373fc9ed151b9307026aaf8607a3a4",
+      "integer_explain": "0a7b9bc9b6b209b84b39ed5214d775d0fd214ea7cc36cd59c973c5acd487eaeb",
+      "upload_inspection": "63c9251c89649a11104a4af5eaaee8f951a0fe06cf06de065b8316cfe360aac0",
+      "csv": "0795b87ecb1ea5ef8222e15416e03410c1ca58b8d2eb046ad6121611bc137f91",
+      "integer_csv": "6cea66a7c6a91b4fca6b8bdb5dd4a4f3a4b384950be948756557dee73ddd015d",
+      "upload_raw": "bd4e9a48c57120f479c49fce2cd98a03967b7f53e645483f12f2267844bb0107"
+    },
+    "source_database_sha256_after": "c2e6c9fd749efe5c96e9e4dc23b925a792cce57b3d96ad42cc02969d8395b81a",
+    "finished_at": "2026-09-10T11:20:38.097813+00:00",
+    "service_left_running": true,
+    "restore_service_left_running": true
+  },
+  "source_files_sha256": {
+    "Dockerfile": "a281ce24bb7223caedcd7f7830347d860d4db19d4403b21a1351bf5e7a783a8a",
+    "docker-compose.yml": "d163df3e3d726d60a81b6c9c904867c89dd349d57db88041ae52e812f5cb469d",
+    ".dockerignore": "33b21ff08030943ca5cdf30afd42a26e65706ada61fc30d3a31d03c782fd9ac4",
+    ".env.example": "eb6ae8296c51c36024728cda31b9a50fe83b34bdb532518d65a5f2d783c3c07f",
+    "app/cli.py": "d8e487c83d9455fd9e8e311a7af7e5b76645481431f9a7085422193596ec7c8d",
+    "app/context.py": "194601888870ff0c9393f47792d5eee40a678f619cc811a7210d899da4fbdb07",
+    "app/diagnostics.py": "8f2ca43dab4d3c2371d6a58c7e6284be29ca0950c7636264722f0d7014120e2f",
+    "evals/docker_runtime_probe.py": "ac4aa81dfe3024a04299b65a7a95180ae4d5f6f10150ddfddf9cc12b16692198",
+    "evals/docker_smoke.py": "82d465dda3b609bf977e96f76ddc33fe0fd4488c0170308c5b1461f4f55b928d",
+    "tests/app/test_job_logging.py": "b7f321b66d3f501ca643896b257c5ddaa28c47722bedb1a8d88698af5548fed1",
+    "requirements-app.lock": "a619fb503c9a9eb4db38b5c8626000c2f74d89121b6c8e79b0a52fd3e4d47441"
+  },
+  "local_evidence_sha256": {
+    "tmp/docker-pr3/app-tests.log": "dd1846f415a56ed27b6b4f206a4094b532ee392a8f233a99e96af0efecdc250f",
+    "tmp/docker-pr3/logging-linux.log": "9ad777dbda7e8cd96a26f572f822bed605f470e7c3333b5c4149474bcae94e79",
+    "tmp/docker-pr3/build-arm64-final.log": "fcbdfff3cdd2e22178bac55573de670329ee9cd1c0a58027c4c888d07a108682",
+    "tmp/docker-pr3/build-amd64-final.log": "ade83894e73d238c9849187c86b406157bc9e27c97e298ae945c6507297766d7",
+    "tmp/docker-pr3/probe-arm64.json": "f1b5cc11e07d077524e03a4137f08bc7162190525e84232ce6ad0b6148179d82",
+    "tmp/docker-pr3/probe-amd64.json": "9fe48d958e91f78eb89c30b2ae04548163f0ec15d3f83dc8e7d2c14201363551",
+    "tmp/docker-pr3/smoke-report.json": "1eb210abbd90bfe72b5bd6ff3a0875aad4b9d6a800c526d187bfa0c434a3fede"
+  },
+  "limits": [
+    "No live model or external search calls.",
+    "No physical Windows or Intel host validation.",
+    "Stored finance source lineage does not verify original raw file bytes."
+  ],
+  "after_validation": {
+    "test_projects_and_volumes_removed": true,
+    "native_app_8870_healthy": true
+  }
+}

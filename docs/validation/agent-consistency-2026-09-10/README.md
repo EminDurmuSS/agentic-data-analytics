@@ -1,5 +1,7 @@
 # Canlı agent tutarlılık denemesi, 10 Eylül 2026
 
+> Dosya düzeni notu: çalıştırma komutları ve kod bağlantıları güncel konumlara uyarlandı. Bu rapordaki ölçümler, hashler ve eski dosya/satır atıfları kaydedilen commit'e aittir; yeniden doğrulama yapılmadı. [Taşıma açıklaması](../../README.md#dosya-düzeni-değişikliği).
+
 Mevcut uygulamada altı senaryo üçer kez, bağımsız çalışma alanlarında çalıştırıldı. Toplam 18 deneme ve 24 kullanıcı turu var. **Tam görev başarısı 8/18.** Bu ölçüt doğru tablo veya güvenlik kontrolünün yanında, istenen kaynak kanıtını ve doğru, kullanılabilir son cevabı da gerektiriyor.
 
 Bu küçük başlangıç ölçümü, genel model doğruluğu veya yarışma puanı değildir. Aynı sayıları tekrar üretmek ile doğru ve eksiksiz cevap vermek ayrı değerlendirildi. Son metinler, bağımsız SQL ve ham kaynak doğruları karşısında Codex asistanı tarafından incelendi; kullanıcı incelemesi veya değerlendirilen modelin kendi puanlaması değildir. İncelemeler tam cevap metninin SHA-256 değeriyle bağlıdır.
@@ -56,7 +58,7 @@ Bu bulgular başlangıç ölçümüdür; bu çalışmada backend düzeltmesi uyg
 Mevcut kayıtları tekrar puanlamak model çağrısı yapmaz:
 
 ```sh
-.venv/bin/python -m tools.grade_agent_consistency \
+.venv/bin/python -m evals.grading \
   --input tmp/agent-consistency-2026-09-10/live \
   --oracles tmp/agent-consistency-2026-09-10/oracles.json \
   --answer-reviews tmp/agent-consistency-2026-09-10/answer-reviews.json \
@@ -66,7 +68,7 @@ Mevcut kayıtları tekrar puanlamak model çağrısı yapmaz:
 Yeni canlı ölçüm gerçek uygulamaya ve model sağlayıcısına çağrı yapar; uygulamanın ve verinin hazır olması gerekir. Var olmayan yeni bir çıktı klasörü kullanılmalı:
 
 ```sh
-.venv/bin/python -m tools.evaluate_agent_consistency \
+.venv/bin/python -m evals.consistency \
   --output tmp/agent-consistency-next/live --repeats 3 --workers 2
 ```
 

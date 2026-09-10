@@ -22,7 +22,7 @@ Build mevcut yerel girdilerle çalışır, ağdan yeniden veri indirmez.
 
 `build_lakehouse.py`, kaynak doğrulamalarını kontrol eder, verileri geçici
 DuckDB dosyasına kopyalar, kaynak ilişkilerini ve metrik sözleşmelerini kurar.
-`tools/lakehouse_quality.py` kontrolleri geçtikten sonra dosya kapatılır,
+`agentic_analytics/lakehouse/quality.py` kontrolleri geçtikten sonra dosya kapatılır,
 salt okunur yeniden açılıp doğrulanır ve hedef dosyanın yerine atomik olarak
 geçirilir. Başarısız doğrulama mevcut sorgu dosyasını değiştirmez.
 
@@ -30,13 +30,13 @@ geçirilir. Başarısız doğrulama mevcut sorgu dosyasını değiştirmez.
 eski yerel paketten 15 ek EVDS serisini ekler ve Risk Merkezi kaynak
 vintagelarını housing gold tablosuna bağımlı olmadan çözer.
 
-`registry.py`, her katalog metriğine bir durum atar. Fiziksel olarak
+`agentic_analytics/lakehouse/registry.py`, her katalog metriğine bir durum atar. Fiziksel olarak
 çözülebilen metriklerde tablo, değer sütunu, filtreler, boyutlar, birim,
 ölçek, frekans ve kaynak referansları kaydedilir. `ready`, `review_required`,
 `metadata_only` ve `no_numeric` farklı durumlardır; yalnız metadata bulunması
 sayısal hesap izni vermez. İncelenmemiş metrikler için dönüşümler engellenir.
 
-Agent oturumları `tools/lakehouse_store.py` üzerinden SHA-256 ile doğrulanan
+Agent oturumları `agentic_analytics/lakehouse/store.py` üzerinden SHA-256 ile doğrulanan
 snapshot'lara bağlanır. CSV ekleri ve analiz sonuçları ayrı değişmez nesneler
 olarak saklanır. Çalışma alanı güncellemeleri kilit ve beklenen sürüm kontrolü
 kullanır; önceki analiz dosyaları üzerine yazılmaz.

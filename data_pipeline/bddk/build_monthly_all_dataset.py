@@ -12,11 +12,19 @@ import argparse
 import hashlib
 import json
 import re
+import sys
 from collections import Counter, defaultdict
 from pathlib import Path
 from typing import Any
 
 import pandas as pd
+
+
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
+
+from agentic_analytics.lakehouse.semantics import MONTHLY_BANK_GROUPS as GROUPS
 
 
 BASE_DIR = Path(__file__).resolve().parent
@@ -43,18 +51,6 @@ TABLES = {
     17: "Yurt Disi Sube Rasyolari",
 }
 
-GROUPS = {
-    10001: "Sektör",
-    10002: "Mevduat",
-    10003: "Katılım",
-    10004: "Kalkınma ve Yatırım",
-    10005: "Yerli Özel",
-    10006: "Kamu",
-    10007: "Yabancı",
-    10008: "Mevduat-Yerli Özel",
-    10009: "Mevduat-Kamu",
-    10010: "Mevduat-Yabancı",
-}
 
 
 def sha256(path: Path) -> str:

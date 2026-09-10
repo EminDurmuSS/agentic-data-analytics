@@ -1,5 +1,7 @@
 # Etkileşimli grafikler ve ayarlanabilir çalışma alanı
 
+> Dosya düzeni notu: çalıştırma komutları ve kod bağlantıları güncel konumlara uyarlandı. Bu rapordaki ölçümler, hashler ve eski dosya/satır atıfları kaydedilen commit'e aittir; yeniden doğrulama yapılmadı. [Taşıma açıklaması](../../README.md#dosya-düzeni-değişikliği).
+
 Analiz ekranı artık tablonun ilk sayfasını çizmek yerine kayıtlı analizin bütün satırlarını kullanıyor. Grafik görünümü ayrı bir kayıt olarak saklanıyor; grafik türünü değiştirmek tabloyu, analiz kimliğini veya çalışma alanının veri sürümünü değiştirmiyor.
 
 Konuşma ile analiz arasındaki ayıraç sağa ve sola sürüklenebiliyor. Seçilen oran tarayıcıda korunuyor; çift tıklama varsayılana dönüyor. Klavyede sol/sağ oklar, Home ve End destekleniyor. Mobilde paneller alt alta yerleşiyor ve ayıraç gizleniyor. Grafik, panel genişliği değiştikçe yeniden yerleşiyor.
@@ -28,7 +30,7 @@ Grafik türü, seçili sütunlar, başlık, eksen düzeni ve normalizasyon aray�
 
 ## Uygulama sözleşmesi
 
-`tools/agent_charts.py` içindeki `ChartTools`, tam ve değişmez analiz kaydından doğrulanmış grafik verisi üretir. `create_chart` modeli bir grafik tarifine yönlendirir; modelden sayı dizisi, JavaScript, Python veya serbest grafik kodu kabul edilmez. Grafik içerik özetiyle saklanır ve aynı analizin son görünümü ayrı bir işaretçiyle seçilir. Önceki grafik kayıtları korunur.
+`agentic_analytics/agent/tools/charts.py` içindeki `ChartTools`, tam ve değişmez analiz kaydından doğrulanmış grafik verisi üretir. `create_chart` modeli bir grafik tarifine yönlendirir; modelden sayı dizisi, JavaScript, Python veya serbest grafik kodu kabul edilmez. Grafik içerik özetiyle saklanır ve aynı analizin son görünümü ayrı bir işaretçiyle seçilir. Önceki grafik kayıtları korunur.
 
 `GET /api/workspaces/{workspace_id}/analyses/{analysis_id}/chart` son görünümü veya veri değiştirmeyen varsayılan görünümü döndürür. Aynı adrese `POST`, URL'deki analiz için yeni görünüm kaydeder. `GET /api/workspaces/{workspace_id}/charts/{chart_id}` değişmez görünümü açar. Bütün yollar çalışma alanı sahipliğini doğrular.
 
@@ -44,9 +46,9 @@ Son sürümde ilgili beş test modülünün **60 testi ve 21 alt testi geçti**.
 
 ```sh
 .venv/bin/python -m pytest \
-  tests/test_agent_charts.py tests/test_agent_chart_workflow.py \
-  tests/test_agent_runtime.py tests/test_agent_app.py \
-  tests/test_agent_app_precision.py -q
+  tests/agent/test_agent_charts.py tests/app/test_agent_chart_workflow.py \
+  tests/agent/test_agent_runtime.py tests/app/test_agent_app.py \
+  tests/app/test_agent_app_precision.py -q
 ```
 
 İlk canlı MIA denemesinde gerçek 60 aylık BDDK/EVDS verisi üzerinde beş grafik isteğinin beşi karşılandı: ayrı paneller, başlangıç=100, dağılım, çift eksen ve yatay çubuk. Her turda bütün tablo değerleri, analiz başı ve çalışma alanı sürümü aynı kaldı. Ardından doğal Türkçe iki grafik isteği ve yıllık değişim önerisinin devamı denendi; hesaplama isteyen son adım, ilk 12 ayı boş bırakıp eski sütunları koruyarak yeni analize bağlı grafik oluşturdu. Tamamlanma mesajı düzeltmesi bir ek canlı denemeyle doğrulandı. Toplam **9/9 grafik sözleşmesi kontrolü** geçti; bu, serbest metnin bütün iddiaları için başarı puanı değildir. Yakalanan eski yorum hatası ve düzeltme ayrı kaydedildi. Ayrıntılar [results.json](results.json) dosyasında. Bu küçük örneklem, bütün olası grafik istekleri için başarı oranı değildir.

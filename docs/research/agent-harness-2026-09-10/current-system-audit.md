@@ -1,5 +1,7 @@
 # Mevcut sistemin bağımsız denetimi
 
+> Dosya düzeni notu: çalıştırma komutları ve kod bağlantıları güncel konumlara uyarlandı. Bu rapordaki ölçümler, hashler ve eski dosya/satır atıfları kaydedilen commit'e aittir; yeniden doğrulama yapılmadı. [Taşıma açıklaması](../../README.md#dosya-düzeni-değişikliği).
+
 İncelenen commit: `dc757c291fc4cdeecb510f0c6e506c759a4bf60a`.
 Tarih: 10 Eylül 2026. Bu çalışma araştırma ve planlama içindir; üretim kodu
 ve kaynak veri değiştirilmedi. Gerçek servis üzerinde 30 temsilî çağrı,
@@ -51,8 +53,8 @@ sınırları açıkça tanımlayan agent yürütme katmanıdır.
 
 Mevcut yayın kontrolleri ve durum sayıları
 [validation.json](../../../data_pipeline/lakehouse/validation.json),
-[kalite kapısı](../../../tools/lakehouse_quality.py) ve
-[registry](../../../data_pipeline/lakehouse/registry.py) ile çapraz okundu.
+[kalite kapısı](../../../agentic_analytics/lakehouse/quality.py) ve
+[registry](../../../agentic_analytics/lakehouse/registry.py) ile çapraz okundu.
 
 ## Yeni bulunan hesap ve erişim açıkları
 
@@ -85,7 +87,7 @@ En küçük yeniden üretim:
 }
 ```
 
-[Servis frekans doğrulaması](../../../tools/lakehouse_service.py#L223)
+[Servis frekans doğrulaması](../../../agentic_analytics/lakehouse/service.py)
 `sum` ve `mean` için anlam denetimi yapar; `last` için eşdeğer kısıt yoktur.
 P26'da TBB çeyreklik kullandırımına yıllık `last` da kabul edilirken P27'de
 doğru yıllık `sum` desteklenmediği için reddedildi.
@@ -113,7 +115,7 @@ enflasyondan arındırılmış kâr diye etiketlenmemelidir.
 Plan: endeksin rolü, fiyat kapsamı, baz ve amaç sözleşmede bulunmalı.
 Enflasyon deflasyonu ile başka bir endekse normalizasyon ayrı işlem/çıktı
 anlamları olmalı. Yanlış ama sayısal olarak çalışabilir plan da reddedilmeli.
-İlgili kod: [deflate doğrulaması](../../../tools/lakehouse_service.py#L289).
+İlgili kod: [deflate doğrulaması](../../../agentic_analytics/lakehouse/service.py).
 
 ### A03, P1: günlük dilde metrik ve boyut bulma eksik
 
@@ -148,7 +150,7 @@ bulunmayınca `metadata_only` sanılıp gereksiz indirme başlatılmamalı.
 Ölçülen bağlam farkı: bütün sözleşmeleri JSON'a açmak 43.396.763 karakter,
 beş altın metrik kartı 2.507 karakterdir. Bunlar karakter ölçümüdür, token
 ve model pencere hesabı değildir. Küçük kart verme yaklaşımı korunmalı.
-Kod: [discover](../../../tools/lakehouse_service.py#L168).
+Kod: [discover](../../../agentic_analytics/lakehouse/service.py).
 
 ### A04, P1: grup/rank soruları için sorgu dili yeterli değil
 
@@ -176,7 +178,7 @@ Plan: birimin boyutu ile ölçünün zamansal türü ayrı tutulmalı. Yüzde or
 kişi başı para, fiyat, süre ve yoğunluk aynı davranışa zorlanmamalı.
 `difference` uygun özgün birimde fark; yüzde biriminde ise yüzde puan
 üretmeli. Kişi başı tutarın büyüme ve gerektiğinde reel dönüşümü desteklenmeli.
-Kod: [büyüme/fark kontrolü](../../../tools/lakehouse_service.py#L275).
+Kod: [büyüme/fark kontrolü](../../../agentic_analytics/lakehouse/service.py).
 
 ### A06, P1: haftalık kaynak var, temel büyümesi bile kısıtlı
 
@@ -273,12 +275,12 @@ DuckDB yerine başka bir tablo formatına geçmek gerekmiyor.
 
 ## Notebook ve istatistik araçları
 
-[tools/lakehouse_analysis.py](../../../tools/lakehouse_analysis.py) yalnız
+[agentic_analytics/lakehouse/analysis.py](../../../agentic_analytics/lakehouse/analysis.py) yalnız
 `residualize_fixed_effects` sayısal yardımcısını içerir. Anomali, korelasyon,
 nedensellik ve değişim tespiti çağrıları bu modülde veya servis araçları
 arasında uygulanmış değil.
 
-[Keşif notebook'u](../../../lakehouse_veri_kesfi_ve_iliskiler.ipynb), 68 hücre:
+[Keşif notebook'u](../../../notebooks/lakehouse_veri_kesfi_ve_iliskiler.ipynb), 68 hücre:
 
 | Hücreler, sıfır tabanlı | Mevcut çalışma | Agent'a taşınırken gereken |
 | --- | --- | --- |

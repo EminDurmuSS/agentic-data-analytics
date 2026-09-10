@@ -30,7 +30,7 @@ def refresh(database: Path, *, output: Path, runtime_root: Path) -> dict:
     from tools.publish_evds_bulk import publish
     from data_pipeline.catalog.build_unified_catalog import build as build_catalog
     from data_pipeline.lakehouse.build_lakehouse import build as build_lakehouse
-    from tools.lakehouse_store import file_sha256
+    from agentic_analytics.lakehouse.store import file_sha256
 
     status = status_report(database)
     if (status["configuration"].get("target_start"), status["configuration"].get("target_end")) != ("2021-01-01", "2026-06-30"):

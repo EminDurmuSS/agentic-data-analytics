@@ -1,5 +1,7 @@
 # Yerel Qwen analiz uygulaması: uygulama ve kullanım notu
 
+> Dosya düzeni notu: çalıştırma komutları ve kod bağlantıları güncel konumlara uyarlandı. Bu rapordaki ölçümler, hashler ve eski dosya/satır atıfları kaydedilen commit'e aittir; yeniden doğrulama yapılmadı. [Taşıma açıklaması](../../README.md#dosya-düzeni-değişikliği).
+
 Tarih: 10 Eylül 2026. Bu not mevcut kodun davranışını ve sınırlarını anlatır.
 [Önceki harness araştırmasındaki](harness-research.md) önerilerin tamamının
 uygulandığı veya bütün gerçek soruların canlı modelle doğrulandığı iddia
@@ -15,7 +17,7 @@ uv venv --python python3.12 .venv
 source .venv/bin/activate
 uv pip install -r requirements-app.lock
 python data_pipeline/lakehouse/build_lakehouse.py
-python -m tools.run_agent_app --prompt-key --port 8870
+python -m app --prompt-key --port 8870
 ```
 
 Tarayıcı adresi [http://127.0.0.1:8870](http://127.0.0.1:8870).
@@ -174,12 +176,12 @@ bu aracın kapsamı değildir.
 
 | Kod | Sorumluluk |
 | --- | --- |
-| [mia_client.py](../../../tools/mia_client.py) | MIA Chat Completions, embedding ve görsel/OCR HTTP adaptörü; sınırlı yeniden deneme, yapı denetimi, anahtar ve özel muhakemenin çıktıdan ayrılması |
-| [agent_runtime.py](../../../tools/agent_runtime.py) | Tek karar verici, yerel JSON şeması denetimi, zorunlu hesap planı doğrulaması, araç çağrıları, hata ve bütçe duruşları |
-| [agent_run_store.py](../../../tools/agent_run_store.py) | SQLite konuşma, run, olay, checkpoint, araç niyeti ve sonuç kayıtları; çalışma alanı kilidi |
-| [lakehouse_store.py](../../../tools/lakehouse_store.py) | Değişmez snapshot/dataset/analysis, kaynak ve payload hash'leri, sürüm karşılaştırmalı workspace yazımı |
-| [agent_documents.py](../../../tools/agent_documents.py) | Kaynak alımı, aday tablo, güvenilen UI inceleme API'si ve seçilmiş tablo yayını |
-| [agent_statistics.py](../../../tools/agent_statistics.py) | Kayıtlı analize bağlı deterministik istatistik ve sonuç artefaktı |
+| [mia_client.py](../../../agentic_analytics/providers/mia.py) | MIA Chat Completions, embedding ve görsel/OCR HTTP adaptörü; sınırlı yeniden deneme, yapı denetimi, anahtar ve özel muhakemenin çıktıdan ayrılması |
+| [agent_runtime.py](../../../agentic_analytics/agent/runtime.py) | Tek karar verici, yerel JSON şeması denetimi, zorunlu hesap planı doğrulaması, araç çağrıları, hata ve bütçe duruşları |
+| [agent_run_store.py](../../../agentic_analytics/agent/run_store.py) | SQLite konuşma, run, olay, checkpoint, araç niyeti ve sonuç kayıtları; çalışma alanı kilidi |
+| [lakehouse_store.py](../../../agentic_analytics/lakehouse/store.py) | Değişmez snapshot/dataset/analysis, kaynak ve payload hash'leri, sürüm karşılaştırmalı workspace yazımı |
+| [agent_documents.py](../../../agentic_analytics/agent/tools/documents.py) | Kaynak alımı, aday tablo, güvenilen UI inceleme API'si ve seçilmiş tablo yayını |
+| [agent_statistics.py](../../../agentic_analytics/agent/tools/statistics.py) | Kayıtlı analize bağlı deterministik istatistik ve sonuç artefaktı |
 | [app/server.py](../../../app/server.py), [app/static](../../../app/static) | Yerel API, arka plan görevleri, durum sorgulama ve tarayıcı arayüzü |
 
 Güncel varsayılan bütçe bir run için 10 model kararı ve iki hata düzeltmesidir.
@@ -228,8 +230,8 @@ bir maliyet defteri olarak sunulmamalıdır.
 
 ```bash
 uv pip install -r requirements-app.lock -r requirements-dev.txt
-python -m unittest tests.test_mia_client tests.test_agent_runtime tests.test_agent_documents tests.test_agent_statistics -v
-python -m unittest tests.test_agent_real_contracts -v
+python -m pytest tests/agent/test_mia_client.py tests/agent/test_agent_runtime.py tests/agent/test_agent_documents.py tests/agent/test_agent_statistics.py -q
+python -m pytest tests/agent/test_agent_real_contracts.py -q
 python -m pytest tests -q
 ```
 

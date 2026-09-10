@@ -3,11 +3,28 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    env_file:
-      - .env
+    environment:
+      MIA_API_KEY: ${MIA_API_KEY:-}
+      SEARXNG_URL: ${SEARXNG_URL:-}
     ports:
-      - "8870:8870"
+      - "127.0.0.1:${AGENT_PORT:-8870}:8870"
     volumes:
-      - ./data_pipeline/lakehouse:/app/data_pipeline/lakehouse:ro
-      - ./.lakehouse-runtime:/app/.lakehouse-runtime
+      - type: bind
+        source: ${LAKEHOUSE_DIR:-./data_pipeline/lakehouse}
+        target: /app/data_pipeline/lakehouse
+        read_only: true
+        bind:
+          create_host_path: false
+      - agent-runtime:/app/.lakehouse-runtime
+    init: true
+    read_only: true
+    tmpfs:
+      - /tmp:rw,nosuid,nodev,size=256m,mode=1777
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
     restart: unless-stopped
+
+volumes:
+  agent-runtime:

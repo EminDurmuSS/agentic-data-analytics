@@ -21,9 +21,9 @@ BASE_DIR = Path(__file__).resolve().parent
 DEFAULT_OUTPUT = BASE_DIR / "analytics.duckdb"
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
-from data_pipeline.lakehouse.registry import install_bindings
+from agentic_analytics.lakehouse.registry import install_bindings
 from data_pipeline.lakehouse.source_views import install_source_views
-from tools.lakehouse_quality import validate_connection, validate_database
+from agentic_analytics.lakehouse.quality import validate_connection, validate_database
 
 
 def read_json(path: Path) -> Any:
