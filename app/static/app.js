@@ -464,6 +464,173 @@ function schemaLabel(column) {
     (s.price_basis ? " (" + s.price_basis + " fiyatları)" : "")
   );
 }
+const frequencyLabels = {
+  monthly: "Aylık",
+  quarterly: "Üç aylık",
+  yearly: "Yıllık",
+  annual: "Yıllık",
+  half_yearly: "Altı aylık",
+  twice_monthly: "Ayda iki kez",
+  weekly: "Haftalık",
+  weekly_friday: "Haftalık (cuma)",
+  weekly_wednesday: "Haftalık (çarşamba)",
+  daily: "Günlük",
+  business_daily: "İş günü",
+};
+function periodLabel(value) {
+  const text = String(value ?? "Belirtilmemiş");
+  const quarter = text.match(/^(\d{4})-Q([1-4])$/);
+  if (quarter) return quarter[1] + " · " + quarter[2] + ". çeyrek";
+  const half = text.match(/^(\d{4})-H([12])$/);
+  if (half) return half[1] + (half[2] === "1" ? " · İlk yarı" : " · İkinci yarı");
+  if (/^\d{4}-\d{2}(?:-\d{2})?$/.test(text)) {
+    const date = new Date(text.length === 7 ? text + "-01T00:00:00Z" : text + "T00:00:00Z");
+    if (!Number.isNaN(date.getTime()))
+      return new Intl.DateTimeFormat("tr-TR", {
+        year: "numeric", month: "long", timeZone: "UTC",
+        ...(text.length === 10 ? { day: "numeric" } : {}),
+      }).format(date);
+  }
+  return text;
+}
+function dimensionLabel(value) {
+  return { group_code: "Kurum grubu kodu", city: "İl", province: "İl", province_name: "İl",
+    province_code: "İl kodu", city_code: "İl kodu", currency: "Para birimi" }[value] || value;
+}
+function analysisSelections(analysis) {
+  const plan = analysis.plan || {};
+  return plan.query_type === "grouped"
+    ? [{ ...plan.request, name: "value" }]
+    : plan.columns || [];
+}
+function selectionSource(selection) {
+  const sources = state.analysis.sources || {};
+  return sources[selection.name] || Object.values(sources).find(
+    (source) => source.metric_id === selection.metric_id,
+  ) || {};
+}
+function selectionTitle(selection) {
+  return selectionSource(selection).title || selection.metric_id || selection.name;
+}
+function sourceUnitLabel(source) {
+  if (!source.unit) return "";
+  if (source.unit === "unknown") return "Birim tanımlanmamış";
+  const units = { TRY: "TL", percent: "%", index: "endeks", persons: "kişi",
+    visits: "ziyaret", count: "adet", "TRY/person": "TL/kişi",
+    percentage_point: "yüzde puan", percentage_points: "yüzde puan" };
+  const scale = source.scale === 1e6 ? "milyon " : source.scale === 1e9 ? "milyar "
+    : source.scale === 1e3 ? "bin " : source.scale && source.scale !== 1 ? fmt(source.scale) + " × " : "";
+  return scale + (units[source.unit] || source.unit);
+}
+function renderAnalysisMethod() {
+  const a = state.analysis, plan = a.plan || {}, grouped = plan.query_type === "grouped";
+  const request = grouped ? plan.request || {} : plan;
+  const selections = analysisSelections(a), operations = request.operations || [];
+  const holder = $("#analysis-method");
+  holder.replaceChildren();
+  $("#analysis-technical").open = false;
+  $("#analysis-plan").textContent = JSON.stringify(plan, null, 2);
+  const intro = el("div", null, "method-intro");
+  intro.append(el("h3", "Bu tablo nasıl oluştu?"),
+    el("p", "Kaydedilen analizde kullanılan veriler ve uygulanan işlemler."));
+  const facts = el("dl", null, "method-facts");
+  const fact = (label, value) => {
+    const item = el("div");
+    item.append(el("dt", label), el("dd", value));
+    facts.append(item);
+  };
+  fact("Dönem", request.start === request.end ? periodLabel(request.start)
+    : periodLabel(request.start) + " → " + periodLabel(request.end));
+  fact("Tablo sıklığı", frequencyLabels[request.frequency] || request.frequency || "Belirtilmemiş");
+  holder.append(intro, facts);
+  const steps = el("ol", null, "method-steps");
+  const step = (title, description) => {
+    const item = el("li", null, "method-step");
+    const number = el("span", String(steps.children.length + 1).padStart(2, "0"), "method-step-number");
+    number.setAttribute("aria-hidden", "true");
+    const body = el("div", null, "method-step-body");
+    body.append(el("h4", title));
+    if (description) body.append(el("p", description, "method-description"));
+    item.append(number, body);
+    steps.append(item);
+    return body;
+  };
+  if (selections.length) {
+    const data = step(selections.length === 1 ? "Veri seçildi" : selections.length + " veri sütunu seçildi");
+    for (const selection of selections) {
+      const source = selectionSource(selection);
+      const card = el("div", null, "method-source");
+      card.append(el("strong", selectionTitle(selection)));
+      const meta = el("div", null, "method-source-meta");
+      const system = { TCMB_EVDS: "TCMB · EVDS", BDDK: "BDDK", BDDK_MONTHLY: "BDDK · Aylık",
+        BDDK_WEEKLY: "BDDK · Haftalık", BDDK_FINTURK: "BDDK · FinTürk" }[source.source_system] || source.source_system;
+      if (system) meta.append(el("span", system));
+      if (sourceUnitLabel(source)) meta.append(el("span", sourceUnitLabel(source)));
+      if (!grouped) meta.append(el("span", "Tablo sütunu: " + selection.name));
+      card.append(meta);
+      for (const [key, value] of Object.entries(selection.dimensions || {})) {
+        const label = key.endsWith("_code")
+          ? String(isExactInteger(value) ? value.$integer : value)
+          : fmt(value);
+        card.append(el("div", dimensionLabel(key) + ": " + label, "method-filter"));
+      }
+      data.append(card);
+    }
+    const native = selections.every((selection) => !selection.alignment || selection.alignment === "native");
+    const alignment = step(native ? "Kaynak dönemleri korundu" : "Dönemler eşlendi",
+      native ? "Seçilen veriler kendi sıklığında gösterildi; dönemler arasında toplam veya ortalama alınmadı." : null);
+    if (!native) {
+      const labels = {
+        native: "Kaynağın kendi dönemleri korundu.",
+        last: "Her çıktı döneminde son gözlenen değer alındı.",
+        mean: "Her çıktı döneminde gözlenen değerlerin ortalaması alındı.",
+        sum: "Her çıktı dönemi için alt dönem değerleri toplandı; eksik alt dönem varsa toplam üretilmedi.",
+      };
+      for (const selection of selections)
+        alignment.append(el("p", selection.name + ": " + (labels[selection.alignment || "native"] ||
+          "Kayıtlı dönem eşleme yöntemi: " + selection.alignment), "method-description"));
+    }
+    if (selections.length > 1)
+      alignment.append(el("p", "Sütunlar dönem üzerinden eşleştirildi. Kaynakların kapsamları aynı kabul edilmedi.", "method-caption"));
+  } else step("Veri seçimi ayrıntısı bulunamadı", "Kaydedilen planı teknik ayrıntılardan inceleyebilirsiniz.");
+  for (const op of operations) {
+    const current = op.column, output = op.output, periods = op.periods ?? 1;
+    const labels = { growth: "Yüzde değişim hesaplandı", difference: "Dönem farkı hesaplandı",
+      deflate: "Sabit fiyatlara dönüştürüldü", scale: "Ölçek dönüştürüldü", ratio: "Oran hesaplandı" };
+    let description = "", formula = "";
+    if (op.op === "growth" || op.op === "difference") {
+      description = current + " sütunu, " + periods + " dönem önceki değeriyle karşılaştırıldı.";
+      formula = op.op === "growth"
+        ? output + " = (" + current + " / " + current + "[" + periods + " dönem önce] - 1) × 100"
+        : output + " = " + current + " - " + current + "[" + periods + " dönem önce]";
+    } else if (op.op === "deflate") {
+      description = current + " sütunu, " + op.index + " endeksiyle " + periodLabel(op.base_period) + " fiyatlarına getirildi.";
+      formula = output + " = " + current + " × " + op.index + "[" + periodLabel(op.base_period) + "] / " + op.index;
+    } else if (op.op === "scale") {
+      description = "Hedef ölçek: " + fmt(op.target_scale) + ". Sayısal gösterim bu ölçeğe çevrildi.";
+      formula = output + " = " + current + " × girdi ölçeği / " + fmt(op.target_scale);
+    } else if (op.op === "ratio") {
+      description = "Pay ve payda kendi ölçekleriyle ortak birime getirildi.";
+      formula = output + " = (" + current + " × pay ölçeği) / (" + op.denominator + " × payda ölçeği) × " + (op.multiplier ?? 100);
+    } else description = "Bu işlem için açıklama bulunmuyor. Kayıtlı parametreler teknik ayrıntılarda yer alıyor.";
+    const body = step(labels[op.op] || "Kayıtlı işlem: " + op.op, description);
+    if (formula) body.append(el("div", formula, "method-formula"));
+    if (op.scope_policy === "explicit_comparison")
+      body.append(el("p", "Farklı kapsamların karşılaştırma gerekçesi: " + op.scope_reason, "method-caption"));
+    if (output) body.append(el("p", output === current ? output + " sütununun değeri bu işlemle güncellendi."
+      : "Sonuç sütunu: " + output, "method-caption"));
+  }
+  if (grouped) {
+    step("Gruplar sıralandı", dimensionLabel(request.group_by) + " bazında, her dönem için " +
+      (request.order === "asc" ? "küçükten büyüğe" : "büyükten küçüğe") + " sıralama yapıldı. En fazla " +
+      (request.limit ?? 10) + " satır gösterildi; eşit değerler aynı sırayı paylaştı.");
+  } else if (!operations.length && selections.length) {
+    step("Ek hesaplama uygulanmadı", "Bu planda büyüme, fark, oran veya fiyat dönüşümü yer almıyor.");
+  }
+  if (a.parent_analysis_id)
+    holder.append(el("p", "Bu tablo önceki analizden türetildi. Aşağıdaki adımlar güncel planın tamamını gösterir.", "method-revision"));
+  holder.append(steps);
+}
 async function loadAnalysis(id, result = {}) {
   state.offset = 0;
   state.analysis = await api(base() + "/analyses/" + id + "?limit=250");
@@ -482,11 +649,7 @@ async function loadAnalysis(id, result = {}) {
     : "Kaynak veriden hesaplandı";
   $("#csv-download").hidden = false;
   $("#csv-download").href = base() + "/analyses/" + id + "/csv";
-  $("#analysis-plan").textContent = JSON.stringify(
-    state.analysis.plan,
-    null,
-    2,
-  );
+  renderAnalysisMethod();
   renderTable();
   renderSources();
   const select = $("#chart-column");
@@ -532,6 +695,12 @@ async function loadAnalysis(id, result = {}) {
   $("#more-rows").hidden = state.analysis.row_count <= 250;
 }
 function warningText(w) {
+  if (w.code === "semantics_unreviewed") {
+    const selection = analysisSelections(state.analysis).find((item) => item.name === w.column);
+    if (selection && (!selection.alignment || selection.alignment === "native"))
+      return selectionTitle(selection) + ": kaynak değerleri kendi dönemlerinde gösteriliyor. " +
+        "Bu verinin dönüşüm kuralları henüz incelenmediği için büyüme, oran ve fiyat dönüşümü gibi hesaplar kullanılamıyor.";
+  }
   const map = {
     missing_result: "Bazı dönemlerde gözlem eksik.",
     heterogeneous_scopes_aligned:

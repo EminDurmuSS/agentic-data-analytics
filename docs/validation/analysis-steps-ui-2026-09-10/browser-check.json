@@ -1,0 +1,27 @@
+{
+  "errors": [],
+  "desktop": {
+    "text": "Bu tablo nasıl oluştu?\n\nKaydedilen analizde kullanılan veriler ve uygulanan işlemler.\n\nDönem\nNisan 2026 → Haziran 2026\nTablo sıklığı\nAylık\n01\nVeri seçildi\n1. Reel Kesim Güven Endeksi\nTCMB · EVDS\nBirim tanımlanmamış\nTablo sütunu: rkg\n02\nKaynak dönemleri korundu\n\nSeçilen veriler kendi sıklığında gösterildi; dönemler arasında toplam veya ortalama alınmadı.\n\n03\nEk hesaplama uygulanmadı\n\nBu planda büyüme, fark, oran veya fiyat dönüşümü yer almıyor.",
+    "technicalCollapsed": true,
+    "warnings": "1. Reel Kesim Güven Endeksi: kaynak değerleri kendi dönemlerinde gösteriliyor. Bu verinin dönüşüm kuralları henüz incelenmediği için büyüme, oran ve fiyat dönüşümü gibi hesaplar kullanılamıyor."
+  },
+  "jsonOpens": true,
+  "plan": {
+    "columns": [
+      {
+        "alignment": "native",
+        "metric_id": "evds:TP.GY1.N2",
+        "name": "rkg"
+      }
+    ],
+    "end": "2026-06",
+    "frequency": "monthly",
+    "start": "2026-04"
+  },
+  "cells": "Dönem\trkg\nunknown\n\n2026-04\t100,6\n2026-05\t103,3\n2026-06\t103,5",
+  "mobile": {
+    "viewport": 390,
+    "body": 390,
+    "panel": 350
+  }
+}

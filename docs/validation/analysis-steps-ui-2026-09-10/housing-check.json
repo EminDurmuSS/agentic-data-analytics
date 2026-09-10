@@ -1,0 +1,18 @@
+{
+  "errors": [],
+  "checks": {
+    "sourceMillion": true,
+    "localizedBddk": true,
+    "groupCodeExact": true,
+    "monthlyMean": true,
+    "basePeriod": true,
+    "deflationFormula": 1,
+    "rawCollapsed": true,
+    "keyboardOpens": true,
+    "keyboardCloses": true,
+    "chart": 1,
+    "rows": 60,
+    "sourceEvidence": 1
+  },
+  "methodText": "Bu tablo nasıl oluştu?\n\nKaydedilen analizde kullanılan veriler ve uygulanan işlemler.\n\nDönem\nOcak 2021 → Aralık 2025\nTablo sıklığı\nAylık\n\nBu tablo önceki analizden türetildi. Aşağıdaki adımlar güncel planın tamamını gösterir.\n\n01\n4 veri sütunu seçildi\nTüketici Kredileri - Konut [Toplam]\nBDDK · Aylık\nmilyon TL\nTablo sütunu: konut_kredisi_milyon_tl\nKurum grubu kodu: 10001\nKonut Kredisi (TL, Akım, %)\nTCMB · EVDS\n%\nTablo sütunu: konut_kredisi_faiz\nGenel Endeks\nTCMB · EVDS\nendeks\nTablo sütunu: tufe\nKonut Fiyat Endeksi (KFE)\nTCMB · EVDS\nendeks\nTablo sütunu: konut_fiyat_endeksi\n02\nDönemler eşlendi\n\nkonut_kredisi_milyon_tl: Kaynağın kendi dönemleri korundu.\n\nkonut_kredisi_faiz: Her çıktı döneminde gözlenen değerlerin ortalaması alındı.\n\ntufe: Kaynağın kendi dönemleri korundu.\n\nkonut_fiyat_endeksi: Kaynağın kendi dönemleri korundu.\n\nSütunlar dönem üzerinden eşleştirildi. Kaynakların kapsamları aynı kabul edilmedi.\n\n03\nSabit fiyatlara dönüştürüldü\n\nkonut_kredisi_milyon_tl sütunu, tufe endeksiyle Ocak 2021 fiyatlarına getirildi.\n\nkonut_kredisi_milyon_tl = konut_kredisi_milyon_tl × tufe[Ocak 2021] / tufe\n\nkonut_kredisi_milyon_tl sütununun değeri bu işlemle güncellendi."
+}
