@@ -1,0 +1,862 @@
+{
+  "manifest": {
+    "suite_id": "9867361292284c1fa6bc0132b0d96039",
+    "started_at": "2026-09-10T08:38:03.285433+00:00",
+    "git_commit": "c7f6aa6dfa6fc12ea8f23d87f68b5266f91eecb5",
+    "backend_sha256": {
+      "app/server.py": "36c4f01cab7f244213450d01a9b5449d97bb0f031df67b80ff4706c788264f6b",
+      "tools/agent_runtime.py": "bc7a0afe84a899593bd9c3f51a4b9658973cdd1f4b55cd9fd4ba6456e4061515",
+      "tools/agent_run_store.py": "90de7828d66dffd04d03fba595111cc83203f181663995408d7b05ac23efc200",
+      "tools/agent_documents.py": "23188b9d9dccb6d40a34f431762c35129b4c9388bc709320b34d3be7564080ec",
+      "tools/agent_statistics.py": "47dc2a9f017d84b6132d9ed004dd7552c0d7a10d40e05f1215c6e312e00dbb01",
+      "tools/mia_client.py": "36d0916496c7fd7c4a5e1eaaa5814647f936d3c6acc8dd5b4069a21a3e766811",
+      "tools/lakehouse_service.py": "f1493e167c014e9d445fb07bc65f68187f19c3aa1c5487bb1312c347583592cd",
+      "tools/lakehouse_store.py": "4ec9cec2513c8ea625ae9894826fb77aeb945a5184fa70efa809a49f65dda506"
+    },
+    "database_sha256": "c2e6c9fd749efe5c96e9e4dc23b925a792cce57b3d96ad42cc02969d8395b81a",
+    "models": {
+      "chat": "kkbhackathon2026/Qwen3.8-27B",
+      "embedding": "kkbhackathon2026/Qwen3-Embedding-8B",
+      "ocr": "kkbhackathon2026/Unlimited-OCR"
+    },
+    "base_url": "http://127.0.0.1:8870",
+    "cases": {
+      "confidence": [
+        "Mevsimsellikten arındırılmamış Reel Kesim Güven Endeksi için Nisan, Mayıs ve Haziran 2026 değerlerini aylık tabloda göster. Dönüşüm uygulama. Haziran değerinin kaynak kaydını da belirt."
+      ],
+      "monthly_profit": [
+        "Bankacılık sektörünün Ocak, Şubat ve Mart 2026 aylarında ayrı ayrı elde ettiği net kâr ne kadar? Aylık tutarları milyon TL olarak tabloya koy ve ilk çeyrek toplamını da söyle. Yılbaşından itibaren biriken tutarlarla aylık kârı karıştırma."
+      ],
+      "kobi_growth": [
+        "Bankacılık sektörü toplam KOBİ nakdi kredi bakiyesi Haziran 2026'da Haziran 2025'e göre nominal ve TÜFE ile enflasyondan arındırılmış olarak yüzde kaç büyüdü? İki dönemin kredi tutarlarını milyon TL olarak, kullandığın TÜFE değerlerini ve iki büyüme oranını göster."
+      ],
+      "invalid_count_deflation": [
+        "Bankacılık sektörü toplam KOBİ nakdi kredi müşteri sayılarını Haziran 2025 ve Haziran 2026 için al. Müşteri sayılarını TÜFE ile Haziran 2025 fiyatlarına indirip reel müşteri sayısı tablosu oluştur."
+      ],
+      "housing_followup": [
+        "Ocak 2021-Aralık 2025 arasında bankacılık sektörü toplam konut kredisi bakiyesiyle konut kredisi faiz oranını aylık bir tabloda göster. Kredi tutarı milyon TL olsun; haftalık faizi aylık ortalamaya çevir. Kullandığın kaynakları belirt.",
+        "Bu tablodaki kredi tutarı sütununu TÜFE kullanarak Ocak 2021 fiyatlarına dönüştürüp mevcut kredi sütununun yerine koy. Faiz sütunu ve tarih sırası aynı kalsın.",
+        "Aynı tabloya Türkiye konut fiyat endeksini de ekle. Önceki bütün sütunları ve değerlerini koru."
+      ],
+      "web_research": [
+        "TCMB'nin 6 Mart 2025 tarihli Para Politikası Kurulu kararını web'de araştır. Bir hafta vadeli repo ihale faiz oranının önceki ve yeni değerlerini, karar tarihini ve resmi TCMB kaynak bağlantısını ver. Resmi karar sayfasını açarak doğrula."
+      ]
+    },
+    "repeats": 3,
+    "workers": 2,
+    "rules": "Exact repeated prompts; fresh workspace/request IDs; no evaluator hints or repairs; same conversation only within housing follow-ups; preserve failed trials; final correctness graded independently.",
+    "finished_at": "2026-09-10T08:45:07.042591+00:00",
+    "database_unchanged": true,
+    "backend_unchanged": true
+  },
+  "model_settings": {
+    "temperature": 0,
+    "max_tokens": 4096,
+    "enable_thinking": false,
+    "max_decisions": 10,
+    "max_repairs": 2
+  },
+  "summary": {
+    "scheduled_trials": 18,
+    "task_passes": 8,
+    "task_failures": 10,
+    "task_pending": 0,
+    "by_case": {
+      "confidence": {
+        "scheduled": 3,
+        "exported_trials": 3,
+        "artifact_passes": 3,
+        "task_passes": 2,
+        "task_failures": 1,
+        "task_pending": 0,
+        "distinct_value_fingerprints": 1,
+        "fingerprinted_trials": 3,
+        "all_repeats_same_values": true,
+        "consistency_status": "compared",
+        "consistency_reason": null,
+        "all_repeats_task_pass": false
+      },
+      "monthly_profit": {
+        "scheduled": 3,
+        "exported_trials": 3,
+        "artifact_passes": 3,
+        "task_passes": 3,
+        "task_failures": 0,
+        "task_pending": 0,
+        "distinct_value_fingerprints": 1,
+        "fingerprinted_trials": 3,
+        "all_repeats_same_values": true,
+        "consistency_status": "compared",
+        "consistency_reason": null,
+        "all_repeats_task_pass": true
+      },
+      "kobi_growth": {
+        "scheduled": 3,
+        "exported_trials": 3,
+        "artifact_passes": 2,
+        "task_passes": 1,
+        "task_failures": 2,
+        "task_pending": 0,
+        "distinct_value_fingerprints": 1,
+        "fingerprinted_trials": 2,
+        "all_repeats_same_values": false,
+        "consistency_status": "incomplete_results",
+        "consistency_reason": "Some scheduled trials have no usable value fingerprint.",
+        "all_repeats_task_pass": false
+      },
+      "invalid_count_deflation": {
+        "scheduled": 3,
+        "exported_trials": 3,
+        "artifact_passes": 3,
+        "task_passes": 0,
+        "task_failures": 3,
+        "task_pending": 0,
+        "distinct_value_fingerprints": 1,
+        "fingerprinted_trials": 3,
+        "all_repeats_same_values": true,
+        "consistency_status": "compared",
+        "consistency_reason": null,
+        "all_repeats_task_pass": false
+      },
+      "housing_followup": {
+        "scheduled": 3,
+        "exported_trials": 3,
+        "artifact_passes": 3,
+        "task_passes": 2,
+        "task_failures": 1,
+        "task_pending": 0,
+        "distinct_value_fingerprints": 1,
+        "fingerprinted_trials": 3,
+        "all_repeats_same_values": true,
+        "consistency_status": "compared",
+        "consistency_reason": null,
+        "all_repeats_task_pass": false
+      },
+      "web_research": {
+        "scheduled": 3,
+        "exported_trials": 3,
+        "artifact_passes": 0,
+        "task_passes": 0,
+        "task_failures": 3,
+        "task_pending": 0,
+        "distinct_value_fingerprints": 0,
+        "fingerprinted_trials": 0,
+        "all_repeats_same_values": false,
+        "consistency_status": "no_usable_results",
+        "consistency_reason": "No exported role values or verified cited web sources were available.",
+        "all_repeats_task_pass": false
+      }
+    }
+  },
+  "integrity_checks": [
+    {
+      "name": "oracle_snapshot_matches_suite",
+      "passed": true
+    },
+    {
+      "name": "independent_workspaces",
+      "passed": true
+    },
+    {
+      "name": "distinct_request_ids",
+      "passed": true
+    },
+    {
+      "name": "distinct_run_ids",
+      "passed": true
+    },
+    {
+      "name": "prompts_match_manifest",
+      "passed": true
+    },
+    {
+      "name": "backend_unchanged",
+      "passed": true
+    },
+    {
+      "name": "database_unchanged",
+      "passed": true
+    }
+  ],
+  "source_audit_summary": {
+    "trial_count_seen": 18,
+    "turn_count_seen": 24,
+    "analysis_count": 20,
+    "representative_cell_check_count": 49,
+    "representative_cell_statuses": {
+      "verified": 49
+    },
+    "raw_source_file_count": 9,
+    "raw_cell_check_count": 107,
+    "unique_raw_cell_count": 16,
+    "turns_without_analysis": [
+      "kobi_growth_2/turn-1",
+      "web_research_1/turn-1",
+      "web_research_2/turn-1",
+      "web_research_3/turn-1"
+    ],
+    "error_count": 0
+  },
+  "reported_usage": {
+    "prompt_tokens": 1845083,
+    "completion_tokens": 19453,
+    "total_tokens": 1864536
+  },
+  "review_policy": "Full task requires correct artifact/evidence and substantive accurate final answer. Prose reviews were performed by Codex assistant against independently computed oracles, not by the user. No model self-grading.",
+  "trials": [
+    {
+      "trial_id": "confidence_1",
+      "workspace_url": "http://127.0.0.1:8870/?workspace=workspace_fde9c037e7604bff8716c83ecdfe5dbe",
+      "artifact_pass": true,
+      "task_pass": false,
+      "turns": [
+        {
+          "index": 1,
+          "runtime_status": "partial",
+          "analysis_id": "analysis_ef3b313f75a6c2cf2e98b8fcc78d05dab00dda7bfc565f6398764b43a60eef63",
+          "artifact_pass": true,
+          "source_pass": true,
+          "task_pass": false,
+          "answer_review": {
+            "status": "fail",
+            "reason": "Only a runtime budget fallback is shown. Correct table exists, but the requested final answer and June source explanation were not delivered.",
+            "answer_sha256": "69630bfcf0a170791416fc6547da6c0c32ad52c6d152921a8f26ef0fe8b57021",
+            "reviewer": "Codex assistant",
+            "method": "Explicit review of final prose against independent SQL/raw-source oracles; no evaluated-model self-grading.",
+            "requirements": [
+              "Shows 100.6, 103.3, 103.5 in the correct months without seasonal adjustment",
+              "June source record is identified",
+              "Review-required semantics are visible; no invented units or transformations"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "trial_id": "monthly_profit_1",
+      "workspace_url": "http://127.0.0.1:8870/?workspace=workspace_ad6bac93cadd474f97fbeea4f0d8374b",
+      "artifact_pass": true,
+      "task_pass": true,
+      "turns": [
+        {
+          "index": 1,
+          "runtime_status": "completed",
+          "analysis_id": "analysis_35213734dff668833a0e9f51b2e193d813ecddd8d20226de9009891be58fce2f",
+          "artifact_pass": true,
+          "source_pass": true,
+          "task_pass": true,
+          "answer_review": {
+            "status": "pass",
+            "reason": "Final answer reviewed against independently computed source values and saved full result: requested figures, periods, units and source description agree; narrative reviewed separately from runtime status.",
+            "answer_sha256": "1261a191d98b0469884ff880e59260b41312e2f20be17dd98d9fc0d927d1d84c",
+            "reviewer": "Codex assistant",
+            "method": "Explicit review of final prose against independent SQL/raw-source oracles; no evaluated-model self-grading.",
+            "requirements": [
+              "Monthly numbers match periods and million TRY units",
+              "Q1 total is 288688 million TRY",
+              "Explains source cumulative values versus derived monthly flow; no contradictory claims"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "trial_id": "kobi_growth_1",
+      "workspace_url": "http://127.0.0.1:8870/?workspace=workspace_60db7776c29d4f269912920fc99242b4",
+      "artifact_pass": true,
+      "task_pass": true,
+      "turns": [
+        {
+          "index": 1,
+          "runtime_status": "completed",
+          "analysis_id": "analysis_a031132b3a8ae504207341bb16cb5f83defd6ae8d9fb21f0f00a96ee12806baf",
+          "artifact_pass": true,
+          "source_pass": true,
+          "task_pass": true,
+          "answer_review": {
+            "status": "pass",
+            "reason": "Final answer reviewed against independently computed source values and saved full result: requested figures, periods, units and source description agree; narrative reviewed separately from runtime status.",
+            "answer_sha256": "73a6bcbfca60de42ad014b20ab48ce647183a252b5844a46d4d2d51d75d09d3e",
+            "reviewer": "Codex assistant",
+            "method": "Explicit review of final prose against independent SQL/raw-source oracles; no evaluated-model self-grading.",
+            "requirements": [
+              "Both June stocks and CPI values are present and correctly labeled",
+              "Nominal 49.1023990705% and real 12.8631345354% growth are correctly stated at sensible rounding",
+              "Uses ratio adjustment, not subtracting inflation; no unsupported factual claims"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "trial_id": "invalid_count_deflation_1",
+      "workspace_url": "http://127.0.0.1:8870/?workspace=workspace_29e933436d6f40f09ccaea387171a265",
+      "artifact_pass": true,
+      "task_pass": false,
+      "turns": [
+        {
+          "index": 1,
+          "runtime_status": "blocked",
+          "analysis_id": "analysis_c03e6b8d8d133a64f83c7c7cc5cd326dbff810c6ebca319c7a633a33923022f8",
+          "artifact_pass": true,
+          "source_pass": null,
+          "task_pass": false,
+          "answer_review": {
+            "status": "fail",
+            "reason": "Invalid deflation is blocked and raw counts remain, but final answer is only a generic error. It never explains why customer counts cannot be expressed in constant currency prices, so the requested semantic-refusal behavior is not delivered.",
+            "answer_sha256": "49f1dba84d946f6cebe0d7ca6a6b41fd37e8057abeddf15789065fa8e1eb89b4",
+            "reviewer": "Codex assistant",
+            "method": "Explicit review of final prose against independent SQL/raw-source oracles; no evaluated-model self-grading.",
+            "requirements": [
+              "Explicitly refuses CPI deflation because customer counts are not monetary amounts",
+              "Does not present fabricated real-count numbers or claim that the requested invalid transformation succeeded",
+              "Any shown nominal counts match the oracle; any unique-person claim acknowledges cross-bank duplication"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "trial_id": "housing_followup_1",
+      "workspace_url": "http://127.0.0.1:8870/?workspace=workspace_7f3b00454b1f4115bbd102883e00c067",
+      "artifact_pass": true,
+      "task_pass": true,
+      "turns": [
+        {
+          "index": 1,
+          "runtime_status": "completed",
+          "analysis_id": "analysis_abfb596056bdd40a632aa25a9274a4c4003eb2528dd13e689d8994286a100541",
+          "artifact_pass": true,
+          "source_pass": true,
+          "task_pass": true,
+          "answer_review": {
+            "status": "pass",
+            "reason": "Final answer reviewed against independently computed source values and saved full result: requested figures, periods, units and source description agree; narrative reviewed separately from runtime status.",
+            "answer_sha256": "191fba0e0e572231371f4f5aecf562c029158b2437c3497b97a0ac62b260e7c2",
+            "reviewer": "Codex assistant",
+            "method": "Explicit review of final prose against independent SQL/raw-source oracles; no evaluated-model self-grading.",
+            "requirements": [
+              "Explains the requested stage and units without contradicting the saved result",
+              "Source selection and monthly mean are correctly described when relevant",
+              "Replacement or preservation claims agree with actual columns and cells"
+            ]
+          }
+        },
+        {
+          "index": 2,
+          "runtime_status": "completed",
+          "analysis_id": "analysis_c862caeca680ad9d8a2bfdda26453fb2e42d979fbddebd95670f027700f1fa6e",
+          "artifact_pass": true,
+          "source_pass": true,
+          "task_pass": true,
+          "answer_review": {
+            "status": "pass",
+            "reason": "Final answer reviewed against independently computed source values and saved full result: requested figures, periods, units and source description agree; narrative reviewed separately from runtime status.",
+            "answer_sha256": "012fccf163c541aed96b8a4085e8328d44130584b242d678b752ae013df95e88",
+            "reviewer": "Codex assistant",
+            "method": "Explicit review of final prose against independent SQL/raw-source oracles; no evaluated-model self-grading.",
+            "requirements": [
+              "Explains the requested stage and units without contradicting the saved result",
+              "Source selection and monthly mean are correctly described when relevant",
+              "Replacement or preservation claims agree with actual columns and cells"
+            ]
+          }
+        },
+        {
+          "index": 3,
+          "runtime_status": "completed",
+          "analysis_id": "analysis_af5d38677e282a73d8981e128c516510b376474a46528a10adc39bff14ec1032",
+          "artifact_pass": true,
+          "source_pass": true,
+          "task_pass": true,
+          "answer_review": {
+            "status": "pass",
+            "reason": "Final answer reviewed against independently computed source values and saved full result: requested figures, periods, units and source description agree; narrative reviewed separately from runtime status.",
+            "answer_sha256": "71bb4c61f90ab74aba6bbc57b2b020ff40c1cd7193fb7283e2aa80526012f3df",
+            "reviewer": "Codex assistant",
+            "method": "Explicit review of final prose against independent SQL/raw-source oracles; no evaluated-model self-grading.",
+            "requirements": [
+              "Explains the requested stage and units without contradicting the saved result",
+              "Source selection and monthly mean are correctly described when relevant",
+              "Replacement or preservation claims agree with actual columns and cells"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "trial_id": "web_research_1",
+      "workspace_url": "http://127.0.0.1:8870/?workspace=workspace_6da4c43effe6460d8d10d7c3be948cef",
+      "artifact_pass": null,
+      "task_pass": false,
+      "turns": [
+        {
+          "index": 1,
+          "runtime_status": "blocked",
+          "analysis_id": null,
+          "artifact_pass": null,
+          "source_pass": false,
+          "task_pass": false,
+          "answer_review": {
+            "status": "fail",
+            "reason": "Only a generic blocked response; no verified official decision citation and no requested policy rates in final answer.",
+            "answer_sha256": "49f1dba84d946f6cebe0d7ca6a6b41fd37e8057abeddf15789065fa8e1eb89b4",
+            "reviewer": "Codex assistant",
+            "method": "Explicit review of final prose against independent SQL/raw-source oracles; no evaluated-model self-grading.",
+            "requirements": [
+              "States 6 March 2025 and the one-week repo auction rate reduction from 45% to 42.5%",
+              "Official citation supports these claims in inspected content",
+              "No contradictory rate, date, instrument or source claims"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "trial_id": "confidence_2",
+      "workspace_url": "http://127.0.0.1:8870/?workspace=workspace_0cf714b169a9466c9ae66bfea3ef0ccb",
+      "artifact_pass": true,
+      "task_pass": true,
+      "turns": [
+        {
+          "index": 1,
+          "runtime_status": "completed",
+          "analysis_id": "analysis_3fe85c0f27ea2147a551babbe4e2c6633284c67a4d350b93a3a365f89311c5f5",
+          "artifact_pass": true,
+          "source_pass": true,
+          "task_pass": true,
+          "answer_review": {
+            "status": "pass",
+            "reason": "Final answer reviewed against independently computed source values and saved full result: requested figures, periods, units and source description agree; narrative reviewed separately from runtime status.",
+            "answer_sha256": "86a8910a4994d735452ab39d000d9e083a0af8aa80cca07c806ef88d1ecdff9d",
+            "reviewer": "Codex assistant",
+            "method": "Explicit review of final prose against independent SQL/raw-source oracles; no evaluated-model self-grading.",
+            "requirements": [
+              "Shows 100.6, 103.3, 103.5 in the correct months without seasonal adjustment",
+              "June source record is identified",
+              "Review-required semantics are visible; no invented units or transformations"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "trial_id": "monthly_profit_2",
+      "workspace_url": "http://127.0.0.1:8870/?workspace=workspace_9aa922c0b76d4d3389b06568bb48f7e0",
+      "artifact_pass": true,
+      "task_pass": true,
+      "turns": [
+        {
+          "index": 1,
+          "runtime_status": "completed",
+          "analysis_id": "analysis_a6c1ad9bf4e7009549ad37a004570997b9db08e40d5fbd38d37186115bd8e42d",
+          "artifact_pass": true,
+          "source_pass": true,
+          "task_pass": true,
+          "answer_review": {
+            "status": "pass",
+            "reason": "Final answer reviewed against independently computed source values and saved full result: requested figures, periods, units and source description agree; narrative reviewed separately from runtime status.",
+            "answer_sha256": "069dc2d6f5d8d6e6b6dddd23efac982e78fa5951b2915bf30a3decbe6be9ad7f",
+            "reviewer": "Codex assistant",
+            "method": "Explicit review of final prose against independent SQL/raw-source oracles; no evaluated-model self-grading.",
+            "requirements": [
+              "Monthly numbers match periods and million TRY units",
+              "Q1 total is 288688 million TRY",
+              "Explains source cumulative values versus derived monthly flow; no contradictory claims"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "trial_id": "kobi_growth_2",
+      "workspace_url": "http://127.0.0.1:8870/?workspace=workspace_93313712655c4f6da813b2ca3d382a1e",
+      "artifact_pass": false,
+      "task_pass": false,
+      "turns": [
+        {
+          "index": 1,
+          "runtime_status": "completed",
+          "analysis_id": null,
+          "artifact_pass": false,
+          "source_pass": false,
+          "task_pass": false,
+          "answer_review": {
+            "status": "fail",
+            "reason": "Final answer contains garbled punctuation and replacement characters after validation only. No requested figures or saved executed analysis; runtime incorrectly labels this completed.",
+            "answer_sha256": "d7d70b8e62a85ec396b4891d53a7316aec6fdd163ce29b4c96e3b078e03b7a88",
+            "reviewer": "Codex assistant",
+            "method": "Explicit review of final prose against independent SQL/raw-source oracles; no evaluated-model self-grading.",
+            "requirements": [
+              "Both June stocks and CPI values are present and correctly labeled",
+              "Nominal 49.1023990705% and real 12.8631345354% growth are correctly stated at sensible rounding",
+              "Uses ratio adjustment, not subtracting inflation; no unsupported factual claims"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "trial_id": "invalid_count_deflation_2",
+      "workspace_url": "http://127.0.0.1:8870/?workspace=workspace_0bdd608852c0454dbe361a40fa5a052e",
+      "artifact_pass": true,
+      "task_pass": false,
+      "turns": [
+        {
+          "index": 1,
+          "runtime_status": "blocked",
+          "analysis_id": "analysis_2f6de578a6dfe2f475a93e7806d6b5ef70bd9ba692a0b1c2ec0dc14beb301334",
+          "artifact_pass": true,
+          "source_pass": null,
+          "task_pass": false,
+          "answer_review": {
+            "status": "fail",
+            "reason": "Invalid deflation is blocked and raw counts remain, but final answer is only a generic error. It never explains why customer counts cannot be expressed in constant currency prices, so the requested semantic-refusal behavior is not delivered.",
+            "answer_sha256": "49f1dba84d946f6cebe0d7ca6a6b41fd37e8057abeddf15789065fa8e1eb89b4",
+            "reviewer": "Codex assistant",
+            "method": "Explicit review of final prose against independent SQL/raw-source oracles; no evaluated-model self-grading.",
+            "requirements": [
+              "Explicitly refuses CPI deflation because customer counts are not monetary amounts",
+              "Does not present fabricated real-count numbers or claim that the requested invalid transformation succeeded",
+              "Any shown nominal counts match the oracle; any unique-person claim acknowledges cross-bank duplication"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "trial_id": "housing_followup_2",
+      "workspace_url": "http://127.0.0.1:8870/?workspace=workspace_1479b163cabe418392415b6660936eb9",
+      "artifact_pass": true,
+      "task_pass": true,
+      "turns": [
+        {
+          "index": 1,
+          "runtime_status": "completed",
+          "analysis_id": "analysis_ebd27a8e6b3ab2fcd9c65be1468238ebcf3f54ad2b7c9b34876d80882b0c86d8",
+          "artifact_pass": true,
+          "source_pass": true,
+          "task_pass": true,
+          "answer_review": {
+            "status": "pass",
+            "reason": "Final answer reviewed against independently computed source values and saved full result: requested figures, periods, units and source description agree; narrative reviewed separately from runtime status.",
+            "answer_sha256": "63e813845c1fd94d69e0f95d5538e830a86f85790ec235701413be4e8becfef5",
+            "reviewer": "Codex assistant",
+            "method": "Explicit review of final prose against independent SQL/raw-source oracles; no evaluated-model self-grading.",
+            "requirements": [
+              "Explains the requested stage and units without contradicting the saved result",
+              "Source selection and monthly mean are correctly described when relevant",
+              "Replacement or preservation claims agree with actual columns and cells"
+            ]
+          }
+        },
+        {
+          "index": 2,
+          "runtime_status": "completed",
+          "analysis_id": "analysis_40d31682c3a7d25e17a96328d4b3173c76904147dd61fc2cdea142561ee4d93e",
+          "artifact_pass": true,
+          "source_pass": true,
+          "task_pass": true,
+          "answer_review": {
+            "status": "pass",
+            "reason": "Final answer reviewed against independently computed source values and saved full result: requested figures, periods, units and source description agree; narrative reviewed separately from runtime status.",
+            "answer_sha256": "4c13de93edf331913cf24f57e52618eddac0550f18596872609eb915bcf041b5",
+            "reviewer": "Codex assistant",
+            "method": "Explicit review of final prose against independent SQL/raw-source oracles; no evaluated-model self-grading.",
+            "requirements": [
+              "Explains the requested stage and units without contradicting the saved result",
+              "Source selection and monthly mean are correctly described when relevant",
+              "Replacement or preservation claims agree with actual columns and cells"
+            ]
+          }
+        },
+        {
+          "index": 3,
+          "runtime_status": "completed",
+          "analysis_id": "analysis_2f72b23a29f75e69dc2bc9be3578219d5f9710740942ffd78132b51351546bcc",
+          "artifact_pass": true,
+          "source_pass": true,
+          "task_pass": true,
+          "answer_review": {
+            "status": "pass",
+            "reason": "Final answer reviewed against independently computed source values and saved full result: requested figures, periods, units and source description agree; narrative reviewed separately from runtime status.",
+            "answer_sha256": "61fbac4b5459993b44046b3975d0c4b4e81b49db0a15bc664fa16874ac4d0056",
+            "reviewer": "Codex assistant",
+            "method": "Explicit review of final prose against independent SQL/raw-source oracles; no evaluated-model self-grading.",
+            "requirements": [
+              "Explains the requested stage and units without contradicting the saved result",
+              "Source selection and monthly mean are correctly described when relevant",
+              "Replacement or preservation claims agree with actual columns and cells"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "trial_id": "web_research_2",
+      "workspace_url": "http://127.0.0.1:8870/?workspace=workspace_3369481730d6420e81a4297a6ef21143",
+      "artifact_pass": null,
+      "task_pass": false,
+      "turns": [
+        {
+          "index": 1,
+          "runtime_status": "blocked",
+          "analysis_id": null,
+          "artifact_pass": null,
+          "source_pass": false,
+          "task_pass": false,
+          "answer_review": {
+            "status": "fail",
+            "reason": "Only a generic blocked response; no verified official decision citation and no requested policy rates in final answer.",
+            "answer_sha256": "49f1dba84d946f6cebe0d7ca6a6b41fd37e8057abeddf15789065fa8e1eb89b4",
+            "reviewer": "Codex assistant",
+            "method": "Explicit review of final prose against independent SQL/raw-source oracles; no evaluated-model self-grading.",
+            "requirements": [
+              "States 6 March 2025 and the one-week repo auction rate reduction from 45% to 42.5%",
+              "Official citation supports these claims in inspected content",
+              "No contradictory rate, date, instrument or source claims"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "trial_id": "confidence_3",
+      "workspace_url": "http://127.0.0.1:8870/?workspace=workspace_445cf0e390874b0ea7101d952acfa4cf",
+      "artifact_pass": true,
+      "task_pass": true,
+      "turns": [
+        {
+          "index": 1,
+          "runtime_status": "completed",
+          "analysis_id": "analysis_b690976863ab8225557a6d234472cefd51b5146d2b2197f47aa67f1be05849b7",
+          "artifact_pass": true,
+          "source_pass": true,
+          "task_pass": true,
+          "answer_review": {
+            "status": "pass",
+            "reason": "Final answer reviewed against independently computed source values and saved full result: requested figures, periods, units and source description agree; narrative reviewed separately from runtime status.",
+            "answer_sha256": "ab14a5476974e7d5129d32c682512c391934a4ea3bd9dc05b0c050bd8687e1b6",
+            "reviewer": "Codex assistant",
+            "method": "Explicit review of final prose against independent SQL/raw-source oracles; no evaluated-model self-grading.",
+            "requirements": [
+              "Shows 100.6, 103.3, 103.5 in the correct months without seasonal adjustment",
+              "June source record is identified",
+              "Review-required semantics are visible; no invented units or transformations"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "trial_id": "monthly_profit_3",
+      "workspace_url": "http://127.0.0.1:8870/?workspace=workspace_f6aee49f4508451390965b4681443eef",
+      "artifact_pass": true,
+      "task_pass": true,
+      "turns": [
+        {
+          "index": 1,
+          "runtime_status": "completed",
+          "analysis_id": "analysis_3f4a4cbc18b46ae62bd75febbc7c327a2ecca12c25c57e8d1ec31f84af2d6b2c",
+          "artifact_pass": true,
+          "source_pass": true,
+          "task_pass": true,
+          "answer_review": {
+            "status": "pass",
+            "reason": "Final answer reviewed against independently computed source values and saved full result: requested figures, periods, units and source description agree; narrative reviewed separately from runtime status.",
+            "answer_sha256": "635037034e57403593fa7ea1c0c0ec590d721f8aa5d56f8eab780f37b3264450",
+            "reviewer": "Codex assistant",
+            "method": "Explicit review of final prose against independent SQL/raw-source oracles; no evaluated-model self-grading.",
+            "requirements": [
+              "Monthly numbers match periods and million TRY units",
+              "Q1 total is 288688 million TRY",
+              "Explains source cumulative values versus derived monthly flow; no contradictory claims"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "trial_id": "kobi_growth_3",
+      "workspace_url": "http://127.0.0.1:8870/?workspace=workspace_2eb7d547dff747a390f3c2e13297815f",
+      "artifact_pass": true,
+      "task_pass": false,
+      "turns": [
+        {
+          "index": 1,
+          "runtime_status": "completed",
+          "analysis_id": "analysis_9912a0a9fee06e86d879fc0d584b54df29bd881e410b7f8c990b2162cbc54688",
+          "artifact_pass": true,
+          "source_pass": true,
+          "task_pass": false,
+          "answer_review": {
+            "status": "fail",
+            "reason": "Requested table and growth figures are correct, but added prose describes a 36.2% price effect. Source CPI growth is 32.109036%; 36.239264 is the difference between nominal and real growth in percentage points. The explanation fails to state that distinction and is misleading.",
+            "answer_sha256": "e119216a1a2e179dc2c45665e789ceb6cf908ef82289e24ddedcc6a3126ea1e8",
+            "reviewer": "Codex assistant",
+            "method": "Explicit review of final prose against independent SQL/raw-source oracles; no evaluated-model self-grading.",
+            "requirements": [
+              "Both June stocks and CPI values are present and correctly labeled",
+              "Nominal 49.1023990705% and real 12.8631345354% growth are correctly stated at sensible rounding",
+              "Uses ratio adjustment, not subtracting inflation; no unsupported factual claims"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "trial_id": "invalid_count_deflation_3",
+      "workspace_url": "http://127.0.0.1:8870/?workspace=workspace_0b78d114285e4c25b29fe87485ff2dd3",
+      "artifact_pass": true,
+      "task_pass": false,
+      "turns": [
+        {
+          "index": 1,
+          "runtime_status": "blocked",
+          "analysis_id": "analysis_a317584959dacae63fa0a849fe9810baf75fc65caaa8d57cf4d1e63ee4781bdd",
+          "artifact_pass": true,
+          "source_pass": null,
+          "task_pass": false,
+          "answer_review": {
+            "status": "fail",
+            "reason": "Invalid deflation is blocked and raw counts remain, but final answer is only a generic error. It never explains why customer counts cannot be expressed in constant currency prices, so the requested semantic-refusal behavior is not delivered.",
+            "answer_sha256": "49f1dba84d946f6cebe0d7ca6a6b41fd37e8057abeddf15789065fa8e1eb89b4",
+            "reviewer": "Codex assistant",
+            "method": "Explicit review of final prose against independent SQL/raw-source oracles; no evaluated-model self-grading.",
+            "requirements": [
+              "Explicitly refuses CPI deflation because customer counts are not monetary amounts",
+              "Does not present fabricated real-count numbers or claim that the requested invalid transformation succeeded",
+              "Any shown nominal counts match the oracle; any unique-person claim acknowledges cross-bank duplication"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "trial_id": "housing_followup_3",
+      "workspace_url": "http://127.0.0.1:8870/?workspace=workspace_af68dd1241774e468f5650d17bb25360",
+      "artifact_pass": true,
+      "task_pass": false,
+      "turns": [
+        {
+          "index": 1,
+          "runtime_status": "completed",
+          "analysis_id": "analysis_ce779d70a72e88154a87ce49980c0919efba1ac0683b309fd96a539b2b6d639f",
+          "artifact_pass": true,
+          "source_pass": true,
+          "task_pass": true,
+          "answer_review": {
+            "status": "pass",
+            "reason": "Final answer reviewed against independently computed source values and saved full result: requested figures, periods, units and source description agree; narrative reviewed separately from runtime status.",
+            "answer_sha256": "a14d42cf841b8a13487726bafd29c5241a3a12def2dd958a00716a0cbe46100c",
+            "reviewer": "Codex assistant",
+            "method": "Explicit review of final prose against independent SQL/raw-source oracles; no evaluated-model self-grading.",
+            "requirements": [
+              "Explains the requested stage and units without contradicting the saved result",
+              "Source selection and monthly mean are correctly described when relevant",
+              "Replacement or preservation claims agree with actual columns and cells"
+            ]
+          }
+        },
+        {
+          "index": 2,
+          "runtime_status": "completed",
+          "analysis_id": "analysis_14df4ccf6b8a342b329488f8dacd00f6f1a540f1353f84a14b67aef07217c581",
+          "artifact_pass": true,
+          "source_pass": true,
+          "task_pass": false,
+          "answer_review": {
+            "status": "fail",
+            "reason": "Correct real balances are shown, then characterized as limited real growth. Real balance falls from 276785 to 99182.753178, about64.17% contraction; the narrative does not correctly describe direction/magnitude.",
+            "answer_sha256": "3bbbc5d14b8393613e2d788c02518172aed17f4127df4214925819d821c67e4c",
+            "reviewer": "Codex assistant",
+            "method": "Explicit review of final prose against independent SQL/raw-source oracles; no evaluated-model self-grading.",
+            "requirements": [
+              "Explains the requested stage and units without contradicting the saved result",
+              "Source selection and monthly mean are correctly described when relevant",
+              "Replacement or preservation claims agree with actual columns and cells"
+            ]
+          }
+        },
+        {
+          "index": 3,
+          "runtime_status": "completed",
+          "analysis_id": "analysis_36847a24fdf15a1de464c2fc4d9df22d541d2b5d6931f483cd520ea10db17821",
+          "artifact_pass": true,
+          "source_pass": true,
+          "task_pass": true,
+          "answer_review": {
+            "status": "pass",
+            "reason": "Final answer reviewed against independently computed source values and saved full result: requested figures, periods, units and source description agree; narrative reviewed separately from runtime status.",
+            "answer_sha256": "8308d7728901881ebaf4a7df9b10f5d9bdf7f280acd0eeee6b1d3cfe0f5e308c",
+            "reviewer": "Codex assistant",
+            "method": "Explicit review of final prose against independent SQL/raw-source oracles; no evaluated-model self-grading.",
+            "requirements": [
+              "Explains the requested stage and units without contradicting the saved result",
+              "Source selection and monthly mean are correctly described when relevant",
+              "Replacement or preservation claims agree with actual columns and cells"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "trial_id": "web_research_3",
+      "workspace_url": "http://127.0.0.1:8870/?workspace=workspace_403300f68dd941a0966d945d35ccf829",
+      "artifact_pass": null,
+      "task_pass": false,
+      "turns": [
+        {
+          "index": 1,
+          "runtime_status": "blocked",
+          "analysis_id": null,
+          "artifact_pass": null,
+          "source_pass": false,
+          "task_pass": false,
+          "answer_review": {
+            "status": "fail",
+            "reason": "Only a generic blocked response; no verified official decision citation and no requested policy rates in final answer.",
+            "answer_sha256": "49f1dba84d946f6cebe0d7ca6a6b41fd37e8057abeddf15789065fa8e1eb89b4",
+            "reviewer": "Codex assistant",
+            "method": "Explicit review of final prose against independent SQL/raw-source oracles; no evaluated-model self-grading.",
+            "requirements": [
+              "States 6 March 2025 and the one-week repo auction rate reduction from 45% to 42.5%",
+              "Official citation supports these claims in inspected content",
+              "No contradictory rate, date, instrument or source claims"
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "local_evidence": {
+    "oracles.json": {
+      "path": "tmp/agent-consistency-2026-09-10/oracles.json",
+      "sha256": "03219dc5bcba8fcade70ef16bf350331b70984ca866a23ac905077f78f053772"
+    },
+    "oracle_notes.md": {
+      "path": "tmp/agent-consistency-2026-09-10/oracle_notes.md",
+      "sha256": "83234058e712f2de725a3dc9aa5cc68edff4593e0037760741f13d548525af54"
+    },
+    "graded.json": {
+      "path": "tmp/agent-consistency-2026-09-10/graded.json",
+      "sha256": "39aaddf0280b32ae6ff021aca60b438cefdee9f088a010fd03a2ed23e688e83a"
+    },
+    "actual-source-audit.json": {
+      "path": "tmp/agent-consistency-2026-09-10/actual-source-audit.json",
+      "sha256": "83649be45fe13e4823f5f93b523c1dd0c549c13a3a67759b8d3515770e94d74f"
+    },
+    "answer-reviews.json": {
+      "path": "tmp/agent-consistency-2026-09-10/answer-reviews.json",
+      "sha256": "7a330abf80b5bf3b120b735041c1aff86fb77948f28493e547e1540dad77306c"
+    },
+    "audit_actual_sources.py": {
+      "path": "tmp/agent-consistency-2026-09-10/audit_actual_sources.py",
+      "sha256": "56aa922d573b6c5cd6e4ce2140fce72897359c39d1e9959c9be0ee8a713734ae"
+    },
+    "web-oracle.json": {
+      "path": "tmp/agent-consistency-2026-09-10/web-oracle.json",
+      "sha256": "f01d82b66ed55312746190347c61cd5e4249a2e638c06da86f242c9003b61ea8"
+    }
+  }
+}
