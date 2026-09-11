@@ -372,14 +372,17 @@ function showPendingActivity(pending, activity) {
   const body = pending.querySelector(".body");
   body.replaceChildren();
   if (!activity?.length) {
-    body.textContent = "Agent çalışması başlatılıyor…";
+    body.append(el("span", "Agent çalışması başlatılıyor…", "live-loading"));
     return;
   }
-  body.append(el("strong", "Canlı agent adımları"));
   const steps = document.createElement("ol");
   steps.className = "live-activity";
-  for (const step of activity.slice(-3)) {
+  steps.setAttribute("aria-live", "polite");
+  const visibleSteps = activity.slice(-3);
+  for (const [index, step] of visibleSteps.entries()) {
     const item = document.createElement("li");
+    item.className =
+      index === visibleSteps.length - 1 ? "live-current" : "live-past";
     const names = [step.tool, ...(step.tool_names || [])];
     appendActivityText(item, step.title || "Kayıtlı agent adımı", names);
     if (step.detail) {
