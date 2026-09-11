@@ -347,6 +347,7 @@ const toolLabels = {
   inspect_source: "Yeni kaynak inceleniyor",
   publish_selected_table: "Doğrulanan tablo ekleniyor",
   web_search: "Web kaynakları araştırılıyor",
+  research_web: "Web kaynakları okunuyor ve anlamlandırılıyor",
   rolling_anomalies: "Olağandışı dönemler aranıyor",
   detect_changes: "Değişim noktaları inceleniyor",
   analyze_relationship: "Değişkenler arasındaki ilişki hesaplanıyor",
@@ -904,6 +905,7 @@ function showExtraResults(job) {
         "detect_changes",
         "analyze_relationship",
         "web_search",
+        "research_web",
         "inspect_source",
         "publish_selected_table",
       ].includes(name)
@@ -988,6 +990,20 @@ function showExtraResults(job) {
         const paragraph = el("p");
         paragraph.append(link);
         card.append(paragraph);
+      }
+      holder.append(card);
+    }
+    if (name === "research_web" && result.status === "ok") {
+      const card = el("div", null, "source-card");
+      card.append(el("strong", "Okunan web kaynakları"));
+      for (const source of result.sources || []) {
+        const link = el("a", source.title || source.domain || source.url, "text-button");
+        link.href = source.url;
+        link.target = "_blank";
+        link.rel = "noopener noreferrer";
+        card.append(link);
+        if (source.date_published) card.append(el("small", "Yayın: " + source.date_published));
+        if (source.content) card.append(el("p", source.content.slice(0, 500)));
       }
       holder.append(card);
     }

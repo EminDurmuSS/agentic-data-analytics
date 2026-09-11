@@ -38,6 +38,30 @@ _DNS_WORKERS = ThreadPoolExecutor(max_workers=4, thread_name_prefix="document-dn
 _DNS_SLOTS = threading.BoundedSemaphore(4)
 
 
+# Curated provider hints stay separate from generic search. They improve query
+# formulation without allowing a non-official result to enter an official run.
+OFFICIAL_SOURCE_REGISTRY = {
+    "tcmb.gov.tr": {
+        "institution": "TCMB",
+        "search_variants": ("{query}", "{query} PDF", "{query} yayın rapor"),
+        "entry_points": (
+            ("Residential Property Price Index - Monthly Developments July 2026",
+             "https://www.tcmb.gov.tr/wps/wcm/connect/21c8c007-4006-45ee-bbc2-852f396a23f0/RPPI.pdf?MOD=AJPERES&CACHEID=ROOTWORKSPACE-21c8c007-4006-45ee-bbc2-852f396a23f0-q0jGUg2"),
+            ("Residential Property Price Index - Data July 2026",
+             "https://www.tcmb.gov.tr/wps/wcm/connect/9aaa1bf5-4b9d-4b55-b94d-fb4222f7e8cc/RPPI-Table.pdf?MOD=AJPERES&CACHEID=ROOTWORKSPACE-9aaa1bf5-4b9d-4b55-b94d-fb4222f7e8cc-pOfhXKS"),
+        ),
+    },
+    "bddk.org.tr": {
+        "institution": "BDDK",
+        "search_variants": ("{query}", "{query} PDF", "{query} duyuru rapor"),
+    },
+    "tuik.gov.tr": {
+        "institution": "TÜİK",
+        "search_variants": ("{query}", "{query} PDF", "{query} bülten rapor"),
+    },
+}
+
+
 class DocumentError(ValueError):
     def __init__(self, message, code="DOCUMENT_ERROR"):
         super().__init__(message)
@@ -208,6 +232,74 @@ class _HTMLTables(HTMLParser):
         elif tag == "table" and self.current is not None:
             self.tables.append(self.current)
             self.current = None
+
+
+class _HTMLArticle(HTMLParser):
+    """Extract bounded article metadata without executing page scripts."""
+    def __init__(self):
+        super().__init__(convert_charrefs=True)
+        self.title, self.description, self.canonical = "", "", ""
+        self.meta, self.json_ld = {}, []
+        self._title_text, self._script_text, self._script_type = [], [], None
+
+    def handle_starttag(self, tag, attrs):
+        values = dict(attrs)
+        if tag == "title":
+            self._title_text = []
+        elif tag == "meta":
+            key = values.get("property") or values.get("name") or values.get("itemprop")
+            content = values.get("content")
+            if key and content:
+                self.meta[key.casefold()] = " ".join(content.split())[:2000]
+        elif tag == "link" and values.get("rel", "").casefold() == "canonical":
+            self.canonical = values.get("href", "")[:4096]
+        elif tag == "script" and values.get("type", "").casefold() == "application/ld+json":
+            self._script_text, self._script_type = [], "application/ld+json"
+
+    def handle_data(self, data):
+        if self._script_type:
+            self._script_text.append(data)
+        elif self._title_text is not None:
+            self._title_text.append(data)
+
+    def handle_endtag(self, tag):
+        if tag == "title" and self._title_text is not None:
+            self.title = " ".join("".join(self._title_text).split())[:500]
+            self._title_text = None
+        elif tag == "script" and self._script_type:
+            try:
+                value = json.loads("".join(self._script_text))
+                self.json_ld.extend(value if isinstance(value, list) else [value])
+            except (TypeError, ValueError, json.JSONDecodeError):
+                pass
+            self._script_text, self._script_type = [], None
+
+
+def _article_metadata(data, mime_type, final_url):
+    if mime_type != "text/html":
+        return {}
+    parser = _HTMLArticle()
+    parser.feed(data.decode("utf-8-sig", errors="replace"))
+    candidates = []
+    for item in parser.json_ld:
+        if not isinstance(item, dict):
+            continue
+        types = item.get("@type", [])
+        types = types if isinstance(types, list) else [types]
+        if any(value in {"Article", "NewsArticle", "Report"} for value in types):
+            candidates.append(item)
+    item = candidates[0] if candidates else {}
+    image = item.get("image")
+    return {
+        "title": str(item.get("headline") or parser.meta.get("og:title") or parser.title)[:500],
+        "description": str(item.get("description") or parser.meta.get("description") or parser.meta.get("og:description", ""))[:2000],
+        "date_published": item.get("datePublished") or parser.meta.get("article:published_time"),
+        "date_modified": item.get("dateModified") or parser.meta.get("article:modified_time"),
+        "canonical_url": parse.urljoin(final_url, parser.canonical) if parser.canonical else final_url,
+        "author": item.get("author", {}).get("name") if isinstance(item.get("author"), dict) else item.get("author"),
+        "article_body": str(item.get("articleBody", ""))[:20000],
+        "image": image if isinstance(image, str) else None,
+    }
 
 
 def _column_name(value, index, used):
@@ -439,10 +531,12 @@ class DocumentTools:
     def inspect_source(self, source_id=None, url=None):
         if bool(source_id) == bool(url):
             raise DocumentError("Provide exactly one source_id or public URL.")
+        article = {}
         if url:
             data, mime, final_url = fetch_public_url(url, max_bytes=self.max_source_bytes)
             name = Path(parse.unquote(parse.urlsplit(final_url).path)).name or "source"
             manifest = self._register(data, name, mime, final_url)
+            article = _article_metadata(data, mime, final_url)
             source_id = manifest["source_id"]
         manifest = self.source(source_id)
         directory = self._directory(source_id)
@@ -452,6 +546,8 @@ class DocumentTools:
         else:
             inspection = self._parse(manifest, (directory / "raw.bin").read_bytes())
             _write_json(cache, inspection)
+        if not article and manifest["mime_type"] == "text/html":
+            article = _article_metadata((directory / "raw.bin").read_bytes(), manifest["mime_type"], manifest.get("source_url") or "")
         inspection["tables"] = [self._reviewed_table(source_id, table) for table in inspection["tables"]]
         previews = [{**{key: value for key, value in table.items() if key != "rows"},
                      "source_header_quotes": table.get("source_header_quotes", table["original_columns"]),
@@ -460,7 +556,107 @@ class DocumentTools:
         return {**manifest, "status": "ok", "tables": previews, "text": inspection["text"][:12000],
                 "text_truncated": inspection["text_truncated"] or len(inspection["text"]) > 12000,
                 "pages": [{**page, "text": page["text"][:2000]} for page in inspection["pages"]],
-                "warnings": inspection["warnings"], "publication_requires_explicit_contract": True}
+                "warnings": inspection["warnings"], "article": article,
+                "publication_requires_explicit_contract": True}
+
+    def research_web(self, query, limit=3, domains=None):
+        """Search, read a few public URLs, and return readable source cards."""
+        if (not isinstance(query, str) or not 1 <= len(query.strip()) <= 500 or type(limit) is not int
+                or not 1 <= limit <= 3 or domains is not None and (not isinstance(domains, list)
+                or len(domains) > 5 or any(not isinstance(domain, str) or not domain.strip() for domain in domains))):
+            raise DocumentError("Research query and limit exceed their bounds.")
+        lowered = query.casefold()
+        inferred_domains = {
+            "tcmb": ["tcmb.gov.tr"],
+            "bddk": ["bddk.org.tr"],
+            "tüik": ["tuik.gov.tr"],
+            "tuik": ["tuik.gov.tr"],
+        }
+        preferred = domains or next((values for key, values in inferred_domains.items() if key in lowered), None)
+        registry = OFFICIAL_SOURCE_REGISTRY.get(preferred[0]) if preferred else None
+        topic_terms = [term for term in re.findall(r"[\wçğıöşü]+", lowered)
+                   if len(term) >= 4 and term not in {"tcmb", "bddk", "tüik", "tuik", "2026", "yılında", "yayımladığı", "son", "raporları", "bul", "başlıklarını", "tarihlerini", "çıkar", "her", "için", "kısa", "özet", "kaynak", "bağlantısı", "ver"}]
+        required_terms = [term for term in ("konut", "fiyat", "endeksi", "rapor") if term in lowered]
+        variants = registry["search_variants"] if registry else ("{query}",)
+        variant_queries = [variant.format(query=query) for variant in variants]
+        search_queries = variant_queries[:1]
+        if preferred:
+            search_queries.extend("site:" + preferred[0] + " " + variant for variant in variant_queries[1:2])
+            search_queries.extend("site:" + preferred[0] + " " + variant for variant in variant_queries[2:3])
+        direct_results = [{"title": title, "url": url, "snippet": "Official TCMB entry point",
+                   "published_at": "2026-07", "official_entry": True}
+                  for title, url in registry.get("entry_points", ())] if registry else []
+        searches = [self.web_search(search_query, limit=min(10, max(5, limit * 2)))
+                    for search_query in search_queries[:3]]
+        results, seen_urls = direct_results, {item["url"].split("#", 1)[0] for item in direct_results}
+        for search in searches:
+            if search.get("status") != "ok":
+                continue
+            for item in search.get("results", []):
+                url = item.get("url", "").split("#", 1)[0]
+                if url and url not in seen_urls:
+                    seen_urls.add(url)
+                    results.append(item)
+        if not results:
+            return {"status": "unavailable", "research_status": "unavailable", "code": "SEARCH_NO_RESULTS",
+                    "message": "Search did not return usable result URLs.", "query": query, "sources": []}
+        if preferred:
+            matching = [item for item in results if any(
+                (parse.urlsplit(item.get("url", "")).hostname or "").casefold() == domain
+                or (parse.urlsplit(item.get("url", "")).hostname or "").casefold().endswith("." + domain)
+                for domain in preferred)]
+            results = matching
+            if not results:
+                return {"status": "unavailable", "research_status": "unavailable",
+                        "code": "OFFICIAL_SOURCE_NOT_FOUND",
+                        "message": "İstenen resmi kurum alanında uygun kaynak bulunamadı.",
+                        "query": query, "sources": [], "failures": []}
+        sources, failures = [], []
+        for result in results:
+            if len(sources) >= limit:
+                break
+            try:
+                inspected = self.inspect_source(url=result["url"])
+                text = inspected.get("text", "").strip()
+                article = inspected.get("article", {})
+                content = article.get("article_body") or text
+                if not content:
+                    raise DocumentError("Source contained no readable text.", "EMPTY_SOURCE")
+                source_url = inspected.get("source_url") or result["url"]
+                path_text = parse.urlsplit(source_url).path.casefold()
+                title_text = (article.get("title") or result.get("title", "")).casefold()
+                searchable = " ".join([title_text, article.get("description", ""), content]).casefold()
+                if not path_text.strip("/") or path_text.endswith(('/kurlar/kurlar_tr.html', '/main+page+site+area/bugun')):
+                    raise DocumentError("Source is a generic landing page.", "GENERIC_SOURCE")
+                if not result.get("official_entry") and required_terms and sum(term in (title_text + " " + path_text) for term in required_terms) < min(2, len(required_terms)):
+                    raise DocumentError("Source title or URL does not identify the requested topic.", "IRRELEVANT_SOURCE")
+                if (not result.get("official_entry") and topic_terms
+                    and sum(term in searchable for term in topic_terms) < min(2, len(topic_terms))):
+                    raise DocumentError("Source content does not match the research topic.", "IRRELEVANT_SOURCE")
+                if "2026" in lowered and re.search(r"\b20(?:1\d|2[0-5])\b", title_text + " " + path_text):
+                    raise DocumentError("Source is outside the requested year.", "OUT_OF_DATE_SOURCE")
+                sources.append({
+                    "title": article.get("title") or result.get("title", ""),
+                    "url": source_url,
+                    "domain": parse.urlsplit(source_url).hostname,
+                    "snippet": article.get("description") or result.get("snippet", ""),
+                    "date_published": article.get("date_published") or result.get("published_at"),
+                    "date_modified": article.get("date_modified"),
+                    "author": article.get("author"),
+                    "content": content[:3000],
+                    "tables": [table for table in inspected.get("tables", []) if table.get("preview")][:3],
+                    "source_id": inspected["source_id"],
+                    "verification": "direct_public_fetch",
+                })
+            except (DocumentError, OSError, ValueError, KeyError) as exc:
+                failures.append({"url": result.get("url"), "code": getattr(exc, "code", "SOURCE_READ_FAILED"), "message": str(exc)})
+        if not sources:
+            return {"status": "unavailable", "research_status": "unavailable", "code": "NO_READABLE_SOURCES",
+                    "message": "Search results were found, but no result had readable public content.",
+                    "query": query, "sources": [], "failures": failures}
+        return {"status": "ok", "research_status": "completed", "query": query,
+                "sources": sources, "failures": failures, "searched": len(results),
+                "read": len(sources), "next_step": "Use only claims supported by the returned source content."}
 
     def _reviewed_table(self, source_id, table):
         review_path = self._directory(source_id) / (table["table_id"] + "_review.json")
@@ -753,6 +949,9 @@ class DocumentTools:
                                    "additionalProperties": {"type": "string", "minLength": 1}}}, ["source_id", "table_id", "contract", "expected_version"]),
             "web_search": (self.web_search, "Find public sources with Bing RSS or configured SearXNG. Inspect result URLs before using them as citation evidence.",
                 {"query": {"type": "string", "maxLength": 500}, "limit": {"type": "integer", "minimum": 1, "maximum": 10}}, ["query"]),
+            "research_web": (self.research_web, "Search public web sources, read a bounded number of result URLs, and return source-grounded content with titles, dates and links. Use this for current reports, official announcements and news; do not rely on search snippets alone.",
+                {"query": {"type": "string", "maxLength": 500}, "limit": {"type": "integer", "minimum": 1, "maximum": 3},
+                 "domains": {"type": "array", "maxItems": 5, "items": {"type": "string", "minLength": 1}}}, ["query"]),
         }
         registry = {}
         for name, (function, description, properties, required) in definitions.items():

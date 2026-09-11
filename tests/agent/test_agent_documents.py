@@ -13,7 +13,7 @@ from urllib import error
 
 import duckdb
 
-from agentic_analytics.agent.tools.documents import DocumentError, DocumentTools, _public_destination, fetch_public_url
+from agentic_analytics.agent.tools.documents import DocumentError, DocumentTools, _article_metadata, _public_destination, fetch_public_url
 from agentic_analytics.lakehouse.store import LakehouseStore
 
 
@@ -289,6 +289,37 @@ class AgentDocumentTests(unittest.TestCase):
             self.assertIn("format=rss", fetch.call_args.args[0])
         with patch("agentic_analytics.agent.tools.documents.fetch_public_url", return_value=(b"<html>challenge</html>", "text/html", "https://www.bing.com/search")):
             self.assertEqual(self.docs.web_search("public report")["code"], "SEARCH_INVALID_RESPONSE")
+
+    def test_research_web_reads_json_ld_article_content_and_skips_unreadable_results(self):
+        html = b'''<html><head><title>Fallback title</title>
+        <script type="application/ld+json">{"@type":"NewsArticle","headline":"Official report",
+        "datePublished":"2026-09-11T10:00:00Z","articleBody":"The report states the latest result."}</script>
+        </head><body>Visible article text</body></html>'''
+        article = _article_metadata(html, "text/html", "https://example.org/report")
+        self.assertEqual(article["title"], "Official report")
+        self.assertEqual(article["date_published"], "2026-09-11T10:00:00Z")
+        self.assertIn("latest result", article["article_body"])
+        self.docs.web_search = lambda query, limit=5: {"status": "ok", "results": [
+            {"title": "Unreadable", "url": "https://bad.example/no", "snippet": ""},
+            {"title": "Readable", "url": "https://example.org/report", "snippet": ""},
+        ]}
+        self.docs.inspect_source = lambda url=None, source_id=None: (
+            {"status": "ok", "source_id": "source_" + "a" * 64, "source_url": url,
+             "text": "Visible article text", "article": article}
+            if "example.org" in url else (_ for _ in ()).throw(DocumentError("blocked", "FETCH_FAILED")))
+        result = self.docs.research_web("latest report", limit=1)
+        self.assertEqual(result["status"], "ok")
+        self.assertEqual(result["read"], 1)
+        self.assertEqual(result["sources"][0]["title"], "Official report")
+
+    def test_research_web_does_not_fall_back_to_unrelated_domains_for_official_queries(self):
+        self.docs.web_search = lambda query, limit=5: {"status": "ok", "results": [
+            {"title": "Housing listings", "url": "https://emlakjet.com/listings", "snippet": ""},
+        ]}
+        result = self.docs.research_web("TCMB konut fiyat endeksi 2026 raporu", limit=3)
+        self.assertIn(result.get("code"), {None, "OFFICIAL_SOURCE_NOT_FOUND", "NO_READABLE_SOURCES"})
+        self.assertEqual(result.get("sources"), [])
+        self.assertEqual(result["sources"], [])
 
     def test_human_review_enables_ocr_publication_and_preserves_review_provenance(self):
         from PIL import Image
