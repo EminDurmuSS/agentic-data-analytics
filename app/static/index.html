@@ -201,10 +201,10 @@
                   <form id="chart-settings" class="chart-settings" hidden>
                     <label class="chart-wide">Grafik başlığı<input id="chart-custom-title" maxlength="160" placeholder="Verinizi anlatan bir başlık" /></label>
                     <fieldset class="chart-wide"><legend>Gösterilecek seriler</legend><div id="chart-columns" class="chart-columns"></div></fieldset>
-                    <label>Eksen düzeni<select id="chart-layout"><option value="auto">Otomatik, birime göre</option><option value="panels">Ayrı paneller</option><option value="overlay">Tek eksende karşılaştır</option><option value="dual_axis">İki ayrı eksen</option></select></label>
-                    <label>Değerler<select id="chart-normalize"><option value="none">Özgün analiz değerleri</option><option value="index100">İlk ortak dönem = 100</option></select></label>
-                    <label id="chart-x-label" hidden>X ekseni<select id="chart-x"></select></label>
-                    <label id="chart-orientation-label" hidden>Çubuk yönü<select id="chart-orientation"><option value="vertical">Dikey</option><option value="horizontal">Yatay</option></select></label>
+                    <label>Eksen düzeni<select id="chart-layout"><option value="auto">Otomatik, birime göre</option><option value="panels">Ayrı paneller</option><option value="overlay">Tek eksende karşılaştır</option><option value="dual_axis">İki ayrı eksen</option></select><small class="chart-setting-hint" hidden></small></label>
+                    <label>Değerler<select id="chart-normalize"><option value="none">Özgün analiz değerleri</option><option value="index100">İlk ortak dönem = 100</option></select><small class="chart-setting-hint" hidden></small></label>
+                    <label id="chart-x-label">X ekseni<select id="chart-x"></select><small class="chart-setting-hint" hidden></small></label>
+                    <label id="chart-orientation-label">Çubuk yönü<select id="chart-orientation"><option value="vertical">Dikey</option><option value="horizontal">Yatay</option></select><small class="chart-setting-hint" hidden></small></label>
                     <div class="chart-settings-footer chart-wide"><span>Grafiği konuşmada da tarif edebilirsiniz.</span><button class="primary" id="chart-apply" type="submit">Görünümü uygula</button></div>
                   </form>
                   <div id="chart-legend" class="chart-legend" aria-label="Grafik serileri"></div>
