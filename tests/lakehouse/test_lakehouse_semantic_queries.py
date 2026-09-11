@@ -159,6 +159,23 @@ class SemanticQueryTests(unittest.TestCase):
         self.assertEqual(0, self.service.discover({"query": "net kâr bakiyesi"})["total"])
         self.assertEqual(0, self.service.discover({"query": "yeni başvurular stoku"})["total"])
 
+    def test_no_confident_match_surfaces_near_candidates_and_uncovered_terms(self):
+        # "gümüş mevduatı" has no series: "mevduat" partially matches the gold
+        # deposit, "gumus" matches nothing. Instead of a bare empty result that
+        # invites re-search loops, discover flags no_confident_match, names the
+        # unresolved term, and surfaces the nearest real series as a hint.
+        result = self.service.discover({"query": "gümüş mevduatı"})
+        self.assertEqual(0, result["total"])
+        self.assertEqual([], result["metrics"])
+        self.assertTrue(result.get("no_confident_match"))
+        self.assertIn("gumus", result.get("uncovered_terms", []))
+        self.assertNotIn("mevduat", result.get("uncovered_terms", []))
+        self.assertIn("gold", [card["metric_id"] for card in result.get("near_matches", [])])
+        # A genuinely full match must NOT set the no-confident-match signal.
+        confident = self.service.discover({"query": "altın mevduatı"})
+        self.assertFalse(confident.get("no_confident_match"))
+        self.assertNotIn("near_matches", confident)
+
     def test_dimension_values_provide_source_group_labels_and_exact_city_values(self):
         group = self.service.dimension_values({"metric_id": "gold", "dimension": "group_code", "query": "tüm bankalar"})
         self.assertEqual(10001, group["values"][0]["value"])

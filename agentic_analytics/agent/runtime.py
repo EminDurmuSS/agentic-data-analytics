@@ -25,6 +25,21 @@ def _blocked(code, message):
     return {"status": "blocked", "errors": [{"code": code, "message": message}]}
 
 
+def _unreadable(content):
+    """Flag a final answer dominated by non-Latin/Turkish script or replacement
+    characters, so garbled model output is regenerated rather than delivered."""
+    if "�" in content:
+        return True
+    letters = [c for c in content if c.isalpha()]
+    if not letters:
+        return False
+    def foreign(c):
+        return ("一" <= c <= "鿿" or "぀" <= c <= "ヿ"
+                or "가" <= c <= "힣" or "Ѐ" <= c <= "ӿ"
+                or "؀" <= c <= "ۿ")
+    return sum(foreign(c) for c in letters) / len(letters) > 0.10
+
+
 def _normalize_result(result):
     """Preserve tool payloads while giving every failure one error contract."""
     if not isinstance(result, dict):
@@ -178,6 +193,13 @@ class AgentRuntime:
                     self.run_store.checkpoint(run_id, state)
                     continue
                 if isinstance(content, str) and content.strip():
+                    if _unreadable(content):
+                        state["repairs"] += 1
+                        state["messages"].append({"role": "assistant", "content": "Önceki yanıt okunaksız veya yanlış dildeydi; yalnızca Türkçe, okunabilir bir son cevap gerekiyor."})
+                        self.run_store.checkpoint(run_id, state)
+                        if state["repairs"] > self.max_repairs:
+                            return self._finish(record, state, "blocked", "Model okunabilir bir Türkçe cevap üretemedi.", errors=[{"code": "UNREADABLE_MODEL_OUTPUT", "message": "Final answer failed the charset/language readability check."}])
+                        continue
                     if ("create_chart" in self.tools and _requests_chart(record["message"])
                             and not state.get("chart_updated") and not state.get("unresolved_errors")):
                         return self._finish(record, state, "partial" if state.get("analysis_updated") else "blocked",

@@ -33,16 +33,23 @@ def _model_tool_result(name, result, *, terse=False):
     if name != "discover" or not isinstance(result, dict) or not isinstance(result.get("metrics"), list):
         return _compact(result)
     fields = ("metric_id", "title", "status") if terse else (
-        "metric_id", "title", "unit", "scale", "currency", "kind",
-        "native_frequency", "status", "dimensions", "matched_dimensions")
-    cards = [{key: copy.deepcopy(card[key]) for key in fields if key in card}
-             for card in result["metrics"][:10] if isinstance(card, dict)]
-    for card in cards:
-        if isinstance(card.get("title"), str):
-            card["title"] = card["title"][:240]
-    view = {key: copy.deepcopy(result[key]) for key in ("status", "snapshot_id", "query", "total", "errors") if key in result}
+        "metric_id", "title", "source_system", "group_name", "unit", "scale", "currency", "kind",
+        "native_frequency", "status", "dimensions", "matched_dimensions", "missing_terms")
+
+    def project(cards):
+        out = [{key: copy.deepcopy(card[key]) for key in fields if key in card}
+               for card in cards[:10] if isinstance(card, dict)]
+        for card in out:
+            if isinstance(card.get("title"), str):
+                card["title"] = card["title"][:240]
+        return out
+    cards = project(result["metrics"])
+    view = {key: copy.deepcopy(result[key]) for key in
+            ("status", "snapshot_id", "query", "total", "errors", "no_confident_match", "uncovered_terms") if key in result}
     view.update(metrics=cards, model_card_count=len(cards),
                 model_cards_truncated=len(result["metrics"]) > len(cards) or result.get("total", len(cards)) > len(cards))
+    if isinstance(result.get("near_matches"), list):
+        view["near_matches"] = project(result["near_matches"])
     if terse:
         view["historical_search_summary"] = True
     return _compact(view)

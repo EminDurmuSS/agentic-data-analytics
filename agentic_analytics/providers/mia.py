@@ -118,7 +118,8 @@ class MiaClient:
             raise ValueError("Invalid output token budget")
         if enable_thinking is not None and type(enable_thinking) is not bool:
             raise ValueError("enable_thinking must be a boolean or None")
-        payload = {"model": self.chat_model, "messages": messages, "temperature": temperature, "max_tokens": max_tokens}
+        # Pin decoding for run-to-run stability (no-op if the server ignores them).
+        payload = {"model": self.chat_model, "messages": messages, "temperature": temperature, "max_tokens": max_tokens, "top_p": 1, "seed": 0}
         if enable_thinking is not None:
             payload["chat_template_kwargs"] = {"enable_thinking": enable_thinking}
         if tools:

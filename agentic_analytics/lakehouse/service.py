@@ -97,6 +97,10 @@ def _search_terms(value: str) -> list[str]:
     # changes metric definitions, dimension values or readiness.
     aliases = {"unemployment": "issiz", "inflation": "enflasyon", "cpi": "tufe",
                "deposits": "mevduat", "deposit": "mevduat", "gold": "altin",
+               "npl": "takip", "nonperforming": "takip", "takipteki": "takip",
+               "mortgage": "konut", "housing": "konut", "ratio": "oran", "orani": "oran",
+               "share": "pay", "payi": "pay", "profit": "kar", "profitability": "kar",
+               "loan": "kredi", "yoy": "yillik",
                "credit": "kredi", "loans": "kredi", "capital": "sermaye",
                "adequacy": "yeterli", "yeterlilik": "yeterli", "yeterliligi": "yeterli",
                "issizlik": "issiz", "mevduati": "mevduat",
@@ -227,7 +231,7 @@ class LakehouseService:
 
     @staticmethod
     def _card(binding: dict) -> dict:
-        fields = ("metric_id", "title", "source_system", "source_namespace", "native_frequency", "kind", "unit", "scale", "currency", "status", "dimensions", "institution_scope", "geography_scope", "notes", "index_role", "deflator_currency", "price_scope", "semantic_policy_version")
+        fields = ("metric_id", "title", "title_en", "group_name", "source_system", "source_namespace", "native_frequency", "kind", "unit", "scale", "currency", "status", "dimensions", "institution_scope", "geography_scope", "notes", "index_role", "deflator_currency", "price_scope", "semantic_policy_version")
         return {key: binding.get(key) for key in fields}
 
     def discover(self, request: dict) -> dict:
@@ -241,7 +245,7 @@ class LakehouseService:
             raise PlanError("Unknown readiness status")
         terms, frequencies = _query_terms(request["query"])
         with self._context() as (connection, bindings, workspace):
-            matches, dimension_cache = [], {}
+            matches, near, dimension_cache = [], [], {}
             for binding in bindings.values():
                 if request.get("status") and binding["status"] != request["status"]:
                     continue
@@ -291,8 +295,33 @@ class LakehouseService:
                     if matched_dimensions:
                         card["matched_dimensions"] = _json(matched_dimensions)
                     matches.append((compatible, score, card))
+                elif terms and len(missing) < len(terms):
+                    # Near miss: some salient terms matched but not all. Surface it
+                    # as a navigation hint so the model stops blindly re-searching
+                    # the same query until the decision budget is exhausted.
+                    card = self._card(binding)
+                    if matched_dimensions:
+                        card["matched_dimensions"] = _json(matched_dimensions)
+                    card["missing_terms"] = missing
+                    title_hits = sum(_term_matches(term, title) for term in terms)
+                    near.append((0 if binding["status"] == "ready" else 1, -(len(terms) - len(missing)), -title_hits, card))
             matches.sort(key=lambda item: (item[2]["status"] != "ready", not item[0], -item[1], item[2]["metric_id"]))
-            return {"status": "ok", "snapshot_id": workspace["snapshot_id"], "total": len(matches), "metrics": [card for _, _, card in matches[:limit]]}
+            result = {"status": "ok", "snapshot_id": workspace["snapshot_id"], "total": len(matches), "metrics": [card for _, _, card in matches[:limit]]}
+            # When nothing fully matches, do not return a bare empty result: name
+            # the unresolved terms and surface the nearest real series as hints.
+            if terms and not matches:
+                near.sort(key=lambda item: (item[0], item[1], item[2], item[3]["metric_id"]))
+                near_cards = [item[3] for item in near[:min(limit, 6)]]
+                result["no_confident_match"] = True
+                result["near_matches"] = near_cards
+                if near_cards:
+                    common_missing = set(terms)
+                    for card in near_cards:
+                        common_missing &= set(card.get("missing_terms", []))
+                    result["uncovered_terms"] = [term for term in terms if term in common_missing]
+                else:
+                    result["uncovered_terms"] = terms
+            return result
 
     def _dimension_rows(self, connection: Any, binding: dict, dimension: str, dimensions: dict | None = None) -> list[dict]:
         if not isinstance(dimension, str) or dimension not in binding.get("dimensions", {}):
