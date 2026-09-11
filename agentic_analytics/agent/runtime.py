@@ -40,6 +40,18 @@ def _unreadable(content):
     return sum(foreign(c) for c in letters) / len(letters) > 0.10
 
 
+def _grounded_refusal(barren):
+    """A completed, grounded 'not found' answer built from the barren-discovery
+    signal, so a genuinely absent concept ends as a stated refusal rather than a
+    budget-death blocked non-answer."""
+    terms = ", ".join(t for t in (barren.get("uncovered_terms") or []) if t) or "istenen seri"
+    message = f"İstenen '{terms}' için kaynakta eşleşen bir seri bulunamadı; değer uydurulmaz."
+    near = barren.get("near_titles") or []
+    if near:
+        message += " Kaynaktaki en yakın seriler: " + "; ".join(near) + "."
+    return message + " Farklı bir seri, kapsam veya dönem belirtirseniz analizi ona göre yapabilirim."
+
+
 def _normalize_result(result):
     """Preserve tool payloads while giving every failure one error contract."""
     if not isinstance(result, dict):
@@ -138,6 +150,14 @@ class AgentRuntime:
                         state["chart_analysis_id"] = result.get("analysis_id")
                         state["chart_updated"] = bool(result.get("chart_id"))
                         state["recommendations"] = result.get("recommendations", [])[:3]
+                    if call["function"]["name"] == "discover" and isinstance(result, dict):
+                        # Remember an unresolved discovery so a genuinely absent concept can
+                        # end as a grounded refusal instead of a budget-death block.
+                        if result.get("no_confident_match"):
+                            state["discovery_barren"] = {"uncovered_terms": result.get("uncovered_terms") or [],
+                                                         "near_titles": [m.get("title") for m in (result.get("near_matches") or []) if isinstance(m, dict) and m.get("title")][:3]}
+                        elif result.get("metrics"):
+                            state.pop("discovery_barren", None)
                     failed = result.get("status") in {"blocked", "error", "failed", "unavailable"}
                     unresolved = state.setdefault("unresolved_errors", {})
                     tool_name = call["function"]["name"]
@@ -220,6 +240,9 @@ class AgentRuntime:
                     return self._finish(record, state, "blocked", "Model geçerli bir cevap üretmedi.", errors=[{"code": "EMPTY_MODEL_RESPONSE", "message": "No content or tool calls."}])
             if (state.get("analysis_updated") or state.get("chart_updated")) and not state.get("unresolved_errors"):
                 return self._finish(record, state, "partial", "Analiz kaydedildi; son yanıtı üretme sınırına ulaşıldı. Tablo ve araç sonuçları hazır.", warnings=[{"code": "FINAL_RESPONSE_BUDGET_EXCEEDED", "message": "Verified analysis is available; no additional provider call was made for prose synthesis."}])
+            if state.get("discovery_barren") and not state.get("analysis_updated") and not state.get("unresolved_errors"):
+                return self._finish(record, state, "completed", _grounded_refusal(state["discovery_barren"]),
+                                    warnings=[{"code": "METRIC_NOT_FOUND", "message": "Completed as a grounded refusal: no metric matched the requested concept within the decision budget."}])
             return self._finish(record, state, "blocked", "Bu adımın model çağrı sınırına ulaşıldı; mevcut sonuçlar korundu.", errors=[{"code": "DECISION_BUDGET_EXCEEDED", "message": "Bounded agent decision budget reached."}])
         except MiaError as exc:
             return self._finish(record, state, "failed", str(exc), errors=[{"code": exc.code, "message": str(exc), "retryable": exc.retryable, "attempts": exc.attempts, "usage_unknown": True}])

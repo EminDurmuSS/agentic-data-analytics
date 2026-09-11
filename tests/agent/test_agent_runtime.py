@@ -215,6 +215,36 @@ class AgentRuntimeTests(unittest.TestCase):
         self.assertIn('"active_schema"', continuation_client.requests[0][0]["content"])
         self.assertIn(result["analysis_id"], continuation_client.requests[0][0]["content"])
 
+    def test_barren_discovery_completes_as_grounded_refusal_not_budget_death(self):
+        # A genuinely absent concept: discovery keeps returning no_confident_match and
+        # the model loops. Instead of dying on the decision budget with a blocked
+        # non-answer, the run completes with a stated 'not found' grounded in the
+        # unresolved term and the nearest real series.
+        service = LakehouseService(self.store, self.workspace_id)
+        service.discover = lambda request: {"status": "ok", "total": 0, "no_confident_match": True,
+            "uncovered_terms": ["zephyr"], "metrics": [],
+            "near_matches": [{"metric_id": "credit", "title": "Krediler [Toplam]"}]}
+        responses = [call("discover", {"query": f"zephyr {i}", "limit": 5}, f"s{i}") for i in range(5)]
+        runtime, _ = self.runtime(responses, service=service, max_decisions=3)
+        result = runtime.run("zephyr serisini göster")
+        self.assertEqual(result["status"], "completed", result)
+        self.assertNotIn("DECISION_BUDGET_EXCEEDED", json.dumps(result.get("errors", [])))
+        self.assertIn("zephyr", result["message"])
+        self.assertIn("bulunamadı", result["message"])
+        self.assertTrue(any(w.get("code") == "METRIC_NOT_FOUND" for w in result.get("warnings", [])))
+
+    def test_budget_death_still_blocks_when_a_metric_was_found(self):
+        # Guard: when discovery DID find candidates (no barren signal), exhausting the
+        # budget must still block, not be reclassified as a not-found refusal.
+        service = LakehouseService(self.store, self.workspace_id)
+        service.discover = lambda request: {"status": "ok", "total": 1,
+            "metrics": [{"metric_id": "credit", "title": "credit", "status": "ready"}]}
+        responses = [call("discover", {"query": f"kredi {i}", "limit": 5}, f"s{i}") for i in range(5)]
+        runtime, _ = self.runtime(responses, service=service, max_decisions=3)
+        result = runtime.run("krediyi göster")
+        self.assertEqual(result["status"], "blocked", result)
+        self.assertIn("DECISION_BUDGET_EXCEEDED", json.dumps(result.get("errors", [])))
+
     def test_repeated_successful_write_with_new_call_id_reuses_artifact(self):
         runtime, _ = self.runtime([call("execute", self.plan, "first-call"), call("execute", self.plan, "second-call"), FINAL])
         result = runtime.run("Kaydet")
