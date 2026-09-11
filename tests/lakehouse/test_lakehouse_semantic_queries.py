@@ -367,6 +367,30 @@ class RealDiscoveryRegressionTests(unittest.TestCase):
                 self.assertIn(expected, [metric["metric_id"] for metric in result["metrics"]])
                 self.assertNotIn("NET FAİZ", result["metrics"][0]["title"])
 
+    def test_structural_fields_surface_and_total_slice_outranks_currency_splits(self):
+        database = Path(__file__).resolve().parents[2] / "data_pipeline/lakehouse/analytics.duckdb"
+
+        class ReadOnlyStore:
+            def workspace(self, workspace_id):
+                return {"snapshot_id": "real-discovery", "datasets": []}
+
+            def snapshot_path(self, snapshot_id):
+                return database
+
+        service = LakehouseService(ReadOnlyStore(), "real-discovery")
+        result = service.discover({"query": "net kâr", "limit": 5, "status": "ready"})
+        # The structural slice token is propagated to the model-facing card so the
+        # agent can distinguish a canonical metric from its decoy siblings.
+        self.assertTrue(all("value_dimension" in metric for metric in result["metrics"]))
+        # The aggregate ':Toplam' slice must outrank its ':Tp'/':Yp' currency-split
+        # siblings of the same metric (a structural rule, not an alphabetical accident).
+        order = {metric["metric_id"]: index for index, metric in enumerate(result["metrics"])}
+        base = "bddk_monthly:table02:53:ef40239f1db4"
+        self.assertIn(f"{base}:Toplam", order)
+        for split in (":Tp", ":Yp"):
+            if base + split in order:
+                self.assertLess(order[f"{base}:Toplam"], order[base + split])
+
 
 if __name__ == "__main__":
     unittest.main()

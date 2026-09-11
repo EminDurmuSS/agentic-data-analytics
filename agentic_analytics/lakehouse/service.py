@@ -116,6 +116,16 @@ def _search_terms(value: str) -> list[str]:
     return [aliases.get(word, word) for word in re.findall(r"[a-z0-9_:.]+", _fold(value))]
 
 
+_TOTAL_SLICE = {"toplam", "total", "toplamnakdi", "tumvarlikyukumluluk"}
+
+
+def _is_total_slice(card: dict) -> bool:
+    # The aggregate ('Toplam'/'TOTAL') slice is the analyst default among sibling
+    # metrics that differ only by a currency/size/maturity/type slice token.
+    value_dimension = _fold(str(card.get("value_dimension") or ""))
+    return bool(value_dimension) and (value_dimension in _TOTAL_SLICE or value_dimension.startswith("toplam") or value_dimension.startswith("total"))
+
+
 def _term_matches(term: str, text: str, *, whole_word: bool = False) -> bool:
     # Dimension values are a closed proper-noun vocabulary: match them as whole tokens
     # so a concept fragment ('gumus') never spuriously satisfies a longer value
@@ -235,7 +245,7 @@ class LakehouseService:
 
     @staticmethod
     def _card(binding: dict) -> dict:
-        fields = ("metric_id", "title", "title_en", "group_name", "source_system", "source_namespace", "native_frequency", "kind", "unit", "scale", "currency", "status", "dimensions", "institution_scope", "geography_scope", "notes", "index_role", "deflator_currency", "price_scope", "semantic_policy_version")
+        fields = ("metric_id", "title", "title_en", "group_name", "value_dimension", "is_archive", "temporal_semantics", "quality_status", "source_system", "source_namespace", "native_frequency", "kind", "unit", "scale", "currency", "status", "dimensions", "institution_scope", "geography_scope", "notes", "index_role", "deflator_currency", "price_scope", "semantic_policy_version")
         return {key: binding.get(key) for key in fields}
 
     def discover(self, request: dict) -> dict:
@@ -309,7 +319,15 @@ class LakehouseService:
                     card["missing_terms"] = missing
                     title_hits = sum(_term_matches(term, title) for term in terms)
                     near.append((0 if binding["status"] == "ready" else 1, -(len(terms) - len(missing)), -title_hits, card))
-            matches.sort(key=lambda item: (item[2]["status"] != "ready", not item[0], -item[1], item[2]["metric_id"]))
+            # Structural canonical ordering: after readiness/frequency/score, prefer
+            # the live (non-archive) aggregate slice from a curated source, so a
+            # Tp/Yp/size-bracket/archived decoy no longer wins on an alphabetical id.
+            matches.sort(key=lambda item: (
+                item[2]["status"] != "ready", not item[0], -item[1],
+                1 if item[2].get("is_archive") else 0,
+                0 if _is_total_slice(item[2]) else 1,
+                0 if str(item[2].get("quality_status") or "").startswith("passed") else 1,
+                item[2]["metric_id"]))
             result = {"status": "ok", "snapshot_id": workspace["snapshot_id"], "total": len(matches), "metrics": [card for _, _, card in matches[:limit]]}
             # When nothing fully matches, do not return a bare empty result: name
             # the unresolved terms and surface the nearest real series as hints.

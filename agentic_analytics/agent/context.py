@@ -32,8 +32,9 @@ def _model_tool_result(name, result, *, terse=False):
     """
     if name != "discover" or not isinstance(result, dict) or not isinstance(result.get("metrics"), list):
         return _compact(result)
-    fields = ("metric_id", "title", "status") if terse else (
-        "metric_id", "title", "source_system", "group_name", "unit", "scale", "currency", "kind",
+    fields = ("metric_id", "title", "status", "value_dimension") if terse else (
+        "metric_id", "title", "source_system", "group_name", "value_dimension", "is_archive",
+        "temporal_semantics", "unit", "scale", "currency", "kind",
         "native_frequency", "status", "dimensions", "matched_dimensions", "missing_terms")
 
     def project(cards):
