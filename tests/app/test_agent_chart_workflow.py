@@ -145,7 +145,7 @@ class AgentChartWorkflowTests(unittest.TestCase):
         self.assertEqual([r["rate"] for r in self.expected_rows], series["rate"]["raw_values"])
         self.assert_analysis_unchanged(wid, aid, before, analysis)
 
-    def test_chart_api_creates_every_visual_kind_without_changing_analysis_values(self):
+    def test_chart_api_creates_supported_visual_kinds_without_changing_analysis_values(self):
         wid, aid, _ = self.seed_analysis()
         before, analysis = self.context.store.workspace(wid), self.analysis(wid, aid)
         requests = [
@@ -153,7 +153,6 @@ class AgentChartWorkflowTests(unittest.TestCase):
             {"kind": "bar", "columns": ["credit"]},
             {"kind": "area", "columns": ["credit"]},
             {"kind": "scatter", "x": "rate", "columns": ["credit"]},
-            {"kind": "heatmap", "columns": ["credit", "rate"]},
         ]
         for request in requests:
             with self.subTest(kind=request["kind"]):
@@ -161,14 +160,16 @@ class AgentChartWorkflowTests(unittest.TestCase):
                 self.assertEqual(request["kind"], chart["spec"]["kind"])
                 self.assertTrue(chart["complete"])
                 self.assertEqual(self.expected_rows[0]["credit"], chart["series"][0]["raw_values"][0])
-        heatmap = self.chart(wid, aid)
-        self.assertEqual(72, len(heatmap["cells"]))
+        response = self.client.post(f"/api/workspaces/{wid}/analyses/{aid}/chart",
+                                    json={"kind": "heatmap", "columns": ["credit", "rate"]})
+        self.assertEqual(400, response.status_code, response.text)
         self.assert_analysis_unchanged(wid, aid, before, analysis)
 
-    def test_chart_client_keeps_all_kind_buttons_available(self):
+    def test_chart_client_marks_only_semantically_valid_kinds_available(self):
         client = (Path(__file__).parents[2] / "app" / "static" / "charts.js").read_text(encoding="utf-8")
-        self.assertIn('button.dataset.unavailable = "false"', client)
-        self.assertNotIn("const unavailable =", client)
+        self.assertIn("const unavailable = payload.group_by", client)
+        self.assertIn("iki farklı sayısal değişken gerekir", client)
+        self.assertIn("gerçek grup ve dönem boyutları gerekir", client)
 
     def test_chart_api_saves_immutable_views_and_restores_latest_after_restart(self):
         wid, aid, _ = self.seed_analysis()

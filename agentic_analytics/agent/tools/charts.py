@@ -29,7 +29,6 @@ ENUMS = {
 }
 SAFE_INTEGER = 2**53 - 1
 GROWTH_KINDS = {"stock", "flow", "price", "count", "count_stock", "count_flow"}
-PERIOD_INDEX = "__period_index__"
 
 
 def _encode(value):
@@ -231,18 +230,16 @@ class ChartTools:
         if orientation == "horizontal" and kind != "bar":
             raise ChartError("Yatay yön yalnızca çubuk grafiğinde kullanılabilir.")
         x = args.get("x")
-        x_is_period_index = False
         if kind == "scatter":
             if group_by:
                 raise ChartError("Gruplanmış veriler çubuk veya ısı haritasıyla gösterilir.", "GROUPED_CHART_REQUIRED")
             if x is None:
-                x = selected[0] if len(selected) > 1 else next((col for col in available if col not in selected), PERIOD_INDEX)
-            x_is_period_index = x == PERIOD_INDEX
-            if not x_is_period_index and x not in available:
+                x = selected[0] if len(selected) > 1 else next((col for col in available if col not in selected), None)
+            if x not in available:
                 raise ChartError("Dağılım grafiği için ayrı bir sayısal x sütunu gerekli.")
-            if not x_is_period_index and "columns" not in args:
+            if "columns" not in args:
                 selected = [col for col in selected if col != x]
-            if (not x_is_period_index and x in selected) or not selected:
+            if x in selected or not selected:
                 raise ChartError("x sütunu ile y serileri birbirinden farklı olmalıdır.")
             if normalize != "none":
                 raise ChartError("Dağılım grafiği özgün sayısal eksenleri kullanır; normalizasyon uygulanamaz.")
@@ -253,8 +250,8 @@ class ChartTools:
                 raise ChartError("Tek dönemli grupları çubuk, çok dönemli grupları ısı haritasıyla gösterin.", "GROUPED_CHART_REQUIRED")
             if len(selected) != 1 or normalize != "none":
                 raise ChartError("Gruplu grafik tek ölçünün özgün değerlerini kullanır.")
-        elif kind == "heatmap" and normalize != "none":
-            raise ChartError("Isı haritası özgün analiz değerlerini gösterir; normalizasyon uygulanamaz.")
+        elif kind == "heatmap":
+            raise ChartError("Isı haritası gerçek grup ve dönem boyutları gerektirir.", "GROUPED_CHART_REQUIRED")
         raw = {col: self._values(frame, col) for col in selected}
         normalized = {col: list(values) for col, values in raw.items()}
         periods = frame.period.tolist()
@@ -281,17 +278,13 @@ class ChartTools:
             warnings.append("Farklı birimler veya fiyat bazları ayrı panellerde gösteriliyor.")
         if kind == "scatter":
             warnings.append("Noktalar aynı döneme ait gözlemleri eşler; görünüm nedensellik göstermez.")
-            if x_is_period_index:
-                warnings.append("Tek ölçülü dağılım görünümünde yatay eksen dönem sırasıdır; iki gösterge arasındaki ilişkiyi göstermez.")
-        if kind == "heatmap" and not group_by:
-            warnings.append("Isı haritasında her satır seçili metriği, her sütun dönemi gösterir; boş gözlemler doldurulmaz.")
         for col in selected:
             meta = metadata[col]
             if meta["kind"] == "unknown" or meta["schema"].get("status") == "review_required":
                 warnings.append(f"{meta['label']}: kaynak birimi veya anlamı inceleme gerektiriyor; değerler dönüştürülmeden okunmalıdır.")
             if any(value is None for value in raw[col]):
                 warnings.append(f"{meta['label']}: eksik değerler boş bırakıldı; doldurma yapılmadı.")
-        dependencies = set(selected + ([x] if x and not x_is_period_index else []))
+        dependencies = set(selected + ([x] if x else []))
         for operation in reversed(manifest.get("plan", {}).get("operations", [])):
             if operation.get("output") in dependencies:
                 dependencies.update(operation[key] for key in ("column", "index", "denominator") if key in operation)
@@ -329,7 +322,7 @@ class ChartTools:
                 "orientation": orientation, "x": x, "base_period": base_period,
                 "frequency": manifest.get("plan", {}).get("frequency") or lineage.get("frequency")}
         source_labels = []
-        for col in [*selected, *([x] if x and not x_is_period_index else [])]:
+        for col in [*selected, *([x] if x else [])]:
             binding = metadata[col]["binding"]
             system = {"TCMB_EVDS": "TCMB EVDS", "BDDK_MONTHLY": "BDDK Aylık Bülten", "BDDK_WEEKLY": "BDDK Haftalık Bülten", "BDDK_FINTURK": "BDDK FinTürk"}.get(binding.get("source_system"), _text(binding.get("source_system")))
             title = _text(binding.get("title"))
@@ -351,15 +344,10 @@ class ChartTools:
                   "available_columns": [{key: metadata[col][key] for key in ("column", "label", "unit", "kind")} for col in available],
                   "provenance": {"snapshot_id": manifest.get("snapshot_id"), "data_sha256": manifest.get("data_sha256"), "lineage_ref": manifest["analysis_id"]}}
         if kind == "scatter":
-            result.update(x_values=list(range(len(frame))) if x_is_period_index else self._values(frame, x),
-                          x_column=None if x_is_period_index else x,
-                          x_label="Dönem sırası" if x_is_period_index else metadata[x]["label"],
-                          x_unit="" if x_is_period_index else metadata[x]["unit"],
-                          x_mode="period_index" if x_is_period_index else "metric")
+            result.update(x_values=self._values(frame, x), x_column=x,
+                          x_label=metadata[x]["label"], x_unit=metadata[x]["unit"], x_mode="metric")
         if group_by:
             self._grouped_payload(result, frame, metadata[selected[0]], group_by)
-        elif kind == "heatmap":
-            self._metric_heatmap_payload(result)
         result["recommendations"] = self._recommendations(result, raw, metadata)
         return result
 
@@ -397,19 +385,6 @@ class ChartTools:
         result["series"][0]["summary"] = _summary(result["series"][0]["values"], [], meta, grouped=True)
         result["series"][0]["display_summary"] = result["series"][0]["summary"].copy()
         result["warnings"].append("Her hücre ayrı grup ve dönemi gösterir. Kayıtlı sorguda yer almayan grup-dönem çiftleri boş bırakılır; sıfır kabul edilmez.")
-
-    @staticmethod
-    def _metric_heatmap_payload(result):
-        """Pivot selected source values into metric-by-period cells without filling gaps."""
-        categories = [series["label"] for series in result["series"]]
-        cells = []
-        for category_index, series in enumerate(result["series"]):
-            for period_index, value in enumerate(series["values"]):
-                cells.append({"period_index": period_index, "category_index": category_index,
-                              "value": value, "raw_value": series["raw_values"][period_index],
-                              "period": result["periods"][period_index], "column": series["column"],
-                              "dimensions": {}, "source_row_available": True})
-        result.update(categories=categories, category_dimensions=[{} for _ in categories], cells=cells)
 
     @staticmethod
     def _recommendations(result, raw, metadata):
