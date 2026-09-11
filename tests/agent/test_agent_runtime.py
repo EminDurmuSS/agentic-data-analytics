@@ -264,6 +264,66 @@ class AgentRuntimeTests(unittest.TestCase):
         self.assertEqual(result["status"], "blocked", result)
         self.assertIn("DECISION_BUDGET_EXCEEDED", json.dumps(result.get("errors", [])))
 
+    def test_repeated_missing_dimension_value_ends_as_grounded_row_refusal(self):
+        # The metric is found, but the run keeps looking up a dimension value that does
+        # not exist (e.g. a national/"Türkiye" row in a province-only series) and dies on
+        # the budget. Instead of a bare budget death with no answer, complete with a
+        # stated refusal that names the missing value.
+        service = LakehouseService(self.store, self.workspace_id)
+        service.discover = lambda request: {"status": "ok", "total": 1,
+            "metrics": [{"metric_id": "credit", "title": "credit", "status": "ready"}]}
+        service.dimension_values = lambda request: {"status": "ok", "total": 0, "values": [],
+            "metric_id": "credit", "dimension": request.get("dimension")}
+        responses = [call("discover", {"query": "kredi", "limit": 5}, "d0")] + [
+            call("dimension_values", {"metric_id": "credit", "dimension": "city", "query": "Türkiye", "limit": 100 + i}, f"v{i}")
+            for i in range(5)]
+        runtime, _ = self.runtime(responses, service=service, max_decisions=4)
+        result = runtime.run("Türkiye geneli krediyi göster")
+        self.assertEqual(result["status"], "completed", result)
+        self.assertNotIn("DECISION_BUDGET_EXCEEDED", json.dumps(result.get("errors", [])))
+        self.assertIn("bulunamadı", result["message"])
+        self.assertIn("Türkiye", result["message"])
+        self.assertTrue(any(w.get("code") == "DIMENSION_VALUE_NOT_FOUND" for w in result.get("warnings", [])))
+
+    def test_no_progress_on_missing_dimension_value_refuses_with_the_row(self):
+        # Byte-identical repeated lookups of a nonexistent row trip NO_PROGRESS; the
+        # terminal must state the row was not found rather than the generic failure.
+        service = LakehouseService(self.store, self.workspace_id)
+        service.discover = lambda request: {"status": "ok", "total": 1,
+            "metrics": [{"metric_id": "credit", "title": "credit", "status": "ready"}]}
+        service.dimension_values = lambda request: {"status": "ok", "total": 0, "values": [],
+            "metric_id": "credit", "dimension": request.get("dimension")}
+        responses = [call("discover", {"query": "kredi", "limit": 5}, "d0")] + [
+            call("dimension_values", {"metric_id": "credit", "dimension": "city", "query": "Türkiye"}, f"v{i}")
+            for i in range(3)]
+        runtime, _ = self.runtime(responses, service=service, max_decisions=6)
+        result = runtime.run("Türkiye satırını getir")
+        self.assertEqual(result["status"], "completed", result)
+        self.assertIn("bulunamadı", result["message"])
+        self.assertTrue(any(w.get("code") == "DIMENSION_VALUE_NOT_FOUND" for w in result.get("warnings", [])))
+
+    def test_found_dimension_value_does_not_trigger_false_row_refusal(self):
+        # If a later lookup DOES find values, the missing-row signal must be cleared so a
+        # budget death is not misreported as "row not found".
+        service = LakehouseService(self.store, self.workspace_id)
+        service.discover = lambda request: {"status": "ok", "total": 1,
+            "metrics": [{"metric_id": "credit", "title": "credit", "status": "ready"}]}
+        seen = {"n": 0}
+        def dv(request):
+            seen["n"] += 1
+            total = 0 if seen["n"] == 1 else 1
+            return {"status": "ok", "total": total, "values": [] if total == 0 else [{"value": "ANKARA"}],
+                    "metric_id": "credit", "dimension": request.get("dimension")}
+        service.dimension_values = dv
+        responses = [call("discover", {"query": "kredi", "limit": 5}, "d0"),
+                     call("dimension_values", {"metric_id": "credit", "dimension": "city", "query": "Türkiye"}, "v0"),
+                     call("dimension_values", {"metric_id": "credit", "dimension": "city", "query": "Ankara"}, "v1")]
+        runtime, _ = self.runtime(responses, service=service, max_decisions=3)
+        result = runtime.run("önce Türkiye sonra Ankara")
+        self.assertEqual(result["status"], "blocked", result)
+        self.assertIn("DECISION_BUDGET_EXCEEDED", json.dumps(result.get("errors", [])))
+        self.assertNotIn("bulunamadı", result["message"])
+
     def test_repeated_successful_write_with_new_call_id_reuses_artifact(self):
         runtime, _ = self.runtime([call("execute", self.plan, "first-call"), call("execute", self.plan, "second-call"), FINAL])
         result = runtime.run("Kaydet")

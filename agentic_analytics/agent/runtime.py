@@ -53,6 +53,17 @@ def _grounded_refusal(barren):
     return message + " Farklı bir seri, kapsam veya dönem belirtirseniz analizi ona göre yapabilirim."
 
 
+def _row_not_found_refusal(barren):
+    """A completed 'row not found' answer for a run that repeatedly looked up a
+    dimension value the series does not contain (e.g. a national/aggregate row in a
+    province-only series) and would otherwise die on the budget with no answer."""
+    value = (barren.get("query") or "").strip() or "istenen satır"
+    dimension = f" ({barren['dimension']} boyutunda)" if barren.get("dimension") else ""
+    return (f"'{value}' değeri bu seride{dimension} bulunamadı; il/kalem bazlı bir seride ulusal ya da toplam "
+            "bir satır her zaman yer almaz ve mevcut olmayan bir satır türetilmez. "
+            "Var olan bir değer, kapsam veya dönem belirtirseniz analizi ona göre yapabilirim.")
+
+
 def _normalize_result(result):
     """Preserve tool payloads while giving every failure one error contract."""
     if not isinstance(result, dict):
@@ -163,6 +174,16 @@ class AgentRuntime:
                                                          "near_titles": [m.get("title") for m in (result.get("near_matches") or []) if isinstance(m, dict) and m.get("title")][:3]}
                     elif call["function"]["name"] in {"describe", "dimension_values", "validate_plan"} and result.get("status") in {"ok", "valid"}:
                         state.pop("discovery_barren", None)
+                        # A dimension lookup that returns nothing for a named value means the
+                        # requested row (e.g. a national/aggregate row in province-only data)
+                        # does not exist; remember it so a looping run refuses by naming the
+                        # missing value instead of dying blank. A later non-empty lookup clears it.
+                        if call["function"]["name"] == "dimension_values":
+                            lookup = (json.loads(call["function"]["arguments"] or "{}").get("query") or "").strip()
+                            if lookup and not result.get("total"):
+                                state["dimension_barren"] = {"query": lookup, "dimension": result.get("dimension")}
+                            elif result.get("total"):
+                                state.pop("dimension_barren", None)
                     failed = result.get("status") in {"blocked", "error", "failed", "unavailable"}
                     unresolved = state.setdefault("unresolved_errors", {})
                     tool_name = call["function"]["name"]
@@ -185,6 +206,9 @@ class AgentRuntime:
                         state["repairs"] += 1
                         self.run_store.checkpoint(run_id, state)
                         if state["repairs"] > self.max_repairs or any(e.get("code") in {"UNKNOWN_MUTATION_OUTCOME", "NO_PROGRESS"} for e in result.get("errors", [])):
+                            refusal = self._barren_refusal(state)
+                            if refusal:
+                                return self._finish(record, state, "completed", refusal[0], warnings=[refusal[1]])
                             return self._finish(record, state, "blocked", "Analiz güvenilir biçimde tamamlanamadı. Araç hata ayrıntıları kaydedildi.", errors=result.get("errors", []))
                     continue
 
@@ -245,15 +269,33 @@ class AgentRuntime:
                     return self._finish(record, state, "blocked", "Model geçerli bir cevap üretmedi.", errors=[{"code": "EMPTY_MODEL_RESPONSE", "message": "No content or tool calls."}])
             if (state.get("analysis_updated") or state.get("chart_updated")) and not state.get("unresolved_errors"):
                 return self._finish(record, state, "partial", "Analiz kaydedildi; son yanıtı üretme sınırına ulaşıldı. Tablo ve araç sonuçları hazır.", warnings=[{"code": "FINAL_RESPONSE_BUDGET_EXCEEDED", "message": "Verified analysis is available; no additional provider call was made for prose synthesis."}])
-            if state.get("discovery_barren") and not state.get("saw_ready_candidate") and not state.get("analysis_updated") and not state.get("unresolved_errors"):
-                return self._finish(record, state, "completed", _grounded_refusal(state["discovery_barren"]),
-                                    warnings=[{"code": "METRIC_NOT_FOUND", "message": "Completed as a grounded refusal: no metric matched the requested concept within the decision budget."}])
+            refusal = self._barren_refusal(state)
+            if refusal:
+                return self._finish(record, state, "completed", refusal[0], warnings=[refusal[1]])
             return self._finish(record, state, "blocked", "Bu adımın model çağrı sınırına ulaşıldı; mevcut sonuçlar korundu.", errors=[{"code": "DECISION_BUDGET_EXCEEDED", "message": "Bounded agent decision budget reached."}])
         except MiaError as exc:
             return self._finish(record, state, "failed", str(exc), errors=[{"code": exc.code, "message": str(exc), "retryable": exc.retryable, "attempts": exc.attempts, "usage_unknown": True}])
         except (ValueError, OSError, duckdb.Error) as exc:
             error = error_envelope(exc)
             return self._finish(record, state, "blocked", "Çalışma alanı veya plan doğrulaması tamamlanamadı.", errors=error["errors"])
+
+    def _barren_refusal(self, state):
+        """Pick a grounded refusal for a run terminating with no saved analysis because
+        it looped on a missing row or a genuinely absent concept. Returns
+        (message, warning) or None to fall through to the plain terminal. Loop errors
+        (NO_PROGRESS) are non-blocking here; any real tool failure suppresses the refusal."""
+        if state.get("analysis_updated") or state.get("chart_updated"):
+            return None
+        if any(e.get("code") not in {"NO_PROGRESS", "UNKNOWN_MUTATION_OUTCOME"}
+               for errors in (state.get("unresolved_errors") or {}).values() for e in errors):
+            return None
+        if state.get("dimension_barren"):
+            return (_row_not_found_refusal(state["dimension_barren"]),
+                    {"code": "DIMENSION_VALUE_NOT_FOUND", "message": "Completed as a grounded refusal: the requested dimension value/row was repeatedly not found."})
+        if state.get("discovery_barren") and not state.get("saw_ready_candidate"):
+            return (_grounded_refusal(state["discovery_barren"]),
+                    {"code": "METRIC_NOT_FOUND", "message": "Completed as a grounded refusal: no metric matched the requested concept within the decision budget."})
+        return None
 
     def _expected_plan(self, name, args):
         if name == "execute":
