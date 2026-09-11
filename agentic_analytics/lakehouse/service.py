@@ -100,7 +100,7 @@ def _search_terms(value: str) -> list[str]:
                "npl": "takip", "nonperforming": "takip", "takipteki": "takip",
                "mortgage": "konut", "housing": "konut", "ratio": "oran", "orani": "oran",
                "share": "pay", "payi": "pay", "profit": "kar", "profitability": "kar",
-               "loan": "kredi", "yoy": "yillik",
+               "loan": "kredi",
                "credit": "kredi", "loans": "kredi", "capital": "sermaye",
                "adequacy": "yeterli", "yeterlilik": "yeterli", "yeterliligi": "yeterli",
                "issizlik": "issiz", "mevduati": "mevduat",
@@ -123,7 +123,10 @@ def _is_total_slice(card: dict) -> bool:
     # The aggregate ('Toplam'/'TOTAL') slice is the analyst default among sibling
     # metrics that differ only by a currency/size/maturity/type slice token.
     value_dimension = _fold(str(card.get("value_dimension") or ""))
-    return bool(value_dimension) and (value_dimension in _TOTAL_SLICE or value_dimension.startswith("toplam") or value_dimension.startswith("total"))
+    if not value_dimension or value_dimension in {"toplamtp", "toplamyp"}:
+        # A currency-split total (Total-TRY/Total-FX) is not the grand aggregate default.
+        return False
+    return value_dimension in _TOTAL_SLICE or value_dimension.startswith("toplam") or value_dimension.startswith("total")
 
 
 def _term_matches(term: str, text: str, *, whole_word: bool = False) -> bool:
@@ -131,8 +134,15 @@ def _term_matches(term: str, text: str, *, whole_word: bool = False) -> bool:
     # so a concept fragment ('gumus') never spuriously satisfies a longer value
     # ('gumushane'). Free-text titles keep agglutinative substring recall.
     if len(term) <= 3 or whole_word:
-        stem = term[:-1] if (whole_word and len(term) >= 5 and term.endswith("i")) else term
-        return re.search(r"(?<![a-z0-9_])" + re.escape(stem) + r"(?![a-z0-9_])", text) is not None
+        # Match the full term as a whole token first so a proper noun ending in 'i'
+        # (Kocaeli, Kayseri, Denizli) still matches itself; only then try the Turkish
+        # suffix-stemmed form as a fallback. The whole-token rule keeps a concept
+        # fragment ('gumus') from satisfying a longer value ('gumushane').
+        if re.search(r"(?<![a-z0-9_])" + re.escape(term) + r"(?![a-z0-9_])", text):
+            return True
+        if whole_word and len(term) >= 5 and term.endswith("i"):
+            return re.search(r"(?<![a-z0-9_])" + re.escape(term[:-1]) + r"(?![a-z0-9_])", text) is not None
+        return False
     return term in text or (len(term) >= 5 and term.endswith("i") and term[:-1] in text)
 
 

@@ -233,6 +233,25 @@ class AgentRuntimeTests(unittest.TestCase):
         self.assertIn("bulunamadı", result["message"])
         self.assertTrue(any(w.get("code") == "METRIC_NOT_FOUND" for w in result.get("warnings", [])))
 
+    def test_barren_after_a_ready_candidate_does_not_false_refuse(self):
+        # Regression guard: if a ready candidate was seen earlier in the run, a later
+        # barren search + budget exhaustion must NOT be reclassified as "series not found"
+        # (that would falsely tell the user a metric that exists does not).
+        service = LakehouseService(self.store, self.workspace_id)
+        state = {"n": 0}
+        def disc(request):
+            state["n"] += 1
+            if state["n"] <= 2:
+                return {"status": "ok", "total": 1, "metrics": [{"metric_id": "credit", "title": "credit", "status": "ready"}]}
+            return {"status": "ok", "total": 0, "no_confident_match": True, "uncovered_terms": ["zephyr"], "metrics": [], "near_matches": []}
+        service.discover = disc
+        responses = [call("discover", {"query": f"q{i}", "limit": 5}, f"s{i}") for i in range(6)]
+        runtime, _ = self.runtime(responses, service=service, max_decisions=4)
+        result = runtime.run("kredi sonra zephyr")
+        self.assertEqual(result["status"], "blocked", result)
+        self.assertIn("DECISION_BUDGET_EXCEEDED", json.dumps(result.get("errors", [])))
+        self.assertNotIn("bulunamadı", result["message"])
+
     def test_budget_death_still_blocks_when_a_metric_was_found(self):
         # Guard: when discovery DID find candidates (no barren signal), exhausting the
         # budget must still block, not be reclassified as a not-found refusal.

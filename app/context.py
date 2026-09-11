@@ -148,7 +148,7 @@ class AppContext:
         # on the budget; a finite cap still prevents a stuck model from looping
         # forever (the wall clock is the ultimate backstop).
         return AgentRuntime(self.store, workspace_id, self.client, self.run_store, extra_tools=tools,
-                            max_decisions=30, max_repairs=4, max_elapsed_seconds=900)
+                            max_decisions=18, max_repairs=4, max_elapsed_seconds=900)
 
     def submit(self, workspace_id, body: RunBody):
         if self.client is None:

@@ -2,7 +2,7 @@
 import unittest
 
 from agentic_analytics.agent.runtime import _unreadable
-from agentic_analytics.lakehouse.service import _search_terms
+from agentic_analytics.lakehouse.service import _search_terms, _term_matches
 
 
 class ReadabilityGateTests(unittest.TestCase):
@@ -26,6 +26,18 @@ class DomainAliasTests(unittest.TestCase):
         terms = _search_terms("housing loan")
         self.assertIn("konut", terms)
         self.assertIn("kredi", terms)
+
+
+class WholeWordMatchTests(unittest.TestCase):
+    def test_proper_noun_ending_in_i_matches_itself_but_fragment_does_not(self):
+        # Regression: whole-word 'i'-stemming previously broke provinces ending in 'i'.
+        for city in ("kocaeli", "kayseri", "denizli", "tunceli"):
+            self.assertTrue(_term_matches(city, city, whole_word=True), city)
+        # The precision guard still holds: a shorter fragment is not a whole token.
+        self.assertFalse(_term_matches("gumus", "gumushane", whole_word=True))
+        self.assertFalse(_term_matches("anka", "ankara", whole_word=True))
+        # Turkish suffix tolerance survives as a fallback.
+        self.assertTrue(_term_matches("mevduati", "altin mevduat", whole_word=True))
 
 
 if __name__ == "__main__":
