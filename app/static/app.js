@@ -335,6 +335,21 @@ async function createWorkspace(name, profile) {
   notice("");
   await selectWorkspace(result.workspace_id);
 }
+function appendActivityText(node, text, functionNames) {
+  const names = [...new Set(functionNames.filter(Boolean))].sort(
+    (left, right) => right.length - left.length,
+  );
+  if (!names.length) {
+    node.append(document.createTextNode(text));
+    return;
+  }
+  const escaped = names.map((name) => name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"));
+  const matcher = new RegExp("(" + escaped.join("|") + ")", "g");
+  for (const part of text.split(matcher)) {
+    if (!part) continue;
+    node.append(names.includes(part) ? el("code", part) : document.createTextNode(part));
+  }
+}
 function showEvents(activity) {
   if (!activity?.length) return;
   $("#activity").hidden = false;
@@ -342,8 +357,14 @@ function showEvents(activity) {
   const holder = $("#events");
   holder.replaceChildren();
   for (const step of activity) {
-    const item = el("li", step.title || "Kayıtlı agent adımı");
-    if (step.detail) item.append(el("small", step.detail));
+    const names = [step.tool, ...(step.tool_names || [])];
+    const item = el("li");
+    appendActivityText(item, step.title || "Kayıtlı agent adımı", names);
+    if (step.detail) {
+      const detail = el("small");
+      appendActivityText(detail, step.detail, names);
+      item.append(detail);
+    }
     holder.append(item);
   }
 }

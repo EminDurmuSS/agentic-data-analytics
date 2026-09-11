@@ -484,6 +484,14 @@ h3 {
   display: block;
   color: #8a8f96;
 }
+.activity code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.92em;
+  color: #173b68;
+  background: #dce8f5;
+  border-radius: 3px;
+  padding: 1px 4px;
+}
 .result-pane {
   padding: 29px 30px 45px;
   min-width: 0;
