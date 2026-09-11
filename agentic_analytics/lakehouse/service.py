@@ -116,9 +116,13 @@ def _search_terms(value: str) -> list[str]:
     return [aliases.get(word, word) for word in re.findall(r"[a-z0-9_:.]+", _fold(value))]
 
 
-def _term_matches(term: str, text: str) -> bool:
-    if len(term) <= 3:
-        return re.search(r"(?<![a-z0-9_])" + re.escape(term) + r"(?![a-z0-9_])", text) is not None
+def _term_matches(term: str, text: str, *, whole_word: bool = False) -> bool:
+    # Dimension values are a closed proper-noun vocabulary: match them as whole tokens
+    # so a concept fragment ('gumus') never spuriously satisfies a longer value
+    # ('gumushane'). Free-text titles keep agglutinative substring recall.
+    if len(term) <= 3 or whole_word:
+        stem = term[:-1] if (whole_word and len(term) >= 5 and term.endswith("i")) else term
+        return re.search(r"(?<![a-z0-9_])" + re.escape(stem) + r"(?![a-z0-9_])", text) is not None
     return term in text or (len(term) >= 5 and term.endswith("i") and term[:-1] in text)
 
 
@@ -269,10 +273,10 @@ class LakehouseService:
                         if cache_key not in dimension_cache:
                             values = connection.execute(f"SELECT DISTINCT {_identifier(physical)} FROM {_identifier(binding['table'])} WHERE {_identifier(physical)} IS NOT NULL LIMIT 1001").fetchall()
                             dimension_cache[cache_key] = [row[0] for row in values] if len(values) <= 1000 else []
-                        found = [value for value in dimension_cache[cache_key] if any(_term_matches(term, _fold(str(value))) for term in missing)]
+                        found = [value for value in dimension_cache[cache_key] if any(_term_matches(term, _fold(str(value)), whole_word=True) for term in missing)]
                         if found:
                             matched_dimensions[dimension] = found[:10]
-                            missing = [term for term in missing if not any(_term_matches(term, _fold(str(value))) for value in found)]
+                            missing = [term for term in missing if not any(_term_matches(term, _fold(str(value)), whole_word=True) for value in found)]
                 if not missing:
                     card = self._card(binding)
                     title_matches = sum(_term_matches(term, title) for term in terms)

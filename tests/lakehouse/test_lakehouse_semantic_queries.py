@@ -159,6 +159,20 @@ class SemanticQueryTests(unittest.TestCase):
         self.assertEqual(0, self.service.discover({"query": "net kâr bakiyesi"})["total"])
         self.assertEqual(0, self.service.discover({"query": "yeni başvurular stoku"})["total"])
 
+    def test_dimension_value_interior_substring_is_not_a_confident_match(self):
+        # "anka" is an interior fragment of the province "ANKARA". A concept token
+        # must match a dimension VALUE as a whole token, so an unsatisfiable request
+        # surfaces no_confident_match instead of a spurious full match. This is the
+        # general form of the gümüş/Gümüşhane collision (silver vs the province).
+        partial = self.service.discover({"query": "anka mevduatı"})
+        self.assertEqual(0, partial["total"])
+        self.assertTrue(partial.get("no_confident_match"))
+        self.assertIn("anka", partial.get("uncovered_terms", []))
+        # The whole province name still matches as a dimension value.
+        full = self.service.discover({"query": "ankara altın mevduatı"})
+        self.assertEqual("gold", full["metrics"][0]["metric_id"])
+        self.assertEqual(["ANKARA"], full["metrics"][0]["matched_dimensions"]["city"])
+
     def test_no_confident_match_surfaces_near_candidates_and_uncovered_terms(self):
         # "gümüş mevduatı" has no series: "mevduat" partially matches the gold
         # deposit, "gumus" matches nothing. Instead of a bare empty result that
