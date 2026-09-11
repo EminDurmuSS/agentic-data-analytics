@@ -149,6 +149,24 @@ class AgentChartTests(unittest.TestCase):
         self.assertEqual(count_chart["series"][0]["unit"], "bin adet")
         self.assertEqual(count_chart["series"][0]["values"], [2.0, 3.0])
 
+    def test_single_series_scatter_is_explicitly_marked_as_a_limited_visual(self):
+        aid = self.save([10.0, None, 30.0])
+        saved = self.charts.create_chart({"analysis_id": aid, "kind": "scatter"})
+        chart = self.charts.load_artifact(saved["chart_id"])
+        self.assertEqual(chart["x_mode"], "period_index")
+        self.assertEqual(chart["x_values"], [0, 1, 2])
+        self.assertEqual(chart["series"][0]["values"], [10.0, None, 30.0])
+        self.assertIn("Sınırlı görsel", chart["presentation_notice"])
+
+    def test_metric_heatmap_is_explicitly_marked_as_a_limited_visual(self):
+        aid = self.save([10.0, None, 30.0], rate=[1.0, 2.0, 3.0])
+        saved = self.charts.create_chart({"analysis_id": aid, "kind": "heatmap", "columns": ["credit", "rate"]})
+        chart = self.charts.load_artifact(saved["chart_id"])
+        self.assertEqual(len(chart["cells"]), 6)
+        self.assertIsNone(chart["cells"][1]["value"])
+        self.assertTrue(chart["cells"][1]["source_row_available"])
+        self.assertIn("Sınırlı görsel", chart["presentation_notice"])
+
     def test_precision_infinity_and_all_null_boundaries(self):
         for values, code in [([2**53, 2**53 + 1], "UNSAFE_INTEGER")]:
             aid = self.save(values)

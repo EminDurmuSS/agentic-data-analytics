@@ -10,6 +10,7 @@ window.AnalysisCharts = (() => {
   };
   const palette = ["#226348", "#5279a8", "#c07a33", "#90649d", "#469397", "#b25c60", "#7d843c", "#607684"];
   const kindNames = { auto: "Otomatik", line: "Çizgi", bar: "Çubuk", area: "Alan", scatter: "Dağılım", heatmap: "Isı haritası" };
+  const periodIndex = "__period_index__";
   const numeric = (v) => typeof v === "number" && Number.isFinite(v) ? v : null;
   const number = (v) => v === null || v === undefined ? "Gözlem yok" :
     v && typeof v === "object" && /^-?\d+$/.test(v.$integer)
@@ -143,7 +144,12 @@ window.AnalysisCharts = (() => {
       option.value = item.column;
       x.append(option);
     }
-    x.value = payload.spec.x || payload.x_column || choices()[0]?.column || "";
+    if (payload.spec.kind === "scatter") {
+      const option = node("option", "Dönem sırası (tek metrik)");
+      option.value = periodIndex;
+      x.append(option);
+    }
+    x.value = payload.spec.x || payload.x_column || (payload.x_mode === "period_index" ? periodIndex : choices()[0]?.column || "");
     updateSettingAvailability();
     q("#chart-kinds").replaceChildren();
     for (const [kind, name] of Object.entries(kindNames)) {
@@ -151,26 +157,16 @@ window.AnalysisCharts = (() => {
       const button = node("button", name, "chart-kind");
       button.type = "button";
       button.setAttribute("aria-pressed", String(kind === payload.spec.kind));
-      const unavailable = payload.group_by
-        ? !["bar", "heatmap"].includes(kind) || (kind === "bar" && new Set(payload.periods).size > 1)
-        : (kind === "heatmap" || (kind === "scatter" && choices().length < 2));
-      button.dataset.unavailable = String(unavailable);
-      if (unavailable) {
-        button.title = kind === "heatmap"
-          ? "Isı haritası için gerçek grup ve dönem boyutları gerekir."
-          : kind === "scatter"
-            ? "Dağılım grafiği için iki farklı sayısal değişken gerekir."
-            : "Bu tür mevcut veri düzeni için uygun değil.";
-      }
+      button.dataset.unavailable = "false";
       button.onclick = () => {
         const overrides = { kind, ...(kind !== "bar" ? { orientation: "vertical" } : {}) };
         if (kind === "scatter") {
           const cols = formSpec().columns;
-          const xColumn = choices().find((item) => !cols.includes(item.column))?.column || cols[0];
+          const xColumn = choices().find((item) => !cols.includes(item.column))?.column || (cols.length > 1 ? cols[0] : periodIndex);
           overrides.x = xColumn;
           overrides.normalize = "none";
           overrides.layout = "auto";
-          overrides.columns = cols.filter((col) => col !== xColumn);
+          overrides.columns = xColumn === periodIndex ? cols : cols.filter((col) => col !== xColumn);
           if (!overrides.columns.length) overrides.columns = choices().filter((item) => item.column !== xColumn).slice(0, 1).map((item) => item.column);
         }
         save(overrides);
@@ -181,6 +177,8 @@ window.AnalysisCharts = (() => {
     renderLegend();
     q("#chart-note").textContent = number(payload.row_count) + " satırın tamamı · Yakınlaştırın, bir noktayı seçip kaynağını inceleyin.";
     q("#chart-warnings").replaceChildren(...(payload.warnings || []).map((w) => node("p", w, "warning")));
+    if (payload.presentation_notice)
+      q("#chart-warnings").prepend(node("p", payload.presentation_notice, "chart-info chart-limited-note"));
     if (payload.spec.normalize === "index100")
       q("#chart-warnings").prepend(node("p", "Tüm seriler için ortak başlangıç: " + period(payload.spec.base_period || payload.periods[0]) + " = 100. Kaynak izi özgün analiz değerini gösterir.", "chart-info"));
     if (payload.spec.layout === "dual_axis")
