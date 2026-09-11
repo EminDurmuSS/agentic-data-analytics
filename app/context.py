@@ -144,9 +144,7 @@ class AppContext:
         tools = self.documents(workspace_id).extra_tools()
         tools.update(StatisticsTools(self.store, workspace_id).extra_tools())
         tools.update(ChartTools(self.store, workspace_id).extra_tools())
-        # Generous bounds so multi-step analyses reach execution instead of dying
-        # on the budget; a finite cap still prevents a stuck model from looping
-        # forever (the wall clock is the ultimate backstop).
+        # Generous bounds so multi-step analyses reach execution; the finite cap still stops a looping model.
         return AgentRuntime(self.store, workspace_id, self.client, self.run_store, extra_tools=tools,
                             max_decisions=18, max_repairs=4, max_elapsed_seconds=900)
 

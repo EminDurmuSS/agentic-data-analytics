@@ -247,8 +247,7 @@ def get_bindings(connection: duckdb.DuckDBPyConnection) -> dict[str, dict[str, A
     # (slice token, archive flag, temporal semantics, curation) so discover/describe
     # can distinguish a canonical metric from its near-identical decoy siblings.
     searchable = [name for name in ("metric_name_en", "searchable_text", "group_name", "role",
-                                    "dimension", "is_archive", "temporal_semantics",
-                                    "default_aggregation", "quality_status", "competition_scope")
+                                    "dimension", "is_archive", "temporal_semantics", "quality_status")
                   if name in catalog_columns]
     if searchable:
         for metric in rows(connection, "SELECT m.metric_id," + ",".join("m." + name for name in searchable) + " FROM catalog.metrics m JOIN catalog.metric_bindings b USING(metric_id) WHERE b.binding_json IS NOT NULL"):

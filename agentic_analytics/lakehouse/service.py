@@ -116,7 +116,9 @@ def _search_terms(value: str) -> list[str]:
     return [aliases.get(word, word) for word in re.findall(r"[a-z0-9_:.]+", _fold(value))]
 
 
-_TOTAL_SLICE = {"toplam", "total", "toplamnakdi", "tumvarlikyukumluluk"}
+# Only the non-"toplam"/"total"-prefixed aggregate token needs listing; the rest
+# are caught by the startswith checks in _is_total_slice.
+_TOTAL_SLICE = {"tumvarlikyukumluluk"}
 
 
 def _is_total_slice(card: dict) -> bool:
@@ -134,10 +136,8 @@ def _term_matches(term: str, text: str, *, whole_word: bool = False) -> bool:
     # so a concept fragment ('gumus') never spuriously satisfies a longer value
     # ('gumushane'). Free-text titles keep agglutinative substring recall.
     if len(term) <= 3 or whole_word:
-        # Match the full term as a whole token first so a proper noun ending in 'i'
-        # (Kocaeli, Kayseri, Denizli) still matches itself; only then try the Turkish
-        # suffix-stemmed form as a fallback. The whole-token rule keeps a concept
-        # fragment ('gumus') from satisfying a longer value ('gumushane').
+        # Full token first so a proper noun ending in 'i' (Kocaeli) still matches
+        # itself, then its suffix-stemmed form as a fallback.
         if re.search(r"(?<![a-z0-9_])" + re.escape(term) + r"(?![a-z0-9_])", text):
             return True
         if whole_word and len(term) >= 5 and term.endswith("i"):
@@ -320,15 +320,9 @@ class LakehouseService:
                         card["matched_dimensions"] = _json(matched_dimensions)
                     matches.append((compatible, score, card))
                 elif terms and len(missing) < len(terms):
-                    # Near miss: some salient terms matched but not all. Surface it
-                    # as a navigation hint so the model stops blindly re-searching
-                    # the same query until the decision budget is exhausted.
-                    card = self._card(binding)
-                    if matched_dimensions:
-                        card["matched_dimensions"] = _json(matched_dimensions)
-                    card["missing_terms"] = missing
-                    title_hits = sum(_term_matches(term, title) for term in terms)
-                    near.append((0 if binding["status"] == "ready" else 1, -(len(terms) - len(missing)), -title_hits, card))
+                    # Partial match: store only cheap sort scalars plus references; the
+                    # card is materialized later, and only if no full match is found.
+                    near.append((binding["status"] != "ready", len(missing), title, matched_dimensions, missing, binding))
             # Structural canonical ordering: after readiness/frequency/score, prefer
             # the live (non-archive) aggregate slice from a curated source, so a
             # Tp/Yp/size-bracket/archived decoy no longer wins on an alphabetical id.
@@ -342,8 +336,15 @@ class LakehouseService:
             # When nothing fully matches, do not return a bare empty result: name
             # the unresolved terms and surface the nearest real series as hints.
             if terms and not matches:
-                near.sort(key=lambda item: (item[0], item[1], item[2], item[3]["metric_id"]))
-                near_cards = [item[3] for item in near[:min(limit, 6)]]
+                near.sort(key=lambda item: (item[0], item[1],
+                                            -sum(_term_matches(term, item[2]) for term in terms), item[5]["metric_id"]))
+                near_cards = []
+                for _, _, _, matched_dims, missing_terms, binding in near[:min(limit, 6)]:
+                    card = self._card(binding)
+                    if matched_dims:
+                        card["matched_dimensions"] = _json(matched_dims)
+                    card["missing_terms"] = missing_terms
+                    near_cards.append(card)
                 result["no_confident_match"] = True
                 result["near_matches"] = near_cards
                 if near_cards:
