@@ -368,6 +368,28 @@ function showEvents(activity) {
     holder.append(item);
   }
 }
+function showPendingActivity(pending, activity) {
+  const body = pending.querySelector(".body");
+  body.replaceChildren();
+  if (!activity?.length) {
+    body.textContent = "Agent çalışması başlatılıyor…";
+    return;
+  }
+  body.append(el("strong", "Canlı agent adımları"));
+  const steps = document.createElement("ol");
+  steps.className = "live-activity";
+  for (const step of activity.slice(-3)) {
+    const item = document.createElement("li");
+    const names = [step.tool, ...(step.tool_names || [])];
+    appendActivityText(item, step.title || "Kayıtlı agent adımı", names);
+    if (step.detail) {
+      item.append(document.createTextNode(" — "));
+      appendActivityText(item, step.detail, names);
+    }
+    steps.append(item);
+  }
+  body.append(steps);
+}
 async function submitQuestion(event) {
   event?.preventDefault();
   const message = $("#question").value.trim();
@@ -384,7 +406,7 @@ async function submitQuestion(event) {
   appendMessage("user", message);
   const pending = appendMessage(
     "assistant",
-    "Veriyi bulup hesap planını hazırlıyorum…",
+    "Agent çalışması başlatılıyor…",
     true,
   );
   try {
@@ -401,6 +423,7 @@ async function submitQuestion(event) {
     for (let i = 0; i < 480; i++) {
       job = await api("/api/jobs/" + state.job);
       showEvents(job.activity);
+      showPendingActivity(pending, job.activity);
       if (["finished", "failed", "interrupted"].includes(job.status)) break;
       await new Promise((resolve) => setTimeout(resolve, 700));
     }
