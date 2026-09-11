@@ -327,5 +327,5 @@ class AgentChartWorkflowTests(unittest.TestCase):
         self.assertEqual(2, len(results))
         self.assertEqual(results[0]["chart_id"], results[1]["chart_id"])
         self.assertTrue(results[1].get("idempotent_replay"), results[1])
-        self.assertEqual(1, sum(event["kind"] == "tool_reused" for event in job["events"]))
+        self.assertEqual(1, sum(event["kind"] == "tool_reused" for event in job["activity"]))
         self.assert_analysis_unchanged(wid, aid, before, analysis)

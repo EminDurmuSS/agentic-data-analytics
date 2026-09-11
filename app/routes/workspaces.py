@@ -5,6 +5,7 @@ import hashlib
 
 from fastapi import APIRouter
 
+from app.activity import activity_feed, public_run
 from app.context import AppContext
 from app.models import RunBody, WorkspaceBody
 from app.serialization import browser_json
@@ -28,10 +29,12 @@ def create_router(context: AppContext) -> APIRouter:
     @router.get("/api/workspaces/{workspace_id}")
     def workspace(workspace_id: str):
         value = context.workspace(workspace_id)
-        value["runs"] = context.run_store.list(workspace_id, limit=30)
-        if value["runs"]:
-            latest = value["runs"][0]
-            value["latest_events"] = context.run_store.events(latest["run_id"])
+        runs = context.run_store.list(workspace_id, limit=30)
+        value["runs"] = [public_run(run) for run in runs]
+        if runs:
+            latest = runs[0]
+            value["latest_activity"] = activity_feed(context.run_store.events(latest["run_id"]))
+            value["activity_count"] = len(value["latest_activity"])
             if not latest["result"]:
                 value["pending_job_id"] = "job_" + hashlib.sha256((workspace_id + ":" + latest["request_id"]).encode()).hexdigest()[:32]
         return browser_json(value)

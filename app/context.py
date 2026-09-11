@@ -12,6 +12,7 @@ import uuid
 import duckdb
 from fastapi import HTTPException
 
+from app.activity import activity_feed, public_run
 from agentic_analytics.lakehouse.service import PlanError, error_envelope
 from agentic_analytics.lakehouse.store import LakehouseStore, StoreError, file_sha256
 from app.diagnostics import log_job_failure
@@ -186,10 +187,11 @@ class AppContext:
         job = json.loads(path.read_text())
         run = self.run_store.find_request(job["workspace_id"], job["request_id"])
         if run:
-            job["run"] = run
-            job["events"] = self.run_store.events(run["run_id"])
+            job["run"] = public_run(run)
+            job["activity"] = activity_feed(self.run_store.events(run["run_id"]))
         else:
-            job["events"] = []
+            job["activity"] = []
+        job["activity_count"] = len(job["activity"])
         if job["status"] in {"queued", "running"} and job_id not in self.futures:
             job["status"] = "interrupted"
         return browser_json(job)
