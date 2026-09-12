@@ -51,16 +51,17 @@ def create_router(context: AppContext) -> APIRouter:
         suffix = Path(filename).suffix.lower()
         if suffix not in {".csv", ".xlsx", ".pdf", ".png", ".jpg", ".jpeg", ".html", ".htm", ".txt"}:
             raise HTTPException(400, "Desteklenen biçimler: CSV, Excel, PDF, görsel, HTML ve metin.")
-        size_limit = (8 if suffix in {".png", ".jpg", ".jpeg"} else 16) * 1024**2
+        documents = context.documents(workspace_id)
+        size_limit = min(8 * 1024**2, documents.max_source_bytes) if suffix in {".png", ".jpg", ".jpeg"} else documents.max_source_bytes
         body = await file.read(size_limit + 1)
         if len(body) > size_limit:
-            raise HTTPException(413, "Dosya boyut sınırını aşıyor (görsel 8 MiB, diğerleri 16 MiB).")
+            raise HTTPException(413, f"Dosya boyut sınırını aşıyor (bu dosya için {size_limit / 1024**2:g} MiB).")
         directory = context.store.root / "uploads"
         directory.mkdir(exist_ok=True)
         path = directory / (uuid.uuid4().hex + suffix)
         path.write_bytes(body)
         try:
-            return await run_in_threadpool(context.documents(workspace_id).register_upload, path, filename=filename)
+            return await run_in_threadpool(documents.register_upload, path, filename=filename)
         finally:
             path.unlink(missing_ok=True)
             await file.close()

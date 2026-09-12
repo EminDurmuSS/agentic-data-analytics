@@ -77,6 +77,76 @@ class AgentChartTests(unittest.TestCase):
         self.assertEqual(before_manifest, after_manifest)
         self.assertEqual(before_workspace, self.store.workspace("workspace_charts"))
 
+    def test_wide_bank_groups_all_remain_charted_with_source_group_labels(self):
+        for count in (9, 10):
+            with self.subTest(groups=count):
+                groups = list(range(10011-count, 10011))
+                labels = {str(group): f"Bank group {group}" for group in groups}
+                frame = pd.DataFrame({"period": ["2026-01", "2026-02", "2026-03"],
+                                      **{f"profit_{group}": [group, None if group == groups[-1] else group+10, group+20] for group in groups}})
+                schema = {name: {"kind": "flow", "unit": "TRY", "currency": "TRY", "scale": 1000000,
+                                 "status": "ready", "metric_id": "fixture:same_profit_metric",
+                                 "scope": {"dimensions": {"bank_group": group}}}
+                          for name, group in zip(list(frame)[1:], groups)}
+                sources = {name: {"dimensions": {"bank_group": group}, "binding": {
+                    "metric_id": "fixture:same_profit_metric", "title": "Monthly net profit", "source_system": "FIXTURE",
+                    "dimension_labels": {"bank_group": labels}}} for name, group in zip(schema, groups)}
+                saved = self.store.save_analysis("workspace_charts", frame, {"frequency": "monthly"},
+                    {"sources": sources, "frequency": "monthly"}, schema=schema,
+                    expected_version=self.store.workspace("workspace_charts")["version"])
+                aid = saved["analysis_id"]
+                before_frame, before_manifest = self.store.load_analysis(aid)
+                before_workspace = self.store.workspace("workspace_charts")
+                for kind in ("line", "bar", "heatmap"):
+                    for explicit in (False, True):
+                        args = {"analysis_id": aid, "kind": kind}
+                        if explicit:
+                            args["columns"] = list(schema)
+                        result = self.charts.create_chart(args)
+                        chart = self.charts.load_artifact(result["chart_id"])
+                        self.assertEqual(chart["spec"]["columns"], list(schema))
+                        self.assertEqual(len(chart["series"]), count)
+                        self.assertEqual(len({series["label"] for series in chart["series"]}), count)
+                        for series, group in zip(chart["series"], groups):
+                            self.assertIn(labels[str(group)], series["label"])
+                            self.assertEqual(series["source_dimensions"], {"bank_group": group})
+                            self.assertEqual(series.get("dimensions", {}), {})
+                            expected = [group, None if group == groups[-1] else group+10, group+20]
+                            self.assertEqual(series["values"], expected)
+                            self.assertEqual(series["raw_values"], expected)
+                        if kind == "heatmap":
+                            self.assertEqual(len(chart["cells"]), count*3)
+                            self.assertEqual({cell["source_dimensions"]["bank_group"] for cell in chart["cells"]}, set(groups))
+                            self.assertTrue(all(cell["dimensions"] == {} for cell in chart["cells"]))
+                after_frame, after_manifest = self.store.load_analysis(aid)
+                pd.testing.assert_frame_equal(before_frame, after_frame)
+                self.assertEqual(before_manifest, after_manifest)
+                self.assertEqual(before_workspace, self.store.workspace("workspace_charts"))
+                # Derived aliases share the same metric ID; each retains its
+                # own source dimension, not the first matching metric's group.
+                diff_schema = {"kind": "flow", "unit": "TRY", "scale": 1000000,
+                               "metric_id": "fixture:same_profit_metric", "scope": {"dimensions": {"bank_group": groups[-1]}}}
+                meta = self.charts._metadata({"schema": {"change": diff_schema}, "lineage": {"sources": sources},
+                                             "plan": {"operations": [{"op": "difference", "column": f"profit_{groups[-1]}", "output": "change", "periods": 1}]}}, "change")
+                self.assertIn(labels[str(groups[-1])], meta["label"])
+                self.assertEqual(meta["dimensions"], {"bank_group": groups[-1]})
+
+    def test_wide_series_limit_refuses_instead_of_truncating(self):
+        aid = self.save([1, 2], **{f"measure_{number}": [number, number+1] for number in range(30)})
+        before = self.store.workspace("workspace_charts")
+        with self.assertRaises(ChartError) as context:
+            self.charts.create_chart({"analysis_id": aid})
+        self.assertEqual(context.exception.code, "CHART_SERIES_LIMIT")
+        self.assertEqual(before, self.store.workspace("workspace_charts"))
+        with self.assertRaises(ChartError):
+            self.charts.create_chart({"analysis_id": aid, "columns": ["credit", *[f"measure_{n}" for n in range(30)]]})
+        selected = [f"measure_{n}" for n in range(30)]
+        chart = self.charts.load_artifact(self.charts.create_chart({"analysis_id": aid, "columns": selected})["chart_id"])
+        self.assertEqual(chart["spec"]["columns"], selected)
+        self.assertEqual(len(chart["series"]), 30)
+        schema = self.charts.extra_tools()["create_chart"]["schema"]["function"]["parameters"]
+        self.assertEqual(schema["properties"]["columns"]["maxItems"], 30)
+
     def test_mixed_units_and_price_bases_require_panels_or_two_explicit_axes(self):
         aid = self.save([10.0, 20.0], nominal=[10.0, 30.0],
                         schema={"credit": {"price_basis": "2000-01"}})
@@ -230,8 +300,68 @@ class AgentChartTests(unittest.TestCase):
         self.assertIsNone(heatmap["cells"][-1]["value"])
         self.assertFalse(heatmap["cells"][-1]["source_row_available"])
         self.assertEqual(heatmap["cells"][2]["dimensions"], {"bank": "a"})
+        before_frame, before_manifest = self.store.load_analysis(aid)
+        before_workspace = self.store.workspace("workspace_charts")
+        for kind in ("line", "bar", "area"):
+            saved = self.charts.create_chart({"analysis_id": aid, "kind": kind})
+            chart = self.charts.load_artifact(saved["chart_id"])
+            self.assertEqual(chart["group_mode"], "series")
+            self.assertEqual(chart["periods"], ["2000-01", "2000-02"])
+            self.assertEqual([s["label"] for s in chart["series"]], ["Banka A", "Banka B"])
+            self.assertEqual([s["values"] for s in chart["series"]], [[10.0, 30.0], [20.0, None]])
+            self.assertEqual([s["dimensions"] for s in chart["series"]], [{"bank": "a"}, {"bank": "b"}])
+            self.assertEqual(chart["series"][1]["source_row_available"], [True, False])
+            self.assertEqual(chart["series"][1]["summary"]["absent_row_count"], 1)
+            self.assertEqual(len({s["series_id"] for s in chart["series"]}), 2)
+            self.assertEqual([s["dimensions"] for s in saved["summary"]], [{"bank": "a"}, {"bank": "b"}])
+            pd.testing.assert_frame_equal(before_frame, self.store.load_analysis(aid)[0])
+            self.assertEqual(before_manifest, self.store.load_analysis(aid)[1])
+            self.assertEqual(before_workspace, self.store.workspace("workspace_charts"))
+
+    def test_group_series_preserve_changing_rank_membership_and_source_nulls(self):
+        frame = pd.DataFrame({"period": ["2026-01", "2026-01", "2026-02", "2026-02", "2026-03", "2026-03"],
+                              "bank": ["b", "a", "c", "b", "a", "c"],
+                              "value": [50.0, 10.0, 60.0, None, 70.0, 5.0], "rank": [1, 2, 1, None, 1, 2]})
+        schema = {"value": {"kind": "stock", "unit": "TRY", "scale": 1, "status": "ready"}, "rank": {"kind": "rank"}}
+        binding = {"title": "Kredi", "dimension_labels": {"bank": {"a": "A", "b": "B", "c": "B"}}}
+        aid = self.store.save_analysis("workspace_charts", frame,
+            {"query_type": "grouped", "request": {"group_by": "bank", "limit": 2}},
+            {"group_by": "bank", "frequency": "monthly", "groups": {"a": {"sources": {"value": {"binding": binding}}}}},
+            schema=schema, expected_version=self.store.workspace("workspace_charts")["version"])["analysis_id"]
+        for layout in ("overlay", "panels"):
+            result = self.charts.create_chart({"analysis_id": aid, "kind": "line", "layout": layout})
+            chart = self.charts.load_artifact(result["chart_id"])
+            self.assertEqual([s["label"] for s in chart["series"]], ["B (b)", "A", "B (c)"])
+            self.assertEqual([s["column"] for s in chart["series"]], ["value"] * 3)
+            self.assertEqual(chart["series"][0]["values"], [50.0, None, None])
+            self.assertEqual(chart["series"][0]["source_row_available"], [True, True, False])
+            self.assertEqual(chart["series"][0]["summary"]["source_null_count"], 1)
+            cells = {(row.period, row.bank): row.value for row in frame.itertuples()}
+            for series in chart["series"]:
+                for period, value, present in zip(chart["periods"], series["values"], series["source_row_available"]):
+                    key = period, series["dimensions"]["bank"]
+                    self.assertEqual(present, key in cells)
+                    self.assertEqual(value, None if key not in cells or pd.isna(cells[key]) else cells[key])
+            self.assertTrue(any("sıralama" in warning for warning in chart["warnings"]))
+        for options in ({"normalize": "index100"}, {"layout": "dual_axis"}, {"columns": ["rank"]}):
+            with self.subTest(options=options), self.assertRaises(ChartError):
+                self.charts.create_chart({"analysis_id": aid, "kind": "line", **options})
+
+    def test_revised_grouped_table_selects_a_single_measure_with_its_own_unit(self):
+        base = self.grouped(["2000-01", "2000-01", "2000-02"])
+        frame, manifest = self.store.load_analysis(base)
+        frame["growth"] = [None, None, 200.0]
+        schema = {**manifest["schema"], "growth": {"kind": "ratio", "unit": "percent", "scale": 1, "status": "ready"}}
+        aid = self.store.save_analysis("workspace_charts", frame, manifest["plan"], manifest["lineage"], schema=schema,
+            expected_version=self.store.workspace("workspace_charts")["version"])["analysis_id"]
+        self.assertEqual(["value"], self.charts.get_chart(aid)["spec"]["columns"])
+        saved = self.charts.create_chart({"analysis_id": aid, "kind": "line", "columns": ["growth"]})
+        chart = self.charts.load_artifact(saved["chart_id"])
+        self.assertEqual(["%", "%"], [series["unit"] for series in chart["series"]])
+        self.assertEqual([None, 200.0], chart["series"][0]["values"])
+        self.assertTrue(all(series["column"] == "growth" for series in chart["series"]))
         with self.assertRaises(ChartError):
-            self.charts.create_chart({"analysis_id": aid, "kind": "line"})
+            self.charts.create_chart({"analysis_id": aid, "kind": "line", "columns": ["value", "growth"]})
 
     def test_typed_tool_recovery_and_invalid_arguments(self):
         aid = self.save([1.0, 2.0])

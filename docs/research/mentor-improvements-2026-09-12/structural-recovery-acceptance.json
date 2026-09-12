@@ -1,0 +1,66 @@
+{
+  "source_sha256": "54c50d2e352fe71288fc9427966335c848fad7628f67ff83220d478ef91fb29a",
+  "sealed_journal_sha256": "b73a610b3432aa75efcb7dd7589ebf9e122770eed135cd5c48bca2161a113bd9",
+  "mode": "tool-level actual failed requests against copied original parser candidates, no LLM success claim",
+  "cases": [
+    {
+      "name": "same_page_recovery",
+      "passed": true,
+      "dataset_id": "dataset_be49281f00bb2c50d439131b559b37c68b9b3ddc04d9c51c2e8d938cfef80f04",
+      "amounts": [
+        85795568,
+        90351730,
+        529848729,
+        545630257
+      ],
+      "dates": [
+        "2024-12-31",
+        "2025-06-30",
+        "2024-12-31",
+        "2025-06-30"
+      ],
+      "source_cell_count": 4,
+      "unit": "TRY",
+      "scale": 1000,
+      "price_basis": "purchasing_power_2025-06-30",
+      "workspace_version": 1
+    },
+    {
+      "name": "current_subset",
+      "passed": true,
+      "dataset_id": "dataset_52f8043e5e06c93d25c1609626ff5ba781dfdcebcfd45ac76b5e7051db58d8eb",
+      "amounts": [
+        90351730,
+        545630257
+      ],
+      "dates": [
+        "2025-06-30",
+        "2025-06-30"
+      ],
+      "source_cell_count": 2,
+      "unit": "TRY",
+      "scale": 1000,
+      "price_basis": "purchasing_power_2025-06-30",
+      "workspace_version": 1
+    },
+    {
+      "name": "prior_subset",
+      "passed": true,
+      "dataset_id": "dataset_781ade6f1a8753e3c0c8b829f74898fb64e1a0095d017164d20cc0a7f8caab94",
+      "amounts": [
+        85795568,
+        529848729
+      ],
+      "dates": [
+        "2024-12-31",
+        "2024-12-31"
+      ],
+      "source_cell_count": 2,
+      "unit": "TRY",
+      "scale": 1000,
+      "price_basis": "purchasing_power_2025-06-30",
+      "workspace_version": 1
+    }
+  ],
+  "sealed_journal_unchanged": true
+}

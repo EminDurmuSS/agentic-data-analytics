@@ -12,7 +12,8 @@ import uuid
 import duckdb
 from fastapi import HTTPException
 
-from app.activity import activity_feed, public_run
+from app.activity import activity_feed, activity_journey
+from app.presentation import present_run
 from agentic_analytics.lakehouse.service import PlanError, error_envelope
 from agentic_analytics.lakehouse.store import LakehouseStore, StoreError, file_sha256
 from app.diagnostics import log_job_failure
@@ -171,8 +172,8 @@ class AppContext:
                 "units": {"type": "object", "additionalProperties": {"type": "string"}},
             }, "required": ["columns", "rows", "units"], "additionalProperties": False}},
         }, "required": ["text", "tables"], "additionalProperties": False}
-        response = self.client.image_chat(image_bytes, mime_type, ocr=False,
-            prompt="Transcribe the visible source verbatim into text and tables. Preserve all dates, values, decimal separators, headings and explicit units. Never guess unreadable cells: use null. units maps original column headings to units visibly stated in the source. Return the requested JSON schema.",
+        response = self.client.image_chat(image_bytes, mime_type, ocr=False, max_tokens=8192,
+            prompt="Transcribe the visible source into the requested JSON schema. Put table cells only in tables; text contains source headings, captions and footnotes verbatim, without repeating table rows. Preserve all dates, signs, values, decimal separators and explicit units. Flatten multirow headers with their exact period and currency labels so columns remain distinct. Never guess unreadable cells: use null. units maps original column headings to units visibly stated in the source. No interpretation or extra commentary.",
             response_format={"type": "json_schema", "json_schema": {"name": "source_tables", "strict": True, "schema": schema}})
         if response.get("finish_reason") == "length":
             from agentic_analytics.agent.tools.documents import DocumentError
@@ -190,9 +191,18 @@ class AppContext:
         from agentic_analytics.agent.runtime import AgentRuntime
         from agentic_analytics.agent.tools.statistics import StatisticsTools
         from agentic_analytics.agent.tools.charts import ChartTools
-        tools = self.documents(workspace_id).extra_tools()
+        from agentic_analytics.agent.tools.summary import SummaryTools
+        from agentic_analytics.agent.tools.datasets import DatasetTools
+        from agentic_analytics.agent.tools.source_index import SourceIndexTools
+        from agentic_analytics.agent.tools.financial_import import FinancialImportTools
+        documents = self.documents(workspace_id)
+        tools = FinancialImportTools(documents).extra_tools()
+        tools.update(documents.extra_tools())
         tools.update(StatisticsTools(self.store, workspace_id).extra_tools())
         tools.update(ChartTools(self.store, workspace_id).extra_tools())
+        tools.update(SummaryTools(self.store, workspace_id).extra_tools())
+        tools.update(DatasetTools(self.store, workspace_id).extra_tools())
+        tools.update(SourceIndexTools(self.store, workspace_id).extra_tools())
         # Generous bounds so multi-step analyses reach execution; the finite cap still stops a looping model.
         # The context budget stays well under the model's proven window (~72k tokens accepted; 150k chars ~= 49k)
         # so context-heavy multi-source or explain-driven analyses are not cut off before they can finish.
@@ -230,7 +240,8 @@ class AppContext:
                     write_json(job_path, {**values, "status": "failed", "result": detail})
 
             self.futures[job_id] = self.pool.submit(work)
-        return {"job_id": job_id, "workspace_id": workspace_id, "request_id": request_id, "status": "queued"}
+        return {"job_id": job_id, "workspace_id": workspace_id, "request_id": request_id, "status": "queued",
+                "journey": activity_journey([], "queued")}
 
     def job(self, job_id):
         path = self._metadata / "jobs" / (_safe_id(job_id) + ".json")
@@ -238,12 +249,17 @@ class AppContext:
             raise HTTPException(404, "Çalışma bulunamadı.")
         job = json.loads(path.read_text())
         run = self.run_store.find_request(job["workspace_id"], job["request_id"])
+        events = self.run_store.events(run["run_id"]) if run else []
         if run:
-            job["run"] = public_run(run)
-            job["activity"] = activity_feed(self.run_store.events(run["run_id"]))
+            job["run"] = present_run(self.store, run)
+            job["activity"] = activity_feed(events)
         else:
             job["activity"] = []
         job["activity_count"] = len(job["activity"])
         if job["status"] in {"queued", "running"} and job_id not in self.futures:
             job["status"] = "interrupted"
+        status = (job.get("result") or {}).get("status") or (run or {}).get("status") or job["status"]
+        if job["status"] in {"failed", "interrupted"} and status not in {"blocked", "failed"}:
+            status = "failed"
+        job["journey"] = activity_journey(events, status)
         return browser_json(job)

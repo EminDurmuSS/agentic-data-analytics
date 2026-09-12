@@ -6,6 +6,7 @@ import tempfile
 import unittest
 
 import duckdb
+import pandas as pd
 from fastapi.testclient import TestClient
 
 from app.server import create_app
@@ -165,6 +166,28 @@ class AgentChartWorkflowTests(unittest.TestCase):
         self.assertEqual(36, len(heatmap["cells"]))
         self.assertIn("Sınırlı görsel", heatmap["presentation_notice"])
         self.assert_analysis_unchanged(wid, aid, before, analysis)
+
+    def test_grouped_chart_switches_preserve_saved_rows_and_group_drilldown(self):
+        wid = self.workspace()
+        rows = pd.DataFrame({"period": ["2026-01", "2026-01", "2026-02"],
+                             "bank": ["A", "B", "A"], "value": [100.0, 20.0, 150.0], "rank": [1, 2, 1]})
+        manifest = self.context.store.save_analysis(wid, rows,
+            {"query_type": "grouped", "request": {"group_by": "bank", "limit": 2}},
+            {"group_by": "bank", "frequency": "monthly"},
+            schema={"value": {"kind": "flow", "unit": "TRY", "scale": 1, "status": "ready"}}, expected_version=0)
+        aid = manifest["analysis_id"]
+        before, analysis = self.context.store.workspace(wid), self.analysis(wid, aid)
+        for kind in ("line", "bar", "area", "heatmap", "line"):
+            chart = self.chart(wid, aid, {"kind": kind})
+            self.assertEqual(3, chart["row_count"])
+            self.assertEqual(["2026-01", "2026-02"], chart["periods"])
+            self.assertEqual(analysis, self.analysis(wid, aid))
+            self.assertEqual(before, self.context.store.workspace(wid))
+            self.assertEqual(["value"], [column["column"] for column in chart["available_columns"]])
+            if kind != "heatmap":
+                self.assertEqual([[100.0, 150.0], [20.0, None]], [s["raw_values"] for s in chart["series"]])
+                self.assertEqual([{"bank": "A"}, {"bank": "B"}], [s["dimensions"] for s in chart["series"]])
+                self.assertEqual([True, False], chart["series"][1]["source_row_available"])
 
     def test_mixed_unit_metric_heatmap_is_rejected(self):
         # A metric heatmap paints every series on one color scale, so mixing TL and %

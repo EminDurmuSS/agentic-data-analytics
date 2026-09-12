@@ -1,0 +1,19 @@
+{
+  "recorded_at": "2026-09-12T21:24:02.254629+00:00",
+  "command": ".venv/bin/python -m pytest -q --tb=short",
+  "passed": 694,
+  "subtests_passed": 259,
+  "failed": 0,
+  "warnings": 2,
+  "elapsed_seconds": 161.89,
+  "log_sha256": "abffe8e07d14a99e6d9021b9385ff6a455f16e86a78de657a9488eae03b7a25f",
+  "log": "test-results.txt",
+  "scope": "Full suite after period_end and same-page extraction recovery, before upcoming runtime capability gate. Real-provider task acceptance is separately recorded.",
+  "additional_checks": [
+    "node --check app/static/app.js",
+    "node --check app/static/charts.js",
+    ".venv/bin/python -m compileall -q agentic_analytics app evals",
+    "git diff --check"
+  ],
+  "additional_checks_passed": true
+}

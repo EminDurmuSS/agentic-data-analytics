@@ -96,6 +96,48 @@ class AgentStatisticsTests(unittest.TestCase):
         self.assertEqual(len(result["results"]["rows"]), 20)
         self.assertEqual(len(self.stats.load_artifact(result["artifact_id"])["results"]["rows"]), 200)
 
+    def save_calendar(self, frequency, labels):
+        return self.store.save_analysis("workspace_stats", pd.DataFrame({"period": labels, "value": [10.0] * (len(labels) - 1) + [100.0]}),
+            {"frequency": frequency}, {"source": "synthetic_calendar"},
+            expected_version=self.store.workspace("workspace_stats")["version"])["analysis_id"]
+
+    def test_native_calendar_aliases_preserve_labels_and_detect_same_observation(self):
+        cases = {
+            "weekly": pd.date_range("2026-01-02", periods=12, freq="W-FRI").strftime("%Y-%m-%d").tolist(),
+            "weekly_friday": pd.date_range("2026-01-02", periods=12, freq="W-FRI").strftime("%Y-%m-%d").tolist(),
+            "weekly_wednesday": pd.date_range("2026-01-07", periods=12, freq="W-WED").strftime("%Y-%m-%d").tolist(),
+            "yearly": [str(year) for year in range(2015, 2027)],
+            "annual": [str(year) for year in range(2015, 2027)],
+            "half_yearly": [f"{year}-H{half}" for year in range(2021, 2027) for half in (1, 2)],
+        }
+        for frequency, labels in cases.items():
+            with self.subTest(frequency=frequency):
+                aid = self.save_calendar(frequency, labels)
+                before = self.store.load_analysis(aid)
+                result = self.stats.rolling_anomalies(aid, "value", window=6, min_history=4)
+                self.assertTrue(result["results"]["rows"][-1]["anomaly"])
+                self.assertEqual(result["results"]["rows"][-1]["period"], labels[-1])
+                pd.testing.assert_frame_equal(before[0], self.store.load_analysis(aid)[0])
+                self.assertEqual(before[1], self.store.load_analysis(aid)[1])
+                skipped = self.save_calendar(frequency, labels[:5] + labels[6:])
+                with self.assertRaises(StatisticsError) as failure:
+                    self.stats.rolling_anomalies(skipped, "value", window=6, min_history=4)
+                self.assertEqual(failure.exception.code, "IRREGULAR_TIME_AXIS")
+
+    def test_explicit_calendars_are_not_silently_inferred_as_daily(self):
+        dates = pd.date_range("2026-01-01", periods=12).strftime("%Y-%m-%d").tolist()
+        for frequency in ("twice_monthly", "event", "static", "unsupported"):
+            aid = self.save_calendar(frequency, dates)
+            with self.subTest(frequency=frequency), self.assertRaises(StatisticsError) as failure:
+                self.stats.rolling_anomalies(aid, "value")
+            self.assertEqual(failure.exception.code, "UNKNOWN_FREQUENCY")
+        thursdays = pd.date_range("2026-01-01", periods=12, freq="W-THU").strftime("%Y-%m-%d").tolist()
+        for frequency in ("weekly_friday", "weekly_wednesday"):
+            aid = self.save_calendar(frequency, thursdays)
+            with self.assertRaises(StatisticsError) as failure:
+                self.stats.rolling_anomalies(aid, "value")
+            self.assertEqual(failure.exception.code, "INVALID_TIME_LABEL")
+
 
 if __name__ == "__main__":
     unittest.main()

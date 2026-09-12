@@ -1,0 +1,38 @@
+{
+  "scope": "Offline replay from sealed final journals and immutable current workspace context; no provider calls. New fallback runs only immediately before the prior context-budget error, preserving every previously successful request by construction.",
+  "max_context_chars": 150000,
+  "source_module_sha256": "62a6a930d6664509efb2d11d1bf5faab4d21f72d33c6a1cf592a1f94722d731c",
+  "new_module_sha256": "4defded68c4b5799950e89526e944e45e69a94dcad43c8842418ef8f6046d35d",
+  "cases": [
+    {
+      "case": "pdf_sector_1",
+      "status": "completed",
+      "decisions": 10,
+      "identical": true,
+      "budget_chars": 139579,
+      "before_sha256": "1afc744937e2207f003245fcfd81cf46677d9eb45b7799e91a77c90cb5e156c5",
+      "after_sha256": "1afc744937e2207f003245fcfd81cf46677d9eb45b7799e91a77c90cb5e156c5",
+      "raw_journal_unchanged": true
+    },
+    {
+      "case": "pdf_sector_2",
+      "status": "completed",
+      "decisions": 13,
+      "identical": true,
+      "budget_chars": 139781,
+      "before_sha256": "d17f0004db1ead1c28f9018d860d00f54c37b5a6c53ff3d133161790e84f11f0",
+      "after_sha256": "d17f0004db1ead1c28f9018d860d00f54c37b5a6c53ff3d133161790e84f11f0",
+      "raw_journal_unchanged": true
+    },
+    {
+      "case": "pdf_sector_3",
+      "status": "completed",
+      "decisions": 16,
+      "identical": true,
+      "budget_chars": 145252,
+      "before_sha256": "4064142548c6bbad189789743e0ff99255ea0839b325e1758552523d4f4d7630",
+      "after_sha256": "4064142548c6bbad189789743e0ff99255ea0839b325e1758552523d4f4d7630",
+      "raw_journal_unchanged": true
+    }
+  ]
+}

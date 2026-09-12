@@ -1,0 +1,1715 @@
+{
+  "created_at": "2026-09-12T20:45:19.156184+00:00",
+  "grader_sha256": "94caa4f793e1961fa774276030ef9eb41ec7775efc7532ac5cca4a5948e3073d",
+  "oracles": {
+    "profit": {
+      "basis": "Original BDDK table02 row53, Sektör, Toplam cumulative cells, differenced within each year with January reset to zero; million TRY.",
+      "monthly": {
+        "2025": [
+          47347,
+          70867,
+          98437,
+          47551,
+          62632,
+          95625
+        ],
+        "2026": [
+          87249,
+          82152,
+          119287,
+          74625,
+          58476,
+          106642
+        ]
+      },
+      "cumulative": {
+        "2025": [
+          47347,
+          118214,
+          216651,
+          264202,
+          326834,
+          422459
+        ],
+        "2026": [
+          87249,
+          169401,
+          288688,
+          363313,
+          421789,
+          528431
+        ]
+      },
+      "raw_sha256": {
+        "2025": [
+          "8851a8de695dbdddf080b1c905213cb9e4b30de30d3fd6f9cdde54202270a9e5",
+          "d4a3b5eaca3f5aa1355e3bf28daee4fede1c06022a9a05dc6518279ac8463372",
+          "8cfd002b1868c4ed21cb8e1789c0ffa4caf464d5d0ead16b7b335d2441b8dfe6",
+          "eb150ee1e6aa1a6bba6b9eee7982178399a0e583ee28011fe5ef59f9f5268d4f",
+          "4b03ce547a4b71c794210d7947bf21f19d4de5047f2caeef3a6624596fde2ae8",
+          "ac620053f954732f72f26abd02fd102c1ce149d22f10c8e3997d5d055b74c7eb"
+        ],
+        "2026": [
+          "cb16fc0e35ffbb5545ff8bebed8fec3059c831eee3fbe39e853224631818bab4",
+          "896ea7fb92028976806e72fe10c869a3623dafb80cc86bdcad43c18d30b22d12",
+          "967b44d4b988c9ac07fe5dbf39e8f7b95127cd210f8de823df2aefa2740041c8",
+          "6a60d89ca3cbdf9380453790a26b16f36b6ca41d80917f34b0875c9f18656834",
+          "0a247c021d974ea8ff3b73f98b72dc75f64f3896d259045900f107ca026571dc",
+          "0d4cc56d19a740f278799faa6ce96c82c53943de974284a96378472ff7bfd698"
+        ]
+      },
+      "totals": {
+        "2025": 422459,
+        "2026": 528431
+      }
+    },
+    "new_source": {
+      "basis": "Synthetic uploaded bank values divided by full-sector BDDK balance-sheet loans, million TRY. Credit-breakdown reporting population is not the full-sector denominator.",
+      "periods": [
+        "2026-01",
+        "2026-02",
+        "2026-03"
+      ],
+      "bank": [
+        100000,
+        120000,
+        150000
+      ],
+      "sector": [
+        23646098,
+        24217659,
+        24907270
+      ]
+    },
+    "garanti_pdf": {
+      "basis": "Consolidated balance sheet, PDF page 11, TOTAL columns, thousand TRY.",
+      "host": "garantibbvainvestorrelations.com",
+      "page": 11,
+      "raw_sha256": "b8dd1916b3943ffdaa06d2be75a8b7e33950812eb990ae8b1bfe601b7f99c288",
+      "source_table": "table_p000011_text_001",
+      "source_cells": {
+        "column_8": {
+          "date": "2026-03-31",
+          "rows": {
+            "12": "financial_assets",
+            "13": "cash"
+          }
+        },
+        "column_11": {
+          "date": "2025-12-31",
+          "rows": {
+            "12": "financial_assets",
+            "13": "cash"
+          }
+        }
+      },
+      "values": {
+        "financial_assets": {
+          "2025-12-31": 1260568409,
+          "2026-03-31": 1279933463
+        },
+        "cash": {
+          "2025-12-31": 1005229845,
+          "2026-03-31": 867799356
+        }
+      }
+    },
+    "web": {
+      "basis": "TCMB 6 March 2025 monetary policy decision, prior 45%, new 42.5%, actual decision page.",
+      "date": "2025-03-06",
+      "prior": 45,
+      "new": 42.5,
+      "release": "duy2025-15"
+    },
+    "tupras_pdf": {
+      "basis": "Consolidated balance sheet, PDF page 3, thousand TRY at 30 June 2025 purchasing power.",
+      "host": "tupras.com.tr",
+      "page": 3,
+      "raw_sha256": "54c50d2e352fe71288fc9427966335c848fad7628f67ff83220d478ef91fb29a",
+      "source_table": "table_p000003_text_001",
+      "source_cells": {
+        "column_7": {
+          "date": "2025-06-30",
+          "rows": {
+            "12": "cash",
+            "38": "total_assets"
+          }
+        }
+      },
+      "price_basis": "2025-06-30",
+      "values": {
+        "total_assets": {
+          "2025-06-30": 545630257
+        },
+        "cash": {
+          "2025-06-30": 90351730
+        }
+      }
+    }
+  },
+  "rounds": [
+    {
+      "round": "/Users/edurmus/Downloads/kkb-hackathon-2026-notlar/mentor-improvements-2026-09-12/live-final",
+      "manifest_sha256": "ad847ba1b76e2d81b244ad044157f0a449d2030e7012beaa8a87674b26727056",
+      "backend_unchanged_during_collection": true,
+      "trials": [
+        {
+          "case": "profit",
+          "repeat": 1,
+          "turns": [
+            {
+              "file": "/Users/edurmus/Downloads/kkb-hackathon-2026-notlar/mentor-improvements-2026-09-12/live-final/profit_1/turn-1.json",
+              "sha256": "0a17f83aa3fa9741325576de937159f4468efece327e2d4a339a1931e3de285e",
+              "artifact_grade": "pass",
+              "task_complete": true,
+              "run_status": "completed",
+              "decisions": 7,
+              "elapsed_seconds": 53.414,
+              "checks": [
+                {
+                  "check": "saved_analysis_integrity",
+                  "status": "pass"
+                },
+                {
+                  "check": "analysis_workspace_matches_run",
+                  "status": "pass"
+                },
+                {
+                  "check": "collector_export_matches_saved_bytes",
+                  "status": "pass"
+                },
+                {
+                  "check": "twelve_independent_monthly_profit_cells",
+                  "status": "pass",
+                  "detail": {
+                    "expected": {
+                      "2025": [
+                        47347,
+                        70867,
+                        98437,
+                        47551,
+                        62632,
+                        95625
+                      ],
+                      "2026": [
+                        87249,
+                        82152,
+                        119287,
+                        74625,
+                        58476,
+                        106642
+                      ]
+                    },
+                    "observed": {
+                      "net_kar": [
+                        47347.0,
+                        70867.0,
+                        98437.0,
+                        47551.0,
+                        62632.0,
+                        95625.0,
+                        87249.0,
+                        82152.0,
+                        119287.0,
+                        74625.0,
+                        58476.0,
+                        106642.0
+                      ]
+                    }
+                  }
+                },
+                {
+                  "check": "six_month_non_cumulative_profit_totals",
+                  "status": "pass",
+                  "detail": {
+                    "expected_million_TRY": {
+                      "2025": 422459,
+                      "2026": 528431
+                    },
+                    "matching_columns": [
+                      "net_kar"
+                    ]
+                  }
+                },
+                {
+                  "check": "summary_receipt_integrity",
+                  "status": "pass"
+                },
+                {
+                  "check": "delivered_2025_first_half_total",
+                  "status": "pass"
+                },
+                {
+                  "check": "delivered_2026_first_half_total",
+                  "status": "pass"
+                },
+                {
+                  "check": "delivered_year_on_year_total_growth",
+                  "status": "pass",
+                  "detail": 25.08456441926909
+                }
+              ],
+              "runtime_errors": [],
+              "answer_sha256": "ded50949d8fad4944527c309a2d8122abc5e1133904beb45a0bdac4a0c630659",
+              "limits": [
+                "Checks cover the stated acceptance oracles; other prose claims and browser usability were not independently reviewed.",
+                "Analysis, attached chart/summary and imported raw-source bytes are checked; original BDDK raw downloads are not re-fetched."
+              ]
+            }
+          ],
+          "artifact_grade": "pass",
+          "task_complete": true
+        },
+        {
+          "case": "profit",
+          "repeat": 2,
+          "turns": [
+            {
+              "file": "/Users/edurmus/Downloads/kkb-hackathon-2026-notlar/mentor-improvements-2026-09-12/live-final/profit_2/turn-1.json",
+              "sha256": "5517060054d41cbf354fe159c176ebe655f9a0de0e5b414a8502d048a3c1039f",
+              "artifact_grade": "pass",
+              "task_complete": true,
+              "run_status": "completed",
+              "decisions": 7,
+              "elapsed_seconds": 53.753,
+              "checks": [
+                {
+                  "check": "saved_analysis_integrity",
+                  "status": "pass"
+                },
+                {
+                  "check": "analysis_workspace_matches_run",
+                  "status": "pass"
+                },
+                {
+                  "check": "collector_export_matches_saved_bytes",
+                  "status": "pass"
+                },
+                {
+                  "check": "twelve_independent_monthly_profit_cells",
+                  "status": "pass",
+                  "detail": {
+                    "expected": {
+                      "2025": [
+                        47347,
+                        70867,
+                        98437,
+                        47551,
+                        62632,
+                        95625
+                      ],
+                      "2026": [
+                        87249,
+                        82152,
+                        119287,
+                        74625,
+                        58476,
+                        106642
+                      ]
+                    },
+                    "observed": {
+                      "net_kar": [
+                        47347.0,
+                        70867.0,
+                        98437.0,
+                        47551.0,
+                        62632.0,
+                        95625.0,
+                        87249.0,
+                        82152.0,
+                        119287.0,
+                        74625.0,
+                        58476.0,
+                        106642.0
+                      ]
+                    }
+                  }
+                },
+                {
+                  "check": "six_month_non_cumulative_profit_totals",
+                  "status": "pass",
+                  "detail": {
+                    "expected_million_TRY": {
+                      "2025": 422459,
+                      "2026": 528431
+                    },
+                    "matching_columns": [
+                      "net_kar"
+                    ]
+                  }
+                },
+                {
+                  "check": "summary_receipt_integrity",
+                  "status": "pass"
+                },
+                {
+                  "check": "delivered_2025_first_half_total",
+                  "status": "pass"
+                },
+                {
+                  "check": "delivered_2026_first_half_total",
+                  "status": "pass"
+                },
+                {
+                  "check": "delivered_year_on_year_total_growth",
+                  "status": "pass",
+                  "detail": 25.08456441926909
+                }
+              ],
+              "runtime_errors": [],
+              "answer_sha256": "ded50949d8fad4944527c309a2d8122abc5e1133904beb45a0bdac4a0c630659",
+              "limits": [
+                "Checks cover the stated acceptance oracles; other prose claims and browser usability were not independently reviewed.",
+                "Analysis, attached chart/summary and imported raw-source bytes are checked; original BDDK raw downloads are not re-fetched."
+              ]
+            }
+          ],
+          "artifact_grade": "pass",
+          "task_complete": true
+        },
+        {
+          "case": "new_source",
+          "repeat": 1,
+          "turns": [
+            {
+              "file": "/Users/edurmus/Downloads/kkb-hackathon-2026-notlar/mentor-improvements-2026-09-12/live-final/new_source_1/turn-1.json",
+              "sha256": "3618faba47f4d37572eeceda7bb473092a0f02e3df7b038cbe1a4303893734fe",
+              "artifact_grade": "pass",
+              "task_complete": true,
+              "run_status": "completed",
+              "decisions": 9,
+              "elapsed_seconds": 72.008,
+              "checks": [
+                {
+                  "check": "saved_analysis_integrity",
+                  "status": "pass"
+                },
+                {
+                  "check": "analysis_workspace_matches_run",
+                  "status": "pass"
+                },
+                {
+                  "check": "collector_export_matches_saved_bytes",
+                  "status": "pass"
+                },
+                {
+                  "check": "bank_balance_values",
+                  "status": "pass",
+                  "detail": {
+                    "expected": [
+                      100000,
+                      120000,
+                      150000
+                    ],
+                    "observed": {
+                      "banka_kredi": [
+                        100000,
+                        120000,
+                        150000
+                      ]
+                    }
+                  }
+                },
+                {
+                  "check": "sector_balance_values",
+                  "status": "pass",
+                  "detail": {
+                    "expected": [
+                      23646098,
+                      24217659,
+                      24907270
+                    ],
+                    "observed": {
+                      "sektor_kredi": [
+                        23646098.0,
+                        24217659.0,
+                        24907270.0
+                      ]
+                    }
+                  }
+                },
+                {
+                  "check": "bank_divided_by_full_sector_percent",
+                  "status": "pass",
+                  "detail": [
+                    0.4229027554567354,
+                    0.49550619240282473,
+                    0.6022338056318497
+                  ]
+                },
+                {
+                  "check": "ratio_has_explicit_source_scope",
+                  "status": "pass"
+                },
+                {
+                  "check": "published_dataset_integrity",
+                  "status": "pass"
+                },
+                {
+                  "check": "published_raw_source_integrity",
+                  "status": "pass"
+                },
+                {
+                  "check": "publication_source_url_matches_registered_source",
+                  "status": "pass"
+                },
+                {
+                  "check": "new_source_was_published",
+                  "status": "pass"
+                },
+                {
+                  "check": "bank_series_uses_published_source",
+                  "status": "pass",
+                  "detail": "dataset_228d61691ad3f8482c954d2d4fa50931d2566e7556af9b444f337ef8caca4ed9"
+                },
+                {
+                  "check": "sector_population_and_measurement_basis",
+                  "status": "pass",
+                  "detail": {
+                    "customer_residency": null,
+                    "exclusions": [],
+                    "id": "bddk_monthly_full_reporting_population"
+                  }
+                },
+                {
+                  "check": "chart_receipt_integrity",
+                  "status": "pass"
+                },
+                {
+                  "check": "requested_chart_kind",
+                  "status": "pass",
+                  "detail": {
+                    "base_period": null,
+                    "columns": [
+                      "banka_kredi",
+                      "sektor_kredi",
+                      "banka_pay_pct"
+                    ],
+                    "frequency": "monthly",
+                    "kind": "line",
+                    "layout": "panels",
+                    "normalize": "none",
+                    "orientation": "vertical",
+                    "x": null
+                  }
+                },
+                {
+                  "check": "requested_columns_charted",
+                  "status": "pass",
+                  "detail": [
+                    "banka_pay_pct"
+                  ]
+                },
+                {
+                  "check": "chart_period_coverage",
+                  "status": "pass"
+                },
+                {
+                  "check": "chart_series_0_matches_saved_cells",
+                  "status": "pass"
+                },
+                {
+                  "check": "chart_series_0_display_matches_saved_cells",
+                  "status": "pass"
+                },
+                {
+                  "check": "chart_series_1_matches_saved_cells",
+                  "status": "pass"
+                },
+                {
+                  "check": "chart_series_1_display_matches_saved_cells",
+                  "status": "pass"
+                },
+                {
+                  "check": "chart_series_2_matches_saved_cells",
+                  "status": "pass"
+                },
+                {
+                  "check": "chart_series_2_display_matches_saved_cells",
+                  "status": "pass"
+                },
+                {
+                  "check": "chart_all_saved_cells_covered_once",
+                  "status": "pass"
+                },
+                {
+                  "check": "chart_different_units_have_distinct_scales",
+                  "status": "pass"
+                },
+                {
+                  "check": "chart_complete_without_reinterpreting_values",
+                  "status": "pass"
+                },
+                {
+                  "check": "synthetic_source_is_disclosed",
+                  "status": "pass"
+                }
+              ],
+              "runtime_errors": [],
+              "answer_sha256": "bcc70e9ed6f7bd10f9f75c08646a6da77de70dbaaae0e73f5071d2a4eea4538e",
+              "limits": [
+                "Checks cover the stated acceptance oracles; other prose claims and browser usability were not independently reviewed.",
+                "Analysis, attached chart/summary and imported raw-source bytes are checked; original BDDK raw downloads are not re-fetched."
+              ]
+            }
+          ],
+          "artifact_grade": "pass",
+          "task_complete": true
+        },
+        {
+          "case": "new_source",
+          "repeat": 2,
+          "turns": [
+            {
+              "file": "/Users/edurmus/Downloads/kkb-hackathon-2026-notlar/mentor-improvements-2026-09-12/live-final/new_source_2/turn-1.json",
+              "sha256": "7832053a43eb399166b7762d00c8ae15b804e7afa918c97b8165bad878c49b1d",
+              "artifact_grade": "pass",
+              "task_complete": true,
+              "run_status": "completed",
+              "decisions": 7,
+              "elapsed_seconds": 62.194,
+              "checks": [
+                {
+                  "check": "saved_analysis_integrity",
+                  "status": "pass"
+                },
+                {
+                  "check": "analysis_workspace_matches_run",
+                  "status": "pass"
+                },
+                {
+                  "check": "collector_export_matches_saved_bytes",
+                  "status": "pass"
+                },
+                {
+                  "check": "bank_balance_values",
+                  "status": "pass",
+                  "detail": {
+                    "expected": [
+                      100000,
+                      120000,
+                      150000
+                    ],
+                    "observed": {
+                      "deneme_bankasi_kredi": [
+                        100000,
+                        120000,
+                        150000
+                      ]
+                    }
+                  }
+                },
+                {
+                  "check": "sector_balance_values",
+                  "status": "pass",
+                  "detail": {
+                    "expected": [
+                      23646098,
+                      24217659,
+                      24907270
+                    ],
+                    "observed": {
+                      "bddk_sektor_kredi": [
+                        23646098.0,
+                        24217659.0,
+                        24907270.0
+                      ]
+                    }
+                  }
+                },
+                {
+                  "check": "bank_divided_by_full_sector_percent",
+                  "status": "pass",
+                  "detail": [
+                    0.4229027554567354,
+                    0.49550619240282473,
+                    0.6022338056318497
+                  ]
+                },
+                {
+                  "check": "ratio_has_explicit_source_scope",
+                  "status": "pass"
+                },
+                {
+                  "check": "published_dataset_integrity",
+                  "status": "pass"
+                },
+                {
+                  "check": "published_raw_source_integrity",
+                  "status": "pass"
+                },
+                {
+                  "check": "publication_source_url_matches_registered_source",
+                  "status": "pass"
+                },
+                {
+                  "check": "new_source_was_published",
+                  "status": "pass"
+                },
+                {
+                  "check": "bank_series_uses_published_source",
+                  "status": "pass",
+                  "detail": "dataset_75e654f1a17e6a2aa778cdc5d72f28c941dc32a3753a42a64c3bbe1f2dffde87"
+                },
+                {
+                  "check": "sector_population_and_measurement_basis",
+                  "status": "pass",
+                  "detail": {
+                    "customer_residency": null,
+                    "exclusions": [],
+                    "id": "bddk_monthly_full_reporting_population"
+                  }
+                },
+                {
+                  "check": "chart_receipt_integrity",
+                  "status": "pass"
+                },
+                {
+                  "check": "requested_chart_kind",
+                  "status": "pass",
+                  "detail": {
+                    "base_period": null,
+                    "columns": [
+                      "deneme_bankasi_kredi",
+                      "bddk_sektor_kredi",
+                      "banka_pay_pct"
+                    ],
+                    "frequency": "monthly",
+                    "kind": "line",
+                    "layout": "panels",
+                    "normalize": "none",
+                    "orientation": "vertical",
+                    "x": null
+                  }
+                },
+                {
+                  "check": "requested_columns_charted",
+                  "status": "pass",
+                  "detail": [
+                    "banka_pay_pct"
+                  ]
+                },
+                {
+                  "check": "chart_period_coverage",
+                  "status": "pass"
+                },
+                {
+                  "check": "chart_series_0_matches_saved_cells",
+                  "status": "pass"
+                },
+                {
+                  "check": "chart_series_0_display_matches_saved_cells",
+                  "status": "pass"
+                },
+                {
+                  "check": "chart_series_1_matches_saved_cells",
+                  "status": "pass"
+                },
+                {
+                  "check": "chart_series_1_display_matches_saved_cells",
+                  "status": "pass"
+                },
+                {
+                  "check": "chart_series_2_matches_saved_cells",
+                  "status": "pass"
+                },
+                {
+                  "check": "chart_series_2_display_matches_saved_cells",
+                  "status": "pass"
+                },
+                {
+                  "check": "chart_all_saved_cells_covered_once",
+                  "status": "pass"
+                },
+                {
+                  "check": "chart_different_units_have_distinct_scales",
+                  "status": "pass"
+                },
+                {
+                  "check": "chart_complete_without_reinterpreting_values",
+                  "status": "pass"
+                },
+                {
+                  "check": "synthetic_source_is_disclosed",
+                  "status": "pass"
+                }
+              ],
+              "runtime_errors": [],
+              "answer_sha256": "fd83477ebbd5713b4d40b58cb54a7ac889dc66334628aadd9a6f0706aa4d8e7a",
+              "limits": [
+                "Checks cover the stated acceptance oracles; other prose claims and browser usability were not independently reviewed.",
+                "Analysis, attached chart/summary and imported raw-source bytes are checked; original BDDK raw downloads are not re-fetched."
+              ]
+            }
+          ],
+          "artifact_grade": "pass",
+          "task_complete": true
+        },
+        {
+          "case": "grouped",
+          "repeat": 1,
+          "turns": [
+            {
+              "file": "/Users/edurmus/Downloads/kkb-hackathon-2026-notlar/mentor-improvements-2026-09-12/live-final/grouped_1/turn-1.json",
+              "sha256": "3d66b17eb33a763718e8507f9d3a7435f199322b5f28b4f86371c5f354d1e5c4",
+              "artifact_grade": "unavailable",
+              "task_complete": false,
+              "reason": "No independent oracle supplied for this case."
+            },
+            {
+              "file": "/Users/edurmus/Downloads/kkb-hackathon-2026-notlar/mentor-improvements-2026-09-12/live-final/grouped_1/turn-2.json",
+              "sha256": "b3427b4d3fcd5986e1bbd5e020c051b056a4f759ad798c5671997c72fa726967",
+              "artifact_grade": "unavailable",
+              "task_complete": false,
+              "reason": "No independent oracle supplied for this case."
+            },
+            {
+              "file": "/Users/edurmus/Downloads/kkb-hackathon-2026-notlar/mentor-improvements-2026-09-12/live-final/grouped_1/turn-3.json",
+              "sha256": "574a3f3a9570ea480bab2d0094b3cb0401d4965702ed8ec4d3bef11f04e13b3b",
+              "artifact_grade": "unavailable",
+              "task_complete": false,
+              "reason": "No independent oracle supplied for this case."
+            }
+          ],
+          "artifact_grade": "incomplete",
+          "task_complete": false
+        },
+        {
+          "case": "grouped",
+          "repeat": 2,
+          "turns": [
+            {
+              "file": "/Users/edurmus/Downloads/kkb-hackathon-2026-notlar/mentor-improvements-2026-09-12/live-final/grouped_2/turn-1.json",
+              "sha256": "e6b0177aecd55c05667da61f767e27a410ef5587c51f4a9be3977fb937db81e4",
+              "artifact_grade": "unavailable",
+              "task_complete": false,
+              "reason": "No independent oracle supplied for this case."
+            },
+            {
+              "file": "/Users/edurmus/Downloads/kkb-hackathon-2026-notlar/mentor-improvements-2026-09-12/live-final/grouped_2/turn-2.json",
+              "sha256": "108ab7d6707c457a6d45fc4d06d9967668be379d79a0fc7100d3d7046588bf6f",
+              "artifact_grade": "unavailable",
+              "task_complete": false,
+              "reason": "No independent oracle supplied for this case."
+            },
+            {
+              "file": "/Users/edurmus/Downloads/kkb-hackathon-2026-notlar/mentor-improvements-2026-09-12/live-final/grouped_2/turn-3.json",
+              "sha256": "3984c6140f2b296c093477dc8fabe6b42098f025e391786b64db8630c969d67f",
+              "artifact_grade": "unavailable",
+              "task_complete": false,
+              "reason": "No independent oracle supplied for this case."
+            }
+          ],
+          "artifact_grade": "incomplete",
+          "task_complete": false
+        },
+        {
+          "case": "web",
+          "repeat": 1,
+          "turns": [
+            {
+              "file": "/Users/edurmus/Downloads/kkb-hackathon-2026-notlar/mentor-improvements-2026-09-12/live-final/web_1/turn-1.json",
+              "sha256": "0f705f78b7e301d1088003ba71e858b285c42cad51616ac01fe1e362ac3b0930",
+              "artifact_grade": "pass",
+              "task_complete": true,
+              "run_status": "completed",
+              "decisions": 2,
+              "elapsed_seconds": 30.358,
+              "checks": [
+                {
+                  "check": "official_decision_raw_source_integrity",
+                  "status": "pass"
+                },
+                {
+                  "check": "official_decision_raw_source_integrity",
+                  "status": "pass"
+                },
+                {
+                  "check": "official_decision_raw_source_integrity",
+                  "status": "pass"
+                },
+                {
+                  "check": "actual_official_decision_opened",
+                  "status": "pass",
+                  "detail": [
+                    {
+                      "url": "https://www.tcmb.gov.tr/wps/wcm/connect/06e05e5b-98c0-4d31-81fc-9d1bdfde0fa6/DUY2025-15.pdf?MOD=AJPERES&CACHEID=ROOTWORKSPACE-06e05e5b-98c0-4d31-81fc-9d1bdfde0fa6-plH7bZH",
+                      "source_id": "source_33e7a450b37568a353d29fe12e94b6677fbb78dad6bd57b49450e735e588dfb8",
+                      "date": true,
+                      "rates": true,
+                      "policy": true
+                    },
+                    {
+                      "url": "https://www.tcmb.gov.tr/wps/wcm/connect/TR/TCMB+TR/Main+Menu/Duyurular/Basin/2025/DUY2025-15",
+                      "source_id": "source_b040e849386d3f0063edbe15187ed51ace13f7f886d21912bbe362a02d4df93f",
+                      "date": true,
+                      "rates": true,
+                      "policy": true
+                    }
+                  ]
+                },
+                {
+                  "check": "decision_date_and_prior_to_new_rate",
+                  "status": "pass"
+                },
+                {
+                  "check": "decision_link_delivered",
+                  "status": "pass"
+                },
+                {
+                  "check": "decision_date_delivered",
+                  "status": "pass"
+                },
+                {
+                  "check": "prior_to_new_policy_rate_delivered",
+                  "status": "pass"
+                }
+              ],
+              "runtime_errors": [],
+              "answer_sha256": "e003538c29c98188b9c2fa57886ec60c3018ff1c16e55c4cb948eebd06554fee",
+              "limits": [
+                "Checks cover the stated acceptance oracles; other prose claims and browser usability were not independently reviewed.",
+                "Analysis, attached chart/summary and imported raw-source bytes are checked; original BDDK raw downloads are not re-fetched."
+              ]
+            }
+          ],
+          "artifact_grade": "pass",
+          "task_complete": true
+        },
+        {
+          "case": "web",
+          "repeat": 2,
+          "turns": [
+            {
+              "file": "/Users/edurmus/Downloads/kkb-hackathon-2026-notlar/mentor-improvements-2026-09-12/live-final/web_2/turn-1.json",
+              "sha256": "8c8ab1b53f3b371a82ee2c8e73120e94877989f327288828b21392bc5a6eeb51",
+              "artifact_grade": "pass",
+              "task_complete": true,
+              "run_status": "completed",
+              "decisions": 2,
+              "elapsed_seconds": 31.797,
+              "checks": [
+                {
+                  "check": "official_decision_raw_source_integrity",
+                  "status": "pass"
+                },
+                {
+                  "check": "official_decision_raw_source_integrity",
+                  "status": "pass"
+                },
+                {
+                  "check": "official_decision_raw_source_integrity",
+                  "status": "pass"
+                },
+                {
+                  "check": "actual_official_decision_opened",
+                  "status": "pass",
+                  "detail": [
+                    {
+                      "url": "https://www.tcmb.gov.tr/wps/wcm/connect/06e05e5b-98c0-4d31-81fc-9d1bdfde0fa6/DUY2025-15.pdf?MOD=AJPERES&CACHEID=ROOTWORKSPACE-06e05e5b-98c0-4d31-81fc-9d1bdfde0fa6-plH7bZH",
+                      "source_id": "source_df331ba731729aae6a9f1f6105436d950c2e9a8a078cd377838e93eef35a32f0",
+                      "date": true,
+                      "rates": true,
+                      "policy": true
+                    },
+                    {
+                      "url": "https://www.tcmb.gov.tr/wps/wcm/connect/TR/TCMB+TR/Main+Menu/Duyurular/Basin/2025/DUY2025-15",
+                      "source_id": "source_f674602a6b76c7398a5b440c5820ba462d1ec877b1196b5ab554f90a286b8442",
+                      "date": true,
+                      "rates": true,
+                      "policy": true
+                    }
+                  ]
+                },
+                {
+                  "check": "decision_date_and_prior_to_new_rate",
+                  "status": "pass"
+                },
+                {
+                  "check": "decision_link_delivered",
+                  "status": "pass"
+                },
+                {
+                  "check": "decision_date_delivered",
+                  "status": "pass"
+                },
+                {
+                  "check": "prior_to_new_policy_rate_delivered",
+                  "status": "pass"
+                }
+              ],
+              "runtime_errors": [],
+              "answer_sha256": "e003538c29c98188b9c2fa57886ec60c3018ff1c16e55c4cb948eebd06554fee",
+              "limits": [
+                "Checks cover the stated acceptance oracles; other prose claims and browser usability were not independently reviewed.",
+                "Analysis, attached chart/summary and imported raw-source bytes are checked; original BDDK raw downloads are not re-fetched."
+              ]
+            }
+          ],
+          "artifact_grade": "pass",
+          "task_complete": true
+        },
+        {
+          "case": "garanti_pdf",
+          "repeat": 1,
+          "turns": [
+            {
+              "file": "/Users/edurmus/Downloads/kkb-hackathon-2026-notlar/mentor-improvements-2026-09-12/live-final/garanti_pdf_1/turn-1.json",
+              "sha256": "d89ef216d79ae789e049fc2002338123809a519677cd304be17a521762d223a2",
+              "artifact_grade": "pass",
+              "task_complete": true,
+              "run_status": "completed",
+              "decisions": 13,
+              "elapsed_seconds": 147.233,
+              "checks": [
+                {
+                  "check": "saved_analysis_integrity",
+                  "status": "pass"
+                },
+                {
+                  "check": "analysis_workspace_matches_run",
+                  "status": "pass"
+                },
+                {
+                  "check": "collector_export_matches_saved_bytes",
+                  "status": "pass"
+                },
+                {
+                  "check": "published_dataset_integrity",
+                  "status": "pass"
+                },
+                {
+                  "check": "published_raw_source_integrity",
+                  "status": "pass"
+                },
+                {
+                  "check": "publication_source_url_matches_registered_source",
+                  "status": "pass"
+                },
+                {
+                  "check": "new_source_was_published",
+                  "status": "pass"
+                },
+                {
+                  "check": "expected_report_and_page_provenance",
+                  "status": "pass",
+                  "detail": {
+                    "host": "garantibbvainvestorrelations.com",
+                    "page": 11
+                  }
+                },
+                {
+                  "check": "cash_2025-12-31_source_coordinate_date",
+                  "status": "pass",
+                  "detail": {
+                    "source_coordinate_date": "2025-12-31",
+                    "output_date": "2025-12-31"
+                  }
+                },
+                {
+                  "check": "financial_assets_2025-12-31_source_coordinate_date",
+                  "status": "pass",
+                  "detail": {
+                    "source_coordinate_date": "2025-12-31",
+                    "output_date": "2025-12-31"
+                  }
+                },
+                {
+                  "check": "cash_2026-03-31_source_coordinate_date",
+                  "status": "pass",
+                  "detail": {
+                    "source_coordinate_date": "2026-03-31",
+                    "output_date": "2026-03-31"
+                  }
+                },
+                {
+                  "check": "financial_assets_2026-03-31_source_coordinate_date",
+                  "status": "pass",
+                  "detail": {
+                    "source_coordinate_date": "2026-03-31",
+                    "output_date": "2026-03-31"
+                  }
+                },
+                {
+                  "check": "financial_assets_2025-12-31_TOTAL_thousand_TRY",
+                  "status": "pass",
+                  "detail": {
+                    "expected": 1260568409,
+                    "observed": [
+                      {
+                        "value": 1260568409,
+                        "column": "reported_amount",
+                        "unit": "TRY",
+                        "scale": 1000
+                      }
+                    ]
+                  }
+                },
+                {
+                  "check": "financial_assets_2026-03-31_TOTAL_thousand_TRY",
+                  "status": "pass",
+                  "detail": {
+                    "expected": 1279933463,
+                    "observed": [
+                      {
+                        "value": 1279933463,
+                        "column": "reported_amount",
+                        "unit": "TRY",
+                        "scale": 1000
+                      }
+                    ]
+                  }
+                },
+                {
+                  "check": "cash_2025-12-31_TOTAL_thousand_TRY",
+                  "status": "pass",
+                  "detail": {
+                    "expected": 1005229845,
+                    "observed": [
+                      {
+                        "value": 1005229845,
+                        "column": "reported_amount",
+                        "unit": "TRY",
+                        "scale": 1000
+                      }
+                    ]
+                  }
+                },
+                {
+                  "check": "cash_2026-03-31_TOTAL_thousand_TRY",
+                  "status": "pass",
+                  "detail": {
+                    "expected": 867799356,
+                    "observed": [
+                      {
+                        "value": 867799356,
+                        "column": "reported_amount",
+                        "unit": "TRY",
+                        "scale": 1000
+                      }
+                    ]
+                  }
+                },
+                {
+                  "check": "chart_receipt_integrity",
+                  "status": "pass"
+                },
+                {
+                  "check": "requested_chart_kind",
+                  "status": "pass",
+                  "detail": {
+                    "base_period": null,
+                    "columns": [
+                      "reported_amount"
+                    ],
+                    "frequency": "daily",
+                    "kind": "bar",
+                    "layout": "overlay",
+                    "normalize": "none",
+                    "orientation": "vertical",
+                    "x": null
+                  }
+                },
+                {
+                  "check": "requested_columns_charted",
+                  "status": "pass",
+                  "detail": [
+                    "reported_amount"
+                  ]
+                },
+                {
+                  "check": "chart_period_coverage",
+                  "status": "pass"
+                },
+                {
+                  "check": "chart_series_0_matches_saved_cells",
+                  "status": "pass"
+                },
+                {
+                  "check": "chart_series_0_display_matches_saved_cells",
+                  "status": "pass"
+                },
+                {
+                  "check": "chart_series_0_source_nulls_preserved",
+                  "status": "pass"
+                },
+                {
+                  "check": "chart_series_1_matches_saved_cells",
+                  "status": "pass"
+                },
+                {
+                  "check": "chart_series_1_display_matches_saved_cells",
+                  "status": "pass"
+                },
+                {
+                  "check": "chart_series_1_source_nulls_preserved",
+                  "status": "pass"
+                },
+                {
+                  "check": "chart_all_saved_cells_covered_once",
+                  "status": "pass"
+                },
+                {
+                  "check": "chart_complete_without_reinterpreting_values",
+                  "status": "pass"
+                }
+              ],
+              "runtime_errors": [],
+              "answer_sha256": "4ffd74f9951d608b8e6f463215ba3356d4afe31d39f784668320d3c06a4f3b50",
+              "limits": [
+                "Checks cover the stated acceptance oracles; other prose claims and browser usability were not independently reviewed.",
+                "Analysis, attached chart/summary and imported raw-source bytes are checked; original BDDK raw downloads are not re-fetched."
+              ]
+            }
+          ],
+          "artifact_grade": "pass",
+          "task_complete": true
+        },
+        {
+          "case": "garanti_pdf",
+          "repeat": 2,
+          "turns": [
+            {
+              "file": "/Users/edurmus/Downloads/kkb-hackathon-2026-notlar/mentor-improvements-2026-09-12/live-final/garanti_pdf_2/turn-1.json",
+              "sha256": "1d42c01bccd3ad68e25c2305e886e88b7102e30360669f58c601fb70f29df578",
+              "artifact_grade": "pass",
+              "task_complete": true,
+              "run_status": "completed",
+              "decisions": 13,
+              "elapsed_seconds": 141.542,
+              "checks": [
+                {
+                  "check": "saved_analysis_integrity",
+                  "status": "pass"
+                },
+                {
+                  "check": "analysis_workspace_matches_run",
+                  "status": "pass"
+                },
+                {
+                  "check": "collector_export_matches_saved_bytes",
+                  "status": "pass"
+                },
+                {
+                  "check": "published_dataset_integrity",
+                  "status": "pass"
+                },
+                {
+                  "check": "published_raw_source_integrity",
+                  "status": "pass"
+                },
+                {
+                  "check": "publication_source_url_matches_registered_source",
+                  "status": "pass"
+                },
+                {
+                  "check": "new_source_was_published",
+                  "status": "pass"
+                },
+                {
+                  "check": "expected_report_and_page_provenance",
+                  "status": "pass",
+                  "detail": {
+                    "host": "garantibbvainvestorrelations.com",
+                    "page": 11
+                  }
+                },
+                {
+                  "check": "cash_2025-12-31_source_coordinate_date",
+                  "status": "pass",
+                  "detail": {
+                    "source_coordinate_date": "2025-12-31",
+                    "output_date": "2025-12-31"
+                  }
+                },
+                {
+                  "check": "financial_assets_2025-12-31_source_coordinate_date",
+                  "status": "pass",
+                  "detail": {
+                    "source_coordinate_date": "2025-12-31",
+                    "output_date": "2025-12-31"
+                  }
+                },
+                {
+                  "check": "cash_2026-03-31_source_coordinate_date",
+                  "status": "pass",
+                  "detail": {
+                    "source_coordinate_date": "2026-03-31",
+                    "output_date": "2026-03-31"
+                  }
+                },
+                {
+                  "check": "financial_assets_2026-03-31_source_coordinate_date",
+                  "status": "pass",
+                  "detail": {
+                    "source_coordinate_date": "2026-03-31",
+                    "output_date": "2026-03-31"
+                  }
+                },
+                {
+                  "check": "financial_assets_2025-12-31_TOTAL_thousand_TRY",
+                  "status": "pass",
+                  "detail": {
+                    "expected": 1260568409,
+                    "observed": [
+                      {
+                        "value": 1260568409,
+                        "column": "reported_amount",
+                        "unit": "TRY",
+                        "scale": 1000
+                      }
+                    ]
+                  }
+                },
+                {
+                  "check": "financial_assets_2026-03-31_TOTAL_thousand_TRY",
+                  "status": "pass",
+                  "detail": {
+                    "expected": 1279933463,
+                    "observed": [
+                      {
+                        "value": 1279933463,
+                        "column": "reported_amount",
+                        "unit": "TRY",
+                        "scale": 1000
+                      }
+                    ]
+                  }
+                },
+                {
+                  "check": "cash_2025-12-31_TOTAL_thousand_TRY",
+                  "status": "pass",
+                  "detail": {
+                    "expected": 1005229845,
+                    "observed": [
+                      {
+                        "value": 1005229845,
+                        "column": "reported_amount",
+                        "unit": "TRY",
+                        "scale": 1000
+                      }
+                    ]
+                  }
+                },
+                {
+                  "check": "cash_2026-03-31_TOTAL_thousand_TRY",
+                  "status": "pass",
+                  "detail": {
+                    "expected": 867799356,
+                    "observed": [
+                      {
+                        "value": 867799356,
+                        "column": "reported_amount",
+                        "unit": "TRY",
+                        "scale": 1000
+                      }
+                    ]
+                  }
+                },
+                {
+                  "check": "chart_receipt_integrity",
+                  "status": "pass"
+                },
+                {
+                  "check": "requested_chart_kind",
+                  "status": "pass",
+                  "detail": {
+                    "base_period": null,
+                    "columns": [
+                      "reported_amount"
+                    ],
+                    "frequency": "daily",
+                    "kind": "bar",
+                    "layout": "overlay",
+                    "normalize": "none",
+                    "orientation": "vertical",
+                    "x": null
+                  }
+                },
+                {
+                  "check": "requested_columns_charted",
+                  "status": "pass",
+                  "detail": [
+                    "reported_amount"
+                  ]
+                },
+                {
+                  "check": "chart_period_coverage",
+                  "status": "pass"
+                },
+                {
+                  "check": "chart_series_0_matches_saved_cells",
+                  "status": "pass"
+                },
+                {
+                  "check": "chart_series_0_display_matches_saved_cells",
+                  "status": "pass"
+                },
+                {
+                  "check": "chart_series_0_source_nulls_preserved",
+                  "status": "pass"
+                },
+                {
+                  "check": "chart_series_1_matches_saved_cells",
+                  "status": "pass"
+                },
+                {
+                  "check": "chart_series_1_display_matches_saved_cells",
+                  "status": "pass"
+                },
+                {
+                  "check": "chart_series_1_source_nulls_preserved",
+                  "status": "pass"
+                },
+                {
+                  "check": "chart_all_saved_cells_covered_once",
+                  "status": "pass"
+                },
+                {
+                  "check": "chart_complete_without_reinterpreting_values",
+                  "status": "pass"
+                }
+              ],
+              "runtime_errors": [],
+              "answer_sha256": "4ffd74f9951d608b8e6f463215ba3356d4afe31d39f784668320d3c06a4f3b50",
+              "limits": [
+                "Checks cover the stated acceptance oracles; other prose claims and browser usability were not independently reviewed.",
+                "Analysis, attached chart/summary and imported raw-source bytes are checked; original BDDK raw downloads are not re-fetched."
+              ]
+            }
+          ],
+          "artifact_grade": "pass",
+          "task_complete": true
+        },
+        {
+          "case": "tupras_pdf",
+          "repeat": 1,
+          "turns": [
+            {
+              "file": "/Users/edurmus/Downloads/kkb-hackathon-2026-notlar/mentor-improvements-2026-09-12/live-final/tupras_pdf_1/turn-1.json",
+              "sha256": "6288958fae6f284dd731830e7c11a537947d43a12a6665a5fae8c01af319c4da",
+              "artifact_grade": "pass",
+              "task_complete": true,
+              "run_status": "completed",
+              "decisions": 12,
+              "elapsed_seconds": 84.517,
+              "checks": [
+                {
+                  "check": "saved_analysis_integrity",
+                  "status": "pass"
+                },
+                {
+                  "check": "analysis_workspace_matches_run",
+                  "status": "pass"
+                },
+                {
+                  "check": "collector_export_matches_saved_bytes",
+                  "status": "pass"
+                },
+                {
+                  "check": "published_dataset_integrity",
+                  "status": "pass"
+                },
+                {
+                  "check": "published_raw_source_integrity",
+                  "status": "pass"
+                },
+                {
+                  "check": "publication_source_url_matches_registered_source",
+                  "status": "pass"
+                },
+                {
+                  "check": "new_source_was_published",
+                  "status": "pass"
+                },
+                {
+                  "check": "expected_report_and_page_provenance",
+                  "status": "pass",
+                  "detail": {
+                    "host": "tupras.com.tr",
+                    "page": 3
+                  }
+                },
+                {
+                  "check": "cash_2025-06-30_source_coordinate_date",
+                  "status": "pass",
+                  "detail": {
+                    "source_coordinate_date": "2025-06-30",
+                    "output_date": "2025-06-30"
+                  }
+                },
+                {
+                  "check": "total_assets_2025-06-30_source_coordinate_date",
+                  "status": "pass",
+                  "detail": {
+                    "source_coordinate_date": "2025-06-30",
+                    "output_date": "2025-06-30"
+                  }
+                },
+                {
+                  "check": "total_assets_2025-06-30_TOTAL_thousand_TRY",
+                  "status": "pass",
+                  "detail": {
+                    "expected": 545630257,
+                    "observed": [
+                      {
+                        "value": 545630257,
+                        "column": "reported_amount",
+                        "unit": "TRY",
+                        "scale": 1000
+                      }
+                    ]
+                  }
+                },
+                {
+                  "check": "total_assets_purchasing_power_basis",
+                  "status": "pass",
+                  "detail": "2025-06-30"
+                },
+                {
+                  "check": "cash_2025-06-30_TOTAL_thousand_TRY",
+                  "status": "pass",
+                  "detail": {
+                    "expected": 90351730,
+                    "observed": [
+                      {
+                        "value": 90351730,
+                        "column": "reported_amount",
+                        "unit": "TRY",
+                        "scale": 1000
+                      }
+                    ]
+                  }
+                },
+                {
+                  "check": "cash_purchasing_power_basis",
+                  "status": "pass",
+                  "detail": "2025-06-30"
+                },
+                {
+                  "check": "chart_receipt_integrity",
+                  "status": "pass"
+                },
+                {
+                  "check": "requested_chart_kind",
+                  "status": "pass",
+                  "detail": {
+                    "base_period": null,
+                    "columns": [
+                      "reported_amount"
+                    ],
+                    "frequency": "daily",
+                    "kind": "bar",
+                    "layout": "overlay",
+                    "normalize": "none",
+                    "orientation": "vertical",
+                    "x": null
+                  }
+                },
+                {
+                  "check": "requested_columns_charted",
+                  "status": "pass",
+                  "detail": [
+                    "reported_amount"
+                  ]
+                },
+                {
+                  "check": "chart_period_coverage",
+                  "status": "pass"
+                },
+                {
+                  "check": "chart_series_0_matches_saved_cells",
+                  "status": "pass"
+                },
+                {
+                  "check": "chart_series_0_display_matches_saved_cells",
+                  "status": "pass"
+                },
+                {
+                  "check": "chart_all_saved_cells_covered_once",
+                  "status": "pass"
+                },
+                {
+                  "check": "chart_complete_without_reinterpreting_values",
+                  "status": "pass"
+                }
+              ],
+              "runtime_errors": [],
+              "answer_sha256": "285cee3e2e131aff04700a7933691339b67313c48919e7b037fbc0ea4306f091",
+              "limits": [
+                "Checks cover the stated acceptance oracles; other prose claims and browser usability were not independently reviewed.",
+                "Analysis, attached chart/summary and imported raw-source bytes are checked; original BDDK raw downloads are not re-fetched."
+              ]
+            }
+          ],
+          "artifact_grade": "pass",
+          "task_complete": true
+        },
+        {
+          "case": "tupras_pdf",
+          "repeat": 2,
+          "turns": [
+            {
+              "file": "/Users/edurmus/Downloads/kkb-hackathon-2026-notlar/mentor-improvements-2026-09-12/live-final/tupras_pdf_2/turn-1.json",
+              "sha256": "2fbda3d147dbc5ea5081d7459047c72713bd37c58509a6052236e3a3f8a487be",
+              "artifact_grade": "pass",
+              "task_complete": true,
+              "run_status": "completed",
+              "decisions": 9,
+              "elapsed_seconds": 70.254,
+              "checks": [
+                {
+                  "check": "saved_analysis_integrity",
+                  "status": "pass"
+                },
+                {
+                  "check": "analysis_workspace_matches_run",
+                  "status": "pass"
+                },
+                {
+                  "check": "collector_export_matches_saved_bytes",
+                  "status": "pass"
+                },
+                {
+                  "check": "published_dataset_integrity",
+                  "status": "pass"
+                },
+                {
+                  "check": "published_raw_source_integrity",
+                  "status": "pass"
+                },
+                {
+                  "check": "publication_source_url_matches_registered_source",
+                  "status": "pass"
+                },
+                {
+                  "check": "new_source_was_published",
+                  "status": "pass"
+                },
+                {
+                  "check": "expected_report_and_page_provenance",
+                  "status": "pass",
+                  "detail": {
+                    "host": "tupras.com.tr",
+                    "page": 3
+                  }
+                },
+                {
+                  "check": "cash_2025-06-30_source_coordinate_date",
+                  "status": "pass",
+                  "detail": {
+                    "source_coordinate_date": "2025-06-30",
+                    "output_date": "2025-06-30"
+                  }
+                },
+                {
+                  "check": "total_assets_2025-06-30_source_coordinate_date",
+                  "status": "pass",
+                  "detail": {
+                    "source_coordinate_date": "2025-06-30",
+                    "output_date": "2025-06-30"
+                  }
+                },
+                {
+                  "check": "total_assets_2025-06-30_TOTAL_thousand_TRY",
+                  "status": "pass",
+                  "detail": {
+                    "expected": 545630257,
+                    "observed": [
+                      {
+                        "value": 545630257,
+                        "column": "reported_amount",
+                        "unit": "TRY",
+                        "scale": 1000
+                      }
+                    ]
+                  }
+                },
+                {
+                  "check": "total_assets_purchasing_power_basis",
+                  "status": "pass",
+                  "detail": "2025-06-30"
+                },
+                {
+                  "check": "cash_2025-06-30_TOTAL_thousand_TRY",
+                  "status": "pass",
+                  "detail": {
+                    "expected": 90351730,
+                    "observed": [
+                      {
+                        "value": 90351730,
+                        "column": "reported_amount",
+                        "unit": "TRY",
+                        "scale": 1000
+                      }
+                    ]
+                  }
+                },
+                {
+                  "check": "cash_purchasing_power_basis",
+                  "status": "pass",
+                  "detail": "2025-06-30"
+                },
+                {
+                  "check": "chart_receipt_integrity",
+                  "status": "pass"
+                },
+                {
+                  "check": "requested_chart_kind",
+                  "status": "pass",
+                  "detail": {
+                    "base_period": null,
+                    "columns": [
+                      "reported_amount"
+                    ],
+                    "frequency": "daily",
+                    "kind": "bar",
+                    "layout": "overlay",
+                    "normalize": "none",
+                    "orientation": "vertical",
+                    "x": null
+                  }
+                },
+                {
+                  "check": "requested_columns_charted",
+                  "status": "pass",
+                  "detail": [
+                    "reported_amount"
+                  ]
+                },
+                {
+                  "check": "chart_period_coverage",
+                  "status": "pass"
+                },
+                {
+                  "check": "chart_series_0_matches_saved_cells",
+                  "status": "pass"
+                },
+                {
+                  "check": "chart_series_0_display_matches_saved_cells",
+                  "status": "pass"
+                },
+                {
+                  "check": "chart_all_saved_cells_covered_once",
+                  "status": "pass"
+                },
+                {
+                  "check": "chart_complete_without_reinterpreting_values",
+                  "status": "pass"
+                }
+              ],
+              "runtime_errors": [],
+              "answer_sha256": "285cee3e2e131aff04700a7933691339b67313c48919e7b037fbc0ea4306f091",
+              "limits": [
+                "Checks cover the stated acceptance oracles; other prose claims and browser usability were not independently reviewed.",
+                "Analysis, attached chart/summary and imported raw-source bytes are checked; original BDDK raw downloads are not re-fetched."
+              ]
+            }
+          ],
+          "artifact_grade": "pass",
+          "task_complete": true
+        }
+      ]
+    }
+  ]
+}

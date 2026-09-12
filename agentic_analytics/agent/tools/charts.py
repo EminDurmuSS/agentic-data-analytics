@@ -14,6 +14,7 @@ import pandas as pd
 
 from agentic_analytics.lakehouse.store import StoreError
 from agentic_analytics.lakehouse.service import PlanError
+from agentic_analytics.lakehouse.presentation import analysis_presentation
 
 
 class ChartError(PlanError):
@@ -30,6 +31,7 @@ ENUMS = {
 SAFE_INTEGER = 2**53 - 1
 GROWTH_KINDS = {"stock", "flow", "price", "count", "count_stock", "count_flow"}
 PERIOD_INDEX = "__period_index__"
+MAX_WIDE_SERIES = 30
 
 
 def _encode(value):
@@ -130,8 +132,8 @@ class ChartTools:
                 raise ChartError(f"Geçersiz {key} seçeneği.")
         if "columns" in args:
             columns = args["columns"]
-            if not isinstance(columns, list) or not 1 <= len(columns) <= 6 or not all(isinstance(x, str) and x for x in columns) or len(set(columns)) != len(columns):
-                raise ChartError("Birbirinden farklı 1 ile 6 sayısal sütun seçin.")
+            if not isinstance(columns, list) or not 1 <= len(columns) <= MAX_WIDE_SERIES or not all(isinstance(x, str) and x for x in columns) or len(set(columns)) != len(columns):
+                raise ChartError(f"Birbirinden farklı 1 ile {MAX_WIDE_SERIES} sayısal sütun seçin; seriler sessizce azaltılmaz.", "CHART_SERIES_LIMIT")
         if "x" in args and (not isinstance(args["x"], str) or not args["x"]):
             raise ChartError("Dağılım grafiği için bir sayısal x sütunu seçin.")
         if "title" in args and (not isinstance(args["title"], str) or not 1 <= len(args["title"].strip()) <= 160 or _text(args["title"]) != args["title"].strip()):
@@ -154,14 +156,27 @@ class ChartTools:
             proof = next((p for p in sources.values() if p.get("binding", {}).get("metric_id") == schema.get("metric_id") and schema.get("metric_id")), {})
         binding = proof.get("binding", {})
         label = _text(binding.get("title") or schema.get("title") or schema.get("label") or column.replace("_", " "))
+        dimensions = {}
+        if not manifest.get("lineage", {}).get("group_by") and manifest.get("plan", {}).get("query_type") != "grouped":
+            dimensions = {key: value for key, value in
+                          ((schema.get("scope") or {}).get("dimensions") or proof.get("dimensions", {})).items()
+                          if value is not None and value != "per_result_row"}
+            if dimensions:
+                dimension_labels = binding.get("dimension_labels", {})
+                qualifiers = [_text(dimension_labels.get(key, {}).get(str(value), f"{key}: {value}"))
+                              for key, value in dimensions.items()]
+                label += " · " + ", ".join(qualifiers)
         unit = _unit(schema)
-        operations = manifest.get("plan", {}).get("operations", [])
+        plan = manifest.get("plan", {})
+        operations = plan.get("operations", []) or plan.get("request", {}).get("operations", [])
         operation = next((op for op in reversed(operations) if op.get("output") == column), {})
         if schema.get("price_basis"):
             label += f" (reel, {schema['price_basis']} fiyatları)"
+        if schema.get("measurement_basis") == "regulatory_liquidity_weighted":
+            label += " (likidite ağırlıklı)"
         if operation.get("op") == "growth":
             periods = operation.get("periods", 1)
-            frequency = manifest.get("plan", {}).get("frequency")
+            frequency = plan.get("frequency") or plan.get("request", {}).get("frequency")
             label += " - yıllık değişim" if periods == 12 and frequency == "monthly" else f" - {periods} dönemlik değişim"
         elif operation.get("op") == "difference":
             label += f" - {operation.get('periods', 1)} dönemlik fark"
@@ -172,7 +187,7 @@ class ChartTools:
         meta = {"column": column, "label": label, "unit": unit,
                 "kind": schema.get("kind", "unknown"), "metric_id": schema.get("metric_id") or binding.get("metric_id"),
                 "price_basis": schema.get("price_basis"), "scale": schema.get("scale", 1),
-                "schema": schema, "binding": binding}
+                "schema": schema, "binding": binding, "dimensions": dimensions}
         return meta
 
     @staticmethod
@@ -181,7 +196,7 @@ class ChartTools:
         unit = schema.get("unit", "unknown")
         # Different index series do not establish a common index base merely by sharing a unit label.
         basis = meta["metric_id"] or meta["column"] if unit in {"unknown", "index", ""} else None
-        return unit, meta["scale"], meta["price_basis"], schema.get("price_scope"), basis
+        return unit, meta["scale"], meta["price_basis"], schema.get("price_scope"), basis, schema.get("measurement_basis", "source_reported")
 
     @staticmethod
     def _values(frame, column):
@@ -214,8 +229,12 @@ class ChartTools:
         selected = args.get("columns")
         if selected is None:
             # Deflators are useful context, but can dominate an otherwise readable default.
-            preferred = [col for col in available if metadata[col]["schema"].get("index_role") != "price_deflator"]
-            selected = (preferred or available)[:6]
+            display_columns = analysis_presentation(frame, manifest)["columns"]
+            preferred = [col for col in display_columns if col in available
+                         and metadata[col]["schema"].get("index_role") != "price_deflator"]
+            selected = (preferred or available)[:1] if group_by else (preferred or available)
+            if len(selected) > MAX_WIDE_SERIES:
+                raise ChartError(f"Bu görünüm {len(selected)} seri içeriyor; üst sınır {MAX_WIDE_SERIES}. Açıkça daha az sütun seçin; hiçbir seri atılmadı.", "CHART_SERIES_LIMIT")
             if len(available) > len(selected):
                 warnings.append("İlk görünümde seçili seriler gösteriliyor; diğer sayısal sütunlar sütun seçicisinden eklenebilir.")
         if any(col not in available for col in selected):
@@ -225,7 +244,7 @@ class ChartTools:
             if group_by:
                 kind = "bar" if frame.period.nunique() == 1 else "heatmap"
             else:
-                kind = "bar" if len(frame) <= 24 and all(metadata[col]["kind"] in {"flow", "count_flow"} for col in selected) else "line"
+                kind = "bar" if len(frame) == 1 or (len(frame) <= 24 and all(metadata[col]["kind"] in {"flow", "count_flow"} for col in selected)) else "line"
         normalize = args.get("normalize", "none")
         orientation = args.get("orientation", "vertical")
         if orientation == "horizontal" and kind != "bar":
@@ -249,8 +268,8 @@ class ChartTools:
         elif x is not None:
             raise ChartError("x sütunu yalnızca dağılım grafiğinde kullanılır.")
         if group_by:
-            if kind not in {"bar", "heatmap"} or (kind == "bar" and frame.period.nunique() != 1):
-                raise ChartError("Tek dönemli grupları çubuk, çok dönemli grupları ısı haritasıyla gösterin.", "GROUPED_CHART_REQUIRED")
+            if kind not in {"bar", "heatmap", "line", "area"}:
+                raise ChartError("Grupları çizgi, çubuk, alan veya ısı haritasıyla gösterin.", "GROUPED_CHART_REQUIRED")
             if len(selected) != 1 or normalize != "none":
                 raise ChartError("Gruplu grafik tek ölçünün özgün değerlerini kullanır.")
         elif kind == "heatmap" and normalize != "none":
@@ -282,7 +301,7 @@ class ChartTools:
                 raise ChartError("İki eksen yalnızca iki zaman serisiyle kullanılabilir.")
             warnings.append("Sol ve sağ eksen farklı ölçekler kullanır; çizgilerin yüksekliği doğrudan karşılaştırılamaz.")
         if layout == "panels" and len(compatibility) > 1:
-            warnings.append("Farklı birimler veya fiyat bazları ayrı panellerde gösteriliyor.")
+            warnings.append("Farklı birimler, fiyat bazları veya ölçüm yöntemleri ayrı panellerde gösteriliyor.")
         if kind == "scatter":
             warnings.append("Noktalar aynı döneme ait gözlemleri eşler; görünüm nedensellik göstermez.")
             if x_is_period_index:
@@ -296,7 +315,8 @@ class ChartTools:
             if any(value is None for value in raw[col]):
                 warnings.append(f"{meta['label']}: eksik değerler boş bırakıldı; doldurma yapılmadı.")
         dependencies = set(selected + ([x] if x and not x_is_period_index else []))
-        for operation in reversed(manifest.get("plan", {}).get("operations", [])):
+        plan = manifest.get("plan", {})
+        for operation in reversed(plan.get("operations", []) or plan.get("request", {}).get("operations", [])):
             if operation.get("output") in dependencies:
                 dependencies.update(operation[key] for key in ("column", "index", "denominator") if key in operation)
         warning_text = {
@@ -311,6 +331,10 @@ class ChartTools:
             "missing_result": "Kayıtlı sonuçta eksik gözlemler var; doldurma yapılmadı.",
             "group_missing_observations": "Bazı gruplarda gözlem bulunmuyor; eksik gruplar sıfır kabul edilmiyor.",
             "group_populations_not_summed": "Grup kapsamları korunuyor; grupların toplanabilir olduğu varsayılmıyor.",
+            "RANK_PRESERVED_FROM_PARENT": "Tablodaki sıralar önceki analizdeki özgün ölçüye aittir; yeni değerler yeniden sıralanmadı.",
+            "reporting_population_exclusions": "Kaynağın bildiren banka kapsamı daraltılmıştır; bu toplam, tüm bankaları kapsayan bilanço toplamıyla eşdeğer değildir.",
+            "domestic_customers_only": "Bu kaynak yalnızca yurt içi yerleşik müşterileri kapsıyor.",
+            "regulatory_weighting": "Bu değerler düzenleyici likidite ağırlıkları içeriyor; ağırlıksız bilanço tutarlarıyla eşdeğer değildir.",
         }
         for note in lineage.get("warnings", []):
             if not isinstance(note, dict):
@@ -325,6 +349,7 @@ class ChartTools:
             meta = metadata[col]
             unit = f"endeks ({base_period}=100)" if normalize == "index100" else meta["unit"]
             series.append({"column": col, "label": meta["label"], "unit": unit,
+                           **({"source_dimensions": meta["dimensions"]} if meta["dimensions"] else {}),
                            "axis": "right" if layout == "dual_axis" and index == 1 else "left",
                            "values": normalized[col], "raw_values": raw[col], "raw_unit": meta["unit"],
                            "summary": _summary(raw[col], periods, meta, grouped=bool(group_by)),
@@ -380,18 +405,40 @@ class ChartTools:
                 raise ChartError("Grup boyutu metin veya güvenli sayı olmalıdır.")
         labels = meta["binding"].get("dimension_labels", {}).get(group_by, {})
         categories = [_text(labels.get(str(member), member)) for member in members]
+        repeated_labels = {label for label in categories if categories.count(label) > 1}
+        categories = [f"{label} ({member})" if label in repeated_labels else label for label, member in zip(categories, members)]
         dimensions = [{group_by: int(member) if pd.api.types.is_integer(member) else member} for member in members]
         result["categories"] = categories
         result["category_dimensions"] = dimensions
-        if result["spec"]["kind"] == "bar":
+        result["warnings"].append("Gruplar kendi kaynak kapsamlarıyla gösterilir; üst ve alt gruplar örtüşebilir. Gruplar toplanmaz veya yığılmaz.")
+        if result["spec"]["kind"] == "bar" and frame.period.nunique() == 1:
+            result["group_mode"] = "categories"
             result["point_dimensions"] = dimensions
-            result["warnings"].append("Gruplar kendi kaynak kapsamlarıyla gösterilir; toplam veya gruplar arası büyüme hesaplanmaz.")
             return
         periods = list(dict.fromkeys(frame.period.tolist()))
         if len(periods) * len(members) > 10000:
-            raise ChartError("Isı haritası 10.000 hücre sınırını aşıyor; grupları veya dönemleri daraltın.", "ROW_LIMIT")
+            raise ChartError("Grup-dönem görünümü 10.000 hücre sınırını aşıyor; grupları veya dönemleri daraltın. Gruplar örneklenmedi.", "ROW_LIMIT")
         column = result["spec"]["columns"][0]
         values = {(period, member): _number(value) for period, member, value in frame[["period", group_by, column]].itertuples(index=False, name=None)}
+        result["warnings"].append("Kayıtlı sorguda yer almayan grup-dönem çiftleri boş bırakılır; sıfır veya o grubun kaynak verisi yok şeklinde yorumlanmaz. Dönem başına sıralama sınırı grup üyeliğini değiştirebilir.")
+        if result["spec"]["kind"] != "heatmap":
+            result.update(periods=periods, group_mode="series")
+            series = []
+            for ci, member in enumerate(members):
+                observed = [(period, member) in values for period in periods]
+                raw = [values.get((period, member)) for period in periods]
+                summary = _summary(raw, periods, meta)
+                summary.update(source_row_count=sum(observed), absent_row_count=len(observed) - sum(observed),
+                               source_null_count=sum(present and value is None for present, value in zip(observed, raw)))
+                series.append({"series_id": "group_" + hashlib.sha256(_encode({"column": column, "dimensions": dimensions[ci]})).hexdigest()[:24],
+                               "column": column, "label": categories[ci], "measure_label": meta["label"],
+                               "dimensions": dimensions[ci], "source_row_available": observed,
+                               "values": raw, "raw_values": list(raw), "unit": meta["unit"], "raw_unit": meta["unit"],
+                               "axis": "left", "summary": summary, "display_summary": summary.copy()})
+            result["series"] = series
+            if result["spec"]["kind"] == "area":
+                result["warnings"].append("Alanlar ayrı serilerdir; üst üste yığılmaz ve toplamı göstermez.")
+            return
         cells = []
         for pi, period in enumerate(periods):
             for ci, member in enumerate(members):
@@ -399,7 +446,7 @@ class ChartTools:
                 cells.append({"period_index": pi, "category_index": ci, "value": value, "raw_value": value,
                               "period": period, "column": column, "dimensions": dimensions[ci],
                               "source_row_available": (period, member) in values})
-        result.update(periods=periods, cells=cells)
+        result.update(periods=periods, cells=cells, group_mode="matrix")
         result["series"][0].update(values=[cell["value"] for cell in cells], raw_values=[cell["raw_value"] for cell in cells])
         result["series"][0]["summary"] = _summary(result["series"][0]["values"], [], meta, grouped=True)
         result["series"][0]["display_summary"] = result["series"][0]["summary"].copy()
@@ -415,7 +462,9 @@ class ChartTools:
                 cells.append({"period_index": period_index, "category_index": category_index,
                               "value": value, "raw_value": series["raw_values"][period_index],
                               "period": result["periods"][period_index], "column": series["column"],
-                              "dimensions": {}, "source_row_available": True})
+                              "dimensions": {},
+                              **({"source_dimensions": dict(series["source_dimensions"])} if series.get("source_dimensions") else {}),
+                              "source_row_available": True})
         result.update(categories=categories, category_dimensions=[{} for _ in categories], cells=cells)
 
     @staticmethod
@@ -423,8 +472,10 @@ class ChartTools:
         spec, series = result["spec"], result["series"]
         recommendations = []
         if result["group_by"]:
-            if spec["kind"] == "bar":
+            if spec["kind"] == "bar" and result.get("group_mode") == "categories":
                 recommendations.append({"label": "Yatay çubuklar", "prompt": "Bu grafiği grup adları kolay okunacak şekilde yatay çubuk grafiğine dönüştür.", "reason": "Kayıtlı tek dönemli grupları etiketleriyle karşılaştırır."})
+            if len(set(result["periods"])) > 1:
+                recommendations.append({"label": "Grup eğilimleri", "prompt": "Aynı tabloyu ve dönemleri koruyarak her grup ayrı seri olacak şekilde çizgi grafik göster.", "reason": "Her grubun dönemsel değişimini aynı kayıtlı değerlerden gösterir."})
             recommendations.append({"label": "Kaynak kaydını incele", "prompt": "Bu grafikteki en yüksek gözlemin dönemini, grubunu ve kaynak kaydını açıkla; nedensellik yorumu yapma.", "reason": "Kayıtlı gözlemin kaynak bağlantısını incelemeyi sağlar."})
             return recommendations
         monetary = next((item for item in series if metadata[item["column"]]["schema"].get("currency")
@@ -446,10 +497,13 @@ class ChartTools:
             recommendations.append({"label": "Faiz farkını incele", "prompt": f"{rate['label']} ({rate['column']}) sütununun ilk ve son dolu dönemi arasındaki değişimi yüzde puan olarak açıkla; dönemleri ve kaynak kayıtlarını belirt.", "reason": "Kayıtlı faiz serisinin iki farklı dönemde dolu gözlemi var."})
         if len(series) > 1 and spec["layout"] != "panels":
             recommendations.append({"label": "Ayrı paneller", "prompt": "Bu grafikteki seçili serileri tarih sırasını ve değerleri koruyarak ayrı panellerde göster.", "reason": "Her serinin kendi ölçeğini okunabilir kılar."})
-        if len(series) > 1 and spec["normalize"] == "none" and spec["kind"] != "scatter" and all(values[0] is not None and values[0] > 0 for values in raw.values()) and all(metadata[col]["kind"] != "unknown" and metadata[col]["schema"].get("status") != "review_required" for col in raw):
+        common_observations = sum(all(values[i] is not None for values in raw.values())
+                                  for i in range(len(result["periods"])))
+        if common_observations >= 2 and len(series) > 1 and spec["normalize"] == "none" and spec["kind"] != "scatter" and all(values[0] is not None and values[0] > 0 for values in raw.values()) and all(metadata[col]["kind"] != "unknown" and metadata[col]["schema"].get("status") != "review_required" for col in raw):
             recommendations.append({"label": "Başlangıcı 100 yap", "prompt": f"Seçili serileri yalnızca grafik görünümünde {result['periods'][0]}=100 olacak şekilde normalize et; özgün analiz değerlerini koru.", "reason": "Seçili serilerin aynı ilk dönemde pozitif gözlemleri var."})
-        if len(result["available_columns"]) >= 2 and spec["kind"] != "scatter" and sum(item["summary"]["first"] is not None for item in series) >= 2:
-            cols = [item["column"] for item in result["available_columns"][:2]]
+        cols = list(raw)[:2]
+        pairs = [(a, b) for a, b in zip(raw[cols[0]], raw[cols[1]]) if a is not None and b is not None] if len(cols) == 2 else []
+        if spec["kind"] != "scatter" and len(pairs) >= 3 and len({a for a, _ in pairs}) > 1 and len({b for _, b in pairs}) > 1:
             recommendations.append({"label": "Birlikte değişimi gör", "prompt": f"Bu analizde {cols[0]} yatay eksende, {cols[1]} dikey eksende olacak şekilde dağılım grafiği oluştur; dönemleri koru, nedensellik sonucu çıkarma.", "reason": "Aynı dönemlere ait iki kayıtlı sayısal sütun var."})
         if any(item["summary"]["first_period"] is not None and item["summary"]["first_period"] != item["summary"]["last_period"] for item in series):
             recommendations.append({"label": "İlk ve son gözlem", "prompt": "Bu grafikteki serilerin ilk ve son dolu gözlemlerini birimleriyle karşılaştır; eksik dönemleri ve varsa reel fiyat bazını belirt.", "reason": "Gözlenen başlangıç ve bitiş değerlerini, hesaplanmış grafik özetleriyle karşılaştırır."})
@@ -486,6 +540,9 @@ class ChartTools:
         return {key: payload[key] for key in ("status", "analysis_id", "title", "spec", "recommendations", "row_count", "complete")} | {
             "chart_id": chart_id, "artifact_id": chart_id, "artifact_ref": chart_id,
             "summary": [{"column": series["column"], "label": series["label"], "unit": series["raw_unit"],
+                         **({"series_id": series["series_id"]} if "series_id" in series else {}),
+                         **({"dimensions": series["dimensions"]} if "dimensions" in series else {}),
+                         **({"source_dimensions": series["source_dimensions"]} if "source_dimensions" in series else {}),
                          **series["summary"], "display_unit": series["unit"],
                          "display_summary": series["display_summary"]} for series in payload["series"]],
             "warnings": payload["warnings"]}
@@ -519,7 +576,8 @@ class ChartTools:
 
     def extra_tools(self):
         properties = {"analysis_id": {"type": "string"},
-                      "columns": {"type": "array", "items": {"type": "string"}, "minItems": 1, "maxItems": 6, "uniqueItems": True},
+                      "columns": {"type": "array", "items": {"type": "string"}, "minItems": 1, "maxItems": MAX_WIDE_SERIES, "uniqueItems": True,
+                                  "description": "Optional explicit 1 to 30 measure columns. Defaults select one recorded common-scale variant per measure and retain distinct calculated outputs, up to 30; larger requests fail instead of truncating. Original columns remain explicitly selectable. Grouped long data uses one measure with all selected groups."},
                       "x": {"type": "string"}, "title": {"type": "string", "minLength": 1, "maxLength": 160}}
         properties.update({name: {"type": "string", "enum": list(options)} for name, options in ENUMS.items()})
 
@@ -547,6 +605,6 @@ class ChartTools:
                 return {"status": "blocked", "code": getattr(exc, "code", "CHART_ERROR"), "message": str(exc)}
 
         return {"create_chart": {"schema": {"type": "function", "function": {
-            "name": "create_chart", "description": "Create or revise a chart view of a complete saved analysis. Uses original values and source units; mixed units use panels. Never modifies analysis data. For scatter, x and columns (y) must be distinct. Index100 requires positive values for every selected series in the same first period. Grouped data uses one-period bars or group-period heatmaps.",
+            "name": "create_chart", "description": "Create or revise a chart view of a complete saved analysis. Uses original values and source units; mixed units use panels. Never modifies analysis data. For scatter, x and columns (y) must be distinct. Index100 requires positive values for every selected series in the same first period. Grouped data uses one measure: line/bar/area create one series per group across periods, or heatmap shows group-period cells. Missing groups stay null; overlapping groups are never stacked or summed.",
             "parameters": {"type": "object", "properties": properties, "required": ["analysis_id"], "additionalProperties": False}}},
             "handler": handler, "mutating": True, "recover": recover}}

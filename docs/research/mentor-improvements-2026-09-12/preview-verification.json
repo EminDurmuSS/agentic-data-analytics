@@ -1,0 +1,316 @@
+{
+  "recorded_at": "2026-09-12T22:16:09.687122+00:00",
+  "base_url": "http://127.0.0.1:8871",
+  "runtime_root": "/Users/edurmus/Downloads/kkb-hackathon-2026-notlar/mentor-improvements-2026-09-12/preview-runtime-final",
+  "copied_from_sealed_round": "live-normalization-final",
+  "provider_ready": true,
+  "finance_available": true,
+  "workspace_count": 3,
+  "workspaces": [
+    {
+      "workspace_id": "workspace_4a12b729946c4d01b1ef150d3fc5f70d",
+      "name": "Mentor acceptance pdf_sector 3",
+      "analysis_id": "analysis_ecb4936c1582e6f7c39dda167c28bc14e1813f5bed0b4843252011b261e54bb7",
+      "verified_columns": [
+        "bddk_sektor_toplam_aktif",
+        "garanti_konsolide_toplam_aktif",
+        "garanti_milyon",
+        "oran_yuzde",
+        "sektor_milyon"
+      ],
+      "raw_sha256": [
+        "b8dd1916b3943ffdaa06d2be75a8b7e33950812eb990ae8b1bfe601b7f99c288"
+      ],
+      "url": "http://127.0.0.1:8871/?workspace=workspace_4a12b729946c4d01b1ef150d3fc5f70d"
+    },
+    {
+      "workspace_id": "workspace_8aac09f293a843bf82681102bf5f8c3b",
+      "name": "Mentor acceptance pdf_sector 1",
+      "analysis_id": "analysis_0854f3742172cd989cbe773fd8f3d8b08f9c9432d21282312a4073187b3c5001",
+      "verified_columns": [
+        "bddk_sektor_toplam_aktif",
+        "garanti_milyon",
+        "garanti_toplam_aktif",
+        "oran_yuzde"
+      ],
+      "raw_sha256": [
+        "b8dd1916b3943ffdaa06d2be75a8b7e33950812eb990ae8b1bfe601b7f99c288"
+      ],
+      "url": "http://127.0.0.1:8871/?workspace=workspace_8aac09f293a843bf82681102bf5f8c3b"
+    },
+    {
+      "workspace_id": "workspace_bf544c5ab8a74f0d84af1650fc8533ee",
+      "name": "Mentor acceptance pdf_sector 2",
+      "analysis_id": "analysis_d76caa06af00f63435c8218465417e10d2eb7da8bcc93ae5009ab143a0dadcbe",
+      "verified_columns": [
+        "bddk_sektor_toplam_aktif",
+        "garanti_konsolide_toplam_aktif",
+        "garanti_konsolide_toplam_aktif_milyon",
+        "garanti_sektor_orani_yuzde"
+      ],
+      "raw_sha256": [
+        "b8dd1916b3943ffdaa06d2be75a8b7e33950812eb990ae8b1bfe601b7f99c288"
+      ],
+      "url": "http://127.0.0.1:8871/?workspace=workspace_bf544c5ab8a74f0d84af1650fc8533ee"
+    }
+  ],
+  "checks": [
+    {
+      "path": "/api/status",
+      "http_status": 200,
+      "sha256": "f4e5edfb178e52103edb52008911524ab1fea26135568a237592ab0718de290c"
+    },
+    {
+      "path": "/api/workspaces",
+      "http_status": 200,
+      "sha256": "bd5819b4c4ad57f71b4e27a7a8ffae55769370ec272145f1a9fb6c13f2ec2ca6"
+    },
+    {
+      "path": "/api/workspaces/workspace_4a12b729946c4d01b1ef150d3fc5f70d",
+      "http_status": 200,
+      "sha256": "245797d2058dedb7c6d2a57b72fa65033dc73546e98ba57568b9a0ec04df1c32"
+    },
+    {
+      "path": "/api/workspaces/workspace_4a12b729946c4d01b1ef150d3fc5f70d/analyses/analysis_ecb4936c1582e6f7c39dda167c28bc14e1813f5bed0b4843252011b261e54bb7",
+      "http_status": 200,
+      "sha256": "52f992e618c610cf5fec38b0b39eaafcff7fb8c56dc6fa51f556fe1eea39a2bf"
+    },
+    {
+      "path": "/api/workspaces/workspace_4a12b729946c4d01b1ef150d3fc5f70d/analyses/analysis_ecb4936c1582e6f7c39dda167c28bc14e1813f5bed0b4843252011b261e54bb7/chart",
+      "http_status": 200,
+      "sha256": "13bd12b3262cb7bf805287ca5966528f97b9d190c6951bd3fb6eaaa06c088475"
+    },
+    {
+      "path": "/api/workspaces/workspace_4a12b729946c4d01b1ef150d3fc5f70d/analyses/analysis_ecb4936c1582e6f7c39dda167c28bc14e1813f5bed0b4843252011b261e54bb7/csv",
+      "http_status": 200,
+      "sha256": "56a60e89a3a4ea5c436a04188424b7c92b707b20ff4c1f6169352abcfbc8a433"
+    },
+    {
+      "path": "/api/workspaces/workspace_4a12b729946c4d01b1ef150d3fc5f70d/analyses/analysis_ecb4936c1582e6f7c39dda167c28bc14e1813f5bed0b4843252011b261e54bb7/explain?column=bddk_sektor_toplam_aktif&period=2026-03",
+      "http_status": 200,
+      "sha256": "c827338fada05aac74f568e420ca1fae8dfcabc1e7b057514861485c92fa269b"
+    },
+    {
+      "path": "/api/workspaces/workspace_4a12b729946c4d01b1ef150d3fc5f70d/analyses/analysis_ecb4936c1582e6f7c39dda167c28bc14e1813f5bed0b4843252011b261e54bb7/explain?column=garanti_konsolide_toplam_aktif&period=2026-03",
+      "http_status": 200,
+      "sha256": "26eff1095c001c1e3b01cab604bf99de324035ebb38eeaa29cc31da497f9735d"
+    },
+    {
+      "path": "/api/workspaces/workspace_4a12b729946c4d01b1ef150d3fc5f70d/analyses/analysis_ecb4936c1582e6f7c39dda167c28bc14e1813f5bed0b4843252011b261e54bb7/explain?column=garanti_milyon&period=2026-03",
+      "http_status": 200,
+      "sha256": "fd99e75f95ebcbb888bf5124fcb36f189bbf4dc87ef56ce77160720dbc3d29d2"
+    },
+    {
+      "path": "/api/workspaces/workspace_4a12b729946c4d01b1ef150d3fc5f70d/analyses/analysis_ecb4936c1582e6f7c39dda167c28bc14e1813f5bed0b4843252011b261e54bb7/explain?column=oran_yuzde&period=2026-03",
+      "http_status": 200,
+      "sha256": "8437801e338ec35b1919f89c624ae62221f894c9fec787d6a750d961a034cf92"
+    },
+    {
+      "path": "/api/workspaces/workspace_4a12b729946c4d01b1ef150d3fc5f70d/analyses/analysis_ecb4936c1582e6f7c39dda167c28bc14e1813f5bed0b4843252011b261e54bb7/explain?column=sektor_milyon&period=2026-03",
+      "http_status": 200,
+      "sha256": "83237ddd239077c1f12c04cf8b45f6815fd6bf0d18336b1d19dc644b5bc645a4"
+    },
+    {
+      "path": "/api/workspaces/workspace_4a12b729946c4d01b1ef150d3fc5f70d/sources",
+      "http_status": 200,
+      "sha256": "b2f8d45bcdbec508bbec2c06b798bea322b49ed4e0d5cf0229530462adb6f822"
+    },
+    {
+      "path": "/api/workspaces/workspace_4a12b729946c4d01b1ef150d3fc5f70d/sources/source_169e69e78161e97044fc14cc1495e17ca870a00151bd42153e6571b2b71c4c56/raw",
+      "http_status": 200,
+      "sha256": "b8dd1916b3943ffdaa06d2be75a8b7e33950812eb990ae8b1bfe601b7f99c288"
+    },
+    {
+      "path": "/api/workspaces/workspace_8aac09f293a843bf82681102bf5f8c3b",
+      "http_status": 200,
+      "sha256": "c18950e7c8184f028e03b97635d557e30d4d4612cc01741074814c98ee230c2d"
+    },
+    {
+      "path": "/api/workspaces/workspace_8aac09f293a843bf82681102bf5f8c3b/analyses/analysis_0854f3742172cd989cbe773fd8f3d8b08f9c9432d21282312a4073187b3c5001",
+      "http_status": 200,
+      "sha256": "705a9a8799758ab273e1085ab768602469783cb8b7f722fa7e2b094bc2baf500"
+    },
+    {
+      "path": "/api/workspaces/workspace_8aac09f293a843bf82681102bf5f8c3b/analyses/analysis_0854f3742172cd989cbe773fd8f3d8b08f9c9432d21282312a4073187b3c5001/chart",
+      "http_status": 200,
+      "sha256": "3db54d74656c65ab07c9cccc955c69e719c1630b043a01bd5e3c5a383e1b5fb6"
+    },
+    {
+      "path": "/api/workspaces/workspace_8aac09f293a843bf82681102bf5f8c3b/analyses/analysis_0854f3742172cd989cbe773fd8f3d8b08f9c9432d21282312a4073187b3c5001/csv",
+      "http_status": 200,
+      "sha256": "b903d91241c0ed1b65ac451bf8f83bb2ae1a74356245219a5c5a4fdcacd6c0aa"
+    },
+    {
+      "path": "/api/workspaces/workspace_8aac09f293a843bf82681102bf5f8c3b/analyses/analysis_0854f3742172cd989cbe773fd8f3d8b08f9c9432d21282312a4073187b3c5001/explain?column=bddk_sektor_toplam_aktif&period=2026-03",
+      "http_status": 200,
+      "sha256": "3eafbec86dde4885efd9fa316c8e08e66b5f3f39cf20f1960dd2af4fa5f32c44"
+    },
+    {
+      "path": "/api/workspaces/workspace_8aac09f293a843bf82681102bf5f8c3b/analyses/analysis_0854f3742172cd989cbe773fd8f3d8b08f9c9432d21282312a4073187b3c5001/explain?column=garanti_milyon&period=2026-03",
+      "http_status": 200,
+      "sha256": "b4dfdad7b4fc5be982f025679c9067528a631ec54eba79307356dfec372b07d2"
+    },
+    {
+      "path": "/api/workspaces/workspace_8aac09f293a843bf82681102bf5f8c3b/analyses/analysis_0854f3742172cd989cbe773fd8f3d8b08f9c9432d21282312a4073187b3c5001/explain?column=garanti_toplam_aktif&period=2026-03",
+      "http_status": 200,
+      "sha256": "7118e4fb95808baf5fd3387d0f8defede427d6cd0ea2d5785af9310f93e1a596"
+    },
+    {
+      "path": "/api/workspaces/workspace_8aac09f293a843bf82681102bf5f8c3b/analyses/analysis_0854f3742172cd989cbe773fd8f3d8b08f9c9432d21282312a4073187b3c5001/explain?column=oran_yuzde&period=2026-03",
+      "http_status": 200,
+      "sha256": "cf883cb64565e8e5681f22229587f56b806e9b0531fd25b5afe94880e897efc4"
+    },
+    {
+      "path": "/api/workspaces/workspace_8aac09f293a843bf82681102bf5f8c3b/sources",
+      "http_status": 200,
+      "sha256": "39a967839eb2fc5fe4d4bb20082ea22cad2142ac235194052e82fe5952ddf360"
+    },
+    {
+      "path": "/api/workspaces/workspace_8aac09f293a843bf82681102bf5f8c3b/sources/source_feb0205362c1459df36f0fbac0284e56bb50fcd62d0e0a509db2deeb971c91b1/raw",
+      "http_status": 200,
+      "sha256": "b8dd1916b3943ffdaa06d2be75a8b7e33950812eb990ae8b1bfe601b7f99c288"
+    },
+    {
+      "path": "/api/workspaces/workspace_bf544c5ab8a74f0d84af1650fc8533ee",
+      "http_status": 200,
+      "sha256": "874393b6abfc41c9d83a8c9dcb898208f6b3c7d5c27d39fd3125df4fe332a221"
+    },
+    {
+      "path": "/api/workspaces/workspace_bf544c5ab8a74f0d84af1650fc8533ee/analyses/analysis_d76caa06af00f63435c8218465417e10d2eb7da8bcc93ae5009ab143a0dadcbe",
+      "http_status": 200,
+      "sha256": "35401fbb00106c3d4d613ff1f466c3517d46a8bf1491785569d3c8cdf4948060"
+    },
+    {
+      "path": "/api/workspaces/workspace_bf544c5ab8a74f0d84af1650fc8533ee/analyses/analysis_d76caa06af00f63435c8218465417e10d2eb7da8bcc93ae5009ab143a0dadcbe/chart",
+      "http_status": 200,
+      "sha256": "c96253a151530f26e71d415ca64ba6c823e57edc074c10efc312e7f2c721a4c7"
+    },
+    {
+      "path": "/api/workspaces/workspace_bf544c5ab8a74f0d84af1650fc8533ee/analyses/analysis_d76caa06af00f63435c8218465417e10d2eb7da8bcc93ae5009ab143a0dadcbe/csv",
+      "http_status": 200,
+      "sha256": "8f3ac926308188c70b811540f6d3bb1fbbdba4f9785601025220779ed28214dc"
+    },
+    {
+      "path": "/api/workspaces/workspace_bf544c5ab8a74f0d84af1650fc8533ee/analyses/analysis_d76caa06af00f63435c8218465417e10d2eb7da8bcc93ae5009ab143a0dadcbe/explain?column=bddk_sektor_toplam_aktif&period=2026-03",
+      "http_status": 200,
+      "sha256": "adbea83738807db185ffd50198fe627197d543988bba1a5b7a1ce750fb9f728d"
+    },
+    {
+      "path": "/api/workspaces/workspace_bf544c5ab8a74f0d84af1650fc8533ee/analyses/analysis_d76caa06af00f63435c8218465417e10d2eb7da8bcc93ae5009ab143a0dadcbe/explain?column=garanti_konsolide_toplam_aktif&period=2026-03",
+      "http_status": 200,
+      "sha256": "ff41fe442d7e36f4c69e4685261e0a0a39cbfa2bfa3a44b4e6c43c2a9a0f1c6c"
+    },
+    {
+      "path": "/api/workspaces/workspace_bf544c5ab8a74f0d84af1650fc8533ee/analyses/analysis_d76caa06af00f63435c8218465417e10d2eb7da8bcc93ae5009ab143a0dadcbe/explain?column=garanti_konsolide_toplam_aktif_milyon&period=2026-03",
+      "http_status": 200,
+      "sha256": "27c0ab292d986665e871dae543279cc6ae8c88336401a685baba2b2f26dcda9c"
+    },
+    {
+      "path": "/api/workspaces/workspace_bf544c5ab8a74f0d84af1650fc8533ee/analyses/analysis_d76caa06af00f63435c8218465417e10d2eb7da8bcc93ae5009ab143a0dadcbe/explain?column=garanti_sektor_orani_yuzde&period=2026-03",
+      "http_status": 200,
+      "sha256": "75fad9061e8c0367c0875902d7e726f12502334a62a8642462acd9a139f12d41"
+    },
+    {
+      "path": "/api/workspaces/workspace_bf544c5ab8a74f0d84af1650fc8533ee/sources",
+      "http_status": 200,
+      "sha256": "9b223bf5c95203c4a3e466047c92c1371379540926f86f13a24996a8b10b7aa9"
+    },
+    {
+      "path": "/api/workspaces/workspace_bf544c5ab8a74f0d84af1650fc8533ee/sources/source_0dc74f813cbdae4389f4cdc62fcfdc27233cd84ce48522c370bbb25df2e5e954/raw",
+      "http_status": 200,
+      "sha256": "b8dd1916b3943ffdaa06d2be75a8b7e33950812eb990ae8b1bfe601b7f99c288"
+    },
+    {
+      "path": "/",
+      "http_status": 200,
+      "sha256": "29ebf76645a280b5d9e58568c35b5ae2c828b44bcc8ec77d9fbdccdbfc562cd3"
+    },
+    {
+      "path": "/",
+      "http_status": 200,
+      "sha256": "29ebf76645a280b5d9e58568c35b5ae2c828b44bcc8ec77d9fbdccdbfc562cd3"
+    },
+    {
+      "path": "/static/app.css?v=7",
+      "http_status": 200,
+      "sha256": "b098191ea2827d199595b88e3f20f82c0241324cdac89f89b8395f280587e688"
+    },
+    {
+      "path": "/static/app.js?v=8",
+      "http_status": 200,
+      "sha256": "cf9cf110f5cd9f95d0c26ac0f7247e5ed6552e3f457d71f68fccbfd6e184b10c"
+    },
+    {
+      "path": "/static/charts.css?v=6",
+      "http_status": 200,
+      "sha256": "92d35184f19bb78c4a61b8524ddd64ba042b5b6b53f75361a10ed720dfedf303"
+    },
+    {
+      "path": "/static/charts.js?v=6",
+      "http_status": 200,
+      "sha256": "f7ba4ef11e2264faad940da143f6f8b82da7bb337892c0f99b1875162ecb3476"
+    },
+    {
+      "path": "/static/kkb-logo.png",
+      "http_status": 200,
+      "sha256": "8b8d8b571767174f088616ed4cffeb97fdc1e27f630239b95dc834f44d7b1eeb"
+    },
+    {
+      "path": "/static/vendor/echarts.min.js",
+      "http_status": 200,
+      "sha256": "baa8dfe7e1d9336b98e8986ba7e20ea15e7cdbea1ef42a59d59478632fa45a1d"
+    }
+  ],
+  "http_checks_passed": 41,
+  "interactive_browser_verified": false,
+  "scope": "HTTP application, immutable analysis/chart retrieval, CSV downloads, source-cell explanations, original PDF hashes and referenced static assets. No browser interaction claim. Live model tasks are independently graded in normalization-live-acceptance.json.",
+  "backend_sha256": {
+    "agentic_analytics/__init__.py": "66438a993a11cfce5d316695416450d44725e712a246ae1be7738a267baed63c",
+    "agentic_analytics/agent/__init__.py": "b9dc579fb7b75a3daa7b7d89b56d240357d0f8aa1c3a5b9bf89a82c4a0e7c6fe",
+    "agentic_analytics/agent/context.py": "4defded68c4b5799950e89526e944e45e69a94dcad43c8842418ef8f6046d35d",
+    "agentic_analytics/agent/delivery.py": "50e17352455481bceeabfa028659f77aca339b77417df4cf1afd52cebdaf90c0",
+    "agentic_analytics/agent/prompts.py": "0db50c2909eb8b5793148bc6cce6354373fbcd44247360c1f65a8f86f6d121ab",
+    "agentic_analytics/agent/run_store.py": "ed8d53d5e8e97143f5b930e8f6f09ad8f33226de04cbe1c95d7f067ec9ae5399",
+    "agentic_analytics/agent/runtime.py": "9e8276097295fa1172c59a1493fabd9345bf20f9503d223bd8de371a4367962c",
+    "agentic_analytics/agent/schemas.py": "7c5df4aae7758c1a9c776325a87328caa61378627fc2108095946c700aa296b4",
+    "agentic_analytics/agent/tools/__init__.py": "e515b65af173f26d6bf664d4cf0688a475ba4c73b140d6690742fec8fb1e1ca3",
+    "agentic_analytics/agent/tools/charts.py": "25e698156333f5d23033d2599b77f4297e477c747ea8349ff2c5a742597b6f10",
+    "agentic_analytics/agent/tools/datasets.py": "151306b7c8948ae06a79eac3ed1c22b2fd754839a41a4ee18906f8aacc2add25",
+    "agentic_analytics/agent/tools/document_tables.py": "8e8b9d5c38739c5c2d677b0556251867c7ac97a7a89a07dcef6c07ed84e966d4",
+    "agentic_analytics/agent/tools/documents.py": "2ae0faed606cc8739355e717b08f56d76d5bb9c818d15eb66add851422a4feb9",
+    "agentic_analytics/agent/tools/financial_import.py": "e120f95ec1db33844213219c7691890dc6e5212d6fe8addbb6aae1a48746b400",
+    "agentic_analytics/agent/tools/lakehouse.py": "4b7efc1c9c45bd3396b22fafd40abda2dd50c84f6a92f7795613c3ea9c5fcb0f",
+    "agentic_analytics/agent/tools/search_backend.py": "03359109ed5992297abbde95495b34a4fdb74df7de8f0872f91df6acecd24e6f",
+    "agentic_analytics/agent/tools/source_index.py": "36c31c469c867a75cd40fe0d9f672dac06264941613e8915d5e70a2394f58ff3",
+    "agentic_analytics/agent/tools/statistics.py": "cc5232dcc80e999d5cc3f41a7a28e900609d929b2df9ce833ea31a0c34bd4aad",
+    "agentic_analytics/agent/tools/summary.py": "65df6b1c3aaa9c5d39bbe14351c412a18dda5e8dc502407361903c86e1c92c79",
+    "agentic_analytics/lakehouse/__init__.py": "78979075ef52cd2e0aeb647f98e6507ba5a9711f8533a2d15cdb415925c8f47d",
+    "agentic_analytics/lakehouse/analysis.py": "809bc46c2ae1e288351a7938b9e61d5a4855cc14921312368663f2e3ea4cdbf1",
+    "agentic_analytics/lakehouse/cli.py": "90558944d6957b7e81ff72a858d7f291d3d86e7de3c6c8982f0d980af0a67237",
+    "agentic_analytics/lakehouse/discovery.py": "623c693255e585de4f10210e98768df5a97966f2b039019279961a22a32a0ca1",
+    "agentic_analytics/lakehouse/financial_semantics.py": "832d03f9c67929d62ca6da0b05d0565d438739dc24160b15fb2cdcba6aa0be8e",
+    "agentic_analytics/lakehouse/quality.py": "ac32ca6e475f07fd069085038ebd26071ff1d36f8a9786679a7129ee3e252654",
+    "agentic_analytics/lakehouse/registry.py": "5deebddad732a3b663aa4969cf71c34923bc68624c4c00a2fbeea873c30fb547",
+    "agentic_analytics/lakehouse/semantics.py": "7d213a6da2ecf60fe8cdd8231840a9cc3965ca2dee0a312aa2697ffbaf742a2d",
+    "agentic_analytics/lakehouse/service.py": "cfc0247839f19e171f61f0703481b26a04aafebf3454ccc166338905e88bc643",
+    "agentic_analytics/lakehouse/source_profiles.py": "59b01319030d529f4a36f5629593ecee2d96a8ba58181a6727444d94cdba6871",
+    "agentic_analytics/lakehouse/store.py": "8a6afc365c491930eab7b3d36da78d9db7bace8165aacd892324118f94be466d",
+    "agentic_analytics/lakehouse/units.py": "510b57a958de602908108910edc4541e0891418cf33ba78513346f17fccca1a0",
+    "agentic_analytics/paths.py": "70a8c7cf92ea56d3558b619e2082ef2af768ca1d8ffcb7200e94d433f6b4f52c",
+    "agentic_analytics/providers/__init__.py": "288b246c2fa382b661c806825a01ab98ed700f05178375c09e0669b33e671ac7",
+    "agentic_analytics/providers/mia.py": "7a249ae3cb80129e5e21615e12b7f74aaf636544a9fec785743558a3a0b6ff8a",
+    "app/__init__.py": "7c54b3f2a7c662af564a3610de8ffb85f3fb388c7c41e769a6fe31ce90f8a74e",
+    "app/__main__.py": "2c65e37b013cb4fed5661d150a11ce69e429f4b0d315787018b183e05b2285a3",
+    "app/activity.py": "58709ae5fcc590fb75a1cc594196dfe52b9cec5d699d749db06d75b9b271024b",
+    "app/cli.py": "f4acac33fe394119d1ceeffe05bb003f828828388e0782ec09cd89ab6edce313",
+    "app/context.py": "a47c477563540a5a508fa6c64ca509e748962543f048231cfbf51013a0c03d32",
+    "app/diagnostics.py": "8f2ca43dab4d3c2371d6a58c7e6284be29ca0950c7636264722f0d7014120e2f",
+    "app/models.py": "fa4e87a40c3e21cc1d80667cc5275808295ffaf56c0a714059c5a04a6f682b2c",
+    "app/routes/__init__.py": "42bf41ecde4c031bf3cd25d0742ad71531aeaa798f360e5b3a36578687900d79",
+    "app/routes/analyses.py": "c0d7a0048d10f83671dec303871a7bbe1fe5b7dd71417c560f11048403cfa548",
+    "app/routes/sources.py": "bb049a4596c9973de4d03845511833b6644fc9dbae278c46f25da32e80982df2",
+    "app/routes/workspaces.py": "c177bb780f7dad140a396b9d15625a086592ecce38f11d15939a1ec7f6d7f92a",
+    "app/serialization.py": "d93c02348dc8c8d327786a6b972f0eff3453f91978f4dfb226d202a938ae750e",
+    "app/server.py": "fed15ed78a7576024caae192cb236eddaba3e5088d02307447709d34927ad114"
+  }
+}

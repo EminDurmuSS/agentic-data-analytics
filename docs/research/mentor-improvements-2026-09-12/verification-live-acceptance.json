@@ -1,0 +1,1860 @@
+{
+  "evidence_type": "actual autonomous model trials with unchanged backend and independent fixed financial oracles",
+  "created_at": "2026-09-12T21:58:31.788067+00:00",
+  "grader_sha256": "7edbbccd6cb3d2f12c6e898cb0eb19899a61c2a69f59474cf140b749dfa87b4f",
+  "full_report_sha256": "bc8864b5477dc341c64a615030662e3ee6c382698731d9967fddccfbf2cf4e33",
+  "oracles": {
+    "pdf_sector": {
+      "basis": "Actual Garanti consolidated TOTAL ASSETS, original PDF page11 row60 TOTAL column8, divided by original BDDK March2026 full-sector balance-sheet total assets. This intentional cross-population amount comparison is not official market share.",
+      "host": "garantibbvainvestorrelations.com",
+      "page": 11,
+      "raw_sha256": "b8dd1916b3943ffdaa06d2be75a8b7e33950812eb990ae8b1bfe601b7f99c288",
+      "source_table": "table_p000011_text_001",
+      "source_cells": {
+        "column_8": {
+          "date": "2026-03-31",
+          "rows": {
+            "60": "total_assets"
+          }
+        }
+      },
+      "date": "2026-03-31",
+      "period": "2026-03",
+      "bank_thousand_TRY": 4783750292,
+      "bank_million_TRY": "4783750.292",
+      "sector_million_TRY": 49735194,
+      "percent": "9.618441001758231806635759780",
+      "sector_metric_id": "bddk_monthly:table01:26:f7e2a5324c36:Toplam",
+      "sector_source_file": "data_pipeline/bddk/monthly_all_groups/raw/2026-03_table01_groups10001-10002-10003-10004-10005-10006-10007-10008-10009-10010.json",
+      "sector_raw_sha256": "a8226807f1cf87a2919f592de40a89080549e9cf7424138049ebd369714f3176",
+      "sector_source_row": 26,
+      "sector_group_code": 10001
+    },
+    "tupras_pdf": {
+      "basis": "Consolidated balance sheet, PDF page 3, thousand TRY at 30 June 2025 purchasing power.",
+      "host": "tupras.com.tr",
+      "page": 3,
+      "raw_sha256": "54c50d2e352fe71288fc9427966335c848fad7628f67ff83220d478ef91fb29a",
+      "source_table": "table_p000003_text_001",
+      "source_cells": {
+        "column_7": {
+          "date": "2025-06-30",
+          "rows": {
+            "12": "cash",
+            "38": "total_assets"
+          }
+        }
+      },
+      "price_basis": "2025-06-30",
+      "values": {
+        "total_assets": {
+          "2025-06-30": 545630257
+        },
+        "cash": {
+          "2025-06-30": 90351730
+        }
+      }
+    }
+  },
+  "round": {
+    "manifest_sha256": "e561f0ea0830b1ccea7285b1a77b0e4884e0d4c709ceb672d73ad19f0c20710a",
+    "backend_unchanged_during_collection": true,
+    "trials": [
+      {
+        "case": "pdf_sector",
+        "repeat": 1,
+        "turns": [
+          {
+            "file": "pdf_sector_1/turn-1.json",
+            "sha256": "a7b39bf45ff8b03bdb7201db90a1cebf3b980e7b16d0c2a412bd7273146cdd17",
+            "artifact_grade": "pass",
+            "task_complete": true,
+            "run_status": "completed",
+            "decisions": 15,
+            "elapsed_seconds": 218.999,
+            "checks": [
+              {
+                "check": "saved_analysis_integrity",
+                "status": "pass"
+              },
+              {
+                "check": "analysis_workspace_matches_run",
+                "status": "pass"
+              },
+              {
+                "check": "collector_export_matches_saved_bytes",
+                "status": "pass"
+              },
+              {
+                "check": "published_dataset_integrity",
+                "status": "pass"
+              },
+              {
+                "check": "published_raw_source_integrity",
+                "status": "pass"
+              },
+              {
+                "check": "publication_source_url_matches_registered_source",
+                "status": "pass"
+              },
+              {
+                "check": "new_source_was_published",
+                "status": "pass"
+              },
+              {
+                "check": "expected_report_and_page_provenance",
+                "status": "pass",
+                "detail": {
+                  "host": "garantibbvainvestorrelations.com",
+                  "page": 11
+                }
+              },
+              {
+                "check": "one_exact_March_2026_comparison_row",
+                "status": "pass"
+              },
+              {
+                "check": "Garanti_TOTAL_ASSETS_exact_original_PDF_cell",
+                "status": "pass",
+                "detail": {
+                  "expected_thousand_TRY": 4783750292,
+                  "date": "2026-03-31",
+                  "row": 60,
+                  "TOTAL_column": "column_8",
+                  "matching_columns": [
+                    "garanti_konsolide_toplam_aktif"
+                  ]
+                }
+              },
+              {
+                "check": "BDDK_full_sector_total_assets_amount",
+                "status": "pass",
+                "detail": 49735194
+              },
+              {
+                "check": "original_BDDK_download_hash_and_total_assets_cell",
+                "status": "pass"
+              },
+              {
+                "check": "BDDK_exact_total_cell_and_full_reporting_population",
+                "status": "pass"
+              },
+              {
+                "check": "same_scale_saved_amounts_with_source_conversion_lineage",
+                "status": "pass",
+                "detail": {
+                  "matching_column_pairs": [
+                    [
+                      "garanti_konsolide_toplam_aktif_milyon",
+                      "bddk_sektor_toplam_aktif"
+                    ]
+                  ],
+                  "expected_million_TRY": {
+                    "bank": "4783750.292",
+                    "sector": 49735194
+                  }
+                }
+              },
+              {
+                "check": "saved_cross_population_percent",
+                "status": "pass",
+                "detail": "9.618441001758231806635759780"
+              },
+              {
+                "check": "ratio_operation_binds_two_verified_sources_with_explicit_scope",
+                "status": "pass"
+              },
+              {
+                "check": "period_alignment_does_not_assert_population_equivalence",
+                "status": "pass"
+              },
+              {
+                "check": "different_consolidated_and_BDDK_populations_disclosed",
+                "status": "pass"
+              },
+              {
+                "check": "ratio_explicitly_not_official_market_share",
+                "status": "pass"
+              },
+              {
+                "check": "comparison_chart_receipt_integrity",
+                "status": "pass"
+              },
+              {
+                "check": "comparison_uses_line_or_bar_chart",
+                "status": "pass"
+              },
+              {
+                "check": "chart_receipt_integrity",
+                "status": "pass"
+              },
+              {
+                "check": "requested_chart_kind",
+                "status": "pass",
+                "detail": {
+                  "base_period": null,
+                  "columns": [
+                    "garanti_konsolide_toplam_aktif",
+                    "bddk_sektor_toplam_aktif",
+                    "garanti_konsolide_toplam_aktif_milyon",
+                    "garanti_sektor_orani_yuzde"
+                  ],
+                  "frequency": "monthly",
+                  "kind": "line",
+                  "layout": "panels",
+                  "normalize": "none",
+                  "orientation": "vertical",
+                  "x": null
+                }
+              },
+              {
+                "check": "requested_columns_charted",
+                "status": "pass",
+                "detail": [
+                  "garanti_sektor_orani_yuzde"
+                ]
+              },
+              {
+                "check": "chart_period_coverage",
+                "status": "pass"
+              },
+              {
+                "check": "chart_series_0_matches_saved_cells",
+                "status": "pass"
+              },
+              {
+                "check": "chart_series_0_display_matches_saved_cells",
+                "status": "pass"
+              },
+              {
+                "check": "chart_series_1_matches_saved_cells",
+                "status": "pass"
+              },
+              {
+                "check": "chart_series_1_display_matches_saved_cells",
+                "status": "pass"
+              },
+              {
+                "check": "chart_series_2_matches_saved_cells",
+                "status": "pass"
+              },
+              {
+                "check": "chart_series_2_display_matches_saved_cells",
+                "status": "pass"
+              },
+              {
+                "check": "chart_series_3_matches_saved_cells",
+                "status": "pass"
+              },
+              {
+                "check": "chart_series_3_display_matches_saved_cells",
+                "status": "pass"
+              },
+              {
+                "check": "chart_all_saved_cells_covered_once",
+                "status": "pass"
+              },
+              {
+                "check": "chart_different_units_have_distinct_scales",
+                "status": "pass"
+              },
+              {
+                "check": "chart_complete_without_reinterpreting_values",
+                "status": "pass"
+              }
+            ],
+            "runtime_errors": [],
+            "answer_sha256": "6ce9edf2f27cb26ad529157f75916bf484969775c4a1bd29a9614af8ec85bfba",
+            "limits": [
+              "Checks cover the stated acceptance oracles; other prose claims and browser usability were not independently reviewed.",
+              "Analysis, attached chart/summary and imported raw-source bytes are checked; original BDDK raw downloads are not re-fetched."
+            ]
+          }
+        ],
+        "artifact_grade": "pass",
+        "task_complete": true
+      },
+      {
+        "case": "pdf_sector",
+        "repeat": 2,
+        "turns": [
+          {
+            "file": "pdf_sector_2/turn-1.json",
+            "sha256": "dc9a445596b91adc299627a77acfcffea829b11cf4f47a981108e586f8116a98",
+            "artifact_grade": "fail",
+            "task_complete": false,
+            "run_status": "completed",
+            "decisions": 16,
+            "elapsed_seconds": 258.944,
+            "checks": [
+              {
+                "check": "saved_analysis_integrity",
+                "status": "pass"
+              },
+              {
+                "check": "analysis_workspace_matches_run",
+                "status": "pass"
+              },
+              {
+                "check": "collector_export_matches_saved_bytes",
+                "status": "pass"
+              },
+              {
+                "check": "published_dataset_integrity",
+                "status": "pass"
+              },
+              {
+                "check": "published_raw_source_integrity",
+                "status": "pass"
+              },
+              {
+                "check": "publication_source_url_matches_registered_source",
+                "status": "pass"
+              },
+              {
+                "check": "new_source_was_published",
+                "status": "pass"
+              },
+              {
+                "check": "expected_report_and_page_provenance",
+                "status": "pass",
+                "detail": {
+                  "host": "garantibbvainvestorrelations.com",
+                  "page": 11
+                }
+              },
+              {
+                "check": "one_exact_March_2026_comparison_row",
+                "status": "pass"
+              },
+              {
+                "check": "Garanti_TOTAL_ASSETS_exact_original_PDF_cell",
+                "status": "pass",
+                "detail": {
+                  "expected_thousand_TRY": 4783750292,
+                  "date": "2026-03-31",
+                  "row": 60,
+                  "TOTAL_column": "column_8",
+                  "matching_columns": [
+                    "garanti_konsolide_toplam_aktif"
+                  ]
+                }
+              },
+              {
+                "check": "BDDK_full_sector_total_assets_amount",
+                "status": "pass",
+                "detail": 49735194
+              },
+              {
+                "check": "original_BDDK_download_hash_and_total_assets_cell",
+                "status": "pass"
+              },
+              {
+                "check": "BDDK_exact_total_cell_and_full_reporting_population",
+                "status": "pass"
+              },
+              {
+                "check": "same_scale_saved_amounts_with_source_conversion_lineage",
+                "status": "fail",
+                "detail": {
+                  "matching_column_pairs": [],
+                  "expected_million_TRY": {
+                    "bank": "4783750.292",
+                    "sector": 49735194
+                  }
+                }
+              },
+              {
+                "check": "saved_cross_population_percent",
+                "status": "pass",
+                "detail": "9.618441001758231806635759780"
+              },
+              {
+                "check": "ratio_operation_binds_two_verified_sources_with_explicit_scope",
+                "status": "pass"
+              },
+              {
+                "check": "period_alignment_does_not_assert_population_equivalence",
+                "status": "pass"
+              },
+              {
+                "check": "different_consolidated_and_BDDK_populations_disclosed",
+                "status": "pass"
+              },
+              {
+                "check": "ratio_explicitly_not_official_market_share",
+                "status": "pass"
+              },
+              {
+                "check": "comparison_chart_receipt_integrity",
+                "status": "pass"
+              },
+              {
+                "check": "comparison_uses_line_or_bar_chart",
+                "status": "pass"
+              },
+              {
+                "check": "chart_receipt_integrity",
+                "status": "pass"
+              },
+              {
+                "check": "requested_chart_kind",
+                "status": "pass",
+                "detail": {
+                  "base_period": null,
+                  "columns": [
+                    "garanti_konsolide_toplam_aktif",
+                    "bddk_sektor_toplam_aktif",
+                    "garanti_sektor_orani_pct"
+                  ],
+                  "frequency": "monthly",
+                  "kind": "line",
+                  "layout": "panels",
+                  "normalize": "none",
+                  "orientation": "vertical",
+                  "x": null
+                }
+              },
+              {
+                "check": "requested_columns_charted",
+                "status": "pass",
+                "detail": [
+                  "garanti_sektor_orani_pct"
+                ]
+              },
+              {
+                "check": "chart_period_coverage",
+                "status": "pass"
+              },
+              {
+                "check": "chart_series_0_matches_saved_cells",
+                "status": "pass"
+              },
+              {
+                "check": "chart_series_0_display_matches_saved_cells",
+                "status": "pass"
+              },
+              {
+                "check": "chart_series_1_matches_saved_cells",
+                "status": "pass"
+              },
+              {
+                "check": "chart_series_1_display_matches_saved_cells",
+                "status": "pass"
+              },
+              {
+                "check": "chart_series_2_matches_saved_cells",
+                "status": "pass"
+              },
+              {
+                "check": "chart_series_2_display_matches_saved_cells",
+                "status": "pass"
+              },
+              {
+                "check": "chart_all_saved_cells_covered_once",
+                "status": "pass"
+              },
+              {
+                "check": "chart_different_units_have_distinct_scales",
+                "status": "pass"
+              },
+              {
+                "check": "chart_complete_without_reinterpreting_values",
+                "status": "pass"
+              }
+            ],
+            "runtime_errors": [],
+            "answer_sha256": "a781187f313feeeab5787aa9c2cc89fc24318ee899097dcd37cd56a252a7e0f5",
+            "limits": [
+              "Checks cover the stated acceptance oracles; other prose claims and browser usability were not independently reviewed.",
+              "Analysis, attached chart/summary and imported raw-source bytes are checked; original BDDK raw downloads are not re-fetched."
+            ]
+          }
+        ],
+        "artifact_grade": "fail",
+        "task_complete": false
+      },
+      {
+        "case": "tupras_pdf",
+        "repeat": 1,
+        "turns": [
+          {
+            "file": "tupras_pdf_1/turn-1.json",
+            "sha256": "a9bd5214f14edd8d365c1c574b45f8e8777f95aac47680abb9c5fb2744b94ea2",
+            "artifact_grade": "pass",
+            "task_complete": true,
+            "run_status": "completed",
+            "decisions": 9,
+            "elapsed_seconds": 76.833,
+            "checks": [
+              {
+                "check": "saved_analysis_integrity",
+                "status": "pass"
+              },
+              {
+                "check": "analysis_workspace_matches_run",
+                "status": "pass"
+              },
+              {
+                "check": "collector_export_matches_saved_bytes",
+                "status": "pass"
+              },
+              {
+                "check": "published_dataset_integrity",
+                "status": "pass"
+              },
+              {
+                "check": "published_raw_source_integrity",
+                "status": "pass"
+              },
+              {
+                "check": "publication_source_url_matches_registered_source",
+                "status": "pass"
+              },
+              {
+                "check": "new_source_was_published",
+                "status": "pass"
+              },
+              {
+                "check": "expected_report_and_page_provenance",
+                "status": "pass",
+                "detail": {
+                  "host": "tupras.com.tr",
+                  "page": 3
+                }
+              },
+              {
+                "check": "cash_2025-06-30_source_coordinate_date",
+                "status": "pass",
+                "detail": {
+                  "source_coordinate_date": "2025-06-30",
+                  "output_date": "2025-06-30"
+                }
+              },
+              {
+                "check": "total_assets_2025-06-30_source_coordinate_date",
+                "status": "pass",
+                "detail": {
+                  "source_coordinate_date": "2025-06-30",
+                  "output_date": "2025-06-30"
+                }
+              },
+              {
+                "check": "total_assets_2025-06-30_TOTAL_thousand_TRY",
+                "status": "pass",
+                "detail": {
+                  "expected": 545630257,
+                  "observed": [
+                    {
+                      "value": 545630257,
+                      "column": "total_assets",
+                      "unit": "TRY",
+                      "scale": 1000
+                    }
+                  ]
+                }
+              },
+              {
+                "check": "total_assets_purchasing_power_basis",
+                "status": "pass",
+                "detail": "2025-06-30"
+              },
+              {
+                "check": "cash_2025-06-30_TOTAL_thousand_TRY",
+                "status": "pass",
+                "detail": {
+                  "expected": 90351730,
+                  "observed": [
+                    {
+                      "value": 90351730,
+                      "column": "cash_and_cash_equivalents",
+                      "unit": "TRY",
+                      "scale": 1000
+                    }
+                  ]
+                }
+              },
+              {
+                "check": "cash_purchasing_power_basis",
+                "status": "pass",
+                "detail": "2025-06-30"
+              },
+              {
+                "check": "chart_receipt_integrity",
+                "status": "pass"
+              },
+              {
+                "check": "requested_chart_kind",
+                "status": "pass",
+                "detail": {
+                  "base_period": null,
+                  "columns": [
+                    "cash_and_cash_equivalents",
+                    "total_assets"
+                  ],
+                  "frequency": "daily",
+                  "kind": "bar",
+                  "layout": "overlay",
+                  "normalize": "none",
+                  "orientation": "vertical",
+                  "x": null
+                }
+              },
+              {
+                "check": "requested_columns_charted",
+                "status": "pass",
+                "detail": [
+                  "cash_and_cash_equivalents",
+                  "total_assets"
+                ]
+              },
+              {
+                "check": "chart_period_coverage",
+                "status": "pass"
+              },
+              {
+                "check": "chart_series_0_matches_saved_cells",
+                "status": "pass"
+              },
+              {
+                "check": "chart_series_0_display_matches_saved_cells",
+                "status": "pass"
+              },
+              {
+                "check": "chart_series_1_matches_saved_cells",
+                "status": "pass"
+              },
+              {
+                "check": "chart_series_1_display_matches_saved_cells",
+                "status": "pass"
+              },
+              {
+                "check": "chart_all_saved_cells_covered_once",
+                "status": "pass"
+              },
+              {
+                "check": "chart_complete_without_reinterpreting_values",
+                "status": "pass"
+              }
+            ],
+            "runtime_errors": [],
+            "answer_sha256": "d96134e7f8643c4b76a4654ec2bdea4fbfe18d4fad501437b68a9ddc4af83e7a",
+            "limits": [
+              "Checks cover the stated acceptance oracles; other prose claims and browser usability were not independently reviewed.",
+              "Analysis, attached chart/summary and imported raw-source bytes are checked; original BDDK raw downloads are not re-fetched."
+            ]
+          }
+        ],
+        "artifact_grade": "pass",
+        "task_complete": true
+      },
+      {
+        "case": "tupras_pdf",
+        "repeat": 2,
+        "turns": [
+          {
+            "file": "tupras_pdf_2/turn-1.json",
+            "sha256": "fd847539cb21c13f20872e5e9ca40a9c179921bd359446a828ad4b280c5d26b7",
+            "artifact_grade": "pass",
+            "task_complete": true,
+            "run_status": "completed",
+            "decisions": 10,
+            "elapsed_seconds": 79.357,
+            "checks": [
+              {
+                "check": "saved_analysis_integrity",
+                "status": "pass"
+              },
+              {
+                "check": "analysis_workspace_matches_run",
+                "status": "pass"
+              },
+              {
+                "check": "collector_export_matches_saved_bytes",
+                "status": "pass"
+              },
+              {
+                "check": "published_dataset_integrity",
+                "status": "pass"
+              },
+              {
+                "check": "published_raw_source_integrity",
+                "status": "pass"
+              },
+              {
+                "check": "publication_source_url_matches_registered_source",
+                "status": "pass"
+              },
+              {
+                "check": "new_source_was_published",
+                "status": "pass"
+              },
+              {
+                "check": "expected_report_and_page_provenance",
+                "status": "pass",
+                "detail": {
+                  "host": "tupras.com.tr",
+                  "page": 3
+                }
+              },
+              {
+                "check": "cash_2025-06-30_source_coordinate_date",
+                "status": "pass",
+                "detail": {
+                  "source_coordinate_date": "2025-06-30",
+                  "output_date": "2025-06-30"
+                }
+              },
+              {
+                "check": "total_assets_2025-06-30_source_coordinate_date",
+                "status": "pass",
+                "detail": {
+                  "source_coordinate_date": "2025-06-30",
+                  "output_date": "2025-06-30"
+                }
+              },
+              {
+                "check": "total_assets_2025-06-30_TOTAL_thousand_TRY",
+                "status": "pass",
+                "detail": {
+                  "expected": 545630257,
+                  "observed": [
+                    {
+                      "value": 545630257,
+                      "column": "total_assets",
+                      "unit": "TRY",
+                      "scale": 1000
+                    }
+                  ]
+                }
+              },
+              {
+                "check": "total_assets_purchasing_power_basis",
+                "status": "pass",
+                "detail": "2025-06-30"
+              },
+              {
+                "check": "cash_2025-06-30_TOTAL_thousand_TRY",
+                "status": "pass",
+                "detail": {
+                  "expected": 90351730,
+                  "observed": [
+                    {
+                      "value": 90351730,
+                      "column": "cash_and_cash_equivalents",
+                      "unit": "TRY",
+                      "scale": 1000
+                    }
+                  ]
+                }
+              },
+              {
+                "check": "cash_purchasing_power_basis",
+                "status": "pass",
+                "detail": "2025-06-30"
+              },
+              {
+                "check": "chart_receipt_integrity",
+                "status": "pass"
+              },
+              {
+                "check": "requested_chart_kind",
+                "status": "pass",
+                "detail": {
+                  "base_period": null,
+                  "columns": [
+                    "cash_and_cash_equivalents",
+                    "total_assets"
+                  ],
+                  "frequency": "monthly",
+                  "kind": "bar",
+                  "layout": "overlay",
+                  "normalize": "none",
+                  "orientation": "vertical",
+                  "x": null
+                }
+              },
+              {
+                "check": "requested_columns_charted",
+                "status": "pass",
+                "detail": [
+                  "cash_and_cash_equivalents",
+                  "total_assets"
+                ]
+              },
+              {
+                "check": "chart_period_coverage",
+                "status": "pass"
+              },
+              {
+                "check": "chart_series_0_matches_saved_cells",
+                "status": "pass"
+              },
+              {
+                "check": "chart_series_0_display_matches_saved_cells",
+                "status": "pass"
+              },
+              {
+                "check": "chart_series_1_matches_saved_cells",
+                "status": "pass"
+              },
+              {
+                "check": "chart_series_1_display_matches_saved_cells",
+                "status": "pass"
+              },
+              {
+                "check": "chart_all_saved_cells_covered_once",
+                "status": "pass"
+              },
+              {
+                "check": "chart_complete_without_reinterpreting_values",
+                "status": "pass"
+              }
+            ],
+            "runtime_errors": [],
+            "answer_sha256": "5dfd9c7009bf8108c51731debe947a24217d3be8856c84082260fbd275361452",
+            "limits": [
+              "Checks cover the stated acceptance oracles; other prose claims and browser usability were not independently reviewed.",
+              "Analysis, attached chart/summary and imported raw-source bytes are checked; original BDDK raw downloads are not re-fetched."
+            ]
+          }
+        ],
+        "artifact_grade": "pass",
+        "task_complete": true
+      }
+    ],
+    "round_name": "live-verification-final"
+  },
+  "previous_round": {
+    "manifest_sha256": "475a9663a92fefa492ab54d0cd83ee13419742b699809d67d6f29c5de4245d50",
+    "backend_unchanged_during_collection": true,
+    "trials": [
+      {
+        "case": "pdf_sector",
+        "repeat": 1,
+        "turns": [
+          {
+            "file": "pdf_sector_1/turn-1.json",
+            "sha256": "a1f6d2a99b7ffa536b14f2361c62eb663cd01448c66c3cd611377649e9f65b68",
+            "artifact_grade": "pass",
+            "task_complete": true,
+            "run_status": "completed",
+            "decisions": 13,
+            "elapsed_seconds": 217.775,
+            "checks": [
+              {
+                "check": "saved_analysis_integrity",
+                "status": "pass"
+              },
+              {
+                "check": "analysis_workspace_matches_run",
+                "status": "pass"
+              },
+              {
+                "check": "collector_export_matches_saved_bytes",
+                "status": "pass"
+              },
+              {
+                "check": "published_dataset_integrity",
+                "status": "pass"
+              },
+              {
+                "check": "published_raw_source_integrity",
+                "status": "pass"
+              },
+              {
+                "check": "publication_source_url_matches_registered_source",
+                "status": "pass"
+              },
+              {
+                "check": "new_source_was_published",
+                "status": "pass"
+              },
+              {
+                "check": "expected_report_and_page_provenance",
+                "status": "pass",
+                "detail": {
+                  "host": "garantibbvainvestorrelations.com",
+                  "page": 11
+                }
+              },
+              {
+                "check": "one_exact_March_2026_comparison_row",
+                "status": "pass"
+              },
+              {
+                "check": "Garanti_TOTAL_ASSETS_exact_original_PDF_cell",
+                "status": "pass",
+                "detail": {
+                  "expected_thousand_TRY": 4783750292,
+                  "date": "2026-03-31",
+                  "row": 60,
+                  "TOTAL_column": "column_8",
+                  "matching_columns": [
+                    "garanti_konsolide_toplam_aktif"
+                  ]
+                }
+              },
+              {
+                "check": "BDDK_full_sector_total_assets_amount",
+                "status": "pass",
+                "detail": 49735194
+              },
+              {
+                "check": "original_BDDK_download_hash_and_total_assets_cell",
+                "status": "pass"
+              },
+              {
+                "check": "BDDK_exact_total_cell_and_full_reporting_population",
+                "status": "pass"
+              },
+              {
+                "check": "same_scale_saved_amounts_with_source_conversion_lineage",
+                "status": "pass",
+                "detail": {
+                  "matching_column_pairs": [
+                    [
+                      "garanti_konsolide_milyon_TL",
+                      "bddk_sektor_toplam_aktif"
+                    ]
+                  ],
+                  "expected_million_TRY": {
+                    "bank": "4783750.292",
+                    "sector": 49735194
+                  }
+                }
+              },
+              {
+                "check": "saved_cross_population_percent",
+                "status": "pass",
+                "detail": "9.618441001758231806635759780"
+              },
+              {
+                "check": "ratio_operation_binds_two_verified_sources_with_explicit_scope",
+                "status": "pass"
+              },
+              {
+                "check": "period_alignment_does_not_assert_population_equivalence",
+                "status": "pass"
+              },
+              {
+                "check": "different_consolidated_and_BDDK_populations_disclosed",
+                "status": "pass"
+              },
+              {
+                "check": "ratio_explicitly_not_official_market_share",
+                "status": "pass"
+              },
+              {
+                "check": "comparison_chart_receipt_integrity",
+                "status": "pass"
+              },
+              {
+                "check": "comparison_uses_line_or_bar_chart",
+                "status": "pass"
+              },
+              {
+                "check": "chart_receipt_integrity",
+                "status": "pass"
+              },
+              {
+                "check": "requested_chart_kind",
+                "status": "pass",
+                "detail": {
+                  "base_period": null,
+                  "columns": [
+                    "garanti_konsolide_toplam_aktif",
+                    "bddk_sektor_toplam_aktif",
+                    "garanti_konsolide_milyon_TL",
+                    "oran_yuzde"
+                  ],
+                  "frequency": "monthly",
+                  "kind": "line",
+                  "layout": "panels",
+                  "normalize": "none",
+                  "orientation": "vertical",
+                  "x": null
+                }
+              },
+              {
+                "check": "requested_columns_charted",
+                "status": "pass",
+                "detail": [
+                  "oran_yuzde"
+                ]
+              },
+              {
+                "check": "chart_period_coverage",
+                "status": "pass"
+              },
+              {
+                "check": "chart_series_0_matches_saved_cells",
+                "status": "pass"
+              },
+              {
+                "check": "chart_series_0_display_matches_saved_cells",
+                "status": "pass"
+              },
+              {
+                "check": "chart_series_1_matches_saved_cells",
+                "status": "pass"
+              },
+              {
+                "check": "chart_series_1_display_matches_saved_cells",
+                "status": "pass"
+              },
+              {
+                "check": "chart_series_2_matches_saved_cells",
+                "status": "pass"
+              },
+              {
+                "check": "chart_series_2_display_matches_saved_cells",
+                "status": "pass"
+              },
+              {
+                "check": "chart_series_3_matches_saved_cells",
+                "status": "pass"
+              },
+              {
+                "check": "chart_series_3_display_matches_saved_cells",
+                "status": "pass"
+              },
+              {
+                "check": "chart_all_saved_cells_covered_once",
+                "status": "pass"
+              },
+              {
+                "check": "chart_different_units_have_distinct_scales",
+                "status": "pass"
+              },
+              {
+                "check": "chart_complete_without_reinterpreting_values",
+                "status": "pass"
+              }
+            ],
+            "runtime_errors": [],
+            "answer_sha256": "75bd16c3b83d704115283d07cc7e1fa46a4ead00d9a22c6e1c6ef21a36b3c400",
+            "limits": [
+              "Checks cover the stated acceptance oracles; other prose claims and browser usability were not independently reviewed.",
+              "Analysis, attached chart/summary and imported raw-source bytes are checked; original BDDK raw downloads are not re-fetched."
+            ]
+          }
+        ],
+        "artifact_grade": "pass",
+        "task_complete": true
+      },
+      {
+        "case": "pdf_sector",
+        "repeat": 2,
+        "turns": [
+          {
+            "file": "pdf_sector_2/turn-1.json",
+            "sha256": "8ffe8d19a55463bbb1d9a4557c56a3a028866e98efea4b63e14b9f8057bf4bac",
+            "artifact_grade": "pass",
+            "task_complete": false,
+            "run_status": "partial",
+            "decisions": 14,
+            "elapsed_seconds": 231.382,
+            "checks": [
+              {
+                "check": "saved_analysis_integrity",
+                "status": "pass"
+              },
+              {
+                "check": "analysis_workspace_matches_run",
+                "status": "pass"
+              },
+              {
+                "check": "collector_export_matches_saved_bytes",
+                "status": "pass"
+              },
+              {
+                "check": "published_dataset_integrity",
+                "status": "pass"
+              },
+              {
+                "check": "published_raw_source_integrity",
+                "status": "pass"
+              },
+              {
+                "check": "publication_source_url_matches_registered_source",
+                "status": "pass"
+              },
+              {
+                "check": "new_source_was_published",
+                "status": "pass"
+              },
+              {
+                "check": "expected_report_and_page_provenance",
+                "status": "pass",
+                "detail": {
+                  "host": "garantibbvainvestorrelations.com",
+                  "page": 11
+                }
+              },
+              {
+                "check": "one_exact_March_2026_comparison_row",
+                "status": "pass"
+              },
+              {
+                "check": "Garanti_TOTAL_ASSETS_exact_original_PDF_cell",
+                "status": "pass",
+                "detail": {
+                  "expected_thousand_TRY": 4783750292,
+                  "date": "2026-03-31",
+                  "row": 60,
+                  "TOTAL_column": "column_8",
+                  "matching_columns": [
+                    "garanti_konsolide_toplam_aktif"
+                  ]
+                }
+              },
+              {
+                "check": "BDDK_full_sector_total_assets_amount",
+                "status": "pass",
+                "detail": 49735194
+              },
+              {
+                "check": "original_BDDK_download_hash_and_total_assets_cell",
+                "status": "pass"
+              },
+              {
+                "check": "BDDK_exact_total_cell_and_full_reporting_population",
+                "status": "pass"
+              },
+              {
+                "check": "same_scale_saved_amounts_with_source_conversion_lineage",
+                "status": "pass",
+                "detail": {
+                  "matching_column_pairs": [
+                    [
+                      "garanti_konsolide_milyon_TL",
+                      "bddk_sektor_toplam_aktif"
+                    ]
+                  ],
+                  "expected_million_TRY": {
+                    "bank": "4783750.292",
+                    "sector": 49735194
+                  }
+                }
+              },
+              {
+                "check": "saved_cross_population_percent",
+                "status": "pass",
+                "detail": "9.618441001758231806635759780"
+              },
+              {
+                "check": "ratio_operation_binds_two_verified_sources_with_explicit_scope",
+                "status": "pass"
+              },
+              {
+                "check": "period_alignment_does_not_assert_population_equivalence",
+                "status": "pass"
+              },
+              {
+                "check": "different_consolidated_and_BDDK_populations_disclosed",
+                "status": "pass"
+              },
+              {
+                "check": "ratio_explicitly_not_official_market_share",
+                "status": "pass"
+              },
+              {
+                "check": "comparison_chart_receipt_integrity",
+                "status": "pass"
+              },
+              {
+                "check": "comparison_uses_line_or_bar_chart",
+                "status": "pass"
+              },
+              {
+                "check": "chart_receipt_integrity",
+                "status": "pass"
+              },
+              {
+                "check": "requested_chart_kind",
+                "status": "pass",
+                "detail": {
+                  "base_period": null,
+                  "columns": [
+                    "garanti_konsolide_toplam_aktif",
+                    "bddk_sektor_toplam_aktif",
+                    "garanti_konsolide_milyon_TL",
+                    "oran_yuzde"
+                  ],
+                  "frequency": "monthly",
+                  "kind": "line",
+                  "layout": "panels",
+                  "normalize": "none",
+                  "orientation": "vertical",
+                  "x": null
+                }
+              },
+              {
+                "check": "requested_columns_charted",
+                "status": "pass",
+                "detail": [
+                  "oran_yuzde"
+                ]
+              },
+              {
+                "check": "chart_period_coverage",
+                "status": "pass"
+              },
+              {
+                "check": "chart_series_0_matches_saved_cells",
+                "status": "pass"
+              },
+              {
+                "check": "chart_series_0_display_matches_saved_cells",
+                "status": "pass"
+              },
+              {
+                "check": "chart_series_1_matches_saved_cells",
+                "status": "pass"
+              },
+              {
+                "check": "chart_series_1_display_matches_saved_cells",
+                "status": "pass"
+              },
+              {
+                "check": "chart_series_2_matches_saved_cells",
+                "status": "pass"
+              },
+              {
+                "check": "chart_series_2_display_matches_saved_cells",
+                "status": "pass"
+              },
+              {
+                "check": "chart_series_3_matches_saved_cells",
+                "status": "pass"
+              },
+              {
+                "check": "chart_series_3_display_matches_saved_cells",
+                "status": "pass"
+              },
+              {
+                "check": "chart_all_saved_cells_covered_once",
+                "status": "pass"
+              },
+              {
+                "check": "chart_different_units_have_distinct_scales",
+                "status": "pass"
+              },
+              {
+                "check": "chart_complete_without_reinterpreting_values",
+                "status": "pass"
+              }
+            ],
+            "runtime_errors": [
+              {
+                "code": "CONTEXT_BUDGET_EXCEEDED",
+                "message": "Current task exceeds the configured context budget; use a smaller scope."
+              }
+            ],
+            "answer_sha256": "65b7a0d2e354cd94fa2a92d062c66fb5b3f557f218dc711d1d6bfb5ad7f1593f",
+            "limits": [
+              "Checks cover the stated acceptance oracles; other prose claims and browser usability were not independently reviewed.",
+              "Analysis, attached chart/summary and imported raw-source bytes are checked; original BDDK raw downloads are not re-fetched."
+            ]
+          }
+        ],
+        "artifact_grade": "pass",
+        "task_complete": false
+      },
+      {
+        "case": "new_source",
+        "repeat": 1,
+        "turns": [
+          {
+            "file": "new_source_1/turn-1.json",
+            "sha256": "9400955762cabe75b3a6790b570fdd9665ba789efed99a2b381d8681e7f4ee4c",
+            "artifact_grade": "pass",
+            "task_complete": true,
+            "run_status": "completed",
+            "decisions": 6,
+            "elapsed_seconds": 65.007,
+            "checks": [
+              {
+                "check": "saved_analysis_integrity",
+                "status": "pass"
+              },
+              {
+                "check": "analysis_workspace_matches_run",
+                "status": "pass"
+              },
+              {
+                "check": "collector_export_matches_saved_bytes",
+                "status": "pass"
+              },
+              {
+                "check": "bank_balance_values",
+                "status": "pass",
+                "detail": {
+                  "expected": [
+                    100000,
+                    120000,
+                    150000
+                  ],
+                  "observed": {
+                    "banka_kredi": [
+                      100000,
+                      120000,
+                      150000
+                    ]
+                  }
+                }
+              },
+              {
+                "check": "sector_balance_values",
+                "status": "pass",
+                "detail": {
+                  "expected": [
+                    23646098,
+                    24217659,
+                    24907270
+                  ],
+                  "observed": {
+                    "sektor_kredi": [
+                      23646098.0,
+                      24217659.0,
+                      24907270.0
+                    ]
+                  }
+                }
+              },
+              {
+                "check": "bank_divided_by_full_sector_percent",
+                "status": "pass",
+                "detail": [
+                  0.4229027554567354,
+                  0.49550619240282473,
+                  0.6022338056318497
+                ]
+              },
+              {
+                "check": "ratio_has_explicit_source_scope",
+                "status": "pass"
+              },
+              {
+                "check": "published_dataset_integrity",
+                "status": "pass"
+              },
+              {
+                "check": "published_raw_source_integrity",
+                "status": "pass"
+              },
+              {
+                "check": "publication_source_url_matches_registered_source",
+                "status": "pass"
+              },
+              {
+                "check": "new_source_was_published",
+                "status": "pass"
+              },
+              {
+                "check": "bank_series_uses_published_source",
+                "status": "pass",
+                "detail": "dataset_46713b590b72f47532a6d05b009b3849d8cda3d27adb898c70f4a93c58e370b3"
+              },
+              {
+                "check": "sector_population_and_measurement_basis",
+                "status": "pass",
+                "detail": {
+                  "customer_residency": null,
+                  "exclusions": [],
+                  "id": "bddk_monthly_full_reporting_population"
+                }
+              },
+              {
+                "check": "chart_receipt_integrity",
+                "status": "pass"
+              },
+              {
+                "check": "requested_chart_kind",
+                "status": "pass",
+                "detail": {
+                  "base_period": null,
+                  "columns": [
+                    "banka_kredi",
+                    "sektor_kredi",
+                    "banka_payi_pct"
+                  ],
+                  "frequency": "monthly",
+                  "kind": "line",
+                  "layout": "panels",
+                  "normalize": "none",
+                  "orientation": "vertical",
+                  "x": null
+                }
+              },
+              {
+                "check": "requested_columns_charted",
+                "status": "pass",
+                "detail": [
+                  "banka_payi_pct"
+                ]
+              },
+              {
+                "check": "chart_period_coverage",
+                "status": "pass"
+              },
+              {
+                "check": "chart_series_0_matches_saved_cells",
+                "status": "pass"
+              },
+              {
+                "check": "chart_series_0_display_matches_saved_cells",
+                "status": "pass"
+              },
+              {
+                "check": "chart_series_1_matches_saved_cells",
+                "status": "pass"
+              },
+              {
+                "check": "chart_series_1_display_matches_saved_cells",
+                "status": "pass"
+              },
+              {
+                "check": "chart_series_2_matches_saved_cells",
+                "status": "pass"
+              },
+              {
+                "check": "chart_series_2_display_matches_saved_cells",
+                "status": "pass"
+              },
+              {
+                "check": "chart_all_saved_cells_covered_once",
+                "status": "pass"
+              },
+              {
+                "check": "chart_different_units_have_distinct_scales",
+                "status": "pass"
+              },
+              {
+                "check": "chart_complete_without_reinterpreting_values",
+                "status": "pass"
+              },
+              {
+                "check": "synthetic_source_is_disclosed",
+                "status": "pass"
+              }
+            ],
+            "runtime_errors": [],
+            "answer_sha256": "ce4ee51003174051170f3c49a659e86b79c7d2c2bc5db7d4d020077e23ae241f",
+            "limits": [
+              "Checks cover the stated acceptance oracles; other prose claims and browser usability were not independently reviewed.",
+              "Analysis, attached chart/summary and imported raw-source bytes are checked; original BDDK raw downloads are not re-fetched."
+            ]
+          }
+        ],
+        "artifact_grade": "pass",
+        "task_complete": true
+      },
+      {
+        "case": "new_source",
+        "repeat": 2,
+        "turns": [
+          {
+            "file": "new_source_2/turn-1.json",
+            "sha256": "1a687721541e13be63b76a32a39aed2a7860b8db750132cb6e6f52ffa3a7f18f",
+            "artifact_grade": "pass",
+            "task_complete": true,
+            "run_status": "completed",
+            "decisions": 8,
+            "elapsed_seconds": 85.017,
+            "checks": [
+              {
+                "check": "saved_analysis_integrity",
+                "status": "pass"
+              },
+              {
+                "check": "analysis_workspace_matches_run",
+                "status": "pass"
+              },
+              {
+                "check": "collector_export_matches_saved_bytes",
+                "status": "pass"
+              },
+              {
+                "check": "bank_balance_values",
+                "status": "pass",
+                "detail": {
+                  "expected": [
+                    100000,
+                    120000,
+                    150000
+                  ],
+                  "observed": {
+                    "banka_kredi": [
+                      100000,
+                      120000,
+                      150000
+                    ]
+                  }
+                }
+              },
+              {
+                "check": "sector_balance_values",
+                "status": "pass",
+                "detail": {
+                  "expected": [
+                    23646098,
+                    24217659,
+                    24907270
+                  ],
+                  "observed": {
+                    "sektor_kredi": [
+                      23646098.0,
+                      24217659.0,
+                      24907270.0
+                    ]
+                  }
+                }
+              },
+              {
+                "check": "bank_divided_by_full_sector_percent",
+                "status": "pass",
+                "detail": [
+                  0.4229027554567354,
+                  0.49550619240282473,
+                  0.6022338056318497
+                ]
+              },
+              {
+                "check": "ratio_has_explicit_source_scope",
+                "status": "pass"
+              },
+              {
+                "check": "published_dataset_integrity",
+                "status": "pass"
+              },
+              {
+                "check": "published_raw_source_integrity",
+                "status": "pass"
+              },
+              {
+                "check": "publication_source_url_matches_registered_source",
+                "status": "pass"
+              },
+              {
+                "check": "new_source_was_published",
+                "status": "pass"
+              },
+              {
+                "check": "bank_series_uses_published_source",
+                "status": "pass",
+                "detail": "dataset_8cee705f966e8fd26ff3bb58e539d5cf3011d90f224fb6037138b0fd561a5f1a"
+              },
+              {
+                "check": "sector_population_and_measurement_basis",
+                "status": "pass",
+                "detail": {
+                  "customer_residency": null,
+                  "exclusions": [],
+                  "id": "bddk_monthly_full_reporting_population"
+                }
+              },
+              {
+                "check": "chart_receipt_integrity",
+                "status": "pass"
+              },
+              {
+                "check": "requested_chart_kind",
+                "status": "pass",
+                "detail": {
+                  "base_period": null,
+                  "columns": [
+                    "banka_kredi",
+                    "sektor_kredi",
+                    "banka_pay_pct"
+                  ],
+                  "frequency": "monthly",
+                  "kind": "line",
+                  "layout": "panels",
+                  "normalize": "none",
+                  "orientation": "vertical",
+                  "x": null
+                }
+              },
+              {
+                "check": "requested_columns_charted",
+                "status": "pass",
+                "detail": [
+                  "banka_pay_pct"
+                ]
+              },
+              {
+                "check": "chart_period_coverage",
+                "status": "pass"
+              },
+              {
+                "check": "chart_series_0_matches_saved_cells",
+                "status": "pass"
+              },
+              {
+                "check": "chart_series_0_display_matches_saved_cells",
+                "status": "pass"
+              },
+              {
+                "check": "chart_series_1_matches_saved_cells",
+                "status": "pass"
+              },
+              {
+                "check": "chart_series_1_display_matches_saved_cells",
+                "status": "pass"
+              },
+              {
+                "check": "chart_series_2_matches_saved_cells",
+                "status": "pass"
+              },
+              {
+                "check": "chart_series_2_display_matches_saved_cells",
+                "status": "pass"
+              },
+              {
+                "check": "chart_all_saved_cells_covered_once",
+                "status": "pass"
+              },
+              {
+                "check": "chart_different_units_have_distinct_scales",
+                "status": "pass"
+              },
+              {
+                "check": "chart_complete_without_reinterpreting_values",
+                "status": "pass"
+              },
+              {
+                "check": "synthetic_source_is_disclosed",
+                "status": "pass"
+              }
+            ],
+            "runtime_errors": [],
+            "answer_sha256": "5425d40d9e4fdf6f9522bb17ab6598893aa1f4ce78dddd6ab8eb4a0163a08ad7",
+            "limits": [
+              "Checks cover the stated acceptance oracles; other prose claims and browser usability were not independently reviewed.",
+              "Analysis, attached chart/summary and imported raw-source bytes are checked; original BDDK raw downloads are not re-fetched."
+            ]
+          }
+        ],
+        "artifact_grade": "pass",
+        "task_complete": true
+      },
+      {
+        "case": "tupras_pdf",
+        "repeat": 1,
+        "turns": [
+          {
+            "file": "tupras_pdf_1/turn-1.json",
+            "sha256": "ffbeed4aea6d93c6bc610a7f3a1701fda90939da5e15d6f25d1fa83fe83c962f",
+            "artifact_grade": "pass",
+            "task_complete": true,
+            "run_status": "completed",
+            "decisions": 12,
+            "elapsed_seconds": 114.637,
+            "checks": [
+              {
+                "check": "saved_analysis_integrity",
+                "status": "pass"
+              },
+              {
+                "check": "analysis_workspace_matches_run",
+                "status": "pass"
+              },
+              {
+                "check": "collector_export_matches_saved_bytes",
+                "status": "pass"
+              },
+              {
+                "check": "published_dataset_integrity",
+                "status": "pass"
+              },
+              {
+                "check": "published_raw_source_integrity",
+                "status": "pass"
+              },
+              {
+                "check": "publication_source_url_matches_registered_source",
+                "status": "pass"
+              },
+              {
+                "check": "new_source_was_published",
+                "status": "pass"
+              },
+              {
+                "check": "expected_report_and_page_provenance",
+                "status": "pass",
+                "detail": {
+                  "host": "tupras.com.tr",
+                  "page": 3
+                }
+              },
+              {
+                "check": "cash_2025-06-30_source_coordinate_date",
+                "status": "pass",
+                "detail": {
+                  "source_coordinate_date": "2025-06-30",
+                  "output_date": "2025-06-30"
+                }
+              },
+              {
+                "check": "total_assets_2025-06-30_source_coordinate_date",
+                "status": "pass",
+                "detail": {
+                  "source_coordinate_date": "2025-06-30",
+                  "output_date": "2025-06-30"
+                }
+              },
+              {
+                "check": "total_assets_2025-06-30_TOTAL_thousand_TRY",
+                "status": "pass",
+                "detail": {
+                  "expected": 545630257,
+                  "observed": [
+                    {
+                      "value": 545630257,
+                      "column": "reported_amount",
+                      "unit": "TRY",
+                      "scale": 1000
+                    }
+                  ]
+                }
+              },
+              {
+                "check": "total_assets_purchasing_power_basis",
+                "status": "pass",
+                "detail": "2025-06-30"
+              },
+              {
+                "check": "cash_2025-06-30_TOTAL_thousand_TRY",
+                "status": "pass",
+                "detail": {
+                  "expected": 90351730,
+                  "observed": [
+                    {
+                      "value": 90351730,
+                      "column": "reported_amount",
+                      "unit": "TRY",
+                      "scale": 1000
+                    }
+                  ]
+                }
+              },
+              {
+                "check": "cash_purchasing_power_basis",
+                "status": "pass",
+                "detail": "2025-06-30"
+              },
+              {
+                "check": "chart_receipt_integrity",
+                "status": "pass"
+              },
+              {
+                "check": "requested_chart_kind",
+                "status": "pass",
+                "detail": {
+                  "base_period": null,
+                  "columns": [
+                    "reported_amount"
+                  ],
+                  "frequency": "daily",
+                  "kind": "bar",
+                  "layout": "overlay",
+                  "normalize": "none",
+                  "orientation": "vertical",
+                  "x": null
+                }
+              },
+              {
+                "check": "requested_columns_charted",
+                "status": "pass",
+                "detail": [
+                  "reported_amount"
+                ]
+              },
+              {
+                "check": "chart_period_coverage",
+                "status": "pass"
+              },
+              {
+                "check": "chart_series_0_matches_saved_cells",
+                "status": "pass"
+              },
+              {
+                "check": "chart_series_0_display_matches_saved_cells",
+                "status": "pass"
+              },
+              {
+                "check": "chart_all_saved_cells_covered_once",
+                "status": "pass"
+              },
+              {
+                "check": "chart_complete_without_reinterpreting_values",
+                "status": "pass"
+              }
+            ],
+            "runtime_errors": [],
+            "answer_sha256": "285cee3e2e131aff04700a7933691339b67313c48919e7b037fbc0ea4306f091",
+            "limits": [
+              "Checks cover the stated acceptance oracles; other prose claims and browser usability were not independently reviewed.",
+              "Analysis, attached chart/summary and imported raw-source bytes are checked; original BDDK raw downloads are not re-fetched."
+            ]
+          }
+        ],
+        "artifact_grade": "pass",
+        "task_complete": true
+      },
+      {
+        "case": "tupras_pdf",
+        "repeat": 2,
+        "turns": [
+          {
+            "file": "tupras_pdf_2/turn-1.json",
+            "sha256": "c68ebf7deea537998c110806c7c8430b466004fef574baa38184966093ca78cb",
+            "artifact_grade": "incomplete",
+            "task_complete": false,
+            "run_status": "blocked",
+            "decisions": 15,
+            "elapsed_seconds": 133.757,
+            "checks": [
+              {
+                "check": "saved_analysis_integrity",
+                "status": "incomplete",
+                "detail": "No saved analysis identifier."
+              }
+            ],
+            "runtime_errors": [
+              {
+                "code": "AMBIGUOUS_IMPORT_PERIODS",
+                "message": "Source dates do not uniquely identify the selected value columns. Choose a statement table or explicit value scope; no date was guessed."
+              }
+            ],
+            "answer_sha256": "49f1dba84d946f6cebe0d7ca6a6b41fd37e8057abeddf15789065fa8e1eb89b4",
+            "limits": [
+              "Checks cover the stated acceptance oracles; other prose claims and browser usability were not independently reviewed.",
+              "Analysis, attached chart/summary and imported raw-source bytes are checked; original BDDK raw downloads are not re-fetched."
+            ]
+          }
+        ],
+        "artifact_grade": "incomplete",
+        "task_complete": false
+      }
+    ],
+    "round_name": "live-workflow-final"
+  },
+  "summary": {
+    "artifact_grades": {
+      "pass": 3,
+      "fail": 1
+    },
+    "task_complete": 3,
+    "trials": 4
+  },
+  "remaining_failure": "pdf_sector_2 saved correct original amounts, ratio and graph but did not add the explicitly requested common-scale amounts; bank remains thousand TRY and sector million TRY. Completed runtime status does not override this failed requirement.",
+  "excluded_interrupted_round": {
+    "name": "live-context-final",
+    "graded": false,
+    "interruption_receipt_sha256": "3063c3063f17511a3ba759f0931aee5bc36101e5360c67bcbb4492c70ba442ca"
+  },
+  "history_policy": "Earlier incomplete and failed records remain unchanged. This report does not replace them or count interrupted preliminary runs as final trials."
+}

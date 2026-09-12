@@ -3,9 +3,10 @@ from __future__ import annotations
 
 import hashlib
 
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException
 
-from app.activity import activity_feed, public_run
+from app.activity import activity_feed, activity_journey
+from app.presentation import present_run
 from app.context import AppContext
 from app.models import RunBody, WorkspaceBody
 from app.serialization import browser_json
@@ -38,13 +39,20 @@ def create_router(context: AppContext) -> APIRouter:
     def workspace(workspace_id: str):
         value = context.workspace(workspace_id)
         runs = context.run_store.list(workspace_id, limit=30)
-        value["runs"] = [public_run(run) for run in runs]
+        value["runs"] = [present_run(context.store, run) for run in runs]
         if runs:
             latest = runs[0]
-            value["latest_activity"] = activity_feed(context.run_store.events(latest["run_id"]))
+            events = context.run_store.events(latest["run_id"])
+            value["latest_activity"] = activity_feed(events)
+            value["latest_journey"] = activity_journey(events, latest["status"])
             value["activity_count"] = len(value["latest_activity"])
             if not latest["result"]:
                 value["pending_job_id"] = "job_" + hashlib.sha256((workspace_id + ":" + latest["request_id"]).encode()).hexdigest()[:32]
+                try:
+                    value["latest_journey"] = context.job(value["pending_job_id"])["journey"]
+                except HTTPException as exc:
+                    if exc.status_code != 404:
+                        raise
         return browser_json(value)
 
     @router.post("/api/workspaces/{workspace_id}/runs")

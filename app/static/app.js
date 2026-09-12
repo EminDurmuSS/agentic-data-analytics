@@ -10,6 +10,7 @@ const state = {
   review: null,
   workspaceRequest: 0,
   analysisRequest: 0,
+  fullColumns: false,
 };
 const el = (tag, text, cls) => {
   const node = document.createElement(tag);
@@ -111,13 +112,20 @@ function appendMessage(role, text, pending = false) {
 // Render a small Markdown subset through DOM nodes; model HTML stays plain text.
 function inlineText(parent, text) {
   const pattern =
-    /(\*\*([^*]+)\*\*|`([^`]+)`|\[([^\]]+)\]\((https?:\/\/[^\s)]+)\))/g;
+    /\\([\\`*{}\[\]()#+\-.!_|>])|\*\*((?:\\.|[^*])+)\*\*|`([^`]+)`|\[((?:\\.|[^\]\\])+)\]\((https?:\/\/[^\s)]+)\)/g;
+  const unescape = (value) => value.replace(/\\([\\`*{}\[\]()#+\-.!_|>])/g, "$1");
+  text = String(text);
   let cursor = 0;
-  for (const match of String(text).matchAll(pattern)) {
+  for (const match of text.matchAll(pattern)) {
     parent.append(document.createTextNode(text.slice(cursor, match.index)));
+    if (match[1]) {
+      parent.append(document.createTextNode(match[1]));
+      cursor = match.index + match[0].length;
+      continue;
+    }
     const node = el(
       match[2] ? "strong" : match[3] ? "code" : "a",
-      match[2] || match[3] || match[4],
+      match[3] || unescape(match[2] || match[4]),
     );
     if (match[5]) {
       node.href = match[5];
@@ -128,6 +136,28 @@ function inlineText(parent, text) {
     cursor = match.index + match[0].length;
   }
   parent.append(document.createTextNode(String(text).slice(cursor)));
+}
+// Serialization is deferred until the user explicitly opens technical details.
+function technicalDetails(label, value) {
+  const details = el("details", null, "technical-details");
+  details.append(el("summary", label));
+  let built = false;
+  details.addEventListener("toggle", () => {
+    if (!details.open || built) return;
+    built = true;
+    details.append(el("pre", JSON.stringify(typeof value === "function" ? value() : value, null, 2)));
+  });
+  return details;
+}
+function columnLabel(column, fallback) {
+  return state.analysis?.presentation?.labels?.[column] ||
+    { period: "Dönem", line_item: "Kalem", rank: "Sıra", value: "Değer", amount: "Tutar" }[column] ||
+    fallback || String(column || "").replaceAll("_", " ");
+}
+function visibleColumns() {
+  const a = state.analysis;
+  const preferred = [...new Set(a.presentation?.columns || [])].filter((column) => a.columns.includes(column));
+  return !state.fullColumns && preferred.length ? preferred : a.columns;
 }
 function renderMessage(parent, text) {
   parent.replaceChildren();
@@ -288,13 +318,13 @@ async function selectWorkspace(id) {
     workspace.profile === "generic" ? "KENDİ VERİNİZ" : "KKB FİNANS VERİLERİ";
   $("#workspace-version").textContent = "Sürüm " + workspace.version;
   $("#messages").replaceChildren();
-  $("#activity").hidden = true;
+  window.ActivityJourney.reset();
   clearResult();
   const runs = [...(workspace.runs || [])].reverse();
   for (const run of runs) {
     appendMessage("user", run.message);
     if (run.result) {
-      appendMessage("assistant", run.result.message || run.result.status);
+      appendMessage("assistant", run.result.display_message || run.result.message || run.result.status);
       state.conversation = run.conversation_id;
     }
   }
@@ -319,7 +349,7 @@ async function selectWorkspace(id) {
   if (request !== state.workspaceRequest) return;
   const recent = runs.at(-1);
   if (recent) {
-    showEvents(workspace.latest_activity);
+    showEvents(workspace.latest_activity, workspace.latest_journey);
     if (recent.result) showExtraResults(recent.result);
     if (!recent.result) showResume(workspace.pending_job_id);
   }
@@ -334,63 +364,11 @@ async function createWorkspace(name, profile) {
   notice("");
   await selectWorkspace(result.workspace_id);
 }
-function appendActivityText(node, text, functionNames) {
-  const names = [...new Set(functionNames.filter(Boolean))].sort(
-    (left, right) => right.length - left.length,
-  );
-  if (!names.length) {
-    node.append(document.createTextNode(text));
-    return;
-  }
-  const escaped = names.map((name) => name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"));
-  const matcher = new RegExp("(" + escaped.join("|") + ")", "g");
-  for (const part of text.split(matcher)) {
-    if (!part) continue;
-    node.append(names.includes(part) ? el("code", part) : document.createTextNode(part));
-  }
+function showEvents(activity, journey) {
+  window.ActivityJourney.render(activity, journey);
 }
-function showEvents(activity) {
-  if (!activity?.length) return;
-  $("#activity").hidden = false;
-  $("#activity-count").textContent = activity.length + " adım";
-  const holder = $("#events");
-  holder.replaceChildren();
-  for (const step of activity) {
-    const names = [step.tool, ...(step.tool_names || [])];
-    const item = el("li");
-    appendActivityText(item, step.title || "Kayıtlı agent adımı", names);
-    if (step.detail) {
-      const detail = el("small");
-      appendActivityText(detail, step.detail, names);
-      item.append(detail);
-    }
-    holder.append(item);
-  }
-}
-function showPendingActivity(pending, activity) {
-  const body = pending.querySelector(".body");
-  body.replaceChildren();
-  if (!activity?.length) {
-    body.append(el("span", "Agent çalışması başlatılıyor…", "live-loading"));
-    return;
-  }
-  const steps = document.createElement("ol");
-  steps.className = "live-activity";
-  steps.setAttribute("aria-live", "polite");
-  const visibleSteps = activity.slice(-3);
-  for (const [index, step] of visibleSteps.entries()) {
-    const item = document.createElement("li");
-    item.className =
-      index === visibleSteps.length - 1 ? "live-current" : "live-past";
-    const names = [step.tool, ...(step.tool_names || [])];
-    appendActivityText(item, step.title || "Kayıtlı agent adımı", names);
-    if (step.detail) {
-      item.append(document.createTextNode(" — "));
-      appendActivityText(item, step.detail, names);
-    }
-    steps.append(item);
-  }
-  body.append(steps);
+function showPendingActivity(pending, activity, journey) {
+  window.ActivityJourney.pending(pending, journey);
 }
 async function submitQuestion(event) {
   event?.preventDefault();
@@ -405,6 +383,7 @@ async function submitQuestion(event) {
   window.AnalysisCharts.updateBusy();
   $("#send").disabled = true;
   $("#question").value = "";
+  window.ActivityJourney.reset();
   appendMessage("user", message);
   const pending = appendMessage(
     "assistant",
@@ -424,8 +403,8 @@ async function submitQuestion(event) {
     let job;
     for (let i = 0; i < 480; i++) {
       job = await fetchJob(state.job);
-      showEvents(job.activity);
-      showPendingActivity(pending, job.activity);
+      showEvents(job.activity, job.journey);
+      showPendingActivity(pending, job.activity, job.journey);
       if (["finished", "failed", "interrupted"].includes(job.status)) break;
       await new Promise((resolve) => setTimeout(resolve, 700));
     }
@@ -443,7 +422,7 @@ async function submitQuestion(event) {
     pending.classList.remove("pending");
     renderMessage(
       pending.querySelector(".body"),
-      result.message ||
+      job.run?.result?.display_message || result.display_message || result.message ||
         result.errors?.map((x) => x.message).join("\n") ||
         "Çalışma " + result.status,
     );
@@ -495,7 +474,7 @@ async function pollExisting(jobId) {
   try {
     for (let i = 0; i < 480; i++) {
       const job = await fetchJob(jobId);
-      showEvents(job.activity);
+      showEvents(job.activity, job.journey);
       if (job.result) {
         await selectAfterRun(job);
         return;
@@ -514,7 +493,7 @@ async function selectAfterRun(job) {
   state.busy = false;
   window.AnalysisCharts.updateBusy();
   await selectWorkspace(state.workspace.workspace_id);
-  showEvents(job.activity);
+  showEvents(job.activity, job.journey);
   showExtraResults(job.result || {});
   if (job.result?.chart_updated || job.result?.chart_id) showTab("chart");
 }
@@ -591,7 +570,7 @@ function selectionSource(selection) {
   ) || {};
 }
 function selectionTitle(selection) {
-  return selectionSource(selection).title || selection.metric_id || selection.name;
+  return columnLabel(selection.name, selectionSource(selection).title);
 }
 function sourceUnitLabel(source) {
   if (!source.unit) return "";
@@ -610,7 +589,11 @@ function renderAnalysisMethod() {
   const holder = $("#analysis-method");
   holder.replaceChildren();
   $("#analysis-technical").open = false;
-  $("#analysis-plan").textContent = JSON.stringify(plan, null, 2);
+  $("#analysis-plan").textContent = "";
+  $("#analysis-technical").ontoggle = () => {
+    if ($("#analysis-technical").open && !$("#analysis-plan").textContent)
+      $("#analysis-plan").textContent = JSON.stringify(plan, null, 2);
+  };
   const intro = el("div", null, "method-intro");
   intro.append(el("h3", "Bu tablo nasıl oluştu?"),
     el("p", "Kaydedilen analizde kullanılan veriler ve uygulanan işlemler."));
@@ -644,10 +627,9 @@ function renderAnalysisMethod() {
       card.append(el("strong", selectionTitle(selection)));
       const meta = el("div", null, "method-source-meta");
       const system = { TCMB_EVDS: "TCMB · EVDS", BDDK: "BDDK", BDDK_MONTHLY: "BDDK · Aylık",
-        BDDK_WEEKLY: "BDDK · Haftalık", BDDK_FINTURK: "BDDK · FinTürk" }[source.source_system] || source.source_system;
+        BDDK_WEEKLY: "BDDK · Haftalık", BDDK_FINTURK: "BDDK · FinTürk", SESSION_DATASET: "Eklenen kaynak" }[source.source_system] || source.source_system;
       if (system) meta.append(el("span", system));
       if (sourceUnitLabel(source)) meta.append(el("span", sourceUnitLabel(source)));
-      if (!grouped) meta.append(el("span", "Tablo sütunu: " + selection.name));
       card.append(meta);
       for (const [key, value] of Object.entries(selection.dimensions || {})) {
         const label = key.endsWith("_code")
@@ -666,16 +648,17 @@ function renderAnalysisMethod() {
         last: "Her çıktı döneminde son gözlenen değer alındı.",
         mean: "Her çıktı döneminde gözlenen değerlerin ortalaması alındı.",
         sum: "Her çıktı dönemi için alt dönem değerleri toplandı; eksik alt dönem varsa toplam üretilmedi.",
+        period_end: "Kaynakta belirtilen dönem sonu, çıktı döneminin son günüyle eşleştirildi; diğer tarihlerden değer taşınmadı.",
       };
       for (const selection of selections)
-        alignment.append(el("p", selection.name + ": " + (labels[selection.alignment || "native"] ||
-          "Kayıtlı dönem eşleme yöntemi: " + selection.alignment), "method-description"));
+        alignment.append(el("p", columnLabel(selection.name) + ": " + (labels[selection.alignment || "native"] ||
+          "Dönem eşleme ayrıntıları kayıtlı hesap planında yer alıyor."), "method-description"));
     }
     if (selections.length > 1)
       alignment.append(el("p", "Sütunlar dönem üzerinden eşleştirildi. Kaynakların kapsamları aynı kabul edilmedi.", "method-caption"));
   } else step("Veri seçimi ayrıntısı bulunamadı", "Kaydedilen planı teknik ayrıntılardan inceleyebilirsiniz.");
   for (const op of operations) {
-    const current = op.column, output = op.output, periods = op.periods ?? 1;
+    const current = columnLabel(op.column), output = columnLabel(op.output), periods = op.periods ?? 1;
     const labels = { growth: "Yüzde değişim hesaplandı", difference: "Dönem farkı hesaplandı",
       deflate: "Sabit fiyatlara dönüştürüldü", scale: "Ölçek dönüştürüldü", ratio: "Oran hesaplandı" };
     let description = "", formula = "";
@@ -685,20 +668,20 @@ function renderAnalysisMethod() {
         ? output + " = (" + current + " / " + current + "[" + periods + " dönem önce] - 1) × 100"
         : output + " = " + current + " - " + current + "[" + periods + " dönem önce]";
     } else if (op.op === "deflate") {
-      description = current + " sütunu, " + op.index + " endeksiyle " + periodLabel(op.base_period) + " fiyatlarına getirildi.";
-      formula = output + " = " + current + " × " + op.index + "[" + periodLabel(op.base_period) + "] / " + op.index;
+      description = current + " sütunu, " + columnLabel(op.index) + " endeksiyle " + periodLabel(op.base_period) + " fiyatlarına getirildi.";
+      formula = output + " = " + current + " × " + columnLabel(op.index) + "[" + periodLabel(op.base_period) + "] / " + columnLabel(op.index);
     } else if (op.op === "scale") {
       description = "Hedef ölçek: " + fmt(op.target_scale) + ". Sayısal gösterim bu ölçeğe çevrildi.";
       formula = output + " = " + current + " × girdi ölçeği / " + fmt(op.target_scale);
     } else if (op.op === "ratio") {
       description = "Pay ve payda kendi ölçekleriyle ortak birime getirildi.";
-      formula = output + " = (" + current + " × pay ölçeği) / (" + op.denominator + " × payda ölçeği) × " + (op.multiplier ?? 100);
+      formula = output + " = (" + current + " × pay ölçeği) / (" + columnLabel(op.denominator) + " × payda ölçeği) × " + (op.multiplier ?? 100);
     } else description = "Bu işlem için açıklama bulunmuyor. Kayıtlı parametreler teknik ayrıntılarda yer alıyor.";
     const body = step(labels[op.op] || "Kayıtlı işlem: " + op.op, description);
     if (formula) body.append(el("div", formula, "method-formula"));
     if (op.scope_policy === "explicit_comparison")
-      body.append(el("p", "Farklı kapsamların karşılaştırma gerekçesi: " + op.scope_reason, "method-caption"));
-    if (output) body.append(el("p", output === current ? output + " sütununun değeri bu işlemle güncellendi."
+      body.append(el("p", scopeWarning, "method-caption"));
+    if (op.output) body.append(el("p", op.output === op.column ? output + " sütununun değeri bu işlemle güncellendi."
       : "Sonuç sütunu: " + output, "method-caption"));
   }
   if (grouped) {
@@ -718,6 +701,7 @@ async function loadAnalysis(id, result = {}) {
   const analysis = await api(workspacePath + "/analyses/" + id + "?limit=250");
   if (request !== state.analysisRequest || workspacePath !== base()) return;
   state.analysis = analysis;
+  state.fullColumns = false;
   $("#result-content").hidden = false;
   $("#result-empty").hidden = true;
   $("#result-title").textContent = state.analysis.parent_analysis_id
@@ -743,19 +727,7 @@ async function loadAnalysis(id, result = {}) {
     ...toolResults.flatMap((t) => t.warnings || []),
     ...(result.errors || []),
   ];
-  $("#warnings").replaceChildren(
-    ...warnings
-      .filter(
-        (w, i, all) =>
-          all.findIndex(
-            (other) => JSON.stringify(other) === JSON.stringify(w),
-          ) === i,
-      )
-      .slice(0, 10)
-      .map((w) =>
-        el("div", typeof w === "string" ? w : warningText(w), "warning"),
-      ),
-  );
+  renderWarnings($("#warnings"), warnings);
   const preserved =
     result.preserved_columns ||
     state.analysis.preserved_columns ||
@@ -763,14 +735,24 @@ async function loadAnalysis(id, result = {}) {
     [];
   $("#preserved").hidden = !preserved.length;
   $("#preserved").textContent = preserved.length
-    ? "Korunan sütunlar: " + preserved.join(", ")
+    ? "Korunan sütunlar: " + preserved.map((column) => columnLabel(column)).join(", ")
     : "";
   $("#more-rows").hidden = state.analysis.row_count <= 250;
   await window.AnalysisCharts.load(workspacePath, id, Boolean(result.chart_updated || result.chart_id));
 }
+const scopeWarning = "Bu oran farklı kurum veya raporlama kapsamlarını karşılaştırır. Kaynakların aynı nüfusu veya geçerli bir pay-payda ilişkisini temsil ettiği doğrulanmamıştır; resmi sektör/pazar payı değildir.";
 function warningText(w) {
+  if (typeof w === "string") {
+    if (/cross_scope_comparison|different (?:reporting )?(?:populations|scopes)|Farklı kapsamlar açık karşılaştırma/i.test(w)) return scopeWarning;
+    if (/aligned.*(?:period|scope)|scopes.*aligned/i.test(w)) return warningText({code: "heterogeneous_scopes_aligned"});
+    if (/exact.*period.end|period.end.*exact/i.test(w)) return warningText({code: "exact_event_period_end"});
+    // Source warnings already written in Turkish remain readable; opaque codes
+    // and untranslated diagnostics are retained in the technical disclosure.
+    return /[çğıöşüÇĞİÖŞÜ]|\b(?:Kaynak|Eksik|Seriler|Oran|Gruplar|Dönem|Veri)\b/.test(w) ? w : null;
+  }
+  if (!w || typeof w !== "object") return null;
   if (w.code === "semantics_unreviewed") {
-    const selection = analysisSelections(state.analysis).find((item) => item.name === w.column);
+    const selection = analysisSelections(state.analysis || {}).find((item) => item.name === w.column);
     if (selection && (!selection.alignment || selection.alignment === "native"))
       return selectionTitle(selection) + ": kaynak değerleri kendi dönemlerinde gösteriliyor. " +
         "Bu verinin dönüşüm kuralları henüz incelenmediği için büyüme, oran ve fiyat dönüşümü gibi hesaplar kullanılamıyor.";
@@ -788,21 +770,50 @@ function warningText(w) {
       "Gruplar kaynak kapsamlarıyla gösterilir; gruplar arasında toplam alınmaz.",
     group_membership_scope:
       "Kaynak kapsamındaki coğrafya üyeleri birlikte gösteriliyor.",
+    cross_scope_comparison: scopeWarning,
+    exact_event_period_end: "Kaynak tarihi dönem sonuyla birebir eşleştirildi; başka tarihten değer taşınmadı.",
+    event_period_end_exact: "Kaynak tarihi dönem sonuyla birebir eşleştirildi; başka tarihten değer taşınmadı.",
+    native_calendar_unverified: "Kaynak gözlem tarihleri korunuyor; yayın takviminin eksiksiz olduğu doğrulanmadı.",
+    zero_denominator: "Paydası sıfır olan oran veya değişim hesaplanmadı.",
+    invalid_deflator: "Geçersiz fiyat endeksi bulunan dönemlerde reel değer hesaplanmadı.",
+    group_missing_observations: "Bazı gruplarda gözlem eksik; boş hücreler sıfır kabul edilmez.",
+    RANK_PRESERVED_FROM_PARENT: "Sıralar önceki analizin özgün ölçüsüne aittir; yeni değerler yeniden sıralanmadı.",
+    reporting_population_exclusions: "Kaynağın kapsadığı banka grubu sınırlıdır; tüm bankaların bilanço toplamıyla eşdeğer değildir.",
+    domestic_customers_only: "Bu kaynak yalnızca yurt içi yerleşik müşterileri kapsıyor.",
+    regulatory_weighting: "Düzenleyici ağırlık içeren değerler, ağırlıksız bilanço tutarlarıyla eşdeğer değildir.",
+    source_value_passthrough: "Değerler kaynakta bildirilen dönem ve birimleriyle gösteriliyor; dönemler arasında toplam alınmadı.",
   };
-  return (
-    map[w.code] ||
-    w.detail ||
-    w.message ||
-    w.code ||
-    "Kaynak kısıtını inceleyin."
-  );
+  return map[w.code] || warningText(w.detail || w.message || "");
+}
+function renderWarnings(holder, warnings) {
+  holder.replaceChildren();
+  const messages = new Set(), technical = [];
+  for (const warning of warnings || []) {
+    // Successful date matching belongs in the calculation method, not in an
+    // amber warning. The original diagnostic remains in the saved tool ledger.
+    if (["exact_event_period_end", "event_period_end_exact", "calendar_period_end_alignment"].includes(warning?.code)) continue;
+    const message = warningText(warning);
+    if (message) messages.add(message);
+    else technical.push(warning);
+  }
+  if (messages.has(scopeWarning)) messages.delete(warningText({code: "heterogeneous_scopes_aligned"}));
+  // Scope disclosures cannot be lost behind a limit on minor method notes.
+  for (const message of [...messages].sort((a, b) => Number(b === scopeWarning) - Number(a === scopeWarning)))
+    holder.append(el("div", message, "warning"));
+  if (technical.length) holder.append(technicalDetails("Ek yöntem notları (" + technical.length + ")", technical));
 }
 function renderTable() {
   const a = state.analysis;
+  const columns = visibleColumns();
+  const toggle = $("#toggle-columns");
+  toggle.hidden = !a.presentation?.columns?.length || a.presentation.columns.length === a.columns.length;
+  toggle.textContent = state.fullColumns ? "Özet sütunlara dön" : "Özgün değerler dahil tüm sütunlar";
+  toggle.setAttribute("aria-pressed", String(state.fullColumns));
+  $("#row-count").textContent = a.row_count + " satır · " + columns.length + " sütun";
   const table = el("table");
   const head = el("tr");
-  for (const col of a.columns) {
-    const th = el("th", col === "period" ? "Dönem" : col);
+  for (const col of columns) {
+    const th = el("th", columnLabel(col));
     if (schemaLabel(col)) th.append(el("small", schemaLabel(col)));
     head.append(th);
   }
@@ -812,9 +823,9 @@ function renderTable() {
   const body = el("tbody");
   for (const row of a.rows) {
     const tr = el("tr");
-    for (const col of a.columns) {
+    for (const col of columns) {
       const value = row[col],
-        td = el("td", fmt(value), value === null ? "missing-cell" : "");
+        td = el("td", col === "period" ? periodLabel(value) : fmt(value), value === null ? "missing-cell" : "");
       if (
         (typeof value === "number" || isExactInteger(value)) &&
         col !== "rank"
@@ -840,16 +851,15 @@ function renderSources() {
   container.replaceChildren();
   for (const [column, source] of Object.entries(state.analysis.sources || {})) {
     const card = el("div", null, "source-card");
+    card.append(el("strong", columnLabel(column)));
+    if (source.title && source.source_system !== "SESSION_DATASET" && source.title !== columnLabel(column))
+      card.append(el("div", source.title));
     card.append(
-      el("strong", column),
-      el("div", source.title || "Kaynak ölçüm"),
-      el("small", source.metric_id || ""),
-    );
-    card.append(
-      el("span", source.source_system || "Eklenen veri", "source-tag"),
+      el("span", source.source_system === "SESSION_DATASET" ? "Eklenen kaynak" : source.source_system?.replaceAll("_", " · ") || "Eklenen veri", "source-tag"),
     );
     if (source.unit)
       card.append(el("span", schemaLabel(column) || source.unit, "source-tag"));
+    card.append(technicalDetails("Kaynak kimliği ve kapsamı", source));
     container.append(card);
   }
   if (!container.children.length)
@@ -863,7 +873,7 @@ function renderSources() {
 }
 async function showEvidence(column, row) {
   const dialog = $("#evidence-dialog");
-  $("#evidence-title").textContent = column + " · " + (row.period || "");
+  $("#evidence-title").textContent = columnLabel(column) + " · " + periodLabel(row.period);
   $("#evidence-content").replaceChildren(
     el("p", "Kaynak izi yükleniyor…", "small-muted"),
   );
@@ -897,10 +907,9 @@ async function showEvidence(column, row) {
       ),
     );
     holder.append(top);
-    for (const issue of data.lineage_issues || [])
-      holder.append(el("p", issue, "warning"));
-    const proof = el("pre", JSON.stringify(data.lineage, null, 2));
-    holder.append(proof);
+    if (data.lineage_issues?.length)
+      holder.append(el("p", "Kaynak izinde kontrol gerektiren kayıtlar var. Ayrıntıları aşağıdan inceleyebilirsiniz.", "warning"));
+    holder.append(technicalDetails("Teknik kaynak izi ve doğrulama kaydı", data));
   } catch (error) {
     $("#evidence-content").replaceChildren(el("p", error.message, "warning"));
   }
@@ -908,7 +917,37 @@ async function showEvidence(column, row) {
 function showExtraResults(result) {
   const holder = $("#extra-result");
   holder.replaceChildren();
-  for (const step of result.tool_results || []) {
+  const records = result.tool_results || [], sources = new Map();
+  for (const step of records) {
+    if (!["inspect_source", "ingest_source_table", "publish_selected_table"].includes(step.tool)) continue;
+    const value = step.result || {}, source = value.source || value;
+    const id = value.source_id || source.source_id;
+    if (!id) continue;
+    const current = sources.get(id) || { id, publications: new Map() };
+    if (step.tool === "inspect_source") current.inspection = source;
+    else if (value.status === "ok" && value.dataset_id) current.publications.set(value.dataset_id, value);
+    else current.pending = true;
+    sources.set(id, current);
+  }
+  for (const source of sources.values()) {
+    const inspection = source.inspection || {}, card = el("article", null, "source-card source-summary");
+    card.dataset.sourceId = source.id;
+    card.append(el("strong", inspection.article?.title || inspection.filename?.replaceAll("_", " ") || "Eklenen kaynak"));
+    const publications = [...source.publications.values()];
+    if (publications.length) {
+      const count = publications.reduce((sum, item) => sum + (Number(item.row_count) || 0), 0);
+      card.append(el("p", fmt(count) + " kaynak gözlemi özgün dönem ve birimleriyle analize hazırlandı."));
+      const periods = [...new Set(publications.flatMap((item) => (item.available_series || []).flatMap((series) => series.observed_periods || [])))];
+      if (periods.length) card.append(el("small", "Kaynak dönemi: " + periods.slice(0, 4).map(periodLabel).join(" · ") + (periods.length > 4 ? " · …" : "")));
+      if (publications.some((item) => item.available_series?.some((series) => series.status === "review_required")))
+        card.append(el("p", "Kaynak değerleri okunabilir; dönemler arası hesaplama için anlam ve dönem kapsamı incelemesi gerekiyor.", "warning"));
+    } else card.append(el("p", inspection.status === "ok" ? "Kaynak incelendi; tablo seçimi ve analize hazırlama kaydı henüz yok." : "Kaynak incelemesi tamamlanmadı."));
+    const raw = el("a", "Özgün kaynağı indir", "text-button");
+    raw.href = base() + "/sources/" + encodeURIComponent(source.id) + "/raw";
+    card.append(raw);
+    holder.append(card);
+  }
+  for (const step of records) {
     const name = step.tool;
     const toolResult = step.result;
     if (
@@ -919,8 +958,6 @@ function showExtraResults(result) {
         "analyze_relationship",
         "web_search",
         "research_web",
-        "inspect_source",
-        "publish_selected_table",
       ].includes(name)
     )
       continue;
@@ -991,6 +1028,21 @@ function showExtraResults(result) {
       }
       holder.append(card);
     }
+    if (name === "summarize_analysis" && toolResult.status === "ok") {
+      const card = el("div", null, "source-card");
+      card.append(el("strong", "Doğrulanmış hesap özeti"));
+      const summary = el("p", toolResult.summary_text || "Kayıtlı tablodan hesaplanan sonuçlar hazır.");
+      summary.style.whiteSpace = "pre-line";
+      card.append(summary);
+      if (toolResult.summary_id) {
+        const link = el("a", "Hesaplar ve kaynak kaydı ↓", "text-button");
+        link.href = base() + "/summaries/" + toolResult.summary_id;
+        link.target = "_blank";
+        link.rel = "noopener";
+        card.append(link);
+      }
+      holder.append(card);
+    }
     if (name === "web_search" && toolResult.status === "ok") {
       const card = el("div", null, "source-card");
       card.append(el("strong", "Bulunan web kaynakları"));
@@ -1006,26 +1058,33 @@ function showExtraResults(result) {
       }
       holder.append(card);
     }
-    if (name === "research_web" && result.status === "ok") {
+    if (name === "research_web" && toolResult.status === "ok") {
       const card = el("div", null, "source-card");
       card.append(el("strong", "Okunan web kaynakları"));
-      for (const source of result.sources || []) {
+      for (const source of toolResult.sources || []) {
+        if (!/^https?:\/\//i.test(source.url)) continue;
         const link = el("a", source.title || source.domain || source.url, "text-button");
         link.href = source.url;
         link.target = "_blank";
         link.rel = "noopener noreferrer";
         card.append(link);
         if (source.date_published) card.append(el("small", "Yayın: " + source.date_published));
-        if (source.content) card.append(el("p", source.content.slice(0, 500)));
       }
       holder.append(card);
     }
-    const details = el("details");
-    details.append(
-      el("summary", "İşlem sonucu: " + name),
-      el("pre", JSON.stringify(toolResult, null, 2)),
-    );
-    holder.append(details);
+  }
+  if (records.length || result.message) {
+    const ledger = el("details", null, "technical-details tool-ledger");
+    ledger.append(el("summary", "Teknik işlem kayıtları (" + records.length + ")"));
+    let built = false;
+    ledger.addEventListener("toggle", () => {
+      if (!ledger.open || built) return;
+      built = true;
+      if (result.message) ledger.append(technicalDetails("Özgün yanıt ve tamamlanma durumu", {message: result.message, status: result.status, errors: result.errors}));
+      for (const [index, step] of records.entries())
+        ledger.append(technicalDetails((index + 1) + ". " + step.tool, step));
+    });
+    holder.append(ledger);
   }
   holder.hidden = !holder.children.length;
 }
@@ -1046,7 +1105,7 @@ async function sourceResult(result) {
   }
   const id = result.source_id || result.source?.source_id;
   if (!id) {
-    holder.append(el("pre", JSON.stringify(result, null, 2)));
+    holder.append(el("p", "Kaynak kaydı oluşturulamadı. İşlem ayrıntılarını inceleyebilirsiniz."), technicalDetails("Teknik işlem ayrıntıları", result));
     return;
   }
   const raw = el("a", "Özgün dosyayı indir ↓", "quiet");
@@ -1081,6 +1140,8 @@ async function sourceResult(result) {
     );
     if (
       table.requires_review ||
+      table.layout_review_required ||
+      table.missing_formula_cache?.length ||
       table.extraction_method?.includes("ocr") ||
       table.origin === "ocr" ||
       inspected.machine_extracted
@@ -1271,13 +1332,17 @@ function showTab(name) {
 }
 for (const button of document.querySelectorAll(".tab"))
   button.addEventListener("click", () => showTab(button.dataset.tab));
-window.AnalysisCharts.configure({ api, periodLabel, showTab, showEvidence,
+window.AnalysisCharts.configure({ api, periodLabel, showTab, showEvidence, columnLabel, renderWarnings,
   isBusy: () => state.busy,
   prefill: (prompt) => {
     $("#question").value = prompt;
     $("#question").focus();
     $("#composer").scrollIntoView({ behavior: "smooth", block: "nearest" });
   },
+});
+$("#toggle-columns").addEventListener("click", () => {
+  state.fullColumns = !state.fullColumns;
+  renderTable();
 });
 $("#more-rows").addEventListener("click", async () => {
   try {

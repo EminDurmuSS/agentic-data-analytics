@@ -1,0 +1,522 @@
+{
+  "schema_version": 1,
+  "recorded_at": "2026-09-12T22:02:35.516174+00:00",
+  "scope": "Evidence index for selected latest sealed trials per case. These trials span distinct backend snapshots; they are not one run of the current backend and do not imply a universal success percentage.",
+  "path_bases": {
+    "archive": "Downloads/kkb-hackathon-2026-notlar/mentor-improvements-2026-09-12 (external evidence archive, relocatable)",
+    "repository": "repository root"
+  },
+  "reports": {
+    "initial": {
+      "archive_path": "acceptance-final/grades.json",
+      "sha256": "29dbf89b71d888161525ba5608014be21674e8dfaf2b1cb0c78c6f138bf99882",
+      "grader_sha256": "94caa4f793e1961fa774276030ef9eb41ec7775efc7532ac5cca4a5948e3073d"
+    },
+    "workflow_and_verification": {
+      "archive_path": "acceptance-verification-final/grades.json",
+      "sha256": "bc8864b5477dc341c64a615030662e3ee6c382698731d9967fddccfbf2cf4e33",
+      "grader_sha256": "7edbbccd6cb3d2f12c6e898cb0eb19899a61c2a69f59474cf140b749dfa87b4f"
+    },
+    "period_end": {
+      "archive_path": "acceptance-chart-and-period-end-final/grades.json",
+      "sha256": "13340054dbaf11e4ce20ca96a9afa26f764a8789291fb34b0ee2e703f2e48216",
+      "grader_sha256": "f364661166e838c176bed65a71a74c188e63499d6a5d1f4684103c3cbd86dee2"
+    },
+    "grouped": {
+      "archive_path": "grouped-acceptance-chart-final/grouped-acceptance.json",
+      "sha256": "f528296f390ad1b2d14294f629a8529e26fa074b103de1c1d9003b1139b1eca6",
+      "grader_sha256": "56a6a73d98de4fd22a0f7c8e22c98e3bb87b603f48aaec7865c14a8b36993ce3"
+    },
+    "normalization_final": {
+      "archive_path": "acceptance-normalization-final/grades.json",
+      "sha256": "c792e20747fb990b965f9b7b3c86a34083ea5a61643c1043b57debc9aff827f5",
+      "grader_sha256": "7edbbccd6cb3d2f12c6e898cb0eb19899a61c2a69f59474cf140b749dfa87b4f"
+    }
+  },
+  "sealed_rounds": {
+    "live-final": {
+      "archive_manifest": "live-final/manifest.json",
+      "manifest_sha256": "ad847ba1b76e2d81b244ad044157f0a449d2030e7012beaa8a87674b26727056",
+      "finished_at": "2026-09-12T20:44:38.996377+00:00",
+      "backend_unchanged_during_collection": true,
+      "backend_fingerprint_sha256": "d9537e885ef593315af5a036d1fb957539c7e9120015a4124a3225e37d14d590",
+      "backend_fingerprint_basis": "SHA256 of canonical JSON of this manifest backend_sha256 mapping",
+      "database_sha256": "c2e6c9fd749efe5c96e9e4dc23b925a792cce57b3d96ad42cc02969d8395b81a"
+    },
+    "live-workflow-final": {
+      "archive_manifest": "live-workflow-final/manifest.json",
+      "manifest_sha256": "475a9663a92fefa492ab54d0cd83ee13419742b699809d67d6f29c5de4245d50",
+      "finished_at": "2026-09-12T21:42:01.278718+00:00",
+      "backend_unchanged_during_collection": true,
+      "backend_fingerprint_sha256": "2c18c21830415ab01e43ea8b5d6eca421fb5ab6b282f0eb6bbee95d5b9f4b5fd",
+      "backend_fingerprint_basis": "SHA256 of canonical JSON of this manifest backend_sha256 mapping",
+      "database_sha256": "c2e6c9fd749efe5c96e9e4dc23b925a792cce57b3d96ad42cc02969d8395b81a"
+    },
+    "live-chart-final": {
+      "archive_manifest": "live-chart-final/manifest.json",
+      "manifest_sha256": "618a9ab06dbd3dd99921233fa5f6e9f50021a747b6e94c64e64f405fd309b7f6",
+      "finished_at": "2026-09-12T21:06:57.050622+00:00",
+      "backend_unchanged_during_collection": true,
+      "backend_fingerprint_sha256": "59b5bfc32ec96ac1ca35a4b8aec004180adc1630ccb57c9f0942c1bca7a79fac",
+      "backend_fingerprint_basis": "SHA256 of canonical JSON of this manifest backend_sha256 mapping",
+      "database_sha256": "c2e6c9fd749efe5c96e9e4dc23b925a792cce57b3d96ad42cc02969d8395b81a"
+    },
+    "live-period-end-final": {
+      "archive_manifest": "live-period-end-final/manifest.json",
+      "manifest_sha256": "f46f23e75c733d1a9152e275010864d5e3a86908c0a27a46282b746e12f47db1",
+      "finished_at": "2026-09-12T21:26:53.151788+00:00",
+      "backend_unchanged_during_collection": true,
+      "backend_fingerprint_sha256": "bbbf04e20a0dc641f6737b577deef2372da901c653be58077ebfffae414429b1",
+      "backend_fingerprint_basis": "SHA256 of canonical JSON of this manifest backend_sha256 mapping",
+      "database_sha256": "c2e6c9fd749efe5c96e9e4dc23b925a792cce57b3d96ad42cc02969d8395b81a"
+    },
+    "live-verification-final": {
+      "archive_manifest": "live-verification-final/manifest.json",
+      "manifest_sha256": "e561f0ea0830b1ccea7285b1a77b0e4884e0d4c709ceb672d73ad19f0c20710a",
+      "finished_at": "2026-09-12T21:56:56.587203+00:00",
+      "backend_unchanged_during_collection": true,
+      "backend_fingerprint_sha256": "4e2a994f96afbe98afa6613ec5699c6dbca8b2e8ba66c51c48e0c582ab5fc1a5",
+      "backend_fingerprint_basis": "SHA256 of canonical JSON of this manifest backend_sha256 mapping",
+      "database_sha256": "c2e6c9fd749efe5c96e9e4dc23b925a792cce57b3d96ad42cc02969d8395b81a"
+    },
+    "live-normalization-final": {
+      "archive_manifest": "live-normalization-final/manifest.json",
+      "manifest_sha256": "99a2bc99717f7630b7f6e5d36ed5d19dc2ea778d30fd24b8bf6b423020a90ca4",
+      "finished_at": "2026-09-12T22:12:44.992707+00:00",
+      "backend_unchanged_during_collection": true,
+      "backend_fingerprint_sha256": "5bb87e952dd30e812adec56389ee88f1addd954bf89a7f8a9a62644339cbacb1",
+      "backend_fingerprint_basis": "SHA256 of canonical JSON of this manifest backend_sha256 mapping",
+      "database_sha256": "c2e6c9fd749efe5c96e9e4dc23b925a792cce57b3d96ad42cc02969d8395b81a"
+    }
+  },
+  "autonomous_model_cases": {
+    "profit": {
+      "round": "live-final",
+      "report": "initial",
+      "trials": [
+        {
+          "trial": "profit_1",
+          "artifact_grade": "pass",
+          "task_complete": true,
+          "turns": [
+            {
+              "archive_file": "live-final/profit_1/turn-1.json",
+              "sha256": "0a17f83aa3fa9741325576de937159f4468efece327e2d4a339a1931e3de285e",
+              "run_status": "completed",
+              "artifact_grade": "pass",
+              "analysis_id": "analysis_0ba5cce9e85543ced2e638069031f79dbd79a7a27ecc756db98517c2c3009cbc",
+              "chart_id": null,
+              "failed_checks": []
+            }
+          ]
+        },
+        {
+          "trial": "profit_2",
+          "artifact_grade": "pass",
+          "task_complete": true,
+          "turns": [
+            {
+              "archive_file": "live-final/profit_2/turn-1.json",
+              "sha256": "5517060054d41cbf354fe159c176ebe655f9a0de0e5b414a8502d048a3c1039f",
+              "run_status": "completed",
+              "artifact_grade": "pass",
+              "analysis_id": "analysis_a8b26d0ede8d6ae2d8397b94fc7b6154210657c5af122fd3214e6b56e94e78d9",
+              "chart_id": null,
+              "failed_checks": []
+            }
+          ]
+        }
+      ]
+    },
+    "web": {
+      "round": "live-final",
+      "report": "initial",
+      "trials": [
+        {
+          "trial": "web_1",
+          "artifact_grade": "pass",
+          "task_complete": true,
+          "turns": [
+            {
+              "archive_file": "live-final/web_1/turn-1.json",
+              "sha256": "0f705f78b7e301d1088003ba71e858b285c42cad51616ac01fe1e362ac3b0930",
+              "run_status": "completed",
+              "artifact_grade": "pass",
+              "analysis_id": null,
+              "chart_id": null,
+              "failed_checks": []
+            }
+          ]
+        },
+        {
+          "trial": "web_2",
+          "artifact_grade": "pass",
+          "task_complete": true,
+          "turns": [
+            {
+              "archive_file": "live-final/web_2/turn-1.json",
+              "sha256": "8c8ab1b53f3b371a82ee2c8e73120e94877989f327288828b21392bc5a6eeb51",
+              "run_status": "completed",
+              "artifact_grade": "pass",
+              "analysis_id": null,
+              "chart_id": null,
+              "failed_checks": []
+            }
+          ]
+        }
+      ]
+    },
+    "new_source": {
+      "round": "live-workflow-final",
+      "report": "workflow_and_verification",
+      "trials": [
+        {
+          "trial": "new_source_1",
+          "artifact_grade": "pass",
+          "task_complete": true,
+          "turns": [
+            {
+              "archive_file": "live-workflow-final/new_source_1/turn-1.json",
+              "sha256": "9400955762cabe75b3a6790b570fdd9665ba789efed99a2b381d8681e7f4ee4c",
+              "run_status": "completed",
+              "artifact_grade": "pass",
+              "analysis_id": "analysis_9c199a034f56897317e405ad4cf43f58cfa1ed56db965d14401a7b4031fed3ca",
+              "chart_id": "chart_11c369dc53d9bfd1b0ea1bcf9cbe8308bb23dc812ca17d026cd987ed3ed66944",
+              "failed_checks": []
+            }
+          ]
+        },
+        {
+          "trial": "new_source_2",
+          "artifact_grade": "pass",
+          "task_complete": true,
+          "turns": [
+            {
+              "archive_file": "live-workflow-final/new_source_2/turn-1.json",
+              "sha256": "1a687721541e13be63b76a32a39aed2a7860b8db750132cb6e6f52ffa3a7f18f",
+              "run_status": "completed",
+              "artifact_grade": "pass",
+              "analysis_id": "analysis_59a40630ba31a0927775763b3c7fe2648d885c43a31684cdb01249ebbb1a2d93",
+              "chart_id": "chart_f5ba8d6d9593b188e537fa7010b3352b337ba71b994c66a8e137542a4ef1db05",
+              "failed_checks": []
+            }
+          ]
+        }
+      ]
+    },
+    "grouped": {
+      "round": "live-chart-final",
+      "report": "grouped",
+      "trials": [
+        {
+          "trial": "grouped_1",
+          "artifact_grade": "pass",
+          "task_complete": true,
+          "turns": [
+            {
+              "archive_file": "live-chart-final/grouped_1/turn-1.json",
+              "sha256": "973388f62e0c4cc612bb74e59aa0be34cd78913ff2f851abde671283918336e5",
+              "run_status": "completed",
+              "artifact_grade": "pass",
+              "analysis_id": "analysis_f3fe9d45fc2ae9bec29a8aacf2046babe71d5d3740d35251188356a629606bc8",
+              "chart_id": "chart_0c44ccea24f1e8f425955cc56283f0d4a65aea1fdbbc3b314eb3350d8037a9da",
+              "failed_checks": []
+            },
+            {
+              "archive_file": "live-chart-final/grouped_1/turn-2.json",
+              "sha256": "8a5cef7f79124058360e60481910052f85115692c3e53dea522036e82c90df71",
+              "run_status": "completed",
+              "artifact_grade": "pass",
+              "analysis_id": "analysis_5f9a854bdaf671cc28aa1c91d186d8e881e6b8895ea948ccb90038f284ce650d",
+              "chart_id": "chart_65d4e38f4c1ed0e0033d965457e4ad035bf61e08abbc0b058208775f67490ece",
+              "failed_checks": []
+            },
+            {
+              "archive_file": "live-chart-final/grouped_1/turn-3.json",
+              "sha256": "8ddb1e7f12301c71d46bc51830accff0ecb571dc2cc0792cffce6f0a67759c57",
+              "run_status": "completed",
+              "artifact_grade": "pass",
+              "analysis_id": "analysis_5f9a854bdaf671cc28aa1c91d186d8e881e6b8895ea948ccb90038f284ce650d",
+              "chart_id": "chart_91ca2045e2713ec52ace8d65245786fcc50864cf88a0e4c1ce048f5c9638d6af",
+              "failed_checks": []
+            }
+          ]
+        },
+        {
+          "trial": "grouped_2",
+          "artifact_grade": "pass",
+          "task_complete": true,
+          "turns": [
+            {
+              "archive_file": "live-chart-final/grouped_2/turn-1.json",
+              "sha256": "f9024ce5b3ceab1ee6da7c75a9caa41c8200a7a2addf8201ec710417d8cfa7a4",
+              "run_status": "completed",
+              "artifact_grade": "pass",
+              "analysis_id": "analysis_64eaaea97b78cd2802b2e550756ec9d426d551e550a9b4f436eeb4c47a1224a2",
+              "chart_id": "chart_393357facb52ccbacfc040991e9053265ad31ab52976ec1d64f3569f31257384",
+              "failed_checks": []
+            },
+            {
+              "archive_file": "live-chart-final/grouped_2/turn-2.json",
+              "sha256": "57f18b47fd9d25bba499f658b9e5915156c40f3ce816fdee7dd63980c06be382",
+              "run_status": "completed",
+              "artifact_grade": "pass",
+              "analysis_id": "analysis_94a1f542a41e2a0aaa844e6cc9aa2b68b27378d929be29722ecfcc1a3ff77f92",
+              "chart_id": "chart_fc7bf4925febc83aef6ef316e1def6317cef2bb2aec39a164ca308b831286471",
+              "failed_checks": []
+            },
+            {
+              "archive_file": "live-chart-final/grouped_2/turn-3.json",
+              "sha256": "c1b393d130acc140642e9b0a792b564c07f4b4da610185fbbbc2e451c378bfdb",
+              "run_status": "completed",
+              "artifact_grade": "pass",
+              "analysis_id": "analysis_94a1f542a41e2a0aaa844e6cc9aa2b68b27378d929be29722ecfcc1a3ff77f92",
+              "chart_id": "chart_32648b60f3621e1c84507cb7b6c61f04378f3a10d578545b06f204cd6ce514fc",
+              "failed_checks": []
+            }
+          ]
+        }
+      ],
+      "scope": "Two three-turn chains; 9 bank categories required, Sektör aggregate optional; all selected groups preserved in line, per-group difference bar and unchanged-value heatmap. Separate bounded grader, not generic mentor grader."
+    },
+    "garanti_pdf": {
+      "round": "live-period-end-final",
+      "report": "period_end",
+      "trials": [
+        {
+          "trial": "garanti_pdf_1",
+          "artifact_grade": "pass",
+          "task_complete": true,
+          "turns": [
+            {
+              "archive_file": "live-period-end-final/garanti_pdf_1/turn-1.json",
+              "sha256": "441d4e438b706893b5b20f3c9fcb45eb993235efcdc54837dc6e9556d4d4708b",
+              "run_status": "completed",
+              "artifact_grade": "pass",
+              "analysis_id": "analysis_64d873aa7ead56379e921242ab37fe82b379f524a3cf17e7ae5730a1f023e2e2",
+              "chart_id": "chart_56e7e0a8016c1a0453826c5f3ad8bde4479ce5e25eb56532771b3131fa60f5e7",
+              "failed_checks": []
+            }
+          ]
+        },
+        {
+          "trial": "garanti_pdf_2",
+          "artifact_grade": "pass",
+          "task_complete": true,
+          "turns": [
+            {
+              "archive_file": "live-period-end-final/garanti_pdf_2/turn-1.json",
+              "sha256": "6eb2da55fabc6914ba2b6853ae4a7fb78b1647cfe59586486ae4d59e67c249e1",
+              "run_status": "completed",
+              "artifact_grade": "pass",
+              "analysis_id": "analysis_604f87a11bf3d10019a0b404059b3517be0ba0e8195a5e7072bf6be9dc3fb56e",
+              "chart_id": "chart_286acfb7aab0f4f6a1627edb9c9e38ba4dc17afc560d6534e54ca38a63e767f9",
+              "failed_checks": []
+            }
+          ]
+        }
+      ]
+    },
+    "tupras_pdf": {
+      "round": "live-verification-final",
+      "report": "workflow_and_verification",
+      "trials": [
+        {
+          "trial": "tupras_pdf_1",
+          "artifact_grade": "pass",
+          "task_complete": true,
+          "turns": [
+            {
+              "archive_file": "live-verification-final/tupras_pdf_1/turn-1.json",
+              "sha256": "a9bd5214f14edd8d365c1c574b45f8e8777f95aac47680abb9c5fb2744b94ea2",
+              "run_status": "completed",
+              "artifact_grade": "pass",
+              "analysis_id": "analysis_1fd63ebe3725080bcceb310ae09546b0b1081304187660591349fee9dcaac35c",
+              "chart_id": "chart_fb428124ce1694234e05b30fafd027db61405171d362dd8d52bcc698811650d0",
+              "failed_checks": []
+            }
+          ]
+        },
+        {
+          "trial": "tupras_pdf_2",
+          "artifact_grade": "pass",
+          "task_complete": true,
+          "turns": [
+            {
+              "archive_file": "live-verification-final/tupras_pdf_2/turn-1.json",
+              "sha256": "fd847539cb21c13f20872e5e9ca40a9c179921bd359446a828ad4b280c5d26b7",
+              "run_status": "completed",
+              "artifact_grade": "pass",
+              "analysis_id": "analysis_6e9c40e9f36402e3c6743f76e437c5589e840d784b18ed56964d36f3b41612ff",
+              "chart_id": "chart_5b9d1c8a4972a0a1507acf909fcd803e6271c37e544c16df9b98f67706d2ae17",
+              "failed_checks": []
+            }
+          ]
+        }
+      ]
+    },
+    "pdf_sector": {
+      "round": "live-normalization-final",
+      "report": "normalization_final",
+      "trials": [
+        {
+          "trial": "pdf_sector_1",
+          "artifact_grade": "pass",
+          "task_complete": true,
+          "turns": [
+            {
+              "archive_file": "live-normalization-final/pdf_sector_1/turn-1.json",
+              "sha256": "32365ea8439cf882b0d0f04c160c2ce65f093a44ec4ef346a17d3bae6bf62538",
+              "run_status": "completed",
+              "artifact_grade": "pass",
+              "analysis_id": "analysis_0854f3742172cd989cbe773fd8f3d8b08f9c9432d21282312a4073187b3c5001",
+              "chart_id": "chart_02a941ec50046e3f46bb73058119058942d10b29ef4e628e5ccc49fdbe6ff019",
+              "failed_checks": []
+            }
+          ]
+        },
+        {
+          "trial": "pdf_sector_2",
+          "artifact_grade": "pass",
+          "task_complete": true,
+          "turns": [
+            {
+              "archive_file": "live-normalization-final/pdf_sector_2/turn-1.json",
+              "sha256": "2220cdf3f4da4a4af61d1a7934da566a5bce09991c2b6a363ef078f639613a82",
+              "run_status": "completed",
+              "artifact_grade": "pass",
+              "analysis_id": "analysis_d76caa06af00f63435c8218465417e10d2eb7da8bcc93ae5009ab143a0dadcbe",
+              "chart_id": "chart_169d9462c893c577cb02e2d2ea7e643edfafc4b2d5081310baada7259dbcdf8f",
+              "failed_checks": []
+            }
+          ]
+        },
+        {
+          "trial": "pdf_sector_3",
+          "artifact_grade": "pass",
+          "task_complete": true,
+          "turns": [
+            {
+              "archive_file": "live-normalization-final/pdf_sector_3/turn-1.json",
+              "sha256": "5f92fcd9db4439b8744e2f061e60292385f8254c13538268dc8443d2f1232e09",
+              "run_status": "completed",
+              "artifact_grade": "pass",
+              "analysis_id": "analysis_ecb4936c1582e6f7c39dda167c28bc14e1813f5bed0b4843252011b261e54bb7",
+              "chart_id": "chart_c337c775988bd108ef82099a3b7a21d29714c33280f6a4ae761b3daad112eb78",
+              "failed_checks": []
+            }
+          ]
+        }
+      ],
+      "portable_report": {
+        "repository_file": "docs/research/mentor-improvements-2026-09-12/normalization-live-acceptance.json",
+        "sha256": "8136bb4c83a4a1b5e308fe71b780d5456f0abd3f8261480555d899efe63a2852"
+      }
+    }
+  },
+  "api_exercises": [
+    {
+      "label": "Three original PDFs through the public high-level import API",
+      "repository_file": "docs/research/mentor-improvements-2026-09-12/high-level-acceptance.json",
+      "sha256": "50d2c79a2e83ca11191f1364144af64010265cf09dcfadaf5e391f60b10212ed",
+      "autonomous_model": false,
+      "scope": "Garanti, Tüpraş and Akbank plus ambiguity controls. Akbank flow is readable but interval review_required and non-additive. No autonomous model completion claim."
+    },
+    {
+      "label": "Actual Garanti PDF plus existing BDDK comparison via API",
+      "repository_file": "docs/research/mentor-improvements-2026-09-12/pdf-sector-acceptance.json",
+      "sha256": "2cb7c21f6d0f06ecbae5801736870b6e1c3bec3551708f071a04cc45b9eb27c2",
+      "autonomous_model": false,
+      "scope": "Real source amounts, conversion, ratio, chart and source cells. Separate from autonomous model trials.",
+      "independent_artifact_grader": {
+        "archive_file": "source-validation/pdf-sector-integration/independent-grader-check.json",
+        "sha256": "8b35fdd4c6f661034e397c6ebc60a272fb64a8a0c89f887b0cca571b541e9b31",
+        "artifact_checks_passed": true,
+        "artifact_check_count": 24,
+        "task_complete": false
+      }
+    },
+    {
+      "label": "Actual PDF structural and header recovery API controls",
+      "repository_file": "docs/research/mentor-improvements-2026-09-12/structural-recovery-acceptance.json",
+      "sha256": "63a669ad4a28c7b294ff91da69efe64e4607f34e9b89da9cc729882890868ad7",
+      "autonomous_model": false,
+      "scope": "Source parser recovery controls, not a natural-language task success rate."
+    }
+  ],
+  "interrupted_exercises": [
+    {
+      "round": "live-context-final",
+      "graded_as_final": false,
+      "archive_file": "live-context-final/interruption.json",
+      "sha256": "3063c3063f17511a3ba759f0931aee5bc36101e5360c67bcbb4492c70ba442ca",
+      "reason": "Stopped own preliminary collector after a newly discovered invalid-input recovery guard issue, before final verification. No user workspace touched. Original partial records retained."
+    }
+  ],
+  "frontend_verification": {
+    "mode": "Frontend chart renderer and ECharts SVG server-side rendering",
+    "interactive_browser_verified": false,
+    "scope": "SVG generation and renderer checks. Does not establish browser clicks, layout responsiveness or end-to-end browser usability.",
+    "source_verification": {
+      "archive_file": "charts-statistics/verification.json",
+      "sha256": "f5b2ed0da25e15096478bd2d2d0d0a6766b56394636eb69b450c1621c8e97f4a"
+    },
+    "svg_artifacts": [
+      {
+        "archive_file": "charts-statistics/grouped-line.svg",
+        "sha256": "79ca395873dc306d06d79048cf26a5c52618e8d7b099c2867e49f014ae6657f5"
+      },
+      {
+        "archive_file": "charts-statistics/grouped-bar.svg",
+        "sha256": "da497d6261f721ed712459301609e29270e656f26818ca3880a6f8070ddfd735"
+      },
+      {
+        "archive_file": "charts-statistics/grouped-area.svg",
+        "sha256": "8e32d0b6752813d8e92d5d4f0e93cc01b277c38ae4d921ab94f68f3010d2f692"
+      },
+      {
+        "archive_file": "charts-statistics/grouped-heatmap.svg",
+        "sha256": "2d1233c6ac5ca3b6938dd422f5cdbaeb7f8f1bb4b1f5949ecb34dd5a4c5c9d25"
+      }
+    ]
+  },
+  "test_suite_evidence": {
+    "repository_file": "docs/research/mentor-improvements-2026-09-12/test-verification.json",
+    "sha256": "06f0a9a7ff5eeccc34f02ddb6dc6d340bd7e23cbef81e7b3d5499a7bba708a43",
+    "scope": "749 passed, 264 subtests, no failures, two existing deprecation warnings. Final backend including context fallback; no extra live repetition is implied."
+  },
+  "history_preserved": [
+    {
+      "repository_file": "docs/research/mentor-improvements-2026-09-12/grouped-acceptance-before-chart-coverage.json",
+      "sha256": "4f4d11184b3bb1b13fdbf24f6266ca74fa8e581b903e30e8e557c6f2cd660e4f"
+    },
+    {
+      "repository_file": "docs/research/mentor-improvements-2026-09-12/pdf-sector-live-before-workflow-gate.json",
+      "sha256": "dfa4087c0bdd202338e8f093e609f33f556094d1abae80a5568e00016f8af8b7"
+    },
+    {
+      "repository_file": "docs/research/mentor-improvements-2026-09-12/workflow-live-acceptance.json",
+      "sha256": "006bbac304bf2b6a3ae210b24ff05db8411177111751de5aa10cabec0214816a"
+    },
+    {
+      "repository_file": "docs/research/mentor-improvements-2026-09-12/verification-live-acceptance.json",
+      "sha256": "639949ff138bbd525df85e135790c6dd7875633de929590b280f55812662a1d2"
+    }
+  ],
+  "updated_at": "2026-09-12T22:14:31.097170+00:00",
+  "previous_index": {
+    "archive_file": "acceptance-normalization-final/acceptance-index-before-normalization.json",
+    "sha256": "76563fe991e4109a346f35a0f117113e29218e99f88234d8c9aa0ece321db4f7",
+    "change": "Only latest PDF-sector selection and its required report/round references updated; all other case selections retained."
+  },
+  "post_collection_context_fallback": {
+    "repository_file": "docs/research/mentor-improvements-2026-09-12/context-initial-card-equivalence.json",
+    "sha256": "df509fea4b4d63ac362a52a14690c537d37cd35ce97a75f489f692d14621774b",
+    "scope": "A final context-only fallback was added after the sealed live collection. It runs solely where the old implementation would fail its context budget. Three recorded final contexts were replayed offline and are byte-identical; this is not an additional live-model repetition."
+  },
+  "preview": {
+    "repository_file": "docs/research/mentor-improvements-2026-09-12/preview-verification.json",
+    "sha256": "2dfb982d877cac42b1ac3aec108701252f6186ed859425d8a0e1319257ad5496",
+    "scope": "Current backend HTTP checks on a copy of the sealed live runtime; original evidence remains unchanged. No interactive browser test."
+  }
+}

@@ -271,7 +271,11 @@ class GenericRuntimeIntegrationTests(unittest.TestCase):
             self.assertFalse(proof["source_files_verified"])
             self.assertEqual(2, len(proof["lineage"]["inputs"]))
             self.assertEqual(contract["source_namespace"], proof["lineage"]["inputs"][0]["source_namespace"])
-            self.assertEqual(contract["document_provenance"], proof["lineage"]["inputs"][0]["document_provenance"])
+            provenance = proof["lineage"]["inputs"][0]["document_provenance"]
+            self.assertEqual(contract["document_provenance"],
+                             {key: provenance[key] for key in contract["document_provenance"]})
+            self.assertEqual([1, 2], provenance["row_order"]["stored_row_to_source_csv_row"])
+            self.assertEqual(file_sha256(source), provenance["row_order"]["source_csv_sha256"])
             executed = next(item["result"] for item in result["tool_results"] if item["tool"] == "execute")
             self.assertEqual(workspace["datasets"][0], executed["schema"]["visits"]["scope"]["namespace"])
 

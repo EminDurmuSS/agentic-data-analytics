@@ -1,6 +1,6 @@
 """Register the typed lakehouse tool family against one service instance."""
 
-from agentic_analytics.agent.schemas import COLUMN, DIMENSIONS, OPERATIONS, PLAN, STRING, obj
+from agentic_analytics.agent.schemas import ALIGNMENT, COLUMN, DIMENSIONS, OPERATIONS, PLAN, STRING, obj
 
 
 def lakehouse_tools(service):
@@ -16,9 +16,10 @@ def lakehouse_tools(service):
              "status": {"enum": ["ready", "review_required", "metadata_only", "no_numeric"]}}, ["query"]), service.discover)
     add("describe", "Read one metric's semantics, dimensions and coverage before building a plan.", obj({"metric_id": STRING}), service.describe)
     add("validate_plan", "Validate a typed plan without writing an analysis.", PLAN, service.validate_plan)
-    add("execute", "Validate and save a new analysis. Use revise_analysis to change the existing table.", PLAN, service.execute, True)
+    add("execute", "Validate and save a new analysis, including source-proven event balances aligned with explicit period_end and their actual dimensions. Use revise_analysis to change the existing table.", PLAN, service.execute, True)
     add("revise_analysis", "Revise the active table, preserving untouched cells. To REPLACE a column, set operation.output to that existing column name. Use a NEW output name only when the user requests an additional column. add_columns supplies new sources such as a deflator.",
-        obj({"analysis_id": STRING, "add_columns": {"type": "array", "maxItems": 25, "items": COLUMN}, "operations": OPERATIONS}, ["analysis_id"]), service.revise_analysis, True)
+        obj({"analysis_id": STRING, "add_columns": {"type": "array", "maxItems": 25, "items": COLUMN}, "operations": OPERATIONS,
+             "start": STRING, "end": STRING}, ["analysis_id"]), service.revise_analysis, True)
     explanation = {"analysis_id": STRING, "column": STRING, "period": STRING}
     if hasattr(service, "query_grouped"):
         explanation["dimensions"] = DIMENSIONS
@@ -32,7 +33,8 @@ def lakehouse_tools(service):
         add("query_grouped", "Rank groups per period for one metric. Fix all other dimensions explicitly.",
             obj({"metric_id": STRING, "group_by": STRING, "dimensions": DIMENSIONS,
                  "start": STRING, "end": STRING, "frequency": PLAN["properties"]["frequency"],
-                 "alignment": {"enum": ["native", "last", "mean", "sum"]}, "order": {"enum": ["desc", "asc"]},
+                 "alignment": ALIGNMENT, "order": {"enum": ["desc", "asc"]},
+                 "operations": OPERATIONS,
                  "limit": {"type": "integer", "minimum": 1, "maximum": 100}},
                 ["metric_id", "group_by", "dimensions", "start", "end", "frequency"]), service.query_grouped, True)
     add("ask_user", "Pause for one necessary clarification. Do not invent a critical missing assumption.",

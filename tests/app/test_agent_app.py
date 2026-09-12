@@ -153,6 +153,10 @@ class AgentAppTests(unittest.TestCase):
         self.assertEqual(job["run"]["run_id"], result["run_id"])
         self.assertTrue(any(event["kind"] == "tool_result" for event in job["activity"]))
         self.assertEqual(job["activity_count"], len(job["activity"]))
+        self.assertEqual(job["journey"]["status"], "completed")
+        self.assertEqual(job["journey"]["event_count"], len(job["activity"]))
+        restored = self.client.get(f"/api/workspaces/{workspace['workspace_id']}").json()
+        self.assertEqual(restored["latest_journey"], job["journey"])
         replay = self.client.post(f"/api/workspaces/{workspace['workspace_id']}/runs",
                                   json={"message": "Kredi tablosu", "request_id": "same-request"})
         self.assertEqual(replay.status_code, 200)
@@ -180,6 +184,8 @@ class AgentAppTests(unittest.TestCase):
             self.assertEqual(polled["run"]["status"], "running")
             self.assertTrue(any(event["kind"] == "model_request" for event in polled["activity"]))
             self.assertEqual(polled["activity_count"], len(polled["activity"]))
+            self.assertEqual(polled["journey"]["status"], "running")
+            self.assertEqual(polled["journey"]["stages"], [])
         finally:
             release.set()
         self.context.futures[submitted["job_id"]].result(timeout=5)

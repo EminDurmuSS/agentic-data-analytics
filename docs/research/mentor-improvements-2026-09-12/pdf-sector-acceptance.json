@@ -1,0 +1,320 @@
+{
+  "status": "passed",
+  "mode": "Real public PDF cached bytes through high-level business import, immutable finance snapshot, deterministic cross-source service calculation; no LLM completion claim",
+  "created_at": "2026-09-12T21:15:57.904474+00:00",
+  "workspace_id": "workspace_83d6e50fe72a4e58af89a1b07232959d",
+  "dataset_id": "dataset_e24c217fcff6865cd97016088c0d5fbfb355d2dfd1460f2b206b07ff1713f56a",
+  "analysis_id": "analysis_883164a02f5e7b56f249556ee4ed357926977f180947bbee73e0943e6a75e177",
+  "chart_ids": [
+    "chart_9a5c93cebd083f5167bfbb35cb42e47c3a67561b5b5df0899abe8f3a33c1aa5c",
+    "chart_90f10b0d1f89d0d2419a61162b083e46a191d3207e66ae903d98469d25c90e06"
+  ],
+  "source_urls": [
+    "https://www.garantibbvainvestorrelations.com/en/images/pdf/31_March_2026_Consolidated_Financial_Report.pdf",
+    "https://www.bddk.org.tr/BultenAylik/tr/Home/BasitRaporGetir"
+  ],
+  "rows": [
+    {
+      "period": "2026-03",
+      "garanti_thousand_TRY": 4783750292,
+      "sector_million_TRY": 49735194.0,
+      "garanti_million_TRY": 4783750.292,
+      "comparison_percent": 9.618441001758232
+    }
+  ],
+  "ratio_oracle_percent": "9.618441001758231806635759780",
+  "checks": [
+    {
+      "check": "original_PDF_hash",
+      "passed": true
+    },
+    {
+      "check": "actual_TOTAL_ASSETS_source_cell",
+      "passed": true,
+      "detail": {
+        "candidate_column": "column_8",
+        "candidate_row": 60
+      }
+    },
+    {
+      "check": "actual_source_date_header",
+      "passed": true
+    },
+    {
+      "check": "import_remains_event_stock",
+      "passed": true
+    },
+    {
+      "check": "exact_period_end_lineage_keeps_original_date",
+      "passed": true
+    },
+    {
+      "check": "BDDk_original_response_hash",
+      "passed": true
+    },
+    {
+      "check": "BDDk_actual_balance_sector_total_row",
+      "passed": true,
+      "detail": [
+        "Sektör",
+        26,
+        "TOPLAM AKTİFLER",
+        "bold",
+        30100365,
+        19634829,
+        49735194
+      ]
+    },
+    {
+      "check": "BDDk_lineage_exact_metric_population_and_cell",
+      "passed": true
+    },
+    {
+      "check": "bank_thousand_to_million_conversion",
+      "passed": true
+    },
+    {
+      "check": "sector_original_amount_and_scale",
+      "passed": true
+    },
+    {
+      "check": "independent_decimal_ratio",
+      "passed": true,
+      "detail": {
+        "expected_percent": "9.618441001758231806635759780",
+        "actual_percent": "9.618441001758232",
+        "absolute_error": "1.93364240220E-16"
+      }
+    },
+    {
+      "check": "explicit_cross_scope_comparison_preserved",
+      "passed": true
+    },
+    {
+      "check": "calendar_join_does_not_assert_population_equivalence",
+      "passed": true
+    },
+    {
+      "check": "explain_garanti_thousand_TRY",
+      "passed": true
+    },
+    {
+      "check": "explain_sector_million_TRY",
+      "passed": true
+    },
+    {
+      "check": "explain_garanti_million_TRY",
+      "passed": true
+    },
+    {
+      "check": "explain_comparison_percent",
+      "passed": true
+    },
+    {
+      "check": "chart_hash_and_bound_analysis_33c1aa5c",
+      "passed": true
+    },
+    {
+      "check": "chart_source_value_garanti_million_TRY",
+      "passed": true
+    },
+    {
+      "check": "chart_source_value_sector_million_TRY",
+      "passed": true
+    },
+    {
+      "check": "chart_hash_and_bound_analysis_25c90e06",
+      "passed": true
+    },
+    {
+      "check": "chart_source_value_comparison_percent",
+      "passed": true
+    },
+    {
+      "check": "two_charts_cover_both_amounts_and_ratio",
+      "passed": true
+    },
+    {
+      "check": "implicit_scope_ratio_forbidden",
+      "passed": true,
+      "detail": {
+        "status": "blocked",
+        "errors": [
+          {
+            "code": "SCOPE_MISMATCH",
+            "message": "Ratio inputs have different source populations, geography or selected dimensions; an intentional comparison must name its scope_policy and scope_reason"
+          }
+        ]
+      }
+    },
+    {
+      "check": "event_last_carry_forbidden",
+      "passed": true,
+      "detail": {
+        "status": "blocked",
+        "errors": [
+          {
+            "code": "INVALID_TEMPORAL_AGGREGATION",
+            "message": "Dated event observations have no inferred publication frequency. For ready stocks use alignment='period_end' at the exact source date's calendar endpoint; for raw document display use aggregate_dataset with source_value."
+          }
+        ]
+      }
+    },
+    {
+      "check": "March_stock_cannot_become_year_end",
+      "passed": true,
+      "detail": {
+        "status": "blocked",
+        "errors": [
+          {
+            "code": "PERIOD_END_MISMATCH",
+            "message": "garanti_thousand_TRY: event dates ['2026-03-31'] are not exact output calendar endpoints. No observations were moved or discarded; select their actual dates for raw display."
+          }
+        ]
+      }
+    }
+  ],
+  "negative_controls": [
+    {
+      "name": "implicit_scope_ratio_forbidden",
+      "result": {
+        "status": "blocked",
+        "errors": [
+          {
+            "code": "SCOPE_MISMATCH",
+            "message": "Ratio inputs have different source populations, geography or selected dimensions; an intentional comparison must name its scope_policy and scope_reason"
+          }
+        ]
+      },
+      "workspace_unchanged": true
+    },
+    {
+      "name": "event_last_carry_forbidden",
+      "result": {
+        "status": "blocked",
+        "errors": [
+          {
+            "code": "INVALID_TEMPORAL_AGGREGATION",
+            "message": "Dated event observations have no inferred publication frequency. For ready stocks use alignment='period_end' at the exact source date's calendar endpoint; for raw document display use aggregate_dataset with source_value."
+          }
+        ]
+      },
+      "workspace_unchanged": true
+    },
+    {
+      "name": "March_stock_cannot_become_year_end",
+      "result": {
+        "status": "blocked",
+        "errors": [
+          {
+            "code": "PERIOD_END_MISMATCH",
+            "message": "garanti_thousand_TRY: event dates ['2026-03-31'] are not exact output calendar endpoints. No observations were moved or discarded; select their actual dates for raw display."
+          }
+        ]
+      },
+      "workspace_unchanged": true
+    }
+  ],
+  "business_import_arguments": {
+    "source_id": "source_21e2a23cbb1057306eacc11746fa69727192f7e9cc80d73a93443136ad5de83c",
+    "table_id": "table_p000011_text_001",
+    "expected_version": 0,
+    "row_labels": [
+      "TOTAL ASSETS"
+    ],
+    "periods": [
+      "2026-03-31"
+    ],
+    "value_header": "TOTAL"
+  },
+  "plan": {
+    "frequency": "monthly",
+    "start": "2026-03",
+    "end": "2026-03",
+    "columns": [
+      {
+        "name": "garanti_thousand_TRY",
+        "metric_id": "overlay:dataset_e24c217fcff6865cd97016088c0d5fbfb355d2dfd1460f2b206b07ff1713f56a:amount",
+        "dimensions": {
+          "line_item": "TOTAL ASSETS"
+        },
+        "alignment": "period_end"
+      },
+      {
+        "name": "sector_million_TRY",
+        "metric_id": "bddk_monthly:table01:26:f7e2a5324c36:Toplam",
+        "dimensions": {
+          "group_code": 10001
+        },
+        "alignment": "native"
+      }
+    ],
+    "operations": [
+      {
+        "op": "scale",
+        "column": "garanti_thousand_TRY",
+        "target_scale": 1000000,
+        "output": "garanti_million_TRY"
+      },
+      {
+        "op": "ratio",
+        "column": "garanti_million_TRY",
+        "denominator": "sector_million_TRY",
+        "multiplier": 100,
+        "output": "comparison_percent",
+        "scope_policy": "explicit_comparison",
+        "scope_reason": "Garanti consolidated financial group and BDDK banking-sector statistical population differ. This is a source-defined amount comparison, not official market share."
+      }
+    ]
+  },
+  "evidence_path": "/Users/edurmus/Downloads/kkb-hackathon-2026-notlar/mentor-improvements-2026-09-12/source-validation/pdf-sector-integration/result.json",
+  "evidence_sha256": "a9522cb4eed6cbb02b14efc5b155711d8bc10c0a41f7acddc32e22ab8662f5e8",
+  "source_addresses": {
+    "pdf": {
+      "raw_sha256": "b8dd1916b3943ffdaa06d2be75a8b7e33950812eb990ae8b1bfe601b7f99c288",
+      "page": 11,
+      "table_id": "table_p000011_text_001",
+      "cell_origins": {
+        "amount": {
+          "candidate_column": "column_8",
+          "candidate_row": 60
+        },
+        "line_item": {
+          "candidate_column": "Consolidated_F",
+          "candidate_row": 60
+        },
+        "period": {
+          "date_index": 0,
+          "joined_source_text": "31 March 2026",
+          "matched_source_date": "31 March 2026",
+          "parts": [
+            {
+              "candidate_column": "column_7",
+              "candidate_row": 10
+            }
+          ],
+          "separator": "",
+          "source_format": "english_dmy"
+        }
+      }
+    },
+    "bddk": {
+      "raw_sha256": "a8226807f1cf87a2919f592de40a89080549e9cf7424138049ebd369714f3176",
+      "json_address": "Json.data.rows[25].cell[6]",
+      "raw_cell": [
+        "Sektör",
+        26,
+        "TOPLAM AKTİFLER",
+        "bold",
+        30100365,
+        19634829,
+        49735194
+      ]
+    }
+  },
+  "limits": [
+    "Ratio compares different reporting populations; not official market share",
+    "Source raw bytes independently reopened in this check; explain_value alone does not claim original raw-file verification",
+    "Only exact ready stock event date/calendar endpoint comparison is enabled; no publication cadence inferred"
+  ]
+}

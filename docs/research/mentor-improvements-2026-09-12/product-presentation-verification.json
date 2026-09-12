@@ -1,0 +1,128 @@
+{
+  "recorded_at": "2026-09-12T22:52:30.634601+00:00",
+  "backend_sha256": {
+    "agentic_analytics/__init__.py": "66438a993a11cfce5d316695416450d44725e712a246ae1be7738a267baed63c",
+    "agentic_analytics/agent/__init__.py": "b9dc579fb7b75a3daa7b7d89b56d240357d0f8aa1c3a5b9bf89a82c4a0e7c6fe",
+    "agentic_analytics/agent/context.py": "4defded68c4b5799950e89526e944e45e69a94dcad43c8842418ef8f6046d35d",
+    "agentic_analytics/agent/delivery.py": "0375b59d5118c2f016ad36fc9228083febf971a9d09b311ced6181c88505a867",
+    "agentic_analytics/agent/prompts.py": "d07d3f41386f758ca147f30d0f78f7c918a71a0fe9c25b4ec3a45cf19d7fa8e8",
+    "agentic_analytics/agent/run_store.py": "ed8d53d5e8e97143f5b930e8f6f09ad8f33226de04cbe1c95d7f067ec9ae5399",
+    "agentic_analytics/agent/runtime.py": "86754f80ad9721c55675d8bebf3a48c62151e0bebb2c392e815c26d2277d6741",
+    "agentic_analytics/agent/schemas.py": "7c5df4aae7758c1a9c776325a87328caa61378627fc2108095946c700aa296b4",
+    "agentic_analytics/agent/tools/__init__.py": "e515b65af173f26d6bf664d4cf0688a475ba4c73b140d6690742fec8fb1e1ca3",
+    "agentic_analytics/agent/tools/charts.py": "1a739a5552a02a5a758b5e231d536796780c0fb0d697cec27230c25ec25a105a",
+    "agentic_analytics/agent/tools/datasets.py": "151306b7c8948ae06a79eac3ed1c22b2fd754839a41a4ee18906f8aacc2add25",
+    "agentic_analytics/agent/tools/document_tables.py": "8e8b9d5c38739c5c2d677b0556251867c7ac97a7a89a07dcef6c07ed84e966d4",
+    "agentic_analytics/agent/tools/documents.py": "2ae0faed606cc8739355e717b08f56d76d5bb9c818d15eb66add851422a4feb9",
+    "agentic_analytics/agent/tools/financial_import.py": "e120f95ec1db33844213219c7691890dc6e5212d6fe8addbb6aae1a48746b400",
+    "agentic_analytics/agent/tools/lakehouse.py": "4b7efc1c9c45bd3396b22fafd40abda2dd50c84f6a92f7795613c3ea9c5fcb0f",
+    "agentic_analytics/agent/tools/search_backend.py": "03359109ed5992297abbde95495b34a4fdb74df7de8f0872f91df6acecd24e6f",
+    "agentic_analytics/agent/tools/source_index.py": "36c31c469c867a75cd40fe0d9f672dac06264941613e8915d5e70a2394f58ff3",
+    "agentic_analytics/agent/tools/statistics.py": "cc5232dcc80e999d5cc3f41a7a28e900609d929b2df9ce833ea31a0c34bd4aad",
+    "agentic_analytics/agent/tools/summary.py": "65df6b1c3aaa9c5d39bbe14351c412a18dda5e8dc502407361903c86e1c92c79",
+    "agentic_analytics/lakehouse/__init__.py": "78979075ef52cd2e0aeb647f98e6507ba5a9711f8533a2d15cdb415925c8f47d",
+    "agentic_analytics/lakehouse/analysis.py": "809bc46c2ae1e288351a7938b9e61d5a4855cc14921312368663f2e3ea4cdbf1",
+    "agentic_analytics/lakehouse/cli.py": "90558944d6957b7e81ff72a858d7f291d3d86e7de3c6c8982f0d980af0a67237",
+    "agentic_analytics/lakehouse/discovery.py": "623c693255e585de4f10210e98768df5a97966f2b039019279961a22a32a0ca1",
+    "agentic_analytics/lakehouse/financial_semantics.py": "832d03f9c67929d62ca6da0b05d0565d438739dc24160b15fb2cdcba6aa0be8e",
+    "agentic_analytics/lakehouse/presentation.py": "3a24996c2a363b0ec0cd839d76b2b94733080af89c75d17f9f2610f51c713154",
+    "agentic_analytics/lakehouse/quality.py": "ac32ca6e475f07fd069085038ebd26071ff1d36f8a9786679a7129ee3e252654",
+    "agentic_analytics/lakehouse/registry.py": "5deebddad732a3b663aa4969cf71c34923bc68624c4c00a2fbeea873c30fb547",
+    "agentic_analytics/lakehouse/semantics.py": "7d213a6da2ecf60fe8cdd8231840a9cc3965ca2dee0a312aa2697ffbaf742a2d",
+    "agentic_analytics/lakehouse/service.py": "cfc0247839f19e171f61f0703481b26a04aafebf3454ccc166338905e88bc643",
+    "agentic_analytics/lakehouse/source_profiles.py": "59b01319030d529f4a36f5629593ecee2d96a8ba58181a6727444d94cdba6871",
+    "agentic_analytics/lakehouse/store.py": "8a6afc365c491930eab7b3d36da78d9db7bace8165aacd892324118f94be466d",
+    "agentic_analytics/lakehouse/units.py": "510b57a958de602908108910edc4541e0891418cf33ba78513346f17fccca1a0",
+    "agentic_analytics/paths.py": "70a8c7cf92ea56d3558b619e2082ef2af768ca1d8ffcb7200e94d433f6b4f52c",
+    "agentic_analytics/providers/__init__.py": "288b246c2fa382b661c806825a01ab98ed700f05178375c09e0669b33e671ac7",
+    "agentic_analytics/providers/mia.py": "7a249ae3cb80129e5e21615e12b7f74aaf636544a9fec785743558a3a0b6ff8a",
+    "app/__init__.py": "7c54b3f2a7c662af564a3610de8ffb85f3fb388c7c41e769a6fe31ce90f8a74e",
+    "app/__main__.py": "2c65e37b013cb4fed5661d150a11ce69e429f4b0d315787018b183e05b2285a3",
+    "app/activity.py": "58709ae5fcc590fb75a1cc594196dfe52b9cec5d699d749db06d75b9b271024b",
+    "app/cli.py": "f4acac33fe394119d1ceeffe05bb003f828828388e0782ec09cd89ab6edce313",
+    "app/context.py": "6333c32b0972815cef680bb25ac7079e80cbb5405b19eb860d14a9b8fa3e496c",
+    "app/diagnostics.py": "8f2ca43dab4d3c2371d6a58c7e6284be29ca0950c7636264722f0d7014120e2f",
+    "app/models.py": "fa4e87a40c3e21cc1d80667cc5275808295ffaf56c0a714059c5a04a6f682b2c",
+    "app/presentation.py": "535072165f0499d8b5ffbcb89300cbce1921351e5f3a482d5a56538300c0f317",
+    "app/routes/__init__.py": "42bf41ecde4c031bf3cd25d0742ad71531aeaa798f360e5b3a36578687900d79",
+    "app/routes/analyses.py": "ae4e02b96a980b580edc53f73ae445a669d764c7ae235c5d5134daf5aae6145d",
+    "app/routes/sources.py": "bb049a4596c9973de4d03845511833b6644fc9dbae278c46f25da32e80982df2",
+    "app/routes/workspaces.py": "50efbfcf6cc6cb375735635dd07325abb6eeaf985b012f29c61f460e1e10ca7f",
+    "app/serialization.py": "d93c02348dc8c8d327786a6b972f0eff3453f91978f4dfb226d202a938ae750e",
+    "app/server.py": "fed15ed78a7576024caae192cb236eddaba3e5088d02307447709d34927ad114"
+  },
+  "frontend_sha256": {
+    "app/static/index.html": "eff18d3a8145ed96bfa4513ede026912849fb751fdf6a9d15ef66332424e85e5",
+    "app/static/charts.css": "92d35184f19bb78c4a61b8524ddd64ba042b5b6b53f75361a10ed720dfedf303",
+    "app/static/app.css": "758fd7e9ac49072ae05affdb3af90105ce72f018c9e37ba2ef554e84b21daf53",
+    "app/static/charts.js": "dc322607009e626ea84a46b18b6efbafc1d1b22c8f824ac88e5487ac2ababa48",
+    "app/static/app.js": "f14dbdb7446211636cbf7bc05bf4bbafa21467d62e9bb517c3e5bec0382437c8"
+  },
+  "full_tests_before_last_normalization_fix": {
+    "passed": 767,
+    "subtests_passed": 264,
+    "warnings": 2,
+    "seconds": 152.4,
+    "sha256": "a922cc4d31cd428d91fa9f1951317787a304e9f5463c85c5f5a3edd932c01b5e"
+  },
+  "final_regression_after_normalization_fix": {
+    "passed": 132,
+    "subtests_passed": 21,
+    "warnings": 2,
+    "seconds": 10.54,
+    "real_chromium_included": true,
+    "sha256": "2d5fdf191f0d3f7cc67101090619404010176cbaa01caeebc19189d088d3316a"
+  },
+  "live_pdf": {
+    "status": "completed",
+    "decisions": 13,
+    "independent_checks_passed": 34,
+    "backend_unchanged_during_live_run": true,
+    "manifest_path": "/Users/edurmus/Downloads/kkb-hackathon-2026-notlar/mentor-improvements-2026-09-12/user-presentation-2026-09-13/live-app/manifest.json",
+    "grade_path": "/Users/edurmus/Downloads/kkb-hackathon-2026-notlar/mentor-improvements-2026-09-12/user-presentation-2026-09-13/live-app/independent-grade.json",
+    "later_fix_replay": "/Users/edurmus/Downloads/kkb-hackathon-2026-notlar/mentor-improvements-2026-09-12/user-presentation-2026-09-13/normalization-ordered-identity-replay.json"
+  },
+  "browser": {
+    "after": {
+      "checks_passed": 18,
+      "browser": "131.0.6778.33",
+      "path": "/Users/edurmus/Downloads/kkb-hackathon-2026-notlar/mentor-improvements-2026-09-12/user-presentation-2026-09-13/after/interaction-acceptance.json"
+    },
+    "after-live": {
+      "checks_passed": 17,
+      "browser": "131.0.6778.33",
+      "path": "/Users/edurmus/Downloads/kkb-hackathon-2026-notlar/mentor-improvements-2026-09-12/user-presentation-2026-09-13/after-live/interaction-acceptance.json"
+    }
+  },
+  "release_http_checks": [
+    {
+      "workspace_id": "workspace_4a12b729946c4d01b1ef150d3fc5f70d",
+      "analysis_id": "analysis_ecb4936c1582e6f7c39dda167c28bc14e1813f5bed0b4843252011b261e54bb7",
+      "display_columns": [
+        "period",
+        "garanti_milyon",
+        "sektor_milyon",
+        "oran_yuzde"
+      ],
+      "current_projection_matches_saved_data": true,
+      "chart_kind": "bar"
+    },
+    {
+      "workspace_id": "workspace_055cc9a8847148c685b3a09a5cc39a00",
+      "analysis_id": "analysis_76ad0a02132dee33c7c1a2df659856bd141cee78d77de7b85e9c04da1bf814a5",
+      "display_columns": [
+        "period",
+        "garanti_konsolide_toplam_aktif_milyon",
+        "bddk_sektor_toplam_aktif",
+        "garanti_sektor_orani_yuzde"
+      ],
+      "current_projection_matches_saved_data": true,
+      "chart_kind": "bar"
+    }
+  ],
+  "preview": {
+    "base_url": "http://127.0.0.1:8871",
+    "pid": 22038
+  },
+  "evidence_scope": "Fresh real PDF model request plus existing and new actual-browser checks. Later normalization guard fix tested with exact regression and four saved real runs; no additional model trial after that guard fix."
+}

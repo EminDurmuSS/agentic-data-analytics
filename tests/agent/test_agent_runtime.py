@@ -193,7 +193,10 @@ class AgentRuntimeTests(unittest.TestCase):
         self.assertNotIn("VERBOSE_METADATA_ONLY", json.dumps(client.requests))
         self.assertNotIn("LONG_SCOPE_DESCRIPTION", json.dumps(client.requests))
         compacted = False
+        initial_compacted = False
         for messages in client.requests:
+            context = json.loads(messages[0]["content"].split("Güncel güvenilir çalışma alanı bağlamı:\n", 1)[1])
+            initial_compacted |= context["initial_metric_candidates"].get("historical_search_summary", False)
             names = {}
             for message in messages:
                 for tool_call in message.get("tool_calls", []):
@@ -205,6 +208,10 @@ class AgentRuntimeTests(unittest.TestCase):
                         self.assertLessEqual(len(payload["metrics"]), 10)
                         compacted |= payload.get("historical_search_summary", False)
         self.assertTrue(compacted)
+        self.assertTrue(initial_compacted)
+        initial = self.journal.get(result["run_id"])["state"]["initial_candidates"]
+        self.assertFalse(initial.get("historical_search_summary", False))
+        self.assertEqual(initial["metrics"][0]["title"], cards[0]["title"])
         events = self.journal.events(result["run_id"])
         full = next(e["payload"]["result"] for e in events if e["kind"] == "tool_result" and e["payload"].get("tool") == "discover")
         self.assertEqual(len(full["metrics"]), 25)

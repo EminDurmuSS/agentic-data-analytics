@@ -1,0 +1,434 @@
+{
+  "schema_version": 1,
+  "evaluated_at": "2026-09-12T20:38:40.485911+00:00",
+  "evidence_type": "independent_real_source_public_tool_api",
+  "autonomous_model_evaluation": false,
+  "network_verification": "Previously fetched official PDF bytes, rechecked against source SHA-256; HTTP transport supplied from that byte cache. No parser, compiler, publication, analysis or chart output was mocked.",
+  "result": {
+    "sources_passed": 3,
+    "exact_financial_facts_passed": 10,
+    "native_analyses_passed": 3,
+    "charts_passed": 3,
+    "ambiguity_controls_passed": 4,
+    "unsafe_aggregation_controls_passed": 2,
+    "tracked_backend_modules_unchanged": true
+  },
+  "caller_did_not_supply": [
+    "expected numeric values",
+    "source row or column positions",
+    "dtype",
+    "grain",
+    "schema",
+    "number format",
+    "date mapping",
+    "publication contract",
+    "measure_kind"
+  ],
+  "cases": [
+    {
+      "case": "garanti_pdf",
+      "source": {
+        "url": "https://www.garantibbvainvestorrelations.com/en/images/pdf/31_March_2026_Consolidated_Financial_Report.pdf",
+        "raw_sha256": "b8dd1916b3943ffdaa06d2be75a8b7e33950812eb990ae8b1bfe601b7f99c288",
+        "pdf_page": 11
+      },
+      "public_tool": "ingest_source_table",
+      "business_selection": {
+        "table_id": "table_p000011_text_001",
+        "row_labels": [
+          "Financial assets (net)",
+          "Cash and cash equivalents"
+        ],
+        "periods": [
+          "2025-12-31",
+          "2026-03-31"
+        ],
+        "value_header": "TOTAL"
+      },
+      "measure_kind_and_number_style_omitted": true,
+      "expected_facts": [
+        {
+          "metric": "financial_assets",
+          "period_end": "2025-12-31",
+          "value": 1260568409,
+          "unit": "TRY",
+          "currency": "TRY",
+          "scale": 1000,
+          "kind": "stock",
+          "price_basis": null,
+          "source_cell": {
+            "page": 11,
+            "table_id": "table_p000011_text_001",
+            "row": 12,
+            "column": "column_11"
+          }
+        },
+        {
+          "metric": "financial_assets",
+          "period_end": "2026-03-31",
+          "value": 1279933463,
+          "unit": "TRY",
+          "currency": "TRY",
+          "scale": 1000,
+          "kind": "stock",
+          "price_basis": null,
+          "source_cell": {
+            "page": 11,
+            "table_id": "table_p000011_text_001",
+            "row": 12,
+            "column": "column_8"
+          }
+        },
+        {
+          "metric": "cash",
+          "period_end": "2025-12-31",
+          "value": 1005229845,
+          "unit": "TRY",
+          "currency": "TRY",
+          "scale": 1000,
+          "kind": "stock",
+          "price_basis": null,
+          "source_cell": {
+            "page": 11,
+            "table_id": "table_p000011_text_001",
+            "row": 13,
+            "column": "column_11"
+          }
+        },
+        {
+          "metric": "cash",
+          "period_end": "2026-03-31",
+          "value": 867799356,
+          "unit": "TRY",
+          "currency": "TRY",
+          "scale": 1000,
+          "kind": "stock",
+          "price_basis": null,
+          "source_cell": {
+            "page": 11,
+            "table_id": "table_p000011_text_001",
+            "row": 13,
+            "column": "column_8"
+          }
+        }
+      ],
+      "result": {
+        "published": true,
+        "exact_facts_units_and_source_coordinates_pass": true,
+        "native_analysis_pass": true,
+        "chart_hash_values_units_and_coverage_pass": true,
+        "compiler_version": 2,
+        "analysis_operation": "source_value",
+        "amount_semantics": {
+          "dtype": "integer",
+          "kind": "stock",
+          "unit": "TRY",
+          "currency": "TRY",
+          "scale": 1000,
+          "status": null,
+          "temporal_semantics": null,
+          "price_basis": null,
+          "additive_over_time": null
+        }
+      },
+      "artifact_receipts": {
+        "dataset_id": "dataset_9a152eac6d950144e77966596b0e987d6ce0601bb4f8d216ab995cf86a3146e4",
+        "dataset_data_sha256": "63f51cc18a5f7def76e0b45f6a6e213a801d9f4c0c2332be26a7ab466da5a4b1",
+        "analysis_id": "analysis_76c183378586a22cffa2ddeb5b5d56733ba497f31670e3dc4395d1cfd63caad8",
+        "analysis_data_sha256": "59b3703a343a5ac4d1a14f7867d2bd426cff7eff25ba8ff0bd3a4d96ea327a9b",
+        "chart_id": "chart_463013c6a672709d45d03eb074b1cd5aaf4207b161e0e91ea1c2879662c69e3a"
+      }
+    },
+    {
+      "case": "tupras_pdf",
+      "source": {
+        "url": "https://www.tupras.com.tr/assets/uploads/financial-reports/tupras-consolited-cmb-30062025.pdf",
+        "raw_sha256": "54c50d2e352fe71288fc9427966335c848fad7628f67ff83220d478ef91fb29a",
+        "pdf_page": 3
+      },
+      "public_tool": "ingest_source_table",
+      "business_selection": {
+        "table_id": "table_p000003_text_001",
+        "row_labels": [
+          "Total assets",
+          "Cash and cash equivalents"
+        ],
+        "periods": [
+          "2025-06-30"
+        ]
+      },
+      "measure_kind_and_number_style_omitted": true,
+      "expected_facts": [
+        {
+          "metric": "total_assets",
+          "period_end": "2025-06-30",
+          "value": 545630257,
+          "unit": "TRY",
+          "currency": "TRY",
+          "scale": 1000,
+          "kind": "stock",
+          "price_basis": "2025-06-30",
+          "source_cell": {
+            "page": 3,
+            "table_id": "table_p000003_text_001",
+            "row": 38,
+            "column": "column_7"
+          }
+        },
+        {
+          "metric": "cash",
+          "period_end": "2025-06-30",
+          "value": 90351730,
+          "unit": "TRY",
+          "currency": "TRY",
+          "scale": 1000,
+          "kind": "stock",
+          "price_basis": "2025-06-30",
+          "source_cell": {
+            "page": 3,
+            "table_id": "table_p000003_text_001",
+            "row": 12,
+            "column": "column_7"
+          }
+        }
+      ],
+      "result": {
+        "published": true,
+        "exact_facts_units_and_source_coordinates_pass": true,
+        "native_analysis_pass": true,
+        "chart_hash_values_units_and_coverage_pass": true,
+        "compiler_version": 2,
+        "analysis_operation": "source_value",
+        "amount_semantics": {
+          "dtype": "integer",
+          "kind": "stock",
+          "unit": "TRY",
+          "currency": "TRY",
+          "scale": 1000,
+          "status": null,
+          "temporal_semantics": null,
+          "price_basis": "purchasing_power_2025-06-30",
+          "additive_over_time": null
+        }
+      },
+      "artifact_receipts": {
+        "dataset_id": "dataset_d46c74ca55f5a0e82fc5b932eca7dc19ee00290adf766ed2d4cd64403f0ec950",
+        "dataset_data_sha256": "7d6a6ff3e81a50da1233c4a587513a1f9c496454cc200fdc4097a753f816d5d3",
+        "analysis_id": "analysis_30f1e760b7afa88b42519446138c621b1807b23c83a23fb58cb0154db11e1a26",
+        "analysis_data_sha256": "8a15800aaeea4b31dfd2bea5d1e5513661b7553326f05d595166f140e6427c54",
+        "chart_id": "chart_2cf20c8f667a3284f4e6127c55c0023a4d375d1a08e998545c156d5b3f660bb0"
+      }
+    },
+    {
+      "case": "akbank_income_holdout",
+      "source": {
+        "url": "https://www.akbankinvestorrelations.com/en/images/pdf/consalidated/akbank_en_consolidated_2q26.pdf",
+        "raw_sha256": "1837ac7deb29e7f3071d9f9edaf41ee439a62d18c7fd4427fe17a1328882815b",
+        "pdf_page": 10
+      },
+      "public_tool": "ingest_source_table",
+      "business_selection": {
+        "table_id": "table_p000010_text_001",
+        "row_labels": [
+          "Current period profit/loss",
+          "Other comprehensive income"
+        ],
+        "periods": [
+          "2025-06-30",
+          "2026-06-30"
+        ]
+      },
+      "measure_kind_and_number_style_omitted": true,
+      "expected_facts": [
+        {
+          "metric": "current_period_profit_loss",
+          "period_end": "2026-06-30",
+          "value": 34333,
+          "unit": "TRY",
+          "currency": "TRY",
+          "scale": 1000000,
+          "kind": "flow",
+          "additive_over_time": false,
+          "source_cell": {
+            "page": 10,
+            "table_id": "table_p000010_text_001",
+            "row": 7,
+            "column": "column_7"
+          },
+          "status": "review_required",
+          "temporal_semantics": "reported_interval_unresolved",
+          "arithmetic_ready": false
+        },
+        {
+          "metric": "current_period_profit_loss",
+          "period_end": "2025-06-30",
+          "value": 24850,
+          "unit": "TRY",
+          "currency": "TRY",
+          "scale": 1000000,
+          "kind": "flow",
+          "additive_over_time": false,
+          "source_cell": {
+            "page": 10,
+            "table_id": "table_p000010_text_001",
+            "row": 7,
+            "column": "column_8"
+          },
+          "status": "review_required",
+          "temporal_semantics": "reported_interval_unresolved",
+          "arithmetic_ready": false
+        },
+        {
+          "metric": "other_comprehensive_income",
+          "period_end": "2026-06-30",
+          "value": -8207,
+          "unit": "TRY",
+          "currency": "TRY",
+          "scale": 1000000,
+          "kind": "flow",
+          "additive_over_time": false,
+          "source_cell": {
+            "page": 10,
+            "table_id": "table_p000010_text_001",
+            "row": 8,
+            "column": "column_7"
+          },
+          "status": "review_required",
+          "temporal_semantics": "reported_interval_unresolved",
+          "arithmetic_ready": false
+        },
+        {
+          "metric": "other_comprehensive_income",
+          "period_end": "2025-06-30",
+          "value": 19,
+          "unit": "TRY",
+          "currency": "TRY",
+          "scale": 1000000,
+          "kind": "flow",
+          "additive_over_time": false,
+          "source_cell": {
+            "page": 10,
+            "table_id": "table_p000010_text_001",
+            "row": 8,
+            "column": "column_8"
+          },
+          "status": "review_required",
+          "temporal_semantics": "reported_interval_unresolved",
+          "arithmetic_ready": false
+        }
+      ],
+      "result": {
+        "published": true,
+        "exact_facts_units_and_source_coordinates_pass": true,
+        "native_analysis_pass": true,
+        "chart_hash_values_units_and_coverage_pass": true,
+        "compiler_version": 2,
+        "analysis_operation": "source_value",
+        "amount_semantics": {
+          "dtype": "integer",
+          "kind": "flow",
+          "unit": "TRY",
+          "currency": "TRY",
+          "scale": 1000000,
+          "status": "review_required",
+          "temporal_semantics": "reported_interval_unresolved",
+          "price_basis": null,
+          "additive_over_time": false
+        }
+      },
+      "artifact_receipts": {
+        "dataset_id": "dataset_ab71b4396d76cd63639001a313fd16f80ac55762b6d7084caa9636ccd7f60319",
+        "dataset_data_sha256": "3baeac0d5631ee7c6148cf2a97dfddc4445d137000d98c05ac572d4ba217167c",
+        "analysis_id": "analysis_a1d491ff533848320381ddff4628857da3302408e20703212d9ddedcf8e25d45",
+        "analysis_data_sha256": "8054ff17420e1e82b186477f3859b75c8ba986ff1e33c08394f995a0c7ceccee",
+        "chart_id": "chart_1753f3f42c040a3ac906fbe989fa762f26f533f161e62b5edbea611d003c2fc1"
+      }
+    }
+  ],
+  "ambiguity_controls": [
+    {
+      "control": "ambiguous_currency_component",
+      "status": "blocked",
+      "code": "AMBIGUOUS_IMPORT_PERIODS",
+      "publication_performed": false,
+      "workspace_unchanged": true,
+      "passed": true
+    },
+    {
+      "control": "absent_observation_date",
+      "status": "blocked",
+      "code": "IMPORT_PERIOD_NOT_FOUND",
+      "publication_performed": false,
+      "workspace_unchanged": true,
+      "passed": true
+    },
+    {
+      "control": "contradictory_flow_as_stock",
+      "status": "blocked",
+      "code": "IMPORT_SEMANTICS_CONFLICT",
+      "publication_performed": false,
+      "workspace_unchanged": true,
+      "passed": true
+    },
+    {
+      "control": "same_end_date_h1_q2",
+      "status": "blocked",
+      "code": "AMBIGUOUS_IMPORT_PERIODS",
+      "publication_performed": false,
+      "workspace_unchanged": true,
+      "passed": true
+    }
+  ],
+  "flow_interval_review": {
+    "semantics": {
+      "dataset_kind": "flow",
+      "dataset_status": "review_required",
+      "dataset_temporal_semantics": "reported_interval_unresolved",
+      "dataset_additive_over_time": false,
+      "analysis_kind": "flow",
+      "analysis_status": "review_required",
+      "analysis_temporal_semantics": "reported_interval_unresolved",
+      "analysis_additive_over_time": false,
+      "not_claimed_cumulative": true
+    },
+    "native_source_value_display": true,
+    "arithmetic_ready": false,
+    "cumulative_or_YTD_assertion_made": false,
+    "aggregation_controls": [
+      {
+        "control": "summary_sum",
+        "result": {
+          "exception": "PlanError",
+          "code": "INVALID_TEMPORAL_AGGREGATION",
+          "message": "Period sums require reviewed noncumulative flows; stocks and unknown measures cannot be summed"
+        },
+        "blocked": true,
+        "workspace_unchanged": true
+      },
+      {
+        "control": "dataset_sum",
+        "result": {
+          "exception": "PlanError",
+          "code": "SEMANTICS_REVIEW_REQUIRED",
+          "message": "Numeric aggregation needs a reviewed numeric measure"
+        },
+        "blocked": true,
+        "workspace_unchanged": true
+      }
+    ]
+  },
+  "tracked_backend_sha256": {
+    "agentic_analytics/agent/tools/financial_import.py": "cfb2467bb614e60dda2a0c1012e85a7d67aa985ce34aabe2d4492e06f58b39b5",
+    "agentic_analytics/agent/tools/documents.py": "2ae0faed606cc8739355e717b08f56d76d5bb9c818d15eb66add851422a4feb9",
+    "agentic_analytics/agent/tools/document_tables.py": "8e8b9d5c38739c5c2d677b0556251867c7ac97a7a89a07dcef6c07ed84e966d4",
+    "agentic_analytics/agent/tools/datasets.py": "151306b7c8948ae06a79eac3ed1c22b2fd754839a41a4ee18906f8aacc2add25",
+    "agentic_analytics/agent/tools/charts.py": "d1f8ca795895375d69f1739a11bd17a6077f5946d834cd9cfadb0fd642c4971d"
+  },
+  "driver_sha256": "0040fbe5c283437a6b20ff110b3434ce3ae59e7450915f2eed2d58726c5dbcce",
+  "full_evidence_folder_name": "high-level-ingestion-acceptance/independent-public-api-final",
+  "limits": [
+    "These are reproducible real-source tool checks, not success claims for autonomous model trials.",
+    "Stock measurement meaning is inferred from source statement titles. Akbank flow kind is known, but interval boundaries remain review_required; native values may be displayed and temporal arithmetic remains blocked.",
+    "Oracle source coordinates refer to the saved text-table extraction of each fixed raw PDF hash."
+  ]
+}

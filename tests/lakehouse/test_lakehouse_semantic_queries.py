@@ -215,9 +215,36 @@ class SemanticQueryTests(unittest.TestCase):
         self.assertEqual({"query_type": "grouped", "request": request}, manifest["plan"])
         with self.assertRaisesRegex(PlanError, "Grouped explanation"):
             self.service.explain_value({"analysis_id": result["analysis_id"], "column": "value", "period": "2026-01"})
-        with self.assertRaises(PlanError) as blocked:
-            self.service.revise_analysis({"analysis_id": result["analysis_id"], "operations": [{"op": "difference", "column": "value", "output": "change"}]})
-        self.assertEqual("GROUPED_REVISION_UNSUPPORTED", blocked.exception.code)
+        parent_frame, _ = self.store.load_analysis(result["analysis_id"])
+        revised = self.service.revise_analysis({"analysis_id": result["analysis_id"], "operations": [{"op": "difference", "column": "value", "output": "change"}]})
+        revised_frame, revised_manifest = self.store.load_analysis(revised["analysis_id"])
+        pd.testing.assert_frame_equal(parent_frame, revised_frame[parent_frame.columns])
+        february = revised_frame[revised_frame.period == "2026-02"]
+        self.assertEqual(february.change.tolist(), [1.0, 1.0])
+        self.assertEqual(revised_manifest["parent_analysis_id"], result["analysis_id"])
+        for column in ("value", "change"):
+            proof = self.service.explain_value({"analysis_id": revised["analysis_id"], "column": column, "period": "2026-02", "dimensions": {"city": "İSTANBUL"}})
+            self.assertEqual(proof["value"], 301 if column == "value" else 1)
+            self.assertTrue(proof["source_references_complete"])
+
+    def test_revision_extends_window_preserving_transformed_cells_and_proof(self):
+        plan = self.plan("gold")
+        plan.update(start="2026-03", end="2026-04", operations=[{"op":"scale","column":"gold","output":"gold_scaled","target_scale":1000}])
+        initial = self.service.execute(plan)
+        before, _ = self.store.load_analysis(initial["analysis_id"])
+        revised = self.service.revise_analysis({"analysis_id":initial["analysis_id"],"start":"2026-01","end":"2026-06"})
+        after, manifest = self.store.load_analysis(revised["analysis_id"])
+        self.assertEqual(after.period.tolist(),["2026-01","2026-02","2026-03","2026-04","2026-05","2026-06"])
+        pd.testing.assert_frame_equal(before,after[after.period.isin(before.period)].reset_index(drop=True))
+        self.assertAlmostEqual(after.iloc[0].gold_scaled,0.1)
+        for period in ("2026-01","2026-03","2026-06"):
+            proof = self.service.explain_value({"analysis_id":revised["analysis_id"],"period":period,"column":"gold_scaled"})
+            self.assertTrue(proof["source_references_complete"])
+            if period == "2026-03":
+                self.assertEqual(proof["inherited_from_analysis_id"],initial["analysis_id"])
+        self.assertEqual(manifest["plan"]["operations"],plan["operations"])
+        with self.assertRaisesRegex(PlanError,"not remove"):
+            self.service.revise_analysis({"analysis_id":revised["analysis_id"],"start":"2026-03"})
 
     def test_grouped_flow_obeys_the_same_temporal_guard(self):
         with self.assertRaises(PlanError) as blocked:

@@ -4,11 +4,12 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <title>Agentic Minds | Analiz çalışma alanı</title>
-    <link rel="stylesheet" href="/static/app.css?v=7" />
+    <link rel="stylesheet" href="/static/app.css?v=9" />
     <link rel="stylesheet" href="/static/charts.css?v=6" />
     <script src="/static/vendor/echarts.min.js" defer></script>
-    <script src="/static/charts.js?v=6" defer></script>
-    <script src="/static/app.js?v=8" defer></script>
+    <script src="/static/charts.js?v=7" defer></script>
+    <script src="/static/activity.js?v=1" defer></script>
+    <script src="/static/app.js?v=10" defer></script>
   </head>
   <body>
     <aside class="sidebar">
@@ -71,11 +72,18 @@
             </div>
           </div>
           <details class="activity" id="activity" hidden>
-            <summary>
-              <span id="activity-title" class="sr-only">Agent çalışma geçmişi</span
-              ><span id="activity-count"></span>
+            <summary id="journey-summary">
+              <span class="journey-heading"><span id="activity-title">Çalışmanın özeti</span><span id="journey-status" class="journey-status"></span><span class="journey-chevron" aria-hidden="true">⌄</span></span>
+              <span id="journey-description" class="journey-description"></span>
+              <span id="journey-stages" class="journey-stages"></span>
+              <span class="journey-disclosure"><span class="journey-open-label">Nasıl yapıldığını gör</span><span class="journey-close-label">Özeti daralt</span></span>
             </summary>
-            <ol id="events"></ol>
+            <div id="journey-content" class="journey-content"></div>
+            <details id="activity-technical" class="activity-technical">
+              <summary>Teknik işlem kaydı <span id="activity-count"></span></summary>
+              <p>Model çağrıları ve araç işlemleri dahil tüm kayıtlar. Kayıt sayısı, tamamlanan iş sayısı değildir.</p>
+              <ol id="events"></ol>
+            </details>
           </details>
           <form id="composer" class="composer">
             <label class="sr-only" for="question">Analiz sorunuz</label
@@ -179,8 +187,9 @@
             <div id="tab-table" class="tab-panel">
               <div id="table-container" class="table-container"></div>
               <div class="table-footer">
-                <span>Bir sayıya tıklayarak kaynağını inceleyin.</span
-                ><button id="more-rows" class="text-button" hidden>
+                <span>Bir sayıya tıklayarak kaynağını inceleyin.</span>
+                <button id="toggle-columns" class="text-button" type="button" aria-pressed="false" hidden>Özgün değerler dahil tüm sütunlar</button>
+                <button id="more-rows" class="text-button" hidden>
                   Diğer satırlar
                 </button>
               </div>
@@ -278,7 +287,7 @@
       ><span class="eyebrow">VERİ VE BELGE</span>
       <h2>Yeni bir kaynak ekleyin</h2>
       <p class="small-muted">
-        CSV, XLSX, PDF, görsel, HTML veya metin. En fazla 16 MiB; görseller 8
+        CSV, XLSX, PDF, görsel, HTML veya metin. En fazla 32 MiB; görseller 8
         MiB. Kaynak, analize eklenmeden önce incelenir.
       </p>
       <label for="upload">Dosya seçin</label

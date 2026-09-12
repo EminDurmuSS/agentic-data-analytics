@@ -1,0 +1,90 @@
+{
+  "source_sha256": {
+    "app/activity.py": "b2da351ecdab25a173ca073b2c3704cf9842cbf0cc11a0ea61f89184868784fd",
+    "app/context.py": "9591f45c6a2a13b914107a61b38f164d1e9fc52e43972817644d90be9a6b560f",
+    "app/routes/workspaces.py": "43e7cd020645471ca64cedf6e9d24789c7d7453307bc247853cd9bcca95c64a8",
+    "app/static/activity.js": "e59e6f75764b6b2239f2615c8454b6032f73cd1ff19018d05fca21e204b9cc30",
+    "app/static/app.js": "5a7307ebdccaf16d2aff2d34e16e76aff80d8a6f99b088a7465e0a4de44d827d",
+    "app/static/app.css": "0662f29a790362caa466378da36c251435e35e6ef31d272c20d2b57e58072d93",
+    "app/static/index.html": "1e0b77768344993335d2f6d7efe1dd0d70714c9e2f7e9925a9fb2413c3412e2b",
+    "tests/app/test_activity_projection.py": "89d67f40aafd98c3e0728a07e5eae3b906e2d75a4e9576b48bc765f2be667ce9",
+    "tests/app/test_activity_journey.py": "c04778247a6b90f58aed6e8cd8f244c51b1f11b34026f260d1344a055a9346fd",
+    "tests/app/activity_journey.cjs": "133fb55554f47bdab63aa46cc71628e3693bdbe9bae24cc2ca2b4ebc51434e42"
+  },
+  "tests": {
+    "command": "PLAYWRIGHT_MODULE=<external installed playwright> .venv/bin/python -m pytest tests -q --tb=short",
+    "passed": 784,
+    "subtests": 264,
+    "warnings": 2,
+    "seconds": 154.09,
+    "log": "activity-journey-full-tests.txt"
+  },
+  "preview_pid": 26290,
+  "api": [
+    {
+      "workspace_id": "workspace_055cc9a8847148c685b3a09a5cc39a00",
+      "records": 63,
+      "stages": 5,
+      "status": "completed",
+      "analysis_and_runs_unchanged": true
+    },
+    {
+      "workspace_id": "workspace_4a12b729946c4d01b1ef150d3fc5f70d",
+      "records": 69,
+      "stages": 5,
+      "status": "completed",
+      "analysis_and_runs_unchanged": true
+    }
+  ],
+  "new_model_calls": 0,
+  "app_tests": {
+    "passed": 72,
+    "subtests": 16,
+    "seconds": 7.23
+  },
+  "browser": {
+    "workspace": "workspace_055cc9a8847148c685b3a09a5cc39a00",
+    "browser": "131.0.6778.33",
+    "actual_saved_event_count": 63,
+    "pass": true,
+    "suite_checks": [
+      {
+        "file": "browser-journey-acceptance.json",
+        "passed": 18,
+        "total": 18
+      },
+      {
+        "file": "layout-and-prefix-acceptance.json",
+        "passed": 13,
+        "total": 13
+      },
+      {
+        "file": "regressions/interaction-acceptance.json",
+        "passed": 17,
+        "total": 17
+      }
+    ],
+    "unchanged": {
+      "workspace_version": 2,
+      "analysis_id": "analysis_76ad0a02132dee33c7c1a2df659856bd141cee78d77de7b85e9c04da1bf814a5",
+      "http_mutations": 0,
+      "frontend_errors": 0
+    },
+    "screenshots": [
+      "desktop-collapsed.png",
+      "desktop-expanded-stages.png",
+      "desktop-expanded-source-detail.png",
+      "desktop-explicit-technical.png",
+      "desktop-900-expanded.png",
+      "mobile-expanded.png",
+      "mobile-composer-reachable.png"
+    ],
+    "limits": [
+      "Running state is a replay of actual journal events through seq38, not another model execution.",
+      "Failed state is an explicitly controlled terminal-status fixture using that real prefix, not a recorded actual failure.",
+      "Prefix screenshots retain the existing saved analysis on the right while only the journey is replayed.",
+      "Preexisting narrow mobile workspace-name wrapping is outside this journey change."
+    ]
+  },
+  "browser_artifacts": "/Users/edurmus/Downloads/kkb-hackathon-2026-notlar/mentor-improvements-2026-09-12/user-presentation-2026-09-13/journey-after-2026-09-13"
+}

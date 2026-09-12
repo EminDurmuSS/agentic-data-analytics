@@ -1,0 +1,20 @@
+{
+  "recorded_at": "2026-09-12T20:44:35.311427+00:00",
+  "command": ".venv/bin/python -m pytest -q",
+  "passed": 667,
+  "subtests_passed": 239,
+  "failed": 0,
+  "warnings": 2,
+  "elapsed_seconds": 153.91,
+  "log_sha256": "25865e108d5cc7232b8cec9b1244689932e9438372f2535c644154566ae76026",
+  "log": "test-results.txt",
+  "additional_checks": [
+    "node --check app/static/app.js",
+    "node --check app/static/charts.js",
+    ".venv/bin/python -m compileall -q agentic_analytics app evals",
+    "git diff --check"
+  ],
+  "additional_checks_passed": true,
+  "scope": "Local tests and syntax/integrity checks. Autonomous real-provider acceptance is recorded separately.",
+  "earlier_failure": "A pre-existing provenance exact-equality assertion expected no added row-order evidence. Updated assertion verifies preserved source identity and the new source-row mapping. Production code was unchanged for that test correction."
+}

@@ -9,6 +9,8 @@ Uygulamayı başlatmak için [ana README](../README.md), kod üzerinde çalışm
 | [Mimari](ARCHITECTURE.md) | Katmanlar, bağımlılık yönü, agent akışı ve kayıt modeli |
 | [Geliştirme](DEVELOPMENT.md) | Kurulum, yerel uygulama, deterministik CLI, testler ve ölçümler |
 | [Docker](DOCKER.md) | Konteyner kurulumu, veri bağlama, kalıcı kayıtlar ve yedekleme |
+| [Açık kaynak bileşenleri](OPEN_SOURCE.md) | Lisans envanteri, yerel SearXNG ve yarışmanın model hizmeti ayrımı |
+| [Mentör geliştirme planı](MENTOR_READINESS_PLAN.md) | Yeni kaynak, finansal doğruluk, görev teslimi ve gerçek kaynak kabul ölçütleri |
 | [Veri kapsamı](DATA.md) | Kaynak aileleri, seçilmiş paket ile tam yerel yayın ayrımı ve veri sınırları |
 | [Lakehouse araçları](AGENT_READY_LAKEHOUSE.md) | Metrik keşfi, hesap planı, revizyon ve kaynak hücresi örnekleri |
 | [Notebook rehberi](LAKEHOUSE_VERI_KESFI_SADE_ANLATIM.md) | Keşif çıktılarının ve analiz sınırlarının açıklaması |

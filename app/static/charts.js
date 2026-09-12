@@ -8,9 +8,10 @@ window.AnalysisCharts = (() => {
     if (cls) item.className = cls;
     return item;
   };
-  const palette = ["#226348", "#5279a8", "#c07a33", "#90649d", "#469397", "#b25c60", "#7d843c", "#607684"];
+  const palette = ["#226348", "#5279a8", "#c07a33", "#90649d", "#469397", "#b25c60", "#7d843c", "#607684", "#8c564b", "#b0648c", "#578a61", "#796bb0"];
   const kindNames = { auto: "Otomatik", line: "Çizgi", bar: "Çubuk", area: "Alan", scatter: "Dağılım", heatmap: "Isı haritası" };
   const periodIndex = "__period_index__";
+  const seriesKey = (series) => series.series_id || series.column;
   const numeric = (v) => typeof v === "number" && Number.isFinite(v) ? v : null;
   const number = (v) => v === null || v === undefined ? "Gözlem yok" :
     v && typeof v === "object" && /^-?\d+$/.test(v.$integer)
@@ -25,6 +26,10 @@ window.AnalysisCharts = (() => {
   let hooks, payload = null, chart = null, generation = 0, controller = null, endpoint = null;
   let observer, resizeFrame, selected = {}, expanded = false, returnFocus = null, saving = false;
   const period = (v) => hooks?.periodLabel(v) || String(v ?? "");
+  const seriesLabel = (series) => !payload?.group_by && hooks?.columnLabel
+    ? hooks.columnLabel(series.column, series.label) : series.label;
+  const observedPeriodCount = () => new Set((payload?.periods || []).filter((_, index) =>
+    payload.series.some((series) => numeric(series.values?.[index]) !== null))).size;
   const wrap = (text, size = 65) => {
     const lines = [""];
     for (const word of String(text || "").split(/\s+/)) {
@@ -102,7 +107,8 @@ window.AnalysisCharts = (() => {
     await request(next);
   }
   function choices() {
-    return payload.available_columns || payload.series.map((s) => ({ column: s.column, label: s.label, unit: s.unit }));
+    return (payload.available_columns || payload.series.map((s) => ({ column: s.column, label: s.label, unit: s.unit })))
+      .map((item) => ({ ...item, label: seriesLabel(item) }));
   }
   const readableSubtitle = () => String(payload.subtitle || "").replace(/\b\d{4}-(?:Q[1-4]|H[12]|\d{2}(?:-\d{2})?)\b/g, period)
     + (payload.spec.kind === "heatmap" ? " · Değerler özgün analiz birimleriyle gösterilir." : "");
@@ -117,10 +123,11 @@ window.AnalysisCharts = (() => {
   function updateSettingAvailability() {
     const kind = payload.spec.kind;
     setSettingAvailability(q("#chart-layout"), kind !== "heatmap", "Isı haritası satır ve dönem matrisini tek görünümde gösterir.");
-    setSettingAvailability(q("#chart-normalize"), !["scatter", "heatmap"].includes(kind), "Bu grafik türü yalnız özgün analiz değerleriyle gösterilir.");
+    setSettingAvailability(q("#chart-normalize"), observedPeriodCount() > 1 && !payload.group_by && !["scatter", "heatmap"].includes(kind),
+      observedPeriodCount() < 2 ? "Başlangıca göre karşılaştırma için en az iki gözlem dönemi gerekir." : "Bu grafik türü yalnız özgün analiz değerleriyle gösterilir.");
     setSettingAvailability(q("#chart-x"), kind === "scatter", "Bu grafik türünde yatay eksen dönemlerden oluşur.");
     setSettingAvailability(q("#chart-orientation"), kind === "bar", "Yön seçimi yalnızca çubuk grafiğinde uygulanır.");
-    q("#chart-layout").querySelector('option[value="dual_axis"]').disabled = kind === "scatter";
+    q("#chart-layout").querySelector('option[value="dual_axis"]').disabled = kind === "scatter" || Boolean(payload.group_by);
   }
   function renderContent() {
     q("#chart-body").hidden = false;
@@ -158,6 +165,10 @@ window.AnalysisCharts = (() => {
       button.type = "button";
       button.setAttribute("aria-pressed", String(kind === payload.spec.kind));
       button.dataset.unavailable = "false";
+      if (payload.group_by && kind === "scatter") {
+        button.dataset.unavailable = "true";
+        button.title = "Gruplu verilerde çizgi, çubuk, alan veya ısı haritasını seçin.";
+      }
       button.onclick = () => {
         const overrides = { kind, ...(kind !== "bar" ? { orientation: "vertical" } : {}) };
         if (kind === "heatmap") {
@@ -182,7 +193,8 @@ window.AnalysisCharts = (() => {
     renderKpis();
     renderLegend();
     q("#chart-note").textContent = number(payload.row_count) + " satırın tamamı · Yakınlaştırın, bir noktayı seçip kaynağını inceleyin.";
-    q("#chart-warnings").replaceChildren(...(payload.warnings || []).map((w) => node("p", w, "warning")));
+    if (hooks.renderWarnings) hooks.renderWarnings(q("#chart-warnings"), payload.warnings || []);
+    else q("#chart-warnings").replaceChildren(...(payload.warnings || []).map((w) => node("p", w, "warning")));
     if (payload.presentation_notice)
       q("#chart-warnings").prepend(node("p", payload.presentation_notice, "chart-info chart-limited-note"));
     if (payload.spec.normalize === "index100")
@@ -207,11 +219,11 @@ window.AnalysisCharts = (() => {
     for (const [i, series] of payload.series.entries()) {
       const summary = series.summary || {}, card = node("article", undefined, "chart-kpi");
       card.style.setProperty("--series-color", palette[i % palette.length]);
-      card.append(node("div", series.label, "chart-kpi-label"));
+      card.append(node("div", seriesLabel(series), "chart-kpi-label"));
       const value = node("div", undefined, "chart-kpi-value");
       value.append(node("strong", number(summary.last)), node("span", series.raw_unit || series.unit || ""));
       card.append(value, node("div", summary.last_period ? period(summary.last_period) : "Son geçerli gözlem", "chart-kpi-period"));
-      if (numeric(summary.change) !== null) {
+      if (observedPeriodCount() > 1 && numeric(summary.change) !== null) {
         const change = node("div", undefined, "chart-kpi-change");
         const sign = summary.change > 0 ? "+" : "";
         change.append(node("span", sign + number(summary.change) + " " + (summary.change_unit || series.raw_unit || series.unit || "")));
@@ -233,9 +245,9 @@ window.AnalysisCharts = (() => {
       button.title = "Seriyi gizle veya göster";
       button.style.setProperty("--series-color", palette[i % palette.length]);
       button.setAttribute("aria-pressed", "true");
-      button.append(node("i"), node("span", series.label), node("small", payload.spec.normalize === "index100" ? period(payload.spec.base_period || payload.periods[0]) + " = 100" : series.unit + (payload.spec.layout === "dual_axis" ? series.axis === "right" ? " · ikinci eksen" : " · ilk eksen" : "")));
+      button.append(node("i"), node("span", seriesLabel(series)), node("small", payload.spec.normalize === "index100" ? period(payload.spec.base_period || payload.periods[0]) + " = 100" : series.unit + (payload.spec.layout === "dual_axis" ? series.axis === "right" ? " · ikinci eksen" : " · ilk eksen" : "")));
       button.onclick = () => {
-        const name = series.column;
+        const name = seriesKey(series);
         selected[name] = selected[name] === false;
         button.setAttribute("aria-pressed", String(selected[name]));
         if (payload.spec.kind === "heatmap") draw();
@@ -250,7 +262,15 @@ window.AnalysisCharts = (() => {
     hooks.prefill(prompt);
   }
   function renderRecommendations() {
-    const recommendations = payload.recommendations || [];
+    const recommendations = (payload.recommendations || []).filter((item) => {
+      if (!item.prompt) return false;
+      if (observedPeriodCount() > 1) return true;
+      const text = [item.label, item.prompt, item.reason].join(" ").toLocaleLowerCase("tr-TR");
+      // A single date can support a source check or a categorical view, but
+      // cannot support time changes, normalization or relationship analysis.
+      if (/endeks|index|100|ilişki|korelasyon|nedensel|trend|büyüme|değişim|önceki|sonraki|relationship|correlation/.test(text)) return false;
+      return /kayna(?:k|ğı)|çubuk|ısı haritası|panel|görünüm/.test(text);
+    });
     const fill = (holder, max) => {
       holder.replaceChildren();
       for (const item of recommendations.slice(0, max)) {
@@ -332,7 +352,7 @@ window.AnalysisCharts = (() => {
       const visibleSeries = payload.series.filter((series) => selected[series.column] !== false);
       const cats = payload.group_by
         ? payload.categories || payload.series.map((series) => series.label)
-        : visibleSeries.map((series) => series.label);
+        : visibleSeries.map(seriesLabel);
       grids.push({ left: Math.min(185, width * 0.30), right: 34, top: top + 22, bottom: bottom + 64 });
       xAxes.push(categoryAxis(payload.periods, 0));
       yAxes.push({ ...categoryAxis(cats, 0), axisLabel: { color: "#526b5a", fontSize: 11, width: Math.min(165, width * 0.27), overflow: "truncate" }, splitArea: { show: true }, inverse: true });
@@ -341,7 +361,7 @@ window.AnalysisCharts = (() => {
         .filter((cell) => selected[cell.column] !== false)
         .map((cell) => ({ ...cell,
           category_index: payload.group_by ? cell.category_index : categoryIndexes.get(cell.column),
-          category_label: payload.group_by ? (payload.categories?.[cell.category_index] || "") : visibleSeries[categoryIndexes.get(cell.column)]?.label }));
+          category_label: payload.group_by ? (payload.categories?.[cell.category_index] || "") : seriesLabel(visibleSeries[categoryIndexes.get(cell.column)]) }));
       const valid = cells.filter((cell) => numeric(cell.value) !== null);
       series.push({ name: payload.series[0]?.column || "value", type: "heatmap", data: valid.map((cell) => ({ value: [cell.period_index, cell.category_index, cell.value], cell })),
         label: { show: payload.periods.length <= 8 && cats.length <= 18, formatter: (p) => compact(p.value[2]), fontSize: 11 },
@@ -357,7 +377,7 @@ window.AnalysisCharts = (() => {
     for (const [index, group] of groups.entries()) {
       const dual = spec.layout === "dual_axis" && group.length === 2;
       const distinctUnits = [...new Set(group.map(unit))];
-      const panelTitle = wrap(group.map((s) => s.label).join(" · "), Math.max(32, Math.floor(width / 8)));
+      const panelTitle = wrap(group.map(seriesLabel).join(" · "), Math.max(32, Math.floor(width / 8)));
       const extraTop = groups.length > 1 ? 34 + 17 * panelTitle.split("\n").length : 24;
       const gridTop = top + index * groupHeight + extraTop;
       grids.push({ left: horizontal ? Math.min(175, width * 0.29) : 64, right: dual ? 72 : 28, top: gridTop, height: Math.max(110, groupHeight - extraTop - 36) });
@@ -369,19 +389,20 @@ window.AnalysisCharts = (() => {
         yAxes.push(valueAxis(unit(group[0] || {}), index));
       } else if (horizontal) {
         xAxes.push(valueAxis(unit(group[0] || {}), index));
-        yAxes.push({ ...categoryAxis(payload.categories?.length === payload.periods.length ? payload.categories : payload.periods, index), inverse: true,
+        yAxes.push({ ...categoryAxis(payload.group_mode === "categories" || (payload.group_by && !payload.group_mode && payload.categories?.length === payload.periods.length) ? payload.categories : payload.periods, index), inverse: true,
           axisLabel: { color: "#627568", fontSize: 11, width: Math.min(150, width * 0.25), overflow: "truncate", formatter: (v) => period(v) } });
       } else {
-        xAxes.push(categoryAxis(payload.categories?.length === payload.periods.length && payload.group_by ? payload.categories : payload.periods, index));
+        xAxes.push(categoryAxis(payload.group_mode === "categories" || (payload.group_by && !payload.group_mode && payload.categories?.length === payload.periods.length) ? payload.categories : payload.periods, index));
         yAxes.push(valueAxis(distinctUnits[0], index));
       }
       if (dual && horizontal) xAxes.push({ ...valueAxis(unit(group[1]), index), position: "top", splitLine: { show: false }, nameTextStyle: { color: "#627568", fontSize: 11, align: "left" } });
       else if (dual) yAxes.push({ ...valueAxis(unit(group[1]), index), position: "right", splitLine: { show: false }, nameTextStyle: { color: "#627568", fontSize: 11, align: "right" } });
       for (const s of group) {
         const sIndex = payload.series.indexOf(s);
-        series.push({ name: s.column, type: kind === "area" ? "line" : kind, xAxisIndex: xIndex + (dual && horizontal && group.indexOf(s) === 1 ? 1 : 0),
+        series.push({ name: seriesKey(s), id: seriesKey(s), type: kind === "area" ? "line" : kind, xAxisIndex: xIndex + (dual && horizontal && group.indexOf(s) === 1 ? 1 : 0),
           yAxisIndex: yIndex + (dual && !horizontal && group.indexOf(s) === 1 ? 1 : 0),
-          data: s.values.map((v, i) => ({ value: kind === "scatter" ? [numeric(payload.x_values?.[i]), numeric(v)] : numeric(v), originalIndex: i, column: s.column })),
+          data: s.values.map((v, i) => ({ value: kind === "scatter" ? [numeric(payload.x_values?.[i]), numeric(v)] : numeric(v), originalIndex: i,
+            column: s.column, dimensions: s.dimensions || payload.point_dimensions?.[i] || {}, source_row_available: s.source_row_available?.[i] ?? true })),
           connectNulls: false, smooth: false, showSymbol: s.values.length < 65, symbol: "circle", symbolSize: kind === "scatter" ? 9 : 6,
           lineStyle: { width: 2.5 }, areaStyle: kind === "area" ? { opacity: 0.13 } : undefined,
           itemStyle: { color: palette[sIndex % palette.length], borderRadius: kind === "bar" ? 3 : 0, opacity: kind === "scatter" ? 0.82 : 1 },
@@ -403,9 +424,9 @@ window.AnalysisCharts = (() => {
       return { backgroundColor: "#ffffff", color: palette, animation: false, aria: { enabled: true, decal: { show: false } },
         textStyle: { fontFamily: "Inter, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" },
         title: titles, graphic, grid: grids, xAxis: xAxes, yAxis: yAxes, series, dataZoom: zoom,
-        legend: { show: exporting && kind !== "heatmap", data: payload.series.map((s) => s.column), selected, left: 36, right: 36, top: 126, itemWidth: 15, itemHeight: 8,
+        legend: { show: exporting && kind !== "heatmap", data: payload.series.map(seriesKey), selected, left: 36, right: 36, top: 126, itemWidth: 15, itemHeight: 8,
           textStyle: { color: "#52704f", fontSize: 10, lineHeight: 16 },
-          formatter: (name) => { const item = payload.series.find((s) => s.column === name); return wrap((item?.label || name) + " · " + unit(item || {}), 72); } },
+          formatter: (name) => { const item = payload.series.find((s) => seriesKey(s) === name); return wrap((item ? seriesLabel(item) : name) + " · " + unit(item || {}), 72); } },
         tooltip: { trigger: "item", renderMode: "richText", confine: true, backgroundColor: "#fff", borderColor: "#d3dfd1", padding: [12, 15],
           textStyle: { color: "#20372d", fontSize: 12, lineHeight: 20 }, formatter: tooltip }, ...extra };
     }
@@ -416,10 +437,10 @@ window.AnalysisCharts = (() => {
       const series = payload.series.find((item) => item.column === cell.column);
       return (cell.category_label || payload.categories?.[cell.category_index] || "") + "\n" + period(cell.period) + "\n" + number(cell.value) + " " + (series?.unit || "") + "\nKaynak için tıklayın";
     }
-    const s = payload.series.find((item) => item.column === p.seriesName);
+    const s = payload.series.find((item) => seriesKey(item) === p.seriesName);
     if (!s) return "";
     const i = p.data?.originalIndex ?? p.dataIndex;
-    const lines = [s.label, period(payload.periods[i])];
+    const lines = [seriesLabel(s), period(payload.periods[i])];
     if (payload.point_dimensions?.[i]) lines.push(Object.values(payload.point_dimensions[i]).join(" · "));
     if (payload.spec.kind === "scatter") lines.push((payload.x_label || payload.x_column) + ": " + number(payload.x_values?.[i]) + " " + payload.x_unit);
     lines.push(number(s.values[i]) + " " + (payload.spec.normalize === "index100" ? "(" + period(payload.spec.base_period || payload.periods[0]) + " = 100)" : s.unit));
@@ -432,20 +453,24 @@ window.AnalysisCharts = (() => {
     const cell = p.data.cell, i = p.data.originalIndex ?? p.dataIndex;
     // For a heatmap the single ECharts series is named after series[0], so resolve
     // the clicked metric by the cell's own column to show its correct unit.
-    const s = payload.series.find((item) => item.column === (cell ? cell.column : p.seriesName)) || payload.series[0];
+    const s = payload.series.find((item) => cell ? item.column === cell.column : seriesKey(item) === p.seriesName) || payload.series[0];
     if (!s) return;
     const value = cell ? cell.raw_value : s.raw_values?.[i] ?? s.values[i];
     const sourcePeriod = cell ? cell.period : payload.periods[i];
-    const dimensions = cell?.dimensions || payload.point_dimensions?.[i] || {};
+    const dimensions = cell?.dimensions || p.data.dimensions || s.dimensions || payload.point_dimensions?.[i] || {};
     const column = cell?.column || s.column;
     const holder = q("#chart-point");
     holder.replaceChildren();
     const info = node("div");
-    info.append(node("strong", (cell ? cell.category_label || payload.categories?.[cell.category_index] : s.label) + " · " + period(sourcePeriod)));
+    info.append(node("strong", (cell ? cell.category_label || payload.categories?.[cell.category_index] : seriesLabel(s)) + " · " + period(sourcePeriod)));
     info.append(node("span", "Özgün analiz değeri: " + number(value) + " " + (s.raw_unit || s.unit)));
     if (payload.spec.normalize === "index100") info.append(node("small", "Grafikte: " + number(s.values[i]) + ". Kaynak izi, bu endeks dönüşümünden önceki değere aittir."));
     const button = node("button", "Kaynak izini incele ↗", "chart-action");
     button.type = "button";
+    if ((cell?.source_row_available ?? p.data.source_row_available) === false) {
+      button.disabled = true;
+      info.append(node("small", "Bu grup-dönem çifti kayıtlı sorguda yer almıyor; kaynakta eksik veya sıfır olduğu anlamına gelmez."));
+    }
     button.onclick = () => hooks.showEvidence(column, { period: sourcePeriod, ...dimensions });
     holder.append(info, button);
     holder.hidden = false;

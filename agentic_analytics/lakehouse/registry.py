@@ -18,6 +18,7 @@ import pandas as pd
 from agentic_analytics.lakehouse.semantics import (
     CONTRACT_VERSION, FREQUENCIES, apply_semantic_policy, kind_for, normalized_unit,
 )
+from agentic_analytics.lakehouse.source_profiles import apply_source_profile
 
 def quoted(name: str) -> str:
     if not re.fullmatch(r"[A-Za-z_][A-Za-z0-9_]*", name):
@@ -209,6 +210,7 @@ def build_bindings(connection: duckdb.DuckDBPyConnection) -> dict[str, dict[str,
             binding["blocked_reason"] = "No unambiguous executable observation binding."
         if binding["kind"] == "flow":
             binding["aggregation"] = "sum"
+        apply_source_profile(binding)
         binding["binding_sha256"] = hashlib.sha256(json.dumps(binding,sort_keys=True,ensure_ascii=False,default=str).encode()).hexdigest()
         bindings[binding["metric_id"]] = binding
     return bindings
@@ -258,6 +260,7 @@ def get_bindings(connection: duckdb.DuckDBPyConnection) -> dict[str, dict[str, A
     for row in connection.execute("SELECT table_schema,table_name,column_name FROM information_schema.columns").fetchall():
         table_columns.setdefault(row[0] + "." + row[1], set()).add(row[2])
     for binding in result.values():
+        apply_source_profile(binding)
         if "group_code" in binding.get("dimensions", {}) and "group_name" in table_columns.get(binding.get("table"), set()):
             binding["dimension_label_columns"] = {"group_code": "group_name"}
     if all(row[1] is not None for row in payload_rows):

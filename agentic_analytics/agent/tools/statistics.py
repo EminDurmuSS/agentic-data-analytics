@@ -56,23 +56,49 @@ class StatisticsTools:
         frame = frame.sort_values(time_column, kind="stable").reset_index(drop=True)
         labels = frame[time_column].astype(str)
         frequency = manifest.get("plan", {}).get("frequency") or manifest.get("lineage", {}).get("frequency")
-        aliases = {"monthly": "M", "quarterly": "Q", "annual": "Y", "daily": "D", "weekly": "W", "business_daily": "B"}
-        if frequency not in aliases:
+        aliases = {"monthly": "M", "quarterly": "Q", "annual": "Y", "yearly": "Y",
+                   "daily": "D", "weekly": "W-FRI", "weekly_friday": "W-FRI",
+                   "weekly_wednesday": "W-WED", "business_daily": "B"}
+        # Infer only for legacy analyses without metadata. An explicit event or
+        # twice-monthly calendar must never become daily just because it uses dates.
+        if frequency is None:
             if labels.str.fullmatch(r"\d{4}-\d{2}").all():
                 frequency = "monthly"
             elif labels.str.fullmatch(r"\d{4}-Q[1-4]").all():
                 frequency = "quarterly"
+            elif labels.str.fullmatch(r"\d{4}").all():
+                frequency = "annual"
             elif labels.str.fullmatch(r"\d{4}-\d{2}-\d{2}").all():
                 frequency = "daily"
-            else:
-                raise StatisticsError("A supported regular calendar frequency is required.", "UNKNOWN_FREQUENCY")
+        if frequency not in aliases and frequency != "half_yearly":
+            raise StatisticsError("A supported regular calendar frequency is required; event and twice-monthly publication calendars are not assumed regular.", "UNKNOWN_FREQUENCY")
+        pattern = (r"\d{4}-H[12]" if frequency == "half_yearly" else r"\d{4}-\d{2}" if frequency == "monthly"
+                   else r"\d{4}-Q[1-4]" if frequency == "quarterly" else r"\d{4}" if frequency in {"annual", "yearly"}
+                   else r"\d{4}-\d{2}-\d{2}")
+        if not labels.str.fullmatch(pattern).all():
+            raise StatisticsError("Time labels do not match the saved frequency.", "INVALID_TIME_LABEL")
         try:
-            periods = pd.PeriodIndex(labels, freq=aliases[frequency])
+            if frequency == "half_yearly":
+                # Calendar semesters have ordinal spacing independent of their
+                # unequal number of days. Do not infer a six-month date offset.
+                ordinals = labels.str[:4].astype(int).to_numpy() * 2 + labels.str[-1].astype(int).to_numpy() - 1
+            else:
+                periods = pd.PeriodIndex(labels, freq=aliases[frequency])
+                ordinals = periods.asi8
+                if frequency.startswith("weekly") and list(periods.end_time.strftime("%Y-%m-%d")) != labels.tolist():
+                    raise StatisticsError("Weekly labels must be native week-ending dates.", "INVALID_TIME_LABEL")
+                if frequency == "business_daily" and (pd.DatetimeIndex(labels).dayofweek > 4).any():
+                    raise StatisticsError("Business-day labels cannot include weekends.", "INVALID_TIME_LABEL")
         except (ValueError, TypeError) as exc:
+            if isinstance(exc, StatisticsError):
+                raise
             raise StatisticsError("Time labels do not match the saved frequency.") from exc
-        if periods.has_duplicates or (len(periods) > 1 and not (np.diff(periods.asi8) == 1).all()):
+        if len(ordinals) > 1 and not (np.diff(ordinals) == 1).all():
             raise StatisticsError("Missing calendar periods must be represented explicitly as null rows.", "IRREGULAR_TIME_AXIS")
         for column in columns:
+            semantics = manifest.get("schema", {}).get(column, {})
+            if semantics.get("status") == "review_required" or semantics.get("kind") == "unknown" or semantics.get("cumulative_evidence"):
+                raise StatisticsError("Statistics require reviewed metric semantics; unconverted cumulative source values remain available for raw inspection.", "SEMANTICS_REVIEW_REQUIRED")
             if not pd.api.types.is_numeric_dtype(frame[column]) or pd.api.types.is_bool_dtype(frame[column]):
                 raise StatisticsError("Statistics require stored numeric columns.", "NON_NUMERIC_COLUMN")
             values = frame[column].to_numpy(dtype=float, na_value=np.nan)

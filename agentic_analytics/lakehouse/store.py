@@ -402,7 +402,7 @@ class LakehouseStore:
             raise StoreError("Invalid calendar date.") from exc
         return series
 
-    def _read_csv(self, path, contract):
+    def _read_csv(self, path, contract, *, return_source_order=False):
         try:
             with path.open(encoding="utf-8-sig", newline="") as handle:
                 reader = csv.reader(handle, strict=True)
@@ -468,7 +468,12 @@ class LakehouseStore:
             expected = set(contract["expected_periods"])
             if any(set(group[axis]) != expected for _, group in groups):
                 raise StoreError("CSV has partial or unexpected period coverage for an entity.")
-        return frame[list(contract["columns"])].sort_values(contract["key"], kind="stable").reset_index(drop=True)
+        ordered = frame[list(contract["columns"])].sort_values(contract["key"], kind="stable")
+        # The input RangeIndex survives dtype conversion. Preserve its actual
+        # permutation before reset_index so provenance follows stored values.
+        source_order = [int(index) + 1 for index in ordered.index]
+        result = ordered.reset_index(drop=True)
+        return (result, source_order) if return_source_order else result
 
     def _write_frame(self, frame, path):
         if (not isinstance(frame, pd.DataFrame) or len(frame) > self.limits["max_rows"]
@@ -499,7 +504,20 @@ class LakehouseStore:
         with self._stage() as stage:
             raw = stage / "source.csv"
             source_hash = _copy_source(source, raw, self.limits["max_source_bytes"])
-            frame = self._read_csv(raw, contract)
+            frame, source_order = self._read_csv(raw, contract, return_source_order=True)
+            provenance = contract.get("document_provenance")
+            if isinstance(provenance, dict):
+                for field in ("cell_origins", "row_origins"):
+                    if field not in provenance:
+                        continue
+                    origins = provenance[field]
+                    if not isinstance(origins, list) or len(origins) != len(frame) or any(not isinstance(origin, dict) for origin in origins):
+                        raise StoreError("Document row provenance must align with every input CSV record: " + field)
+                    provenance[field] = [origins[index - 1] for index in source_order]
+                provenance["row_order"] = {"operation": "stable_sort_after_contract_dtype_conversion",
+                    "sorted_by": list(contract["key"]), "stored_row_to_source_csv_row": source_order,
+                    "source_row_numbering": "one_based_data_records_excluding_csv_header",
+                    "cell_origins_order": "stored_dataset_rows", "source_csv_sha256": source_hash}
             parquet = stage / "data.parquet"
             self._write_frame(frame, parquet)
             manifest = {"format_version": 1, "contract": contract,

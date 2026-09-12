@@ -8,7 +8,7 @@ import socket
 import tempfile
 import threading
 import unittest
-from unittest.mock import patch
+from unittest.mock import patch, MagicMock
 from urllib import error
 
 import duckdb
@@ -316,7 +316,9 @@ class AgentDocumentTests(unittest.TestCase):
         self.docs.web_search = lambda query, limit=5: {"status": "ok", "results": [
             {"title": "Housing listings", "url": "https://emlakjet.com/listings", "snippet": ""},
         ]}
-        result = self.docs.research_web("TCMB konut fiyat endeksi 2026 raporu", limit=3)
+        with patch.object(self.docs, "inspect_source", side_effect=DocumentError("Official root unavailable", "FETCH_FAILED")) as inspect:
+            result = self.docs.research_web("TCMB konut fiyat endeksi 2026 raporu", limit=3)
+            self.assertTrue(all("tcmb.gov.tr" in call.kwargs["url"] for call in inspect.call_args_list))
         self.assertIn(result.get("code"), {None, "OFFICIAL_SOURCE_NOT_FOUND", "NO_READABLE_SOURCES"})
         self.assertEqual(result.get("sources"), [])
         self.assertEqual(result["sources"], [])
@@ -333,6 +335,10 @@ class AgentDocumentTests(unittest.TestCase):
         review = self.docs.review_table(source["source_id"], "table_001", [{"month": "2026-01", "value": 100}, {"month": "2026-02", "value": 120}], {"value": "million TL"})
         result = self.docs.publish_selected_table(**args)
         self.assertEqual(result["provenance"]["human_review"]["review_sha256"], review["review_sha256"])
+        reviewed_origin = result["provenance"]["cell_origins"][0]["value"]
+        self.assertNotIn("candidate_row", reviewed_origin)
+        self.assertEqual(reviewed_origin["review_row"], 1)
+        self.assertEqual(reviewed_origin["review_sha256"], review["review_sha256"])
         self.assertEqual(self.store.raw_source_path(result["dataset_id"]).read_text(), "month,value\n2026-01,100\n2026-02,120\n")
         self.assertEqual(self.docs.recover_publication(args, {})["dataset_id"], result["dataset_id"])
         self.assertNotIn("review_table", self.docs.extra_tools())
@@ -356,6 +362,545 @@ class AgentDocumentTests(unittest.TestCase):
         with patch("agentic_analytics.agent.tools.documents.socket.getaddrinfo", return_value=addresses), patch("agentic_analytics.agent.tools.documents.socket.create_connection", return_value=FakeSocket(b"123456")):
             with self.assertRaisesRegex(DocumentError, "size limit"):
                 fetch_public_url("http://public.test/data.csv", max_bytes=3)
+
+    def test_monetary_alias_publication_canonicalizes_metadata_without_changing_values(self):
+        import pandas as pd
+        source = self.upload("unit.csv", "month,value (million TL)\n2026-01,100\n2026-02,120\n")
+        contract = copy.deepcopy(self.contract)
+        contract["columns"]["value"].update(kind="stock", aggregation="period_end_stock")
+        result = self.docs.publish_selected_table(source["source_id"], "table_001", contract, 0,
+            column_mapping={"month": "month", "value_million_TL": "value"}, unit_evidence={"value": "million TL"})
+        spec = self.store.dataset_manifest(result["dataset_id"])["contract"]["columns"]["value"]
+        self.assertEqual((spec["unit"], spec["scale"], spec["currency"], spec["aggregation"]), ("TRY", 1000000, "TRY", "last"))
+        self.assertEqual(pd.read_parquet(self.store.overlay_path(result["dataset_id"]))["value"].tolist(), [100, 120])
+        self.assertFalse(result["provenance"]["unit_normalization"]["value"]["values_changed"])
+
+    def test_conflicting_units_scales_and_semantics_block_before_publication(self):
+        from agentic_analytics.lakehouse.units import normalize_column, unit_quote_matches
+        base = self.contract["columns"]["value"]
+        for update in [{"scale": 1e6}, {"currency": "USD"}, {"scale": 0}, {"scale": -1},
+                       {"scale": True}, {"scale": float("inf")}, {"kind": "made_up"},
+                       {"kind": "stock", "aggregation": "sum"}]:
+            with self.subTest(update=update), self.assertRaises(ValueError):
+                normalize_column({**base, **update})
+        for alias, canonical, scale in [("milyar TL", "TRY", 1e9), ("USD_million", "USD", 1e6), ("bin EUR", "EUR", 1000)]:
+            value, _ = normalize_column({**base, "unit": alias})
+            self.assertEqual((value["unit"], value["scale"], value["currency"]), (canonical, scale, canonical))
+        self.assertFalse(unit_quote_matches("TRY", 1, "million TL"))
+        self.assertFalse(unit_quote_matches("TRY", 1e6, "billion TL"))
+        self.assertTrue(unit_quote_matches("USD", 1e6, "million USD"))
+
+    def test_long_pdf_selects_pages_and_retains_stable_candidate_ids(self):
+        def page(number):
+            item = MagicMock()
+            item.extract_text.return_value = f"Page {number} million TL"
+            item.extract_tables.return_value = [[['month', 'value'], [f'2026-{number:02d}', str(number)]]]
+            return item
+        pdf = MagicMock()
+        pdf.pages = [page(number) for number in range(1, 32)]
+        with patch("pdfplumber.open") as opened:
+            opened.return_value.__enter__.return_value = pdf
+            source = self.upload("long.pdf", _text_pdf())
+            self.assertEqual(source["total_pages"], 31)
+            self.assertFalse(source["inspection_complete"])
+            self.assertEqual(source["processed_pages"], list(range(1, 31)))
+            old_id = source["tables"][0]["table_id"]
+            later = self.docs.inspect_source(source_id=source["source_id"], page_numbers=[31])
+            self.assertEqual(later["processed_pages"], [31])
+            self.assertEqual(later["tables"][0]["table_id"], "table_p000031_001")
+            self.assertEqual(self.docs.review_candidate(source["source_id"], old_id)["rows"][0][1], "1")
+            for pages in [[0], [1, 1], [32], list(range(1, 32))]:
+                with self.subTest(pages=pages), self.assertRaises(DocumentError):
+                    self.docs.inspect_source(source_id=source["source_id"], page_numbers=pages)
+
+    def test_explicit_pdf_continuation_preserves_page_rows_and_rejects_mismatched_headers(self):
+        pdf = MagicMock()
+        pdf.pages = []
+        for number in range(1, 4):
+            page = MagicMock()
+            page.extract_text.return_value = "million TL"
+            page.extract_tables.return_value = [[['month', 'value' if number < 3 else 'other'], [f'2026-0{number}', str(number)]]]
+            pdf.pages.append(page)
+        with patch("pdfplumber.open") as opened:
+            opened.return_value.__enter__.return_value = pdf
+            source = self.upload("continuation.pdf", _text_pdf())
+        ids = [table["table_id"] for table in source["tables"]]
+        combined = self.docs.combine_source_tables(source["source_id"], ids[:2], "Same period report and identical unit scope.")
+        self.assertEqual(combined["row_count"], 2)
+        published = self.docs.publish_selected_table(source["source_id"], combined["table_id"], self.contract, 0,
+                                                     unit_evidence={"value": "million TL"})
+        self.assertEqual(published["provenance"]["source_pages"], [1, 2])
+        self.assertEqual(published["provenance"]["row_origins"][1]["page"], 2)
+        with self.assertRaises(DocumentError):
+            self.docs.combine_source_tables(source["source_id"], ids[1:], "Different metric header must fail.")
+
+    def test_xlsx_preserves_cached_formula_cells_and_blocks_missing_cache(self):
+        import zipfile
+        from openpyxl import Workbook
+        workbook = Workbook()
+        workbook.active.append(["month", "value (million TL)"])
+        workbook.active.append(["2026-01", "=50+50"])
+        workbook.active.append(["2026-02", 120])
+        data = io.BytesIO()
+        workbook.save(data)
+        missing = self.upload("formula-missing.xlsx", data.getvalue())
+        self.assertEqual(missing["tables"][0]["missing_formula_cache"], ["B2"])
+        args = {"source_id": missing["source_id"], "table_id": "table_001", "contract": self.contract, "expected_version": 0,
+                "column_mapping": {"month": "month", "value_million_TL": "value"}, "unit_evidence": {"value": "million TL"}}
+        self.assertEqual(self.docs.extra_tools()["publish_selected_table"]["handler"](args)["code"], "FORMULA_VALUES_REVIEW_REQUIRED")
+        output = io.BytesIO()
+        with zipfile.ZipFile(data) as source_zip, zipfile.ZipFile(output, "w") as target:
+            for item in source_zip.infolist():
+                body = source_zip.read(item.filename)
+                if item.filename == "xl/worksheets/sheet1.xml":
+                    body = body.replace(b"<f>50+50</f><v></v>", b"<f>50+50</f><v>100</v>")
+                    body = body.replace(b"<f>50+50</f><v/>", b"<f>50+50</f><v>100</v>")
+                    body = body.replace(b"<f>50+50</f><v />", b"<f>50+50</f><v>100</v>")
+                target.writestr(item, body)
+        source = self.upload("formula-cached.xlsx", output.getvalue())
+        self.assertEqual(source["tables"][0]["preview"][0]["value_million_TL"], "100")
+        self.assertEqual(source["tables"][0]["formula_cells"][0]["verification"], "saved_source_value_not_recalculated")
+        self.assertEqual(self.docs.publish_selected_table(**{**args, "source_id": source["source_id"]})["status"], "ok")
+
+    def test_structural_html_multiline_headers_and_merged_numeric_cells(self):
+        source = self.upload("multi.html", '''<table><thead><tr><th rowspan="2">metric</th><th colspan="2">million TL</th></tr>
+          <tr><th>2024</th><th>2025</th></tr></thead><tbody><tr><td>loans</td><td>100</td><td>120</td></tr></tbody></table>''')
+        table = source["tables"][0]
+        self.assertEqual(list(table["original_columns"].values()), ["metric", "million TL / 2024", "million TL / 2025"])
+        self.assertEqual(list(table["preview"][0].values()), ["loans", "100", "120"])
+        self.assertFalse(table["layout_review_required"])
+        merged = self.upload("merged.html", '<table><tr><th>month</th><th>value</th><th>other</th></tr><tr><td>2026-01</td><td colspan="2">100</td></tr></table>')
+        self.assertTrue(merged["tables"][0]["layout_review_required"])
+        self.assertEqual(list(merged["tables"][0]["preview"][0].values()), ["2026-01", "100", None])
+
+    def test_financial_report_unpivot_copies_exact_source_cells_and_publishes(self):
+        import pandas as pd
+        source = self.upload("wide.csv", "metric (million TL),2024,2025\nloans,100,120\nassets,150,180\n")
+        prepared = self.docs.prepare_source_table(source["source_id"], "table_001", selected_rows=[1],
+            unpivot={"columns": ["c_2024", "c_2025"], "period_column": "year", "value_column": "value"})
+        self.assertEqual([row["value"] for row in prepared["preview"]], ["100", "120"])
+        contract = {"name": "loans", "frequency": "annual", "date_column": "year", "key": ["year"], "grain": ["year"],
+                    "columns": {"metric_million_TL": {"dtype": "string", "kind": "dimension", "unit": "label", "nullable": False},
+                                "year": {"dtype": "date", "kind": "dimension", "unit": "calendar", "nullable": False},
+                                "value": {"dtype": "integer", "kind": "stock", "unit": "TRY_million", "nullable": False}}}
+        result = self.docs.publish_selected_table(source["source_id"], prepared["table_id"], contract, 0, unit_evidence={"value": "million TL"})
+        self.assertEqual(pd.read_parquet(self.store.overlay_path(result["dataset_id"]))["value"].tolist(), [100, 120])
+        self.assertEqual(result["provenance"]["cell_origins"][1]["value"], {"candidate_row": 1, "candidate_column": "c_2025"})
+        self.assertEqual(self.docs.review_candidate(source["source_id"], "table_001")["row_count"], 2)
+
+    def test_research_follows_report_downloads_and_rejects_official_redirects(self):
+        self.docs.web_search = lambda query, limit=5: {"status": "ok", "results": [{"title": "Housing report", "url": "https://tcmb.gov.tr/reports"}]}
+        self.docs.inspect_source = lambda url=None: {"source_id": "source_" + "a" * 64, "source_url": url,
+            "text": "Housing report contains monthly housing prices.", "article": {"document_links": [{"url": "https://tcmb.gov.tr/data.pdf", "title": "Housing report data"}]} if url.endswith("reports") else {},
+            "tables": [] if url.endswith("reports") else [{"table_id": "table_p000001_001", "preview": [{"price": "100"}]}]}
+        result = self.docs.research_web("housing report", limit=1, domains=["tcmb.gov.tr"])
+        self.assertEqual(result["sources"][0]["url"], "https://tcmb.gov.tr/data.pdf")
+        self.assertEqual(result["sources"][0]["discovered_from"], "https://tcmb.gov.tr/reports")
+        self.docs.inspect_source = lambda url=None: {"source_id": "source_" + "a" * 64, "source_url": "https://elsewhere.org/report",
+            "text": "Housing report contains monthly housing prices.", "article": {}}
+        failed = self.docs.research_web("housing report", domains=["tcmb.gov.tr"])
+        self.assertEqual(failed["failures"][0]["code"], "OFFICIAL_SOURCE_REDIRECT")
+
+    def test_report_title_header_repair_accounting_values_and_label_lineage(self):
+        import pandas as pd
+        source = self.upload("financial.csv", "fragment,rest,current (million TL),prior (million TL)\n,,(30/06/2026),(30/06/2025)\nCURRENT PERIOD PRO,FIT/LOSS,34.333,24.850\nOTHER COMPREHENSI,VE INCOME,(8.207),19\n")
+        window = self.docs.read_source_table(source["source_id"], "table_001", row_start=2, row_limit=1)
+        self.assertEqual(window["rows"][0]["candidate_row"], 2)
+        self.assertTrue(window["preview_truncated"])
+        prepared = self.docs.prepare_source_table(source["source_id"], "table_001", selected_rows=[2, 3],
+            unpivot={"columns": ["current_million_TL", "prior_million_TL"], "period_column": "period_end", "value_column": "amount",
+                     "header_row": 1, "period_format": "parenthesized_dmy"},
+            join_columns={"columns": ["fragment", "rest"], "output": "metric", "separator": ""})
+        self.assertEqual(prepared["preview"][0]["period_end"], "2026-06-30")
+        self.assertEqual(prepared["preview"][0]["metric"], "CURRENT PERIOD PROFIT/LOSS")
+        contract = {"name": "reported_income", "frequency": "event", "date_column": "period_end", "key": ["period_end", "metric"], "grain": ["period_end", "metric"],
+                    "number_format": "decimal_comma", "negative_format": "accounting_parentheses", "columns": {
+                        "period_end": {"dtype": "date", "kind": "dimension", "unit": "calendar", "nullable": False},
+                        "metric": {"dtype": "string", "kind": "dimension", "unit": "label", "nullable": False},
+                        "amount": {"dtype": "integer", "kind": "unknown", "unit": "TRY_million", "nullable": False}}}
+        invalid = copy.deepcopy(contract)
+        invalid["columns"]["metric"].update(dtype="integer", kind="flow")
+        with self.assertRaisesRegex(DocumentError, "must remain string dimensions"):
+            self.docs.publish_selected_table(source["source_id"], prepared["table_id"], invalid, 0, unit_evidence={"amount": "million TL"})
+        result = self.docs.publish_selected_table(source["source_id"], prepared["table_id"], contract, 0, unit_evidence={"amount": "million TL"})
+        frame = pd.read_parquet(self.store.overlay_path(result["dataset_id"]))
+        self.assertEqual(sorted(frame["amount"].tolist()), [-8207, 19, 24850, 34333])
+        self.assertEqual(result["provenance"]["cell_origins"][0]["period_end"], {"candidate_row": 1, "candidate_column": "prior_million_TL"})
+        self.assertEqual(len(result["provenance"]["cell_origins"][0]["metric"]["parts"]), 2)
+        self.assertEqual(result["provenance"]["row_order"]["stored_row_to_source_csv_row"], [2, 4, 1, 3])
+        raw = self.docs.review_candidate(source["source_id"], "table_001")
+        for record, origin in zip(frame.to_dict("records"), result["provenance"]["cell_origins"]):
+            date_cell = origin["period_end"]
+            source_date = raw["rows"][date_cell["candidate_row"] - 1][raw["columns"].index(date_cell["candidate_column"])]
+            self.assertEqual(self.docs._source_period_label(source_date, "parenthesized_dmy"), record["period_end"])
+            amount_cell = origin["amount"]
+            value = raw["rows"][amount_cell["candidate_row"] - 1][raw["columns"].index(amount_cell["candidate_column"])]
+            parsed = -int(value[1:-1].replace(".", "")) if value.startswith("(") else int(value.replace(".", ""))
+            self.assertEqual(parsed, record["amount"])
+
+    def test_pdf_alternate_table_strategy_does_not_replace_original_candidates(self):
+        pdf, page = MagicMock(), MagicMock()
+        page.extract_text.return_value = "monthly value million TL"
+        page.extract_tables.side_effect = lambda *args: [[['month', 'value'], ['2026-01', '100' if not args else '120']]]
+        pdf.pages = [page]
+        with patch("pdfplumber.open") as opened:
+            opened.return_value.__enter__.return_value = pdf
+            source = self.upload("strategies.pdf", _text_pdf())
+            alternate = self.docs.inspect_source(source_id=source["source_id"], page_numbers=[1], table_strategy="text")
+        self.assertNotEqual(source["tables"][0]["table_id"], alternate["tables"][0]["table_id"])
+        self.assertEqual(self.docs.review_candidate(source["source_id"], source["tables"][0]["table_id"])["rows"][0][1], "100")
+        self.assertEqual(alternate["tables"][0]["preview"][0]["value"], "120")
+
+    def test_research_traverses_archive_and_never_uses_language_root_as_answer(self):
+        self.docs.web_search = lambda query, limit=5: {"status": "ok", "results": [{"title": "Example Bank", "url": "https://example.org/en"}]}
+        def inspect(url=None):
+            body = {"source_id": "source_" + "a" * 64, "source_url": url, "text": "Annual financial results 2025", "tables": []}
+            if url.endswith("/en"):
+                body["article"] = {"title": "Example Bank", "source_links": [{"url": "https://example.org/reports/2025", "title": "Annual financial results 2025"}], "link_count": 50}
+            else:
+                body["article"] = {"title": "Annual financial results 2025", "article_body": "Annual financial results 2025: reported profit 100 million USD."}
+            return body
+        self.docs.inspect_source = inspect
+        result = self.docs.research_web("financial results 2025", limit=1, domains=["example.org"])
+        self.assertEqual(result["sources"][0]["url"], "https://example.org/reports/2025")
+
+    def test_unit_evidence_cannot_be_borrowed_from_another_currency_column(self):
+        source = self.upload("mixed-units.csv", "month,asset (TL),debt (USD)\n2026-01,10,20\n2026-02,30,40\n")
+        contract = {"name": "mixed", "frequency": "monthly", "date_column": "month", "key": ["month"], "grain": ["month"],
+                    "columns": {"month": self.contract["columns"]["month"],
+                                "asset_TL": {"dtype": "integer", "kind": "stock", "unit": "TRY", "nullable": False},
+                                "debt_USD": {"dtype": "integer", "kind": "stock", "unit": "TRY", "nullable": False}}}
+        result = self.docs.extra_tools()["publish_selected_table"]["handler"]({"source_id": source["source_id"], "table_id": "table_001", "contract": contract,
+            "expected_version": 0, "unit_evidence": {"asset_TL": "TL", "debt_USD": "TL"}})
+        self.assertEqual(result["code"], "COLUMN_UNIT_CONFLICT")
+        self.assertEqual(self.store.workspace("workspace_docs")["version"], 0)
+
+    def test_nonmonetary_multiplier_requires_source_evidence(self):
+        from agentic_analytics.lakehouse.units import unit_quote_matches
+        self.assertFalse(unit_quote_matches("count", 1000, "count"))
+        self.assertFalse(unit_quote_matches("persons", 1000, "persons"))
+        self.assertTrue(unit_quote_matches("persons", 1000, "thousand persons"))
+
+    def test_joined_label_cannot_be_laundered_to_a_number_by_preparing_twice(self):
+        source = self.upload("labels.csv", "left,right\n10,20\n")
+        first = self.docs.prepare_source_table(source["source_id"], "table_001", join_columns={"columns": ["left", "right"], "output": "label", "separator": ""})
+        second = self.docs.prepare_source_table(source["source_id"], first["table_id"])
+        self.assertEqual(second["dimension_only_columns"], ["label"])
+        contract = {"name": "invalid", "frequency": "static", "key": ["label"], "grain": ["label"],
+                    "columns": {"label": {"dtype": "integer", "kind": "count", "unit": "count", "nullable": False}}}
+        with self.assertRaisesRegex(DocumentError, "must remain string dimensions"):
+            self.docs.publish_selected_table(source["source_id"], second["table_id"], contract, 0)
+
+    def test_explicit_cumulative_column_header_is_preserved_even_when_model_omits_flag(self):
+        source = self.upload("ytd.csv", "month,YTD profit (million TL)\n2026-01,100\n2026-02,120\n")
+        result = self.docs.publish_selected_table(source["source_id"], "table_001", self.contract, 0,
+            column_mapping={"month": "month", "YTD_profit_million_TL": "value"}, unit_evidence={"value": "million TL"})
+        spec = self.store.dataset_manifest(result["dataset_id"])["contract"]["columns"]["value"]
+        self.assertEqual(spec["temporal_semantics"], "year_to_date_flow")
+        self.assertIn("YTD profit", spec["source_semantics"])
+        self.assertEqual(spec["aggregation"], "none")
+
+    def test_ocr_missing_item_code_header_is_reviewable_and_preserves_every_cell(self):
+        from PIL import Image
+        data = io.BytesIO()
+        Image.new("RGB", (30, 30), "white").save(data, format="PNG")
+        raw = {"text": "Amounts are expressed in thousands of TRY.", "tables": [{"columns": ["Assets", "Current", "Prior"],
+            "rows": [["I.", "Cash", "100", "90"], ["1.1", "Deposits", "200", "180"]]}]}
+        self.docs.ocr_callback = lambda *args: raw
+        source = self.upload("dense.png", data.getvalue())
+        table = source["tables"][0]
+        self.assertEqual(table["columns"][0], "source_item_code")
+        self.assertTrue(table["header_hypothesis"]["requires_independent_review"])
+        self.assertEqual(table["preview"][0]["Current"], "100")
+        full = self.docs.review_candidate(source["source_id"], table["table_id"])
+        self.assertEqual(full["raw_machine_rows"], raw["tables"][0]["rows"])
+        evidence = json.loads((self.docs.root / "extractions" / (table["extraction_artifact_ref"] + ".json")).read_text())
+        self.assertEqual(evidence["raw_machine_output"], raw)
+        self.assertFalse(evidence["verified"])
+        with self.assertRaisesRegex(DocumentError, "Review uncertain extraction"):
+            self.docs.prepare_source_table(source["source_id"], table["table_id"])
+
+    def test_irregular_ocr_rows_are_retained_without_padding_or_dropping_numbers(self):
+        from PIL import Image
+        data = io.BytesIO()
+        Image.new("RGB", (30, 30), "white").save(data, format="PNG")
+        raw = [["one", "100", "999"], ["two", "200"]]
+        self.docs.ocr_callback = lambda *args: {"text": "Amounts in TRY.", "tables": [{"columns": ["item", "amount"], "rows": raw}]}
+        source = self.upload("ragged.png", data.getvalue())
+        self.assertEqual(source["tables"][0]["preview"], [])
+        self.assertEqual(source["tables"][0]["raw_preview"], raw)
+        window = self.docs.read_source_table(source["source_id"], "table_001")
+        self.assertIsNone(window["rows"][0]["values"])
+        self.assertEqual(window["rows"][0]["raw_cells"], raw[0])
+
+    def test_incomplete_ocr_retains_evidence_reference(self):
+        from PIL import Image
+        data = io.BytesIO()
+        Image.new("RGB", (30, 30), "white").save(data, format="PNG")
+        self.docs.ocr_callback = lambda *args: {"finish_reason": "length", "text": "incomplete", "tables": []}
+        path = self.docs.upload_root / "length.png"
+        path.write_bytes(data.getvalue())
+        source = self.docs.register_upload(path)
+        result = self.docs.extra_tools()["inspect_source"]["handler"]({"source_id": source["source_id"]})
+        self.assertEqual(result["code"], "OCR_INVALID_OUTPUT")
+        self.assertTrue((self.docs.root / "extractions" / (result["artifact_ref"] + ".json")).exists())
+
+    def test_merged_period_header_cells_are_explicitly_mapped_without_numeric_changes(self):
+        source = self.upload("merged.csv", "metric,current_date,current_total,prior_day,prior_month_year,prior_total\n,31 March 2026,,31,December 2025,\ncash,,867799356,,,1005229845\nassets,,1279933463,,,1260568409\n")
+        arguments = {"source_id": source["source_id"], "table_id": "table_001", "selected_rows": [2, 3],
+            "selected_columns": ["metric", "current_total", "prior_total"], "unpivot": {
+                "columns": ["current_total", "prior_total"], "period_column": "date", "value_column": "amount",
+                "period_format": "english_dmy", "period_sources": {
+                    "current_total": {"row": 1, "columns": ["current_date"], "separator": " "},
+                    "prior_total": {"row": 1, "columns": ["prior_day", "prior_month_year"], "separator": " "}}}}
+        prepared = self.docs.prepare_source_table(**arguments)
+        self.assertEqual([row["date"] for row in prepared["preview"]], ["2026-03-31", "2025-12-31"] * 2)
+        self.assertEqual([row["amount"] for row in prepared["preview"]], ["867799356", "1005229845", "1279933463", "1260568409"])
+        full = self.docs.review_candidate(source["source_id"], prepared["table_id"])
+        self.assertEqual(full["cell_origins"][1]["date"]["parts"], [{"candidate_row": 1, "candidate_column": "prior_day"}, {"candidate_row": 1, "candidate_column": "prior_month_year"}])
+        bad = copy.deepcopy(arguments)
+        bad["unpivot"]["period_sources"]["prior_total"]["columns"] = ["invented_header"]
+        with self.assertRaises(DocumentError):
+            self.docs.prepare_source_table(**bad)
+        bad = copy.deepcopy(arguments)
+        bad["unpivot"]["period_sources"]["prior_total"]["row"] = 2
+        with self.assertRaises(DocumentError):
+            self.docs.prepare_source_table(**bad)
+
+    def test_inflation_adjusted_caption_requires_preserved_price_basis(self):
+        source = self.upload("adjusted.html", '<p>Amounts expressed in thousands of Turkish Lira in terms of purchasing power at 30 June 2025.</p><table><tr><th>item</th><th>amount</th></tr><tr><td>cash</td><td>100</td></tr></table>')
+        contract = {"name": "adjusted", "frequency": "static", "key": ["item"], "grain": ["item"], "columns": {
+            "item": {"dtype": "string", "unit": "label", "kind": "dimension", "nullable": False},
+            "amount": {"dtype": "integer", "unit": "TRY", "scale": 1000, "kind": "stock", "nullable": False}}}
+        arguments = {"source_id": source["source_id"], "table_id": "table_001", "contract": contract,
+                     "expected_version": 0, "unit_evidence": {"amount": "thousands of Turkish Lira"}}
+        result = self.docs.extra_tools()["publish_selected_table"]["handler"](arguments)
+        self.assertEqual(result["code"], "PRICE_BASIS_REVIEW_REQUIRED")
+        contract["columns"]["amount"]["price_basis"] = "2025-06-30 purchasing power"
+        result = self.docs.publish_selected_table(**arguments)
+        self.assertEqual(result["status"], "ok")
+        spec = self.store.dataset_manifest(result["dataset_id"])["contract"]["columns"]["amount"]
+        self.assertIn("30 June 2025", spec["price_basis_evidence"])
+
+    def test_dated_research_prioritizes_exact_body_link_and_skips_wrong_year_archives(self):
+        root, archive, target = "https://example.org/", "https://example.org/archive2025", "https://example.org/press/2025/decision15"
+        self.docs.web_search = lambda *args, **kwargs: {"status": "ok", "results": [{"title": "Central bank", "url": root}]}
+        visited = []
+        def inspect(url=None):
+            visited.append(url)
+            if url == root:
+                links = [{"url": "https://example.org/press/2026/decision", "title": "2026 monetary policy interest rate decision"},
+                         {"url": archive, "title": "Monetary policy meetings 2025", "in_main_content": True}]
+                return {"source_id": "root", "source_url": url, "text": "central bank", "article": {"source_links": links}}
+            if url == archive:
+                links = [{"url": "https://example.org/interest-rates/history", "title": "Policy rates monetary policy interest repo auctions"},
+                         {"url": target, "title": "6 Mart 2025", "in_main_content": True}]
+                return {"source_id": "archive", "source_url": url, "text": "2025 monetary policy meeting calendar", "article": {"title": "2025 monetary policy meetings", "source_links": links, "link_count": 150}}
+            if url != target:
+                raise AssertionError("Navigation or a wrong-year source was fetched before the exact decision.")
+            return {"source_id": "decision", "source_url": url, "text": "6 March 2025 monetary policy committee lowered the repo interest rate from 45 to 42.5.", "article": {"title": "Monetary policy decision 6 March 2025"}}
+        self.docs.inspect_source = inspect
+        result = self.docs.research_web("Monetary policy committee 6 March 2025 interest rate decision weekly repo auctions", limit=1, domains=["example.org"])
+        self.assertEqual(result["sources"][0]["url"], target)
+        self.assertEqual(visited, [root, archive, target])
+
+
+    def test_year_only_navigation_link_inherits_the_parent_archive_topic(self):
+        urls = ["https://example.org/", "https://example.org/meetings", "https://example.org/meetings/2025", "https://example.org/decisions/march"]
+        self.docs.web_search = lambda *args, **kwargs: {"status": "ok", "results": [{"title": "Central Bank", "url": urls[0]}]}
+        visited = []
+        def inspect(url=None):
+            visited.append(url)
+            index = urls.index(url)
+            result = {"source_id": str(index), "source_url": url, "text": "Monetary policy interest rate decisions", "article": {"title": "Monetary policy decisions", "source_links": []}}
+            if index == 0:
+                result["article"]["source_links"] = [{"url": urls[1], "title": "Monetary policy decisions", "in_navigation": True}]
+            elif index == 1:
+                result["article"]["source_links"] = [{"url": urls[2], "title": "2025", "in_navigation": True}]
+            elif index == 2:
+                result["article"].update(title="2025 decisions calendar", link_count=150, source_links=[{"url": urls[3], "title": "6 March 2025", "in_main_content": True}])
+            else:
+                result["article"].update(title="Interest rate decision 6 March 2025", article_body="Monetary policy interest rate decision on 6 March 2025: 42.5 percent.")
+            return result
+        self.docs.inspect_source = inspect
+        result = self.docs.research_web("Monetary policy 6 March 2025 interest rate decision", limit=1, domains=["example.org"])
+        self.assertEqual(result["sources"][0]["url"], urls[-1])
+        self.assertEqual(visited, urls)
+
+    def test_html_visual_line_breaks_never_concatenate_financial_amounts(self):
+        for index, cells in enumerate(["100<br>200", "<div>100</div><div>200</div>", "<p>100</p><p>200</p>"]):
+            with self.subTest(cells=cells):
+                source = self.upload(f"broken-amount-{index}.html", '<table><tr><th>month</th><th>amount (TRY)</th></tr><tr><td>2026-01</td><td>' + cells + '</td></tr></table>')
+                candidate = source["tables"][0]
+                self.assertEqual(candidate["preview"][0]["amount_TRY"], "100\n200")
+                self.assertTrue(candidate["layout_review_required"])
+                contract = copy.deepcopy(self.contract)
+                contract["columns"]["value"]["unit"] = "TRY"
+                result = self.docs.extra_tools()["publish_selected_table"]["handler"]({"source_id": source["source_id"], "table_id": "table_001", "contract": contract,
+                    "expected_version": 0, "column_mapping": {"month": "month", "amount_TRY": "value"}, "unit_evidence": {"value": "TRY"}})
+                self.assertEqual(result["code"], "TABLE_LAYOUT_REVIEW_REQUIRED")
+        source = self.upload("header-break.html", '<table><tr><th>metric</th><th>31 December<br>2025</th></tr><tr><td>cash</td><td>100</td></tr></table>')
+        self.assertEqual(source["tables"][0]["original_columns"]["c_31_December_2025"], "31 December\n2025")
+
+    def test_search_result_shapes_are_checked_before_reading_urls(self):
+        self.docs.searxng_url = "http://localhost:8080"
+        with patch("agentic_analytics.agent.tools.search_backend.configured_search", return_value=[None]):
+            result = self.docs.web_search("financial report")
+        self.assertEqual(result["code"], "SEARCH_INVALID_RESPONSE")
+        self.assertEqual(result["results"], [])
+        with patch("agentic_analytics.agent.tools.search_backend.configured_search", return_value=[None, {"url": []}, {"url": "https://example.org/report", "title": "Report"}]):
+            result = self.docs.web_search("financial report", limit=1)
+        self.assertEqual(result["status"], "ok")
+        self.assertEqual(result["results"][0]["url"], "https://example.org/report")
+        self.assertEqual(result["warnings"][0]["count"], 2)
+
+    def test_research_accepts_earnings_wording_for_financial_results_without_year_only_match(self):
+        self.docs.web_search = lambda *args, **kwargs: {"status": "ok", "results": [{"title": "Earnings presentation", "url": "https://example.org/earnings.pdf"}]}
+        self.docs.inspect_source = lambda **kwargs: {"source_id": "report", "source_url": kwargs["url"], "text": "Earnings Presentation\n2026 H1\nMacro Financial\nOutlook Performance"}
+        result = self.docs.research_web("2026 financial results", limit=1, domains=["example.org"])
+        self.assertEqual(result["sources"][0]["url"], "https://example.org/earnings.pdf")
+        self.docs.inspect_source = lambda **kwargs: {"source_id": "unrelated", "source_url": kwargs["url"], "text": "2026 Financial calendar dates"}
+        result = self.docs.research_web("2026 financial results", limit=1, domains=["example.org"])
+        self.assertEqual(result["status"], "unavailable")
+
+    def test_complete_inverse_column_mapping_is_normalized_with_source_proof(self):
+        source = self.upload("inverse.csv", "raw_month,raw_amount (million TL)\n2026-01,100\n2026-02,120\n")
+        arguments = {"source_id": source["source_id"], "table_id": "table_001", "contract": self.contract,
+                     "expected_version": 0, "column_mapping": {"month": "raw_month", "value": "raw_amount_million_TL"},
+                     "unit_evidence": {"value": "million TL"}}
+        published = self.docs.publish_selected_table(**arguments)
+        proof = published["provenance"]["column_mapping"]
+        self.assertEqual(proof["direction"], "unambiguous_output_to_source_normalized")
+        self.assertEqual(proof["declared"], arguments["column_mapping"])
+        self.assertEqual(proof["source_to_output"], {"raw_month": "month", "raw_amount_million_TL": "value"})
+        self.assertFalse(proof["source_values_changed"])
+        recovered = self.docs.recover_publication(arguments, {})
+        self.assertEqual(recovered["dataset_id"], published["dataset_id"])
+        self.assertEqual(self.store.workspace("workspace_docs")["version"], 1)
+
+    def test_incomplete_or_many_to_one_mappings_explain_actual_columns_without_writing(self):
+        source = self.upload("mapping.csv", "raw_month,raw_amount (million TL),suffix\n2026-01,100,profit\n2026-02,120,profit\n")
+        for mapping in [{"month": "raw_month", "value": "raw_amount_million_TL"}, {"month": "raw_month", "value": "raw_month"}, {}]:
+            with self.subTest(mapping=mapping):
+                result = self.docs.extra_tools()["publish_selected_table"]["handler"]({"source_id": source["source_id"], "table_id": "table_001",
+                    "contract": self.contract, "expected_version": 0, "column_mapping": mapping, "unit_evidence": {"value": "million TL"}})
+                self.assertEqual(result["code"], "INVALID_COLUMN_MAPPING")
+                self.assertIn('"source_columns": ["raw_month", "raw_amount_million_TL", "suffix"]', result["message"])
+                self.assertIn("prepare_source_table", result["message"])
+        self.assertEqual(self.store.workspace("workspace_docs")["version"], 0)
+
+    def test_multiple_dates_split_across_header_cells_use_source_date_occurrence(self):
+        source = self.upload("split-dates.csv", "metric,left,current,prior\n,3,0 June 2025 31 De,cember 2024\ncash,,90351730,85795568\nassets,,545630257,529848729\n")
+        arguments = {"source_id": source["source_id"], "table_id": "table_001", "selected_rows": [2, 3],
+                     "selected_columns": ["metric", "current", "prior"], "unpivot": {
+                         "columns": ["current", "prior"], "period_column": "as_of", "value_column": "amount", "period_format": "english_dmy",
+                         "period_sources": {column: {"row": 1, "columns": ["left", "current", "prior"], "separator": "", "date_index": index}
+                                            for index, column in enumerate(["current", "prior"])}}}
+        result = self.docs.prepare_source_table(**arguments)
+        self.assertEqual([(row["as_of"], row["amount"]) for row in result["preview"]],
+                         [("2025-06-30", "90351730"), ("2024-12-31", "85795568"), ("2025-06-30", "545630257"), ("2024-12-31", "529848729")])
+        full = self.docs.review_candidate(source["source_id"], result["table_id"])
+        proof = full["cell_origins"][1]["as_of"]
+        self.assertEqual(proof["joined_source_text"], "30 June 2025 31 December 2024")
+        self.assertEqual(proof["matched_source_date"], "31 December 2024")
+        self.assertEqual(proof["date_index"], 1)
+        self.assertEqual(len(proof["parts"]), 3)
+        bad = copy.deepcopy(arguments)
+        bad["unpivot"]["period_sources"]["prior"]["date_index"] = 2
+        with self.assertRaisesRegex(DocumentError, "actual complete date"):
+            self.docs.prepare_source_table(**bad)
+        bad["unpivot"]["period_format"] = "source_header"
+        with self.assertRaisesRegex(DocumentError, "explicit period_format"):
+            self.docs.prepare_source_table(**bad)
+        self.assertEqual(result["publication_guidance"]["candidate_columns"], ["metric", "as_of", "amount"])
+
+    def test_explicit_low_source_limit_still_bounds_upload_and_url_reader(self):
+        limited = DocumentTools(self.store, "workspace_docs", max_source_bytes=12)
+        path = limited.upload_root / "small.txt"
+        path.write_bytes(b"x" * 13)
+        with self.assertRaises(DocumentError) as caught:
+            limited.register_upload(path)
+        self.assertEqual(caught.exception.code, "SOURCE_TOO_LARGE")
+        with patch("agentic_analytics.agent.tools.documents.fetch_public_url", return_value=(b"short", "text/plain", "https://example.org/source.txt")) as fetch:
+            limited.inspect_source(url="https://example.org/source.txt")
+        self.assertEqual(fetch.call_args.kwargs["max_bytes"], 12)
+
+    def test_bad_header_selection_returns_source_owned_retry_with_complete_dates(self):
+        source = self.upload("recover-header.csv", "metric,prefix,current,prior\n,3,0 September 2026 30 No,vember 2025\ncash,,100,90\n")
+        arguments = {"source_id": source["source_id"], "table_id": "table_001", "selected_rows": [2],
+                     "selected_columns": ["metric", "current", "prior"], "unpivot": {"columns": ["current", "prior"],
+                         "period_column": "as_of", "value_column": "amount", "header_row": 1, "period_format": "english_dmy"}}
+        result = self.docs.extra_tools()["prepare_source_table"]["handler"](arguments)
+        self.assertEqual(result["code"], "INVALID_SOURCE_DATE_FORMAT")
+        recovery = result["recovery"]
+        self.assertEqual(recovery["header_rows"][0]["cells"][1]["text"], "3")
+        update = recovery["suggested_unpivot_update"]
+        self.assertEqual(update["period_sources"]["current"]["columns"], ["prefix", "current", "prior"])
+        self.assertEqual(update["period_sources"]["prior"]["date_index"], 1)
+        self.assertIn('"date_index": 1', result["message"])
+        retry = copy.deepcopy(arguments)
+        retry["unpivot"].update(update)
+        prepared = self.docs.extra_tools()["prepare_source_table"]["handler"](retry)
+        self.assertEqual(prepared["status"], "ok")
+        self.assertEqual([(row["as_of"], row["amount"]) for row in prepared["preview"]], [("2026-09-30", "100"), ("2025-11-30", "90")])
+
+    def test_header_recovery_exposes_ambiguous_day_prefix_without_assigning_a_date(self):
+        source = self.upload("ambiguous-day.csv", "metric,prefix,current,prior\n,2,8 February 2026 30 No,vember 2025\ncash,,100,90\n")
+        result = self.docs.extra_tools()["prepare_source_table"]["handler"]({"source_id": source["source_id"], "table_id": "table_001", "selected_rows": [2],
+            "selected_columns": ["metric", "current", "prior"], "unpivot": {"columns": ["current", "prior"], "period_column": "as_of", "value_column": "amount", "header_row": 1, "period_format": "english_dmy"}})
+        self.assertTrue(result["recovery"]["ambiguous_date_interpretations"])
+        self.assertIsNone(result["recovery"]["suggested_unpivot_update"])
+
+    def test_header_diagnostics_do_not_assign_dates_to_nonoverlapping_value_columns(self):
+        source = self.upload("ambiguous-header.csv", "date_left,date_right,current,prior\n31 March 2026,31 December 2025,,\n,,100,90\n")
+        arguments = {"source_id": source["source_id"], "table_id": "table_001", "selected_rows": [2],
+                     "selected_columns": ["current", "prior"], "unpivot": {"columns": ["current", "prior"],
+                         "period_column": "as_of", "value_column": "amount", "header_row": 1, "period_format": "english_dmy"}}
+        result = self.docs.extra_tools()["prepare_source_table"]["handler"](arguments)
+        self.assertEqual(result["code"], "INVALID_UNPIVOT")
+        self.assertTrue(result["recovery"]["date_candidates"])
+        self.assertIsNone(result["recovery"]["suggested_unpivot_update"])
+
+    def test_top_level_numeric_parsing_aliases_preserve_values_proof_and_recovery(self):
+        import pandas as pd
+        source = self.upload("numeric-alias.csv", 'month,value (million TL)\n2026-01,"(1,234)"\n2026-02,"2,345"\n')
+        arguments = {"source_id": source["source_id"], "table_id": "table_001", "contract": self.contract,
+                     "expected_version": 0, "column_mapping": {"month": "month", "value_million_TL": "value"},
+                     "unit_evidence": {"value": "million TL"}, "number_format": "decimal_dot_grouped", "negative_format": "accounting_parentheses"}
+        result = self.docs.extra_tools()["publish_selected_table"]["handler"](arguments)
+        self.assertEqual(result["status"], "ok")
+        values = pd.read_parquet(self.store.overlay_path(result["dataset_id"]))["value"].tolist()
+        self.assertEqual(values, [-1234, 2345])
+        self.assertEqual(result["provenance"]["numeric_parsing"]["declared_at_top_level"], {"number_format": "decimal_dot_grouped", "negative_format": "accounting_parentheses"})
+        recovered = self.docs.recover_publication(arguments, {})
+        self.assertEqual(recovered["dataset_id"], result["dataset_id"])
+        conflicting = copy.deepcopy(arguments)
+        conflicting["contract"]["number_format"] = "decimal_comma"
+        conflict = self.docs.extra_tools()["publish_selected_table"]["handler"](conflicting)
+        self.assertEqual(conflict["code"], "CONFLICTING_NUMERIC_FORMAT")
+        self.assertEqual(self.store.workspace("workspace_docs")["version"], 1)
+
+    def test_unprepared_source_origins_follow_typed_date_integer_and_label_sort(self):
+        import pandas as pd
+        source = self.upload("typed-sort.csv", "day,entity (count),label,amount (TRY)\n2026-02-01,2,Z,202\n2026-01-01,10,A,110\n2026-01-01,2,Z,102\n2026-01-01,2,A,101\n")
+        contract = {"name": "typed_sort", "frequency": "event", "date_column": "day", "key": ["day", "entity_id", "label"], "grain": ["day", "entity_id", "label"], "columns": {
+            "day": {"dtype": "date", "kind": "dimension", "unit": "calendar", "nullable": False},
+            "entity_id": {"dtype": "integer", "kind": "dimension", "unit": "count", "nullable": False},
+            "label": {"dtype": "string", "kind": "dimension", "unit": "label", "nullable": False},
+            "amount": {"dtype": "integer", "kind": "stock", "unit": "TRY", "nullable": False}}}
+        result = self.docs.publish_selected_table(source["source_id"], "table_001", contract, 0,
+            column_mapping={"day": "day", "entity_count": "entity_id", "label": "label", "amount_TRY": "amount"},
+            unit_evidence={"entity_id": "count", "amount": "TRY"})
+        frame = pd.read_parquet(self.store.overlay_path(result["dataset_id"]))
+        self.assertEqual(frame["amount"].tolist(), [101, 102, 110, 202])
+        proof = result["provenance"]
+        self.assertEqual(proof["row_order"]["stored_row_to_source_csv_row"], [4, 3, 2, 1])
+        raw = self.docs.review_candidate(source["source_id"], "table_001")
+        for record, origin in zip(frame.to_dict("records"), proof["cell_origins"]):
+            self.assertEqual(set(origin), set(contract["columns"]))
+            for column, cell in origin.items():
+                value = raw["rows"][cell["candidate_row"] - 1][raw["columns"].index(cell["candidate_column"])]
+                self.assertEqual(int(value) if column in {"entity_id", "amount"} else value, record[column])
 
 
 if __name__ == "__main__":

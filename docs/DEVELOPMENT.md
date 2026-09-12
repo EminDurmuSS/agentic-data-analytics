@@ -126,6 +126,24 @@ python -m evals.grading \
 
 `oracles.json` ve `answer-reviews.json` örnekte var olması gereken girdilerdir; toplama komutu bunları üretmez. Doğrular aynı veri snapshot'ından bağımsız yöntemle hazırlanmalı, metin incelemesi o cevabın SHA-256 değerine bağlanmalıdır. Puanlayıcı model veya ağ çağrısı yapmaz; eksik incelemeyi başarıya çeviremez. [İlk ölçümün kayıtları ve sınırları](validation/agent-consistency-2026-09-10/README.md) örnek sağlar.
 
+Mentör sonrası kabul kümesi, çalışan tarayıcı sunucusuna bağlı olmadan gerçek `AppContext` ve Kloudeks istemcisini taze çalışma alanlarında çalıştırır. API anahtarı ortamdan veya yerel `.env` dosyasından okunur; rapora yazılmaz. Bu komut gerçek model çağrıları yapar:
+
+```sh
+python evals/mentor_live.py --output tmp/mentor-live-next \
+  --cases profit new_source grouped web garanti_pdf tupras_pdf pdf_sector --repeats 2 --workers 2
+```
+
+Kaydedilmiş tablo ve grafiklerin hash'lerini, kaynaklarını ve bağımsız sayısal doğrularını ayrıca kontrol etmek için:
+
+```sh
+python evals/mentor_grading.py tmp/mentor-live-next --output tmp/mentor-grades-next
+python -m evals.mentor_grouped_acceptance tmp/mentor-live-next --output tmp/mentor-grouped-next
+```
+
+`pdf_sector`, yeni PDF'nin dönem sonu bilançosunu mevcut BDDK sektörüyle aynı hesapta sınar. Konsolide grup ve sektör kapsamı eşdeğer kabul edilmez. `grouped` üç turlu tablo, fark sütunu ve ısı haritası zinciridir; ayrı kabul denetimi ham BDDK hücrelerini, önceki Aralık kârını ve bütün grupların grafikte kalmasını kontrol eder. Genel puanlayıcıda grup doğrusu bulunmaması, bu ayrı denetimin başarı hanesine otomatik aktarılmaz.
+
+Puanlama ağ veya model çağrısı yapmaz. `completed` durumunu tek başına başarı kabul etmez; eksik kanıtı eksik olarak bırakır. Serbest metindeki bütün iddiaların incelemesi ve tüm tarayıcı etkileşimlerinin doğrulanması ayrıca gerekir. [Mentör geliştirme raporu](research/mentor-improvements-2026-09-12/README.md) gerçek kaynakları ve kabul sınırlarını açıklar.
+
 ## Notebook ve benchmark
 
 - [Veri keşfi notebooku](../notebooks/lakehouse_veri_kesfi_ve_iliskiler.ipynb): salt okunur envanter, kaynak ilişkileri ve örnek analizler.

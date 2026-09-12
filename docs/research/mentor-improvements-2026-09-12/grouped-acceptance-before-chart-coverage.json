@@ -1,0 +1,611 @@
+{
+  "evidence_type": "independent_saved_autonomous_grouped_trials",
+  "scope": "Nine bank categories must all be retained. The Sektör aggregate (10001) is optional; when selected it must also be preserved. No groups are summed.",
+  "round_name": "live-final",
+  "round_manifest_sha256": "ad847ba1b76e2d81b244ad044157f0a449d2030e7012beaa8a87674b26727056",
+  "general_grader_unchanged": true,
+  "oracle_method": "Read original BDDK table02 row53 Toplam cumulative values for each source group. Monthly profit resets January, otherwise differences cumulative within year. Follow-up January difference uses December2025 monthly profit independently derived from November/December raw files.",
+  "source_groups": {
+    "10001": "Sektör",
+    "10002": "Mevduat",
+    "10003": "Katılım",
+    "10004": "Kalkınma ve Yatırım",
+    "10005": "Yerli Özel",
+    "10006": "Kamu",
+    "10007": "Yabancı",
+    "10008": "Mevduat-Yerli Özel",
+    "10009": "Mevduat-Kamu",
+    "10010": "Mevduat-Yabancı"
+  },
+  "group_config_sha256": "20a8f9ae1cd1eed26ed93657dc0f1e109bf0491a54f81f10b06925218e0088a8",
+  "raw_sources": {
+    "2025-11": {
+      "path": "data_pipeline/bddk/monthly_all_groups/raw/2025-11_table02_groups10001-10002-10003-10004-10005-10006-10007-10008-10009-10010.json",
+      "sha256": "a4fdd5383a12df07929191dbf1504649bd89e2f01090c9e33256caf4e899a0b9",
+      "caption": "Kar Zarar (milyon TL), Dönem:2025/11"
+    },
+    "2025-12": {
+      "path": "data_pipeline/bddk/monthly_all_groups/raw/2025-12_table02_groups10001-10002-10003-10004-10005-10006-10007-10008-10009-10010.json",
+      "sha256": "b1cd85d786881c2aaa6bca964c829688580f24926f66dc3ac261420f8e073055",
+      "caption": "Kar Zarar (milyon TL), Dönem:2025/12"
+    },
+    "2026-01": {
+      "path": "data_pipeline/bddk/monthly_all_groups/raw/2026-01_table02_groups10001-10002-10003-10004-10005-10006-10007-10008-10009-10010.json",
+      "sha256": "cb16fc0e35ffbb5545ff8bebed8fec3059c831eee3fbe39e853224631818bab4",
+      "caption": "Kar Zarar (milyon TL), Dönem:2026/1"
+    },
+    "2026-02": {
+      "path": "data_pipeline/bddk/monthly_all_groups/raw/2026-02_table02_groups10001-10002-10003-10004-10005-10006-10007-10008-10009-10010.json",
+      "sha256": "896ea7fb92028976806e72fe10c869a3623dafb80cc86bdcad43c18d30b22d12",
+      "caption": "Kar Zarar (milyon TL), Dönem:2026/2"
+    },
+    "2026-03": {
+      "path": "data_pipeline/bddk/monthly_all_groups/raw/2026-03_table02_groups10001-10002-10003-10004-10005-10006-10007-10008-10009-10010.json",
+      "sha256": "967b44d4b988c9ac07fe5dbf39e8f7b95127cd210f8de823df2aefa2740041c8",
+      "caption": "Kar Zarar (milyon TL), Dönem:2026/3"
+    }
+  },
+  "oracle": [
+    {
+      "period": "2026-01",
+      "group_code": 10001,
+      "group_label": "Sektör",
+      "monthly_profit_million_TRY": 87249,
+      "previous_month_difference_million_TRY": -10089
+    },
+    {
+      "period": "2026-01",
+      "group_code": 10002,
+      "group_label": "Mevduat",
+      "monthly_profit_million_TRY": 71550,
+      "previous_month_difference_million_TRY": -2487
+    },
+    {
+      "period": "2026-01",
+      "group_code": 10003,
+      "group_label": "Katılım",
+      "monthly_profit_million_TRY": 4624,
+      "previous_month_difference_million_TRY": -7306
+    },
+    {
+      "period": "2026-01",
+      "group_code": 10004,
+      "group_label": "Kalkınma ve Yatırım",
+      "monthly_profit_million_TRY": 11075,
+      "previous_month_difference_million_TRY": -297
+    },
+    {
+      "period": "2026-01",
+      "group_code": 10005,
+      "group_label": "Yerli Özel",
+      "monthly_profit_million_TRY": 23833,
+      "previous_month_difference_million_TRY": -4224
+    },
+    {
+      "period": "2026-01",
+      "group_code": 10006,
+      "group_label": "Kamu",
+      "monthly_profit_million_TRY": 29542,
+      "previous_month_difference_million_TRY": -13978
+    },
+    {
+      "period": "2026-01",
+      "group_code": 10007,
+      "group_label": "Yabancı",
+      "monthly_profit_million_TRY": 33874,
+      "previous_month_difference_million_TRY": 8113
+    },
+    {
+      "period": "2026-01",
+      "group_code": 10008,
+      "group_label": "Mevduat-Yerli Özel",
+      "monthly_profit_million_TRY": 21603,
+      "previous_month_difference_million_TRY": -2614
+    },
+    {
+      "period": "2026-01",
+      "group_code": 10009,
+      "group_label": "Mevduat-Kamu",
+      "monthly_profit_million_TRY": 18180,
+      "previous_month_difference_million_TRY": -12523
+    },
+    {
+      "period": "2026-01",
+      "group_code": 10010,
+      "group_label": "Mevduat-Yabancı",
+      "monthly_profit_million_TRY": 31768,
+      "previous_month_difference_million_TRY": 12653
+    },
+    {
+      "period": "2026-02",
+      "group_code": 10001,
+      "group_label": "Sektör",
+      "monthly_profit_million_TRY": 82152,
+      "previous_month_difference_million_TRY": -5097
+    },
+    {
+      "period": "2026-02",
+      "group_code": 10002,
+      "group_label": "Mevduat",
+      "monthly_profit_million_TRY": 60075,
+      "previous_month_difference_million_TRY": -11475
+    },
+    {
+      "period": "2026-02",
+      "group_code": 10003,
+      "group_label": "Katılım",
+      "monthly_profit_million_TRY": 9172,
+      "previous_month_difference_million_TRY": 4548
+    },
+    {
+      "period": "2026-02",
+      "group_code": 10004,
+      "group_label": "Kalkınma ve Yatırım",
+      "monthly_profit_million_TRY": 12905,
+      "previous_month_difference_million_TRY": 1830
+    },
+    {
+      "period": "2026-02",
+      "group_code": 10005,
+      "group_label": "Yerli Özel",
+      "monthly_profit_million_TRY": 20659,
+      "previous_month_difference_million_TRY": -3174
+    },
+    {
+      "period": "2026-02",
+      "group_code": 10006,
+      "group_label": "Kamu",
+      "monthly_profit_million_TRY": 29506,
+      "previous_month_difference_million_TRY": -36
+    },
+    {
+      "period": "2026-02",
+      "group_code": 10007,
+      "group_label": "Yabancı",
+      "monthly_profit_million_TRY": 31987,
+      "previous_month_difference_million_TRY": -1887
+    },
+    {
+      "period": "2026-02",
+      "group_code": 10008,
+      "group_label": "Mevduat-Yerli Özel",
+      "monthly_profit_million_TRY": 14464,
+      "previous_month_difference_million_TRY": -7139
+    },
+    {
+      "period": "2026-02",
+      "group_code": 10009,
+      "group_label": "Mevduat-Kamu",
+      "monthly_profit_million_TRY": 20184,
+      "previous_month_difference_million_TRY": 2004
+    },
+    {
+      "period": "2026-02",
+      "group_code": 10010,
+      "group_label": "Mevduat-Yabancı",
+      "monthly_profit_million_TRY": 25426,
+      "previous_month_difference_million_TRY": -6342
+    },
+    {
+      "period": "2026-03",
+      "group_code": 10001,
+      "group_label": "Sektör",
+      "monthly_profit_million_TRY": 119287,
+      "previous_month_difference_million_TRY": 37135
+    },
+    {
+      "period": "2026-03",
+      "group_code": 10002,
+      "group_label": "Mevduat",
+      "monthly_profit_million_TRY": 91178,
+      "previous_month_difference_million_TRY": 31103
+    },
+    {
+      "period": "2026-03",
+      "group_code": 10003,
+      "group_label": "Katılım",
+      "monthly_profit_million_TRY": 15215,
+      "previous_month_difference_million_TRY": 6043
+    },
+    {
+      "period": "2026-03",
+      "group_code": 10004,
+      "group_label": "Kalkınma ve Yatırım",
+      "monthly_profit_million_TRY": 12893,
+      "previous_month_difference_million_TRY": -12
+    },
+    {
+      "period": "2026-03",
+      "group_code": 10005,
+      "group_label": "Yerli Özel",
+      "monthly_profit_million_TRY": 37886,
+      "previous_month_difference_million_TRY": 17227
+    },
+    {
+      "period": "2026-03",
+      "group_code": 10006,
+      "group_label": "Kamu",
+      "monthly_profit_million_TRY": 46743,
+      "previous_month_difference_million_TRY": 17237
+    },
+    {
+      "period": "2026-03",
+      "group_code": 10007,
+      "group_label": "Yabancı",
+      "monthly_profit_million_TRY": 34657,
+      "previous_month_difference_million_TRY": 2670
+    },
+    {
+      "period": "2026-03",
+      "group_code": 10008,
+      "group_label": "Mevduat-Yerli Özel",
+      "monthly_profit_million_TRY": 34284,
+      "previous_month_difference_million_TRY": 19820
+    },
+    {
+      "period": "2026-03",
+      "group_code": 10009,
+      "group_label": "Mevduat-Kamu",
+      "monthly_profit_million_TRY": 29811,
+      "previous_month_difference_million_TRY": 9627
+    },
+    {
+      "period": "2026-03",
+      "group_code": 10010,
+      "group_label": "Mevduat-Yabancı",
+      "monthly_profit_million_TRY": 27084,
+      "previous_month_difference_million_TRY": 1658
+    }
+  ],
+  "December_2025_monthly_warmup": {
+    "10001": 97338,
+    "10002": 74037,
+    "10003": 11930,
+    "10004": 11372,
+    "10005": 28057,
+    "10006": 43520,
+    "10007": 25761,
+    "10008": 24217,
+    "10009": 30703,
+    "10010": 19115
+  },
+  "trials": [
+    {
+      "trial": "grouped_1",
+      "artifact_grade": "fail",
+      "turns": [
+        {
+          "turn": 1,
+          "requested_kind": "line",
+          "turn_file_sha256": "3d66b17eb33a763718e8507f9d3a7435f199322b5f28b4f86371c5f354d1e5c4",
+          "analysis_id": "analysis_dc81a81a2c0c1039f796f279b46095abcc2057e698ae61fdea8b4af91b072ce0",
+          "data_sha256": "913f048967697df04b850c1edf655df310d2bacf59aaef4d0def87351d5342f6",
+          "chart_id": "chart_923aaed2269757be3d96008547848920e6972a1b7e595f593164e960399b9e0e",
+          "selected_groups": [
+            10002,
+            10003,
+            10004,
+            10005,
+            10006,
+            10007,
+            10008,
+            10009,
+            10010
+          ],
+          "displayed_groups": [
+            10002,
+            10003,
+            10004,
+            10005,
+            10006,
+            10007
+          ],
+          "verified_source_monthly_cells": 27,
+          "checks": {
+            "immutable_receipt_hashes": true,
+            "run_completed": true,
+            "collector_export_matches_saved_bytes": true,
+            "all_nine_bank_categories_present": true,
+            "every_selected_group_has_three_months": true,
+            "monthly_profits_match_original_raw_cells": true,
+            "raw_source_lineage_verified": true,
+            "requested_chart_kind": true,
+            "source_money_semantics": true,
+            "selected_measure_columns": false,
+            "source_periods_unchanged": true,
+            "no_normalization_or_stacking": true,
+            "million_TRY_chart_units": true,
+            "series_values_and_group_names": false,
+            "all_selected_group_period_cells_charted": false,
+            "chart_values_match_source_oracle": true,
+            "distinct_readable_group_labels": false
+          },
+          "artifact_grade": "fail"
+        },
+        {
+          "turn": 2,
+          "requested_kind": "bar",
+          "turn_file_sha256": "b3427b4d3fcd5986e1bbd5e020c051b056a4f759ad798c5671997c72fa726967",
+          "analysis_id": "analysis_e9a9207d7d3daae59dd87919b5fc946c65df055fd607fa3c03732824f2e23525",
+          "data_sha256": "1cfe6d3106a729fa30917ce0904a2acd77d5d33d9824dc73d6033d0a8d88ad39",
+          "chart_id": "chart_3db5a4612dc4a0644798edb6265d2d0f4ae61f299f5c5281c9621e90916cd0f8",
+          "selected_groups": [
+            10002,
+            10003,
+            10004,
+            10005,
+            10006,
+            10007,
+            10008,
+            10009,
+            10010
+          ],
+          "displayed_groups": [
+            10002,
+            10003,
+            10004,
+            10005,
+            10006,
+            10007
+          ],
+          "verified_source_monthly_cells": 27,
+          "checks": {
+            "immutable_receipt_hashes": true,
+            "run_completed": true,
+            "collector_export_matches_saved_bytes": true,
+            "all_nine_bank_categories_present": true,
+            "every_selected_group_has_three_months": true,
+            "monthly_profits_match_original_raw_cells": true,
+            "raw_source_lineage_verified": true,
+            "requested_chart_kind": true,
+            "source_money_semantics": true,
+            "all_group_differences_correct_with_December_warmup": true,
+            "original_rows_columns_values_preserved": true,
+            "original_schema_preserved": true,
+            "parent_analysis_identity": true,
+            "original_source_bindings_preserved": true,
+            "selected_measure_columns": false,
+            "source_periods_unchanged": true,
+            "no_normalization_or_stacking": true,
+            "million_TRY_chart_units": true,
+            "series_values_and_group_names": false,
+            "all_selected_group_period_cells_charted": false,
+            "chart_values_match_source_oracle": true,
+            "distinct_readable_group_labels": false
+          },
+          "artifact_grade": "fail"
+        },
+        {
+          "turn": 3,
+          "requested_kind": "heatmap",
+          "turn_file_sha256": "574a3f3a9570ea480bab2d0094b3cb0401d4965702ed8ec4d3bef11f04e13b3b",
+          "analysis_id": "analysis_e9a9207d7d3daae59dd87919b5fc946c65df055fd607fa3c03732824f2e23525",
+          "data_sha256": "1cfe6d3106a729fa30917ce0904a2acd77d5d33d9824dc73d6033d0a8d88ad39",
+          "chart_id": "chart_1af986841ffcf00e92e7aeed2ea56dacd78fc0c75af45f370db0b4285466f66a",
+          "selected_groups": [
+            10002,
+            10003,
+            10004,
+            10005,
+            10006,
+            10007,
+            10008,
+            10009,
+            10010
+          ],
+          "displayed_groups": [
+            10002,
+            10003,
+            10004,
+            10005,
+            10006,
+            10007
+          ],
+          "verified_source_monthly_cells": 27,
+          "checks": {
+            "immutable_receipt_hashes": true,
+            "run_completed": true,
+            "collector_export_matches_saved_bytes": true,
+            "all_nine_bank_categories_present": true,
+            "every_selected_group_has_three_months": true,
+            "monthly_profits_match_original_raw_cells": true,
+            "raw_source_lineage_verified": true,
+            "requested_chart_kind": true,
+            "source_money_semantics": true,
+            "all_group_differences_correct_with_December_warmup": true,
+            "heatmap_uses_same_analysis_bytes": true,
+            "view_change_does_not_run_data_query": true,
+            "selected_measure_columns": false,
+            "source_periods_unchanged": true,
+            "no_normalization_or_stacking": true,
+            "million_TRY_chart_units": true,
+            "display_equals_raw": true,
+            "heatmap_coordinates_name_source_group_and_period": false,
+            "series_values_and_group_names": false,
+            "all_selected_group_period_cells_charted": false,
+            "chart_values_match_source_oracle": true,
+            "distinct_readable_group_labels": false
+          },
+          "artifact_grade": "fail"
+        }
+      ]
+    },
+    {
+      "trial": "grouped_2",
+      "artifact_grade": "pass",
+      "turns": [
+        {
+          "turn": 1,
+          "requested_kind": "line",
+          "turn_file_sha256": "e6b0177aecd55c05667da61f767e27a410ef5587c51f4a9be3977fb937db81e4",
+          "analysis_id": "analysis_56c6fc6f9a9c958b06b6bba644e365f358d16a504c867634116dadfbbda1028f",
+          "data_sha256": "509736f36358a363747f1bf6df7a4681e5d9fa7d855c55b39091a850cdd3f992",
+          "chart_id": "chart_baa3cb2ff33944cdf5616c84aaa657bca7f964df9ae9454697a2dafd13465e2d",
+          "selected_groups": [
+            10001,
+            10002,
+            10003,
+            10004,
+            10005,
+            10006,
+            10007,
+            10008,
+            10009,
+            10010
+          ],
+          "displayed_groups": [
+            10001,
+            10002,
+            10003,
+            10004,
+            10005,
+            10006,
+            10007,
+            10008,
+            10009,
+            10010
+          ],
+          "verified_source_monthly_cells": 30,
+          "checks": {
+            "immutable_receipt_hashes": true,
+            "run_completed": true,
+            "collector_export_matches_saved_bytes": true,
+            "all_nine_bank_categories_present": true,
+            "every_selected_group_has_three_months": true,
+            "monthly_profits_match_original_raw_cells": true,
+            "raw_source_lineage_verified": true,
+            "requested_chart_kind": true,
+            "source_money_semantics": true,
+            "selected_measure_columns": true,
+            "source_periods_unchanged": true,
+            "no_normalization_or_stacking": true,
+            "million_TRY_chart_units": true,
+            "series_values_and_group_names": true,
+            "all_selected_group_period_cells_charted": true,
+            "chart_values_match_source_oracle": true,
+            "distinct_readable_group_labels": true
+          },
+          "artifact_grade": "pass"
+        },
+        {
+          "turn": 2,
+          "requested_kind": "bar",
+          "turn_file_sha256": "108ab7d6707c457a6d45fc4d06d9967668be379d79a0fc7100d3d7046588bf6f",
+          "analysis_id": "analysis_ed4c1edb2bf2d855277d6b31cf4f7ef071aa3e60c343bc37448fb56fe8373bdd",
+          "data_sha256": "8f87f9e02d84a028b565a1b65f3eac55bfaecc719ebc4a151727dbd708ad66f7",
+          "chart_id": "chart_78a0b4e00e86727856dced2fb5d6174cd5022c35161c534b742c01a320800f75",
+          "selected_groups": [
+            10001,
+            10002,
+            10003,
+            10004,
+            10005,
+            10006,
+            10007,
+            10008,
+            10009,
+            10010
+          ],
+          "displayed_groups": [
+            10001,
+            10002,
+            10003,
+            10004,
+            10005,
+            10006,
+            10007,
+            10008,
+            10009,
+            10010
+          ],
+          "verified_source_monthly_cells": 30,
+          "checks": {
+            "immutable_receipt_hashes": true,
+            "run_completed": true,
+            "collector_export_matches_saved_bytes": true,
+            "all_nine_bank_categories_present": true,
+            "every_selected_group_has_three_months": true,
+            "monthly_profits_match_original_raw_cells": true,
+            "raw_source_lineage_verified": true,
+            "requested_chart_kind": true,
+            "source_money_semantics": true,
+            "all_group_differences_correct_with_December_warmup": true,
+            "original_rows_columns_values_preserved": true,
+            "original_schema_preserved": true,
+            "parent_analysis_identity": true,
+            "original_source_bindings_preserved": true,
+            "selected_measure_columns": true,
+            "source_periods_unchanged": true,
+            "no_normalization_or_stacking": true,
+            "million_TRY_chart_units": true,
+            "series_values_and_group_names": true,
+            "all_selected_group_period_cells_charted": true,
+            "chart_values_match_source_oracle": true,
+            "distinct_readable_group_labels": true
+          },
+          "artifact_grade": "pass"
+        },
+        {
+          "turn": 3,
+          "requested_kind": "heatmap",
+          "turn_file_sha256": "3984c6140f2b296c093477dc8fabe6b42098f025e391786b64db8630c969d67f",
+          "analysis_id": "analysis_ed4c1edb2bf2d855277d6b31cf4f7ef071aa3e60c343bc37448fb56fe8373bdd",
+          "data_sha256": "8f87f9e02d84a028b565a1b65f3eac55bfaecc719ebc4a151727dbd708ad66f7",
+          "chart_id": "chart_3d8350c33037dbb19f7f0d80d2c63fea900dee2ad0dba7afa1a3aa1e88c65225",
+          "selected_groups": [
+            10001,
+            10002,
+            10003,
+            10004,
+            10005,
+            10006,
+            10007,
+            10008,
+            10009,
+            10010
+          ],
+          "displayed_groups": [
+            10001,
+            10002,
+            10003,
+            10004,
+            10005,
+            10006,
+            10007,
+            10008,
+            10009,
+            10010
+          ],
+          "verified_source_monthly_cells": 30,
+          "checks": {
+            "immutable_receipt_hashes": true,
+            "run_completed": true,
+            "collector_export_matches_saved_bytes": true,
+            "all_nine_bank_categories_present": true,
+            "every_selected_group_has_three_months": true,
+            "monthly_profits_match_original_raw_cells": true,
+            "raw_source_lineage_verified": true,
+            "requested_chart_kind": true,
+            "source_money_semantics": true,
+            "all_group_differences_correct_with_December_warmup": true,
+            "heatmap_uses_same_analysis_bytes": true,
+            "view_change_does_not_run_data_query": true,
+            "selected_measure_columns": true,
+            "source_periods_unchanged": true,
+            "no_normalization_or_stacking": true,
+            "million_TRY_chart_units": true,
+            "display_equals_raw": true,
+            "heatmap_coordinates_name_source_group_and_period": true,
+            "matrix_series_matches_cells": true,
+            "all_selected_group_period_cells_charted": true,
+            "chart_values_match_source_oracle": true,
+            "distinct_readable_group_labels": true
+          },
+          "artifact_grade": "pass"
+        }
+      ]
+    }
+  ],
+  "limits": "Checks use saved immutable bytes and original cached BDDK downloads; no model calls, network requests, charts or analyses are regenerated.",
+  "checker_sha256": "56a6a73d98de4fd22a0f7c8e22c98e3bb87b603f48aaec7865c14a8b36993ce3"
+}

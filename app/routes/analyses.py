@@ -7,6 +7,7 @@ from fastapi import APIRouter, HTTPException
 from fastapi.responses import Response
 
 from agentic_analytics.lakehouse.service import LakehouseService
+from agentic_analytics.lakehouse.presentation import analysis_presentation
 from app.context import AppContext
 from app.serialization import browser_json
 
@@ -25,7 +26,7 @@ def create_router(context: AppContext) -> APIRouter:
         frame, manifest = context.store.load_analysis(analysis_id)
         if manifest["workspace_id"] != workspace_id:
             raise HTTPException(404, "Analiz bu çalışma alanında bulunamadı.")
-        return browser_json({"analysis_id": analysis_id, "parent_analysis_id": manifest.get("parent_analysis_id"), "columns": list(frame), "schema": manifest.get("schema", {}), "row_count": len(frame), "offset": offset, "warnings": manifest.get("lineage", {}).get("warnings", []), "preserved_columns": list(manifest.get("lineage", {}).get("preserved_columns", {})), "rows": frame.iloc[offset:offset + limit].to_dict("records"), "plan": manifest["plan"], "sources": {name: {"metric_id": proof.get("binding", {}).get("metric_id"), "title": proof.get("binding", {}).get("title"), "unit": proof.get("binding", {}).get("unit"), "scale": proof.get("binding", {}).get("scale"), "source_system": proof.get("binding", {}).get("source_system")} for name, proof in manifest.get("lineage", {}).get("sources", {}).items()}})
+        return browser_json({"analysis_id": analysis_id, "parent_analysis_id": manifest.get("parent_analysis_id"), "columns": list(frame), "presentation": analysis_presentation(frame, manifest), "schema": manifest.get("schema", {}), "row_count": len(frame), "offset": offset, "warnings": manifest.get("lineage", {}).get("warnings", []), "preserved_columns": list(manifest.get("lineage", {}).get("preserved_columns", {})), "rows": frame.iloc[offset:offset + limit].to_dict("records"), "plan": manifest["plan"], "sources": {name: {"metric_id": proof.get("binding", {}).get("metric_id"), "title": proof.get("binding", {}).get("title"), "unit": proof.get("binding", {}).get("unit"), "scale": proof.get("binding", {}).get("scale"), "source_system": proof.get("binding", {}).get("source_system")} for name, proof in manifest.get("lineage", {}).get("sources", {}).items()}})
 
     @router.get("/api/workspaces/{workspace_id}/analyses/{analysis_id}/csv")
     def download(workspace_id: str, analysis_id: str):
@@ -83,5 +84,13 @@ def create_router(context: AppContext) -> APIRouter:
             return StatisticsTools(context.store, workspace_id).load_artifact(artifact_id)
         except (StatisticsError, FileNotFoundError):
             raise HTTPException(404, "İstatistik kaydı bu çalışma alanında bulunamadı.") from None
+
+    @router.get("/api/workspaces/{workspace_id}/summaries/{artifact_id}")
+    def summary(workspace_id: str, artifact_id: str):
+        from agentic_analytics.agent.tools.summary import SummaryTools
+        try:
+            return browser_json(SummaryTools(context.store, workspace_id).load_artifact(artifact_id))
+        except (ValueError, FileNotFoundError):
+            raise HTTPException(404, "Hesap özeti bu çalışma alanında bulunamadı.") from None
 
     return router
