@@ -145,8 +145,10 @@ class AppContext:
         tools.update(StatisticsTools(self.store, workspace_id).extra_tools())
         tools.update(ChartTools(self.store, workspace_id).extra_tools())
         # Generous bounds so multi-step analyses reach execution; the finite cap still stops a looping model.
+        # The context budget stays well under the model's proven window (~72k tokens accepted; 150k chars ~= 49k)
+        # so context-heavy multi-source or explain-driven analyses are not cut off before they can finish.
         return AgentRuntime(self.store, workspace_id, self.client, self.run_store, extra_tools=tools,
-                            max_decisions=18, max_repairs=4, max_elapsed_seconds=900)
+                            max_decisions=18, max_repairs=4, max_context_chars=150000, max_elapsed_seconds=900)
 
     def submit(self, workspace_id, body: RunBody):
         if self.client is None:
