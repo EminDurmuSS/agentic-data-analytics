@@ -21,6 +21,14 @@ docker compose up --build -d
 docker compose ps
 ```
 
+Logları görerek docker çalıştırmak için:
+
+```sh
+docker compose up --build
+```
+
+Uygulamaya lokalde http://127.0.0.1:8870 linkinden erişebilirsiniz.
+
 Anahtar, veri hazırlığı ve dolu port için [Docker rehberini](docs/DOCKER.md) izleyin. İmaj finans verisini içermez; Docker kayıtları yerel Python çalışmasından ayrı tutulur.
 
 Repo kökünde Python 3.12 ve `uv` ile:

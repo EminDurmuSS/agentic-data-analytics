@@ -320,8 +320,8 @@ async function selectWorkspace(id) {
   if (request !== state.workspaceRequest) return;
   const recent = runs.at(-1);
   if (recent) {
-    showEvents(workspace.latest_events);
-    if (recent.result) showExtraResults({ events: workspace.latest_events });
+    showEvents(workspace.latest_activity);
+    if (recent.result) showExtraResults(recent.result);
     if (!recent.result) showResume(workspace.pending_job_id);
   }
   await refreshWorkspaces();
@@ -335,47 +335,63 @@ async function createWorkspace(name, profile) {
   notice("");
   await selectWorkspace(result.workspace_id);
 }
-const toolLabels = {
-  discover: "İlgili veriler aranıyor",
-  describe: "Verinin anlamı ve kapsamı inceleniyor",
-  dimension_values: "İl ve kurum değerleri bulunuyor",
-  validate_plan: "Hesap planı denetleniyor",
-  execute: "Veri sorgulanıyor ve hesaplanıyor",
-  revise_analysis: "Önceki analiz güncelleniyor",
-  explain_value: "Kaynak izi okunuyor",
-  query_grouped: "Gruplar karşılaştırılıyor",
-  inspect_source: "Yeni kaynak inceleniyor",
-  publish_selected_table: "Doğrulanan tablo ekleniyor",
-  web_search: "Web kaynakları araştırılıyor",
-  rolling_anomalies: "Olağandışı dönemler aranıyor",
-  detect_changes: "Değişim noktaları inceleniyor",
-  analyze_relationship: "Değişkenler arasındaki ilişki hesaplanıyor",
-  create_chart: "Grafik hazırlanıyor",
-};
-function showEvents(events) {
-  if (!events?.length) return;
+function appendActivityText(node, text, functionNames) {
+  const names = [...new Set(functionNames.filter(Boolean))].sort(
+    (left, right) => right.length - left.length,
+  );
+  if (!names.length) {
+    node.append(document.createTextNode(text));
+    return;
+  }
+  const escaped = names.map((name) => name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"));
+  const matcher = new RegExp("(" + escaped.join("|") + ")", "g");
+  for (const part of text.split(matcher)) {
+    if (!part) continue;
+    node.append(names.includes(part) ? el("code", part) : document.createTextNode(part));
+  }
+}
+function showEvents(activity) {
+  if (!activity?.length) return;
   $("#activity").hidden = false;
-  $("#activity-count").textContent = events.length + " adım";
+  $("#activity-count").textContent = activity.length + " adım";
   const holder = $("#events");
   holder.replaceChildren();
-  for (const event of events) {
-    const payload = event.payload || {};
-    const name = payload.name || payload.tool || payload.tool_name;
-    let label =
-      toolLabels[name] ||
-      {
-        run_started: "Analiz başladı",
-        model_response: "Sonraki adım belirlendi",
-        tool_completed: "Araç sonucu kaydedildi",
-        run_finished: "Analiz tamamlandı",
-        tool_error: "Hesap kontrolü bir sorun bildirdi",
-        recovered: "Kayıtlı sonuçtan devam edildi",
-      }[event.kind];
-    if (!label) continue;
-    const item = el("li", label);
-    if (payload.error?.message) item.append(el("small", payload.error.message));
+  for (const step of activity) {
+    const names = [step.tool, ...(step.tool_names || [])];
+    const item = el("li");
+    appendActivityText(item, step.title || "Kayıtlı agent adımı", names);
+    if (step.detail) {
+      const detail = el("small");
+      appendActivityText(detail, step.detail, names);
+      item.append(detail);
+    }
     holder.append(item);
   }
+}
+function showPendingActivity(pending, activity) {
+  const body = pending.querySelector(".body");
+  body.replaceChildren();
+  if (!activity?.length) {
+    body.append(el("span", "Agent çalışması başlatılıyor…", "live-loading"));
+    return;
+  }
+  const steps = document.createElement("ol");
+  steps.className = "live-activity";
+  steps.setAttribute("aria-live", "polite");
+  const visibleSteps = activity.slice(-3);
+  for (const [index, step] of visibleSteps.entries()) {
+    const item = document.createElement("li");
+    item.className =
+      index === visibleSteps.length - 1 ? "live-current" : "live-past";
+    const names = [step.tool, ...(step.tool_names || [])];
+    appendActivityText(item, step.title || "Kayıtlı agent adımı", names);
+    if (step.detail) {
+      item.append(document.createTextNode(" — "));
+      appendActivityText(item, step.detail, names);
+    }
+    steps.append(item);
+  }
+  body.append(steps);
 }
 async function submitQuestion(event) {
   event?.preventDefault();
@@ -393,7 +409,7 @@ async function submitQuestion(event) {
   appendMessage("user", message);
   const pending = appendMessage(
     "assistant",
-    "Veriyi bulup hesap planını hazırlıyorum…",
+    "Agent çalışması başlatılıyor…",
     true,
   );
   try {
@@ -409,7 +425,8 @@ async function submitQuestion(event) {
     let job;
     for (let i = 0; i < 480; i++) {
       job = await api("/api/jobs/" + state.job);
-      showEvents(job.events);
+      showEvents(job.activity);
+      showPendingActivity(pending, job.activity);
       if (["finished", "failed", "interrupted"].includes(job.status)) break;
       await new Promise((resolve) => setTimeout(resolve, 700));
     }
@@ -437,7 +454,7 @@ async function submitQuestion(event) {
     else if (state.analysis) await window.AnalysisCharts.load(base(), state.analysis.analysis_id, Boolean(result.chart_updated || result.chart_id));
     if (result.status === "blocked" || result.status === "failed")
       notice(result.message);
-    showExtraResults(job);
+    showExtraResults(result);
     const workspace = await api(base());
     state.workspace = { ...state.workspace, ...workspace };
     $("#workspace-version").textContent = "Sürüm " + workspace.version;
@@ -479,7 +496,7 @@ async function pollExisting(jobId) {
   try {
     for (let i = 0; i < 480; i++) {
       const job = await api("/api/jobs/" + jobId);
-      showEvents(job.events);
+      showEvents(job.activity);
       if (job.result) {
         await selectAfterRun(job);
         return;
@@ -498,8 +515,8 @@ async function selectAfterRun(job) {
   state.busy = false;
   window.AnalysisCharts.updateBusy();
   await selectWorkspace(state.workspace.workspace_id);
-  showEvents(job.events);
-  showExtraResults(job);
+  showEvents(job.activity);
+  showExtraResults(job.result || {});
   if (job.result?.chart_updated || job.result?.chart_id) showTab("chart");
 }
 function schemaLabel(column) {
@@ -889,16 +906,14 @@ async function showEvidence(column, row) {
     $("#evidence-content").replaceChildren(el("p", error.message, "warning"));
   }
 }
-function showExtraResults(job) {
+function showExtraResults(result) {
   const holder = $("#extra-result");
   holder.replaceChildren();
-  const events = job.events || [];
-  for (const event of events) {
-    const payload = event.payload || {},
-      result = payload.result || payload.output;
-    const name = payload.name || payload.tool || payload.tool_name;
+  for (const step of result.tool_results || []) {
+    const name = step.tool;
+    const toolResult = step.result;
     if (
-      !result ||
+      !toolResult ||
       ![
         "rolling_anomalies",
         "detect_changes",
@@ -909,9 +924,9 @@ function showExtraResults(job) {
       ].includes(name)
     )
       continue;
-    if (result.status === "ok" && result.method) {
+    if (toolResult.status === "ok" && toolResult.method) {
       const card = el("div", null, "source-card");
-      const values = result.results || {};
+      const values = toolResult.results || {};
       card.append(
         el(
           "strong",
@@ -967,19 +982,19 @@ function showExtraResults(job) {
           el("p", "Bu sonuç tek başına nedensellik göstermez.", "warning"),
         );
       }
-      if (result.artifact_id) {
+      if (toolResult.artifact_id) {
         const link = el("a", "Tam istatistik kaydı ↓", "text-button");
-        link.href = base() + "/statistics/" + result.artifact_id;
+        link.href = base() + "/statistics/" + toolResult.artifact_id;
         link.target = "_blank";
         link.rel = "noopener";
         card.append(link);
       }
       holder.append(card);
     }
-    if (name === "web_search" && result.status === "ok") {
+    if (name === "web_search" && toolResult.status === "ok") {
       const card = el("div", null, "source-card");
       card.append(el("strong", "Bulunan web kaynakları"));
-      for (const item of result.results || []) {
+      for (const item of toolResult.results || []) {
         if (!/^https?:\/\//i.test(item.url)) continue;
         const link = el("a", item.title, "text-button");
         link.href = item.url;
@@ -993,8 +1008,8 @@ function showExtraResults(job) {
     }
     const details = el("details");
     details.append(
-      el("summary", toolLabels[name] || name),
-      el("pre", JSON.stringify(result, null, 2)),
+      el("summary", "İşlem sonucu: " + name),
+      el("pre", JSON.stringify(toolResult, null, 2)),
     );
     holder.append(details);
   }

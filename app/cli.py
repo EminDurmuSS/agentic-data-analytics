@@ -24,7 +24,8 @@ def main():
 
     client = MiaClient(key) if key else None
     app = create_app(runtime_root=args.runtime_root, source_db=args.db or DEFAULT_DB, client=client, searxng_url=os.environ.get("SEARXNG_URL"))
-    print(f"Agentic Minds: http://{args.host}:{args.port}", flush=True)
+    browser_host = "127.0.0.1" if args.host == "0.0.0.0" else args.host
+    print(f"Agentic Minds: http://{browser_host}:{args.port}", flush=True)
     if not key:
         print("Kloudeks is not configured; use MIA_API_KEY or --prompt-key for live analysis.", flush=True)
     uvicorn.run(app, host=args.host, port=args.port, log_level="warning")

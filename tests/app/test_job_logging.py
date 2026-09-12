@@ -83,7 +83,8 @@ class JobLoggingTests(unittest.TestCase):
         self.assertNotIn("raise error", logged)
         self.assertEqual(job["status"], "failed")
         self.assertEqual(job["result"], {"status": "failed", "message": "Çalışma tamamlanamadı. Kaydedilmiş araç adımlarından yeniden deneyebilirsiniz.", "error_type": "RuntimeError"})
-        self.assertEqual(job["events"], [])
+        self.assertEqual(job["activity"], [])
+        self.assertEqual(job["activity_count"], 0)
 
     def test_typed_worker_failures_keep_existing_api_error_contract(self):
         for error, code in [(PlanError("Safe validation detail", code="UNIT_MISMATCH"), "UNIT_MISMATCH"),
