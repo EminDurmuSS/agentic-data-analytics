@@ -10,6 +10,7 @@ window.AnalysisCharts = (() => {
   };
   const palette = ["#226348", "#5279a8", "#c07a33", "#90649d", "#469397", "#b25c60", "#7d843c", "#607684"];
   const kindNames = { auto: "Otomatik", line: "Çizgi", bar: "Çubuk", area: "Alan", scatter: "Dağılım", heatmap: "Isı haritası" };
+  const periodIndex = "__period_index__";
   const numeric = (v) => typeof v === "number" && Number.isFinite(v) ? v : null;
   const number = (v) => v === null || v === undefined ? "Gözlem yok" :
     v && typeof v === "object" && /^-?\d+$/.test(v.$integer)
@@ -104,7 +105,23 @@ window.AnalysisCharts = (() => {
     return payload.available_columns || payload.series.map((s) => ({ column: s.column, label: s.label, unit: s.unit }));
   }
   const readableSubtitle = () => String(payload.subtitle || "").replace(/\b\d{4}-(?:Q[1-4]|H[12]|\d{2}(?:-\d{2})?)\b/g, period)
-    + (payload.spec.kind === "heatmap" ? " · Birim: " + (payload.series[0]?.unit || "belirtilmemiş") : "");
+    + (payload.spec.kind === "heatmap" ? " · Değerler özgün analiz birimleriyle gösterilir." : "");
+  function setSettingAvailability(control, enabled, reason = "") {
+    control.disabled = !enabled;
+    const hint = control.parentElement.querySelector(".chart-setting-hint");
+    if (hint) {
+      hint.hidden = enabled;
+      hint.textContent = reason;
+    }
+  }
+  function updateSettingAvailability() {
+    const kind = payload.spec.kind;
+    setSettingAvailability(q("#chart-layout"), kind !== "heatmap", "Isı haritası satır ve dönem matrisini tek görünümde gösterir.");
+    setSettingAvailability(q("#chart-normalize"), !["scatter", "heatmap"].includes(kind), "Bu grafik türü yalnız özgün analiz değerleriyle gösterilir.");
+    setSettingAvailability(q("#chart-x"), kind === "scatter", "Bu grafik türünde yatay eksen dönemlerden oluşur.");
+    setSettingAvailability(q("#chart-orientation"), kind === "bar", "Yön seçimi yalnızca çubuk grafiğinde uygulanır.");
+    q("#chart-layout").querySelector('option[value="dual_axis"]').disabled = kind === "scatter";
+  }
   function renderContent() {
     q("#chart-body").hidden = false;
     q("#chart-title").textContent = payload.title || "Verinizin görünümü";
@@ -113,8 +130,6 @@ window.AnalysisCharts = (() => {
     q("#chart-layout").value = payload.spec.layout || "auto";
     q("#chart-normalize").value = payload.spec.normalize || "none";
     q("#chart-orientation").value = payload.spec.orientation || "vertical";
-    q("#chart-x-label").hidden = payload.spec.kind !== "scatter";
-    q("#chart-orientation-label").hidden = payload.spec.kind !== "bar";
     const columns = q("#chart-columns"), x = q("#chart-x");
     columns.replaceChildren();
     x.replaceChildren();
@@ -129,26 +144,29 @@ window.AnalysisCharts = (() => {
       option.value = item.column;
       x.append(option);
     }
-    x.value = payload.spec.x || payload.x_column || choices()[0]?.column || "";
+    if (payload.spec.kind === "scatter") {
+      const option = node("option", "Dönem sırası (tek metrik)");
+      option.value = periodIndex;
+      x.append(option);
+    }
+    x.value = payload.spec.x || payload.x_column || (payload.x_mode === "period_index" ? periodIndex : choices()[0]?.column || "");
+    updateSettingAvailability();
     q("#chart-kinds").replaceChildren();
     for (const [kind, name] of Object.entries(kindNames)) {
       if (kind === "auto") continue;
       const button = node("button", name, "chart-kind");
       button.type = "button";
       button.setAttribute("aria-pressed", String(kind === payload.spec.kind));
-      const unavailable = payload.group_by ? !["bar", "heatmap"].includes(kind) || kind === "bar" && new Set(payload.periods).size > 1
-        : kind === "heatmap" || kind === "scatter" && choices().length < 2;
-      button.dataset.unavailable = String(unavailable);
-      if (unavailable) button.title = kind === "heatmap" ? "Isı haritası için grup ve dönem boyutları gerekir." : kind === "scatter" ? "İki farklı sayısal sütun gerekir." : "Bu tür mevcut grup ve dönem düzeni için uygun değil.";
+      button.dataset.unavailable = "false";
       button.onclick = () => {
         const overrides = { kind, ...(kind !== "bar" ? { orientation: "vertical" } : {}) };
         if (kind === "scatter") {
           const cols = formSpec().columns;
-          const xColumn = choices().find((item) => !cols.includes(item.column))?.column || cols[0];
+          const xColumn = choices().find((item) => !cols.includes(item.column))?.column || (cols.length > 1 ? cols[0] : periodIndex);
           overrides.x = xColumn;
           overrides.normalize = "none";
           overrides.layout = "auto";
-          overrides.columns = cols.filter((col) => col !== xColumn);
+          overrides.columns = xColumn === periodIndex ? cols : cols.filter((col) => col !== xColumn);
           if (!overrides.columns.length) overrides.columns = choices().filter((item) => item.column !== xColumn).slice(0, 1).map((item) => item.column);
         }
         save(overrides);
@@ -159,6 +177,8 @@ window.AnalysisCharts = (() => {
     renderLegend();
     q("#chart-note").textContent = number(payload.row_count) + " satırın tamamı · Yakınlaştırın, bir noktayı seçip kaynağını inceleyin.";
     q("#chart-warnings").replaceChildren(...(payload.warnings || []).map((w) => node("p", w, "warning")));
+    if (payload.presentation_notice)
+      q("#chart-warnings").prepend(node("p", payload.presentation_notice, "chart-info chart-limited-note"));
     if (payload.spec.normalize === "index100")
       q("#chart-warnings").prepend(node("p", "Tüm seriler için ortak başlangıç: " + period(payload.spec.base_period || payload.periods[0]) + " = 100. Kaynak izi özgün analiz değerini gösterir.", "chart-info"));
     if (payload.spec.layout === "dual_axis")
@@ -193,7 +213,7 @@ window.AnalysisCharts = (() => {
       if (normalized) card.append(node("small", "Özgün değer özeti"));
       holder.append(card);
     }
-    holder.hidden = !holder.children.length || payload.spec.kind === "heatmap" || Boolean(payload.group_by);
+    holder.hidden = !holder.children.length;
   }
   function renderLegend() {
     const holder = q("#chart-legend");
@@ -209,11 +229,12 @@ window.AnalysisCharts = (() => {
         const name = series.column;
         selected[name] = selected[name] === false;
         button.setAttribute("aria-pressed", String(selected[name]));
-        chart?.dispatchAction({ type: "legendToggleSelect", name });
+        if (payload.spec.kind === "heatmap") draw();
+        else chart?.dispatchAction({ type: "legendToggleSelect", name });
       };
       holder.append(button);
     }
-    holder.hidden = payload.spec.kind === "heatmap";
+    holder.hidden = !holder.children.length;
   }
   function prefill(prompt) {
     if (expanded) expand(false);
@@ -299,11 +320,19 @@ window.AnalysisCharts = (() => {
       axisLine: { lineStyle: { color: "#ccd9cc" } }, axisTick: { show: false },
       axisLabel: { color: "#738579", fontSize: 10, hideOverlap: true, margin: 13, formatter: (v) => period(v) } });
     if (kind === "heatmap") {
-      const cats = payload.categories || payload.series.map((s) => s.label);
+      const visibleSeries = payload.series.filter((series) => selected[series.column] !== false);
+      const cats = payload.group_by
+        ? payload.categories || payload.series.map((series) => series.label)
+        : visibleSeries.map((series) => series.label);
       grids.push({ left: Math.min(185, width * 0.30), right: 34, top: top + 22, bottom: bottom + 64 });
       xAxes.push(categoryAxis(payload.periods, 0));
       yAxes.push({ ...categoryAxis(cats, 0), axisLabel: { color: "#526b5a", fontSize: 11, width: Math.min(165, width * 0.27), overflow: "truncate" }, splitArea: { show: true }, inverse: true });
-      const cells = payload.cells || payload.series.flatMap((s, categoryIndex) => s.values.map((value, periodIndex) => ({ period_index: periodIndex, category_index: categoryIndex, value, raw_value: s.raw_values?.[periodIndex], period: payload.periods[periodIndex], column: s.column })));
+      const categoryIndexes = new Map(visibleSeries.map((series, index) => [series.column, index]));
+      const cells = (payload.cells || payload.series.flatMap((series, categoryIndex) => series.values.map((value, periodIndex) => ({ period_index: periodIndex, category_index: categoryIndex, value, raw_value: series.raw_values?.[periodIndex], period: payload.periods[periodIndex], column: series.column }))))
+        .filter((cell) => selected[cell.column] !== false)
+        .map((cell) => ({ ...cell,
+          category_index: payload.group_by ? cell.category_index : categoryIndexes.get(cell.column),
+          category_label: payload.group_by ? (payload.categories?.[cell.category_index] || "") : visibleSeries[categoryIndexes.get(cell.column)]?.label }));
       const valid = cells.filter((cell) => numeric(cell.value) !== null);
       series.push({ name: payload.series[0]?.column || "value", type: "heatmap", data: valid.map((cell) => ({ value: [cell.period_index, cell.category_index, cell.value], cell })),
         label: { show: payload.periods.length <= 8 && cats.length <= 18, formatter: (p) => compact(p.value[2]), fontSize: 11 },
@@ -375,7 +404,8 @@ window.AnalysisCharts = (() => {
   function tooltip(p) {
     if (p.data?.cell) {
       const cell = p.data.cell;
-      return (payload.categories?.[cell.category_index] || "") + "\n" + period(cell.period) + "\n" + number(cell.value) + " " + (payload.series[0]?.unit || "") + "\nKaynak için tıklayın";
+      const series = payload.series.find((item) => item.column === cell.column);
+      return (cell.category_label || payload.categories?.[cell.category_index] || "") + "\n" + period(cell.period) + "\n" + number(cell.value) + " " + (series?.unit || "") + "\nKaynak için tıklayın";
     }
     const s = payload.series.find((item) => item.column === p.seriesName);
     if (!s) return "";
@@ -399,7 +429,7 @@ window.AnalysisCharts = (() => {
     const holder = q("#chart-point");
     holder.replaceChildren();
     const info = node("div");
-    info.append(node("strong", (cell ? payload.categories?.[cell.category_index] : s.label) + " · " + period(sourcePeriod)));
+    info.append(node("strong", (cell ? cell.category_label || payload.categories?.[cell.category_index] : s.label) + " · " + period(sourcePeriod)));
     info.append(node("span", "Özgün analiz değeri: " + number(value) + " " + (s.raw_unit || s.unit)));
     if (payload.spec.normalize === "index100") info.append(node("small", "Grafikte: " + number(s.values[i]) + ". Kaynak izi, bu endeks dönüşümünden önceki değere aittir."));
     const button = node("button", "Kaynak izini incele ↗", "chart-action");
