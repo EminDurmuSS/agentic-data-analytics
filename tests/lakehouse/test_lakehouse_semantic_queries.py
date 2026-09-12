@@ -224,6 +224,16 @@ class SemanticQueryTests(unittest.TestCase):
             self.service.query_grouped({"metric_id": "profit", "group_by": "city", "dimensions": {"group_code": 10001}, "start": "2026-Q1", "end": "2026-Q1", "frequency": "quarterly", "alignment": "last"})
         self.assertEqual("INVALID_TEMPORAL_AGGREGATION", blocked.exception.code)
 
+    def test_revise_rejects_a_duplicate_series_column(self):
+        analysis = self.service.execute(self.plan("gold"))
+        # Re-adding the same metric+dimensions (the "add earlier years" mistake on a time
+        # series) would repeat identical values, so revise refuses it under a new name too.
+        with self.assertRaises(PlanError) as blocked:
+            self.service.revise_analysis({"analysis_id": analysis["analysis_id"],
+                "add_columns": [{"name": "gold_2", "metric_id": "gold",
+                                 "dimensions": {"city": "ANKARA", "group_code": 10001}, "alignment": "native"}]})
+        self.assertEqual("DUPLICATE_COLUMN", blocked.exception.code)
+
     def test_warnings_survive_reload_for_scalar_and_grouped_results(self):
         scalar = self.service.execute(self.plan("partial", "annual", "sum", "2026", "2026"))
         grouped = self.service.query_grouped({"metric_id": "gold", "group_by": "city", "dimensions": {"group_code": 10001}, "start": "2026-01", "end": "2026-01", "frequency": "monthly"})

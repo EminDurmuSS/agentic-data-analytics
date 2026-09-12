@@ -26,11 +26,18 @@ def _blocked(code, message):
 
 
 def _unreadable(content):
-    """Flag a final answer dominated by non-Latin/Turkish script or replacement
-    characters, so garbled model output is regenerated rather than delivered."""
+    """Flag a final answer that is garbled: replacement characters, non-Latin/Turkish
+    script, or degenerate repetition with almost no coherent words, so it is
+    regenerated rather than delivered."""
     if "�" in content:
         return True
     letters = [c for c in content if c.isalpha()]
+    stripped = content.strip()
+    # Degenerate model output: a long answer carrying almost no real words (repetitive
+    # digits/symbols) is garbage, not a Turkish sentence or a numeric table answer.
+    if (len(stripped) >= 100 and len(re.findall(r"[A-Za-zçğıöşüÇĞİÖŞÜ]{2,}", content)) <= 3
+            and len(letters) / len(stripped) < 0.10):
+        return True
     if not letters:
         return False
     def foreign(c):
@@ -255,6 +262,12 @@ class AgentRuntime:
                                 state["artifacts"].append(item)
                     self.run_store.checkpoint(run_id, state)
                     if result.get("status") == "needs_input":
+                        # A clarifying question asked AFTER a result was produced this turn
+                        # must not bury it behind a dead-end needs_input; present the saved
+                        # analysis/chart and surface the question with it instead.
+                        if state.get("analysis_updated") or state.get("chart_updated"):
+                            return self._finish(record, state, "completed", result["message"],
+                                                warnings=[{"code": "CLARIFICATION_AFTER_RESULT", "message": "A result was produced this turn; the model's follow-up question is surfaced alongside it rather than pausing for input."}])
                         return self._finish(record, state, "needs_input", result["message"])
                     if result.get("status") in {"blocked", "error", "failed", "unavailable"}:
                         state["repairs"] += 1

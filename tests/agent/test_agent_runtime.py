@@ -451,6 +451,17 @@ class AgentRuntimeTests(unittest.TestCase):
         tool_messages = [m for m in client.requests[0] if m["role"] == "tool"]
         self.assertEqual({m["tool_call_id"] for m in tool_messages}, {"call-1", "unused"})
 
+    def test_ask_user_after_a_produced_analysis_presents_it_not_needs_input(self):
+        # If the model computes a valid analysis then asks a follow-up question, the run
+        # must present the table (completed + analysis_id), not bury it behind needs_input.
+        runtime, _ = self.runtime([call("execute", self.plan, "e1"),
+                                   call("ask_user", {"question": "Tek 24 aylık seri mi iki sütun mu?"}, "q1")])
+        result = runtime.run("2023-2024 tablosu oluştur")
+        self.assertEqual(result["status"], "completed", result)
+        self.assertIsNotNone(result["analysis_id"])
+        self.assertIn("mi", result["message"])
+        self.assertTrue(any(w.get("code") == "CLARIFICATION_AFTER_RESULT" for w in result.get("warnings", [])))
+
     def test_custom_tools_publish_artifact_references(self):
         extra = {"inspect_source": {"schema": {"type": "function", "function": {"name": "inspect_source", "description": "Inspect registered document", "parameters": obj({"source_id": {"type": "string"}})}},
                  "handler": lambda args: {"status": "ok", "source_id": args["source_id"], "artifact_ref": "artifact-safe", "tables": []}}}

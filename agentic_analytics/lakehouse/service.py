@@ -894,9 +894,17 @@ class LakehouseService:
             raise PlanError("Analysis belongs to another workspace")
         if parent_manifest["plan"].get("query_type") == "grouped":
             raise PlanError("Grouped analyses require a new explicit grouped query; scalar revisions are unavailable", code="GROUPED_REVISION_UNSUPPORTED")
+        def _series_key(column):
+            return (column.get("metric_id"), json.dumps(column.get("dimensions") or {}, sort_keys=True), column.get("alignment", "native"))
+        existing_series = {_series_key(column) for column in parent_manifest["plan"].get("columns", []) if isinstance(column, dict)}
         for selection in request.get("add_columns", []):
             if isinstance(selection, dict) and selection.get("name") in parent.columns:
                 raise PlanError("An added column must have a new name; use an operation for explicit replacement")
+            # A time series is extended by a wider start/end and re-execution, not by adding
+            # the same metric again: a duplicate (metric, dimensions, alignment) column would
+            # just repeat identical values.
+            if isinstance(selection, dict) and _series_key(selection) in existing_series:
+                raise PlanError("Bu seri (aynı metrik, boyut ve hizalama) tabloda zaten var; başka bir dönemi görmek için start/end aralığını genişletip yeniden hesaplayın, aynı seriyi ikinci kolon olarak eklemeyin.", code="DUPLICATE_COLUMN")
         plan = copy.deepcopy(parent_manifest["plan"])
         plan["columns"].extend(copy.deepcopy(request.get("add_columns", [])))
         plan.setdefault("operations", []).extend(copy.deepcopy(request.get("operations", [])))
