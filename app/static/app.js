@@ -186,77 +186,6 @@ function renderMessage(parent, text) {
     parent.append(block);
   }
 }
-function workspaceThreadLabel(run) {
-  const text = (run?.message || "Sohbet").trim();
-  if (!text) return "Sohbet";
-  return text.length > 42 ? text.slice(0, 39) + "…" : text;
-}
-function renderWorkspaceThreads(workspace, parent) {
-  // renderWorkspaceThreads is only invoked for the active workspace, so its runs are the source.
-  const runs = [...(state.workspace?.runs || [])].reverse();
-  const threads = el("div", null, "workspace-threads");
-  const newThread = el("button", "Yeni sohbet", "workspace-thread-button");
-  newThread.type = "button";
-  newThread.addEventListener("click", (event) => {
-    event.stopPropagation();
-    if (state.busy) return;
-    state.conversation = null;
-    $("#messages").replaceChildren();
-    appendMessage(
-      "assistant",
-      "Yeni konuşma başladı. Çalışma alanınızdaki veri ve son analiz kullanılabilir.",
-    );
-  });
-  threads.append(newThread);
-
-  const seenConversations = new Set();
-  for (const run of runs) {
-    if (!run.conversation_id || seenConversations.has(run.conversation_id)) continue;
-    seenConversations.add(run.conversation_id);
-
-    const threadItem = el("div", null, "workspace-thread-item");
-    const item = el("button", workspaceThreadLabel(run), "workspace-thread");
-    item.type = "button";
-    item.title = run.message || "Sohbet";
-    item.addEventListener("click", (event) => {
-      event.stopPropagation();
-      if (state.workspace?.workspace_id !== workspace.workspace_id) return;
-      state.conversation = run.conversation_id || null;
-      if (run.message) {
-        $("#question").value = run.message;
-        $("#question").focus();
-      }
-    });
-
-    const deleteThreadBtn = el("button", "✕", "thread-delete");
-    deleteThreadBtn.type = "button";
-    deleteThreadBtn.title = "Sohbeti sil";
-    deleteThreadBtn.addEventListener("click", async (event) => {
-      event.stopPropagation();
-      if (state.busy) return;
-      if (!confirm("Bu sohbeti silmek istediğinize emin misiniz?")) return;
-      try {
-        await api(`/api/workspaces/${workspace.workspace_id}/conversations/${run.conversation_id}`, { method: "DELETE" });
-        if (state.conversation === run.conversation_id) {
-          state.conversation = null;
-          $("#messages").replaceChildren();
-          appendMessage(
-            "assistant",
-            "Sohbet silindi. Yeni bir konuşma başlatabilirsiniz."
-          );
-        }
-        await selectWorkspace(workspace.workspace_id);
-      } catch (err) {
-        notice(err.message);
-      }
-    });
-
-    threadItem.append(item, deleteThreadBtn);
-    threads.append(threadItem);
-  }
-
-  parent.append(threads);
-}
 async function refreshWorkspaces() {
   const { workspaces } = await api("/api/workspaces");
   const list = $("#workspace-list");
@@ -313,9 +242,6 @@ async function refreshWorkspaces() {
       selectWorkspace(workspace.workspace_id).catch((e) => notice(e.message)),
     );
     group.append(button);
-    if (workspace.workspace_id === state.workspace?.workspace_id) {
-      renderWorkspaceThreads(workspace, group);
-    }
     list.append(group);
   }
   return workspaces;

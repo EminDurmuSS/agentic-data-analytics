@@ -203,67 +203,6 @@ button.primary:hover {
   font-size: 10px;
   margin-top: 3px;
 }
-.workspace-threads {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  margin: 2px 0 6px 15px;
-  padding-left: 11px;
-  border-left: 1px solid var(--line);
-}
-.workspace-thread-item {
-  position: relative;
-  display: flex;
-  align-items: center;
-  gap: 2px;
-}
-.workspace-thread-item .workspace-thread {
-  flex: 1;
-  min-width: 0;
-}
-.thread-delete {
-  border: none;
-  background: transparent;
-  color: var(--muted);
-  font-size: 11px;
-  padding: 4px 6px;
-  border-radius: 4px;
-  opacity: 0;
-  transition: opacity 0.15s ease, background 0.15s ease, color 0.15s ease;
-  cursor: pointer;
-  flex-shrink: 0;
-}
-.workspace-thread-item:hover .thread-delete {
-  opacity: 1;
-}
-.thread-delete:hover {
-  background: rgba(217, 83, 79, 0.15);
-  color: #d9534f;
-}
-.workspace-thread-button,
-.workspace-thread {
-  width: 100%;
-  text-align: left;
-  border: 1px solid transparent;
-  background: rgba(255, 255, 255, 0.4);
-  color: var(--ink);
-  padding: 7px 10px;
-  border-radius: 7px;
-  font-size: 11px;
-  line-height: 1.5;
-  overflow-wrap: anywhere;
-  transition: background 0.15s ease, border-color 0.15s ease;
-}
-.workspace-thread-button {
-  color: var(--navy);
-  font-weight: 600;
-  background: rgba(0, 32, 72, 0.05);
-}
-.workspace-thread-button:hover,
-.workspace-thread:hover {
-  border-color: var(--line);
-  background: #fff;
-}
 .sidebar-bottom {
   margin-top: auto;
   font-size: 10px;
