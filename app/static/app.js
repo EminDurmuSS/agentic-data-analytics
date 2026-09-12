@@ -49,6 +49,20 @@ async function api(path, options = {}) {
     );
   return body;
 }
+async function fetchJob(jobId) {
+  // Absorb transient network blips (a dropped poll, a brief server restart) during a
+  // long-running job so one failed request does not abort the run's UI and activity.
+  let lastError;
+  for (let attempt = 0; attempt < 5; attempt++) {
+    try {
+      return await api("/api/jobs/" + jobId);
+    } catch (error) {
+      lastError = error;
+      await new Promise((resolve) => setTimeout(resolve, 800 * (attempt + 1)));
+    }
+  }
+  throw lastError;
+}
 function notice(message) {
   $("#notice").textContent = message || "";
   $("#notice").hidden = !message;
@@ -409,7 +423,7 @@ async function submitQuestion(event) {
     state.job = body.job_id;
     let job;
     for (let i = 0; i < 480; i++) {
-      job = await api("/api/jobs/" + state.job);
+      job = await fetchJob(state.job);
       showEvents(job.activity);
       showPendingActivity(pending, job.activity);
       if (["finished", "failed", "interrupted"].includes(job.status)) break;
@@ -480,7 +494,7 @@ async function pollExisting(jobId) {
   $("#send").disabled = true;
   try {
     for (let i = 0; i < 480; i++) {
-      const job = await api("/api/jobs/" + jobId);
+      const job = await fetchJob(jobId);
       showEvents(job.activity);
       if (job.result) {
         await selectAfterRun(job);
