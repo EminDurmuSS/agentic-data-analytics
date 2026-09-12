@@ -28,6 +28,8 @@
 .chart-settings { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 17px; border: 1px solid #dadfe6; background: #f1f3f5; padding: 19px; margin-top: 15px; border-radius: 10px; }
 .chart-settings label, .chart-settings legend { font-size: 11px; color: #3b6192; line-height: 1.5; min-width: 0; }
 .chart-settings input:not([type="checkbox"]), .chart-settings select { display: block; width: 100%; border: 1px solid #d0d7e0; background: #ffffff; padding: 9px 10px; border-radius: 6px; font-size: 11px; color: #0b4085; margin-top: 7px; }
+.chart-settings select:disabled { background: #f7f8fa; color: #8a94a1; cursor: not-allowed; }
+.chart-setting-hint { display: block; color: #7d8792; font-size: 9px; line-height: 1.45; margin-top: 5px; }
 .chart-wide { grid-column: 1 / -1; }
 .chart-settings fieldset { margin: 0; border: 0; padding: 0; min-width: 0; }
 .chart-columns { display: grid; gap: 6px; margin-top: 8px; max-height: 210px; overflow: auto; }
@@ -54,6 +56,7 @@
 .chart-point span { color: #3d6496; margin-top: 3px; }
 .chart-point small { color: #527fb9; font-size: 10px; }
 .chart-info { color: #41699e; background: #eff1f3; border: 1px solid #dadfe6; border-radius: 6px; padding: 10px 12px; font-size: 10px; line-height: 1.8; }
+.chart-limited-note { color: #718093; background: transparent; border: 0; border-left: 2px solid #c5ced9; border-radius: 0; padding: 2px 0 2px 8px; font-size: 9px; line-height: 1.55; }
 .chart-footnote { border-top: 1px solid #dde2e8; padding: 16px 0; display: flex; align-items: flex-start; justify-content: space-between; gap: 17px; }
 #chart-sources { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
 #chart-sources strong { font-size: 8px; font-weight: 600; letter-spacing: 1.3px; color: #4876b1; margin-bottom: 3px; }

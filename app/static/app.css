@@ -151,8 +151,8 @@ button.primary:hover {
 }
 .workspace-item {
   display: grid;
-  grid-template-columns: 14px 1fr;
-  column-gap: 8px;
+  grid-template-columns: 14px 1fr auto;
+  column-gap: 6px;
   align-items: start;
   text-align: left;
   padding: 11px 10px;
@@ -161,6 +161,7 @@ button.primary:hover {
   line-height: 1.5;
   border: 1px solid transparent;
   overflow-wrap: anywhere;
+  position: relative;
 }
 .workspace-chevron {
   grid-row: 1 / span 2;
@@ -172,13 +173,31 @@ button.primary:hover {
   grid-column: 2;
   overflow-wrap: anywhere;
 }
+.workspace-delete {
+  grid-column: 3;
+  grid-row: 1;
+  color: var(--muted);
+  font-size: 11px;
+  padding: 1px 4px;
+  border-radius: 4px;
+  opacity: 0;
+  transition: opacity 0.15s ease, background 0.15s ease, color 0.15s ease;
+  cursor: pointer;
+}
+.workspace-item:hover .workspace-delete {
+  opacity: 1;
+}
+.workspace-delete:hover {
+  background: rgba(217, 83, 79, 0.15);
+  color: #d9534f;
+}
 .workspace-item.active {
   background: #ffffff;
   border-color: #dce0e6;
   box-shadow: 0 2px 3px #08306505;
 }
 .workspace-item small {
-  grid-column: 2;
+  grid-column: 2 / span 2;
   display: block;
   color: var(--muted);
   font-size: 10px;
@@ -191,6 +210,35 @@ button.primary:hover {
   margin: 2px 0 6px 15px;
   padding-left: 11px;
   border-left: 1px solid var(--line);
+}
+.workspace-thread-item {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+.workspace-thread-item .workspace-thread {
+  flex: 1;
+  min-width: 0;
+}
+.thread-delete {
+  border: none;
+  background: transparent;
+  color: var(--muted);
+  font-size: 11px;
+  padding: 4px 6px;
+  border-radius: 4px;
+  opacity: 0;
+  transition: opacity 0.15s ease, background 0.15s ease, color 0.15s ease;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.workspace-thread-item:hover .thread-delete {
+  opacity: 1;
+}
+.thread-delete:hover {
+  background: rgba(217, 83, 79, 0.15);
+  color: #d9534f;
 }
 .workspace-thread-button,
 .workspace-thread {
@@ -483,6 +531,72 @@ h3 {
 .activity li small {
   display: block;
   color: #8a8f96;
+}
+.activity code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.92em;
+  color: #173b68;
+  background: #dce8f5;
+  border-radius: 3px;
+  padding: 1px 4px;
+}
+.live-activity {
+  list-style: none;
+  margin: 4px 0 0;
+  padding: 0;
+  line-height: 1.55;
+  font-size: 11px;
+}
+.live-activity code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.9em;
+  color: inherit;
+}
+.message.pending .body {
+  color: #7d8998;
+  font-size: 11px;
+}
+.live-activity li {
+  transition: opacity 280ms ease, color 280ms ease;
+}
+.live-activity .live-past {
+  opacity: 0.34;
+}
+.live-activity .live-current {
+  color: #617186;
+  opacity: 0.9;
+  animation: live-step-in 300ms ease-out;
+}
+.live-activity .live-current::before,
+.live-loading::before {
+  content: "";
+  display: inline-block;
+  width: 5px;
+  height: 5px;
+  margin: 0 7px 1px 1px;
+  border-radius: 50%;
+  background: #8292a5;
+  animation: live-step-pulse 1.15s ease-in-out infinite;
+}
+.live-loading {
+  color: #8b96a4;
+  font-size: 11px;
+}
+@keyframes live-step-in {
+  from { opacity: 0; transform: translateY(2px); }
+  to { opacity: 0.9; transform: translateY(0); }
+}
+@keyframes live-step-pulse {
+  0%, 100% { opacity: 0.35; }
+  50% { opacity: 1; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .live-activity li,
+  .live-activity .live-current::before,
+  .live-loading::before {
+    animation: none;
+    transition: none;
+  }
 }
 .result-pane {
   padding: 29px 30px 45px;

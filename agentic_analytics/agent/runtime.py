@@ -77,6 +77,47 @@ def _normalize_result(result):
     return result
 
 
+def _web_research_message(result):
+    lines = ["Web kaynakları doğrudan okunarak bulundu. Aşağıdaki bilgiler yalnızca içerikleri okunabilen kaynaklara dayanır.", ""]
+    for index, source in enumerate(result.get("sources", []), 1):
+        title = source.get("title") or source.get("domain") or "Kaynak"
+        date = source.get("date_published") or source.get("date_modified")
+        summary = " ".join(str(source.get("content", "")).split())[:500]
+        lines.append(f"{index}. **{title}**")
+        if date:
+            lines.append(f"   Yayın tarihi: {date}")
+        if summary:
+            lines.append(f"   Özet: {summary}")
+        for table in source.get("tables", [])[:1]:
+            # preview rows are dicts keyed by the SANITIZED column names; original_columns
+            # maps those to the human header. Look up by sanitized key, display the header.
+            keys = table.get("columns") or []
+            header_map = table.get("original_columns") if isinstance(table.get("original_columns"), dict) else {}
+            headers = [header_map.get(key) or key for key in keys]
+            rows = table.get("preview", [])[:8]
+            if keys and rows:
+                lines.append("   Tablo:")
+                lines.append("   | " + " | ".join(str(header) for header in headers) + " |")
+                lines.append("   | " + " | ".join("---" for _ in keys) + " |")
+                for row in rows:
+                    cells = [str(row.get(key, "")) for key in keys] if isinstance(row, dict) else [str(value) for value in row][:len(keys)]
+                    lines.append("   | " + " | ".join(cells) + " |")
+        lines.append(f"   Kaynak: [{source.get('url')}]({source.get('url')})")
+        lines.append("")
+    if result.get("failures"):
+        lines.append(f"Not: {len(result['failures'])} kaynak okunamadığı için listeye alınmadı.")
+    return "\n".join(lines).strip()
+
+
+def _web_research_failure_message(result):
+    code = result.get("code")
+    if code == "OFFICIAL_SOURCE_NOT_FOUND":
+        return "İstenen resmi kurum alanında konuya uygun ve okunabilir bir kaynak bulunamadı. İlgisiz web siteleri kaynak olarak kullanılmadı."
+    if code == "NO_READABLE_SOURCES":
+        return "Arama sonuçları bulundu ancak doğrudan okunabilen ve konuya uygun bir kaynak bulunamadı. Arama snippet'leri kanıt olarak kullanılmadı."
+    return result.get("message") or "Web araştırması güvenilir bir kaynak okuyamadı."
+
+
 class AgentRuntime:
     def __init__(self, store, workspace_id, client, run_store: AgentRunStore,
                  extra_tools=None, *, max_decisions=10, max_repairs=2,
@@ -149,6 +190,16 @@ class AgentRuntime:
                         write_key = fingerprint({"name": call["function"]["name"], "args": json.loads(call["function"]["arguments"])})
                         state.setdefault("successful_writes", {})[write_key] = result
                     state["pending"].pop(0)
+                    if (call["function"]["name"] == "research_web"
+                            and result.get("status") == "ok" and result.get("sources")):
+                        state["web_research_completed"] = True
+                        return self._finish(record, state, "completed", _web_research_message(result))
+                    if (call["function"]["name"] == "research_web"
+                            and result.get("status") == "unavailable"
+                            and result.get("code") in {"OFFICIAL_SOURCE_NOT_FOUND", "NO_READABLE_SOURCES", "SEARCH_NO_RESULTS"}):
+                        state["web_research_completed"] = True
+                        return self._finish(record, state, "completed", _web_research_failure_message(result),
+                                            warnings=[{"code": result.get("code"), "message": result.get("message", "") }])
                     if result.get("analysis_id") and result.get("status") in {"ok", "valid"}:
                         state["analysis_id"] = result["analysis_id"]
                         if call["function"]["name"] in {"execute", "revise_analysis", "query_grouped"}:
@@ -191,6 +242,9 @@ class AgentRuntime:
                         unresolved[tool_name] = result.get("errors", [])
                     elif result.get("status") in {"ok", "valid"}:
                         unresolved.pop(tool_name, None)
+                        if tool_name == "research_web" and result.get("sources"):
+                            state["web_research_completed"] = True
+                            unresolved.clear()
                         if tool_name in {"execute", "revise_analysis", "query_grouped"}:
                             for resolved_name in ("execute", "revise_analysis", "query_grouped", "validate_plan"):
                                 unresolved.pop(resolved_name, None)
@@ -223,7 +277,8 @@ class AgentRuntime:
                 self.run_store.event(run_id, "model_request", {"decision": state["decisions"], "message_count": len(messages)})
                 # The MIA live probe confirmed this server option avoids
                 # exhausting the bounded output on private reasoning alone.
-                response = self.client.chat(messages, tools=[v["schema"] for v in self.tools.values()], temperature=0, max_tokens=4096, enable_thinking=False)
+                tool_schemas = [] if state.get("web_research_completed") else [v["schema"] for v in self.tools.values()]
+                response = self.client.chat(messages, tools=tool_schemas, temperature=0, max_tokens=4096, enable_thinking=False)
                 calls = response.get("tool_calls") or []
                 content = response.get("content")
                 usage = response.get("usage") or {}
@@ -339,6 +394,21 @@ class AgentRuntime:
         definition = self.tools.get(name)
         if definition is None:
             result = _blocked("UNKNOWN_TOOL", "Requested tool is not registered.")
+            self.run_store.event(run_id, "tool_result", {"tool": name, "call_id": call["id"], "result": result})
+            return result
+        web_research_completed = any(
+            item.get("tool") == "research_web" and item.get("result", {}).get("status") == "ok"
+            and item.get("result", {}).get("sources")
+            for item in state.get("tool_results", []))
+        if web_research_completed and name in {"web_search", "research_web", "inspect_source"}:
+            result = {"status": "ok", "reused": True,
+                  "message": "Readable web sources are already available in the previous research result; use them instead of making another request."}
+            self.run_store.event(run_id, "tool_reused", {"tool": name, "call_id": call["id"], "result": result})
+            return result
+        if name == "research_web" and any(
+                item.get("tool") == "research_web" and item.get("result", {}).get("status") == "ok"
+                for item in state.get("tool_results", [])):
+            result = _blocked("WEB_RESEARCH_ALREADY_COMPLETED", "Web sources were already read. Use the existing source content to answer instead of repeating the research.")
             self.run_store.event(run_id, "tool_result", {"tool": name, "call_id": call["id"], "result": result})
             return result
         try:
