@@ -128,6 +128,23 @@ class AgentRunStore:
             row = db.execute("SELECT * FROM runs WHERE workspace_id=? AND request_id=?", (identifier(workspace_id), identifier(request_id))).fetchone()
             return self._run(row) if row else None
 
+    def delete_workspace(self, workspace_id):
+        identifier(workspace_id)
+        with self._db() as db:
+            db.execute("DELETE FROM steps WHERE run_id IN (SELECT run_id FROM runs WHERE workspace_id=?)", (workspace_id,))
+            db.execute("DELETE FROM events WHERE run_id IN (SELECT run_id FROM runs WHERE workspace_id=?)", (workspace_id,))
+            db.execute("DELETE FROM runs WHERE workspace_id=?", (workspace_id,))
+            db.execute("DELETE FROM conversations WHERE workspace_id=?", (workspace_id,))
+
+    def delete_conversation(self, workspace_id, conversation_id):
+        identifier(workspace_id)
+        identifier(conversation_id)
+        with self._db() as db:
+            db.execute("DELETE FROM steps WHERE run_id IN (SELECT run_id FROM runs WHERE workspace_id=? AND conversation_id=?)", (workspace_id, conversation_id))
+            db.execute("DELETE FROM events WHERE run_id IN (SELECT run_id FROM runs WHERE workspace_id=? AND conversation_id=?)", (workspace_id, conversation_id))
+            db.execute("DELETE FROM runs WHERE workspace_id=? AND conversation_id=?", (workspace_id, conversation_id))
+            db.execute("DELETE FROM conversations WHERE workspace_id=? AND conversation_id=?", (workspace_id, conversation_id))
+
     def list(self, workspace_id, conversation_id=None, limit=20):
         identifier(workspace_id)
         if type(limit) is not int or not 1 <= limit <= 100:

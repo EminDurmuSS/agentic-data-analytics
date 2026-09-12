@@ -26,6 +26,14 @@ def create_router(context: AppContext) -> APIRouter:
     def new_workspace(body: WorkspaceBody):
         return context.create_workspace(body.name, body.profile)
 
+    @router.delete("/api/workspaces/{workspace_id}")
+    def delete_workspace(workspace_id: str):
+        return context.delete_workspace(workspace_id)
+
+    @router.delete("/api/workspaces/{workspace_id}/conversations/{conversation_id}")
+    def delete_conversation(workspace_id: str, conversation_id: str):
+        return context.delete_conversation(workspace_id, conversation_id)
+
     @router.get("/api/workspaces/{workspace_id}")
     def workspace(workspace_id: str):
         value = context.workspace(workspace_id)

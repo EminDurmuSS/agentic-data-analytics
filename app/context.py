@@ -104,6 +104,54 @@ class AppContext:
                 result.append(self.workspace(path.name))
         return sorted(result, key=lambda value: value.get("created_at", ""), reverse=True)
 
+    def delete_workspace(self, workspace_id):
+        import shutil
+        workspace_id = _safe_id(workspace_id)
+        with self.lock:
+            try:
+                self.store.workspace(workspace_id)
+            except StoreError:
+                raise HTTPException(404, "Çalışma bulunamadı.")
+            # Refuse deletion while a run for this workspace is still in flight; holding
+            # self.lock blocks new submissions, so this check plus rejection avoids racing
+            # an active analysis that would corrupt or resurrect the workspace.
+            for job_id, future in self.futures.items():
+                if future.done():
+                    continue
+                job_path = self._metadata / "jobs" / (job_id + ".json")
+                if job_path.exists() and json.loads(job_path.read_text()).get("workspace_id") == workspace_id:
+                    raise HTTPException(409, "Çalışma alanında sürmekte olan bir analiz var; tamamlanınca tekrar silin.")
+            self.run_store.delete_workspace(workspace_id)
+            meta_path = self._metadata / "workspaces" / (workspace_id + ".json")
+            if meta_path.exists():
+                meta_path.unlink(missing_ok=True)
+            jobs_dir = self._metadata / "jobs"
+            if jobs_dir.exists():
+                for job_file in jobs_dir.glob("*.json"):
+                    try:
+                        data = json.loads(job_file.read_text())
+                        if data.get("workspace_id") == workspace_id:
+                            job_file.unlink(missing_ok=True)
+                    except Exception:
+                        pass
+            doc_dir = self.store.root / "document_sources" / workspace_id
+            if doc_dir.exists():
+                shutil.rmtree(doc_dir, ignore_errors=True)
+            ws_dir = self.store.root / "workspaces" / workspace_id
+            if ws_dir.exists():
+                shutil.rmtree(ws_dir, ignore_errors=True)
+            # Deliberately leave the per-workspace .lock files: unlinking a live flock
+            # target breaks mutual exclusion for any concurrent holder, and an empty
+            # lock file is harmless.
+            return {"status": "ok", "deleted_workspace_id": workspace_id}
+
+    def delete_conversation(self, workspace_id, conversation_id):
+        workspace_id = _safe_id(workspace_id)
+        conversation_id = _safe_id(conversation_id)
+        with self.lock:
+            self.run_store.delete_conversation(workspace_id, conversation_id)
+            return {"status": "ok", "deleted_conversation_id": conversation_id}
+
     def documents(self, workspace_id):
         from agentic_analytics.agent.tools.documents import DocumentTools
         self.workspace(workspace_id)
