@@ -14,10 +14,22 @@ TOOL_DESCRIPTIONS = {
     "inspect_source": "Yeni kaynak inceleniyor",
     "publish_selected_table": "Doğrulanan tablo ekleniyor",
     "web_search": "Web kaynakları araştırılıyor",
+    "research_web": "Resmi web kaynakları araştırılıyor",
+    "ask_user": "Kullanıcıya kısa bir soru soruluyor",
     "rolling_anomalies": "Olağandışı dönemler aranıyor",
     "detect_changes": "Değişim noktaları inceleniyor",
     "analyze_relationship": "Değişkenler arasındaki ilişki hesaplanıyor",
     "create_chart": "Grafik hazırlanıyor",
+}
+
+# Turkish titles for the terminal run status, so a blocked/failed run is not
+# mislabeled as "tamamlandı".
+_RUN_STATUS_TITLES = {
+    "completed": "Agent çalışması tamamlandı",
+    "partial": "Agent çalışması kısmen tamamlandı",
+    "needs_input": "Agent kullanıcı girdisi bekliyor",
+    "blocked": "Agent çalışması engellendi",
+    "failed": "Agent çalışması tamamlanamadı",
 }
 
 
@@ -43,12 +55,17 @@ def _activity(event):
         if names:
             title = "Qwen fonksiyon seçti"
             detail = ", ".join(f"{name} — {_tool_description(name)}" for name in names)
+        elif payload.get("finish_reason") == "length":
+            title, detail = "Qwen yanıtı kesildi", "Çıktı uzunluk sınırına takıldı; fonksiyon çalıştırılmadı."
         else:
             title, detail = "Qwen nihai yanıtı üretti", "Yeni bir fonksiyon çağrısı istemedi."
     elif kind == "tool_started":
         title, detail = f"{tool} çalıştırılıyor", _tool_description(tool)
     elif kind == "plan_validation":
-        title, detail = f"{tool} planı doğrulanıyor", "Hesap planı veri sözleşmelerine göre kontrol ediliyor."
+        if isinstance(payload.get("validation"), dict) and payload["validation"].get("status") not in {"valid", "ok", None}:
+            title, detail = f"{tool} planı reddedildi", "Hesap planı veri sözleşmelerini geçemedi."
+        else:
+            title, detail = f"{tool} planı doğrulanıyor", "Hesap planı veri sözleşmelerine göre kontrol ediliyor."
     elif kind == "tool_result":
         if status in {"blocked", "error", "failed", "unavailable"}:
             title, detail = f"{tool} tamamlanamadı", "Fonksiyon hata veya güvenlik engeliyle sonuçlandı."
@@ -59,7 +76,9 @@ def _activity(event):
     elif kind == "tool_recovered":
         title, detail = f"{tool} kayıtlı sonuçtan kurtarıldı", "Kesintiden önceki doğrulanmış sonuç kullanıldı."
     elif kind == "run_finished":
-        title, detail = "Agent çalışması tamamlandı", f"Son durum: {payload.get('status', 'bilinmiyor')}."
+        run_status = payload.get("status")
+        title = _RUN_STATUS_TITLES.get(run_status, "Agent çalışması sona erdi")
+        detail = f"Son durum: {run_status or 'bilinmiyor'}."
     else:
         title, detail = "Kayıtlı agent olayı", f"Olay türü: {kind}."
     return {
