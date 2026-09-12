@@ -160,6 +160,12 @@ window.AnalysisCharts = (() => {
       button.dataset.unavailable = "false";
       button.onclick = () => {
         const overrides = { kind, ...(kind !== "bar" ? { orientation: "vertical" } : {}) };
+        if (kind === "heatmap") {
+          // A heatmap shows raw values on one color scale, so drop any inherited
+          // normalization/dual-axis from the previous view instead of erroring out.
+          overrides.normalize = "none";
+          overrides.layout = "auto";
+        }
         if (kind === "scatter") {
           const cols = formSpec().columns;
           const xColumn = choices().find((item) => !cols.includes(item.column))?.column || (cols.length > 1 ? cols[0] : periodIndex);
@@ -194,6 +200,9 @@ window.AnalysisCharts = (() => {
   function renderKpis() {
     const holder = q("#chart-kpis");
     holder.replaceChildren();
+    // Grouped payloads carry per-group cells, not per-metric summaries, so a KPI
+    // card would render an empty "Gözlem yok" headline; suppress it for groups.
+    if (payload.group_by) { holder.hidden = true; return; }
     const normalized = payload.spec.normalize === "index100";
     for (const [i, series] of payload.series.entries()) {
       const summary = series.summary || {}, card = node("article", undefined, "chart-kpi");
@@ -419,9 +428,12 @@ window.AnalysisCharts = (() => {
     return lines.join("\n");
   }
   function showPoint(p) {
-    const s = payload.series.find((item) => item.column === p.seriesName) || payload.series[0];
-    if (!s || !p.data) return;
+    if (!p.data) return;
     const cell = p.data.cell, i = p.data.originalIndex ?? p.dataIndex;
+    // For a heatmap the single ECharts series is named after series[0], so resolve
+    // the clicked metric by the cell's own column to show its correct unit.
+    const s = payload.series.find((item) => item.column === (cell ? cell.column : p.seriesName)) || payload.series[0];
+    if (!s) return;
     const value = cell ? cell.raw_value : s.raw_values?.[i] ?? s.values[i];
     const sourcePeriod = cell ? cell.period : payload.periods[i];
     const dimensions = cell?.dimensions || payload.point_dimensions?.[i] || {};

@@ -153,7 +153,7 @@ class AgentChartWorkflowTests(unittest.TestCase):
             {"kind": "bar", "columns": ["credit"]},
             {"kind": "area", "columns": ["credit"]},
             {"kind": "scatter", "x": "rate", "columns": ["credit"]},
-            {"kind": "heatmap", "columns": ["credit", "rate"]},
+            {"kind": "heatmap", "columns": ["credit"]},
         ]
         for request in requests:
             with self.subTest(kind=request["kind"]):
@@ -162,9 +162,18 @@ class AgentChartWorkflowTests(unittest.TestCase):
                 self.assertTrue(chart["complete"])
                 self.assertEqual(self.expected_rows[0]["credit"], chart["series"][0]["raw_values"][0])
         heatmap = self.chart(wid, aid)
-        self.assertEqual(72, len(heatmap["cells"]))
+        self.assertEqual(36, len(heatmap["cells"]))
         self.assertIn("Sınırlı görsel", heatmap["presentation_notice"])
         self.assert_analysis_unchanged(wid, aid, before, analysis)
+
+    def test_mixed_unit_metric_heatmap_is_rejected(self):
+        # A metric heatmap paints every series on one color scale, so mixing TL and %
+        # is refused rather than silently drawn — the repo's UNIT_MISMATCH discipline.
+        wid, aid, _ = self.seed_analysis()
+        response = self.client.post(f"/api/workspaces/{wid}/analyses/{aid}/chart",
+                                    json={"kind": "heatmap", "columns": ["credit", "rate"]})
+        self.assertEqual(400, response.status_code, response.text)
+        self.assertIn("UNIT_MISMATCH", response.text)
 
     def test_chart_client_keeps_all_kind_buttons_available_with_limited_visual_notice(self):
         client = (Path(__file__).parents[2] / "app" / "static" / "charts.js").read_text(encoding="utf-8")

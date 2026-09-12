@@ -268,6 +268,10 @@ class ChartTools:
             normalized = {col: [None if value is None else _number(value / values[0] * 100) for value in values] for col, values in raw.items()}
             warnings.append(f"Yalnızca grafik görünümü normalize edildi: {base_period}=100. Özgün analiz değerleri korunuyor.")
         compatibility = {self._compatibility(metadata[col]) for col in selected}
+        # A metric heatmap paints every selected series on ONE color scale, so mixing
+        # units/price bases would compare incomparable magnitudes under one legend.
+        if kind == "heatmap" and not group_by and len(compatibility) > 1:
+            raise ChartError("Isı haritası tek renk ölçeği kullanır; farklı birimli veya fiyat bazlı metrikler aynı ısı haritasında karşılaştırılamaz. Aynı birimden metrikleri seçin ya da ayrı grafikler kullanın.", "UNIT_MISMATCH")
         layout = args.get("layout", "auto")
         if layout == "auto":
             layout = "overlay" if len(compatibility) == 1 or normalize == "index100" else "panels"
