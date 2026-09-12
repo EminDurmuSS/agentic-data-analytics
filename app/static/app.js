@@ -209,7 +209,12 @@ function renderWorkspaceThreads(workspace, parent) {
   });
   threads.append(newThread);
 
-  for (const run of runs.slice(0, 5)) {
+  const seenConversations = new Set();
+  for (const run of runs) {
+    if (!run.conversation_id || seenConversations.has(run.conversation_id)) continue;
+    seenConversations.add(run.conversation_id);
+
+    const threadItem = el("div", null, "workspace-thread-item");
     const item = el("button", workspaceThreadLabel(run), "workspace-thread");
     item.type = "button";
     item.title = run.message || "Sohbet";
@@ -222,7 +227,32 @@ function renderWorkspaceThreads(workspace, parent) {
         $("#question").focus();
       }
     });
-    threads.append(item);
+
+    const deleteThreadBtn = el("button", "✕", "thread-delete");
+    deleteThreadBtn.type = "button";
+    deleteThreadBtn.title = "Sohbeti sil";
+    deleteThreadBtn.addEventListener("click", async (event) => {
+      event.stopPropagation();
+      if (state.busy) return;
+      if (!confirm("Bu sohbeti silmek istediğinize emin misiniz?")) return;
+      try {
+        await api(`/api/workspaces/${workspace.workspace_id}/conversations/${run.conversation_id}`, { method: "DELETE" });
+        if (state.conversation === run.conversation_id) {
+          state.conversation = null;
+          $("#messages").replaceChildren();
+          appendMessage(
+            "assistant",
+            "Sohbet silindi. Yeni bir konuşma başlatabilirsiniz."
+          );
+        }
+        await selectWorkspace(workspace.workspace_id);
+      } catch (err) {
+        notice(err.message);
+      }
+    });
+
+    threadItem.append(item, deleteThreadBtn);
+    threads.append(threadItem);
   }
 
   parent.append(threads);
@@ -245,6 +275,35 @@ async function refreshWorkspaces() {
     button.append(chevron);
     const label = el("span", workspace.name, "workspace-label");
     button.append(label);
+
+    const deleteBtn = el("span", "✕", "workspace-delete");
+    deleteBtn.title = "Çalışma alanını sil";
+    deleteBtn.addEventListener("click", async (event) => {
+      event.stopPropagation();
+      if (state.busy) return;
+      if (!confirm(`"${workspace.name}" çalışma alanını ve tüm sohbetlerini silmek istediğinize emin misiniz?`)) return;
+      try {
+        await api("/api/workspaces/" + workspace.workspace_id, { method: "DELETE" });
+        if (state.workspace?.workspace_id === workspace.workspace_id) {
+          state.workspace = null;
+          state.conversation = null;
+          localStorage.removeItem("agentic-workspace");
+          $("#messages").replaceChildren();
+          clearResult();
+          $("#workspace-title").textContent = "Çalışma alanınız";
+          $("#profile-label").textContent = "VERİ ANALİZİ";
+          $("#workspace-version").textContent = "Yeni çalışma";
+        }
+        const remaining = await refreshWorkspaces();
+        if (!state.workspace && remaining.length) {
+          await selectWorkspace(remaining[0].workspace_id);
+        }
+      } catch (err) {
+        notice(err.message);
+      }
+    });
+    button.append(deleteBtn);
+
     const meta = el(
       "small",
       workspace.profile === "generic" ? "Kendi veriniz" : "KKB finans verileri",

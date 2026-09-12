@@ -103,6 +103,44 @@ class AppContext:
                 result.append(self.workspace(path.name))
         return sorted(result, key=lambda value: value.get("created_at", ""), reverse=True)
 
+    def delete_workspace(self, workspace_id):
+        import shutil
+        workspace_id = _safe_id(workspace_id)
+        with self.lock:
+            self.run_store.delete_workspace(workspace_id)
+            meta_path = self._metadata / "workspaces" / (workspace_id + ".json")
+            if meta_path.exists():
+                meta_path.unlink(missing_ok=True)
+            jobs_dir = self._metadata / "jobs"
+            if jobs_dir.exists():
+                for job_file in jobs_dir.glob("*.json"):
+                    try:
+                        data = json.loads(job_file.read_text())
+                        if data.get("workspace_id") == workspace_id:
+                            job_file.unlink(missing_ok=True)
+                    except Exception:
+                        pass
+            doc_dir = self.store.root / "document_sources" / workspace_id
+            if doc_dir.exists():
+                shutil.rmtree(doc_dir, ignore_errors=True)
+            ws_dir = self.store.root / "workspaces" / workspace_id
+            if ws_dir.exists():
+                shutil.rmtree(ws_dir, ignore_errors=True)
+            ws_lock = self.store.root / ".locks" / (workspace_id + ".lock")
+            if ws_lock.exists():
+                ws_lock.unlink(missing_ok=True)
+            run_lock = self.run_store.root / "locks" / (workspace_id + ".lock")
+            if run_lock.exists():
+                run_lock.unlink(missing_ok=True)
+            return {"status": "ok", "deleted_workspace_id": workspace_id}
+
+    def delete_conversation(self, workspace_id, conversation_id):
+        workspace_id = _safe_id(workspace_id)
+        conversation_id = _safe_id(conversation_id)
+        with self.lock:
+            self.run_store.delete_conversation(workspace_id, conversation_id)
+            return {"status": "ok", "deleted_conversation_id": conversation_id}
+
     def documents(self, workspace_id):
         from agentic_analytics.agent.tools.documents import DocumentTools
         self.workspace(workspace_id)
