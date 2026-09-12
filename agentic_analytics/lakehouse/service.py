@@ -97,6 +97,10 @@ def _search_terms(value: str) -> list[str]:
     # changes metric definitions, dimension values or readiness.
     aliases = {"unemployment": "issiz", "inflation": "enflasyon", "cpi": "tufe",
                "deposits": "mevduat", "deposit": "mevduat", "gold": "altin",
+               "npl": "takip", "nonperforming": "takip", "takipteki": "takip",
+               "mortgage": "konut", "housing": "konut", "ratio": "oran", "orani": "oran",
+               "share": "pay", "payi": "pay", "profit": "kar", "profitability": "kar",
+               "loan": "kredi",
                "credit": "kredi", "loans": "kredi", "capital": "sermaye",
                "adequacy": "yeterli", "yeterlilik": "yeterli", "yeterliligi": "yeterli",
                "issizlik": "issiz", "mevduati": "mevduat",
@@ -112,9 +116,33 @@ def _search_terms(value: str) -> list[str]:
     return [aliases.get(word, word) for word in re.findall(r"[a-z0-9_:.]+", _fold(value))]
 
 
-def _term_matches(term: str, text: str) -> bool:
-    if len(term) <= 3:
-        return re.search(r"(?<![a-z0-9_])" + re.escape(term) + r"(?![a-z0-9_])", text) is not None
+# Only the non-"toplam"/"total"-prefixed aggregate token needs listing; the rest
+# are caught by the startswith checks in _is_total_slice.
+_TOTAL_SLICE = {"tumvarlikyukumluluk"}
+
+
+def _is_total_slice(card: dict) -> bool:
+    # The aggregate ('Toplam'/'TOTAL') slice is the analyst default among sibling
+    # metrics that differ only by a currency/size/maturity/type slice token.
+    value_dimension = _fold(str(card.get("value_dimension") or ""))
+    if not value_dimension or value_dimension in {"toplamtp", "toplamyp"}:
+        # A currency-split total (Total-TRY/Total-FX) is not the grand aggregate default.
+        return False
+    return value_dimension in _TOTAL_SLICE or value_dimension.startswith("toplam") or value_dimension.startswith("total")
+
+
+def _term_matches(term: str, text: str, *, whole_word: bool = False) -> bool:
+    # Dimension values are a closed proper-noun vocabulary: match them as whole tokens
+    # so a concept fragment ('gumus') never spuriously satisfies a longer value
+    # ('gumushane'). Free-text titles keep agglutinative substring recall.
+    if len(term) <= 3 or whole_word:
+        # Full token first so a proper noun ending in 'i' (Kocaeli) still matches
+        # itself, then its suffix-stemmed form as a fallback.
+        if re.search(r"(?<![a-z0-9_])" + re.escape(term) + r"(?![a-z0-9_])", text):
+            return True
+        if whole_word and len(term) >= 5 and term.endswith("i"):
+            return re.search(r"(?<![a-z0-9_])" + re.escape(term[:-1]) + r"(?![a-z0-9_])", text) is not None
+        return False
     return term in text or (len(term) >= 5 and term.endswith("i") and term[:-1] in text)
 
 
@@ -227,7 +255,7 @@ class LakehouseService:
 
     @staticmethod
     def _card(binding: dict) -> dict:
-        fields = ("metric_id", "title", "source_system", "source_namespace", "native_frequency", "kind", "unit", "scale", "currency", "status", "dimensions", "institution_scope", "geography_scope", "notes", "index_role", "deflator_currency", "price_scope", "semantic_policy_version")
+        fields = ("metric_id", "title", "title_en", "group_name", "value_dimension", "is_archive", "temporal_semantics", "quality_status", "source_system", "source_namespace", "native_frequency", "kind", "unit", "scale", "currency", "status", "dimensions", "institution_scope", "geography_scope", "notes", "index_role", "deflator_currency", "price_scope", "semantic_policy_version")
         return {key: binding.get(key) for key in fields}
 
     def discover(self, request: dict) -> dict:
@@ -241,7 +269,7 @@ class LakehouseService:
             raise PlanError("Unknown readiness status")
         terms, frequencies = _query_terms(request["query"])
         with self._context() as (connection, bindings, workspace):
-            matches, dimension_cache = [], {}
+            matches, near, dimension_cache = [], [], {}
             for binding in bindings.values():
                 if request.get("status") and binding["status"] != request["status"]:
                     continue
@@ -265,10 +293,10 @@ class LakehouseService:
                         if cache_key not in dimension_cache:
                             values = connection.execute(f"SELECT DISTINCT {_identifier(physical)} FROM {_identifier(binding['table'])} WHERE {_identifier(physical)} IS NOT NULL LIMIT 1001").fetchall()
                             dimension_cache[cache_key] = [row[0] for row in values] if len(values) <= 1000 else []
-                        found = [value for value in dimension_cache[cache_key] if any(_term_matches(term, _fold(str(value))) for term in missing)]
+                        found = [value for value in dimension_cache[cache_key] if any(_term_matches(term, _fold(str(value)), whole_word=True) for term in missing)]
                         if found:
                             matched_dimensions[dimension] = found[:10]
-                            missing = [term for term in missing if not any(_term_matches(term, _fold(str(value))) for value in found)]
+                            missing = [term for term in missing if not any(_term_matches(term, _fold(str(value)), whole_word=True) for value in found)]
                 if not missing:
                     card = self._card(binding)
                     title_matches = sum(_term_matches(term, title) for term in terms)
@@ -291,8 +319,42 @@ class LakehouseService:
                     if matched_dimensions:
                         card["matched_dimensions"] = _json(matched_dimensions)
                     matches.append((compatible, score, card))
-            matches.sort(key=lambda item: (item[2]["status"] != "ready", not item[0], -item[1], item[2]["metric_id"]))
-            return {"status": "ok", "snapshot_id": workspace["snapshot_id"], "total": len(matches), "metrics": [card for _, _, card in matches[:limit]]}
+                elif terms and len(missing) < len(terms):
+                    # Partial match: store only cheap sort scalars plus references; the
+                    # card is materialized later, and only if no full match is found.
+                    near.append((binding["status"] != "ready", len(missing), title, matched_dimensions, missing, binding))
+            # Structural canonical ordering: after readiness/frequency/score, prefer
+            # the live (non-archive) aggregate slice from a curated source, so a
+            # Tp/Yp/size-bracket/archived decoy no longer wins on an alphabetical id.
+            matches.sort(key=lambda item: (
+                item[2]["status"] != "ready", not item[0], -item[1],
+                1 if item[2].get("is_archive") else 0,
+                0 if _is_total_slice(item[2]) else 1,
+                0 if str(item[2].get("quality_status") or "").startswith("passed") else 1,
+                item[2]["metric_id"]))
+            result = {"status": "ok", "snapshot_id": workspace["snapshot_id"], "total": len(matches), "metrics": [card for _, _, card in matches[:limit]]}
+            # When nothing fully matches, do not return a bare empty result: name
+            # the unresolved terms and surface the nearest real series as hints.
+            if terms and not matches:
+                near.sort(key=lambda item: (item[0], item[1],
+                                            -sum(_term_matches(term, item[2]) for term in terms), item[5]["metric_id"]))
+                near_cards = []
+                for _, _, _, matched_dims, missing_terms, binding in near[:min(limit, 6)]:
+                    card = self._card(binding)
+                    if matched_dims:
+                        card["matched_dimensions"] = _json(matched_dims)
+                    card["missing_terms"] = missing_terms
+                    near_cards.append(card)
+                result["no_confident_match"] = True
+                result["near_matches"] = near_cards
+                if near_cards:
+                    common_missing = set(terms)
+                    for card in near_cards:
+                        common_missing &= set(card.get("missing_terms", []))
+                    result["uncovered_terms"] = [term for term in terms if term in common_missing]
+                else:
+                    result["uncovered_terms"] = terms
+            return result
 
     def _dimension_rows(self, connection: Any, binding: dict, dimension: str, dimensions: dict | None = None) -> list[dict]:
         if not isinstance(dimension, str) or dimension not in binding.get("dimensions", {}):

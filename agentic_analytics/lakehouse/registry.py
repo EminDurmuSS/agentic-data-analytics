@@ -243,11 +243,17 @@ def get_bindings(connection: duckdb.DuckDBPyConnection) -> dict[str, dict[str, A
     payload_rows = connection.execute("SELECT metric_id,binding_json FROM catalog.metric_bindings").fetchall()
     result = {row[0]:apply_semantic_policy(json.loads(row[1])) for row in payload_rows if row[1] is not None}
     catalog_columns = {row[0] for row in connection.execute("SELECT column_name FROM information_schema.columns WHERE table_schema='catalog' AND table_name='metrics'").fetchall()}
-    searchable = [name for name in ("metric_name_en", "searchable_text", "group_name", "role") if name in catalog_columns]
+    # Propagate the structural disambiguator columns the catalog already computes
+    # (slice token, archive flag, temporal semantics, curation) so discover/describe
+    # can distinguish a canonical metric from its near-identical decoy siblings.
+    searchable = [name for name in ("metric_name_en", "searchable_text", "group_name", "role",
+                                    "dimension", "is_archive", "temporal_semantics", "quality_status")
+                  if name in catalog_columns]
     if searchable:
         for metric in rows(connection, "SELECT m.metric_id," + ",".join("m." + name for name in searchable) + " FROM catalog.metrics m JOIN catalog.metric_bindings b USING(metric_id) WHERE b.binding_json IS NOT NULL"):
             binding = result[metric["metric_id"]]
-            binding.update({"title_en" if key == "metric_name_en" else key: value for key, value in metric.items() if key != "metric_id"})
+            binding.update({("title_en" if key == "metric_name_en" else "value_dimension" if key == "dimension" else key): value
+                            for key, value in metric.items() if key != "metric_id"})
     table_columns: dict[str, set[str]] = {}
     for row in connection.execute("SELECT table_schema,table_name,column_name FROM information_schema.columns").fetchall():
         table_columns.setdefault(row[0] + "." + row[1], set()).add(row[2])

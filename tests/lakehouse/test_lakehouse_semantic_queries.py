@@ -159,6 +159,37 @@ class SemanticQueryTests(unittest.TestCase):
         self.assertEqual(0, self.service.discover({"query": "net kâr bakiyesi"})["total"])
         self.assertEqual(0, self.service.discover({"query": "yeni başvurular stoku"})["total"])
 
+    def test_dimension_value_interior_substring_is_not_a_confident_match(self):
+        # "anka" is an interior fragment of the province "ANKARA". A concept token
+        # must match a dimension VALUE as a whole token, so an unsatisfiable request
+        # surfaces no_confident_match instead of a spurious full match. This is the
+        # general form of the gümüş/Gümüşhane collision (silver vs the province).
+        partial = self.service.discover({"query": "anka mevduatı"})
+        self.assertEqual(0, partial["total"])
+        self.assertTrue(partial.get("no_confident_match"))
+        self.assertIn("anka", partial.get("uncovered_terms", []))
+        # The whole province name still matches as a dimension value.
+        full = self.service.discover({"query": "ankara altın mevduatı"})
+        self.assertEqual("gold", full["metrics"][0]["metric_id"])
+        self.assertEqual(["ANKARA"], full["metrics"][0]["matched_dimensions"]["city"])
+
+    def test_no_confident_match_surfaces_near_candidates_and_uncovered_terms(self):
+        # "gümüş mevduatı" has no series: "mevduat" partially matches the gold
+        # deposit, "gumus" matches nothing. Instead of a bare empty result that
+        # invites re-search loops, discover flags no_confident_match, names the
+        # unresolved term, and surfaces the nearest real series as a hint.
+        result = self.service.discover({"query": "gümüş mevduatı"})
+        self.assertEqual(0, result["total"])
+        self.assertEqual([], result["metrics"])
+        self.assertTrue(result.get("no_confident_match"))
+        self.assertIn("gumus", result.get("uncovered_terms", []))
+        self.assertNotIn("mevduat", result.get("uncovered_terms", []))
+        self.assertIn("gold", [card["metric_id"] for card in result.get("near_matches", [])])
+        # A genuinely full match must NOT set the no-confident-match signal.
+        confident = self.service.discover({"query": "altın mevduatı"})
+        self.assertFalse(confident.get("no_confident_match"))
+        self.assertNotIn("near_matches", confident)
+
     def test_dimension_values_provide_source_group_labels_and_exact_city_values(self):
         group = self.service.dimension_values({"metric_id": "gold", "dimension": "group_code", "query": "tüm bankalar"})
         self.assertEqual(10001, group["values"][0]["value"])
@@ -335,6 +366,30 @@ class RealDiscoveryRegressionTests(unittest.TestCase):
                 result = service.discover({"query": query, "limit": 5, "status": "ready"})
                 self.assertIn(expected, [metric["metric_id"] for metric in result["metrics"]])
                 self.assertNotIn("NET FAİZ", result["metrics"][0]["title"])
+
+    def test_structural_fields_surface_and_total_slice_outranks_currency_splits(self):
+        database = Path(__file__).resolve().parents[2] / "data_pipeline/lakehouse/analytics.duckdb"
+
+        class ReadOnlyStore:
+            def workspace(self, workspace_id):
+                return {"snapshot_id": "real-discovery", "datasets": []}
+
+            def snapshot_path(self, snapshot_id):
+                return database
+
+        service = LakehouseService(ReadOnlyStore(), "real-discovery")
+        result = service.discover({"query": "net kâr", "limit": 5, "status": "ready"})
+        # The structural slice token is propagated to the model-facing card so the
+        # agent can distinguish a canonical metric from its decoy siblings.
+        self.assertTrue(all("value_dimension" in metric for metric in result["metrics"]))
+        # The aggregate ':Toplam' slice must outrank its ':Tp'/':Yp' currency-split
+        # siblings of the same metric (a structural rule, not an alphabetical accident).
+        order = {metric["metric_id"]: index for index, metric in enumerate(result["metrics"])}
+        base = "bddk_monthly:table02:53:ef40239f1db4"
+        self.assertIn(f"{base}:Toplam", order)
+        for split in (":Tp", ":Yp"):
+            if base + split in order:
+                self.assertLess(order[f"{base}:Toplam"], order[base + split])
 
 
 if __name__ == "__main__":
