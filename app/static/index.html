@@ -5,11 +5,11 @@
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <title>Agentic Minds | Analiz çalışma alanı</title>
     <link rel="stylesheet" href="/static/app.css?v=9" />
-    <link rel="stylesheet" href="/static/charts.css?v=6" />
+    <link rel="stylesheet" href="/static/charts.css?v=7" />
     <script src="/static/vendor/echarts.min.js" defer></script>
-    <script src="/static/charts.js?v=7" defer></script>
+    <script src="/static/charts.js?v=8" defer></script>
     <script src="/static/activity.js?v=1" defer></script>
-    <script src="/static/app.js?v=10" defer></script>
+    <script src="/static/app.js?v=11" defer></script>
   </head>
   <body>
     <aside class="sidebar">
@@ -216,6 +216,7 @@
                     <label id="chart-orientation-label">Çubuk yönü<select id="chart-orientation"><option value="vertical">Dikey</option><option value="horizontal">Yatay</option></select><small class="chart-setting-hint" hidden></small></label>
                     <div class="chart-settings-footer chart-wide"><span>Grafiği konuşmada da tarif edebilirsiniz.</span><button class="primary" id="chart-apply" type="submit">Görünümü uygula</button></div>
                   </form>
+                  <div id="chart-guidance" class="chart-guidance" role="status" hidden></div>
                   <div id="chart-legend" class="chart-legend" aria-label="Grafik serileri"></div>
                   <div id="chart" class="chart-canvas" role="img" aria-label="Analiz grafiği"></div>
                   <div id="chart-point" class="chart-point" hidden></div>

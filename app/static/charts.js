@@ -26,8 +26,9 @@ window.AnalysisCharts = (() => {
   let hooks, payload = null, chart = null, generation = 0, controller = null, endpoint = null;
   let observer, resizeFrame, selected = {}, expanded = false, returnFocus = null, saving = false;
   const period = (v) => hooks?.periodLabel(v) || String(v ?? "");
-  const seriesLabel = (series) => !payload?.group_by && hooks?.columnLabel
-    ? hooks.columnLabel(series.column, series.label) : series.label;
+  const seriesLabel = (series) => payload?.group_by ? series.label
+    : payload?.presentation?.labels?.[series.column] || hooks?.columnLabel?.(series.column, series.label) || series.label;
+  const sources = () => payload?.presentation?.sources || (payload?.sources || []).map((label) => ({ label }));
   const observedPeriodCount = () => new Set((payload?.periods || []).filter((_, index) =>
     payload.series.some((series) => numeric(series.values?.[index]) !== null))).size;
   const wrap = (text, size = 65) => {
@@ -169,6 +170,10 @@ window.AnalysisCharts = (() => {
         button.dataset.unavailable = "true";
         button.title = "Gruplu verilerde çizgi, çubuk, alan veya ısı haritasını seçin.";
       }
+      if (observedPeriodCount() < 2 && ["line", "area"].includes(kind) && kind !== payload.spec.kind) {
+        button.dataset.unavailable = "true";
+        button.title = "Dönemler arası değişimi göstermek için en az iki gözlem dönemi gerekir.";
+      }
       button.onclick = () => {
         const overrides = { kind, ...(kind !== "bar" ? { orientation: "vertical" } : {}) };
         if (kind === "heatmap") {
@@ -192,9 +197,27 @@ window.AnalysisCharts = (() => {
     }
     renderKpis();
     renderLegend();
+    const guidance = q("#chart-guidance");
+    guidance.replaceChildren();
+    guidance.hidden = !(observedPeriodCount() === 1 && ["line", "area"].includes(payload.spec.kind));
+    if (!guidance.hidden) {
+      const text = node("div");
+      text.append(node("strong", "Bu analiz tek dönem içeriyor"),
+        node("p", "Dönemler arasında çizgi veya alan oluşmaz. Tutarların büyüklüğünü çubuk grafikle karşılaştırabilirsiniz."));
+      const button = node("button", "Çubuk grafik göster", "chart-action");
+      button.id = "chart-use-bars";
+      button.type = "button";
+      button.onclick = () => save({ kind: "bar", orientation: "vertical" });
+      guidance.append(text, button);
+    }
     q("#chart-note").textContent = number(payload.row_count) + " satırın tamamı · Yakınlaştırın, bir noktayı seçip kaynağını inceleyin.";
-    if (hooks.renderWarnings) hooks.renderWarnings(q("#chart-warnings"), payload.warnings || []);
-    else q("#chart-warnings").replaceChildren(...(payload.warnings || []).map((w) => node("p", w, "warning")));
+    const hasSharedScale = sharedPanelRanges().size > 0;
+    const warnings = (payload.presentation?.warnings || payload.warnings || []).filter((note) => !(hasSharedScale && note.code === "separate_units"));
+    if (hooks.renderChartWarnings) hooks.renderChartWarnings(q("#chart-warnings"), warnings);
+    else if (hooks.renderWarnings) hooks.renderWarnings(q("#chart-warnings"), warnings);
+    else q("#chart-warnings").replaceChildren(...warnings.map((w) => node("p", w.message || w, w.level === "info" ? "chart-info" : "warning")));
+    if (hasSharedScale)
+      q("#chart-warnings").prepend(node("p", "Birimi ve ölçüm yöntemi uyumlu tutarlar aynı eksen ölçeğiyle gösterilir. Yüzdeler kendi ölçeğinde okunur.", "chart-info"));
     if (payload.presentation_notice)
       q("#chart-warnings").prepend(node("p", payload.presentation_notice, "chart-info chart-limited-note"));
     if (payload.spec.normalize === "index100")
@@ -202,8 +225,18 @@ window.AnalysisCharts = (() => {
     if (payload.spec.layout === "dual_axis")
       q("#chart-warnings").prepend(node("p", "İki eksenin ölçeği bağımsızdır; çizgilerin yüksekliği doğrudan büyüklük karşılaştırması değildir.", "chart-info"));
     q("#chart-sources").replaceChildren(node("strong", "KAYNAK"));
-    for (const source of payload.sources || []) q("#chart-sources").append(node("span", source));
-    if (!payload.sources?.length) q("#chart-sources").append(node("span", "Kaynak ayrıntıları için bir noktayı seçin."));
+    for (const source of sources()) {
+      const label = source.label + (source.page ? " · Sayfa " + source.page : "");
+      let url;
+      try { url = new URL(source.url); } catch (_) { /* A source can have no public URL. */ }
+      const item = node(url && ["http:", "https:"].includes(url.protocol) ? "a" : "span", label);
+      if (item.tagName === "A") {
+        if (Number.isInteger(source.page) && source.page > 0 && /\.pdf$/i.test(url.pathname)) url.hash = "page=" + source.page;
+        item.href = url.href; item.target = "_blank"; item.rel = "noopener noreferrer";
+      }
+      q("#chart-sources").append(item);
+    }
+    if (!sources().length) q("#chart-sources").append(node("span", "Kaynak ayrıntıları için bir noktayı seçin."));
     q("#chart-point").hidden = true;
     renderRecommendations();
     updateBusy();
@@ -327,19 +360,49 @@ window.AnalysisCharts = (() => {
   function heightFor() {
     if (!payload) return 430;
     if (payload.spec.kind === "heatmap") return Math.min(850, Math.max(460, (payload.categories?.length || 1) * 28 + 140));
-    if (payload.spec.kind === "bar" && payload.spec.orientation === "horizontal") return Math.min(900, Math.max(450, payload.periods.length * 27 + 100));
+    if (payload.spec.kind === "bar" && payload.spec.orientation === "horizontal")
+      return panelGroups().length * Math.min(900, Math.max(280, payload.periods.length * 27 + 100)) + 55;
     return panelGroups().length > 1 ? panelGroups().length * 280 + 55 : expanded ? Math.max(490, Math.min(680, innerHeight - 400)) : 430;
+  }
+  function sharedPanelRanges() {
+    const ranges = new Map();
+    if (panelGroups().length < 2 || payload.spec.normalize === "index100" || ["scatter", "heatmap"].includes(payload.spec.kind)) return ranges;
+    // Compatibility comes from verified financial metadata, not display labels.
+    // Keep the full data range when a legend item is hidden.
+    for (const group of payload.presentation?.unit_groups || []) {
+      const members = payload.series.filter((series) => group.columns.includes(series.column));
+      if (members.length < 2) continue;
+      let low = 0, high = 0, count = 0;
+      for (const series of members) for (const value of series.values || []) {
+        if (numeric(value) === null) continue;
+        low = Math.min(low, value); high = Math.max(high, value); count++;
+      }
+      if (!count) continue;
+      const magnitude = Math.max(Math.abs(low), Math.abs(high));
+      const step = Math.pow(10, Math.floor(Math.log10(magnitude || 1))) / 2;
+      const lower = step > 0 ? Math.floor(low / step) * step : low;
+      const upper = step > 0 ? Math.ceil(high / step) * step : high;
+      const range = { min: Number.isFinite(lower) ? lower : low,
+        max: magnitude === 0 ? 1 : Number.isFinite(upper) ? upper : high, scale: false };
+      for (const series of members) ranges.set(series.column, range);
+    }
+    return ranges;
+  }
+  function exportFooter(width) {
+    const notes = (payload.presentation?.warnings || []).filter((note) => note.level === "warning").map((note) => note.message);
+    notes.push("Kaynak: " + sources().map((source) => source.label + (source.page ? " (s. " + source.page + ")" : "")).join(" · "));
+    return [...new Set(notes)].map((text) => wrap(text, Math.floor((width - 72) / 6.4))).join("\n");
   }
   function options(width, height, exporting = false) {
     const spec = payload.spec, kind = spec.kind === "auto" ? "line" : spec.kind;
     const normalized = spec.normalize === "index100", unit = (s) => normalized ? period(spec.base_period || payload.periods[0]) + " = 100" : s.unit || "";
-    const top = exporting ? 188 : 20, bottom = exporting ? 118 : 62;
+    const footer = exporting ? exportFooter(width) : "";
+    const top = exporting ? 188 : 20, bottom = exporting ? Math.max(118, footer.split("\n").length * 17 + 50) : 62;
     const titles = [], graphic = [], grids = [], xAxes = [], yAxes = [], series = [], zoom = [];
     if (exporting) {
       titles.push({ text: wrap(payload.title, 96), subtext: wrap(readableSubtitle(), 140), left: 36, top: 24,
         textStyle: { fontSize: 23, lineHeight: 29, fontWeight: 600, color: "#20372d" }, subtextStyle: { color: "#627568", fontSize: 12, lineHeight: 18 } });
-      const sourceText = "Kaynak: " + (payload.sources || []).join(" · ");
-      graphic.push({ type: "text", left: 36, bottom: 23, style: { text: wrap(sourceText, Math.floor(width / 6.4)), font: "11px sans-serif", lineHeight: 17, fill: "#627568" } });
+      graphic.push({ type: "text", left: 36, bottom: 23, style: { text: footer, font: "11px sans-serif", lineHeight: 17, fill: "#627568" } });
     }
     const valueAxis = (label, index) => ({ type: "value", gridIndex: index, name: label, nameGap: 14,
       nameTextStyle: { color: "#627568", fontSize: 11, align: "left" }, axisLabel: { color: "#738579", fontSize: 11, formatter: compact },
@@ -373,12 +436,16 @@ window.AnalysisCharts = (() => {
         text: [compact(high) + " " + unit(payload.series[0] || {}), compact(low)], textStyle: { color: "#627568", fontSize: 10 }, inRange: { color: low < 0 ? ["#b86c4b", "#f3f0dc", "#226348"] : ["#edf3df", "#9fbe98", "#226348"] } } });
     }
     const groups = panelGroups(), groupHeight = (height - top - bottom) / groups.length;
+    const sharedRanges = sharedPanelRanges();
+    const panelTitles = groups.map((group) => wrap(group.map(seriesLabel).join(" · "), Math.max(32, Math.floor(width / 8))));
+    // Equal ranges also need equal plot heights when panel titles wrap.
+    const extraTop = groups.length > 1 ? Math.max(...panelTitles.map((title) => 34 + 17 * title.split("\n").length)) : 24;
     const horizontal = kind === "bar" && spec.orientation === "horizontal";
     for (const [index, group] of groups.entries()) {
       const dual = spec.layout === "dual_axis" && group.length === 2;
       const distinctUnits = [...new Set(group.map(unit))];
-      const panelTitle = wrap(group.map(seriesLabel).join(" · "), Math.max(32, Math.floor(width / 8)));
-      const extraTop = groups.length > 1 ? 34 + 17 * panelTitle.split("\n").length : 24;
+      const panelTitle = panelTitles[index];
+      const sharedRange = dual ? {} : sharedRanges.get(group[0]?.column) || {};
       const gridTop = top + index * groupHeight + extraTop;
       grids.push({ left: horizontal ? Math.min(175, width * 0.29) : 64, right: dual ? 72 : 28, top: gridTop, height: Math.max(110, groupHeight - extraTop - 36) });
       if (groups.length > 1) titles.push({ text: panelTitle, left: 22, top: top + index * groupHeight - 3,
@@ -388,12 +455,12 @@ window.AnalysisCharts = (() => {
         xAxes.push({ ...valueAxis((payload.x_label || payload.x_column || "X") + " · " + (payload.x_unit || ""), index), nameLocation: "middle", nameGap: 33, nameTextStyle: { fontSize: 11, color: "#627568", align: "center" } });
         yAxes.push(valueAxis(unit(group[0] || {}), index));
       } else if (horizontal) {
-        xAxes.push(valueAxis(unit(group[0] || {}), index));
+        xAxes.push({ ...valueAxis(unit(group[0] || {}), index), ...sharedRange });
         yAxes.push({ ...categoryAxis(payload.group_mode === "categories" || (payload.group_by && !payload.group_mode && payload.categories?.length === payload.periods.length) ? payload.categories : payload.periods, index), inverse: true,
           axisLabel: { color: "#627568", fontSize: 11, width: Math.min(150, width * 0.25), overflow: "truncate", formatter: (v) => period(v) } });
       } else {
         xAxes.push(categoryAxis(payload.group_mode === "categories" || (payload.group_by && !payload.group_mode && payload.categories?.length === payload.periods.length) ? payload.categories : payload.periods, index));
-        yAxes.push(valueAxis(distinctUnits[0], index));
+        yAxes.push({ ...valueAxis(distinctUnits[0], index), ...sharedRange });
       }
       if (dual && horizontal) xAxes.push({ ...valueAxis(unit(group[1]), index), position: "top", splitLine: { show: false }, nameTextStyle: { color: "#627568", fontSize: 11, align: "left" } });
       else if (dual) yAxes.push({ ...valueAxis(unit(group[1]), index), position: "right", splitLine: { show: false }, nameTextStyle: { color: "#627568", fontSize: 11, align: "right" } });
@@ -527,7 +594,7 @@ window.AnalysisCharts = (() => {
     const version = generation, exportPayload = payload;
     const holder = node("div");
     holder.style.cssText = "position:fixed;left:-20000px;top:0;width:1440px;pointer-events:none";
-    const height = Math.max(720, heightFor() + 230);
+    const height = Math.max(720, heightFor() + 230 + Math.max(0, exportFooter(1440).split("\n").length * 17 + 50 - 118));
     holder.style.height = height + "px";
     document.body.append(holder);
     const exportChart = echarts.init(holder, null, { renderer: "svg", width: 1440, height });
@@ -563,7 +630,7 @@ window.AnalysisCharts = (() => {
   }
   function updateBusy() {
     const blocked = saving || Boolean(hooks?.isBusy());
-    for (const button of document.querySelectorAll("#chart-kinds button, #chart-apply")) button.disabled = blocked || button.dataset.unavailable === "true";
+    for (const button of document.querySelectorAll("#chart-kinds button, #chart-apply, #chart-use-bars")) button.disabled = blocked || button.dataset.unavailable === "true";
   }
   function configure(callbacks) {
     hooks = callbacks;

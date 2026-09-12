@@ -1,6 +1,7 @@
 """Chart semantics, full data, immutable artifacts and precision boundaries."""
 
 from pathlib import Path
+import hashlib
 import json
 import tempfile
 import unittest
@@ -76,6 +77,102 @@ class AgentChartTests(unittest.TestCase):
         pd.testing.assert_frame_equal(before_frame, after_frame)
         self.assertEqual(before_manifest, after_manifest)
         self.assertEqual(before_workspace, self.store.workspace("workspace_charts"))
+
+    def test_public_presentation_cleans_legacy_labels_and_notes_without_rewriting_chart(self):
+        frame = pd.DataFrame({"period": ["2026-03"], "company_assets": [225000],
+                              "company_million": [225], "sector_assets": [1000], "ratio_percent": [22.5]})
+        base = {"kind": "stock", "unit": "TRY", "scale": 1000000, "currency": "TRY", "status": "ready"}
+        schema = {"company_assets": {**base, "scale": 1000, "metric_id": "overlay:amount"},
+                  "company_million": {**base, "metric_id": "overlay:amount"},
+                  "sector_assets": {**base, "metric_id": "catalog:assets"},
+                  "ratio_percent": {**base, "unit": "percent", "kind": "ratio", "scale": 1, "currency": None}}
+        operations = [{"op": "scale", "column": "company_assets", "output": "company_million", "target_scale": 1000000},
+                      {"op": "ratio", "column": "company_million", "denominator": "sector_assets", "output": "ratio_percent", "multiplier": 100}]
+        sources = {"company_assets": {"binding": {"title": "source_financial_facts: amount", "source_system": "SESSION_DATASET",
+                        "metric_id": "overlay:amount", "document_provenance": {
+                            "source_url": "https://reports.example.org/2026_Quarterly_Report.pdf", "page": 11}}},
+                   "sector_assets": {"binding": {"title": "Sektör toplam aktifleri", "source_system": "CATALOG", "metric_id": "catalog:assets"}}}
+        lineage = {"sources": sources, "operations": operations, "frequency": "monthly", "warnings": [
+            {"code": "heterogeneous_scopes_aligned"},
+            {"code": "exact_event_period_end", "column": "company_assets"},
+            {"code": "cross_scope_comparison", "column": "ratio_percent", "scope_reason": "PRIVATE MODEL EXPLANATION 999"}]}
+        saved = self.store.save_analysis("workspace_charts", frame, {"frequency": "monthly", "operations": operations},
+            lineage, schema=schema, expected_version=0)
+        aid = saved["analysis_id"]
+        result = self.charts.create_chart({"analysis_id": aid, "kind": "area", "layout": "panels",
+                                           "columns": ["company_million", "sector_assets", "ratio_percent"]})
+        path = self.charts.root / (result["chart_id"] + ".json")
+        original = path.read_bytes()
+        recorded = json.loads(original)
+        before_frame, before_manifest = self.store.load_analysis(aid)
+        before_workspace = self.store.workspace("workspace_charts")
+        self.assertIn("SESSION_DATASET", str(recorded["sources"]))
+        chart = self.charts.load_artifact(result["chart_id"])
+        self.assertEqual(chart, self.charts.get_chart(aid))
+        self.assertEqual({key: chart[key] for key in recorded}, recorded)
+        self.assertEqual(path.read_bytes(), original)
+        self.assertEqual(chart["spec"]["layout"], "panels")
+        self.assertEqual(chart["spec"]["kind"], "area")
+        presentation = chart["presentation"]
+        self.assertEqual(presentation["unit_groups"][0]["columns"], ["company_million", "sector_assets"])
+        self.assertEqual(presentation["unit_groups"][1]["columns"], ["ratio_percent"])
+        self.assertEqual(presentation["labels"]["company_million"], "Company assets")
+        self.assertEqual(presentation["sources"][0], {"label": "2026 Quarterly Report", "url": "https://reports.example.org/2026_Quarterly_Report.pdf", "page": 11})
+        notes = {note["code"]: note for note in presentation["warnings"]}
+        self.assertEqual(notes["exact_event_period_end"]["level"], "info")
+        self.assertIn("ara dönemlere", notes["exact_event_period_end"]["message"])
+        self.assertNotIn("heterogeneous_scopes_aligned", notes)
+        self.assertIn("resmi pazar payı değildir", notes["cross_scope_comparison"]["message"])
+        for technical in ["SESSION_DATASET", "source_financial_facts", "PRIVATE MODEL", "999"]:
+            self.assertNotIn(technical, json.dumps(presentation, ensure_ascii=False))
+        after_frame, after_manifest = self.store.load_analysis(aid)
+        pd.testing.assert_frame_equal(before_frame, after_frame)
+        self.assertEqual(before_manifest, after_manifest)
+        self.assertEqual(before_workspace, self.store.workspace("workspace_charts"))
+
+    def test_public_unit_groups_require_metadata_compatibility_not_just_matching_unit_text(self):
+        for overrides in [{"price_basis": "2020"}, {"measurement_basis": "regulatory_liquidity_weighted"},
+                          {"currency": "USD"}, {"kind": "unknown"}, {"status": "review_required"}]:
+            with self.subTest(metadata=overrides):
+                aid = self.save([10, 20], other=[30, 40], schema={"other": overrides})
+                chart = self.charts.get_chart(aid)
+                self.assertEqual(chart["series"][0]["unit"], chart["series"][1]["unit"])
+                self.assertEqual(len(chart["presentation"]["unit_groups"]), 2)
+        aid = self.save([10, 20], other=[30, 40], schema={
+            "credit": {"kind": "index", "unit": "index", "currency": None, "scale": 1},
+            "other": {"kind": "index", "unit": "index", "currency": None, "scale": 1}})
+        self.assertEqual(len(self.charts.get_chart(aid)["presentation"]["unit_groups"]), 2)
+        normalized = self.charts.create_chart({"analysis_id": aid, "normalize": "index100", "layout": "overlay"})
+        self.assertEqual(len(self.charts.load_artifact(normalized["chart_id"])["presentation"]["unit_groups"]), 1)
+
+    def test_legacy_hashed_chart_with_structured_warnings_projects_without_rewriting_raw_evidence(self):
+        aid = self.save([10, 20])
+        created = self.charts.create_chart({"analysis_id": aid})
+        original_path = self.charts.root / (created["chart_id"] + ".json")
+        original_bytes = original_path.read_bytes()
+        legacy = json.loads(original_bytes)
+        legacy["warnings"] = [
+            {"code": "exact_event_period_end", "column": "credit", "message": "PRIVATE SOURCE DETAIL"},
+            {"code": "heterogeneous_scopes_aligned", "detail": "PRIVATE SCOPE"},
+            {"code": "cross_scope_comparison", "column": "credit", "scope_reason": "PRIVATE MODEL 999"},
+            {"code": "unrecognized_legacy_code", "message": "PRIVATE FALLBACK"},
+            {"code": ["malformed"], "message": "PRIVATE MALFORMED"}, None]
+        encoded = json.dumps(legacy, ensure_ascii=False, sort_keys=True).encode()
+        chart_id = "chart_" + hashlib.sha256(encoded).hexdigest()
+        path = self.charts.root / (chart_id + ".json")
+        path.write_bytes(encoded)
+        projected = self.charts.load_artifact(chart_id)
+        self.assertEqual(projected["warnings"], legacy["warnings"])
+        self.assertEqual(projected["spec"], legacy["spec"])
+        self.assertEqual(projected["series"], legacy["series"])
+        notices = projected["presentation"]["warnings"]
+        self.assertEqual({notice["code"] for notice in notices}, {
+            "exact_event_period_end", "cross_scope_comparison", "source_method_note"})
+        self.assertEqual(next(note for note in notices if note["code"] == "exact_event_period_end")["level"], "info")
+        self.assertIn("resmi pazar payı değildir", next(note for note in notices if note["code"] == "cross_scope_comparison")["message"])
+        self.assertNotIn("PRIVATE", str(notices))
+        self.assertEqual(path.read_bytes(), encoded)
+        self.assertEqual(original_path.read_bytes(), original_bytes)
 
     def test_wide_bank_groups_all_remain_charted_with_source_group_labels(self):
         for count in (9, 10):

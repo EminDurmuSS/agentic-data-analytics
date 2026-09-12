@@ -4,6 +4,7 @@ const state = {
   workspace: null,
   conversation: null,
   analysis: null,
+  analysisWarnings: [],
   busy: false,
   offset: 0,
   job: null,
@@ -721,13 +722,16 @@ async function loadAnalysis(id, result = {}) {
   renderTable();
   renderSources();
   const toolResults = (result.tool_results || []).map((t) => t.result || {});
-  const warnings = [
+  const chartTools = (result.tool_results || []).filter((tool) =>
+    tool.name === "create_chart" || tool.tool === "create_chart" || tool.result?.chart_id);
+  const chartWarnings = new Set(chartTools.flatMap((tool) => tool.result?.warnings || []).map((warning) => JSON.stringify(warning)));
+  state.analysisWarnings = [
     ...(state.analysis.warnings || []),
-    ...(result.warnings || []),
-    ...toolResults.flatMap((t) => t.warnings || []),
+    ...(result.warnings || []).filter((warning) => !chartWarnings.has(JSON.stringify(warning))),
+    ...(result.tool_results || []).filter((tool) => !chartTools.includes(tool)).flatMap((tool) => tool.result?.warnings || []),
     ...(result.errors || []),
   ];
-  renderWarnings($("#warnings"), warnings);
+  renderWarnings($("#warnings"), state.analysisWarnings);
   const preserved =
     result.preserved_columns ||
     state.analysis.preserved_columns ||
@@ -787,20 +791,26 @@ function warningText(w) {
 }
 function renderWarnings(holder, warnings) {
   holder.replaceChildren();
-  const messages = new Set(), technical = [];
+  const messages = new Map(), technical = [];
   for (const warning of warnings || []) {
     // Successful date matching belongs in the calculation method, not in an
     // amber warning. The original diagnostic remains in the saved tool ledger.
     if (["exact_event_period_end", "event_period_end_exact", "calendar_period_end_alignment"].includes(warning?.code)) continue;
     const message = warningText(warning);
-    if (message) messages.add(message);
+    if (message) messages.set(message, messages.get(message) === "warning" || warning?.level !== "info" ? "warning" : "chart-info");
     else technical.push(warning);
   }
   if (messages.has(scopeWarning)) messages.delete(warningText({code: "heterogeneous_scopes_aligned"}));
   // Scope disclosures cannot be lost behind a limit on minor method notes.
-  for (const message of [...messages].sort((a, b) => Number(b === scopeWarning) - Number(a === scopeWarning)))
-    holder.append(el("div", message, "warning"));
+  for (const [message, className] of [...messages].sort(([a], [b]) => Number(b === scopeWarning) - Number(a === scopeWarning)))
+    holder.append(el("div", message, className));
   if (technical.length) holder.append(technicalDetails("Ek yöntem notları (" + technical.length + ")", technical));
+}
+function renderChartWarnings(holder, warnings) {
+  // A single disclosure area stays visible on every result tab. Chart changes
+  // replace only chart notes, while analysis warnings remain attached to data.
+  holder.replaceChildren();
+  renderWarnings($("#warnings"), [...state.analysisWarnings, ...warnings]);
 }
 function renderTable() {
   const a = state.analysis;
@@ -1332,7 +1342,7 @@ function showTab(name) {
 }
 for (const button of document.querySelectorAll(".tab"))
   button.addEventListener("click", () => showTab(button.dataset.tab));
-window.AnalysisCharts.configure({ api, periodLabel, showTab, showEvidence, columnLabel, renderWarnings,
+window.AnalysisCharts.configure({ api, periodLabel, showTab, showEvidence, columnLabel, renderWarnings, renderChartWarnings,
   isBusy: () => state.busy,
   prefill: (prompt) => {
     $("#question").value = prompt;

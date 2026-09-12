@@ -9,6 +9,7 @@ import os
 from pathlib import Path
 import re
 import tempfile
+from urllib.parse import unquote, urlsplit
 
 import pandas as pd
 
@@ -32,6 +33,25 @@ SAFE_INTEGER = 2**53 - 1
 GROWTH_KINDS = {"stock", "flow", "price", "count", "count_stock", "count_flow"}
 PERIOD_INDEX = "__period_index__"
 MAX_WIDE_SERIES = 30
+
+_WARNING_TEXT = {
+    "observed_sample_mean": "Yayımlanan gözlemlerin ağırlıksız aritmetik ortalaması kullanılıyor; yayın takviminin eksiksiz olduğu varsayılmıyor.",
+    "heterogeneous_scopes_aligned": "Seriler yalnızca döneme göre eşleştirildi; kapsadıkları kurumların veya nüfusların aynı olduğu varsayılmıyor.",
+    "partial_period_blocked": "Eksik alt dönemleri bulunan toplamlar hesaplanmadı; ilgili değerler boş bırakıldı.",
+    "semantics_unreviewed": "Kaynak serisinin anlamı inceleme gerektiriyor; yalnızca özgün gözlemler gösteriliyor.",
+    "native_calendar_unverified": "Yalnızca kaynaktaki gözlem tarihleri kullanılıyor; yayın takviminin eksiksiz olduğu varsayılmıyor.",
+    "zero_denominator": "Paydası sıfır olan değişim veya oran hesaplanmadı.",
+    "invalid_deflator": "Geçersiz fiyat endeksi bulunan dönemlerde reel değer hesaplanmadı.",
+    "cross_scope_comparison": "Farklı kapsamlar açık karşılaştırma amacıyla bir araya getirildi; kapsam eşdeğerliği doğrulanmadı.",
+    "missing_result": "Kayıtlı sonuçta eksik gözlemler var; doldurma yapılmadı.",
+    "group_missing_observations": "Bazı gruplarda gözlem bulunmuyor; eksik gruplar sıfır kabul edilmiyor.",
+    "group_populations_not_summed": "Grup kapsamları korunuyor; grupların toplanabilir olduğu varsayılmıyor.",
+    "RANK_PRESERVED_FROM_PARENT": "Tablodaki sıralar önceki analizdeki özgün ölçüye aittir; yeni değerler yeniden sıralanmadı.",
+    "reporting_population_exclusions": "Kaynağın bildiren banka kapsamı daraltılmıştır; bu toplam, tüm bankaları kapsayan bilanço toplamıyla eşdeğer değildir.",
+    "domestic_customers_only": "Bu kaynak yalnızca yurt içi yerleşik müşterileri kapsıyor.",
+    "regulatory_weighting": "Bu değerler düzenleyici likidite ağırlıkları içeriyor; ağırlıksız bilanço tutarlarıyla eşdeğer değildir.",
+}
+_UNKNOWN_WARNING = "Kaynak verisinin kayıtlı ek yöntem notları incelenmelidir."
 
 
 def _encode(value):
@@ -319,23 +339,6 @@ class ChartTools:
         for operation in reversed(plan.get("operations", []) or plan.get("request", {}).get("operations", [])):
             if operation.get("output") in dependencies:
                 dependencies.update(operation[key] for key in ("column", "index", "denominator") if key in operation)
-        warning_text = {
-            "observed_sample_mean": "Yayımlanan gözlemlerin ağırlıksız aritmetik ortalaması kullanılıyor; yayın takviminin eksiksiz olduğu varsayılmıyor.",
-            "heterogeneous_scopes_aligned": "Seriler yalnızca döneme göre eşleştirildi; kapsadıkları kurumların veya nüfusların aynı olduğu varsayılmıyor.",
-            "partial_period_blocked": "Eksik alt dönemleri bulunan toplamlar hesaplanmadı; ilgili değerler boş bırakıldı.",
-            "semantics_unreviewed": "Kaynak serisinin anlamı inceleme gerektiriyor; yalnızca özgün gözlemler gösteriliyor.",
-            "native_calendar_unverified": "Yalnızca kaynaktaki gözlem tarihleri kullanılıyor; yayın takviminin eksiksiz olduğu varsayılmıyor.",
-            "zero_denominator": "Paydası sıfır olan değişim veya oran hesaplanmadı.",
-            "invalid_deflator": "Geçersiz fiyat endeksi bulunan dönemlerde reel değer hesaplanmadı.",
-            "cross_scope_comparison": "Farklı kapsamlar açık karşılaştırma amacıyla bir araya getirildi; kapsam eşdeğerliği doğrulanmadı.",
-            "missing_result": "Kayıtlı sonuçta eksik gözlemler var; doldurma yapılmadı.",
-            "group_missing_observations": "Bazı gruplarda gözlem bulunmuyor; eksik gruplar sıfır kabul edilmiyor.",
-            "group_populations_not_summed": "Grup kapsamları korunuyor; grupların toplanabilir olduğu varsayılmıyor.",
-            "RANK_PRESERVED_FROM_PARENT": "Tablodaki sıralar önceki analizdeki özgün ölçüye aittir; yeni değerler yeniden sıralanmadı.",
-            "reporting_population_exclusions": "Kaynağın bildiren banka kapsamı daraltılmıştır; bu toplam, tüm bankaları kapsayan bilanço toplamıyla eşdeğer değildir.",
-            "domestic_customers_only": "Bu kaynak yalnızca yurt içi yerleşik müşterileri kapsıyor.",
-            "regulatory_weighting": "Bu değerler düzenleyici likidite ağırlıkları içeriyor; ağırlıksız bilanço tutarlarıyla eşdeğer değildir.",
-        }
         for note in lineage.get("warnings", []):
             if not isinstance(note, dict):
                 warnings.append("Kayıtlı kaynakta ek yöntem notları bulunuyor; analiz yöntemini inceleyin.")
@@ -343,7 +346,7 @@ class ChartTools:
             if note.get("column") and note["column"] not in dependencies:
                 continue
             prefix = metadata[note["column"]]["label"] + ": " if note.get("column") in metadata else ""
-            warnings.append(prefix + warning_text.get(note.get("code"), "Kaynak verisinin kayıtlı ek yöntem notları incelenmelidir."))
+            warnings.append(prefix + _WARNING_TEXT.get(note.get("code"), _UNKNOWN_WARNING))
         series = []
         for index, col in enumerate(selected):
             meta = metadata[col]
@@ -547,6 +550,127 @@ class ChartTools:
                          "display_summary": series["display_summary"]} for series in payload["series"]],
             "warnings": payload["warnings"]}
 
+    def _source_presentation(self, binding, fallback):
+        document = binding.get("document_provenance") or {}
+        source = {}
+        source_id = document.get("source_id")
+        if isinstance(source_id, str) and re.fullmatch(r"source_[a-f0-9]{64}", source_id):
+            path = self.store._path("document_sources", self.workspace_id, source_id, "manifest.json")
+            if path.exists():
+                candidate = json.loads(path.read_text())
+                if candidate.get("raw_sha256") == document.get("raw_sha256"):
+                    source = candidate
+        url = document.get("source_url") or binding.get("source_url") or source.get("source_url")
+        parsed = None
+        try:
+            parsed = urlsplit(url) if isinstance(url, str) else None
+            if not parsed or parsed.scheme not in {"http", "https"} or not parsed.hostname or parsed.username or parsed.password:
+                url = None
+        except ValueError:
+            url = None
+        technical = binding.get("source_system") == "SESSION_DATASET" or re.match(r"^[a-z][a-z0-9_]*\s*:\s*[a-z][a-z0-9_]*$", binding.get("title", ""))
+        if technical:
+            filename = document.get("filename") or source.get("filename") or (unquote(parsed.path.rsplit("/", 1)[-1]) if url else None)
+            label = _text(Path(filename.replace("\\", "/")).stem.replace("_", " ")) if isinstance(filename, str) and filename else "Kaynak rapor: " + fallback
+        else:
+            label = fallback
+        item = {"label": label[:180]}
+        if url:
+            item["url"] = url
+        page = document.get("page")
+        if isinstance(page, int) and not isinstance(page, bool) and page > 0:
+            item["page"] = page
+        return item
+
+    def _presentation(self, payload, frame, manifest):
+        """Add readable view metadata; saved spec, arrays and warnings stay intact."""
+        view = analysis_presentation(frame, manifest)
+        labels = dict(view["labels"])
+        metadata = {column: self._metadata(manifest, column) for column in frame if column != "period"}
+        for column, meta in metadata.items():
+            if meta["price_basis"]:
+                labels[column] += f" (reel, {meta['price_basis']} fiyatları)"
+            if meta["schema"].get("measurement_basis") == "regulatory_liquidity_weighted":
+                labels[column] += " (likidite ağırlıklı)"
+        selected = payload["spec"]["columns"]
+        dependencies = set(selected)
+        if payload.get("x_column"):
+            dependencies.add(payload["x_column"])
+        plan = manifest.get("plan", {})
+        for operation in reversed(plan.get("operations", []) or plan.get("request", {}).get("operations", [])):
+            if operation.get("output") in dependencies:
+                dependencies.update(operation[key] for key in ("column", "index", "denominator") if key in operation)
+        sources = []
+        for column, proof in self._sources(manifest).items():
+            if column in dependencies:
+                source = self._source_presentation(proof.get("binding", {}), labels.get(column, column.replace("_", " ")))
+                if source not in sources:
+                    sources.append(source)
+        groups = {}
+        for column in selected:
+            meta = metadata[column]
+            signature = self._compatibility(meta) + (meta["schema"].get("currency"),)
+            if meta["kind"] == "unknown" or meta["schema"].get("status") == "review_required":
+                signature += (column,)
+            if payload["spec"].get("normalize") == "index100":
+                signature = ("index100", payload["spec"].get("base_period"))
+            group = groups.setdefault(signature, {"id": f"unit_group_{len(groups) + 1}",
+                "unit": next((series["unit"] for series in payload["series"] if series["column"] == column), meta["unit"]), "columns": []})
+            group["columns"].append(column)
+        notes = [note for note in manifest.get("lineage", {}).get("warnings", []) if isinstance(note, dict)
+                 and (not note.get("column") or note["column"] in dependencies)]
+        structured = [note for note in payload.get("warnings", []) if isinstance(note, dict)]
+        has_scope_comparison = any(note.get("code") == "cross_scope_comparison" for note in [*notes, *structured])
+        warnings, recorded_notes = [], set()
+        def append_source_notice(note):
+            code = note.get("code") if isinstance(note.get("code"), str) else None
+            column = note.get("column") if isinstance(note.get("column"), str) else None
+            if code == "heterogeneous_scopes_aligned" and has_scope_comparison:
+                return
+            message, level = _WARNING_TEXT.get(code, _UNKNOWN_WARNING), "warning"
+            if code == "exact_event_period_end":
+                message, level = "Kaynak tarihi, gösterilen dönemin son günüyle eşleşiyor; ara dönemlere değer taşınmadı.", "info"
+            elif code == "cross_scope_comparison":
+                message = "Kurum ve raporlama kapsamları farklıdır. Bu oran büyüklük karşılaştırmasıdır; resmi pazar payı değildir."
+            elif code in {"heterogeneous_scopes_aligned", "native_calendar_unverified", "observed_sample_mean", "RANK_PRESERVED_FROM_PARENT"}:
+                level = "info"
+            notice = {"code": code if code in _WARNING_TEXT or code == "exact_event_period_end" else "source_method_note",
+                      "level": level, "message": message}
+            if column in metadata:
+                notice["columns"] = [column]
+            if notice not in warnings:
+                warnings.append(notice)
+        for note in notes:
+            code, column = note.get("code"), note.get("column")
+            prefix = metadata[column]["label"] + ": " if column in metadata else ""
+            recorded_notes.add(prefix + _WARNING_TEXT.get(code, _UNKNOWN_WARNING))
+            append_source_notice(note)
+        for text in payload.get("warnings", []):
+            if not isinstance(text, str):
+                append_source_notice(text if isinstance(text, dict) else {})
+                continue
+            if text in recorded_notes:
+                continue
+            readable = text
+            for column, meta in sorted(metadata.items(), key=lambda pair: len(pair[1]["label"]), reverse=True):
+                readable = readable.replace(meta["label"], labels[column])
+            code, level = "chart_method_note", "info"
+            if "inceleme gerektiriyor" in text:
+                code, level = "semantics_review", "warning"
+            elif "eksik değerler" in text or "eksik gruplar" in text:
+                code, level = "missing_observations", "warning"
+            elif text.startswith("Farklı birimler"):
+                code = "separate_units"
+            elif text.startswith("Sol ve sağ eksen"):
+                code, level = "dual_axis", "warning"
+            elif text.startswith("Yalnızca grafik görünümü"):
+                code = "display_normalization"
+            notice = {"code": code, "level": level, "message": readable}
+            if notice not in warnings:
+                warnings.append(notice)
+        return {**payload, "presentation": {"labels": labels, "sources": sources,
+                "warnings": warnings, "unit_groups": list(groups.values())}}
+
     def load_artifact(self, chart_id):
         if not isinstance(chart_id, str) or not re.fullmatch(r"chart_[a-f0-9]{64}", chart_id):
             raise ChartError("Geçersiz grafik kimliği.")
@@ -556,13 +680,13 @@ class ChartTools:
         payload = json.loads(encoded)
         if payload.get("workspace_id") != self.workspace_id:
             raise ChartError("Grafik başka bir çalışma alanına ait.", "WORKSPACE_MISMATCH")
-        _, manifest = self._load(payload["analysis_id"])
+        frame, manifest = self._load(payload["analysis_id"])
         if payload.get("provenance", {}).get("data_sha256") != manifest.get("data_sha256"):
             raise ChartError("Grafik ve analiz kaynak özeti eşleşmiyor.", "ARTIFACT_HASH_MISMATCH")
-        return {**payload, "chart_id": chart_id, "artifact_ref": chart_id}
+        return self._presentation({**payload, "chart_id": chart_id, "artifact_ref": chart_id}, frame, manifest)
 
     def get_chart(self, analysis_id):
-        self._load(analysis_id)
+        frame, manifest = self._load(analysis_id)
         pointer = self._path("latest", analysis_id + ".json")
         if pointer.exists():
             latest = json.loads(pointer.read_text())
@@ -572,7 +696,7 @@ class ChartTools:
             if chart["analysis_id"] != analysis_id:
                 raise ChartError("Kayıtlı grafik farklı bir analize ait.", "ARTIFACT_HASH_MISMATCH")
             return chart
-        return self._build({"analysis_id": analysis_id})
+        return self._presentation(self._build({"analysis_id": analysis_id}), frame, manifest)
 
     def extra_tools(self):
         properties = {"analysis_id": {"type": "string"},
