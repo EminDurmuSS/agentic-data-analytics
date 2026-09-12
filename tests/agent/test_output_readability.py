@@ -18,6 +18,19 @@ class ReadabilityGateTests(unittest.TestCase):
         # A stray non-Latin character below the 10% threshold is tolerated.
         self.assertFalse(_unreadable("Konut kredisi bakiyesi yüksek. 借"))
 
+    def test_flags_degenerate_repetitive_garbage(self):
+        # The real "neler görüyorsun" failure: 369 chars, ~13 letters, 2 coherent words.
+        garbage = ("2\n 120\n\n2023.0023.0 2\n**.\n\n\n\n\n\n\n\n\nB2\n20\n   ,  **1 \n    2012**: 2022.0"
+                   "\n\n1. **0242\n2023.00120202024\n3.0024024200024\n\n    **be\n**\n |  | .2023\n201224\n0"
+                   "\n2023.0024\n\n\n**\n   0\n2020\n0203.002024\n120\n2021003.2\n ** safety\n\n **\n**023")
+        self.assertTrue(_unreadable(garbage))
+
+    def test_accepts_a_long_numeric_table_answer(self):
+        # A legitimate numeric-heavy table answer keeps enough real words and must pass.
+        table = ("2024 İstanbul toplam konut satışları (adet): Ocak 15.002, Şubat 18.118, Mart 21.046, "
+                 "Nisan 13.867, Mayıs 21.326, Haziran 14.534. Yıl boyunca satışlar arttı.")
+        self.assertFalse(_unreadable(table))
+
 
 class DomainAliasTests(unittest.TestCase):
     def test_english_domain_terms_map_to_turkish_concepts(self):
