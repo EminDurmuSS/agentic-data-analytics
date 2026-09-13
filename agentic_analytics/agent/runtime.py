@@ -1285,6 +1285,19 @@ class AgentRuntime:
                                 self.run_store.checkpoint(run_id, state)
                                 continue
                             return self._finish(record, state, "blocked", self._failure_message(state, missing_facts), errors=missing_facts)
+                        # A request to change the question after a full PDF search
+                        # must not replace the answer to the original question. If
+                        # the requested numbers cannot be verified and the relevant
+                        # omission was actually read, close with that exact source
+                        # evidence. This also avoids repeating unsupported claims
+                        # from a model-generated clarification.
+                        if tool_name == "ask_user" and not (state.get("analysis_updated") or state.get("chart_updated")):
+                            evidence = self._source_final_evidence(state)
+                            if evidence:
+                                errors = self._task_delivery_errors(state)
+                                errors.append({"code": "SOURCE_DATA_NOT_VERIFIED",
+                                    "message": "The requested numerical outputs could not be verified from the read source sections."})
+                                return self._finish(record, state, "partial", self._source_final_receipt(evidence), errors=errors)
                         # A clarifying question asked AFTER a result was produced this turn
                         # must not bury it behind a dead-end needs_input; present the saved
                         # analysis/chart and surface the question with it instead.

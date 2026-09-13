@@ -1899,6 +1899,39 @@ def test_final_existing_decision_closes_an_explicit_read_source_gap_without_more
     assert not state.get("analysis_updated") and not state.get("chart_updated")
 
 
+def test_scope_change_question_closes_read_pdf_gap_with_citation_instead_of_pausing(env):
+    _, _, journal, _, build = env
+    executed = []
+    tools = page_navigation_tools(executed)
+    inspect = tools["inspect_source"]["handler"]
+
+    def omission(args):
+        result = inspect(args)
+        result["pages"][0]["text"] = (
+            "5.1.5.6 Allocation of loans by customers\n"
+            "Not prepared in compliance with the reporting requirements.\n"
+            "5.1.5.7 Allocation of domestic and foreign loans")
+        return result
+
+    tools["inspect_source"]["handler"] = omission
+    runtime, client = build([
+        call("plan_task", {"deliverables": ["analysis", "chart", "sources", "summary"]}),
+        call("find_source_pages", {"source_id": "a", "query": "loans to customers by sector"}),
+        call("inspect_source", {"source_id": "a", "page_numbers": [47]}),
+        call("ask_user", {"question": "Sector only occurs in investments. Use product types instead?"}),
+    ], more=tools)
+    result = runtime.run("Kredilerin sektörel dağılımını ve oranlarını bu PDF'den bul, grafik göster; bulamadığını belirt.")
+
+    assert result["status"] == "partial" and result["decisions"] == 4
+    assert len(client.requests) == 4
+    assert "Allocation of loans by customers" in result["message"]
+    assert "https://reports.example.org/report.pdf#page=47" in result["message"]
+    assert "Sector only occurs" not in result["message"]
+    assert "tablosu, oranlar ve grafik oluşturulmadı" in result["message"]
+    assert "SOURCE_DATA_NOT_VERIFIED" in {error["code"] for error in result["errors"]}
+    assert not journal.get(result["run_id"])["state"].get("analysis_updated")
+
+
 @pytest.mark.parametrize("case", ["search_only", "incomplete", "unrelated_source", "wrong_page", "failed", "empty", "no_omission", "tool_error"])
 def test_final_source_gap_requires_actual_candidate_omission_and_complete_search(env, case):
     _, _, _, _, build = env
