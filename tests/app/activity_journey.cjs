@@ -30,6 +30,15 @@ const assert = require('node:assert/strict');
         id, label, status: 'complete', summary,
         items: [{ label: itemLabel, detail, status: 'complete', count: index < 3 ? 13 : 12 }],
       })) };
+    completed.stages[0].items[0].actions = [
+      { label: 'Belgenin 1-30. sayfaları incelendi.', status: 'complete' },
+      { label: '11. sayfanın içeriği incelendi.', status: 'complete' },
+    ];
+    completed.stages[3].items[0].actions = [
+      'Birim dönüşümü kontrol edildi.', 'Dönem eşleşmesi kontrol edildi.',
+      'İlk tutarın kaynak bağlantısı incelendi.', 'İkinci tutarın kaynak bağlantısı incelendi.',
+      'Oranın kaynak bağlantıları incelendi.', 'Grafikteki değerlerin kaynak bağlantıları incelendi.',
+    ].map(label => ({ label, status: 'complete' }));
     const workspace = { workspace_id: 'workspace_journey', name: 'Synthetic journey test', profile: 'finance', version: 1,
       latest_activity: activity, latest_journey: completed,
       runs: [{ message: 'Kaynakları incele ve karşılaştır.', result: { status: 'completed', display_message: 'Kaynak karşılaştırması hazır.', message: 'Kaynak karşılaştırması hazır.' } }] };
@@ -72,20 +81,37 @@ const assert = require('node:assert/strict');
     assert.match(await sourceStage.innerText(), /<img src=x onerror="window\.journeyInjected=true"> Banka & ortaklık raporu/);
     assert.equal(await page.locator('#journey-content img, #journey-content script').count(), 0);
     assert.equal(await page.evaluate(() => window.journeyInjected), undefined);
+    assert.equal(await sourceStage.locator('.journey-action:visible').count(), 2, 'Both document operations are immediately readable');
+    assert.match(await sourceStage.innerText(), /1-30\. sayfaları incelendi/);
+    assert.match(await sourceStage.innerText(), /11\. sayfanın içeriği incelendi/);
+    assert.equal((await outer.textContent()).includes('işlem birlikte gösteriliyor'), false);
+    const checksStage = page.locator('.journey-stage[data-stage="checks"]');
+    await checksStage.locator('summary').first().click();
+    assert.equal(await checksStage.locator('.journey-action:visible').count(), 4, 'Long action histories start compact');
+    const more = checksStage.locator('.journey-actions-more');
+    await more.locator('summary').focus();
+    await page.keyboard.press('Enter');
+    assert.equal(await checksStage.locator('.journey-action:visible').count(), 6);
 
     const active = structuredClone(completed);
     active.status = 'running'; active.title = 'Kaynak kontrolleri sürüyor'; active.detail = 'Hesap sonuçları doğrulanıyor.';
     active.stages = active.stages.slice(0, 4);
     active.stages[3].status = 'active'; active.stages[3].summary = 'Kaynak eşleşmeleri kontrol ediliyor.';
     active.stages[3].items[0].status = 'active';
+    active.stages[3].items[0].actions[5] = { label: 'Grafikteki değerlerin kaynak bağlantıları inceleniyor.', status: 'active' };
     await page.evaluate(({ activity, active }) => {
       window.journeyPendingMessage = appendMessage('assistant', 'Başlıyor', true);
+      showEvents(activity, active);
       showPendingActivity(window.journeyPendingMessage, activity, active);
     }, { activity, active });
     assert.equal(await page.locator('.journey-live').getAttribute('role'), 'status');
     assert.equal(await page.locator('.journey-live').getAttribute('aria-live'), 'polite');
     assert.match(await page.locator('.journey-live').textContent(), /Kontroller/);
     for (const name of tools) assert.equal((await page.locator('.journey-live').textContent()).includes(name), false);
+    assert.equal(await more.evaluate(node => node.open), true, 'Changing a recorded action must preserve expanded history');
+    assert.equal(await more.locator('summary').evaluate(node => node === document.activeElement), true, 'Action updates preserve keyboard focus');
+    assert.equal(await checksStage.locator('.journey-action[data-status="active"]').count(), 1);
+    await sourceSummary.focus();
     // Several realistic repeated polling updates must preserve an in-progress
     // keyboard interaction, not replace the disclosure/focused summary.
     await page.evaluate(() => { window.savedSourceSummary = document.querySelector('.journey-stage[data-stage="sources"] > summary'); });
@@ -122,6 +148,7 @@ const assert = require('node:assert/strict');
       attention.stages[3].status = 'attention';
       attention.stages[3].summary = status === 'failed' ? 'Kaynak izi doğrulanamadı.' : 'Karşılaştırılacak dönem belirsiz.';
       attention.stages[3].items[0].status = 'attention';
+      attention.stages[3].items[0].actions[5] = { label: 'Grafikteki değerlerin kaynak bağlantıları kontrol edilemedi.', status: 'attention' };
       await page.evaluate(({ added, attention }) => {
         showEvents(added, attention);
         showPendingActivity(window.journeyPendingMessage, added, attention);
@@ -132,6 +159,8 @@ const assert = require('node:assert/strict');
       assert.equal(await page.locator('.journey-stage[data-status="complete"]').count(), 3);
       assert.equal(await page.locator('.journey-stage[data-stage="presentation"]').count(), 0, 'Failed or waiting work must not acquire a completed presentation stage');
       assert.equal(await sourceStage.evaluate(node => node.open), true);
+      assert.equal(await checksStage.locator('.journey-action[data-status="attention"]').count(), 1);
+      assert.match(await checksStage.innerText(), /kontrol edilemedi/);
     }
 
     // A later poll may discover a previously absent stage. Insert it in API

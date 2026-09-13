@@ -240,6 +240,115 @@ def _document_evidence(attempts):
     return names, pages, rows
 
 
+def _addresses(values):
+    """Compact observed page/row addresses, never arbitrary result values."""
+    numbers = sorted({value for value in values if _integer(value) and value > 0}) if isinstance(values, list) else []
+    ranges = []
+    for value in numbers:
+        if ranges and ranges[-1][1] + 1 == value:
+            ranges[-1][1] = value
+        else:
+            ranges.append([value, value])
+    label = ", ".join(str(start) if start == end else f"{start}-{end}" for start, end in ranges[:4])
+    if len(ranges) > 4:
+        label += f" (+{sum(end - start + 1 for start, end in ranges[4:])} diğer)"
+    return label, len(numbers)
+
+
+def _attempt_action(attempt, run_status):
+    """One public action per actual attempt, with no raw arguments or values."""
+    tool, result, args = attempt["tool"], attempt["result"], attempt["args"]
+    outcome = _attempt_outcome(attempt)
+    if not attempt["finished"]:
+        label = _JOURNEY_TOOLS[tool][3]
+        pages, count = _addresses(args.get("page_numbers"))
+        if tool == "inspect_source" and pages:
+            label = f"Belgenin {pages}. " + ("sayfası" if count == 1 else "sayfaları") + " inceleniyor"
+        if run_status != "running":
+            return {"label": label + "; çalışma bu adım bitmeden durdu.", "status": "attention"}
+        return {"label": label + ".", "status": "active"}
+
+    if outcome == "attention":
+        if tool == "ask_user":
+            label = "Devam etmek için yanıtınız bekleniyor."
+        elif tool == "web_search" and result.get("status") == "ok":
+            label = "Arama yeni bir kaynak bağlantısı getirmedi."
+        elif result.get("import_status") == "unsupported_layout":
+            label = "Tabloyu eklemek için ek düzenleme gerekiyor."
+        else:
+            label = {"inspect_source": "Belge incelemesi tamamlanamadı.",
+                     "find_source_pages": "Belgede sayfa araması tamamlanamadı.",
+                     "read_source_table": "Seçili tablo satırları okunamadı.",
+                     "web_search": "Web araması tamamlanamadı.",
+                     "research_web": "Gerekli web kaynağı okunamadı.",
+                     "ingest_source_table": "Kaynak verisi çalışma alanına eklenemedi.",
+                     "publish_selected_table": "Kaynak verisi çalışma alanına eklenemedi.",
+                     "explain_value": "Bu değerin kaynak bağlantısı tamamlanamadı.",
+                     "create_chart": "Grafik tamamlanamadı.",
+                     "validate_plan": "Hesap planı kontrollerden geçemedi."}.get(tool,
+                         _JOURNEY_TOOLS[tool][2] + " tamamlanamadı.")
+        pages, count = _addresses(args.get("page_numbers"))
+        if tool == "inspect_source" and pages:
+            label = f"Belgenin {pages}. " + ("sayfası" if count == 1 else "sayfaları") + " incelenemedi."
+    elif tool == "inspect_source":
+        pages, count = _addresses(result.get("processed_pages"))
+        name = _safe_name(result.get("filename"))[:60]
+        location = (name + ": ") if name else "Belgenin "
+        label = (location + pages + (". sayfası incelendi." if count == 1 else ". sayfaları incelendi.")) if pages else "Kaynağın içeriği incelendi."
+    elif tool == "find_source_pages":
+        pages, count = _addresses([match.get("page") for match in result.get("matches", []) if isinstance(match, dict)])
+        if pages:
+            label = f"Aranan içerik {pages}. " + ("sayfada" if count == 1 else "sayfalarda") + " bulundu."
+        else:
+            searched, _ = _addresses(result.get("searched_pages"))
+            label = (f"{searched}. sayfalarda arandı; eşleşme bulunamadı." if searched else "Belgede arama yapıldı; eşleşme bulunamadı.")
+        if result.get("complete") is False:
+            label += " Tarama kısmi."
+    elif tool == "read_source_table":
+        rows = result.get("rows", [])
+        addresses, count = _addresses([row.get("candidate_row") for row in rows if isinstance(row, dict)])
+        page = result.get("page")
+        location = f"{page}. sayfadaki tablonun " if _integer(page) and page > 0 else "Tablonun "
+        label = (location + addresses + (". satırı okundu." if count == 1 else ". satırları okundu.") if addresses else
+                 f"Tablodan {len(rows)} satır okundu." if isinstance(rows, list) else "Seçili tablo satırları okundu.")
+    elif tool in {"discover", "dimension_values"}:
+        count = result.get("total")
+        noun = "veri adayı" if tool == "discover" else "karşılaştırma grubu"
+        label = (f"Katalogda {count} {noun} bulundu." if _integer(count) and count > 0 else
+                 f"Katalogda eşleşen {noun} bulunamadı." if count == 0 else
+                 "Katalogdaki veri adayları incelendi." if tool == "discover" else "Verideki karşılaştırma grupları incelendi.")
+    elif tool == "describe":
+        label = "Seçili verinin birimi, dönemi ve kapsamı incelendi."
+    elif tool in {"web_search", "research_web"}:
+        label = _journey_detail("web", [attempt])
+    elif tool in {"ingest_source_table", "publish_selected_table"}:
+        count = result.get("row_count")
+        label = f"{count} satır kaynak verisi çalışma alanına eklendi." if _integer(count) else "Kaynak verisi çalışma alanına eklendi."
+    elif tool == "prepare_source_table":
+        count = result.get("row_count")
+        label = f"{count} satırlık kaynak tablosu analize uygun biçimde düzenlendi." if _integer(count) else "Kaynak tablosunun düzeni hazırlandı."
+    elif tool == "combine_source_tables":
+        pages, _ = _addresses(result.get("source_pages"))
+        label = f"{pages}. sayfalardaki devam tabloları birleştirildi." if pages else "Devam eden kaynak tabloları birleştirildi."
+    elif tool in {"execute", "revise_analysis", "query_grouped", "aggregate_dataset"}:
+        count = result.get("row_count")
+        label = f"{count} satırlık analiz tablosu kaydedildi." if _integer(count) else "Analiz tablosu kaydedildi."
+    else:
+        label = {"attach_reference_catalogue": "Ortak veri kataloğu çalışma alanında kullanıma hazır.",
+                 "summarize_analysis": "Kayıtlı analiz için sonuç özeti hazırlandı.",
+                 "validate_plan": "Birim, dönem ve hesap kuralları kontrol edildi.",
+                 "explain_value": "Seçili değerin özgün kaynak bağlantısı incelendi.",
+                 "rolling_anomalies": "Olağandışı dönem taraması tamamlandı.",
+                 "detect_changes": "Verideki değişim noktaları incelendi.",
+                 "analyze_relationship": "Seçili değişkenlerin birlikte değişimi incelendi.",
+                 "create_chart": "Analiz grafiği kaydedildi."}.get(tool, "Kayıtlı işlem tamamlandı.")
+    if attempt.get("recovery_kind") == "tool_reused":
+        label = "Önceki sonuç yeniden kullanıldı: " + label
+    elif attempt.get("recovery_kind") == "tool_recovered":
+        label = "Kesinti öncesindeki sonuç kullanıldı: " + label
+    return {"label": label, "status": outcome}
+
+
 def _journey_detail(key, attempts):
     good = [attempt for attempt in attempts if _attempt_outcome(attempt) == "complete"]
     results = [attempt["result"] for attempt in good]
@@ -338,7 +447,7 @@ def activity_journey(events, run_status=None):
             attempts.append(attempt)
         if kind != "tool_started":
             result = payload.get("result") or {}
-            attempt.update(result=result, finished=True, recovered=kind in {"tool_recovered", "tool_reused"})
+            attempt.update(result=result, finished=True, recovered=kind in {"tool_recovered", "tool_reused"}, recovery_kind=kind)
             if tool == "prepare_source_table" and result.get("status") == "ok":
                 parent = (result.get("preparation") or {}).get("source_table_id")
                 if result.get("source_id") and result.get("table_id") and parent:
@@ -375,7 +484,8 @@ def activity_journey(events, run_status=None):
                 detail += f" {len(resolved)} önceki denemenin sorunu aynı adımda düzeltildi."
             if any(a["recovered"] for a in group):
                 detail += " Önceden kaydedilen sonuç yeniden kullanıldı."
-            item = {"label": _JOURNEY_TOOLS[group[0]["tool"]][2], "detail": detail.strip(), "status": item_status}
+            item = {"label": _JOURNEY_TOOLS[group[0]["tool"]][2], "detail": detail.strip(), "status": item_status,
+                    "actions": [_attempt_action(attempt, status) for attempt in group]}
             if len(group) > 1:
                 item["count"] = len(group)
             items.append(item)
@@ -389,7 +499,7 @@ def activity_journey(events, run_status=None):
         # outputs were delivered. Retain this terminal condition visibly.
         stages[-1]["status"] = "attention"
         stages[-1]["summary"] = _JOURNEY_STATUS[status][1]
-        stages[-1]["items"].append({"label": "Tamamlanma durumu", "detail": _JOURNEY_STATUS[status][1], "status": "attention"})
+        stages[-1]["items"].append({"label": "Tamamlanma durumu", "detail": _JOURNEY_STATUS[status][1], "status": "attention", "actions": []})
     title, detail = _JOURNEY_STATUS[status]
     if status == "completed" and any(stage["status"] == "attention" for stage in stages):
         detail = "Sonuç hazır; bazı denemeler sonuç vermedi. Ayrıntıları ilgili aşamada görebilirsiniz."

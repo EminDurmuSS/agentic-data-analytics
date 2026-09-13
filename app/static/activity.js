@@ -72,6 +72,20 @@ window.ActivityJourney = (() => {
     return parts;
   }
 
+  function actionList(actions) {
+    const list = node("ol", null, "journey-actions");
+    for (const action of actions) {
+      const state = Object.hasOwn(stageStates, action.status) ? action.status : "attention";
+      const row = node("li", null, "journey-action");
+      row.dataset.status = state;
+      const mark = node("span", marks[state], "journey-action-mark");
+      mark.setAttribute("aria-label", stageStates[state]);
+      row.append(mark, node("span", action.label));
+      list.append(row);
+    }
+    return list;
+  }
+
   function render(activity, journey) {
     if (!journey && !activity?.length) { reset(); return; }
     journey ||= { status: "partial", title: "Çalışma kaydı", detail: "Bu çalışmanın teknik kayıtlarını inceleyebilirsiniz.", stages: [] };
@@ -109,17 +123,30 @@ window.ActivityJourney = (() => {
       const signature = JSON.stringify(stage.items || []);
       if (signature !== parts.signature) {
         parts.signature = signature;
-        const children = (stage.items || []).map((item) => {
+        const previousRows = [...parts.items.children];
+        let restoreFocus;
+        const children = (stage.items || []).map((item, index) => {
           const row = node("li");
           row.dataset.status = item.status;
           const heading = node("span", item.label, "journey-item-label");
           if (item.status === "attention") heading.append(node("span", "Kontrol gerekli", "journey-item-attention"));
           row.append(heading);
           if (item.detail) row.append(node("span", item.detail, "journey-item-detail"));
-          if (item.count > 1) row.append(node("span", item.count + " işlem birlikte gösteriliyor", "journey-item-count"));
+          const actions = (item.actions || []).filter(action => typeof action.label === "string" && action.label.trim());
+          if (actions.length) row.append(actionList(actions.slice(0, 4)));
+          if (actions.length > 4) {
+            const more = node("details", null, "journey-actions-more");
+            const summary = node("summary", "Diğer adımları göster (" + (actions.length - 4) + ")");
+            const previous = previousRows[index]?.querySelector(".journey-actions-more");
+            more.open = Boolean(previous?.open);
+            if (previous?.firstElementChild === document.activeElement) restoreFocus = summary;
+            more.append(summary, actionList(actions.slice(4)));
+            row.append(more);
+          }
           return row;
         });
         parts.items.replaceChildren(...children);
+        restoreFocus?.focus({ preventScroll: true });
       }
     }
     for (const [id, parts] of stageNodes) {

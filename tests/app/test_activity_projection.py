@@ -165,3 +165,99 @@ def test_incomplete_source_reference_is_not_presented_as_verification():
     value = item(activity_journey(events, "partial"), "checks")
     assert value["status"] == "attention"
     assert "doğrulandı" not in value["detail"] and "PRIVATE" not in str(value)
+
+
+def test_each_document_attempt_shows_observed_pages_and_rows_in_order():
+    events = attempt("inspect_source", {"status": "ok", "source_id": "source_secret", "processed_pages": list(range(1, 31)),
+        "cached_pages": list(range(1, 142)), "total_pages": 141, "text": "PRIVATE TEXT 4783750292"},
+        call_id="inspect-first", page_numbers=[99], source_id="source_secret")
+    events += attempt("find_source_pages", {"status": "ok", "matches": [{"page": 11, "excerpt": "PRIVATE 4783750292"},
+        {"page": 42}, {"page": 43}], "searched_pages": list(range(1, 142)), "total_matches": 80, "complete": True},
+        call_id="find-pages", query="PRIVATE SEARCH", source_id="source_secret")
+    events += attempt("inspect_source", {"status": "ok", "processed_pages": [11]}, call_id="inspect-selected", page_numbers=[11])
+    events += attempt("read_source_table", {"status": "ok", "page": 11, "row_count": 900,
+        "rows": [{"candidate_row": row, "values": {"amount": 4783750292}} for row in (43, 44, 45)]},
+        call_id="read-rows", table_id="table_secret", row_start=40, row_limit=100)
+    before = copy.deepcopy(events)
+    value = item(activity_journey(events, "completed"), "sources")
+    assert value["count"] == 4 and len(value["actions"]) == 4
+    assert value["actions"] == [
+        {"label": "Belgenin 1-30. sayfaları incelendi.", "status": "complete"},
+        {"label": "Aranan içerik 11, 42-43. sayfalarda bulundu.", "status": "complete"},
+        {"label": "Belgenin 11. sayfası incelendi.", "status": "complete"},
+        {"label": "11. sayfadaki tablonun 43-45. satırları okundu.", "status": "complete"},
+    ]
+    rendered = json.dumps(value["actions"], ensure_ascii=False)
+    for forbidden in ("PRIVATE", "4783750292", "900", "141", "99", "source_secret", "table_secret", "row_start", "inspect_source"):
+        assert forbidden not in rendered
+    assert events == before
+
+
+def test_page_search_with_no_matches_describes_only_the_searched_range():
+    events = attempt("find_source_pages", {"status": "ok", "matches": [], "searched_pages": list(range(1, 31)),
+        "complete": False, "total_pages": 141, "next_start_page": 31}, query="PRIVATE")
+    value = item(activity_journey(events, "running"), "sources")["actions"][0]
+    assert "1-30. sayfalarda arandı; eşleşme bulunamadı" in value["label"]
+    assert "Tarama kısmi" in value["label"]
+    assert "141" not in value["label"] and "PRIVATE" not in value["label"]
+
+
+def test_failed_attempt_stays_visible_after_a_successful_retry():
+    events = attempt("inspect_source", {"status": "blocked", "message": "PRIVATE ERROR"},
+        call_id="first", source_id="s", page_numbers=[11])
+    events += attempt("inspect_source", {"status": "ok", "processed_pages": [11]},
+        call_id="retry", source_id="s", page_numbers=[11])
+    value = item(activity_journey(events, "completed"), "sources")
+    assert value["status"] == "complete"
+    assert value["actions"][0] == {"label": "Belgenin 11. sayfası incelenemedi.", "status": "attention"}
+    assert value["actions"][1] == {"label": "Belgenin 11. sayfası incelendi.", "status": "complete"}
+    assert "PRIVATE" not in str(value["actions"])
+
+
+def test_active_and_interrupted_actions_do_not_claim_completion():
+    events = attempt("inspect_source", page_numbers=[11, 12])
+    action = item(activity_journey(events, "running"), "sources")["actions"][0]
+    assert action == {"label": "Belgenin 11-12. sayfaları inceleniyor.", "status": "active"}
+    action = item(activity_journey(events, "failed"), "sources")["actions"][0]
+    assert action["status"] == "attention" and "bu adım bitmeden durdu" in action["label"]
+    assert "incelendi" not in action["label"]
+    events.append({"kind": "tool_result", "payload": {"tool": "inspect_source", "call_id": "call",
+        "result": {"status": "ok", "processed_pages": [11, 12]}}})
+    actions = item(activity_journey(events, "running"), "sources")["actions"]
+    assert len(actions) == 1 and actions[0]["status"] == "complete"
+
+
+def test_recovered_and_reused_actions_are_explicit_without_double_counting_starts():
+    events = attempt("publish_selected_table", call_id="first")
+    result = {"status": "ok", "dataset_id": "dataset_secret", "row_count": 7, "amount": 4783750292}
+    events.append({"kind": "tool_recovered", "payload": {"tool": "publish_selected_table", "call_id": "first", "result": result}})
+    events.append({"kind": "tool_reused", "payload": {"tool": "publish_selected_table", "call_id": "replay", "result": result}})
+    value = item(activity_journey(events, "completed"), "data")
+    assert len(value["actions"]) == 2
+    assert value["actions"][0]["label"].startswith("Kesinti öncesindeki sonuç kullanıldı:")
+    assert value["actions"][1]["label"].startswith("Önceki sonuç yeniden kullanıldı:")
+    assert all(action["status"] == "complete" for action in value["actions"])
+    assert "4783750292" not in str(value["actions"]) and "dataset_secret" not in str(value["actions"])
+
+
+@pytest.mark.parametrize("tool,result,stage,expected", [
+    ("discover", {"total": 3}, "sources", "3 veri adayı"),
+    ("dimension_values", {"total": 0}, "sources", "karşılaştırma grubu bulunamadı"),
+    ("describe", {}, "sources", "birimi, dönemi ve kapsamı"),
+    ("web_search", {"results": [{"url": "https://example.org"}]}, "sources", "1 kaynak bağlantısı"),
+    ("prepare_source_table", {"row_count": 2}, "data", "2 satırlık kaynak tablosu"),
+    ("combine_source_tables", {"source_pages": [11, 12]}, "data", "11-12. sayfalardaki devam tabloları"),
+    ("ingest_source_table", {"dataset_id": "d", "row_count": 1}, "data", "1 satır kaynak verisi"),
+    ("execute", {"analysis_id": "a", "row_count": 2}, "calculation", "2 satırlık analiz tablosu"),
+    ("summarize_analysis", {}, "calculation", "sonuç özeti hazırlandı"),
+    ("explain_value", {"source_references_complete": True}, "checks", "özgün kaynak bağlantısı"),
+    ("validate_plan", {}, "checks", "Birim, dönem ve hesap kuralları"),
+    ("create_chart", {"chart_id": "c"}, "presentation", "Analiz grafiği kaydedildi"),
+])
+def test_other_actions_use_observable_counts_and_plain_language(tool, result, stage, expected):
+    events = attempt(tool, {"status": "ok", **result, "value": 4783750292, "sql": "PRIVATE SQL"})
+    action = item(activity_journey(events, "completed"), stage)["actions"][0]
+    assert expected in action["label"]
+    assert action["status"] == "complete"
+    assert "4783750292" not in action["label"] and "PRIVATE" not in action["label"]
+    assert set(action) == {"label", "status"}

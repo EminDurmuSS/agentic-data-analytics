@@ -512,12 +512,20 @@ h3 {
 .journey-stage-more { color: #8a9aae; font-size: 13px; line-height: 23px; }
 .journey-stage[open] > summary .journey-stage-more { transform: rotate(45deg); }
 .journey-items { margin: 0 0 7px 33px; padding: 2px 12px; list-style: none; border-radius: 7px; background: #f5f8fb; }
-.journey-items li { padding: 10px 0; line-height: 1.6; overflow-wrap: anywhere; }
-.journey-items li + li { border-top: 1px solid #e5ecf3; }
-.journey-item-label, .journey-item-detail, .journey-item-count { display: block; }
+.journey-items > li { padding: 10px 0; line-height: 1.6; overflow-wrap: anywhere; }
+.journey-items > li + li { border-top: 1px solid #e5ecf3; }
+.journey-item-label, .journey-item-detail { display: block; }
 .journey-item-label { font-size: 11px; color: #344f6d; font-weight: 500; }
 .journey-item-detail { font-size: 11px; color: #637890; margin-top: 3px; }
-.journey-item-count { font-size: 9px; color: #76899f; margin-top: 5px; }
+.journey-actions { list-style: none; margin: 7px 0 0; padding: 0; }
+.journey-action { display: flex; align-items: flex-start; gap: 7px; padding: 4px 0; color: #4c637c; font-size: 11px; line-height: 1.6; }
+.journey-action-mark { flex: 0 0 15px; display: inline-grid; place-items: center; min-height: 18px; color: #35816b; font-size: 11px; }
+.journey-action[data-status="attention"] .journey-action-mark { color: #9e6c24; font-weight: 650; }
+.journey-action[data-status="active"] .journey-action-mark::after { content: ""; width: 5px; height: 5px; border-radius: 50%; background: #4c7aad; }
+.journey-actions-more > summary { margin-top: 6px; padding: 3px 0 3px 22px; color: #486f9a; font-size: 10px; }
+.journey-actions-more > summary::before { content: "＋"; margin-right: 5px; }
+.journey-actions-more[open] > summary::before { content: "−"; }
+.journey-actions-more .journey-actions { margin-top: 3px; }
 .journey-item-attention { display: inline-block; color: #916121; background: #fff1d9; border-radius: 4px; margin-left: 6px; padding: 1px 5px; font-size: 9px; }
 .activity-technical { margin: 6px 16px 12px; border-top: 1px solid #e9eef4; padding-top: 4px; color: #687b91; }
 .activity-technical > summary { padding: 12px 0 8px; font-size: 10px; }
