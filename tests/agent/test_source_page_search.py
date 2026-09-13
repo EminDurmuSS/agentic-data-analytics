@@ -127,6 +127,30 @@ def test_late_sector_heading_outranks_scattered_words_and_preserves_page_windows
         context.pool.shutdown(wait=True)
 
 
+def test_loan_allocation_note_is_a_search_candidate_when_sector_table_is_missing(tmp_path):
+    raw = _text_pdf([
+        ['5.1.5.6 Allocation of loans by customers',
+         'Not prepared in compliance with the reporting requirements.'],
+        ['5.1.11 Sectoral distribution of investments', 'Banks 100'],
+    ])
+    context = AppContext(tmp_path / 'runtime', None)
+    try:
+        workspace = context.create_workspace('Loan note', 'generic')
+        docs = context.documents(workspace['workspace_id'])
+        upload = docs.upload_root / 'loan-note.pdf'
+        upload.write_bytes(raw)
+        source = docs.register_upload(upload)
+        result = SourceIndexTools(context.store, workspace['workspace_id']).find_source_pages(
+            source['source_id'], 'sectoral distribution of loans')
+        assert result['matches'][0]['page'] == 1
+        assert result['suggested_inspection']['page_numbers'][0] == 1
+        assert result['matches'][0]['matched_terms'] == ['distribution', 'loans']
+        assert 'Not prepared in compliance' in result['matches'][0]['excerpt']
+        assert not result['matches'][0]['all_query_terms']
+    finally:
+        context.pool.shutdown(wait=True)
+
+
 def test_excerpt_is_contiguous_and_partial_investment_match_does_not_claim_loan_coverage():
     text = '\n'.join(['Loans were classified by maturity.', *['A separate accounting policy follows.'] * 20,
                       '8.4 Sectoral distribution of investments', 'Manufacturing 100', 'Technology 200'])

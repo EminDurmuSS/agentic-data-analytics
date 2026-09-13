@@ -27,7 +27,8 @@ def _term_key(word):
     elif len(word) > 3 and word.endswith("s") and not word.endswith(("ss", "us", "is")):
         word = word[:-1]
     # Adjectival forms and common heading variants, not issuer-specific terms.
-    return {"sectoral": "sector", "sektorel": "sektor", "breakdown": "distribution"}.get(word, word)
+    return {"sectoral": "sector", "sektorel": "sektor", "breakdown": "distribution",
+            "allocation": "distribution"}.get(word, word)
 
 
 def _line_terms(line):
