@@ -52,3 +52,15 @@ sizes; they do not establish Safari or Firefox coverage.
 
 Screenshots, geometry, and browser scripts are retained locally under
 `conversation-layout-2026-09-13` in the mentor-improvements evidence directory.
+
+## Follow-up: bottom alignment
+
+A long chart result exposed a second issue: scrolling the outer desktop page
+increased the space below the composer from 16 px to 98 px. The sticky conversation
+kept subtracting the 82 px header even after that header had scrolled away.
+
+The desktop workspace now occupies the viewport, and the result panel scrolls
+independently. At 1200 x 650, 1366 x 768, and 1720 x 1000, the composer retains
+an 8 px bottom inset both initially and after scrolling to the end of the actual
+saved chart. The document height equals the viewport height. The four existing
+Chromium integration suites passed after this correction.

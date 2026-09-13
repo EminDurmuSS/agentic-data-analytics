@@ -1334,8 +1334,11 @@ dialog .primary {
 
 /* The divider participates in the grid, so it never covers either pane. */
 @media (min-width: 931px) {
-  .workspace-grid { grid-template-columns: minmax(0, var(--conversation-width, 39.6%)) 10px minmax(0, 1fr); }
-  .conversation-pane { border-right: 0; }
+  main { display: flex; flex-direction: column; height: 100dvh; overflow: hidden; }
+  .topbar, .notice { flex-shrink: 0; }
+  .workspace-grid { flex: 1; min-height: 0; grid-template-rows: minmax(0, 1fr); grid-template-columns: minmax(0, var(--conversation-width, 39.6%)) 10px minmax(0, 1fr); }
+  .conversation-pane { border-right: 0; height: 100%; position: relative; padding-bottom: 8px; }
+  .result-pane { min-height: 0; overflow: auto; overscroll-behavior-y: contain; }
 }
 .pane-divider { position: sticky; top: 0; height: calc(100dvh - var(--topbar-height)); align-self: start; display: grid; place-items: center; cursor: col-resize; touch-action: none; user-select: none; background: #eef0f3; z-index: 2; }
 .pane-divider::before { content: ""; position: absolute; top: 0; bottom: 0; left: calc(50% - .5px); width: 1px; background: #d8dde4; }
@@ -1343,6 +1346,7 @@ dialog .primary {
 .pane-divider:hover, .pane-divider:focus-visible, .pane-divider.is-dragging { background: #e3e6eb; }
 .pane-divider:hover > span, .pane-divider:focus-visible > span, .pane-divider.is-dragging > span { background: #385b88; box-shadow: 0 0 0 3px #e3e6eb; }
 .pane-divider:focus-visible { outline: 2px solid #4977b3; outline-offset: -2px; }
+@media (min-width: 931px) { .pane-divider { position: relative; height: 100%; } }
 body.pane-resizing, body.pane-resizing * { cursor: col-resize !important; user-select: none !important; }
 @media (max-width: 930px) { .pane-divider { display: none; } }
 
