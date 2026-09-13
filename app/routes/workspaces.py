@@ -74,6 +74,7 @@ def create_router(context: AppContext) -> APIRouter:
     @router.post("/api/jobs/{job_id}/resume")
     def resume(job_id: str):
         job = context.job(job_id)
-        return context.submit(job["workspace_id"], RunBody(message=job["message"], conversation_id=job.get("conversation_id"), request_id=job["request_id"]))
+        return context.submit(job["workspace_id"], RunBody(message=job["message"], conversation_id=job.get("conversation_id"),
+            request_id=job["request_id"], source_ids=job.get("source_ids", [])))
 
     return router

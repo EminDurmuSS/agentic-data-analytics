@@ -205,6 +205,8 @@ def workspace_context(store, workspace_id, state, *, max_decisions, charts_enabl
                             if item.get("tool") == "summarize_analysis" and (result := item.get("result", {})).get("status") == "ok"],
     }
     context["initial_metric_candidates"] = _model_tool_result("discover", state.get("initial_candidates"))
+    from agentic_analytics.agent.source_context import registered_sources
+    context.update(registered_sources(store, workspace_id, state))
     return context
 
 
@@ -330,6 +332,8 @@ def _archive_prior_searches(messages, current_turn, call_names):
 
 def model_messages(state, *, context_factory, charts_enabled, max_context_chars):
     messages = copy.deepcopy(state["messages"])
+    for message in messages:
+        message.pop("source_ids", None)  # Internal attachment metadata is supplied through the trusted context.
     current_turn = max((i for i, message in enumerate(messages) if message.get("role") == "user"), default=0)
     call_names, call_arguments, discovery_messages = {}, {}, []
     source_navigation, publications = [], {}

@@ -99,6 +99,66 @@ def test_final_numbers_come_from_saved_values_and_not_model_prose(env):
     assert store.workspace(wid)["version"] == 1
 
 
+@pytest.mark.parametrize("corrupt", [False, True])
+def test_imported_source_value_survives_budget_without_claiming_an_analysis(env, corrupt):
+    store, wid, journal, _, build = env
+    docs = DocumentTools(store, wid)
+    payload = b"<html><h1>Consolidated balance sheet</h1><p>Amounts in thousands of Turkish Lira (TRY)</p><table><tr><th>Line</th><th>Current</th></tr><tr><td></td><td>31 March 2026</td></tr><tr><td>Total assets</td><td>4,783,750,292</td></tr></table></html>"
+    source = docs._register(payload, "financial-report.html", "text/html", "https://reports.example.org/financial-report.html")
+    inspected = docs.inspect_source(source_id=source["source_id"])
+    extras = {**docs.extra_tools(), **FinancialImportTools(docs).extra_tools()}
+    original = extras["ingest_source_table"]["handler"]
+    def ingest(args):
+        result = original(args)
+        assert result["status"] == "ok", result
+        if corrupt:
+            store.overlay_path(result["dataset_id"]).write_bytes(b"corrupt")
+        return result
+    extras["ingest_source_table"]["handler"] = ingest
+    runtime, _ = build([call("ingest_source_table", {"source_id": source["source_id"],
+        "table_id": inspected["tables"][0]["table_id"], "row_labels": ["Total assets"],
+        "periods": ["2026-03-31"], "expected_version": 0, "measure_kind": "stock"})], more=extras, max_decisions=1)
+    result = runtime.run("Kaynağı ekle, sektörle karşılaştır ve çubuk grafik göster.", source_ids=[source["source_id"]])
+    assert result["status"] == ("blocked" if corrupt else "partial"), result
+    assert result["analysis_id"] is None and not result["analysis_updated"] and not result["chart_updated"]
+    assert store.workspace(wid)["analysis_head"] is None
+    assert "Mevcut analiz korundu" not in result["message"]
+    if corrupt:
+        assert "4.783.750.292" not in result["message"]
+    else:
+        assert "4.783.750.292 bin TL" in result["message"]
+        assert "31 Mart 2026" in result["message"]
+        assert "https://reports.example.org/financial-report.html" in result["message"]
+        assert "analiz ve grafik henüz tamamlanmadı" in result["message"]
+        assert "milyon TL" not in result["message"]
+
+
+def test_empty_workspace_search_failure_does_not_claim_preserved_analysis(env):
+    _, _, _, _, build = env
+    schema = {"type": "function", "function": {"name": "web_search", "parameters": obj({})}}
+    runtime, _ = build([call("web_search", {})], more={"web_search": {"schema": schema,
+        "handler": lambda args: {"status": "blocked", "errors": [{"code": "SEARCH_UNAVAILABLE", "message": "Unavailable"}]}}}, max_decisions=1)
+    result = runtime.run("Kaynakları araştır")
+    assert result["status"] == "blocked"
+    assert "Henüz analiz tablosu veya grafik oluşturulmadı" in result["message"]
+    assert "korundu" not in result["message"]
+
+
+def test_source_navigation_reuses_cached_inspection_and_tracks_exact_selection(env):
+    from agentic_analytics.agent.source_context import registered_sources
+    store, wid, _, _, _ = env
+    docs = DocumentTools(store, wid)
+    source = docs._register(b"month,value\n2026-01,12345\n", "report.csv", "text/csv")
+    docs.inspect_source(source_id=source["source_id"])
+    state = {"selected_source_ids": [source["source_id"]], "messages": []}
+    with patch.object(DocumentTools, "source", side_effect=AssertionError("No raw hash read for navigation")), patch.object(DocumentTools, "inspect_source", side_effect=AssertionError("No new inspection")):
+        context = registered_sources(store, wid, state)
+        assert registered_sources(store, wid, state) == context
+    card = context["registered_sources"][0]
+    assert card["source_id"] == source["source_id"] and card["navigation_only"]
+    assert card["tables"] and "12345" not in json.dumps(context)
+
+
 def test_table_claim_without_produced_result_is_not_completed(env):
     *_, build = env
     runtime, _ = build([final("Tablo hazır, 150 TL.")])

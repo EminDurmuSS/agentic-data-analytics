@@ -386,6 +386,57 @@ class AgentAppTests(unittest.TestCase):
         self.assertEqual(oversized.status_code, 413)
         self.assertIn("frame-ancestors 'none'", self.client.get("/api/status").headers["Content-Security-Policy"])
 
+    def test_selected_sources_are_exact_durable_and_provider_messages_stay_standard(self):
+        wid = self.workspace(profile="generic")["workspace_id"]
+        ids = []
+        for value in (12, 24):
+            response = self.client.post(f"/api/workspaces/{wid}/sources/upload",
+                files={"file": ("report.csv", f"month,visits\n2026-01,{value}\n".encode(), "text/csv")})
+            self.assertEqual(response.status_code, 200, response.text)
+            ids.append(response.json()["source_id"])
+        self.assertNotEqual(*ids)
+        self.provider.responses = [FINAL, FINAL]
+        job = self.submit_and_wait(wid, "report.csv kaynağını seçtim", source_ids=[ids[1]], request_id="attachment-request")
+        self.assertEqual(job["source_ids"], [ids[1]])
+        run = self.context.run_store.find_request(wid, "attachment-request")
+        self.assertEqual(run["state"]["selected_source_ids"], [ids[1]])
+        user = next(message for message in run["state"]["messages"] if message["role"] == "user")
+        self.assertEqual(user["source_ids"], [ids[1]])
+        messages = self.provider.messages[0]
+        context = json.loads(messages[0]["content"].split("Güncel güvenilir çalışma alanı bağlamı:\n")[1])
+        self.assertEqual(context["selected_source_ids"], [ids[1]])
+        self.assertEqual(context["registered_sources"][0]["source_id"], ids[1])
+        self.assertEqual({card["filename"] for card in context["registered_sources"]}, {"report.csv"})
+        self.assertTrue(all(card["navigation_only"] for card in context["registered_sources"]))
+        self.assertTrue(all("source_ids" not in message for message in messages))
+        self.assertTrue(all(source not in user["content"] for source in ids))
+        replay = self.client.post(f"/api/jobs/{job['job_id']}/resume")
+        self.assertEqual(replay.status_code, 200, replay.text)
+        self.assertEqual(replay.json()["source_ids"], [ids[1]])
+        changed = self.client.post(f"/api/workspaces/{wid}/runs", json={"message": user["content"],
+            "source_ids": [ids[0]], "request_id": "attachment-request"})
+        self.assertEqual(changed.status_code, 409)
+        self.submit_and_wait(wid, "Bu kaynakla devam edelim", conversation_id=run["conversation_id"])
+        context = json.loads(self.provider.messages[-1][0]["content"].split("Güncel güvenilir çalışma alanı bağlamı:\n")[1])
+        self.assertEqual(context["selected_source_ids"], [])
+        self.assertEqual(context["recent_source_selections"][-1]["source_ids"], [ids[1]])
+
+    def test_selected_source_validation_rejects_duplicates_foreign_and_corrupt_sources(self):
+        wid, other = self.workspace()["workspace_id"], self.workspace()["workspace_id"]
+        docs = self.context.documents(wid)
+        source = docs._register(b"month,value\n2026-01,1\n", "source.csv", "text/csv")["source_id"]
+        for selected in ([source, source], ["invalid"], [source] * 13, [123]):
+            response = self.client.post(f"/api/workspaces/{wid}/runs", json={"message": "Kaynak", "source_ids": selected})
+            self.assertEqual(response.status_code, 422, response.text)
+        for target, selected in ((other, source), (wid, "source_" + "f" * 64)):
+            response = self.client.post(f"/api/workspaces/{target}/runs", json={"message": "Kaynak", "source_ids": [selected]})
+            self.assertEqual(response.status_code, 400, response.text)
+        (docs._directory(source) / "raw.bin").write_bytes(b"changed")
+        response = self.client.post(f"/api/workspaces/{wid}/runs", json={"message": "Kaynak", "source_ids": [source]})
+        self.assertEqual(response.status_code, 400, response.text)
+        self.assertEqual(self.provider.messages, [])
+        self.assertEqual(self.context.run_store.list(wid), [])
+
     def test_missing_provider_is_explicit_and_never_enters_fake_mode(self):
         workspace = self.workspace()
         self.context.client = None

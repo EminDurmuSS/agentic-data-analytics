@@ -195,6 +195,15 @@ class AppContext:
             raise DocumentError("Görselden geçerli bir tablo çıkarılamadı.", "OCR_INVALID_OUTPUT") from None
         return {**value, "extraction_method": "mia_qwen_vision", "machine_extracted": True}
 
+    def reference_catalogues(self):
+        """Only configured, validated application data can be offered to a run."""
+        descriptor = {"title": "KKB finans verileri"}
+        try:
+            descriptor["snapshot_id"] = self.snapshot("finance")
+        except (HTTPException, StoreError, OSError, ValueError, duckdb.Error):
+            descriptor["reason"] = "Uygulamanın yayımlanmış ortak veri kataloğu hazır değil. İstenen resmî kaynak web üzerinden araştırılabilir."
+        return {"finance": descriptor}
+
     def runtime(self, workspace_id):
         from agentic_analytics.agent.runtime import AgentRuntime
         from agentic_analytics.agent.tools.statistics import StatisticsTools
@@ -203,7 +212,9 @@ class AppContext:
         from agentic_analytics.agent.tools.datasets import DatasetTools
         from agentic_analytics.agent.tools.source_index import SourceIndexTools
         from agentic_analytics.agent.tools.financial_import import FinancialImportTools
+        from agentic_analytics.agent.tools.reference_catalogues import ReferenceCatalogueTools
         documents = self.documents(workspace_id)
+        references = ReferenceCatalogueTools(self.store, workspace_id, self.reference_catalogues())
         tools = FinancialImportTools(documents).extra_tools()
         tools.update(documents.extra_tools())
         tools.update(StatisticsTools(self.store, workspace_id).extra_tools())
@@ -211,25 +222,33 @@ class AppContext:
         tools.update(SummaryTools(self.store, workspace_id).extra_tools())
         tools.update(DatasetTools(self.store, workspace_id).extra_tools())
         tools.update(SourceIndexTools(self.store, workspace_id).extra_tools())
+        tools.update(references.extra_tools())
         # Generous bounds so multi-step analyses reach execution; the finite cap still stops a looping model.
         # The context budget stays well under the model's proven window (~72k tokens accepted; 150k chars ~= 49k)
         # so context-heavy multi-source or explain-driven analyses are not cut off before they can finish.
         return AgentRuntime(self.store, workspace_id, self.client, self.run_store, extra_tools=tools,
+                            available_catalogues=references.available_catalogues(),
                             max_decisions=18, max_repairs=4, max_context_chars=150000, max_elapsed_seconds=900)
 
     def submit(self, workspace_id, body: RunBody):
         if self.client is None:
             raise HTTPException(503, "Kloudeks anahtarı sunucu ortamında tanımlı değil. MIA_API_KEY ile veya --prompt-key seçeneğiyle başlatın.")
         self.workspace(workspace_id)
+        from agentic_analytics.agent.source_context import validate_sources
+        try:
+            selected = validate_sources(self.store, workspace_id, body.source_ids)
+        except (OSError, ValueError, StoreError):
+            raise HTTPException(400, "Seçili kaynak bu çalışma alanında bulunamadı veya doğrulanamadı.") from None
         request_id = _safe_id(body.request_id or "request_" + uuid.uuid4().hex)
         job_id = "job_" + hashlib.sha256((workspace_id + ":" + request_id).encode()).hexdigest()[:32]
         job_path = self._metadata / "jobs" / (job_id + ".json")
         values = {"job_id": job_id, "workspace_id": workspace_id, "request_id": request_id,
-                  "conversation_id": body.conversation_id, "message": body.message}
+                  "conversation_id": body.conversation_id, "message": body.message, "source_ids": selected}
         with self.lock:
             if job_path.exists():
                 previous = json.loads(job_path.read_text())
-                if any(previous.get(key) != values.get(key) for key in ("workspace_id", "request_id", "conversation_id", "message")):
+                if (any(previous.get(key) != values.get(key) for key in ("workspace_id", "request_id", "conversation_id", "message"))
+                        or previous.get("source_ids", []) != selected):
                     raise HTTPException(409, "Aynı istek kimliği farklı içerikle kullanılamaz.")
                 if previous.get("status") == "finished" or job_id in self.futures and not self.futures[job_id].done():
                     return self.job(job_id)
@@ -238,7 +257,8 @@ class AppContext:
             def work():
                 write_json(job_path, {**values, "status": "running"})
                 try:
-                    result = self.runtime(workspace_id).run(body.message, conversation_id=body.conversation_id, request_id=request_id)
+                    result = self.runtime(workspace_id).run(body.message, conversation_id=body.conversation_id,
+                        request_id=request_id, **({"source_ids": selected} if selected else {}))
                     write_json(job_path, {**values, "status": "finished", "result": result})
                 except Exception as exc:
                     # Provider exceptions must already be scrubbed by MiaClient;

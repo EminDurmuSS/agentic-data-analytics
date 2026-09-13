@@ -14,6 +14,42 @@ import pandas as pd
 from agentic_analytics.lakehouse.presentation import analysis_presentation
 
 
+def _published_source_ids(state):
+    return list(dict.fromkeys(result["dataset_id"] for item in state.get("tool_results", [])
+        if item.get("tool") in {"ingest_source_table", "publish_selected_table"}
+        and (result := item.get("result", {})).get("status") == "ok"
+        and result.get("dataset_id") and result.get("publication_performed") is not False))
+
+
+def _source_confirmation(store, workspace_id, state):
+    """Report published source facts without implying a comparison was saved."""
+    datasets = set(store.workspace(workspace_id).get("datasets", []))
+    lines = []
+    for dataset_id in _published_source_ids(state)[-3:]:
+        if dataset_id not in datasets:
+            raise ValueError("Published source dataset is not part of this workspace")
+        manifest = store.dataset_manifest(dataset_id)
+        contract = manifest["contract"]
+        provenance = contract.get("document_provenance") or {}
+        if not provenance.get("source_id") or not {"line_item", "period", "amount"}.issubset(contract["columns"]):
+            continue
+        frame = pd.read_parquet(store.overlay_path(dataset_id), columns=["line_item", "period", "amount"])
+        unit = _display_unit(contract["columns"]["amount"])
+        for row in frame.head(3).to_dict("records"):
+            lines.append(f"{_display_label(row['line_item'])}, {_display_period(row['period'])}: {_display_number(row['amount'])} {unit}.")
+        page = provenance.get("page")
+        label = "Özgün kaynak" + (f", s. {page}" if type(page) is int else "")
+        url = provenance.get("source_url")
+        if isinstance(url, str) and urlsplit(url).scheme in {"http", "https"} and urlsplit(url).hostname:
+            url = url.split("#")[0] + (f"#page={page}" if type(page) is int else "")
+            lines.append(f"[{label}]({quote(url, safe=':/?&=#%._~-')})")
+        else:
+            lines.append(label + ": çalışma alanına yüklenen belge.")
+        if len(frame) > 3:
+            lines.append("Diğer kaynak satırları çalışma alanında kayıtlıdır.")
+    return "Kaynakta doğrulanan ve çalışma alanına eklenen değerler (özgün birimleriyle):\n\n" + "\n\n".join(lines) if lines else ""
+
+
 def _requests_table(message):
     """Recognize explicit table production without blocking questions about tables.
 

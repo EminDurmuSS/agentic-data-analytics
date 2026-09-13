@@ -17,7 +17,7 @@ import jsonschema
 from agentic_analytics.agent.context import _compact, _model_tool_result, model_messages, workspace_context
 from agentic_analytics.agent.delivery import (
     _analysis_confirmation, _cell_confirmation, _chart_confirmation, _requests_chart, _requests_table,
-    _scope_confirmation, _statistics_confirmation, _display_label,
+    _scope_confirmation, _statistics_confirmation, _display_label, _source_confirmation, _published_source_ids,
 )
 from agentic_analytics.agent.run_store import AgentRunStore, canonical, fingerprint
 from agentic_analytics.agent.schemas import COLUMN_NAME, obj
@@ -385,7 +385,7 @@ def _web_research_failure_message(result):
 class AgentRuntime:
     def __init__(self, store, workspace_id, client, run_store: AgentRunStore,
                  extra_tools=None, *, max_decisions=10, max_repairs=2,
-                 service=None, max_context_chars=75000, max_elapsed_seconds=240):
+                 service=None, max_context_chars=75000, max_elapsed_seconds=240, available_catalogues=None):
         if type(max_decisions) is not int or not 1 <= max_decisions <= 30 or type(max_repairs) is not int or not 0 <= max_repairs <= 5:
             raise ValueError("Invalid agent decision/repair budget")
         if type(max_context_chars) is not int or not 8000 <= max_context_chars <= 500000 or not 10 <= max_elapsed_seconds <= 3600:
@@ -394,6 +394,7 @@ class AgentRuntime:
         self.service = service or LakehouseService(store, workspace_id)
         self.max_decisions, self.max_repairs, self.max_context_chars = max_decisions, max_repairs, max_context_chars
         self.max_elapsed_seconds = max_elapsed_seconds
+        self.available_catalogues = copy.deepcopy(available_catalogues or [])
         self.tools = self._tools()
         for name, definition in (extra_tools or {}).items():
             if name in self.tools or not re.fullmatch(r"[a-z][a-z0-9_]{0,63}", name):
@@ -440,6 +441,11 @@ class AgentRuntime:
         context = workspace_context(self.store, self.workspace_id, state,
                                     max_decisions=self.max_decisions,
                                     charts_enabled="create_chart" in self.tools)
+        if self.available_catalogues:
+            context["available_catalogues"] = [dict(card, status="attached")
+                if card.get("snapshot_id") == context["snapshot_id"] else copy.deepcopy(card)
+                for card in self.available_catalogues]
+            context["catalogue_navigation_hint"] = "A source added to an empty workspace does not include shared reference data. If requested reference metrics are absent, inspect available_catalogues and use attach_reference_catalogue with the current workspace_version before repeating discover or searching the web. This preserves registered sources and published datasets. Never attach an unavailable catalogue or assume its contents without discovery."
         if state.get("request_normalization") or (state.get("task_plan") or {}).get("normalization"):
             context["current_task"]["normalization_requirement"] = (
                 (state.get("task_plan") or {}).get("normalization") or state["request_normalization"])
@@ -550,7 +556,9 @@ class AgentRuntime:
             return "Ortaklık bilgilerini doğrulayabileceğim bir kaynak okuyamadım; doğrulanmamış bir kurum listesi veremiyorum. Kurumun resmi ortaklık sayfasını paylaşırsanız oradan kontrol edebilirim."
         if codes & _SEARCH_FAILURES or state.get("search_progress", {}).get("paused"):
             return ("Arama sonuçlarından istenen rapora ulaşıp gerekli veriyi doğrulayamadım. "
-                    "Aynı sonuçları getiren aramalar durduruldu. Mevcut analiz korundu; arama özetleri doğrulanmış veri olarak kullanılmadı. "
+                    + ("Yeni kaynak getirmeyen aramalar durduruldu. " if state.get("search_progress", {}).get("paused") else "")
+                    + ("Mevcut analiz korundu. " if self.store.workspace(self.workspace_id).get("analysis_head") else "Henüz analiz tablosu veya grafik oluşturulmadı. ")
+                    + "Arama özetleri doğrulanmış veri olarak kullanılmadı. "
                     "Devam etmek için ilgili dönemin resmi rapor bağlantısını paylaşabilir veya dosyayı yükleyebilirsiniz.")
         return "Analiz güvenilir biçimde tamamlanamadı. Araç hata ayrıntıları kaydedildi."
 
@@ -628,11 +636,13 @@ class AgentRuntime:
                               charts_enabled="create_chart" in self.tools,
                               max_context_chars=self.max_context_chars)
 
-    def run(self, message, conversation_id=None, request_id=None):
+    def run(self, message, conversation_id=None, request_id=None, source_ids=None):
         if not isinstance(message, str) or not 1 <= len(message.strip()) <= 16000:
             raise ValueError("message must be a nonempty string of at most 16000 characters")
         with self.run_store.workspace_lock(self.workspace_id):
-            record = self.run_store.start(self.workspace_id, message, conversation_id, request_id)
+            from agentic_analytics.agent.source_context import validate_sources
+            selected = validate_sources(self.store, self.workspace_id, source_ids)
+            record = self.run_store.start(self.workspace_id, message, conversation_id, request_id, source_ids=selected)
             return self._run(record)
 
     def resume(self, run_id):
@@ -812,7 +822,7 @@ class AgentRuntime:
                 messages = self._messages(state)
                 elapsed = time.monotonic() - invocation_started
                 if elapsed >= self.max_elapsed_seconds:
-                    return self._finish(record, state, "blocked", "Bu çalıştırmanın aktif süre sınırına ulaşıldı; kaydedilmiş sonuçlar korundu.", errors=[{"code": "TIME_BUDGET_EXCEEDED", "message": "No further provider request was started after this active invocation's deadline; the total decision budget remains durable."}])
+                    return self._finish(record, state, "blocked", "Bu çalışmanın süre sınırına ulaşıldı; istenen adımların tamamı bitirilemedi.", errors=[{"code": "TIME_BUDGET_EXCEEDED", "message": "No further provider request was started after this active invocation's deadline; the total decision budget remains durable."}])
                 # Persist the budget debit before network I/O, so a crash cannot
                 # reset provider-call limits or pretend a request was free.
                 state["decisions"] += 1
@@ -874,7 +884,7 @@ class AgentRuntime:
             if state.get("search_progress", {}).get("paused"):
                 errors = [{"code": "SEARCH_STRATEGY_EXHAUSTED", "message": "Search result novelty was exhausted; no successful source-reading recovery completed within the decision budget."}]
                 return self._finish(record, state, "blocked", self._failure_message(state, errors), errors=errors)
-            return self._finish(record, state, "blocked", "Bu adımın model çağrı sınırına ulaşıldı; mevcut sonuçlar korundu.", errors=[{"code": "DECISION_BUDGET_EXCEEDED", "message": "Bounded agent decision budget reached."}])
+            return self._finish(record, state, "blocked", "İşlem sınırına ulaşıldığı için analiz tamamlanamadı.", errors=[{"code": "DECISION_BUDGET_EXCEEDED", "message": "Bounded agent decision budget reached."}])
         except MiaError as exc:
             return self._finish(record, state, "failed", str(exc), errors=[{"code": exc.code, "message": str(exc), "retryable": exc.retryable, "attempts": exc.attempts, "usage_unknown": True}])
         except (ValueError, OSError, duckdb.Error) as exc:
@@ -1252,7 +1262,7 @@ class AgentRuntime:
         it looped on a missing row or a genuinely absent concept. Returns
         (message, warning) or None to fall through to the plain terminal. Loop errors
         (NO_PROGRESS) are non-blocking here; any real tool failure suppresses the refusal."""
-        if state.get("analysis_updated") or state.get("chart_updated") or state.get("external_facts_required"):
+        if state.get("analysis_updated") or state.get("chart_updated") or state.get("external_facts_required") or _published_source_ids(state):
             return None
         if any(e.get("code") not in {"NO_PROGRESS"}
                for errors in (state.get("unresolved_errors") or {}).values() for e in errors):
@@ -1464,6 +1474,18 @@ class AgentRuntime:
             if missing:
                 status = "partial" if state.get("analysis_updated") or state.get("chart_updated") else "blocked"
                 extra["errors"] = [*extra.get("errors", []), *missing]
+        if status in {"blocked", "failed", "partial"} and not state.get("analysis_updated"):
+            try:
+                source_receipt = _source_confirmation(self.store, self.workspace_id, state)
+                if source_receipt:
+                    status = "partial"
+                    message = source_receipt + "\n\n" + message
+                    message += "\n\nBu kaynaktan istenen analiz ve grafik henüz tamamlanmadı."
+                elif not self.store.workspace(self.workspace_id).get("analysis_head") and "Henüz analiz tablosu" not in message:
+                    message += "\n\nHenüz analiz tablosu veya grafik oluşturulmadı."
+            except (ValueError, OSError, duckdb.Error) as exc:
+                status = "blocked"
+                extra["errors"] = [*extra.get("errors", []), *error_envelope(exc)["errors"]]
         self._close_pending(state)
         state.pop("delivery_pending", None)
         state.pop("automatic_summary_call_id", None)

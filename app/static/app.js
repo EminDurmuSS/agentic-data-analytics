@@ -13,6 +13,7 @@ const state = {
   analysisRequest: 0,
   fullColumns: false,
   followupContext: null,
+  selectedSources: [],
 };
 const el = (tag, text, cls) => {
   const node = document.createElement(tag);
@@ -81,7 +82,7 @@ function examples() {
     state.workspace?.profile === "generic"
       ? [
           "Eklediğim verinin dönemini, birimini ve eksik gözlemlerini incele.",
-          "Ziyaret sayısının aylık değişimini tablo olarak göster.",
+          "Eklediğim belgelerde hangi veriler karşılaştırılabilir?",
         ]
       : [
           "2026 ilk çeyrekte bankacılık sektörünün aylık net kârını tablo olarak göster.",
@@ -284,6 +285,8 @@ async function refreshWorkspaces() {
         if (state.workspace?.workspace_id === workspace.workspace_id) {
           state.workspace = null;
           state.conversation = null;
+          state.selectedSources = [];
+          renderSelectedSources();
           clearFollowups();
           localStorage.removeItem("agentic-workspace");
           $("#message-list").replaceChildren();
@@ -325,6 +328,51 @@ function clearResult() {
   $("#csv-download").hidden = true;
   $("#extra-result").hidden = true;
   $("#result-title").textContent = "Hesabın tamamı, tek yerde.";
+  showResultStatus();
+}
+function showResultStatus(result, journey) {
+  if (state.analysis) return;
+  const holder = $("#result-empty");
+  const running = result?.status === "running";
+  const incomplete = result && ["blocked", "failed", "partial", "interrupted"].includes(result.status);
+  const waiting = result?.status === "needs_input";
+  const records = result?.tool_results || [];
+  const imported = records.some((step) => ["ingest_source_table", "publish_selected_table"].includes(step.tool)
+    && step.result?.status === "ok" && step.result?.dataset_id);
+  holder.dataset.state = !result ? "empty" : running ? "running" : incomplete ? "incomplete" : "ready";
+  holder.hidden = false;
+  holder.querySelector("svg").toggleAttribute("hidden", Boolean(result));
+  holder.querySelector(".capabilities").hidden = Boolean(result);
+  const active = journey?.stages?.findLast((stage) => stage.status === "active");
+  const title = !result ? "İlk sorunuzla başlayın" : running ? "Analiz hazırlanıyor"
+    : incomplete ? "Analiz henüz tamamlanamadı" : waiting ? "Devam etmek için yanıtınız gerekiyor" : "Çalışmanın çıktıları";
+  holder.querySelector("h3").textContent = title;
+  holder.querySelector("p").textContent = !result ? "Tablonuz, görselleştirme ve kaynak izi burada oluşacak."
+    : running ? active?.summary || journey?.detail || "Sorunuz için kaynaklar ve hesaplar hazırlanıyor."
+    : incomplete ? (imported ? "Kaynak verisi kaydedildi. Karşılaştırma tablosu ve grafik henüz oluşmadı; kaynak kaydı aşağıda."
+      : "Henüz bir analiz tablosu veya grafik oluşturulmadı. Tamamlanan işlemleri ve açıklamayı konuşmada görebilirsiniz.")
+    : waiting ? "Agentın konuşmadaki sorusunu yanıtlayarak devam edebilirsiniz."
+    : "Bu çalışmada bir analiz tablosu oluşturulmadı. Yanıt konuşmada, varsa kaynak ve diğer çıktılar aşağıda.";
+  $("#result-title").textContent = result ? (running ? "Sonucunuz hazırlanıyor" : "Çalışmanın durumu") : "Hesabın tamamı, tek yerde.";
+}
+function renderSelectedSources() {
+  const holder = $("#selected-sources");
+  holder.replaceChildren();
+  holder.hidden = !state.selectedSources.length;
+  for (const source of state.selectedSources) {
+    const chip = el("div", null, "selected-source");
+    chip.dataset.sourceId = source.source_id;
+    chip.append(el("span", source.filename || "Eklenen belge"));
+    const remove = el("button", "×", "text-button");
+    remove.type = "button";
+    remove.setAttribute("aria-label", "Kaynak seçimini kaldır: " + (source.filename || "Eklenen belge"));
+    remove.addEventListener("click", () => {
+      state.selectedSources = state.selectedSources.filter((item) => item.source_id !== source.source_id);
+      renderSelectedSources();
+    });
+    chip.append(remove);
+    holder.append(chip);
+  }
 }
 async function selectWorkspace(id) {
   if (state.busy) {
@@ -339,6 +387,9 @@ async function selectWorkspace(id) {
   if (request !== state.workspaceRequest) return;
   state.workspace = workspace;
   state.conversation = null;
+  state.selectedSources = [];
+  renderSelectedSources();
+  $("#url-button").disabled = false;
   localStorage.setItem("agentic-workspace", id);
   $("#workspace-title").textContent = workspace.name;
   $("#profile-label").textContent =
@@ -379,6 +430,7 @@ async function selectWorkspace(id) {
   if (recent) {
     showEvents(workspace.latest_activity, workspace.latest_journey);
     if (recent.result) showExtraResults(recent.result);
+    showResultStatus(recent.result || { status: "running" }, workspace.latest_journey);
     if (!recent.result) showResume(workspace.pending_job_id);
     showFollowups(recent, latestAssistant);
     revealMessage(recent.result ? latestAssistant : $("#message-list").lastElementChild);
@@ -448,33 +500,41 @@ async function submitQuestion(event) {
     await createWorkspace("İlk analiz", "finance");
   }
   state.busy = true;
+  const selectedSources = [...state.selectedSources];
   clearFollowups();
   window.AnalysisCharts.updateBusy();
   $("#send").disabled = true;
   $("#question").value = "";
   resizeComposer();
   window.ActivityJourney.reset();
+  showResultStatus({ status: "running" });
   appendMessage("user", message);
   const pending = appendMessage(
     "assistant",
     "Agent çalışması başlatılıyor…",
     true,
   );
+  let latestJob;
   try {
     const body = await api(base() + "/runs", {
       method: "POST",
       body: JSON.stringify({
         message,
+        source_ids: selectedSources.map((source) => source.source_id),
         conversation_id: state.conversation,
         request_id: "request_" + crypto.randomUUID().replaceAll("-", ""),
       }),
     });
     state.job = body.job_id;
+    state.selectedSources = [];
+    renderSelectedSources();
     let job;
     for (let i = 0; i < 480; i++) {
       job = await fetchJob(state.job);
+      latestJob = job;
       showEvents(job.activity, job.journey);
       showPendingActivity(pending, job.activity, job.journey);
+      showResultStatus({ status: "running" }, job.journey);
       if (["finished", "failed", "interrupted"].includes(job.status)) break;
       await new Promise((resolve) => setTimeout(resolve, 700));
     }
@@ -503,6 +563,7 @@ async function submitQuestion(event) {
     if (result.status === "blocked" || result.status === "failed")
       notice(result.message);
     showExtraResults(result);
+    showResultStatus(result);
     const workspace = await api(base());
     state.workspace = { ...state.workspace, ...workspace };
     $("#workspace-version").textContent = "Sürüm " + workspace.version;
@@ -512,6 +573,7 @@ async function submitQuestion(event) {
     pending.classList.remove("pending");
     pending.querySelector(".body").textContent = error.message;
     notice(error.message);
+    showResultStatus({ status: ["queued", "running"].includes(latestJob?.status) ? "running" : "interrupted" }, latestJob?.journey);
   } finally {
     state.busy = false;
     window.AnalysisCharts.updateBusy();
@@ -549,6 +611,7 @@ async function pollExisting(jobId) {
     for (let i = 0; i < 480; i++) {
       const job = await fetchJob(jobId);
       showEvents(job.activity, job.journey);
+      showResultStatus(job.result || { status: job.status === "interrupted" ? "interrupted" : "running" }, job.journey);
       if (job.result) {
         await selectAfterRun(job);
         return;
@@ -1214,8 +1277,16 @@ function showExtraResults(result) {
   }
   holder.hidden = !holder.children.length;
 }
-async function sourceResult(result) {
+function sourceRequestContext() {
+  return { workspaceId: state.workspace?.workspace_id, workspaceRequest: state.workspaceRequest, base: base() };
+}
+function sourceRequestCurrent(context) {
+  return state.workspace?.workspace_id === context.workspaceId && state.workspaceRequest === context.workspaceRequest;
+}
+async function sourceResult(result, context = sourceRequestContext()) {
+  if (!sourceRequestCurrent(context)) return;
   const holder = $("#source-feedback");
+  const sourceBase = context.base;
   holder.replaceChildren();
   if (result.status === "blocked") {
     holder.append(
@@ -1234,33 +1305,59 @@ async function sourceResult(result) {
     holder.append(el("p", "Kaynak kaydı oluşturulamadı. İşlem ayrıntılarını inceleyebilirsiniz."), technicalDetails("Teknik işlem ayrıntıları", result));
     return;
   }
-  const raw = el("a", "Özgün dosyayı indir ↓", "quiet");
-  raw.href = base() + "/sources/" + id + "/raw";
-  holder.append(raw);
-  holder.append(
-    el("p", "Kaynak kaydedildi. Analiz sorunuza bu kaynağı bağlayabilirsiniz."),
-  );
-  const button = el("button", "Bu kaynağı konuşmada kullan →");
-  button.addEventListener("click", () => {
-    $("#source-dialog").close();
-    prefillQuestion(
-      "Eklediğim " +
-      id +
-      " kaynağını incele. İçindeki verinin dönemini, birimini ve uygun analizleri göster.");
-  });
-  holder.append(button);
   let inspected = result;
   if (!result.tables) {
     try {
-      inspected = await api(base() + "/sources/" + id);
+      inspected = await api(sourceBase + "/sources/" + encodeURIComponent(id));
     } catch (error) {
+      if (!sourceRequestCurrent(context)) return;
       holder.append(el("p", error.message, "small-muted"));
     }
   }
-  for (const table of inspected.tables || inspected.source?.tables || []) {
+  if (!sourceRequestCurrent(context)) return;
+  const metadata = inspected.source || inspected;
+  const filename = metadata.filename || result.filename || "Eklenen belge";
+  const summary = el("div", null, "source-ready");
+  summary.append(el("span", "Kaynak hazır", "source-ready-label"), el("strong", filename.replaceAll("_", " ")));
+  const pages = new Set(metadata.processed_pages || metadata.cached_pages || []);
+  if (metadata.total_pages) summary.append(el("p", metadata.inspection_complete
+    ? metadata.total_pages + " sayfa incelendi."
+    : metadata.total_pages + " sayfanın " + pages.size + " sayfası incelendi. Sorunuza göre diğer sayfalar da incelenebilir."));
+  else summary.append(el("p", "Kaynak kaydedildi. Sorunuza ekleyerek içindeki verileri inceleyebilirsiniz."));
+  const button = el("button", "Bu kaynağı konuşmada kullan →", "source-use primary");
+  button.type = "button";
+  button.disabled = state.busy;
+  button.addEventListener("click", () => {
+    if (state.busy || !sourceRequestCurrent(context)) return;
+    summary.querySelector(".source-limit")?.remove();
+    if (!state.selectedSources.some((source) => source.source_id === id)) {
+      if (state.selectedSources.length >= 12) {
+        const warning = el("p", "Bir soruya en fazla 12 kaynak ekleyebilirsiniz. Yeni kaynak eklemek için seçtiklerinizden birini kaldırın.", "source-limit warning");
+        warning.setAttribute("role", "status");
+        summary.append(warning);
+        return;
+      }
+      state.selectedSources.push({ source_id: id, filename });
+    }
+    renderSelectedSources();
+    $("#source-dialog").close();
+    const existing = $("#question").value.trim();
+    prefillQuestion(existing || "Eklediğim " + filename.replaceAll("_", " ") + " belgesini incele. İçindeki verinin dönemini, birimini ve uygun analizleri göster.");
+  });
+  const raw = el("a", "Özgün dosyayı indir ↓", "text-button");
+  raw.href = sourceBase + "/sources/" + encodeURIComponent(id) + "/raw";
+  summary.append(button, raw);
+  holder.append(summary);
+  const tables = inspected.tables || inspected.source?.tables || [];
+  if (!tables.length) return;
+  const details = el("details", null, "source-tables");
+  details.append(el("summary", "Bulunan tabloları incele (" + tables.length + ")"));
+  details.append(el("p", "Bunlar belgeden çıkarılan tablo adaylarıdır. Hesaplama için ilgili hücreler, dönem ve birim kontrol edilir.", "small-muted"));
+  for (const [index, table] of tables.entries()) {
     const card = el("div", null, "source-card");
+    const location = table.page ? "Sayfa " + table.page : table.sheet ? "Sayfa: " + table.sheet : "Belge";
     card.append(
-      el("strong", table.title || table.table_id || "Tablo"),
+      el("strong", table.title || location + " · Tablo " + (index + 1)),
       el("small", (table.row_count || table.rows?.length || 0) + " satır"),
     );
     if (
@@ -1277,8 +1374,9 @@ async function sourceResult(result) {
       );
       card.append(review);
     }
-    holder.append(card);
+    details.append(card);
   }
+  holder.append(details);
 }
 async function openReview(sourceId, table) {
   table = await api(
@@ -1397,6 +1495,8 @@ $("#new-form").addEventListener("submit", async (event) => {
 $("#new-conversation").addEventListener("click", () => {
   if (state.busy) return;
   state.conversation = null;
+  state.selectedSources = [];
+  renderSelectedSources();
   clearFollowups();
   $("#message-list").replaceChildren();
   window.ActivityJourney.reset();
@@ -1410,49 +1510,53 @@ $("#sources-button").addEventListener("click", async () => {
     notice("Önce bir çalışma alanı oluşturun.");
     return;
   }
+  const context = sourceRequestContext();
   $("#source-dialog").showModal();
   try {
-    const result = await api(base() + "/sources");
+    const result = await api(context.base + "/sources");
+    if (!sourceRequestCurrent(context)) return;
     const holder = $("#source-feedback");
     holder.replaceChildren();
     for (const source of result.sources) {
       const button = el("button", source.filename);
-      button.addEventListener("click", () => sourceResult(source));
+      button.addEventListener("click", () => sourceResult(source, context));
       holder.append(button);
     }
   } catch (error) {
-    notice(error.message);
+    if (sourceRequestCurrent(context)) notice(error.message);
   }
 });
 $("#upload").addEventListener("change", async (event) => {
   const file = event.target.files[0];
   if (!file) return;
+  const context = sourceRequestContext();
   $("#source-feedback").textContent = "Dosya inceleniyor…";
   const form = new FormData();
   form.append("file", file);
   try {
     await sourceResult(
-      await api(base() + "/sources/upload", { method: "POST", body: form }),
+      await api(context.base + "/sources/upload", { method: "POST", body: form }), context,
     );
   } catch (error) {
-    $("#source-feedback").textContent = error.message;
+    if (sourceRequestCurrent(context)) $("#source-feedback").textContent = error.message;
   }
 });
 $("#url-form").addEventListener("submit", async (event) => {
   event.preventDefault();
+  const context = sourceRequestContext();
   $("#url-button").disabled = true;
   $("#source-feedback").textContent = "Kaynak indiriliyor ve inceleniyor…";
   try {
     await sourceResult(
-      await api(base() + "/sources/url", {
+      await api(context.base + "/sources/url", {
         method: "POST",
         body: JSON.stringify({ url: $("#source-url").value }),
-      }),
+      }), context,
     );
   } catch (error) {
-    $("#source-feedback").textContent = error.message;
+    if (sourceRequestCurrent(context)) $("#source-feedback").textContent = error.message;
   } finally {
-    $("#url-button").disabled = false;
+    if (sourceRequestCurrent(context)) $("#url-button").disabled = false;
   }
 });
 for (const button of document.querySelectorAll("[data-close]"))

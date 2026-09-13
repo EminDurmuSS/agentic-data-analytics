@@ -18,6 +18,23 @@ def item(journey, stage, index=0):
     return next(value for value in journey["stages"] if value["id"] == stage)["items"][index]
 
 
+def test_search_links_do_not_claim_source_content_was_read():
+    result = {"status": "ok", "results": [{"url": "https://reports.example.org/report"}], "progress": {"new_source_urls": 1}}
+    journey = activity_journey(attempt("web_search", result), "running")
+    assert "1 kaynak bağlantısı bulundu" in item(journey, "sources")["detail"]
+    assert "henüz okunmadı" in item(journey, "sources")["detail"]
+    result["progress"]["new_source_urls"] = 0
+    journey = activity_journey(attempt("web_search", result), "blocked")
+    assert item(journey, "sources")["status"] == "attention"
+    assert "araştırma tamamlanmadı" in item(journey, "sources")["detail"]
+
+
+def test_reference_catalogue_has_a_human_readable_record():
+    journey = activity_journey(attempt("attach_reference_catalogue", {"status": "ok", "catalogue_attached": True}), "running")
+    assert item(journey, "sources")["label"] == "Ortak veriler"
+    assert "kataloğu" in item(journey, "sources")["detail"]
+
+
 def test_observed_document_journey_is_bounded_and_preserves_the_technical_ledger():
     events = [{"kind": "model_request", "payload": {"content": "PRIVATE MODEL TEXT"}}]
     for pages in [[1, 2], [2, 3]]:

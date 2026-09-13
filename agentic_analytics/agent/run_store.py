@@ -79,7 +79,9 @@ class AgentRunStore:
             finally:
                 fcntl.flock(handle.fileno(), fcntl.LOCK_UN)
 
-    def start(self, workspace_id, message, conversation_id=None, request_id=None):
+    def start(self, workspace_id, message, conversation_id=None, request_id=None, source_ids=None):
+        from agentic_analytics.agent.source_context import source_ids as checked_sources
+        selected = checked_sources(source_ids)
         identifier(workspace_id)
         request_id = identifier(request_id or "request_" + uuid.uuid4().hex)
         if conversation_id is not None:
@@ -87,7 +89,8 @@ class AgentRunStore:
         with self._db() as db:
             existing = db.execute("SELECT * FROM runs WHERE workspace_id=? AND request_id=?", (workspace_id, request_id)).fetchone()
             if existing:
-                if existing["message"] != message or (conversation_id is not None and existing["conversation_id"] != conversation_id):
+                if (existing["message"] != message or (conversation_id is not None and existing["conversation_id"] != conversation_id)
+                        or json.loads(existing["state"]).get("selected_source_ids", []) != selected):
                     raise ValueError("request_id was already used for a different request")
                 return self._run(existing)
             unfinished = db.execute("SELECT run_id FROM runs WHERE workspace_id=? AND status='running' LIMIT 1", (workspace_id,)).fetchone()
@@ -100,10 +103,10 @@ class AgentRunStore:
             if not row:
                 db.execute("INSERT INTO conversations VALUES (?,?,?)", (conversation_id, workspace_id, "[]"))
             messages = json.loads(row["messages"]) if row else []
-            messages.append({"role": "user", "content": message})
+            messages.append({"role": "user", "content": message, **({"source_ids": selected} if selected else {})})
             previous = db.execute("SELECT result FROM runs WHERE conversation_id=? AND result IS NOT NULL ORDER BY created_at DESC LIMIT 1", (conversation_id,)).fetchone()
             prior = json.loads(previous["result"]) if previous else {}
-            state = {"messages": messages, "decisions": 0, "repairs": 0, "pending": [],
+            state = {"messages": messages, "selected_source_ids": selected, "decisions": 0, "repairs": 0, "pending": [],
                      "analysis_id": None, "artifacts": prior.get("artifacts", []), "tool_results": [], "usage": [], "seen": {}}
             run_id, now = "run_" + uuid.uuid4().hex, _now()
             db.execute("INSERT INTO runs VALUES (?,?,?,?,?,?,?,?,?,?)", (run_id, workspace_id, conversation_id, request_id, message, "running", canonical(state), None, now, now))

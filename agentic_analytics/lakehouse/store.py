@@ -311,6 +311,37 @@ class LakehouseStore:
             raise VersionConflict("Workspace changed; read its current revision before retrying.")
         return current
 
+    def is_empty_domain_snapshot(self, snapshot_id):
+        """Recognize only the application's metadata-only generic base."""
+        with duckdb.connect(str(self.snapshot_path(snapshot_id)), read_only=True,
+                            config={"enable_external_access": "false"}) as connection:
+            tables = connection.execute("SELECT table_schema, table_name FROM information_schema.tables").fetchall()
+            if set(tables) != {("main", "platform_metadata")}:
+                return False
+            columns = {row[0] for row in connection.execute("DESCRIBE platform_metadata").fetchall()}
+            if not {"key", "value"}.issubset(columns):
+                return False
+            return connection.execute("SELECT value FROM platform_metadata WHERE key = 'profile'").fetchall() == [("generic",)]
+
+    def attach_reference_catalogue(self, workspace_id, snapshot_id, catalogue_id, *, expected_version):
+        """Pin an explicit trusted catalogue without changing imported assets.
+
+        The application supplies allowed catalogue releases. Existing nonempty
+        bases cannot be replaced here. Old revisions and analysis manifests keep
+        their original snapshot, even after the workspace gains reference data.
+        """
+        _identifier(catalogue_id)
+        self.snapshot_path(snapshot_id)
+        with self._lock(workspace_id):
+            current = self._expect(workspace_id, expected_version)
+            if current["snapshot_id"] == snapshot_id:
+                return current
+            if not self.is_empty_domain_snapshot(current["snapshot_id"]):
+                raise StoreError("Reference attachment cannot replace this workspace's existing pinned catalogue.")
+            receipt = {"catalogue_id": catalogue_id, "snapshot_id": snapshot_id,
+                       "previous_snapshot_id": current["snapshot_id"], "previous_revision_id": current["revision_id"]}
+            return self._advance(current, snapshot_id=snapshot_id, reference_catalogue=receipt)
+
     def _advance(self, current, **updates):
         content = {key: value for key, value in current.items() if key != "revision_id"}
         content.update(updates, version=current["version"] + 1,

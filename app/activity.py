@@ -119,6 +119,7 @@ _JOURNEY_TOOLS = {
     "discover": ("sources", "catalog", "Veri seçimi", "İlgili veriler aranıyor"),
     "describe": ("sources", "catalog", "Veri seçimi", "Verinin kapsamı inceleniyor"),
     "dimension_values": ("sources", "catalog", "Veri seçimi", "Karşılaştırma grupları inceleniyor"),
+    "attach_reference_catalogue": ("sources", "catalogue_attachment", "Ortak veriler", "Yayımlanmış ortak veriler çalışma alanına bağlanıyor"),
     "web_search": ("sources", "web", "Web araştırması", "Web kaynakları aranıyor"),
     "research_web": ("sources", "web", "Web araştırması", "Web kaynakları inceleniyor"),
     "inspect_source": ("sources", "document", "Belge incelemesi", "Belgenin seçili bölümleri inceleniyor"),
@@ -205,6 +206,8 @@ def _attempt_outcome(attempt):
         return "attention"
     if result.get("status") not in {"ok", "valid"}:
         return "attention"
+    if tool == "web_search" and (not result.get("results") or result.get("progress", {}).get("new_source_urls") == 0):
+        return "attention"
     if tool in {"ingest_source_table", "publish_selected_table"}:
         if not result.get("dataset_id") or result.get("publication_performed") is False:
             return "attention"
@@ -258,11 +261,16 @@ def _journey_detail(key, attempts):
     if key == "web":
         hosts = sorted({_host(source.get("url") or source.get("source_url")) for result in results
                         for source in result.get("sources", []) if isinstance(source, dict)} - {""})
-        return (", ".join(hosts[:3]) + " kaynakları incelendi.") if hosts else "Web araması tamamlandı; bulunan kaynaklar değerlendirildi."
+        if hosts:
+            return ", ".join(hosts[:3]) + " kaynakları incelendi."
+        urls = {source.get("url") for result in results for source in result.get("results", []) if isinstance(source, dict) and source.get("url")}
+        return (f"{len(urls)} kaynak bağlantısı bulundu; içerikleri henüz okunmadı." if urls
+                else "İlgili yeni bir kaynak bağlantısı bulunamadı; araştırma tamamlanmadı.")
     if key == "lineage":
         count = len({(attempt["args"].get("analysis_id"), attempt["args"].get("column"), attempt["args"].get("period")) for attempt in good})
         return f"{count} değerin kayıtlı kaynak bağlantısı incelendi." if count else "Kaynak bağlantısı tamamlanamadı."
     return {"catalog": "İlgili veri adayları ve kapsam bilgileri incelendi.",
+            "catalogue_attachment": "Yayımlanmış ortak veri kataloğu bu çalışma alanına bağlandı.",
             "preparation": "Seçili tablo düzeni hazırlandı; verinin eklenmesi ayrı adımda izlenir.",
             "plan": "İstenen çıktılar için işlem planı kaydedildi.",
             "summary": "Özet, kayıtlı analiz değerlerinden hazırlandı.",
@@ -356,7 +364,7 @@ def activity_journey(events, run_status=None):
                     active.append(attempt)
             item_status = "attention" if failures else "active" if active and status == "running" else "attention" if active else "complete"
             has_result = any(_attempt_outcome(attempt) == "complete" for attempt in group)
-            detail = _journey_detail(key, group) if has_result or key in {"publication", "question"} else ""
+            detail = _journey_detail(key, group) if has_result or key in {"publication", "question", "web"} else ""
             if active:
                 detail = _JOURNEY_TOOLS[active[-1]["tool"]][3] + ("." if status == "running" else "; bu adım sonuçlanmadan çalışma durdu.")
             if failures and key != "question":

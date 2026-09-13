@@ -12,6 +12,12 @@ import unittest
 
 class ProductPresentationTests(unittest.TestCase):
     def test_real_dom_display_proof_lazy_details_and_safe_markdown(self):
+        self._browser_script("product_presentation.cjs")
+
+    def test_empty_workspace_source_selection_and_interrupted_analysis(self):
+        self._browser_script("source_workflow.cjs")
+
+    def _browser_script(self, script):
         if not shutil.which("node"):
             self.skipTest("Node is required for the Chromium product test")
         root = Path(__file__).parents[2]
@@ -22,7 +28,7 @@ class ProductPresentationTests(unittest.TestCase):
         if available.returncode:
             self.skipTest("Install Playwright or set PLAYWRIGHT_MODULE for the functional browser test")
         result = subprocess.run(
-            ["node", "tests/app/product_presentation.cjs"], cwd=root,
+            ["node", "tests/app/" + script], cwd=root,
             capture_output=True, text=True, env=os.environ, timeout=75,
         )
         self.assertEqual(0, result.returncode, result.stdout + result.stderr)
