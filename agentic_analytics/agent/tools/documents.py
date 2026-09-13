@@ -1689,7 +1689,8 @@ class DocumentTools:
                 if not valid:
                     skipped += 1
                     continue
-                results.append({"title": str(item.get("title", ""))[:300], "url": target, "snippet": str(item.get("content", ""))[:1200]})
+                results.append({"title": str(item.get("title", ""))[:300], "url": target, "snippet": str(item.get("content", ""))[:1200],
+                                "published_at": item.get("publishedDate") or item.get("published_at")})
             if skipped and not results:
                 raise DocumentError("Search returned only malformed result entries.", "SEARCH_INVALID_RESPONSE")
             return {"status": "ok", "query": query, "results": results, "source_backend": backend,

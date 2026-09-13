@@ -841,13 +841,19 @@ def build(output_path: Path, *, catalog_dir: Path | None = None) -> dict[str, An
         temporary_path.unlink(missing_ok=True)
         raise
     with temporary_path.open("rb") as handle:
-        os.fsync(handle.fileno())
+        try:
+            os.fsync(handle.fileno())
+        except OSError:
+            pass
     os.replace(temporary_path, output_path)
-    directory_fd = os.open(output_path.parent, os.O_RDONLY)
     try:
-        os.fsync(directory_fd)
-    finally:
-        os.close(directory_fd)
+        directory_fd = os.open(output_path.parent, os.O_RDONLY)
+        try:
+            os.fsync(directory_fd)
+        finally:
+            os.close(directory_fd)
+    except OSError:
+        pass
     result = {
         "status": "passed",
         "database_file": output_path.name,

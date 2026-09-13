@@ -84,11 +84,14 @@ def _copy_source(source: Path, target: Path, limit: int) -> str:
 
 
 def _fsync_directory(path: Path) -> None:
-    descriptor = os.open(path, os.O_RDONLY)
     try:
-        os.fsync(descriptor)
-    finally:
-        os.close(descriptor)
+        descriptor = os.open(path, os.O_RDONLY)
+        try:
+            os.fsync(descriptor)
+        finally:
+            os.close(descriptor)
+    except OSError:
+        pass
 
 
 def _write_json(path: Path, value) -> None:
@@ -158,8 +161,11 @@ class LakehouseStore:
         manifest = {**manifest, prefix + "_id": object_id}
         _write_json(stage / "manifest.json", manifest)
         for path in stage.iterdir():
-            with path.open("rb") as handle:
-                os.fsync(handle.fileno())
+            try:
+                with path.open("rb") as handle:
+                    os.fsync(handle.fileno())
+            except OSError:
+                pass
             path.chmod(0o444)
         _fsync_directory(stage)
         destination = self._path(kind, object_id)

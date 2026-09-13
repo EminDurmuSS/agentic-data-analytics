@@ -246,24 +246,45 @@ def _web_research_message(result):
 def _web_research_failure_message(result):
     code = result.get("code")
     if code == "OFFICIAL_SOURCE_NOT_FOUND":
+        institution = result.get("institution")
+        if institution:
+            return f"{institution} resmi kaynaklarında bu konuya uygun, okunabilir bir yayın bulunamadı. İlgisiz web siteleri kaynak olarak kullanılmadı."
         return "İstenen resmi kurum alanında konuya uygun ve okunabilir bir kaynak bulunamadı. İlgisiz web siteleri kaynak olarak kullanılmadı."
     if code == "NO_READABLE_SOURCES":
         return "Arama sonuçları bulundu ancak doğrudan okunabilen ve konuya uygun bir kaynak bulunamadı. Arama snippet'leri kanıt olarak kullanılmadı."
+    if code == "NO_RELIABLE_SOURCE_FOUND":
+        return "Sorguyu destekleyen yeterince güvenilir/doğrulanabilir bir kaynak bulunamadı. Tek taraflı veya doğrulanmamış bir iddia kesin bilgi olarak sunulmadı."
+    if code == "SEARCH_NO_RESULTS":
+        return "Arama hiçbir kullanılabilir sonuç döndürmedi."
     return result.get("message") or "Web araştırması güvenilir bir kaynak okuyamadı."
+
+
+# Terminal research outcomes end the run immediately with their own message; they
+# must never be reduced to the generic "analysis could not complete" fallback.
+_RESEARCH_TERMINAL_CODES = {"OFFICIAL_SOURCE_NOT_FOUND", "NO_READABLE_SOURCES", "SEARCH_NO_RESULTS", "NO_RELIABLE_SOURCE_FOUND"}
+
+# Once one of these tools returns a successful or run-ending research result, the
+# model must not get another tool-enabled turn; this is enforced here in code,
+# not left to a prompt instruction the model previously ignored.
+_RESEARCH_TOOLS = {"research_web", "research_official_source"}
 
 
 class AgentRuntime:
     def __init__(self, store, workspace_id, client, run_store: AgentRunStore,
                  extra_tools=None, *, max_decisions=10, max_repairs=2,
-                 service=None, max_context_chars=75000, max_elapsed_seconds=240):
+                 service=None, max_context_chars=75000, max_elapsed_seconds=240,
+                 max_search_calls=6, max_url_reads=10):
         if type(max_decisions) is not int or not 1 <= max_decisions <= 30 or type(max_repairs) is not int or not 0 <= max_repairs <= 5:
             raise ValueError("Invalid agent decision/repair budget")
         if type(max_context_chars) is not int or not 8000 <= max_context_chars <= 500000 or not 10 <= max_elapsed_seconds <= 3600:
             raise ValueError("Invalid context or elapsed-time budget")
+        if type(max_search_calls) is not int or not 1 <= max_search_calls <= 20 or type(max_url_reads) is not int or not 1 <= max_url_reads <= 30:
+            raise ValueError("Invalid web research call budget")
         self.store, self.workspace_id, self.client, self.run_store = store, workspace_id, client, run_store
         self.service = service or LakehouseService(store, workspace_id)
         self.max_decisions, self.max_repairs, self.max_context_chars = max_decisions, max_repairs, max_context_chars
         self.max_elapsed_seconds = max_elapsed_seconds
+        self.max_search_calls, self.max_url_reads = max_search_calls, max_url_reads
         self.tools = self._tools()
         for name, definition in (extra_tools or {}).items():
             if name in self.tools or not re.fullmatch(r"[a-z][a-z0-9_]{0,63}", name):
@@ -440,6 +461,16 @@ class AgentRuntime:
                     # Reading a web page is an intermediate result. The same turn
                     # may still need to inspect another URL, publish a table,
                     # calculate, summarize, or create a chart.
+                    if (call["function"]["name"] in _RESEARCH_TOOLS
+                            and result.get("status") == "ok" and result.get("sources")):
+                        state["web_research_completed"] = True
+                        return self._finish(record, state, "completed", _web_research_message(result))
+                    if (call["function"]["name"] in _RESEARCH_TOOLS
+                            and result.get("status") == "unavailable"
+                            and result.get("code") in _RESEARCH_TERMINAL_CODES):
+                        state["web_research_completed"] = True
+                        return self._finish(record, state, "completed", _web_research_failure_message(result),
+                                            warnings=[{"code": result.get("code"), "message": result.get("message", "")}])
                     if result.get("analysis_id") and result.get("status") in {"ok", "valid"}:
                         state["analysis_id"] = result["analysis_id"]
                         if call["function"]["name"] in {"execute", "revise_analysis", "query_grouped", "aggregate_dataset"}:
@@ -484,7 +515,7 @@ class AgentRuntime:
                         unresolved[tool_name] = result.get("errors", [])
                     elif result.get("status") in {"ok", "valid"}:
                         unresolved.pop(tool_name, None)
-                        if tool_name == "research_web" and result.get("sources"):
+                        if tool_name in _RESEARCH_TOOLS and result.get("sources"):
                             state["web_research_completed"] = True
                             # A web result can recover a failed search, but does
                             # not repair an invalid calculation or failed chart.
@@ -523,6 +554,9 @@ class AgentRuntime:
                             refusal = self._barren_refusal(state)
                             if refusal:
                                 return self._finish(record, state, "completed", refusal[0], warnings=[refusal[1]])
+                            if result.get("code") in _RESEARCH_TERMINAL_CODES:
+                                return self._finish(record, state, "completed", _web_research_failure_message(result),
+                                                    warnings=[{"code": result.get("code"), "message": result.get("message", "")}])
                             return self._finish(record, state, "blocked", "Analiz güvenilir biçimde tamamlanamadı. Araç hata ayrıntıları kaydedildi.", errors=result.get("errors", []))
                     continue
 
@@ -1015,12 +1049,53 @@ class AgentRuntime:
                 return result
         return _blocked("UNKNOWN_MUTATION_OUTCOME", "Workspace changed after an interrupted tool; automatic replay is blocked.")
 
+    def _enforce_research_budget(self, run_id, state, call, name, args):
+        """Cap independent search/URL-read tool calls and dedup visited URLs, in code rather than by prompt."""
+        if name not in {"web_search", "research_web", "research_official_source", "inspect_source"}:
+            return None
+        budget = state.setdefault("research_budget", {"search_calls": 0, "url_reads": 0, "visited_urls": []})
+        if name in {"web_search", "research_web", "research_official_source"}:
+            if budget["search_calls"] >= self.max_search_calls:
+                result = _blocked("SEARCH_BUDGET_EXCEEDED", "Bu çalıştırma için arama/araştırma çağrısı sınırına ulaşıldı; mevcut sonuçlar kullanılmalı.")
+                self.run_store.event(run_id, "tool_result", {"tool": name, "call_id": call["id"], "result": result})
+                return result
+            budget["search_calls"] += 1
+        if name == "inspect_source" and isinstance(args, dict) and isinstance(args.get("url"), str) and args["url"]:
+            normalized_url = args["url"].split("#", 1)[0]
+            if normalized_url in budget["visited_urls"]:
+                result = {"status": "ok", "reused": True,
+                          "message": "This URL was already inspected in this run; reuse its earlier result instead of refetching."}
+                self.run_store.event(run_id, "tool_reused", {"tool": name, "call_id": call["id"], "result": result})
+                return result
+            if budget["url_reads"] >= self.max_url_reads:
+                result = _blocked("URL_READ_BUDGET_EXCEEDED", "Bu çalıştırma için okunabilecek kaynak URL sayısı sınırına ulaşıldı.")
+                self.run_store.event(run_id, "tool_result", {"tool": name, "call_id": call["id"], "result": result})
+                return result
+            budget["url_reads"] += 1
+            budget["visited_urls"].append(normalized_url)
+        return None
+
     def _dispatch(self, run_id, state, call):
         name = call["function"]["name"]
         step_id = f"{state['decisions']}:{call['id']}"
         definition = self.tools.get(name)
         if definition is None:
             result = _blocked("UNKNOWN_TOOL", "Requested tool is not registered.")
+            self.run_store.event(run_id, "tool_result", {"tool": name, "call_id": call["id"], "result": result})
+            return result
+        web_research_completed = any(
+            item.get("tool") in _RESEARCH_TOOLS and item.get("result", {}).get("status") == "ok"
+            and item.get("result", {}).get("sources")
+            for item in state.get("tool_results", []))
+        if web_research_completed and name in {"web_search", "research_web", "inspect_source", "research_official_source"}:
+            result = {"status": "ok", "reused": True,
+                      "message": "Readable web sources are already available in the previous research result; use them instead of making another request."}
+            self.run_store.event(run_id, "tool_reused", {"tool": name, "call_id": call["id"], "result": result})
+            return result
+        if name in _RESEARCH_TOOLS and any(
+                item.get("tool") == name and item.get("result", {}).get("status") == "ok"
+                for item in state.get("tool_results", [])):
+            result = _blocked("WEB_RESEARCH_ALREADY_COMPLETED", "Web sources were already read. Use the existing source content to answer instead of repeating the research.")
             self.run_store.event(run_id, "tool_result", {"tool": name, "call_id": call["id"], "result": result})
             return result
         try:
@@ -1062,6 +1137,9 @@ class AgentRuntime:
                         if error["code"] in {"NORMALIZATION_COLUMNS_INVALID","NORMALIZATION_DUPLICATE_SOURCE"}]
                     if invalid:
                         raise PlanError(canonical(invalid) + " No new normalization constraints were saved.", code="TASK_PLAN_INVALID_NORMALIZATION")
+            budget_result = self._enforce_research_budget(run_id, state, call, name, args)
+            if budget_result is not None:
+                return budget_result
             write_key = fingerprint({"name": name, "args": args})
             if definition.get("mutating") and write_key in state.get("successful_writes", {}):
                 result = {**state["successful_writes"][write_key], "idempotent_replay": True}
