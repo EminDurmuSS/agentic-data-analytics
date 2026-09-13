@@ -58,35 +58,46 @@ window.ContextualFollowups = (() => {
     }).slice(0, 3);
     if (!valid.length) { hide(version); return; }
     const messages = document.querySelector("#messages");
-    const atBottom = messages.scrollHeight - messages.scrollTop - messages.clientHeight < 48;
+    const readingPosition = messages?.scrollTop;
     const holder = container();
     holder.dataset.status = "ready";
     const heading = node("div", undefined, "followups-heading");
-    heading.append(node("h3", "Buradan devam edebiliriz"), node("p", "Son sorunuz ve bu yanıta göre"));
+    heading.append(node("h3", "Buradan devam edebiliriz"));
     const choices = node("div", undefined, "followups-list");
     for (const item of valid) {
+      const card = node("article", undefined, "followup-card");
       const button = node("button", undefined, "followup-question");
       button.type = "button";
       button.dataset.followupId = item.id;
-      if (typeof item.label === "string" && item.label.trim() && item.label !== item.prompt)
-        button.append(node("span", item.label, "followup-label"));
-      const question = node("span", item.prompt, "followup-prompt");
+      // Keep the actual question readable; execution still uses the complete
+      // original prompt, whose qualifiers remain available in the details.
+      const questionEnd = item.prompt.indexOf("?");
+      const coreQuestion = questionEnd < 0 ? item.prompt : item.prompt.slice(0, questionEnd + 1);
+      const question = node("span", coreQuestion, "followup-prompt");
       const arrow = node("span", "↗", "followup-arrow");
       arrow.setAttribute("aria-hidden", "true");
       button.append(question, arrow);
-      if (typeof item.reason === "string" && item.reason.trim())
-        button.append(node("span", item.reason, "followup-reason"));
-      if (item.requires_new_data === true)
-        button.append(node("span", "Ek veri veya kaynak gerekebilir", "followup-data-hint"));
       button.onclick = () => {
         if (!current(version) || hooks.isBusy()) return;
         hooks.prefill(item.prompt);
       };
-      choices.append(button);
+      const details = node("details", undefined, "followup-details");
+      const summary = node("summary");
+      summary.append(node("span", "Ayrıntılar"));
+      if (item.requires_new_data === true)
+        summary.append(node("span", "Ek veri gerekebilir", "followup-data-hint"));
+      const fullPrompt = node("p", item.prompt, "followup-full-prompt");
+      details.append(summary, fullPrompt);
+      if (typeof item.reason === "string" && item.reason.trim())
+        details.append(node("p", item.reason, "followup-reason"));
+      card.append(button, details);
+      choices.append(card);
     }
     holder.replaceChildren(heading, choices);
     updateBusy();
-    if (atBottom) messages.scrollTop = messages.scrollHeight;
+    // Optional suggestions arrive after the answer. Never push the answer out
+    // of view or pull someone away from the passage they are reading.
+    if (messages) messages.scrollTop = readingPosition;
   }
   function updateBusy() {
     for (const button of section?.querySelectorAll("button") || []) button.disabled = Boolean(hooks.isBusy());

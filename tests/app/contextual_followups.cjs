@@ -72,14 +72,34 @@ const fs = require('fs'), path = require('path'), assert = require('node:assert/
     await page.waitForSelector('#conversation-followups[data-status="pending"]');
     assert.match(await page.locator('#conversation-followups').innerText(), /Sonuca göre yeni sorular/);
     assert.equal(await page.locator('#send').isEnabled(), true, 'Background suggestions cannot block the main composer');
+    const readingPosition = await page.locator('#messages').evaluate(messages => {
+      const spacer = document.createElement('div');
+      spacer.id = 'reading-position-fixture'; spacer.style.height = '1200px'; spacer.style.flexShrink = '0';
+      messages.prepend(spacer); messages.scrollTop = 200;
+      return messages.scrollTop;
+    });
+    assert.ok(readingPosition > 0);
     await page.waitForSelector('#conversation-followups[data-status="ready"]');
+    assert.equal(await page.locator('#messages').evaluate(messages => messages.scrollTop), readingPosition,
+      'Arriving suggestions preserve the current reading position instead of scrolling past the answer');
+    await page.locator('#reading-position-fixture').evaluate(node => node.remove());
     assert.equal(await buttons.count(), 3);
-    assert.deepEqual(await page.locator('.followup-prompt').allTextContents(), items(alpha).map(item => item.prompt));
-    assert.equal(await page.locator('.followup-reason').count(), 3, 'Reasons are visible, not discarded like old chart tips');
+    assert.deepEqual(await page.locator('.followup-prompt').allTextContents(), items(alpha).map(item => item.prompt.split('?')[0] + '?'));
+    assert.deepEqual(await page.locator('.followup-full-prompt').allTextContents(), items(alpha).map(item => item.prompt));
+    assert.equal(await page.locator('.followup-reason').count(), 3, 'Reasons remain accessible in native details');
+    assert.equal(await page.locator('.followup-reason').first().isVisible(), false);
+    assert.equal(await page.locator('.followup-question details').count(), 0, 'The disclosure is not nested inside a button');
+    await page.locator('.followup-details summary').first().focus(); await page.keyboard.press('Enter');
+    assert.equal(await page.locator('.followup-reason').first().isVisible(), true, 'Details can be expanded from the keyboard');
+    assert.equal(await page.locator('.followup-full-prompt').first().isVisible(), true);
+    await page.keyboard.press('Enter');
     assert.equal(await page.locator('.followup-data-hint').count(), 1);
+    assert.equal(await page.locator('.followup-data-hint').isVisible(), true, 'Additional data needs remain visible with details collapsed');
     assert.equal(await page.locator('#conversation-followups img').count(), 0);
     assert.equal(await page.evaluate(() => window.followupInjected), undefined);
     const requestsBeforePrefill = requests.length;
+    await buttons.last().click();
+    assert.equal(await page.locator('#question').inputValue(), items(alpha)[2].prompt, 'The compact question still prefills the unchanged complete prompt');
     await page.locator('#question').fill('Bir kullanıcı taslağı');
     await buttons.first().focus(); await page.keyboard.press('Enter');
     assert.equal(await page.locator('#question').inputValue(), items(alpha)[0].prompt, 'Explicit choice fills the full question');

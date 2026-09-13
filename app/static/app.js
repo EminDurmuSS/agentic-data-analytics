@@ -91,11 +91,17 @@ function examples() {
     const button = el("button", prompt, "example");
     button.type = "button";
     button.addEventListener("click", () => {
-      $("#question").value = prompt;
-      $("#question").focus();
+      prefillQuestion(prompt);
     });
     holder.append(button);
   }
+}
+let messageSequence = 0;
+function revealMessage(item) {
+  if (!item?.isConnected) return;
+  const messages = $("#messages");
+  const top = item.getBoundingClientRect().top - messages.getBoundingClientRect().top + messages.scrollTop;
+  messages.scrollTop = Math.max(0, top - 8);
 }
 function appendMessage(role, text, pending = false) {
   $("#welcome")?.remove();
@@ -106,7 +112,23 @@ function appendMessage(role, text, pending = false) {
   );
   if (role === "assistant" && !pending)
     renderMessage(item.querySelector(".body"), text);
-  $("#messages").append(item);
+  if (role === "user" && (String(text).length > 340 || String(text).split("\n").length > 5)) {
+    const body = item.querySelector(".body");
+    body.id = "question-message-" + (++messageSequence);
+    item.classList.add("is-collapsed");
+    const toggle = el("button", "Sorunun tamamını göster", "message-toggle");
+    toggle.type = "button";
+    toggle.setAttribute("aria-expanded", "false");
+    toggle.setAttribute("aria-controls", body.id);
+    toggle.addEventListener("click", () => {
+      const collapsed = item.classList.toggle("is-collapsed");
+      toggle.setAttribute("aria-expanded", String(!collapsed));
+      toggle.textContent = collapsed ? "Sorunun tamamını göster" : "Soruyu daralt";
+      if (collapsed) revealMessage(item);
+    });
+    item.append(toggle);
+  }
+  $("#message-list").append(item);
   $("#messages").scrollTop = $("#messages").scrollHeight;
   return item;
 }
@@ -264,7 +286,8 @@ async function refreshWorkspaces() {
           state.conversation = null;
           clearFollowups();
           localStorage.removeItem("agentic-workspace");
-          $("#messages").replaceChildren();
+          $("#message-list").replaceChildren();
+          window.ActivityJourney.reset();
           clearResult();
           $("#workspace-title").textContent = "Çalışma alanınız";
           $("#profile-label").textContent = "VERİ ANALİZİ";
@@ -321,7 +344,7 @@ async function selectWorkspace(id) {
   $("#profile-label").textContent =
     workspace.profile === "generic" ? "KENDİ VERİNİZ" : "KKB FİNANS VERİLERİ";
   $("#workspace-version").textContent = "Sürüm " + workspace.version;
-  $("#messages").replaceChildren();
+  $("#message-list").replaceChildren();
   window.ActivityJourney.reset();
   clearResult();
   const runs = [...(workspace.runs || [])].reverse();
@@ -347,7 +370,7 @@ async function selectWorkspace(id) {
     const cards = el("div", null, "examples");
     cards.id = "examples";
     welcome.append(cards);
-    $("#messages").append(welcome);
+    $("#message-list").append(welcome);
     examples();
   }
   if (workspace.analysis_head) await loadAnalysis(workspace.analysis_head);
@@ -358,6 +381,7 @@ async function selectWorkspace(id) {
     if (recent.result) showExtraResults(recent.result);
     if (!recent.result) showResume(workspace.pending_job_id);
     showFollowups(recent, latestAssistant);
+    revealMessage(recent.result ? latestAssistant : $("#message-list").lastElementChild);
   }
   await refreshWorkspaces();
 }
@@ -400,9 +424,17 @@ function showFollowups(run, response) {
   };
   void window.ContextualFollowups.load(state.followupContext, response);
 }
+function resizeComposer() {
+  const question = $("#question");
+  const ceiling = Math.max(72, Math.min(160, innerHeight * .22));
+  question.style.height = "auto";
+  question.style.height = Math.min(question.scrollHeight, ceiling) + "px";
+  question.style.overflowY = question.scrollHeight > ceiling ? "auto" : "hidden";
+}
 function prefillQuestion(prompt) {
   if (state.busy) return;
   $("#question").value = prompt;
+  resizeComposer();
   $("#question").focus();
   $("#composer").scrollIntoView({ behavior: "smooth", block: "nearest" });
 }
@@ -420,6 +452,7 @@ async function submitQuestion(event) {
   window.AnalysisCharts.updateBusy();
   $("#send").disabled = true;
   $("#question").value = "";
+  resizeComposer();
   window.ActivityJourney.reset();
   appendMessage("user", message);
   const pending = appendMessage(
@@ -484,7 +517,7 @@ async function submitQuestion(event) {
     window.AnalysisCharts.updateBusy();
     window.ContextualFollowups.updateBusy();
     $("#send").disabled = false;
-    $("#messages").scrollTop = $("#messages").scrollHeight;
+    revealMessage(pending);
     await refreshWorkspaces();
   }
 }
@@ -505,7 +538,7 @@ function showResume(jobId) {
       button.disabled = false;
     }
   });
-  $("#messages").append(button);
+  $("#message-list").append(button);
 }
 async function pollExisting(jobId) {
   state.busy = true;
@@ -1168,11 +1201,10 @@ async function sourceResult(result) {
   const button = el("button", "Bu kaynağı konuşmada kullan →");
   button.addEventListener("click", () => {
     $("#source-dialog").close();
-    $("#question").value =
+    prefillQuestion(
       "Eklediğim " +
       id +
-      " kaynağını incele. İçindeki verinin dönemini, birimini ve uygun analizleri göster.";
-    $("#question").focus();
+      " kaynağını incele. İçindeki verinin dönemini, birimini ve uygun analizleri göster.");
   });
   holder.append(button);
   let inspected = result;
@@ -1289,8 +1321,18 @@ $("#review-form").addEventListener("submit", async (event) => {
 $("#composer").addEventListener("submit", (event) =>
   submitQuestion(event).catch((error) => notice(error.message)),
 );
+$("#question").addEventListener("input", resizeComposer);
+window.addEventListener("resize", resizeComposer);
+let composerWidth = 0;
+new ResizeObserver(([entry]) => {
+  if (entry.contentRect.width !== composerWidth) {
+    composerWidth = entry.contentRect.width;
+    resizeComposer();
+  }
+}).observe($("#composer"));
+resizeComposer();
 $("#question").addEventListener("keydown", (event) => {
-  if (event.key === "Enter" && !event.shiftKey) {
+  if (event.key === "Enter" && !event.shiftKey && !event.isComposing) {
     event.preventDefault();
     submitQuestion().catch((error) => notice(error.message));
   }
@@ -1314,7 +1356,8 @@ $("#new-conversation").addEventListener("click", () => {
   if (state.busy) return;
   state.conversation = null;
   clearFollowups();
-  $("#messages").replaceChildren();
+  $("#message-list").replaceChildren();
+  window.ActivityJourney.reset();
   appendMessage(
     "assistant",
     "Yeni konuşma başladı. Çalışma alanınızdaki veri ve son analiz kullanılabilir.",

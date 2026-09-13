@@ -4,13 +4,13 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <title>Agentic Minds | Analiz çalışma alanı</title>
-    <link rel="stylesheet" href="/static/app.css?v=9" />
-    <link rel="stylesheet" href="/static/charts.css?v=8" />
+    <link rel="stylesheet" href="/static/app.css?v=10" />
+    <link rel="stylesheet" href="/static/charts.css?v=9" />
     <script src="/static/vendor/echarts.min.js" defer></script>
     <script src="/static/charts.js?v=9" defer></script>
     <script src="/static/activity.js?v=1" defer></script>
-    <script src="/static/followups.js?v=1" defer></script>
-    <script src="/static/app.js?v=12" defer></script>
+    <script src="/static/followups.js?v=2" defer></script>
+    <script src="/static/app.js?v=13" defer></script>
   </head>
   <body>
     <aside class="sidebar">
@@ -62,36 +62,38 @@
             </button>
           </div>
           <div id="messages" class="messages" aria-live="polite">
-            <div class="welcome" id="welcome">
-              <span class="welcome-icon">↗</span>
-              <h2>Veriyi birlikte inceleyelim.</h2>
-              <p>
-                Bir soru sorun. Hesabı, tablosu ve kaynaklarıyla birlikte takip
-                edin.
-              </p>
-              <div id="examples" class="examples"></div>
+            <div id="message-list">
+              <div class="welcome" id="welcome">
+                <span class="welcome-icon">↗</span>
+                <h2>Veriyi birlikte inceleyelim.</h2>
+                <p>
+                  Bir soru sorun. Hesabı, tablosu ve kaynaklarıyla birlikte takip
+                  edin.
+                </p>
+                <div id="examples" class="examples"></div>
+              </div>
             </div>
-          </div>
-          <details class="activity" id="activity" hidden>
-            <summary id="journey-summary">
-              <span class="journey-heading"><span id="activity-title">Çalışmanın özeti</span><span id="journey-status" class="journey-status"></span><span class="journey-chevron" aria-hidden="true">⌄</span></span>
-              <span id="journey-description" class="journey-description"></span>
-              <span id="journey-stages" class="journey-stages"></span>
-              <span class="journey-disclosure"><span class="journey-open-label">Nasıl yapıldığını gör</span><span class="journey-close-label">Özeti daralt</span></span>
-            </summary>
-            <div id="journey-content" class="journey-content"></div>
-            <details id="activity-technical" class="activity-technical">
-              <summary>Teknik işlem kaydı <span id="activity-count"></span></summary>
-              <p>Model çağrıları ve araç işlemleri dahil tüm kayıtlar. Kayıt sayısı, tamamlanan iş sayısı değildir.</p>
-              <ol id="events"></ol>
+            <details class="activity" id="activity" hidden>
+              <summary id="journey-summary">
+                <span class="journey-heading"><span id="activity-title">Çalışmanın özeti</span><span id="journey-status" class="journey-status"></span><span class="journey-chevron" aria-hidden="true">⌄</span></span>
+                <span id="journey-description" class="journey-description"></span>
+                <span id="journey-stages" class="journey-stages"></span>
+                <span class="journey-disclosure"><span class="journey-open-label">Nasıl yapıldığını gör</span><span class="journey-close-label">Özeti daralt</span></span>
+              </summary>
+              <div id="journey-content" class="journey-content"></div>
+              <details id="activity-technical" class="activity-technical">
+                <summary>Teknik işlem kaydı <span id="activity-count"></span></summary>
+                <p>Model çağrıları ve araç işlemleri dahil tüm kayıtlar. Kayıt sayısı, tamamlanan iş sayısı değildir.</p>
+                <ol id="events"></ol>
+              </details>
             </details>
-          </details>
+          </div>
           <form id="composer" class="composer">
             <label class="sr-only" for="question">Analiz sorunuz</label
             ><textarea
               id="question"
-              rows="3"
-              placeholder="Örneğin: 2026'nın ilk çeyreğinde bankacılık sektörünün aylık net kârını göster."
+              rows="1"
+              placeholder="Bir soru sorun veya analize devam edin…"
             ></textarea>
             <div class="composer-bottom">
               <span id="composer-hint"
