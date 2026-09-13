@@ -330,7 +330,4 @@ def _chart_confirmation(state, request):
     if spec["kind"] == "scatter":
         lines.append("Noktalar aynı döneme ait gözlemleri eşler; bu görünüm nedensellik kanıtı değildir.")
     lines.append("Kayıtlı tablonun değerleri korundu.")
-    suggestions = saved.get("recommendations", [])[:2]
-    if suggestions:
-        lines.append("\nİsterseniz şu incelemelerle devam edebiliriz:\n" + "\n".join("- " + item["label"] for item in suggestions))
     return "\n\n".join(lines)

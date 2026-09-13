@@ -44,6 +44,13 @@ class MiaClient:
     def __repr__(self):
         return f"MiaClient(base_url={self.base_url!r}, chat_model={self.chat_model!r})"
 
+    def with_limits(self, *, timeout, max_retries=0):
+        """Give optional background work its own budget without changing a run."""
+        return MiaClient(self._key, self.base_url, chat_model=self.chat_model,
+                         embedding_model=self.embedding_model, ocr_model=self.ocr_model,
+                         timeout=timeout, max_retries=max_retries,
+                         transport=self._transport, sleeper=self._sleep)
+
     def _post(self, endpoint, payload):
         started = time.monotonic()
         encoded = json.dumps(payload, ensure_ascii=False, allow_nan=False).encode()

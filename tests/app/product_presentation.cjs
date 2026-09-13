@@ -71,7 +71,7 @@ const assert = require('node:assert/strict');
     assert.equal((await page.locator('#warnings').textContent()).includes('OPAQUE_TECHNICAL_WARNING'), false);
     assert.equal((await page.locator('#chart-kpis').textContent()).includes('İlk geçerli gözleme göre'), false);
     assert.equal((await page.locator('#chart-legend').textContent()).includes('alias_scaled'), false);
-    assert.deepEqual(await page.locator('#chart-recommendations .chart-suggestion > span:first-child').allTextContents(), ['Kaynağı incele']);
+    assert.equal(await page.locator('#chart-recommendations .chart-suggestion').count(), 0, 'Static chart payload tips must not compete with contextual conversation questions');
     assert.equal(await page.locator('#chart-normalize').isDisabled(), true);
     await page.locator('#table-container .value-cell').first().click();
     await page.waitForFunction(() => document.querySelector('#evidence-content').textContent.includes('Kaynak dosya baytları doğrulandı'));

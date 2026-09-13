@@ -59,6 +59,14 @@ def create_router(context: AppContext) -> APIRouter:
     def submit(workspace_id: str, body: RunBody):
         return context.submit(workspace_id, body)
 
+    @router.get("/api/workspaces/{workspace_id}/runs/{run_id}/followups")
+    def followups(workspace_id: str, run_id: str):
+        return browser_json(context.followups.get(workspace_id, run_id))
+
+    @router.post("/api/workspaces/{workspace_id}/runs/{run_id}/followups")
+    def start_followups(workspace_id: str, run_id: str):
+        return browser_json(context.followups.start(workspace_id, run_id))
+
     @router.get("/api/jobs/{job_id}")
     def job(job_id: str):
         return context.job(job_id)

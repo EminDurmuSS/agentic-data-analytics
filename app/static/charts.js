@@ -57,7 +57,6 @@ window.AnalysisCharts = (() => {
     q("#chart-body").hidden = true;
     q("#chart-status").hidden = false;
     q("#chart-status").textContent = "Bir analiz oluşturduğunuzda grafiği burada inceleyebilirsiniz.";
-    q("#conversation-followups")?.remove();
   }
   function status(message, error = false) {
     const holder = q("#chart-status");
@@ -238,7 +237,6 @@ window.AnalysisCharts = (() => {
     }
     if (!sources().length) q("#chart-sources").append(node("span", "Kaynak ayrıntıları için bir noktayı seçin."));
     q("#chart-point").hidden = true;
-    renderRecommendations();
     updateBusy();
     draw();
   }
@@ -289,46 +287,6 @@ window.AnalysisCharts = (() => {
       holder.append(button);
     }
     holder.hidden = !holder.children.length;
-  }
-  function prefill(prompt) {
-    if (expanded) expand(false);
-    hooks.prefill(prompt);
-  }
-  function renderRecommendations() {
-    const recommendations = (payload.recommendations || []).filter((item) => {
-      if (!item.prompt) return false;
-      if (observedPeriodCount() > 1) return true;
-      const text = [item.label, item.prompt, item.reason].join(" ").toLocaleLowerCase("tr-TR");
-      // A single date can support a source check or a categorical view, but
-      // cannot support time changes, normalization or relationship analysis.
-      if (/endeks|index|100|ilişki|korelasyon|nedensel|trend|büyüme|değişim|önceki|sonraki|relationship|correlation/.test(text)) return false;
-      return /kayna(?:k|ğı)|çubuk|ısı haritası|panel|görünüm/.test(text);
-    });
-    const fill = (holder, max) => {
-      holder.replaceChildren();
-      for (const item of recommendations.slice(0, max)) {
-        if (!item.prompt) continue;
-        const button = node("button", undefined, "chart-suggestion");
-        button.type = "button";
-        button.append(node("span", item.label || item.prompt), node("span", "↗", "chart-suggestion-arrow"));
-        if (item.reason) button.append(node("small", item.reason));
-        button.title = item.prompt;
-        button.onclick = () => prefill(item.prompt);
-        holder.append(button);
-      }
-    };
-    fill(q("#chart-recommendations"), 6);
-    q("#chart-recommendations").parentElement.hidden = !recommendations.length;
-    q("#conversation-followups")?.remove();
-    if (recommendations.length) {
-      const section = node("section", undefined, "conversation-followups");
-      section.id = "conversation-followups";
-      section.append(node("div", "ANALİZİ BİR ADIM İLERİ TAŞIYIN", "eyebrow"));
-      const holder = node("div", undefined, "chart-recommendations");
-      fill(holder, 3);
-      section.append(holder);
-      q("#messages").append(section);
-    }
   }
   function formSpec() {
     return { kind: payload.spec.kind, columns: [...q("#chart-columns").querySelectorAll("input:checked")].map((item) => item.value),

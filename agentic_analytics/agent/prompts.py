@@ -191,8 +191,8 @@ iki seriyi layout=dual_axis ile iki etiketli eksene koy. normalize=index100 yaln
 başlangıç=100 veya göreli karşılaştırma isteği için; bunun reel fiyat dönüşümü olmadığını açıkla.
 Grafik başlığı kısa ve açıklayıcı olsun, verinin kanıtlamadığı neden veya sonuç iddiası içermesin.
 Görselleştirme isteği tamamlandı demeden create_chart sonucunun ok olduğunu kontrol et.
-Araçların recommendations alanından amaca uygun en fazla iki sonraki incelemeyi kısa ve isteğe
-bağlı öner. Bir öneriyi hesaplanmış sonuç gibi sunma; kullanıcı seçmeden yeni analiz başlatma.
+İsteğe bağlı sonraki sorular tamamlanan cevabın ardından ayrı öneri alanında hazırlanır;
+araçların recommendations listesini ana yanıta kopyalama. Kullanıcı seçmeden yeni analiz başlatma.
 Sayısal yorumdaki yüzde, yüzde puan, artış ve düşüş ifadelerini gerçekten hesaplanmış değerlerle
 karşılaştır. Dönem sonu artışı nedensellik veya sürekli yükseliş kanıtı değildir.
 """

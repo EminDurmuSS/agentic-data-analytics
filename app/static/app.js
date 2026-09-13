@@ -12,6 +12,7 @@ const state = {
   workspaceRequest: 0,
   analysisRequest: 0,
   fullColumns: false,
+  followupContext: null,
 };
 const el = (tag, text, cls) => {
   const node = document.createElement(tag);
@@ -261,6 +262,7 @@ async function refreshWorkspaces() {
         if (state.workspace?.workspace_id === workspace.workspace_id) {
           state.workspace = null;
           state.conversation = null;
+          clearFollowups();
           localStorage.removeItem("agentic-workspace");
           $("#messages").replaceChildren();
           clearResult();
@@ -307,6 +309,7 @@ async function selectWorkspace(id) {
     return;
   }
   const request = ++state.workspaceRequest;
+  clearFollowups();
   state.analysisRequest++;
   window.AnalysisCharts?.clear();
   const workspace = await api("/api/workspaces/" + id);
@@ -322,10 +325,11 @@ async function selectWorkspace(id) {
   window.ActivityJourney.reset();
   clearResult();
   const runs = [...(workspace.runs || [])].reverse();
+  let latestAssistant = null;
   for (const run of runs) {
     appendMessage("user", run.message);
     if (run.result) {
-      appendMessage("assistant", run.result.display_message || run.result.message || run.result.status);
+      latestAssistant = appendMessage("assistant", run.result.display_message || run.result.message || run.result.status);
       state.conversation = run.conversation_id;
     }
   }
@@ -353,6 +357,7 @@ async function selectWorkspace(id) {
     showEvents(workspace.latest_activity, workspace.latest_journey);
     if (recent.result) showExtraResults(recent.result);
     if (!recent.result) showResume(workspace.pending_job_id);
+    showFollowups(recent, latestAssistant);
   }
   await refreshWorkspaces();
 }
@@ -371,6 +376,36 @@ function showEvents(activity, journey) {
 function showPendingActivity(pending, activity, journey) {
   window.ActivityJourney.pending(pending, journey);
 }
+function clearFollowups() {
+  state.followupContext = null;
+  window.ContextualFollowups?.clear();
+}
+function showFollowups(run, response) {
+  const result = run?.result || {};
+  if (run?.status !== "completed" || result.status !== "completed"
+      || !run.run_id || !run.conversation_id || run.conversation_id !== state.conversation
+      || (run.workspace_id && run.workspace_id !== state.workspace?.workspace_id)
+      || (result.errors || []).length
+      || /Devam için soru:/.test(result.message || "")
+      || (result.warnings || []).some((warning) => warning?.code === "CLARIFICATION_AFTER_RESULT")
+      || (result.tool_results || []).some((tool) => (tool.tool || tool.name) === "ask_user")) {
+    clearFollowups();
+    return;
+  }
+  state.followupContext = {
+    workspace_id: state.workspace.workspace_id,
+    conversation_id: run.conversation_id,
+    run_id: run.run_id,
+    analysis_id: result.analysis_id || null,
+  };
+  void window.ContextualFollowups.load(state.followupContext, response);
+}
+function prefillQuestion(prompt) {
+  if (state.busy) return;
+  $("#question").value = prompt;
+  $("#question").focus();
+  $("#composer").scrollIntoView({ behavior: "smooth", block: "nearest" });
+}
 async function submitQuestion(event) {
   event?.preventDefault();
   const message = $("#question").value.trim();
@@ -381,6 +416,7 @@ async function submitQuestion(event) {
     await createWorkspace("İlk analiz", "finance");
   }
   state.busy = true;
+  clearFollowups();
   window.AnalysisCharts.updateBusy();
   $("#send").disabled = true;
   $("#question").value = "";
@@ -437,6 +473,8 @@ async function submitQuestion(event) {
     const workspace = await api(base());
     state.workspace = { ...state.workspace, ...workspace };
     $("#workspace-version").textContent = "Sürüm " + workspace.version;
+    showFollowups(job.run || { workspace_id: state.workspace.workspace_id,
+      run_id: result.run_id, conversation_id: state.conversation, status: result.status, result }, pending);
   } catch (error) {
     pending.classList.remove("pending");
     pending.querySelector(".body").textContent = error.message;
@@ -444,6 +482,7 @@ async function submitQuestion(event) {
   } finally {
     state.busy = false;
     window.AnalysisCharts.updateBusy();
+    window.ContextualFollowups.updateBusy();
     $("#send").disabled = false;
     $("#messages").scrollTop = $("#messages").scrollHeight;
     await refreshWorkspaces();
@@ -470,6 +509,7 @@ function showResume(jobId) {
 }
 async function pollExisting(jobId) {
   state.busy = true;
+  clearFollowups();
   window.AnalysisCharts.updateBusy();
   $("#send").disabled = true;
   try {
@@ -487,6 +527,7 @@ async function pollExisting(jobId) {
   } finally {
     state.busy = false;
     window.AnalysisCharts.updateBusy();
+    window.ContextualFollowups.updateBusy();
     $("#send").disabled = false;
   }
 }
@@ -1272,6 +1313,7 @@ $("#new-form").addEventListener("submit", async (event) => {
 $("#new-conversation").addEventListener("click", () => {
   if (state.busy) return;
   state.conversation = null;
+  clearFollowups();
   $("#messages").replaceChildren();
   appendMessage(
     "assistant",
@@ -1342,13 +1384,11 @@ function showTab(name) {
 }
 for (const button of document.querySelectorAll(".tab"))
   button.addEventListener("click", () => showTab(button.dataset.tab));
+window.ContextualFollowups.configure({ api, context: () => state.followupContext,
+  isBusy: () => state.busy, prefill: prefillQuestion });
 window.AnalysisCharts.configure({ api, periodLabel, showTab, showEvidence, columnLabel, renderWarnings, renderChartWarnings,
   isBusy: () => state.busy,
-  prefill: (prompt) => {
-    $("#question").value = prompt;
-    $("#question").focus();
-    $("#composer").scrollIntoView({ behavior: "smooth", block: "nearest" });
-  },
+  prefill: prefillQuestion,
 });
 $("#toggle-columns").addEventListener("click", () => {
   state.fullColumns = !state.fullColumns;

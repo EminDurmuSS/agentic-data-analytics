@@ -1,0 +1,322 @@
+{
+  "date": "2026-09-13",
+  "tests": {
+    "command": ".venv/bin/python -m pytest -q",
+    "passed": 850,
+    "subtests_passed": 269,
+    "warnings": 2,
+    "duration_seconds": 164.28,
+    "functional_chromium_suites": 4
+  },
+  "browser": {
+    "browser": "131.0.6778.33",
+    "observedAt": "2026-09-13T00:08:12.671Z",
+    "workspace": "workspace_7fa9e8ec21084b41a38a8fe8ef4b2e21",
+    "run_id": "run_61253d5e91a0484c97702fd49ec67c20",
+    "pass": true,
+    "checks": [
+      {
+        "name": "main_composer_usable_during_optional_generation",
+        "passed": true,
+        "evidence": {
+          "pendingAtLoad": true
+        }
+      },
+      {
+        "name": "actual_provider_followups_ready",
+        "passed": true,
+        "evidence": {
+          "status": "ready",
+          "method": "model_ranked",
+          "elapsed": 2054
+        }
+      },
+      {
+        "name": "at_most_three_real_full_questions",
+        "passed": true,
+        "evidence": [
+          "«Garanti toplam aktif» önceki döneme göre nasıl değişmiş? Raporda Mart 2026 ile karşılaştırılabilir bir dönem varsa birim ve kapsamı kontrol ederek farkı hesapla; yoksa belirt.",
+          "Bu oranı aynı kurumları ve raporlama kapsamını temsil eden kaynaklarla yeniden hesaplayabilir miyiz? Uyumlu kaynak bulunamazsa eksikleri belirt.",
+          "«Garanti toplam aktif» hangi kalemlerden oluşuyor? Kaynaktaki alt kalemleri varsa kaynaklarıyla göster. Birim ve kapsamları uygunsa toplamla tutarlılığını kontrol et."
+        ]
+      },
+      {
+        "name": "questions_belong_to_actual_latest_run",
+        "passed": true,
+        "evidence": {
+          "workspace_id": "workspace_7fa9e8ec21084b41a38a8fe8ef4b2e21",
+          "run_id": "run_61253d5e91a0484c97702fd49ec67c20",
+          "conversation_id": "conversation_6c78b46ef9aa4a1fbc86ce62d96d2d66",
+          "analysis_id": "analysis_20c9092875ac063e54fb452039c0df4b6bdc8c54fbc33f9f9e7484c90a6abe7b",
+          "context_digest": "2dac654a10b29b459e210bbb06b0abce538eedb7a98dabcc81766495a643c11b"
+        }
+      },
+      {
+        "name": "question_reasons_and_data_hints_match_api",
+        "passed": true
+      },
+      {
+        "name": "explicit_click_only_prefills_question",
+        "passed": true
+      },
+      {
+        "name": "mobile_questions_fit_and_are_reachable",
+        "passed": true,
+        "evidence": {
+          "width": 390,
+          "documentWidth": 390,
+          "reachability": [
+            {
+              "x": 25,
+              "y": 542.984375,
+              "width": 337,
+              "height": 197.46875
+            },
+            {
+              "x": 25,
+              "y": 459.453125,
+              "width": 337,
+              "height": 197.46875
+            },
+            {
+              "x": 25,
+              "y": 542.921875,
+              "width": 337,
+              "height": 197.46875
+            }
+          ]
+        }
+      },
+      {
+        "name": "new_conversation_clears_old_questions",
+        "passed": true
+      },
+      {
+        "name": "chart_view_does_not_reinsert_old_questions",
+        "passed": true
+      },
+      {
+        "name": "reload_reuses_same_context_and_question_items",
+        "passed": true
+      },
+      {
+        "name": "analysis_and_saved_run_remain_unchanged",
+        "passed": true
+      },
+      {
+        "name": "no_analysis_submission_or_chart_mutation",
+        "passed": true,
+        "evidence": [
+          {
+            "method": "POST",
+            "url": "http://127.0.0.1:8871/api/workspaces/workspace_7fa9e8ec21084b41a38a8fe8ef4b2e21/runs/run_61253d5e91a0484c97702fd49ec67c20/followups"
+          },
+          {
+            "method": "POST",
+            "url": "http://127.0.0.1:8871/api/workspaces/workspace_7fa9e8ec21084b41a38a8fe8ef4b2e21/runs/run_61253d5e91a0484c97702fd49ec67c20/followups"
+          }
+        ]
+      },
+      {
+        "name": "no_page_errors",
+        "passed": true,
+        "evidence": []
+      }
+    ],
+    "payload": {
+      "status": "ready",
+      "workspace_id": "workspace_7fa9e8ec21084b41a38a8fe8ef4b2e21",
+      "run_id": "run_61253d5e91a0484c97702fd49ec67c20",
+      "conversation_id": "conversation_6c78b46ef9aa4a1fbc86ce62d96d2d66",
+      "analysis_id": "analysis_20c9092875ac063e54fb452039c0df4b6bdc8c54fbc33f9f9e7484c90a6abe7b",
+      "context_digest": "2dac654a10b29b459e210bbb06b0abce538eedb7a98dabcc81766495a643c11b",
+      "items": [
+        {
+          "id": "followup_b7fd02c4d19a82f37202",
+          "label": "Önceki dönemle karşılaştır",
+          "prompt": "«Garanti toplam aktif» önceki döneme göre nasıl değişmiş? Raporda Mart 2026 ile karşılaştırılabilir bir dönem varsa birim ve kapsamı kontrol ederek farkı hesapla; yoksa belirt.",
+          "reason": "Şu anda tek dönem var; raporda karşılaştırılabilir başka bir dönem bulunabilir.",
+          "requires_new_data": true
+        },
+        {
+          "id": "followup_a6e82eead6a3f8922afb",
+          "label": "Uyumlu kapsamla karşılaştır",
+          "prompt": "Bu oranı aynı kurumları ve raporlama kapsamını temsil eden kaynaklarla yeniden hesaplayabilir miyiz? Uyumlu kaynak bulunamazsa eksikleri belirt.",
+          "reason": "Mevcut kaynakların kapsamları farklı; geçerli bir pay karşılaştırması henüz doğrulanmış değil.",
+          "requires_new_data": true
+        },
+        {
+          "id": "followup_7ca66c99b9a7411af7e8",
+          "label": "Toplamın alt kalemlerini bul",
+          "prompt": "«Garanti toplam aktif» hangi kalemlerden oluşuyor? Kaynaktaki alt kalemleri varsa kaynaklarıyla göster. Birim ve kapsamları uygunsa toplamla tutarlılığını kontrol et.",
+          "reason": "Toplamın hangi kalemlerden oluştuğu bu sonuçta henüz görünmüyor.",
+          "requires_new_data": true
+        }
+      ],
+      "method": "model_ranked"
+    }
+  },
+  "financial_files": {
+    "pass": true,
+    "files_checked": 15,
+    "scope": "Hashes bracketed the browser validation interval, after optional generation started. Earlier API workspace/run snapshot and absence of analytics writes provide the pre-generation identity check.",
+    "files": [
+      {
+        "filename": "data.parquet",
+        "sha256": "4127147cd0ae258c4ddb391781865a347302a3ae7582ec5036aa6656fb909b4e",
+        "unchanged": true
+      },
+      {
+        "filename": "manifest.json",
+        "sha256": "2a3460e13902b537ea3f6b08638b1e333257bdcc5a8db9a1acdb2e53994b9226",
+        "unchanged": true
+      },
+      {
+        "filename": "chart_23cd016b4b827ef3399f3919fce31d36e563098b36e6f3af2d1bc732073be229.json",
+        "sha256": "23cd016b4b827ef3399f3919fce31d36e563098b36e6f3af2d1bc732073be229",
+        "unchanged": true
+      },
+      {
+        "filename": "chart_60c0ebb0705b13097dbfe09d447dab87bb244423ea01d7601a92a5a927c46c31.json",
+        "sha256": "60c0ebb0705b13097dbfe09d447dab87bb244423ea01d7601a92a5a927c46c31",
+        "unchanged": true
+      },
+      {
+        "filename": "chart_656bc800e9e4fb2e17cdf22453a7b73aa33901ad2a0930b22ed2095e7313ef32.json",
+        "sha256": "656bc800e9e4fb2e17cdf22453a7b73aa33901ad2a0930b22ed2095e7313ef32",
+        "unchanged": true
+      },
+      {
+        "filename": "chart_762ae900105f748375d54e05a7782835d3dd5c8eea1ae89133f15589ed71bb79.json",
+        "sha256": "762ae900105f748375d54e05a7782835d3dd5c8eea1ae89133f15589ed71bb79",
+        "unchanged": true
+      },
+      {
+        "filename": "analysis_20c9092875ac063e54fb452039c0df4b6bdc8c54fbc33f9f9e7484c90a6abe7b.json",
+        "sha256": "c79b88b445a74c7484b93214d9b85935be2fc7cf8624f37e7017509930314ede",
+        "unchanged": true
+      },
+      {
+        "filename": "data.parquet",
+        "sha256": "941f3b7967aeb066ae9868c75ede69baea9b250925646d6179d78628263fe7be",
+        "unchanged": true
+      },
+      {
+        "filename": "manifest.json",
+        "sha256": "d5e197c16dbd1366c4b77b3abaa4b0dbd66a49014eebd020ce929ea851f07924",
+        "unchanged": true
+      },
+      {
+        "filename": "source.csv",
+        "sha256": "7e87c9f2a8bcf07eef086dddb6e9b9ab3c59dbe3b1792136fd2b5030da2b300b",
+        "unchanged": true
+      },
+      {
+        "filename": "import_171f5e81f3179b79f8111282532c7609dac24b4b2627b23a91bb8fc00e1051eb.json",
+        "sha256": "633d622d18d8c7a8c5b94086644d885099f4d3261e0fec89f40a111bc0b6262c",
+        "unchanged": true
+      },
+      {
+        "filename": "publication_34a0bd56c25492de6b2cd2fe30324447d1557c535ee1ab3a91a62845e52f0996.json",
+        "sha256": "cbd6e9b86191e5cf4337bdf6401d16b74d051042fc1fb40ff4f0579ef80a1e32",
+        "unchanged": true
+      },
+      {
+        "filename": "inspection.json",
+        "sha256": "ab459d14a314cd54f79018b8c48e471a8b145357e8ac330854475af13cd76817",
+        "unchanged": true
+      },
+      {
+        "filename": "manifest.json",
+        "sha256": "96902cdd22463ad3c0869269387974a6014a84a28c1290a03428b4d53ebb7a72",
+        "unchanged": true
+      },
+      {
+        "filename": "raw.bin",
+        "sha256": "b8dd1916b3943ffdaa06d2be75a8b7e33950812eb990ae8b1bfe601b7f99c288",
+        "unchanged": true
+      }
+    ]
+  },
+  "live_selection": {
+    "date": "2026-09-13",
+    "feature": "contextual_followup_questions",
+    "model": "kkbhackathon2026/Qwen3.8-27B",
+    "mode": "One tool-free JSON-object call; enum schema and answered-topic exclusion enforced locally.",
+    "provider_compatibility": "Strict json_schema produced empty choices in live tests; JSON object mode with local validation succeeded.",
+    "scenarios": [
+      {
+        "name": "pdf",
+        "source": "Actual saved PDF comparison run",
+        "elapsed_seconds": 0.913,
+        "selected_questions": [
+          {
+            "id": "followup_b7fd02c4d19a82f37202",
+            "label": "Raporda karşılaştırma dönemi ara",
+            "prompt": "Aynı kaynak raporda «Garanti toplam aktif» için Mart 2026 ile karşılaştırılabilecek başka bir dönem var mı? Varsa birim ve kapsamını doğrula; yoksa veri bulunamadığını belirt.",
+            "reason": "Tek gözlem değişim hesabına yetmez; raporda başka dönem bulunduğu varsayılmıyor.",
+            "requires_new_data": true
+          },
+          {
+            "id": "followup_a6e82eead6a3f8922afb",
+            "label": "Uyumlu kapsamla karşılaştır",
+            "prompt": "Bu karşılaştırmayı uyumlu raporlama tanımları ve kurum kapsamları olan kaynaklarla yeniden kurabilir miyiz? Uygun pay ve payda bulunamazsa eksikleri belirt.",
+            "reason": "Kayıtlı oranda kapsam eşdeğerliği doğrulanmamış; yeni kaynak doğrulaması gerekiyor.",
+            "requires_new_data": true
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2875,
+          "completion_tokens": 53,
+          "total_tokens": 2928
+        }
+      },
+      {
+        "name": "timeseries",
+        "source": "Evaluation fixture from18 actual BDDK monthly observations, with controlled question/answer history",
+        "elapsed_seconds": 1.103,
+        "selected_questions": [
+          {
+            "id": "followup_a6be0ddae71c9cbf46e5",
+            "label": "BDDK sektör toplam aktifleri: yüzde değişim",
+            "prompt": "Ocak 2025 - Haziran 2026 aralığında «BDDK sektör toplam aktifleri» için önceki döneme göre yüzde değişimi hesaplar mısın? Eksik veya geçersiz tabanlı dönemleri boş bırak.",
+            "reason": "En az bir ardışık gözlem çiftinin başlangıç değeri pozitif.",
+            "requires_new_data": false
+          },
+          {
+            "id": "followup_55918a285e9bb28114aa",
+            "label": "BDDK sektör toplam aktifleri: yıllık değişim",
+            "prompt": "«BDDK sektör toplam aktifleri» için aynı aya göre yıllık yüzde değişimi hesaplar mısın? Yalnız kayıtlı önceki-yıl gözlemi olan dönemleri kullan; diğerlerini boş bırak.",
+            "reason": "Aynı takvim ayına ait iki yılın gerçek gözlemleri mevcut.",
+            "requires_new_data": false
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2341,
+          "completion_tokens": 95,
+          "total_tokens": 2436
+        }
+      },
+      {
+        "name": "answered_history",
+        "source": "Evaluation fixture from18 actual BDDK monthly observations, with controlled question/answer history",
+        "elapsed_seconds": 1.513,
+        "selected_questions": [
+          {
+            "id": "followup_69cc578597215cf9fd77",
+            "label": "BDDK sektör toplam aktifleri: olağandışı gözlemler",
+            "prompt": "«BDDK sektör toplam aktifleri» serisinde yalnız önceki gözlemleri kullanarak olağandışı dönemleri işaretler misin? Bunu bir neden veya tahmin kanıtı olarak yorumlama.",
+            "reason": "En az bir noktanın öncesinde altı gözlem ve yeterli veri doluluğu var.",
+            "requires_new_data": false
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 2468,
+          "completion_tokens": 191,
+          "total_tokens": 2659
+        }
+      }
+    ],
+    "scope": "These live checks evaluate suggestion selection from saved evidence. They are not fresh PDF ingestion, independent financial verification, or newly executed follow-up analyses."
+  }
+}

@@ -5,6 +5,7 @@ questions and application-owned identifiers, never provider keys or SQL.
 """
 from __future__ import annotations
 
+from contextlib import asynccontextmanager
 from pathlib import Path
 
 from fastapi import FastAPI, Request
@@ -22,9 +23,15 @@ STATIC = Path(__file__).resolve().parent / "static"
 DEFAULT_DB = REPO_ROOT / "data_pipeline/lakehouse/analytics.duckdb"
 
 
-def create_app(*, runtime_root=None, source_db=DEFAULT_DB, client=None, validate_finance=True, searxng_url=None):
-    context = AppContext(Path(runtime_root or REPO_ROOT / ".lakehouse-runtime/app"), source_db, client, validate_finance=validate_finance, searxng_url=searxng_url)
-    app = FastAPI(title="Agentic Minds", docs_url=None, redoc_url=None, openapi_url=None)
+def create_app(*, runtime_root=None, source_db=DEFAULT_DB, client=None, validate_finance=True, searxng_url=None, followup_client=None):
+    context = AppContext(Path(runtime_root or REPO_ROOT / ".lakehouse-runtime/app"), source_db, client, validate_finance=validate_finance, searxng_url=searxng_url, followup_client=followup_client)
+
+    @asynccontextmanager
+    async def lifespan(app):
+        yield
+        context.close()
+
+    app = FastAPI(title="Agentic Minds", docs_url=None, redoc_url=None, openapi_url=None, lifespan=lifespan)
     app.state.context = context
     app.add_middleware(TrustedHostMiddleware, allowed_hosts=["localhost", "127.0.0.1", "[::1]", "testserver"])
 

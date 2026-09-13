@@ -29,7 +29,7 @@ def _safe_id(value: str):
 
 
 class AppContext:
-    def __init__(self, root: Path, source_db: Path | None, client=None, *, validate_finance=True, searxng_url=None):
+    def __init__(self, root: Path, source_db: Path | None, client=None, *, validate_finance=True, searxng_url=None, followup_client=None):
         from agentic_analytics.agent.run_store import AgentRunStore
 
         self.root = Path(root).resolve()
@@ -47,6 +47,14 @@ class AppContext:
         self._metadata = self.root / "application"
         for name in ("jobs", "workspaces"):
             (self._metadata / name).mkdir(parents=True, exist_ok=True)
+        from app.followups import FollowupService
+        if followup_client is None and callable(getattr(client, "with_limits", None)):
+            followup_client = client.with_limits(timeout=20, max_retries=0)
+        self.followups = FollowupService(self._metadata / "followups", self.store, self.run_store, followup_client)
+
+    def close(self):
+        self.pool.shutdown(wait=True)
+        self.followups.close()
 
     def snapshot(self, profile):
         with self.lock:
@@ -238,6 +246,14 @@ class AppContext:
                     log_job_failure(exc, job_id=job_id, workspace_id=workspace_id)
                     detail = error_envelope(exc) if isinstance(exc, (PlanError, StoreError)) else {"status": "failed", "message": "Çalışma tamamlanamadı. Kaydedilmiş araç adımlarından yeniden deneyebilirsiniz.", "error_type": type(exc).__name__}
                     write_json(job_path, {**values, "status": "failed", "result": detail})
+                    return
+                # The financial answer is already durable and available to poll.
+                # Optional question selection has its own client, queue and file.
+                if result.get("status") == "completed" and self.followups.client is not None:
+                    try:
+                        self.followups.start(workspace_id, result["run_id"])
+                    except Exception:
+                        pass  # Optional scheduling never changes a finished job.
 
             self.futures[job_id] = self.pool.submit(work)
         return {"job_id": job_id, "workspace_id": workspace_id, "request_id": request_id, "status": "queued",
