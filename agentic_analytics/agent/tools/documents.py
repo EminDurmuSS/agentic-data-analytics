@@ -780,6 +780,11 @@ class DocumentTools:
                            and table.get("table_strategy", "lines") == table_strategy]
         selected_page_content = [page for page in inspection["pages"] if page["page"] in selected_pages]
         selected_text = "\n".join(page["text"] for page in selected_page_content) if selected_page_content else inspection["text"]
+        # Focused page reads must carry the note body, not just repeating report
+        # headers. Broad initial inspection remains a compact navigation view.
+        page_text_limit = (12000 if len(selected_pages) == 1 else 6000) if page_numbers and len(selected_pages) <= 3 else 2000
+        if page_numbers and len(selected_pages) > 3:
+            page_text_limit = max(400, 12000 // len(selected_pages))
         previews = [{**{key: value for key, value in table.items() if key not in {"rows", "context_text", "cell_origins", "row_origins", "raw_machine_rows"}},
                      "context_text": table.get("context_text", "")[:3000],
                      "source_header_quotes": table.get("source_header_quotes", table["original_columns"]),
@@ -788,8 +793,10 @@ class DocumentTools:
                      "preview_truncated": table["row_count"] > 8} for table in selected_tables[:30]]
         return {**manifest, "status": "ok", "tables": previews, "text": selected_text[:12000],
                 "text_truncated": inspection["text_truncated"] or len(selected_text) > 12000,
-                "pages": [{**page, "text": page["text"][:2000]} for page in selected_page_content],
+                "pages": [{**page, "text": page["text"][:page_text_limit],
+                           "text_truncated": len(page["text"]) > page_text_limit} for page in selected_page_content],
                 "total_pages": inspection.get("total_pages"), "processed_pages": selected_pages,
+                **({"selected_pages": selected_pages} if page_numbers else {}),
                 "cached_pages": inspection.get("processed_pages", []),
                 "inspection_complete": inspection.get("total_pages") is None or len(selected_pages) == inspection["total_pages"],
                 "warnings": inspection["warnings"], "article": article,

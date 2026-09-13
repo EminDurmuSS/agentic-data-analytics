@@ -13,7 +13,7 @@ def _fold(value):
 
 def pdf_title(metadata, pages, filename):
     title = metadata.get("title")
-    if isinstance(title, str) and title.strip() and title.strip().casefold() not in {"untitled", "document"}:
+    if isinstance(title, str) and title.strip() and _fold(title) not in {"untitled", "document", "blank document"}:
         return {"title": " ".join(title.split())[:240], "title_basis": "pdf_metadata"}
     cover = next((page for page in pages if page.get("page") == 1), {})
     lines = [line.strip() for line in cover.get("text", "").splitlines() if line.strip()]

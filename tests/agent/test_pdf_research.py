@@ -48,6 +48,23 @@ class PdfResearchTests(unittest.TestCase):
         self.store.create_workspace(snapshot['snapshot_id'], 'workspace_research')
         self.docs = DocumentTools(self.store, 'workspace_research')
 
+    def test_selected_page_read_keeps_late_note_body_and_original_source(self):
+        filler = '\n'.join(f'Report context line {i:02d}: accounting policies and presentation.' for i in range(45))
+        body = filler + '\nCredit risk disclosure\nThis interim report does not include the requested distribution.'
+        raw = text_pdf(['Example Bank\nConsolidated Financial Report', body])
+        upload = self.docs.upload_root / 'notes.pdf'
+        upload.write_bytes(raw)
+        registered = self.docs.register_upload(upload)
+        first = self.docs.inspect_source(source_id=registered['source_id'])
+        self.assertNotIn('requested distribution', first['pages'][1]['text'])
+        self.assertTrue(first['pages'][1]['text_truncated'])
+        selected = self.docs.inspect_source(source_id=registered['source_id'], page_numbers=[2])
+        self.assertEqual(selected['selected_pages'], [2])
+        self.assertIn('does not include the requested distribution', selected['pages'][0]['text'])
+        self.assertFalse(selected['pages'][0]['text_truncated'])
+        self.assertEqual(selected['raw_sha256'], registered['raw_sha256'])
+        self.assertEqual(self.docs.raw_source_bytes(registered['source_id']), raw)
+
     def test_research_returns_full_target_page_after_12000_characters_and_real_document_title(self):
         filler = '\n'.join('Operations and risk management narrative without an ownership list.' for _ in range(55))
         owners = '\n'.join(f'BANK {letter}' for letter in 'ABCDEFGHI')
@@ -76,6 +93,21 @@ class PdfResearchTests(unittest.TestCase):
         cache = json.loads((self.docs._directory(card['source_id']) / 'inspection.json').read_text())
         self.assertEqual(cache['pages'][6]['text'], target)
 
+    def test_four_explicit_pages_keep_each_note_body_within_shared_budget(self):
+        filler = '\n'.join(f'Report context line {i:02d}: accounting policies and presentation.' for i in range(37))
+        raw = text_pdf([filler + f'\nDistinct note body on physical page {page}.' for page in range(1, 5)])
+        upload = self.docs.upload_root / 'four-notes.pdf'
+        upload.write_bytes(raw)
+        source = self.docs.register_upload(upload)
+        initial = self.docs.inspect_source(source_id=source['source_id'])
+        self.assertTrue(all(page['text_truncated'] for page in initial['pages']))
+        selected = self.docs.inspect_source(source_id=source['source_id'], page_numbers=[1, 2, 3, 4])
+        for page in selected['pages']:
+            self.assertIn(f"Distinct note body on physical page {page['page']}.", page['text'])
+            self.assertFalse(page['text_truncated'])
+        self.assertLessEqual(sum(len(page['text']) for page in selected['pages']), 12000)
+        self.assertEqual(self.docs.raw_source_bytes(source['source_id']), raw)
+
     def test_metadata_title_wins_over_link_label_and_truncated_passage_requires_page_read(self):
         lines = ['2025 SHAREHOLDERS'] + [f'BANK {i:03d}: a separately disclosed institution name' for i in range(120)]
         raw = text_pdf(['2025 ANNUAL REPORT', '\n'.join(lines)], title='Example Registry: 2025 Ownership Report')
@@ -101,3 +133,6 @@ class PdfResearchTests(unittest.TestCase):
         self.assertEqual(passages[0]['text'], pages[1]['text'])
         self.assertNotIn('Founded', passages[0]['text'])
         self.assertEqual(pdf_title({}, [], 'annual.pdf'), {'title': 'annual.pdf', 'title_basis': 'registered_filename'})
+        self.assertEqual(pdf_title({'title': 'Blank document'},
+                                   [{'page': 1, 'text': 'Example Bank\nConsolidated Financial Report'}], 'report.pdf'),
+                         {'title': 'Example Bank Consolidated Financial Report', 'title_basis': 'pdf_cover', 'title_page': 1})

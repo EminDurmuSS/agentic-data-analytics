@@ -269,7 +269,10 @@ def _attempt_action(attempt, run_status):
         return {"label": label + ".", "status": "active"}
 
     if outcome == "attention":
-        if tool == "ask_user":
+        codes = {error.get("code") for error in result.get("errors", []) if isinstance(error, dict)} | {result.get("code")}
+        if tool == "find_source_pages" and codes & {"NO_PROGRESS", "SOURCE_READ_REQUIRED"}:
+            label = "Sayfa araması tekrarlandı; devam etmek için bulunan sayfaların içeriği incelenmeli."
+        elif tool == "ask_user":
             label = "Devam etmek için yanıtınız bekleniyor."
         elif tool == "web_search" and result.get("status") == "ok":
             label = "Arama yeni bir kaynak bağlantısı getirmedi."
@@ -298,7 +301,7 @@ def _attempt_action(attempt, run_status):
     elif tool == "find_source_pages":
         pages, count = _addresses([match.get("page") for match in result.get("matches", []) if isinstance(match, dict)])
         if pages:
-            label = f"Aranan içerik {pages}. " + ("sayfada" if count == 1 else "sayfalarda") + " bulundu."
+            label = f"Arama sözcükleriyle eşleşen {pages}. " + ("sayfa" if count == 1 else "sayfalar") + " bulundu."
         else:
             searched, _ = _addresses(result.get("searched_pages"))
             label = (f"{searched}. sayfalarda arandı; eşleşme bulunamadı." if searched else "Belgede arama yapıldı; eşleşme bulunamadı.")
@@ -355,7 +358,12 @@ def _journey_detail(key, attempts):
     if key == "document":
         names, pages, rows = _document_evidence(good)
         detail = ", ".join(names[:2])
-        facts = ([f"{len(pages)} sayfanın içeriği incelendi"] if pages else [])
+        searched = {(attempt["result"].get("source_id") or attempt["args"].get("source_id") or attempt["index"], page)
+                    for attempt in good if attempt["tool"] == "find_source_pages"
+                    for page in attempt["result"].get("searched_pages", []) if _integer(page) and page > 0}
+        facts = ([f"{len(searched)} sayfada metin araması yapıldı"] if searched else [])
+        if pages:
+            facts.append(f"{len(pages)} sayfanın içeriği incelendi")
         if rows:
             facts.append(f"seçili tablolardan {len(rows)} satır okundu")
         return ((detail + ": ") if detail else "") + (", ".join(facts) if facts else "Belgenin seçili bölümleri incelendi.")

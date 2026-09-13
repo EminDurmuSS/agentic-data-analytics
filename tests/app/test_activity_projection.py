@@ -183,7 +183,7 @@ def test_each_document_attempt_shows_observed_pages_and_rows_in_order():
     assert value["count"] == 4 and len(value["actions"]) == 4
     assert value["actions"] == [
         {"label": "Belgenin 1-30. sayfaları incelendi.", "status": "complete"},
-        {"label": "Aranan içerik 11, 42-43. sayfalarda bulundu.", "status": "complete"},
+        {"label": "Arama sözcükleriyle eşleşen 11, 42-43. sayfalar bulundu.", "status": "complete"},
         {"label": "Belgenin 11. sayfası incelendi.", "status": "complete"},
         {"label": "11. sayfadaki tablonun 43-45. satırları okundu.", "status": "complete"},
     ]
@@ -200,6 +200,21 @@ def test_page_search_with_no_matches_describes_only_the_searched_range():
     assert "1-30. sayfalarda arandı; eşleşme bulunamadı" in value["label"]
     assert "Tarama kısmi" in value["label"]
     assert "141" not in value["label"] and "PRIVATE" not in value["label"]
+
+
+def test_long_pdf_search_does_not_claim_all_pages_were_inspected_or_hide_stall():
+    events = attempt("inspect_source", {"status": "ok", "source_id": "s", "processed_pages": list(range(1, 31))})
+    for index in range(2):
+        events += attempt("find_source_pages", {"status": "ok", "source_id": "s",
+            "searched_pages": list(range(1, 142)), "matches": [{"page": 90}], "complete": True}, call_id=str(index))
+    events += attempt("find_source_pages", {"status": "blocked", "errors": [{"code": "NO_PROGRESS", "message": "PRIVATE"}]})
+    before = copy.deepcopy(events)
+    value = item(activity_journey(events, "blocked"), "sources")
+    assert "141 sayfada metin araması yapıldı" in value["detail"]
+    assert "30 sayfanın içeriği incelendi" in value["detail"]
+    assert "282" not in value["detail"] and "141 sayfanın içeriği" not in value["detail"]
+    assert "Sayfa araması tekrarlandı" in value["actions"][-1]["label"]
+    assert "PRIVATE" not in str(value) and events == before
 
 
 def test_failed_attempt_stays_visible_after_a_successful_retry():
