@@ -1066,7 +1066,7 @@ def test_real_parser_publication_analysis_summary_chart_chain_after_research(env
     # Relevance must be established by the fetched source itself, not only
     # by the unverified search-result title.
     payload = b"month,New company monthly report value (million TL)\n2026-01,10\n2026-02,15\n2026-03,20\n"
-    docs.web_search = lambda query, limit=5: {"status": "ok", "results": [{"title": "New company monthly report", "url": url, "snippet": "monthly report"}]}
+    docs.web_search = lambda query, limit=5, **kwargs: {"status": "ok", "results": [{"title": "New company monthly report", "url": url, "snippet": "monthly report"}]}
     task = {"deliverables": ["sources", "dataset", "analysis", "summary", "chart"],
             "summary": {"columns": ["value"], "statistics": ["sum"], "windows": [{"start": "2026-01", "end": "2026-03"}]}}
     def inspect(messages):
@@ -1241,3 +1241,291 @@ def test_source_row_reader_projection_preserves_stable_row_addresses():
     view = _model_tool_result("read_source_table",source)
     assert view["rows"][0] == {"candidate_row":31,"values":{"name":"Source row 31","value":"310"}}
     assert view["next_row_start"] == 51 and view["model_rows_truncated"]
+
+
+@pytest.mark.parametrize('question,kind', [
+    ('Example nin hangi bankalarla çalışmaya başlamıştı bu tabloya başka ne ekleyebiliriz', 'relationship'),
+    ('Example hangi kurumlarla iş birliği yapıyor?', 'relationship'),
+    ('Example kurucuları kimler?', 'relationship'),
+    ('Which institutions founded Example?', 'relationship'),
+    ('Who does Example work with?', 'relationship'),
+    ('Example üyeleri hangi şirketler?', 'relationship'),
+    ("Example'nin ortakları kim?", 'ownership'),
+    ('Üyelik nedir?', None), ('Kredi kartı tablosunu göster', None),
+])
+def test_institutional_question_keeps_relationship_intent(question, kind):
+    from agentic_analytics.agent.runtime import _institutional_fact_kind
+    assert _institutional_fact_kind(question) == kind
+
+
+@pytest.mark.parametrize('bad_query', ['Example kredi kartı bankalarla çalışmaya başladı', 'Example üye bankalar 2025'])
+def test_invented_product_or_year_is_not_executed_and_research_recovers(env, bad_query):
+    store, wid, journal, _, build = env
+    attempts = []
+    source = {'source_id': 'source', 'url': 'https://example.org/report', 'title': 'Example faaliyet raporu',
+              'content': 'Example ortaklık yapısı: Alpha ve Beta. Üyeler ortaklardan ayrı gruptur.'}
+    def research(args):
+        attempts.append(args['query'])
+        return {'status': 'ok', 'sources': [source]}
+    response = 'Rapordaki ortak bankalar Alpha ve Beta. Bu listeyi tarihsel kurucular olarak doğrulamadım. Alpha için mevcut analizin dönem ve kapsamına uygun raporu bulmayı öneriyorum.'
+    runtime, client = build([call('research_web', {'query': bad_query}, 'bad'),
+        call('research_web', {'query': 'Example hangi bankalarla çalışmaya başladı'}, 'good'), final(response)], more=web_tool(research))
+    before = store.workspace(wid)
+    result = runtime.run('Example nin hangi bankalarla çalışmaya başlamıştı bu tabloya başka ne ekleyebiliriz')
+    assert result['status'] == 'completed' and result['message'].startswith(response)
+    assert attempts == ['Example hangi bankalarla çalışmaya başladı']
+    assert result['tool_results'][0]['result']['errors'][0]['code'] == 'RESEARCH_QUERY_SCOPE_MISMATCH'
+    assert 'RESEARCH_QUERY_SCOPE_MISMATCH' in json.dumps(client.requests[1])
+    state = journal.get(result['run_id'])['state']
+    assert state['initial_candidates']['status'] == 'not_requested'
+    assert state['institutional_fact_kind'] == 'relationship'
+    assert store.workspace(wid) == before
+
+
+@pytest.mark.parametrize('tool', ['discover', 'web_search', 'research_web'])
+def test_query_scope_guard_preserves_explicit_products_and_years(tool):
+    from agentic_analytics.agent.runtime import _research_scope_error
+    state = {'external_facts_required': True, 'institutional_fact_kind': 'relationship',
+             'institutional_request': 'Example hangi bankalarla kredi kartı için 2025 yılında çalıştı?'}
+    assert not _research_scope_error(state, tool, {'query': 'Example kredi kartı ortakları 2025'})
+    assert _research_scope_error({**state, 'institutional_request': 'Example kimlerle çalışıyor?'}, tool,
+                                {'query': 'Example kredi kartı ortakları 2025'})
+    read = {'tool': 'research_web', 'result': {'status': 'ok', 'sources': [
+        {'content': 'Example ortakları: Alpha, Beta.', 'url': 'https://example.org/owners'}]}}
+    assert not _research_scope_error({**state, 'institutional_request': 'Example kimlerle çalışıyor?', 'tool_results': [read]},
+                                    tool, {'query': 'Alpha kredi kartı 2025'})
+
+
+def test_truncated_relevant_institutional_page_is_read_before_answering(env):
+    *_, build = env
+    source = {'source_id': 'source', 'url': 'https://example.org/report.pdf', 'title': 'Example faaliyet raporu',
+        'content': 'Example kurulan kurum. Ortaklık yapısı: Alpha...', 'content_truncated': True,
+        'matched_pages': [4], 'suggested_inspection': {'source_id': 'source', 'page_numbers': [4]},
+        'passages': [{'page': 4, 'text': 'Example ortaklık yapısı: Alpha...', 'content_truncated': True}]}
+    tools = web_tool(lambda args: {'status': 'ok', 'sources': [source]})
+    tools['inspect_source'] = {'schema': {'type': 'function', 'function': {'name': 'inspect_source',
+        'parameters': obj({'source_id': {'type': 'string'}, 'page_numbers': {'type': 'array', 'items': {'type': 'integer'}}})}},
+        'handler': lambda args: {'status': 'ok', 'source_id': 'source', 'source_url': source['url'],
+            'text': 'Example raporundaki ortaklar Alpha ve Beta. Üyeler ayrı gruptur.',
+            'pages': [{'page': 4, 'text': 'Example raporundaki ortaklar Alpha ve Beta. Üyeler ayrı gruptur.'}], 'text_truncated': False}}
+    bad = 'Okunabilir kaynak bulamadım. Yeniden araştırmamı ister misiniz?'
+    good = 'Rapordaki ortaklar Alpha ve Beta. Bu güncel ortak listesinin tarihsel kurucularla aynı olduğunu doğrulamadım. Alpha raporunu mevcut karşılaştırmayla aynı dönem için incelemeyi öneriyorum.'
+    runtime, client = build([call('research_web', {'query': 'Example kuruluş bankaları'}), final(bad),
+        call('inspect_source', {'source_id': 'source', 'page_numbers': [4]}), final(good)], more=tools)
+    result = runtime.run('Example nin hangi bankalarla çalışmaya başlamıştı, tabloya ne ekleyebiliriz?')
+    assert result['status'] == 'completed' and result['message'].startswith(good)
+    assert len(client.requests) == 4 and 'SOURCE_READING_INCOMPLETE' in json.dumps(client.requests[2])
+    assert bad not in result['message'] and source['url'] in result['message']
+
+
+def test_complete_read_cannot_be_replaced_by_claim_that_no_source_was_found(env):
+    *_, build = env
+    tools = web_tool(lambda args: {'status': 'ok', 'sources': [
+        {'url': 'https://example.org/members', 'content': 'Example üyeleri: Alpha ve Beta.'}]})
+    good = 'Example üyeleri Alpha ve Beta. Üyelik ile ortaklık ayrı ilişkilerdir.'
+    runtime, client = build([call('research_web', {'query': 'Example üyeleri'}),
+        final('İlgili kaynak bulamadım.'), final(good)], more=tools)
+    result = runtime.run('Example üyeleri hangi kurumlar?')
+    assert result['status'] == 'completed' and result['message'].startswith(good)
+    assert 'READ_SOURCE_ANSWER_REQUIRED' in json.dumps(client.requests[2])
+
+
+def test_relationship_evidence_needs_actual_role_and_does_not_trigger_ownership_percent_gate():
+    from agentic_analytics.agent.runtime import _ownership_percentage_errors
+    state = {'external_facts_required': True, 'institutional_fact_kind': 'relationship', 'ownership_subject': 'example'}
+    for body in ['Example için güncel duyuru bulunmamaktadır.', 'OtherCompany kurucuları Alpha ve Beta.', 'Example toplam aktifleri raporu.']:
+        result = {'status': 'ok', 'source_id': 'source', 'source_url': 'https://reports.test/doc', 'text': body}
+        assert AgentRuntime._external_fact_errors({**state, 'tool_results': [{'tool': 'inspect_source', 'result': result}]}, 'Liste Alpha ve Beta.')[0]['code'] == 'EXTERNAL_FACTS_UNVERIFIED'
+    assert not _ownership_percentage_errors(state, 'Önceki analizde büyüklük karşılaştırması %9,6 idi.')
+    source = {'status': 'ok', 'sources': [{'url': 'https://example.org/report', 'content': 'Example kurulan kurum.',
+        'content_truncated': True, 'passages': [{'page': 4, 'text': 'Example ortakları Alpha ve Beta.', 'content_truncated': False}]}]}
+    assert not AgentRuntime._external_fact_errors({**state, 'tool_results': [{'tool': 'research_web', 'result': source}]},
+        'Rapordaki ortaklar Alpha ve Beta. Tarihsel kurucu kimliklerini doğrulayamadım.')
+
+
+def test_historical_founder_source_gap_does_not_discard_supported_current_owners():
+    state = {'external_facts_required': True, 'institutional_fact_kind': 'relationship', 'ownership_subject': 'example',
+        'tool_results': [{'tool': 'research_web', 'result': {'status': 'ok', 'sources': [
+            {'url': 'https://example.org/report', 'content': 'Example ortaklık yapısı: Alpha ve Beta.'}]}}]}
+    assert not AgentRuntime._external_fact_errors(state,
+        'Tarihsel kurucu listesini doğrulayacak kaynak bulamadım. Rapordaki güncel ortaklar Alpha ve Beta.')
+    assert AgentRuntime._external_fact_errors(state,
+        'İlgili kaynak bulamadım. Rapordaki ortakları tekrar araştırmamı ister misiniz?')[0]['code'] == 'READ_SOURCE_ANSWER_REQUIRED'
+
+
+@pytest.mark.parametrize('question', [
+    'Hangi bankalarla çalışmalıyım?', 'Hangi kurumlarla çalışalım?',
+    'Hangi bankayı önerirsin?', 'Which banks should I work with?',
+    'Kuruculuk nedir?', 'Üyelik ne demek?', 'Explain membership',
+])
+def test_personal_advice_and_institutional_lessons_do_not_require_owner_research(question):
+    from agentic_analytics.agent.runtime import _institutional_fact_kind
+    assert _institutional_fact_kind(question) is None
+
+
+@pytest.mark.parametrize('repaired', [True, False])
+def test_current_owners_cannot_be_delivered_as_historical_founders(env, repaired):
+    _, _, journal, _, build = env
+    source = {'source_id': 'source', 'url': 'https://example.org/report.pdf',
+        'content': 'Example dokuz bankanın ortaklığıyla kuruldu.', 'content_truncated': True,
+        'passages': [{'page': 3, 'text': 'Example dokuz bankanın ortaklığıyla kuruldu.', 'content_truncated': False},
+                     {'page': 4, 'text': 'Example ortaklık yapısı: Alpha, Beta.', 'content_truncated': False}]}
+    bad = '**Kurucu/ortak bankalar**\nAlpha, Beta.\nBu, raporun ortaklık yapısı bölümündeki kurucu ortaklardır.'
+    good = 'Rapordaki ortak bankalar Alpha ve Beta. Bu listeyi tarihsel kurucular olarak doğrulamadım. Alpha ve Beta için mevcut analizdeki dönem ve kapsama uygun raporları eklemeyi öneriyorum.'
+    runtime, client = build([call('research_web', {'query': 'Example kuruluş bankaları'}),
+        final(bad), final(good if repaired else bad)], more=web_tool(lambda args: {'status': 'ok', 'sources': [source]}))
+    result = runtime.run('Example nin hangi bankalarla çalışmaya başlamıştı bu tabloya başka ne ekleyebiliriz?')
+    assert 'INSTITUTIONAL_ROLE_UNVERIFIED' in json.dumps(client.requests[2])
+    assert bad not in result['message']
+    assert not any(message.get('content') == bad for message in journal.get(result['run_id'])['state']['messages'])
+    if repaired:
+        assert result['status'] == 'completed' and result['message'].startswith(good)
+    else:
+        assert result['status'] == 'partial'
+        assert 'INSTITUTIONAL_ROLE_UNVERIFIED' in {error['code'] for error in result['errors']}
+
+
+@pytest.mark.parametrize('text', [
+    'Example kurucu bankaları: Alpha Bank ve Beta Bank.',
+    'Example was founded by Alpha Bank and Beta Bank.',
+    'Example, Alpha Bank ve Beta Bank tarafından kuruldu.',
+])
+def test_explicit_named_founder_source_allows_founder_answer(text):
+    from agentic_analytics.agent.runtime import _institutional_role_errors
+    state = {'external_facts_required': True, 'institutional_fact_kind': 'relationship', 'ownership_subject': 'example'}
+    assert not _institutional_role_errors(state, 'Kurucu bankalar Alpha Bank ve Beta Bank.', [{'text': text}])
+    assert _institutional_role_errors(state, 'Kurucu bankalar Alpha Bank ve Beta Bank.',
+        [{'text': 'Example dokuz banka tarafından kuruldu. Ortaklık yapısı: Alpha Bank, Beta Bank.'}])[0]['code'] == 'INSTITUTIONAL_ROLE_UNVERIFIED'
+
+
+def test_relationship_statistics_repair_keeps_existing_asset_ratio_separate(env):
+    from agentic_analytics.agent.runtime import _institutional_role_errors
+    state = {'external_facts_required': True, 'institutional_fact_kind': 'relationship',
+        'ownership_subject': 'example', 'institutional_request': 'Example kimlerle çalışıyor, tabloya ne ekleyebiliriz?'}
+    sources = [{'text': 'Example ortakları Alpha ve Beta.'}]
+    assert not _institutional_role_errors(state, 'Rapordaki ortaklar Alpha ve Beta. Önceki aktif karşılaştırma oranı %9,6 idi.', sources)
+    for content in ['| Banka | Ortaklık payı |\n| Alpha | %9,09 |', '207 üyesi vardır.', 'Üye dağılımı: Bankalar 68, Faktoring 49.']:
+        assert _institutional_role_errors(state, content, sources)[0]['code'] == 'UNSOLICITED_INSTITUTIONAL_STATISTICS'
+    assert not _institutional_role_errors({**state, 'institutional_request': 'Example kaç üyeyle çalışıyor?'}, '207 üyesi vardır.', sources)
+    assert not _institutional_role_errors({**state, 'ownership_percentages_requested': True}, '| Banka | Ortaklık payı |\n| Alpha | %9,09 |', sources)
+
+
+@pytest.mark.parametrize('uncertainty', [
+    'Kurucu bankaların adlarını kaynakla teyit edemedim.',
+    'The report does not identify the founders.',
+    'Kurucu banka adları bu kaynakta yer almıyor.',
+    'Kurucu banka adları bu kaynakta belirtilmiyor.',
+])
+def test_founder_identity_uncertainty_is_not_an_assertion_of_founder_names(uncertainty):
+    state = {'external_facts_required': True, 'institutional_fact_kind': 'relationship', 'ownership_subject': 'example',
+        'tool_results': [{'tool': 'research_web', 'result': {'status': 'ok', 'sources': [
+            {'url': 'https://example.org/report', 'content': 'Example ortaklık yapısı: Alpha, Beta.'}]}}]}
+    response = uncertainty + ' Rapordaki güncel ortaklar Alpha ve Beta.'
+    assert not AgentRuntime._external_fact_errors(state, response)
+    # A limitation elsewhere cannot license a separate positive founder claim.
+    bad = 'Kurucu bankalar Alpha ve Beta; ' + uncertainty
+    assert 'INSTITUTIONAL_ROLE_UNVERIFIED' in {e['code'] for e in AgentRuntime._external_fact_errors(state, bad)}
+
+
+def test_other_institutions_founder_list_cannot_certify_requested_institutions_founders():
+    state = {'external_facts_required': True, 'institutional_fact_kind': 'relationship', 'ownership_subject': 'example',
+        'tool_results': [{'tool': 'research_web', 'result': {'status': 'ok', 'sources': [
+            {'source_id': 'first', 'url': 'https://example.org/report', 'content': 'Example ortaklık yapısı: Alpha, Beta.'},
+            {'source_id': 'second', 'url': 'https://otherco.org/history', 'content': 'OtherCo kurucu bankaları: Alpha ve Beta.'}]}}]}
+    errors = AgentRuntime._external_fact_errors(state, 'Example kurucu bankaları Alpha ve Beta.')
+    assert 'INSTITUTIONAL_ROLE_UNVERIFIED' in {error['code'] for error in errors}
+    state['tool_results'][0]['result']['sources'][0]['content'] = 'Example kurucu bankaları: Alpha ve Beta.'
+    assert not AgentRuntime._external_fact_errors(state, 'Example kurucu bankaları Alpha ve Beta.')
+
+
+def test_provider_search_budget_failure_is_recovered_by_relevant_source_read(env):
+    *_, build = env
+    tools = web_tool(lambda args: {'status': 'unavailable', 'code': 'SEARCH_BUDGET_EXHAUSTED', 'message': 'Search deadline reached'})
+    tools['inspect_source'] = {'schema': {'type': 'function', 'function': {'name': 'inspect_source',
+        'parameters': obj({'url': {'type': 'string'}})}}, 'handler': lambda args: {
+            'status': 'ok', 'source_url': args['url'], 'text': 'Example ortakları: Alpha ve Beta.'}}
+    response = 'Rapordaki ortaklar Alpha ve Beta.'
+    runtime, _ = build([call('research_web', {'query': 'Example ortakları'}),
+        call('inspect_source', {'url': 'https://example.org/owners'}), final(response)], more=tools)
+    result = runtime.run("Example'nin ortakları kim?")
+    assert result['status'] == 'completed' and result['message'].startswith(response)
+    assert result['tool_results'][0]['result']['errors'][0]['code'] == 'SEARCH_BUDGET_EXHAUSTED'
+
+
+def test_institutional_repair_uses_current_source_evidence_without_replaying_old_analysis(env):
+    store, wid, journal, plan, build = env
+    prior_runtime, _ = build([call('execute', plan), final()])
+    prior = prior_runtime.run('Kredi verilerinin ilk çeyrek tablosunu göster')
+    before = store.workspace(wid)
+    source = {'source_id': 'corp-source', 'url': 'https://example.org/report.pdf', 'title': 'Example 2025 report',
+        'content': 'Example dokuz bankayla kuruldu.', 'content_truncated': True,
+        'passages': [{'page': 4, 'text': 'Example ortaklık yapısı: Alpha Bank, Beta Bank.', 'content_truncated': False}],
+        'suggested_inspection': {'source_id': 'corp-source', 'page_numbers': [4]}}
+    bad = 'Kurucu ortak bankalar Alpha Bank ve Beta Bank.'
+    good = 'Rapordaki ortaklar Alpha Bank ve Beta Bank. Tarihsel kurucu kimliklerini doğrulayamadım. Bu iki bankanın mevcut analizle aynı dönem ve kapsamdaki raporlarını bulup karşılaştırmayı öneriyorum.'
+    runtime, client = build([call('research_web', {'query': 'Example kuruluş bankaları'}, 'corp-read'), final(bad), final(good)],
+        more=web_tool(lambda args: {'status': 'ok', 'sources': [source]}))
+    question = 'Example nin hangi bankalarla çalışmaya başlamıştı, tabloya ne ekleyebiliriz?'
+    result = runtime.run(question, conversation_id=prior['conversation_id'])
+    assert result['status'] == 'completed' and result['message'].startswith(good)
+    repaired = client.requests[2]
+    assert [m['content'] for m in repaired if m['role'] == 'user'] == [question]
+    assert [m['tool_call_id'] for m in repaired if m['role'] == 'tool'] == ['corp-read']
+    assert 'INSTITUTIONAL_ROLE_UNVERIFIED' in repaired[0]['content']
+    assert 'active_plan' in repaired[0]['content'] and '2026-03' in repaired[0]['content']
+    assert 'aylık seri' in repaired[0]['content'] and 'TAMAMINI' in repaired[0]['content']
+    evidence = json.loads(next(m['content'] for m in repaired if m['role'] == 'tool'))
+    assert evidence['sources'][0]['passages'] == source['passages']
+    assert 'execute' not in {schema['function']['name'] for schema in client.options[2]['tools']}
+    assert store.workspace(wid) == before
+    durable = journal.get(result['run_id'])['state']
+    assert any(call['function']['name'] == 'execute' for m in durable['messages'] for call in m.get('tool_calls', []))
+    assert durable['delivery_repairs'] == 1 and durable['institutional_delivery_repair']
+
+
+@pytest.mark.parametrize('claim', [
+    'Example kurucu bankaları Alpha Bank ve Beta Bank.',
+    'Example kuruluşunda yer alan bankalar Alpha Bank ve Beta Bank.',
+    'Example başlangıçta Alpha Bank ve Beta Bank ile çalışmaya başladı.',
+])
+def test_founder_date_and_count_never_identify_current_owner_names(claim):
+    from agentic_analytics.agent.runtime import _institutional_role_errors
+    source = {'text': 'Example, 11 Nisan 1995 tarihinde dokuz banka tarafından kuruldu.\nOrtaklık yapısı\nAlpha Bank\nBeta Bank'}
+    state = {'external_facts_required': True, 'institutional_fact_kind': 'relationship', 'ownership_subject': 'example'}
+    assert _institutional_role_errors(state, claim, [source])[0]['code'] == 'INSTITUTIONAL_ROLE_UNVERIFIED'
+    assert not _institutional_role_errors(state,
+        '1995 yılında dokuz kurucu bankayla başladı; güncel ortaklar Alpha Bank ve Beta Bank, kurucu isimleri doğrulanamadı.', [source])
+
+
+def test_institutional_answer_repair_cannot_mutate_the_analysis(env):
+    store, wid, _, plan, build = env
+    source = {'url': 'https://example.org/report', 'content': 'Example ortakları: Alpha ve Beta.'}
+    runtime, _ = build([call('research_web', {'query': 'Example kurucuları'}),
+        final('Kurucu bankalar Alpha ve Beta.'), call('execute', plan)],
+        more=web_tool(lambda args: {'status': 'ok', 'sources': [source]}), max_decisions=3)
+    before = store.workspace(wid)
+    result = runtime.run("Example'nin kurucuları kim?")
+    assert store.workspace(wid) == before
+    assert any(error['code'] == 'INSTITUTIONAL_REPAIR_READ_ONLY'
+               for item in result['tool_results'] for error in item.get('result', {}).get('errors', []))
+
+
+@pytest.mark.parametrize('uncertainty', [
+    'Bu dokuz kurucu bankanın açık isimleri raporda listelenmiyor.',
+    'Bu isimler rapordaki ortak bankalardır; bunların geçmişteki kurucu dokuz bankayla birebir aynı olup olmadığı bu kaynaklardan doğrulanamıyor.',
+    'The founder names are not listed in this report.',
+])
+def test_negative_founder_identity_predicate_does_not_assert_inherited_names(uncertainty):
+    from agentic_analytics.agent.runtime import _institutional_role_errors
+    source = {'text': 'Example dokuz bankayla kuruldu. Ortaklık yapısı: Alpha ve Beta.'}
+    state = {'external_facts_required': True, 'institutional_fact_kind': 'relationship', 'ownership_subject': 'example'}
+    assert not _institutional_role_errors(state, uncertainty, [source])
+    assert _institutional_role_errors(state, 'Kurucu bankalar Alpha ve Beta; ' + uncertainty, [source])[0]['code'] == 'INSTITUTIONAL_ROLE_UNVERIFIED'
+    assert _institutional_role_errors(state, 'Kurucu bankalar Alpha ve Beta. Raporda üye isimleri listelenmiyor.', [source])[0]['code'] == 'INSTITUTIONAL_ROLE_UNVERIFIED'
+
+
+def test_plain_pay_column_still_is_unrequested_owner_statistics():
+    from agentic_analytics.agent.runtime import _institutional_role_errors
+    state = {'external_facts_required': True, 'institutional_fact_kind': 'relationship', 'ownership_subject': 'example'}
+    assert _institutional_role_errors(state, '| Ortak banka/kurum (rapordaki rol: ortak) | Pay |\n| Alpha | %9,09 |',
+        [{'text': 'Example ortakları Alpha ve Beta.'}])[0]['code'] == 'UNSOLICITED_INSTITUTIONAL_STATISTICS'

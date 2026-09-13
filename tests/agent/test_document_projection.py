@@ -197,3 +197,44 @@ def test_prior_failed_search_queries_are_archived_without_orphaning_parallel_rea
     assert not pending
     assert any(message.get("tool_call_id") == "read" for message in view)
     assert messages == original
+
+
+def test_research_passages_keep_physical_page_navigation_and_truncation_flags():
+    source = {'source_id': 'source', 'url': 'https://example.org/report.pdf', 'title': 'Annual report',
+        'title_basis': 'pdf_metadata', 'filename': 'report.pdf', 'mime_type': 'application/pdf',
+        'content': 'Cover ' * 700, 'content_truncated': True, 'total_pages': 80,
+        'matched_pages': [4, 3], 'cached_pages': list(range(1, 31)),
+        'suggested_inspection': {'source_id': 'source', 'page_numbers': [4, 3]},
+        'passages': [{'page': 4, 'text': 'Example ortakları: Alpha ve Beta.', 'line_start': 1, 'line_end': 5,
+                      'content_truncated': False, 'extraction_method': 'pdf_text'},
+                     {'page': 3, 'text': 'Example kuruluş bilgisi. ' * 300, 'content_truncated': True}]}
+    raw = copy.deepcopy(source)
+    projected = _model_tool_result('research_web', {'status': 'ok', 'sources': [source]})
+    card = projected['sources'][0]
+    assert card['passages'][0] == source['passages'][0]
+    assert card['passages'][1]['content_truncated'] and len(card['passages'][1]['text']) == 3000
+    assert card['content_truncated'] and len(card['content']) == 1600
+    for key in ('title_basis', 'filename', 'mime_type', 'total_pages', 'cached_pages', 'matched_pages', 'suggested_inspection'):
+        assert card[key] == source[key]
+    assert _model_tool_result('research_web', projected)['sources'][0]['passages'] == card['passages']
+    assert source == raw
+
+
+def test_search_provider_fallback_diagnostics_are_bounded_and_keep_failure_reasons():
+    attempts = [{'provider': 'SearXNG', 'status': 'blocked', 'code': 'SEARCH_NO_RELEVANT_RESULTS',
+        'elapsed_ms': 200, 'raw_count': 5, 'accepted_count': 0, 'rejected_count': 5,
+        'diagnostics': [{'engine': 'engine', 'detail': 'timeout ' * 100} for _ in range(20)]},
+        {'provider': 'Bing RSS', 'status': 'ok', 'elapsed_ms': 80, 'raw_count': 2, 'accepted_count': 2, 'rejected_count': 0}]
+    result = {'status': 'ok', 'query': 'Example founding', 'source_backend': 'Bing RSS',
+              'provider_attempts': attempts, 'budget_exhausted': False}
+    raw = copy.deepcopy(result)
+    for name, wrapper in [('web_search', result), ('research_web', {'status': 'ok', 'searches': [result], 'sources': []})]:
+        view = _model_tool_result(name, wrapper)
+        card = view if name == 'web_search' else view['searches'][0]
+        assert card['source_backend'] == 'Bing RSS' and card['budget_exhausted'] is False
+        assert card['provider_attempts'][0]['code'] == 'SEARCH_NO_RELEVANT_RESULTS'
+        assert len(card['provider_attempts'][0]['diagnostics']) == 12
+        assert card['provider_attempts'][0]['diagnostics_truncated']
+        assert len(card['provider_attempts'][0]['diagnostics'][0]['detail']) <= 240
+        assert card['provider_attempts'][1]['accepted_count'] == 2
+    assert result == raw

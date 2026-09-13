@@ -10,6 +10,7 @@ from agentic_analytics.lakehouse.service import LakehouseService
 from agentic_analytics.lakehouse.presentation import analysis_presentation
 from app.context import AppContext
 from app.serialization import browser_json
+from app.presentation import present_chart
 
 
 def create_router(context: AppContext) -> APIRouter:
@@ -41,7 +42,7 @@ def create_router(context: AppContext) -> APIRouter:
     @router.get("/api/workspaces/{workspace_id}/analyses/{analysis_id}/chart")
     def analysis_chart(workspace_id: str, analysis_id: str):
         from agentic_analytics.agent.tools.charts import ChartTools
-        return browser_json(ChartTools(context.store, workspace_id).get_chart(analysis_id))
+        return browser_json(present_chart(context.store, ChartTools(context.store, workspace_id).get_chart(analysis_id)))
 
     @router.post("/api/workspaces/{workspace_id}/analyses/{analysis_id}/chart")
     def save_chart(workspace_id: str, analysis_id: str, body: dict):
@@ -51,12 +52,12 @@ def create_router(context: AppContext) -> APIRouter:
         with context.run_store.workspace_lock(workspace_id):
             charts = ChartTools(context.store, workspace_id)
             saved = charts.create_chart({**body, "analysis_id": analysis_id})
-            return browser_json(charts.load_artifact(saved["chart_id"]))
+            return browser_json(present_chart(context.store, charts.load_artifact(saved["chart_id"])))
 
     @router.get("/api/workspaces/{workspace_id}/charts/{chart_id}")
     def chart_artifact(workspace_id: str, chart_id: str):
         from agentic_analytics.agent.tools.charts import ChartTools
-        return browser_json(ChartTools(context.store, workspace_id).load_artifact(chart_id))
+        return browser_json(present_chart(context.store, ChartTools(context.store, workspace_id).load_artifact(chart_id)))
 
     @router.get("/api/workspaces/{workspace_id}/analyses/{analysis_id}/explain")
     def explain(workspace_id: str, analysis_id: str, column: str, period: str, dimensions: str | None = None):

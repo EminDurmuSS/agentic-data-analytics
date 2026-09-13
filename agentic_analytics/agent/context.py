@@ -32,6 +32,12 @@ def _model_tool_result(name, result, *, terse=False):
     """
     if name in {"inspect_source", "read_source_table", "research_web", "find_source_pages"} and isinstance(result, dict):
         return _document_result(name, result)
+    if name == "web_search" and isinstance(result, dict):
+        view = _compact(result)
+        if "provider_attempts" in result:
+            view["provider_attempts"] = _provider_attempts(result["provider_attempts"])
+            _trim_provider_diagnostics(view)
+        return view
     if name != "discover" or not isinstance(result, dict) or not isinstance(result.get("metrics"), list):
         return _compact(result)
     fields = ("metric_id", "title", "status", "value_dimension", "semantic_match") if terse else (
@@ -62,6 +68,39 @@ def _model_tool_result(name, result, *, terse=False):
     return _compact(view)
 
 
+def _provider_attempts(attempts):
+    """Keep provider fallback decisions reviewable without large engine logs."""
+    if not isinstance(attempts, list):
+        return []
+    cards = []
+    for attempt in attempts[:4]:
+        if not isinstance(attempt, dict):
+            continue
+        card = {key: value[:240] if isinstance(value, str) else copy.deepcopy(value)
+                for key, value in attempt.items() if key in {
+                    "provider", "status", "code", "elapsed_ms", "raw_count", "accepted_count", "rejected_count"}}
+        diagnostics = attempt.get("diagnostics", [])
+        if isinstance(diagnostics, dict):
+            diagnostics = [{"engine": key, "detail": value} for key, value in list(diagnostics.items())[:12]]
+        if isinstance(diagnostics, list):
+            card["diagnostics"] = [{str(key)[:80]: str(value)[:240] for key, value in list(item.items())[:5]}
+                if isinstance(item, dict) else str(item)[:240] for item in diagnostics[:12]]
+            card["diagnostics_truncated"] = bool(attempt.get("diagnostics_truncated") or len(diagnostics) > 12)
+        cards.append(card)
+    return cards
+
+
+def _trim_provider_diagnostics(view):
+    attempts = [*view.get("provider_attempts", []),
+                *(attempt for search in view.get("searches", []) for attempt in search.get("provider_attempts", []))]
+    while len(canonical(view)) > 24000:
+        attempt = next((attempt for attempt in reversed(attempts) if attempt.get("diagnostics")), None)
+        if attempt is None:
+            break
+        attempt["diagnostics"].pop()
+        attempt["diagnostics_truncated"] = True
+
+
 def _document_result(name, result):
     """A bounded navigation view, with full evidence retained in source artifacts.
 
@@ -72,9 +111,16 @@ def _document_result(name, result):
     fields = ("status", "code", "message", "errors", "source_id", "artifact_ref", "filename", "mime_type",
               "source_url", "raw_sha256", "size_bytes", "total_pages", "processed_pages", "selected_pages",
               "inspection_complete", "content_is_untrusted_data", "warnings", "query", "next_step",
-              "publication_guidance", "recovery",
+              "publication_guidance", "recovery", "source_backend", "budget_exhausted",
               "table_id", "row_count", "sheet", "page", "read", "searched", "failures", "matches", "total_matches")
     view = {key: copy.deepcopy(result[key]) for key in fields if key in result}
+    if "provider_attempts" in result:
+        view["provider_attempts"] = _provider_attempts(result["provider_attempts"])
+    if isinstance(result.get("searches"), list):
+        view["searches"] = [{**{key: copy.deepcopy(search[key]) for key in
+            ("query", "status", "code", "source_backend", "errors", "warnings", "budget_exhausted") if key in search},
+            **({"provider_attempts": _provider_attempts(search["provider_attempts"])} if "provider_attempts" in search else {})}
+            for search in result["searches"][:3] if isinstance(search, dict)]
     article = result.get("article") or {}
     source_text = article.get("article_body") or article.get("readable_text") or result.get("text")
     if isinstance(source_text, str):
@@ -148,8 +194,19 @@ def _document_result(name, result):
         for source in result["sources"][:3]:
             card = {key: copy.deepcopy(source[key]) for key in
                     ("source_id", "title", "url", "domain", "date_published", "date_modified", "verification",
-                     "document_links", "discovery_links", "source_role", "raw_sha256", "inspection_complete", "warnings", "content_is_untrusted_data") if key in source}
+                     "document_links", "discovery_links", "source_role", "raw_sha256", "inspection_complete", "warnings", "content_is_untrusted_data",
+                     "filename", "mime_type", "title_basis", "title_page", "total_pages", "cached_pages", "matched_pages",
+                     "search_published_at", "search_publication_date_basis",
+                     "suggested_inspection", "next_step", "page_number_basis", "passage_search_scope") if key in source}
             card["content"] = str(source.get("content", ""))[:1600]
+            card["content_truncated"] = bool(source.get("content_truncated") or len(str(source.get("content", ""))) > 1600)
+            if isinstance(source.get("passages"), list):
+                card["passages"] = [{**{key: copy.deepcopy(passage[key]) for key in
+                    ("page", "line_start", "line_end", "extraction_method") if key in passage},
+                    "text": str(passage.get("text", ""))[:3000],
+                    "content_truncated": bool(passage.get("content_truncated") or len(str(passage.get("text", ""))) > 3000)}
+                    for passage in source["passages"][:3] if isinstance(passage, dict)]
+                card["model_passages_truncated"] = bool(source.get("model_passages_truncated") or len(source["passages"]) > len(card["passages"]))
             card["tables"] = [table_card(table) for table in source.get("tables", [])[:2]]
             sources.append(card)
         view["sources"] = sources
@@ -159,6 +216,7 @@ def _document_result(name, result):
     # Even unusually large warning/metadata fields remain inside a fixed model
     # budget. This projection never changes raw source bytes or cached rows.
     view = _compact(view)
+    _trim_provider_diagnostics(view)
     while len(canonical(view)) > 24000 and len(view.get("tables", [])) > 1:
         view["tables"].pop()
         view["model_tables_truncated"] = True
@@ -170,6 +228,18 @@ def _document_result(name, result):
     while len(canonical(view)) > 24000 and len(view.get("article", {}).get("source_links", [])) > 1:
         view["article"]["source_links"].pop()
         view["article"]["model_links_truncated"] = True
+    while len(canonical(view)) > 24000:
+        source = next((source for source in reversed(view.get("sources", [])) if len(source.get("passages", [])) > 1), None)
+        if source is None:
+            break
+        source["passages"].pop()
+        source["model_passages_truncated"] = True
+    while len(canonical(view)) > 24000:
+        source = next((source for source in reversed(view.get("sources", [])) if len(source.get("tables", [])) > 1), None)
+        if source is None:
+            break
+        source["tables"].pop()
+        source["model_tables_truncated"] = True
     return view
 
 
@@ -330,7 +400,7 @@ def _archive_prior_searches(messages, current_turn, call_names):
             for message in archived]
 
 
-def model_messages(state, *, context_factory, charts_enabled, max_context_chars):
+def model_messages(state, *, context_factory, charts_enabled, max_context_chars, system_prompt=None):
     messages = copy.deepcopy(state["messages"])
     for message in messages:
         message.pop("source_ids", None)  # Internal attachment metadata is supplied through the trusted context.
@@ -398,7 +468,7 @@ def model_messages(state, *, context_factory, charts_enabled, max_context_chars)
         receipt = _historical_tool_receipt(call_names.get(call_id), result, call_arguments.get(call_id, {}))
         if receipt is not None and len(canonical(receipt)) < len(message["content"]):
             message["content"] = canonical(receipt)
-    prompt = SYSTEM_PROMPT + (CHART_PROMPT if charts_enabled else "")
+    prompt = system_prompt if system_prompt is not None else SYSTEM_PROMPT + (CHART_PROMPT if charts_enabled else "")
     context = _compact(context_factory(state))
     system = prompt + "\nGüncel güvenilir çalışma alanı bağlamı:\n" + canonical(context)
     # Keep the newest discovery cards detailed; older successful searches

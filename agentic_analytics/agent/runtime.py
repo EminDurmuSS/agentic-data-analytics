@@ -15,6 +15,7 @@ import duckdb
 import jsonschema
 
 from agentic_analytics.agent.context import _compact, _model_tool_result, model_messages, workspace_context
+from agentic_analytics.agent.prompts import INSTITUTIONAL_REPAIR_PROMPT
 from agentic_analytics.agent.delivery import (
     _analysis_confirmation, _cell_confirmation, _chart_confirmation, _requests_chart, _requests_table,
     _scope_confirmation, _statistics_confirmation, _display_label, _source_confirmation, _published_source_ids,
@@ -33,8 +34,9 @@ def _blocked(code, message):
 
 _SEARCH_FAILURES = {"SEARCH_NO_PROGRESS", "SEARCH_STRATEGY_EXHAUSTED", "SEARCH_UNAVAILABLE",
                     "WEB_SEARCH_UNCONFIGURED", "SEARCH_INVALID_RESPONSE", "NO_READABLE_SOURCES",
-                    "OFFICIAL_SOURCE_NOT_FOUND", "SEARCH_NO_RELEVANT_RESULTS"}
-_RECOVERABLE_SEARCH_ERRORS = _SEARCH_FAILURES | {"INVALID_TOOL_ARGUMENTS"}
+                    "OFFICIAL_SOURCE_NOT_FOUND", "SEARCH_NO_RELEVANT_RESULTS", "SEARCH_BUDGET_EXHAUSTED"}
+_RECOVERABLE_SEARCH_ERRORS = _SEARCH_FAILURES | {"INVALID_TOOL_ARGUMENTS", "RESEARCH_QUERY_SCOPE_MISMATCH"}
+_INSTITUTIONAL_REPAIR_TOOLS = {"research_web", "web_search", "inspect_source", "find_source_pages", "read_source_table", "describe"}
 
 
 def _fact_text(value):
@@ -44,11 +46,11 @@ def _fact_text(value):
 def _ownership_subject(message):
     # Only explicit possessive names/acronyms are reliable here. Ambiguous
     # references remain for the model to resolve, rather than guessing an entity.
-    match = re.search(r"\b([\w&.-]+)(?:['’]\s*|\s+)(?:nin|in|nun|un|s)\s+(?:ortak|hissedar|shareholder|ownership)", _fact_text(message))
+    match = re.search(r"\b([\w&.-]+)(?:['’]\s*|\s+)(?:nin|in|nun|un|s)\s+", _fact_text(message))
     return match.group(1) if match and match.group(1) not in {"bu", "onun", "şirket", "kurum", "company"} else None
 
 
-def _ownership_source(result, subject=None):
+def _ownership_source(result, subject=None, relationship=False):
     if result.get("status") != "ok":
         return False
     sources = result.get("sources") if isinstance(result.get("sources"), list) else [result]
@@ -60,10 +62,14 @@ def _ownership_source(result, subject=None):
         # mentioning shareholders do not establish an ownership statement.
         text = " ".join(str(value or "") for value in [source.get("content"), source.get("text"),
             article.get("article_body"), *[page.get("text") for page in source.get("pages", []) if isinstance(page, dict)],
+            *[passage.get("text") for passage in source.get("passages", []) if isinstance(passage, dict)],
             *[canonical(table) for table in source.get("tables", []) if isinstance(table, dict)],
             canonical({key: source[key] for key in ("columns", "original_columns", "rows") if key in source})])
         text = _fact_text(text)
-        if not re.search(r"\b(?:ortaklar\w*|ortaklik\s+yap\w*|hissedar\w*|pay\s+sahip\w*|shareholders?|shareholding|ownership|owned\s+by)\b", text):
+        roles = r"ortaklar\w*|ortaklik\s+yap\w*|hissedar\w*|pay\s+sahip\w*|shareholders?|shareholding|ownership|owned\s+by"
+        if relationship:
+            roles += r"|kurucu\w*|kuruluş\w*|kurulan|kuruldu\w*|üye(?:ler\w*|si|lik\w*)?|iş\s*birliği\w*|founded|established|founders?|members?|partners?"
+        if not re.search(r"\b(?:" + roles + r")\b", text):
             continue
         identity = text + " " + _fact_text(source.get("title")) + " " + _fact_text(article.get("title"))
         try:
@@ -129,6 +135,25 @@ def _ownership_question(message):
                 or re.search(r"\b(?:ortaklik|hissedarlik)\s+yapisi\b", text))
 
 
+def _institutional_fact_kind(message):
+    if _ownership_question(message):
+        return "ownership"
+    text = _fact_text(message)
+    # Personal recommendations and general lessons do not assert a named
+    # institution's historical or current relationships.
+    if re.search(r"çalişmali(?:yim|yiz)|çaliş(?:ayim|alim)|which\s+.+should\s+(?:i|we)\s+(?:work|partner)|"
+                 r"hangi\s+(?:banka|kurum)\w*.{0,35}(?:önerirsin|tavsiye\s+edersin)", text):
+        return None
+    if re.fullmatch(r"\s*(?:(?:kuruculuk|kuruluş|üyelik)(?:\s+(?:nedir|ne demek|anlat|açikla))|"
+                    r"(?:what is|explain|describe)\s+(?:founding|membership|a founder))(?:[?.!\s]*)", text):
+        return None
+    asking = re.search(r"\b(?:hangi\w*|kim\w*|who|which|listele\w*|anlat\w*|list|describe)\b", text)
+    relationship = re.search(r"\b(?:kurucu\w*|kuruluş\w*|kurul\w*|üye\w*|founders?|founded|established|members?|partners?)\b", text)
+    working = re.search(r"çaliş\w*|başla\w*|iş\s*birli\w*|work\w*\s+with|start\w*\s+with", text)
+    institutions = re.search(r"\b(?:banka\w*|kurum\w*|şirket\w*|kimlerle|banks?|institutions?|companies|who)\b", text)
+    return "relationship" if asking and (relationship or working and institutions) else None
+
+
 def _requests_ownership_percentages(message):
     text = re.sub(r"https?://[^\s<>]+", "", _fact_text(message))
     return bool(re.search(r"%|\b(?:yüzde\w*|oran\w*|pay(?:i|ini|inin|lar(?:i|ini|inin)?)?|"
@@ -136,7 +161,8 @@ def _requests_ownership_percentages(message):
 
 
 def _ownership_percentage_errors(state, content):
-    if not state.get("external_facts_required") or state.get("ownership_percentages_requested"):
+    if (not state.get("external_facts_required") or state.get("ownership_percentages_requested")
+            or state.get("institutional_fact_kind") == "relationship"):
         return []
     # Percent-encoded citation URLs are navigation, not numerical claims.
     text = re.sub(r"https?://[^\s<>]+", "", _fact_text(content))
@@ -149,13 +175,119 @@ def _ownership_percentage_errors(state, content):
         "do not merely remove percent signs while retaining those numerical claims. Keep source citations."}]
 
 
+def _institutional_role_errors(state, content, sources):
+    """Keep a current owner table from being relabeled as a founder list.
+
+    This checks explicit role claims and readable source structure, not every
+    factual implication in prose. A founding date/count alone supplies no names.
+    """
+    if not state.get("external_facts_required"):
+        return []
+    text = re.sub(r"https?://[^\s<>]+", "", _fact_text(content))
+    founder_role = r"kurucu(?:lar\w*|\s*[/&]\s*ortak\w*|\s+(?:ortak|banka|kurum|üye)\w*)?|found(?:er|ing)(?:\s+(?:banks?|members?|partners?))?s?"
+    denials = (r"doğrula\w*ma|kanıtla\w*ma|kanitla\w*ma|bulamad|ulaşamad|belirsiz|değil|ayni\s+say|ayri|farkli|distinct|separate|"
+               r"teyit\s+(?:edemed|edilemed|edilmedi)|yer\s+almiyor|belirtilmiyor|"
+               r"not\s+(?:verified|confirmed|the\s+same)|(?:does|do|did)\s+not\s+identify|cannot\s+verify|unverified|uncertain")
+    def named_list(value):
+        # Pure dates, counts or generic 'nine banks' do not identify founders.
+        value = re.sub(r"\b\d{1,2}\s+\w+\s+(?:19|20)\d{2}\b|\b\w+\s+\d{1,2},?\s+(?:19|20)\d{2}\b", "", value)
+        words = re.findall(r"\b[A-ZÇĞİÖŞÜ][A-Za-zÇĞİÖŞÜçğıöşü&.-]{2,}\b", value)
+        generic = {"bank", "banks", "banka", "bankalar", "dokuz", "nine", "kurucu", "kurucular", "founders", "members", "ortaklar", "kuruluşunda", "başlangiçta"}
+        return any(_fact_text(word) not in generic | {state.get("ownership_subject")} for word in words)
+
+    count = r"(?:\d+|bir|iki|üç|dört|beş|alti|yedi|sekiz|dokuz|on|one|two|three|four|five|six|seven|eight|nine|ten)"
+    def identity_uncertainty(line):
+        identity = re.search(r"isim\w*|adlar\w*|kimlik\w*|ayni\s+olup\s+olmadi\w*|names?|identities|whether.{0,20}same", line)
+        negative_read = re.search(r"\b(?:listele|belirtil|doğrula)\w*(?:miyor|amiyor|madi|amadi)\w*\b|"
+                                  r"\bnot\s+(?:listed|identified|confirmed|provided)\b", line)
+        return bool(identity and negative_read)
+    founder_claim = False
+    for original in re.split(r"[.!?;\n]", re.sub(r"https?://[^\s<>]+", "", content)):
+        line = _fact_text(original)
+        counted = re.search(r"\b" + count + r"\s+(?:kurucu\s+(?:banka|kurum)\w*|founders?\b|founding\s+banks?\b)", line)
+        explicit_role = re.search(r"\b(?:" + founder_role + r")\b", line)
+        historical_names = re.search(r"kuruluşunda\s+yer\s+alan|başlangiçta.{0,200}ile\s+çalişmaya\s+başla", line) and named_list(original)
+        if (explicit_role or historical_names) and not re.search(denials, line) and not identity_uncertainty(line) and not (counted and not named_list(original)):
+            founder_claim = True
+
+    def founder_names(source):
+        chunks = [source.get("content"), source.get("text"), (source.get("article") or {}).get("article_body")]
+        chunks += [part.get("text") for key in ("pages", "passages") for part in source.get(key, []) if isinstance(part, dict)]
+        for chunk in chunks:
+            if not isinstance(chunk, str):
+                continue
+            # Explicit labels or an attribution sentence link names to founding.
+            for match in re.finditer(r"(?:kurucu(?:lar[ıi]?)?(?:\s+(?:bankalar[ıi]?|ortaklar[ıi]?|üyeler[ıi]?))?|"
+                    r"founders?|founding\s+(?:banks|members|partners))\s*(?::|\n)\s*([^\n]+(?:\n[^\n]+){0,4})", chunk, re.I):
+                if named_list(match.group(1)):
+                    return True
+            for match in re.finditer(r"(?:founded|established)\s+by\s+([^.!?\n]+)|([^.!?\n]{3,200})\s+taraf[ıi]ndan\s+kurul", chunk, re.I):
+                if named_list(match.group(1) or match.group(2)):
+                    return True
+        for table in [source, *source.get("tables", [])]:
+            if not isinstance(table, dict):
+                continue
+            for column in table.get("columns", []):
+                if re.search(r"kurucu|founder|founding", _fact_text(column)):
+                    for row in table.get("rows", table.get("preview", [])):
+                        values = row.get("values", row) if isinstance(row, dict) else {}
+                        if isinstance(values, dict) and named_list(str(values.get(column, ""))):
+                            return True
+        return False
+
+    errors = []
+    for attribution in re.finditer(r"(?:founded|established)\s+by\s+([^.!?\n]+)|([^.!?\n]{3,200})\s+taraf[ıi]ndan\s+kurul", content, re.I):
+        founder_claim |= named_list(attribution.group(1) or attribution.group(2)) and not re.search(denials, _fact_text(attribution.group(0)))
+    if founder_claim and not any(founder_names(source) for source in sources):
+        errors.append({"code": "INSTITUTIONAL_ROLE_UNVERIFIED", "message":
+            "Do not label current/report-period shareholders as founders or combine the labels as founder/owner. "
+            "The read source does not explicitly identify founder names; a founding date or number of banks is insufficient. "
+            "Use the verified role and source period for the full name list, explain that historical founder identities are not established, "
+            "and give 2-3 concrete bank-analysis suggestions. If an explicit named-founder list is available, read that section first."})
+    if state.get("institutional_fact_kind") == "relationship" and not state.get("ownership_percentages_requested"):
+        request = _fact_text(state.get("institutional_request"))
+        count_requested = re.search(r"kaç|sayisi|sayilari|how\s+many|count|number\s+of", request)
+        member_counts = re.search(r"\b\d+\s+üye\w*|\büye\s+(?:sayisi|dağilimi)\b|\b\d+\s+members?\b", text)
+        ownership_table = re.search(r"\|[^\n]*(?:ortaklik\s+payi|hisse|ownership|shareholding)[^\n]*\|", text) or re.search(
+            r"\|[^\n]*\bortak\w*[^\n]*\|\s*pay\s*\|", text)
+        ownership_percent = any(re.search(r"ortaklik|hisse|shareholding|ownership", line)
+            and re.search(r"%\s*\d|\d[\d., ]*\s*%|yüzde\s*\d", line) for line in text.splitlines())
+        if ownership_table or ownership_percent or member_counts and not count_requested:
+            errors.append({"code": "UNSOLICITED_INSTITUTIONAL_STATISTICS", "message":
+                "The user asks which institutions and what to add to the analysis, not shareholder percentages or membership-count tables. "
+                "Answer with a short source-labeled name list and 2-3 concrete analysis suggestions. Omit unsolicited ownership-size rankings, percentages and member-count breakdowns. "
+                "Keep any explicitly requested quantitative analysis separate and grounded in its existing evidence."})
+    return errors
+
+
 def _source_read(result):
     """Search snippets never satisfy a read; each read still needs interpretation."""
     return (result.get("status") == "ok" and bool(
         result.get("text") or result.get("tables") or result.get("rows")
         or any(page.get("text") for page in result.get("pages", []) if isinstance(page, dict))
-        or any(source.get("content") or source.get("text") or source.get("tables")
+        or any(source.get("content") or source.get("text") or source.get("tables") or source.get("passages")
                for source in result.get("sources", []) if isinstance(source, dict))))
+
+
+def _research_scope_error(state, name, args):
+    """Do not turn an unanswered institutional question into a product search."""
+    if (name not in {"discover", "research_web", "web_search"} or not state.get("external_facts_required")
+            or any(_ownership_source(item.get("result", {}), state.get("ownership_subject"),
+                                     state.get("institutional_fact_kind") == "relationship")
+                   for item in state.get("tool_results", []) if item.get("tool") in {"research_web", "inspect_source", "read_source_table"})):
+        return None
+    request, query = _fact_text(state.get("institutional_request")), _fact_text(args.get("query"))
+    facets = (r"kredi\s+karti|credit\s+cards?", r"konut\s+kred\w*|mortgage\w*", r"taşit\s+kred\w*|vehicle\s+loans?",
+              r"tüketici\s+kred\w*|consumer\s+loans?", r"ticari\s+kred\w*|commercial\s+loans?")
+    invented = any(re.search(pattern, query) and not re.search(pattern, request) for pattern in facets)
+    invented |= bool(set(re.findall(r"\b(?:19|20)\d{2}\b", query)) - set(re.findall(r"\b(?:19|20)\d{2}\b", request)))
+    if invented:
+        return {"code": "RESEARCH_QUERY_SCOPE_MISMATCH", "message":
+            "The unanswered institutional question does not request the product or year added to this query. "
+            "Research the institution's actual relationships/founding/members/owners first, using the original request. "
+            "Do not invent a product, reporting year or membership claim. Afterwards, research justified analysis suggestions separately.",
+            "original_request": state.get("institutional_request", "")}
+    return None
 
 
 def _search_url(value):
@@ -456,9 +588,14 @@ class AgentRuntime:
                     for source, tables in state.get("advanced_source_tables", {}).items() for table, root in tables.items()]}
         if state.get("external_facts_required"):
             context["current_task"]["external_facts_requirement"] = (
-                "Read an authoritative source for the requested institution's ownership/shareholders. "
+                "Read an authoritative source for the requested institution's relationships, founding, members or owners. "
                 "Memory, previous assistant lists and search snippets are not evidence. "
-                "Do not substitute the active financial table for an institutional fact answer.")
+                "Do not substitute the active financial table for an institutional fact answer. "
+                "Do not add a product or year to the user's question. Founders, current owners and members are distinct roles: "
+                "label the verified role and source period; a current owner list does not prove the historical founders. "
+                "When historical identities are uncertain, answer the supported current/report-period role with that limitation. "
+                "Read suggested_inspection pages when relevant passages are truncated. Do not ask permission to repeat research already requested.")
+            context["current_task"]["institutional_request"] = state.get("institutional_request")
         progress = state.get("search_progress", {})
         if progress.get("paused"):
             context["source_recovery"] = self._search_recovery(state)
@@ -469,6 +606,8 @@ class AgentRuntime:
                   if "ingest_source_table" in self.tools and not any(state.get("advanced_source_tables", {}).values()) else set())
         if state.get("search_progress", {}).get("paused"):
             hidden.add("web_search")
+        if state.get("institutional_delivery_repair"):
+            hidden.update(set(self.tools) - _INSTITUTIONAL_REPAIR_TOOLS)
         return [definition["schema"] for name, definition in self.tools.items() if name not in hidden]
 
     def _search_recovery(self, state):
@@ -508,9 +647,10 @@ class AgentRuntime:
                 # the existing topic/institution gate, not merely open a page.
                 evidence = {**state, "tool_results": [*state.get("tool_results", []), {"tool": name, "result": result}]}
                 if not self._external_fact_errors(evidence, ""):
-                    for navigation in ("web_search", "research_web"):
+                    for navigation in ("web_search", "research_web", "discover"):
                         remaining = [error for error in unresolved.get(navigation, [])
-                                     if error.get("code") not in _RECOVERABLE_SEARCH_ERRORS]
+                                     if error.get("code") not in (_RECOVERABLE_SEARCH_ERRORS if navigation != "discover"
+                                                                   else {"RESEARCH_QUERY_SCOPE_MISMATCH"})]
                         if remaining:
                             unresolved[navigation] = remaining
                         else:
@@ -525,8 +665,10 @@ class AgentRuntime:
         if len(content) < 240 and re.match(r"\s*(?:Hangi|Hangisini|Which)\b", content, re.I) and content.rstrip().endswith("?"):
             return []
         percentage_errors = _ownership_percentage_errors(state, content)
+        relationship = state.get("institutional_fact_kind") == "relationship"
         reads = [item for item in state.get("tool_results", []) if item.get("tool") in {"research_web", "inspect_source", "read_source_table"}]
         identities = {}
+        relevant, relevant_evidence, complete_read = [], [], False
         for item in reads:
             result = item.get("result", {})
             if result.get("status") != "ok":
@@ -543,17 +685,49 @@ class AgentRuntime:
                 # Row reads carry their registered source ID; use the URL from
                 # that same successful read, never infer identity from ID text.
                 result = {**identity, **result}
-            if _ownership_source(result, state.get("ownership_subject")):
-                return percentage_errors
+            if _ownership_source(result, state.get("ownership_subject"), relationship):
+                projected = _model_tool_result(item["tool"], result)
+                for original, source in zip(result.get("sources", [result]), projected.get("sources", [projected])):
+                    if not _ownership_source({"status": "ok", **original}, state.get("ownership_subject"), relationship):
+                        continue
+                    passages = source.get("passages", [])
+                    partial = (any(p.get("content_truncated") for p in passages) or source.get("model_passages_truncated")) if passages else any(
+                        source.get(key) for key in ("content_truncated", "text_truncated", "model_rows_truncated"))
+                    partial |= not _ownership_source({"status": "ok", **source}, state.get("ownership_subject"), relationship)
+                    complete_read |= not partial
+                    relevant_evidence.append(original)
+                    relevant.append({key: source[key] for key in ("source_id", "source_url", "url", "matched_pages", "suggested_inspection") if key in source})
+        if relevant:
+            role_errors = _institutional_role_errors(state, content, relevant_evidence)
+            # Do not accept a claim that research failed after matching source
+            # text was read. Historical founder uncertainty is still legitimate.
+            sentences = re.split(r"[.!?\n]", _fact_text(content))
+            denied_read = any(re.search(r"(?:kaynak|belge|rapor).{0,70}(?:bulamad|ulaşamad|okuyamad)|"
+                r"(?:could\s+not|couldn't|unable\s+to)\s+(?:find|read|access).{0,40}(?:source|report|document)", sentence)
+                and not (re.search(r"kurucu|tarihsel|founder|historical", sentence)
+                         and re.search(r"(?:rapor\w*|güncel|current|reported).{0,35}(?:ortak|üye|owner|shareholder|member)", _fact_text(content)))
+                for sentence in sentences)
+            if denied_read:
+                return [*percentage_errors, *role_errors, {"code": "READ_SOURCE_ANSWER_REQUIRED" if complete_read else "SOURCE_READING_INCOMPLETE",
+                    "message": "Relevant institutional source text was already read; do not claim that no source was found. "
+                    + ("Answer the verified facts and requested analysis suggestions, with source role/period labels. " if complete_read else
+                       "Read the suggested physical pages or matched source table to finish the truncated relevant section, then answer. ")
+                    + "Historical founder identities may remain uncertain; label current/report-period owners separately and explain that limit without discarding supported facts.",
+                    "read_sources": relevant[-3:]}]
+            return [*percentage_errors, *role_errors]
         return [*percentage_errors, {"code": "EXTERNAL_FACTS_UNVERIFIED", "message":
-                 "Institutional ownership/shareholder facts require matching ownership content read in this turn, for the explicitly named institution when present. Read the authoritative ownership page or table; unrelated reports, search snippets and remembered bank lists do not verify membership."}]
+                 "Institutional facts require matching relationship/founding/member/ownership content read in this turn, for the explicitly named institution when present. Read the authoritative relevant page or table; unrelated reports, navigation links, search snippets and remembered lists do not verify these roles. Current owners are not automatically historical founders."}]
 
     def _failure_message(self, state, errors):
         codes = {error.get("code") for error in errors}
         if "UNSOLICITED_OWNERSHIP_PERCENTAGES" in codes:
             return "Yanıt, istenmeyen ve kaynakla tutarlılığı doğrulanmamış ortaklık oranları içerdiği için sunulamadı. Ortak adları ve karşılaştırmanın sonraki adımıyla sınırlı bir yanıt gerekiyor."
         if "EXTERNAL_FACTS_UNVERIFIED" in codes:
-            return "Ortaklık bilgilerini doğrulayabileceğim bir kaynak okuyamadım; doğrulanmamış bir kurum listesi veremiyorum. Kurumun resmi ortaklık sayfasını paylaşırsanız oradan kontrol edebilirim."
+            return "Kurumun ortak, üye veya kurucularını doğrulayacak ilgili kaynak bölümünü okuyamadım; doğrulanmamış bir kurum listesi veremiyorum."
+        if codes & {"READ_SOURCE_ANSWER_REQUIRED", "SOURCE_READING_INCOMPLETE"}:
+            return "İlgili kaynağa ulaştım, ancak istenen kurum listesini ve önerileri kaynakla tutarlı biçimde açıklama adımı tamamlanamadı."
+        if codes & {"INSTITUTIONAL_ROLE_UNVERIFIED", "UNSOLICITED_INSTITUTIONAL_STATISTICS"}:
+            return "İlgili kaynak okundu, ancak yanıt ortak, üye ve kurucu rollerini veya istenen kapsamı doğru ayırmadığı için tamamlanamadı."
         if codes & _SEARCH_FAILURES or state.get("search_progress", {}).get("paused"):
             return ("Arama sonuçlarından istenen rapora ulaşıp gerekli veriyi doğrulayamadım. "
                     + ("Yeni kaynak getirmeyen aramalar durduruldu. " if state.get("search_progress", {}).get("paused") else "")
@@ -632,6 +806,19 @@ class AgentRuntime:
             grants.pop(source_id, None)
 
     def _messages(self, state):
+        if state.get("institutional_delivery_repair"):
+            # Reuse the existing one-shot correction with a focused model view.
+            # The complete conversation and original tool ledger stay durable.
+            current_turn = max(index for index, message in enumerate(state["messages"]) if message.get("role") == "user")
+            messages = [message for message in state["messages"][current_turn:]
+                        if message.get("role") != "assistant" or message.get("tool_calls")]
+            view = {**state, "messages": messages}
+            context = self._context(state)
+            context = {key: context[key] for key in ("workspace_id", "snapshot_id", "workspace_version", "active_analysis_id", "active_plan", "active_schema", "current_task", "remaining_decisions") if key in context}
+            context["correction_errors"] = state["institutional_delivery_repair"]
+            context["coverage_note"] = "active_plan is the saved analysis window, not proof of additional report periods or monthly source coverage. New peer-bank observations require the corresponding reports."
+            return model_messages(view, context_factory=lambda _: context, charts_enabled=False,
+                max_context_chars=self.max_context_chars, system_prompt=INSTITUTIONAL_REPAIR_PROMPT)
         return model_messages(state, context_factory=self._context,
                               charts_enabled="create_chart" in self.tools,
                               max_context_chars=self.max_context_chars)
@@ -661,7 +848,9 @@ class AgentRuntime:
         invocation_started = time.monotonic()
         state, run_id = record["state"], record["run_id"]
         try:
-            state.setdefault("external_facts_required", _ownership_question(record["message"]))
+            state.setdefault("institutional_fact_kind", _institutional_fact_kind(record["message"]))
+            state.setdefault("institutional_request", record["message"])
+            state.setdefault("external_facts_required", bool(state["institutional_fact_kind"]))
             state.setdefault("ownership_subject", _ownership_subject(record["message"]))
             state.setdefault("ownership_percentages_requested", _requests_ownership_percentages(record["message"]))
             if "request_normalization" not in state:
@@ -670,7 +859,9 @@ class AgentRuntime:
                 return self._complete(record, state, **state["delivery_pending"])
             if "initial_candidates" not in state:
                 # The model can refine this bounded natural-language search.
-                state["initial_candidates"] = _model_tool_result("discover", self.service.discover({"query": initial_query(record["message"]), "limit": 5}))
+                state["initial_candidates"] = ({"status": "not_requested", "metrics": [],
+                    "next_step": "This is an institutional fact question. Read a relevant authoritative source before exploring financial metric suggestions."}
+                    if state.get("external_facts_required") else _model_tool_result("discover", self.service.discover({"query": initial_query(record["message"]), "limit": 5})))
                 self.run_store.event(run_id, "run_started", {"workspace_id": self.workspace_id, "conversation_id": record["conversation_id"], "request_id": record["request_id"]})
                 self.run_store.checkpoint(run_id, state)
             while state["decisions"] < self.max_decisions or state["pending"]:
@@ -754,7 +945,7 @@ class AgentRuntime:
                                 unresolved.pop("web_search", None)
                             for lookup in ("discover", "describe", "dimension_values"):
                                 if unresolved.get(lookup) and all(error.get("code") in {
-                                        "METRIC_NOT_FOUND", "DIMENSION_VALUE_NOT_FOUND", "SOURCE_NOT_FOUND"}
+                                        "METRIC_NOT_FOUND", "DIMENSION_VALUE_NOT_FOUND", "SOURCE_NOT_FOUND", "RESEARCH_QUERY_SCOPE_MISMATCH"}
                                         for error in unresolved[lookup]):
                                     unresolved.pop(lookup, None)
                         if tool_name in {"execute", "revise_analysis", "query_grouped", "aggregate_dataset"}:
@@ -792,11 +983,12 @@ class AgentRuntime:
                         missing_facts = self._external_fact_errors(state, "")
                         if missing_facts and _permission_to_research(result.get("message", "")):
                             if (not state.get("ownership_clarification_repair") and state["decisions"] < self.max_decisions
+                                    and not _external_research_forbidden(state.get("messages", []))
                                     and any(name in self.tools for name in ("research_web", "inspect_source"))):
                                 state["ownership_clarification_repair"] = True
                                 state["messages"].append({"role": "assistant", "content":
-                                    "Kullanıcı ortaklık bilgisini zaten sordu; araştırmak için yeniden izin isteme. "
-                                    "Önce kurumun resmi ortaklık kaynağını oku ve doğrulanmış bilgiyi sun. "
+                                    "Kullanıcı kurumun ilişkilerini zaten sordu; araştırmak için yeniden izin isteme. "
+                                    "Önce kurumun ilgili resmi kaynağını oku; kurucu, ortak ve üye rollerini ayırarak doğrulanmış bilgiyi sun. "
                                     "Sonrasında gerekiyorsa yalnız analize eklenecek kurum seçimini sor."})
                                 self.run_store.event(run_id, "delivery_repair", {"errors": missing_facts, "reason": "unnecessary_research_permission"})
                                 self.run_store.checkpoint(run_id, state)
@@ -863,6 +1055,12 @@ class AgentRuntime:
                             and (not state.get("unresolved_errors") or corrective_errors)
                             and state.get("delivery_repairs", 0) < 1 and state["decisions"] < self.max_decisions):
                         state["delivery_repairs"] = state.get("delivery_repairs", 0) + 1
+                        institutional = [error for error in missing_outputs if error.get("code") in {
+                            "INSTITUTIONAL_ROLE_UNVERIFIED", "UNSOLICITED_INSTITUTIONAL_STATISTICS", "UNSOLICITED_OWNERSHIP_PERCENTAGES"}]
+                        # Quantitative delivery keeps its normal context/tools.
+                        if (institutional and not state.get("analysis_updated") and not state.get("chart_updated")
+                                and not set((state.get("task_plan") or {}).get("deliverables", [])) - {"sources", "explanation"}):
+                            state["institutional_delivery_repair"] = institutional
                         state["messages"].append({"role": "assistant", "content":
                             "Teslim kontrolü: gerekli kaynak kanıtı veya belirtilen çıktılar henüz oluşmadı. "
                             "Son cevap yerine eksik araç adımlarını tamamla; gereksinimleri azaltma. "
@@ -951,7 +1149,7 @@ class AgentRuntime:
             message = "Bazı istenen adımlar tamamlanamadı; kaydedilen sonuçlar ve hata ayrıntıları korundu."
             if not has_output:
                 message = "İstenen işlem tamamlanamadı; yeni bir analiz veya grafik sonucu üretilmedi."
-            if any(error.get("code") in _SEARCH_FAILURES | {"EXTERNAL_FACTS_UNVERIFIED", "UNSOLICITED_OWNERSHIP_PERCENTAGES"} for error in errors):
+            if any(error.get("code") in _SEARCH_FAILURES | {"EXTERNAL_FACTS_UNVERIFIED", "UNSOLICITED_OWNERSHIP_PERCENTAGES", "SOURCE_READING_INCOMPLETE", "READ_SOURCE_ANSWER_REQUIRED", "INSTITUTIONAL_ROLE_UNVERIFIED", "UNSOLICITED_INSTITUTIONAL_STATISTICS"} for error in errors):
                 message = self._failure_message(state, errors)
             source_message = "" if facts_missing else _web_research_message({"sources": web_sources}, grounded)
             partial_receipt = "\n\n".join(part for part in (grounded, source_message) if part)
@@ -1341,6 +1539,13 @@ class AgentRuntime:
                 # executable meaning to the same abstract plan as omission.
                 args = {key: value for key, value in args.items() if key != "summary"}
             jsonschema.Draft202012Validator(definition["schema"]["function"]["parameters"]).validate(args)
+            if state.get("institutional_delivery_repair") and name not in _INSTITUTIONAL_REPAIR_TOOLS:
+                raise PlanError("This institutional answer repair permits source reading only. Explain the verified role/name list and requested analysis suggestions; do not change the analysis or request permission to repeat the same research.", code="INSTITUTIONAL_REPAIR_READ_ONLY")
+            scope_error = _research_scope_error(state, name, args)
+            if scope_error:
+                result = {"status": "blocked", "errors": [scope_error]}
+                self.run_store.event(run_id, "tool_result", {"tool": name, "call_id": call["id"], "result": result})
+                return result
             if name == "plan_task" and "normalization" not in args:
                 normalization = (state.get("task_plan") or {}).get("normalization") or state.get("request_normalization")
                 if normalization:

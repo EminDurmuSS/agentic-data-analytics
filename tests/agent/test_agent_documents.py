@@ -315,13 +315,13 @@ class AgentDocumentTests(unittest.TestCase):
             {'title': 'Financial report', 'url': 'https://example.org.evil.test/report.pdf'},
             {'title': 'Example Bank', 'url': 'https://example.org/'}]
         with patch('agentic_analytics.agent.tools.search_backend.configured_search', return_value=entries), \
-                patch('agentic_analytics.agent.tools.documents.fetch_public_url') as public:
+                patch('agentic_analytics.agent.tools.documents.fetch_public_url', side_effect=OSError('Index unavailable')) as public:
             result = self.docs.web_search('site:example.org 31 March 2026 consolidated financial report')
-        public.assert_not_called()
+        self.assertEqual(public.call_count, 2)
         self.assertEqual([item['url'] for item in result['results']], ['https://example.org/'])
         self.assertEqual(result['code'], 'SEARCH_DISCOVERY_ONLY')
         self.assertEqual(result['recovery']['arguments']['domains'], ['example.org'])
-        self.assertEqual(result['warnings'][0]['count'], 2)
+        self.assertEqual(next(item['count'] for item in result['warnings'] if item['code'] == 'IRRELEVANT_SEARCH_RESULTS_SKIPPED'), 2)
 
     def test_search_challenge_preserves_navigation_lead_without_claiming_report_found(self):
         rss = b'<rss><channel><item><title>Example Bank</title><link>https://example.org/</link></item></channel></rss>'
@@ -409,11 +409,11 @@ class AgentDocumentTests(unittest.TestCase):
         self.assertEqual(article["title"], "Official report")
         self.assertEqual(article["date_published"], "2026-09-11T10:00:00Z")
         self.assertIn("latest result", article["article_body"])
-        self.docs.web_search = lambda query, limit=5: {"status": "ok", "results": [
+        self.docs.web_search = lambda query, limit=5, **kwargs: {"status": "ok", "results": [
             {"title": "Unreadable", "url": "https://bad.example/no", "snippet": ""},
             {"title": "Readable", "url": "https://example.org/report", "snippet": ""},
         ]}
-        self.docs.inspect_source = lambda url=None, source_id=None: (
+        self.docs.inspect_source = lambda url=None, source_id=None, **kwargs: (
             {"status": "ok", "source_id": "source_" + "a" * 64, "source_url": url,
              "text": "Visible article text", "article": article}
             if "example.org" in url else (_ for _ in ()).throw(DocumentError("blocked", "FETCH_FAILED")))
@@ -423,7 +423,7 @@ class AgentDocumentTests(unittest.TestCase):
         self.assertEqual(result["sources"][0]["title"], "Official report")
 
     def test_research_web_does_not_fall_back_to_unrelated_domains_for_official_queries(self):
-        self.docs.web_search = lambda query, limit=5: {"status": "ok", "results": [
+        self.docs.web_search = lambda query, limit=5, **kwargs: {"status": "ok", "results": [
             {"title": "Housing listings", "url": "https://emlakjet.com/listings", "snippet": ""},
         ]}
         with patch.object(self.docs, "inspect_source", side_effect=DocumentError("Official root unavailable", "FETCH_FAILED")) as inspect:
@@ -432,6 +432,32 @@ class AgentDocumentTests(unittest.TestCase):
         self.assertIn(result.get("code"), {None, "OFFICIAL_SOURCE_NOT_FOUND", "NO_READABLE_SOURCES"})
         self.assertEqual(result.get("sources"), [])
         self.assertEqual(result["sources"], [])
+
+    def test_search_publication_date_never_becomes_fetched_document_date(self):
+        from agentic_analytics.agent.context import _model_tool_result
+        url = 'https://example.org/financial-report'
+        self.docs.web_search = lambda *args, **kwargs: {'status': 'ok', 'results': [{
+            'url': url, 'title': 'Example Bank financial report', 'published_at': '2026-04-30',
+            'publication_date_basis': 'search_metadata_unverified'}]}
+        for source_date in (None, '2026-05-02'):
+            with self.subTest(source_date=source_date):
+                metadata = {'@type': 'Article', 'headline': 'Example Bank financial report'}
+                if source_date:
+                    metadata['datePublished'] = source_date
+                html = ('<html><head><script type="application/ld+json">' + json.dumps(metadata)
+                        + '</script></head><body><main><h1>Example Bank financial report</h1>'
+                        + '<p>Example Bank financial report presents annual performance.</p></main></body></html>').encode()
+                with patch('agentic_analytics.agent.tools.documents.fetch_public_url', return_value=(html, 'text/html', url)):
+                    result = self.docs.research_web('Example Bank financial report', limit=1)
+                card = result['sources'][0]
+                self.assertEqual(card['date_published'], source_date)
+                self.assertEqual(card['search_published_at'], '2026-04-30')
+                self.assertEqual(card['search_publication_date_basis'], 'search_metadata_unverified')
+                self.assertEqual(card['verification'], 'direct_public_fetch')
+                projected = _model_tool_result('research_web', result)['sources'][0]
+                self.assertEqual(projected['date_published'], source_date)
+                self.assertEqual(projected['search_published_at'], '2026-04-30')
+                self.assertEqual(projected['search_publication_date_basis'], 'search_metadata_unverified')
 
     def test_human_review_enables_ocr_publication_and_preserves_review_provenance(self):
         from PIL import Image
@@ -599,14 +625,14 @@ class AgentDocumentTests(unittest.TestCase):
         self.assertEqual(self.docs.review_candidate(source["source_id"], "table_001")["row_count"], 2)
 
     def test_research_follows_report_downloads_and_rejects_official_redirects(self):
-        self.docs.web_search = lambda query, limit=5: {"status": "ok", "results": [{"title": "Housing report", "url": "https://tcmb.gov.tr/reports"}]}
-        self.docs.inspect_source = lambda url=None: {"source_id": "source_" + "a" * 64, "source_url": url,
+        self.docs.web_search = lambda query, limit=5, **kwargs: {"status": "ok", "results": [{"title": "Housing report", "url": "https://tcmb.gov.tr/reports"}]}
+        self.docs.inspect_source = lambda url=None, **kwargs: {"source_id": "source_" + "a" * 64, "source_url": url,
             "text": "Housing report contains monthly housing prices.", "article": {"document_links": [{"url": "https://tcmb.gov.tr/data.pdf", "title": "Housing report data"}]} if url.endswith("reports") else {},
             "tables": [] if url.endswith("reports") else [{"table_id": "table_p000001_001", "preview": [{"price": "100"}]}]}
         result = self.docs.research_web("housing report", limit=1, domains=["tcmb.gov.tr"])
         self.assertEqual(result["sources"][0]["url"], "https://tcmb.gov.tr/data.pdf")
         self.assertEqual(result["sources"][0]["discovered_from"], "https://tcmb.gov.tr/reports")
-        self.docs.inspect_source = lambda url=None: {"source_id": "source_" + "a" * 64, "source_url": "https://elsewhere.org/report",
+        self.docs.inspect_source = lambda url=None, **kwargs: {"source_id": "source_" + "a" * 64, "source_url": "https://elsewhere.org/report",
             "text": "Housing report contains monthly housing prices.", "article": {}}
         failed = self.docs.research_web("housing report", domains=["tcmb.gov.tr"])
         self.assertEqual(failed["failures"][0]["code"], "OFFICIAL_SOURCE_REDIRECT")
@@ -662,8 +688,8 @@ class AgentDocumentTests(unittest.TestCase):
         self.assertEqual(alternate["tables"][0]["preview"][0]["value"], "120")
 
     def test_research_traverses_archive_and_never_uses_language_root_as_answer(self):
-        self.docs.web_search = lambda query, limit=5: {"status": "ok", "results": [{"title": "Example Bank", "url": "https://example.org/en"}]}
-        def inspect(url=None):
+        self.docs.web_search = lambda query, limit=5, **kwargs: {"status": "ok", "results": [{"title": "Example Bank", "url": "https://example.org/en"}]}
+        def inspect(url=None, **kwargs):
             body = {"source_id": "source_" + "a" * 64, "source_url": url, "text": "Annual financial results 2025", "tables": []}
             if url.endswith("/en"):
                 body["article"] = {"title": "Example Bank", "source_links": [{"url": "https://example.org/reports/2025", "title": "Annual financial results 2025"}], "link_count": 50}
@@ -796,7 +822,7 @@ class AgentDocumentTests(unittest.TestCase):
         root, archive, target = "https://example.org/", "https://example.org/archive2025", "https://example.org/press/2025/decision15"
         self.docs.web_search = lambda *args, **kwargs: {"status": "ok", "results": [{"title": "Central bank", "url": root}]}
         visited = []
-        def inspect(url=None):
+        def inspect(url=None, **kwargs):
             visited.append(url)
             if url == root:
                 links = [{"url": "https://example.org/press/2026/decision", "title": "2026 monetary policy interest rate decision"},
@@ -819,7 +845,7 @@ class AgentDocumentTests(unittest.TestCase):
         urls = ["https://example.org/", "https://example.org/meetings", "https://example.org/meetings/2025", "https://example.org/decisions/march"]
         self.docs.web_search = lambda *args, **kwargs: {"status": "ok", "results": [{"title": "Central Bank", "url": urls[0]}]}
         visited = []
-        def inspect(url=None):
+        def inspect(url=None, **kwargs):
             visited.append(url)
             index = urls.index(url)
             result = {"source_id": str(index), "source_url": url, "text": "Monetary policy interest rate decisions", "article": {"title": "Monetary policy decisions", "source_links": []}}
@@ -854,9 +880,10 @@ class AgentDocumentTests(unittest.TestCase):
 
     def test_search_result_shapes_are_checked_before_reading_urls(self):
         self.docs.searxng_url = "http://localhost:8080"
-        with patch("agentic_analytics.agent.tools.search_backend.configured_search", return_value=[None]):
+        with patch("agentic_analytics.agent.tools.search_backend.configured_search", return_value=[None]), \
+                patch("agentic_analytics.agent.tools.documents.fetch_public_url", side_effect=OSError('Index unavailable')):
             result = self.docs.web_search("financial report")
-        self.assertEqual(result["code"], "SEARCH_INVALID_RESPONSE")
+        self.assertEqual(result["provider_attempts"][0]["code"], "SEARCH_INVALID_RESPONSE")
         self.assertEqual(result["results"], [])
         with patch("agentic_analytics.agent.tools.search_backend.configured_search", return_value=[None, {"url": []}, {"url": "https://example.org/report", "title": "Report"}]):
             result = self.docs.web_search("financial report", limit=1)

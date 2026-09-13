@@ -27,7 +27,8 @@ Terminalde tanımlı değişkenler, `.env` ve `--env-file` değerlerinden öncel
 | Değişken | Anlamı |
 | --- | --- |
 | `MIA_API_KEY` | Canlı model kullanımı için anahtar. Boşken arayüz açılır, model işi başlatılamaz |
-| `SEARXNG_URL` | İsteğe bağlı, JSON araması etkin SearXNG sunucusunun temel adresi. Docker içinde örneğin aynı ağdaki `http://searxng:8080`; boşken Bing RSS ve gerektiğinde tek DuckDuckGo Lite denemesi kullanılır. Modelin seçtiği belge URL'leri için ağ kontrolleri ayrı uygulanır |
+| `SEARXNG_URL` | Compose varsayılanı, birlikte başlatılan `http://searxng:8080` servisidir. Başka bir JSON araması etkin SearXNG sunucusuyla değiştirilebilir. Modelin seçtiği belge URL'leri için ağ kontrolleri ayrı uygulanır |
+| `SEARCH_PORT` | SearXNG'nin yalnız localhost üzerinden erişilen host portu; varsayılan `8888` |
 | `AGENT_PORT` | Host portu; varsayılan `8870` |
 | `LAKEHOUSE_DIR` | `analytics.duckdb` dosyasını içeren host dizini; varsayılan `./data_pipeline/lakehouse` |
 
@@ -56,6 +57,7 @@ docker compose logs --tail=100 agent-app
 
 Varsayılan adres [http://127.0.0.1:8870](http://127.0.0.1:8870). `ps` çıktısındaki `healthy`, konteyner içinden `/api/status` yanıtının alındığını gösterir; model anahtarını, finans veri kapsamını veya analiz doğruluğunu sınamaz. İlk çalıştırma temel imajı ve bağımlılıkları indirebilir.
 
+
 Uygulama konteyner içinde `0.0.0.0:8870` dinler. Compose portu host üzerinde `127.0.0.1:${AGENT_PORT:-8870}` adresine bağlar. Bu yapı yerel kullanım içindir; açık internete yayın ve kimlik doğrulama kurulumu içermez. Docker'ın port yayınlama davranışı için [resmî ağ rehberine](https://docs.docker.com/engine/network/port-publishing/) bakın.
 
 ```sh
@@ -64,6 +66,29 @@ docker compose down
 ```
 
 `restart`, aynı yapılandırmayla yeniden başlatır. `.env`, port veya Compose ayarı değiştiğinde `docker compose up -d` ile konteyneri yeniden oluşturun; kod değişikliğinde `--build` ekleyin. `down`, konteyner ve ağı kaldırır, adlandırılmış çalışma kaydı volume'unu korur. `down -v` bu kalıcı kayıtları da siler; rutin durdurma komutu değildir. [Docker Compose down](https://docs.docker.com/reference/cli/docker/compose/down/).
+
+## Web araması
+
+Compose, uygulamayla birlikte SearXNG servisini başlatır. Uygulamanın açılması arama servisinin sağlığına bağlı değildir. Servis Google, Brave, Bing ve DuckDuckGo sonuçlarını toplar; JSON çıktısı açıktır. Bir motorun engellenmesi veya cevap vermemesi, diğer motorların sonuçlarını iptal etmez. Bulunan bağlantılar uygulamada ayrıca konu, kurum ve istenen alan adı açısından süzülür; bir arama özeti belgeyi okuma yerine geçmez.
+
+SearXNG imajı [docker-compose.yml](../docker-compose.yml) içinde digest ile sabitlenmiştir. Ayarlar [searxng/settings.yml](../searxng/settings.yml) dosyasından salt okunur yüklenir. Başlatma betiği her başlangıçta yeni bir oturum anahtarı üretir; Git'te ortak bir anahtar tutulmaz. Motor ayarları değiştiğinde `docker compose restart searxng` çalıştırın. `/healthz` yalnız servis durumunu gösterir; gerçek sorguyu ayrıca sınayın:
+
+```sh
+curl --get --data-urlencode 'q=KKB ortaklık yapısı' --data-urlencode 'format=json' http://127.0.0.1:8888/search
+```
+
+`SEARCH_PORT` değiştiyse komuttaki portu da değiştirin. `results` bulunan bağlantıları, `unresponsive_engines` yanıt vermeyen motorları gösterir. Bir motor CAPTCHA veya erişim engeli bildirirse bu engel aşılmaz; çalışan motorlar ve uygulamanın diğer kaynak bulma yolları kullanılır. Bu servis ayrı bir ücretli arama API anahtarı gerektirmez.
+
+Uygulamayı host üzerinde Python ile çalıştırırken yalnız arama servisini Docker'da başlatabilirsiniz:
+
+```sh
+docker compose up -d searxng
+```
+
+Python uygulamasını `SEARXNG_URL=http://127.0.0.1:8888` ortam değişkeniyle başlatın. Host üzerindeki uygulama `http://searxng:8080` Docker adresini kullanamaz. Native Python çalışmasında bu değişken boşsa yerleşik arama yolları kullanılır. Servisin kurulumu ve JSON formatı için [SearXNG konteyner rehberine](https://docs.searxng.org/admin/installation-docker.html) ve [arama ayarlarına](https://docs.searxng.org/admin/settings/settings_search.html) bakın.
+
+Haricî bir `SEARXNG_URL` kullanıyorsanız yalnız uygulamayı `docker compose up --build -d agent-app` ile başlatabilirsiniz; kullanılmayan yerel arama servisi gerekmez.
+
 
 ## Kalıcı kayıtlar ve izinler
 
@@ -93,7 +118,7 @@ docker compose start agent-app
 
 Kopyalama tamamlanmadan servisi başlatmayın. Yedek dizininde `app/` altındaki konuşma kayıtlarını ve lakehouse snapshot/artifact ağacını birlikte kontrol edin. Dosya kopyası kişisel yüklemeleri ve konuşmaları içerir; Git'e eklemeyin, ayrı yedek ortamına taşıyın. [Compose cp](https://docs.docker.com/reference/cli/docker/compose/cp/) kullanımı volume'un Docker tarafından verilen fiziksel adını bilmenizi gerektirmez.
 
-Geri yüklemeyi önce ayrı bir proje ve yeni volume üzerinde deneyin. Yerel editörde `.env.restore` oluşturup boş bir host portunu, örneğin `AGENT_PORT=8872`, ve gerekli `LAKEHOUSE_DIR` değerini yazın. Canlı model kullanacaksanız anahtarı da bu yerel yapılandırmada sağlayın. Aynı adlı `agent-restore` projesinin daha önce oluşturulmadığından emin olun:
+Geri yüklemeyi önce ayrı bir proje ve yeni volume üzerinde deneyin. Yerel editörde `.env.restore` oluşturup boş host portlarını, örneğin `AGENT_PORT=8872` ve `SEARCH_PORT=8889`, ayrıca gerekli `LAKEHOUSE_DIR` değerini yazın. Canlı model kullanacaksanız anahtarı da bu yerel yapılandırmada sağlayın. Aynı adlı `agent-restore` projesinin daha önce oluşturulmadığından emin olun:
 
 ```sh
 docker compose --env-file .env.restore -p agent-restore create --build agent-app

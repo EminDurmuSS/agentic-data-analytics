@@ -200,18 +200,14 @@ def fetch_public_url(url, *, max_bytes=16 * 1024**2, timeout=20, max_redirects=3
             declared = response.headers.get("Content-Length")
             if declared and (not declared.isdecimal() or int(declared) > max_bytes):
                 raise DocumentError("Source exceeds the download size limit.", "SOURCE_TOO_LARGE")
-            blocks, total = [], 0
-            while True:
-                if time.monotonic() >= deadline:
-                    raise DocumentError("Download time budget exceeded.", "FETCH_TIMEOUT")
-                chunk = response.read(min(65536, max_bytes - total + 1))
-                if not chunk:
-                    break
-                total += len(chunk)
-                if total > max_bytes:
-                    raise DocumentError("Source exceeds the download size limit.", "SOURCE_TOO_LARGE")
-                blocks.append(chunk)
-            return b"".join(blocks), response.headers.get_content_type(), current
+            from agentic_analytics.agent.tools.search_backend import read_bounded_response
+            try:
+                data = read_bounded_response(response, max_bytes=max_bytes, deadline=deadline)
+            except TimeoutError as exc:
+                raise DocumentError("Download time budget exceeded.", "FETCH_TIMEOUT") from exc
+            except ValueError as exc:
+                raise DocumentError("Source exceeds the download size limit.", "SOURCE_TOO_LARGE") from exc
+            return data, response.headers.get_content_type(), current
     raise DocumentError("Too many redirects.", "FETCH_FAILED")
 
 
@@ -575,7 +571,7 @@ class DocumentTools:
     def _parse(self, manifest, data, page_numbers=None, table_strategy="lines"):
         suffix, mime = Path(manifest["filename"]).suffix.lower(), manifest["mime_type"]
         tables, pages, text, warnings = [], [], "", []
-        total_pages = None
+        total_pages, document_metadata = None, {}
         if (page_numbers is not None or table_strategy != "lines") and suffix != ".pdf" and mime != "application/pdf":
             raise DocumentError("Page selection is available only for PDFs.", "INVALID_PAGE_SELECTION")
         if suffix == ".csv" or mime == "text/csv":
@@ -654,6 +650,8 @@ class DocumentTools:
             import pdfplumber
             image_pages, deferred_pages = 0, []
             with pdfplumber.open(io.BytesIO(data)) as pdf:
+                document_metadata = {key.lower(): value[:500] for key, value in (pdf.metadata or {}).items()
+                                     if key in {"Title", "Author", "Subject"} and isinstance(value, str)}
                 total_pages = len(pdf.pages)
                 selected = page_numbers or list(range(1, min(total_pages, self.max_pages) + 1))
                 if any(number > total_pages for number in selected):
@@ -722,11 +720,11 @@ class DocumentTools:
             else:
                 table["table_id"] = f"table_{index:03d}"
         return {"text": text[:200000], "text_truncated": len(text) > 200000, "pages": pages,
-                "tables": tables, "warnings": warnings, "total_pages": total_pages,
+                "tables": tables, "warnings": warnings, "total_pages": total_pages, "document_metadata": document_metadata,
                 "processed_pages": [page["page"] for page in pages],
                 "processed_extractions": [f"{page['page']}:{table_strategy}" for page in pages]}
 
-    def inspect_source(self, source_id=None, url=None, page_numbers=None, table_strategy="lines"):
+    def inspect_source(self, source_id=None, url=None, page_numbers=None, table_strategy="lines", *, _deadline=None):
         if bool(source_id) == bool(url):
             raise DocumentError("Provide exactly one source_id or public URL.")
         if page_numbers is not None and (not isinstance(page_numbers, list) or not 1 <= len(page_numbers) <= self.max_pages
@@ -738,7 +736,10 @@ class DocumentTools:
             raise DocumentError("PDF table strategy must be lines or text.", "INVALID_TABLE_STRATEGY")
         article = {}
         if url:
-            data, mime, final_url = fetch_public_url(url, max_bytes=self.max_source_bytes)
+            timeout = min(20, _deadline - time.monotonic()) if _deadline is not None else 20
+            if timeout <= 0:
+                raise DocumentError("Source research time budget exceeded.", "FETCH_TIMEOUT")
+            data, mime, final_url = fetch_public_url(url, max_bytes=self.max_source_bytes, timeout=timeout)
             name = Path(parse.unquote(parse.urlsplit(final_url).path)).name or "source"
             manifest = self._register(data, name, mime, final_url)
             article = _article_metadata(data, mime, final_url)
@@ -792,7 +793,34 @@ class DocumentTools:
                 "cached_pages": inspection.get("processed_pages", []),
                 "inspection_complete": inspection.get("total_pages") is None or len(selected_pages) == inspection["total_pages"],
                 "warnings": inspection["warnings"], "article": article,
+                "document_metadata": inspection.get("document_metadata", {}),
                 "publication_requires_explicit_contract": True}
+
+    def _research_pdf(self, inspected, topic_matches):
+        """Read complete cached page text, not the inspection's short preview."""
+        from agentic_analytics.agent.tools.pdf_research import pdf_passages, pdf_title
+        manifest = self.source(inspected["source_id"])
+        if manifest["raw_sha256"] != inspected.get("raw_sha256"):
+            raise DocumentError("Research source identity changed.", "SOURCE_HASH_MISMATCH")
+        inspection = json.loads((self._directory(manifest["source_id"]) / "inspection.json").read_text())
+        pages = inspection.get("pages", [])
+        passages = pdf_passages(pages, topic_matches)
+        selected = [passage["page"] for passage in passages]
+        cached = sorted({page["page"] for page in pages})
+        title = pdf_title(inspection.get("document_metadata", {}), pages, manifest["filename"])
+        navigation = {**title, "filename": manifest["filename"], "mime_type": manifest["mime_type"],
+                      "total_pages": inspection.get("total_pages"), "cached_pages": cached[:60],
+                      "matched_pages": selected, "passages": passages,
+                      "page_number_basis": "physical_pdf_1_based",
+                      "passage_search_scope": "cached_pdf_pages"}
+        if selected:
+            navigation["suggested_inspection"] = {"source_id": manifest["source_id"], "page_numbers": selected}
+        navigation["next_step"] = ("These are separate, contiguous passages from the listed physical PDF pages. "
+            "Do not merge different sections, periods or lists. If a passage is shortened, inspect its page with "
+            "suggested_inspection before claiming a complete list. For missing context or pages outside cached_pages, "
+            "use find_source_pages with this source_id and the specific heading; document-wide completeness is not asserted.")
+        content = "\n".join(page.get("text", "") for page in pages)
+        return content, navigation
 
     def research_web(self, query, limit=3, domains=None):
         """Search, read a few public URLs, and return readable source cards."""
@@ -800,6 +828,8 @@ class DocumentTools:
                 or not 1 <= limit <= 3 or domains is not None and (not isinstance(domains, list)
                 or len(domains) > 5 or any(not isinstance(domain, str) or not domain.strip() for domain in domains))):
             raise DocumentError("Research query and limit exceed their bounds.")
+        read_deadline = time.monotonic() + 120
+        search_deadline = min(read_deadline, time.monotonic() + 45)
         lowered = _search_text(query)
         inferred_domains = {
             "kkb": ["kkb.com.tr"],
@@ -839,8 +869,16 @@ class DocumentTools:
         variants = registry["search_variants"] if registry else ("{query}",)
         variant_queries = [variant.format(query=query) for variant in variants]
         search_queries = ["site:" + preferred[0] + " " + variant for variant in variant_queries] if preferred and not search_domains(query) else variant_queries
-        searches = [self.web_search(search_query, limit=min(10, max(5, limit * 2)))
-                    for search_query in search_queries[:3]]
+        searches = []
+        for search_query in search_queries[:3]:
+            if time.monotonic() >= search_deadline:
+                break
+            search = self.web_search(search_query, limit=min(10, max(5, limit * 2)), _deadline=search_deadline)
+            searches.append(search)
+            if any(not item.get("discovery_only") and not item.get("entity_verification_required") for item in search.get("results", [])):
+                break
+        search_diagnostics = [{key: search.get(key) for key in ("query", "status", "code", "source_backend", "provider_attempts", "budget_exhausted", "warnings")}
+                              for search in searches]
         results, seen_urls = [], set()
         for search in searches:
             if search.get("status") != "ok":
@@ -859,7 +897,7 @@ class DocumentTools:
             else:
                 return {"status": "unavailable", "research_status": "unavailable", "code": "SEARCH_NO_RESULTS",
                         "message": "Search did not return usable result URLs.", "query": query, "sources": [],
-                        "searches": [{key: search.get(key) for key in ("status", "code", "source_backend")} for search in searches]}
+                        "searches": search_diagnostics}
         if preferred:
             matching = [item for item in results if allowed(item.get("url", ""))]
             results = matching
@@ -887,6 +925,9 @@ class DocumentTools:
         ownership_terms = ("ortaklar", "ortaklari", "ortaklik", "hissedar", "hissedarlari", "hissedarlar",
                            "shareholder", "shareholders", "shareholding", "ownership")
         topic_aliases.update({term: ownership_terms for term in ownership_terms})
+        founding_terms = ("kurulus", "kurulusu", "kurulusunda", "kurulan", "kuruldu", "kurulmustur", "kurucu",
+                          "founding", "founded", "founders", "established")
+        topic_aliases.update({term: founding_terms for term in founding_terms})
         def topic_matches(value):
             normalized = " ".join(_search_text(value).split())
             return sum(any(re.search(r"(?<!\w)" + re.escape(alias) + r"(?!\w)", normalized)
@@ -924,7 +965,6 @@ class DocumentTools:
                     + sum(bool(re.search(r"\b" + number + r"\b", item.get("title", ""))) for number in day_numbers))
         results.sort(key=relevance, reverse=True)
         sources, deferred_sources, failures, attempts = [], [], [], 0
-        read_deadline = time.monotonic() + 120
         while results:
             if len(sources) >= limit:
                 break
@@ -937,10 +977,13 @@ class DocumentTools:
                 continue
             attempts += 1
             try:
-                inspected = self.inspect_source(url=result["url"])
+                inspected = self.inspect_source(url=result["url"], _deadline=read_deadline)
                 text = inspected.get("text", "").strip()
                 article = inspected.get("article", {})
                 content = article.get("article_body") or article.get("readable_text") or text
+                pdf_navigation = {}
+                if inspected.get("mime_type") == "application/pdf" or inspected.get("filename", "").casefold().endswith(".pdf"):
+                    content, pdf_navigation = self._research_pdf(inspected, topic_matches)
                 if not content:
                     raise DocumentError("Source contained no readable text.", "EMPTY_SOURCE")
                 source_url = inspected.get("source_url") or result["url"]
@@ -979,11 +1022,13 @@ class DocumentTools:
                     seen_urls.add(link["url"])
                     results.append({**link, "discovered_from": source_url, "discovery_depth": depth + 1})
                 path_text = parse.urlsplit(source_url).path.casefold()
-                title_text = _search_text(article.get("title") or result.get("title", ""))
-                searchable = _search_text(" ".join([article.get("title", ""), article.get("description", ""), content]))
+                verified_title = pdf_navigation.get("title") or article.get("title") or ""
+                source_title = verified_title or result.get("title", "")
+                title_text = _search_text(source_title)
+                searchable = _search_text(" ".join([verified_title, article.get("description", ""), content]))
                 from agentic_analytics.agent.tools.search_backend import rank_search_results
                 checked, _, _ = rank_search_results(query, [{"url": source_url,
-                    "title": article.get("title", ""), "snippet": content[:2500]}])
+                    "title": verified_title, "snippet": content[:2500]}])
                 if result.get("entity_verification_required") and (not checked or checked[0]["entity_verification_required"]):
                     raise DocumentError("The requested issuer or named subject is not established in the fetched content.", "SOURCE_ENTITY_UNVERIFIED")
                 if (result.get("discovery_only") or not path_text.strip("/") or re.fullmatch(r"/[a-z]{2}(?:-[a-z]{2})?/?", path_text)
@@ -1004,7 +1049,9 @@ class DocumentTools:
                 if requested_dates and not requested_dates.intersection(source_dates(identified_period + " " + content)):
                     raise DocumentError("Source does not establish the requested full calendar date.", "SOURCE_DATE_UNVERIFIED")
                 paragraphs = [line.strip() for line in content.splitlines() if line.strip()]
-                if len(content) > 3000 and len(paragraphs) > 1:
+                if pdf_navigation.get("passages"):
+                    excerpt = pdf_navigation["passages"][0]["text"]
+                elif len(content) > 3000 and len(paragraphs) > 1:
                     ranked = sorted(enumerate(paragraphs), key=lambda pair: topic_matches(pair[1]), reverse=True)
                     # Keep a contiguous passage around the strongest match.
                     # Joining isolated keyword hits can put members under an
@@ -1014,15 +1061,18 @@ class DocumentTools:
                 else:
                     excerpt = content[:3000]
                 card = {
-                    "title": article.get("title") or result.get("title", ""),
+                    "title": source_title,
                     "url": source_url,
                     "domain": parse.urlsplit(source_url).hostname,
                     "snippet": article.get("description") or result.get("snippet", ""),
-                    "date_published": article.get("date_published") or result.get("published_at"),
+                    "date_published": article.get("date_published"),
+                    **({"search_published_at": result["published_at"][:100],
+                        "search_publication_date_basis": "search_metadata_unverified"}
+                       if isinstance(result.get("published_at"), str) and result["published_at"].strip() else {}),
                     "date_modified": article.get("date_modified"),
                     "author": article.get("author"),
                     "content": excerpt,
-                    "content_truncated": len(content) > len(excerpt),
+                    "content_truncated": bool(inspected.get("text_truncated") or len(content) > len(excerpt)),
                     "tables": [table for table in inspected.get("tables", []) if table.get("preview")][:3],
                     "document_links": linked[:5],
                     "discovery_links": ranked_links[:5],
@@ -1034,6 +1084,7 @@ class DocumentTools:
                     "source_id": inspected["source_id"],
                     "verification": "direct_public_fetch",
                     "content_is_untrusted_data": True,
+                    **pdf_navigation,
                 }
                 discovery_index = (archive_links and not article.get("article_body") and article.get("link_count", 0) > 20
                                    and not topic_matches(title_text))
@@ -1051,10 +1102,11 @@ class DocumentTools:
         if not sources:
             return {"status": "unavailable", "research_status": "unavailable", "code": "NO_READABLE_SOURCES",
                     "message": "Search results were found, but no result had readable public content.",
-                    "query": query, "sources": [], "failures": failures}
+                    "query": query, "sources": [], "failures": failures, "searches": search_diagnostics,
+                    "budget_exhausted": time.monotonic() >= read_deadline}
         return {"status": "ok", "research_status": "completed", "query": query,
                 "sources": sources, "failures": failures, "searched": len(seen_urls),
-                "searches": [{key: search.get(key) for key in ("status", "code", "source_backend")} for search in searches],
+                "searches": search_diagnostics,
                 "read": len(sources), "attempted_reads": attempts, "content_is_untrusted_data": True,
                 "next_step": "Sources are inspected and registered, not yet analytical datasets. For requested calculations: inspect returned source_id or document links, publish the selected table with an evidence-backed contract, then calculate and chart. Use only claims supported by returned evidence."}
 
@@ -1719,95 +1771,13 @@ class DocumentTools:
         canonical["contract"], _ = self._merge_numeric_arguments(canonical["contract"], **aliases)
         return self._find_publication(self._publication_key(canonical))
 
-    def web_search(self, query, limit=5):
+    def web_search(self, query, limit=5, *, _deadline=None):
         if self.searxng_url is False:
             return {"status": "unavailable", "code": "WEB_SEARCH_UNCONFIGURED", "results": []}
         if not isinstance(query, str) or not 1 <= len(query) <= 500 or type(limit) is not int or not 1 <= limit <= 10:
             raise DocumentError("Search query and limit exceed their bounds.")
-        backend = "SearXNG" if self.searxng_url else "Bing RSS"
-        try:
-            if self.searxng_url:
-                from agentic_analytics.agent.tools.search_backend import configured_search
-                items = configured_search(self.searxng_url, query)
-            else:
-                url = "https://www.bing.com/search?" + parse.urlencode({"format": "rss", "q": query})
-                raw, _, _ = fetch_public_url(url, max_bytes=1024**2, timeout=15)
-                if b"<!doctype" in raw.lower() or b"<!entity" in raw.lower():
-                    raise DocumentError("Search response contains unsupported XML declarations.", "SEARCH_INVALID_RESPONSE")
-                rss = ET.fromstring(raw)
-                if rss.tag != "rss":
-                    raise DocumentError("Search did not return RSS results.", "SEARCH_INVALID_RESPONSE")
-                items = [{"title": item.findtext("title", ""), "url": item.findtext("link", ""),
-                          "content": item.findtext("description", "")} for item in rss.findall("./channel/item")]
-            if not isinstance(items, list):
-                raise DocumentError("Search results must be an array.", "SEARCH_INVALID_RESPONSE")
-            def normalize_entries(entries):
-                results, skipped = [], 0
-                for item in entries[:50]:
-                    if not isinstance(item, dict) or not isinstance(item.get("url"), str) or not 1 <= len(item["url"]) <= 4096:
-                        skipped += 1
-                        continue
-                    target = item.get("url", "")
-                    try:
-                        parsed_target = parse.urlsplit(target)
-                        valid = (parsed_target.scheme in {"http", "https"} and bool(parsed_target.hostname)
-                                 and not parsed_target.username and not parsed_target.password and not any(ord(char) < 32 for char in target))
-                    except ValueError:
-                        valid = False
-                    if not valid:
-                        skipped += 1
-                        continue
-                    results.append({"title": str(item.get("title", ""))[:300], "url": target, "snippet": str(item.get("content", ""))[:1200],
-                                    **{key: item[key] for key in ("discovered_from", "registry_evidence") if key in item}})
-                return results, skipped
-            results, skipped = normalize_entries(items)
-            if skipped and not results:
-                raise DocumentError("Search returned only malformed result entries.", "SEARCH_INVALID_RESPONSE")
-            from agentic_analytics.agent.tools.search_backend import rank_search_results, public_search_fallback, kap_financial_search
-            results, rejected, domains = rank_search_results(query, results)
-            fallback_warning = None
-            if not self.searxng_url and (not results or all(item["discovery_only"] for item in results)):
-                try:
-                    registry, _ = normalize_entries(kap_financial_search(query, fetch_public_url))
-                    if registry:
-                        results, _, _ = rank_search_results(query, [*registry, *results])
-                        backend = "KAP Public Financial Registry (Bing RSS fallback)"
-                except (ValueError, OSError) as exc:
-                    fallback_warning = {"code": "FINANCIAL_REGISTRY_UNAVAILABLE", "message": str(exc)}
-            if not self.searxng_url and (not results or all(item["discovery_only"] for item in results)):
-                try:
-                    alternate, alternate_skipped = normalize_entries(public_search_fallback(query, fetch_public_url))
-                    alternate, alternate_rejected, _ = rank_search_results(query, alternate)
-                    skipped += alternate_skipped
-                    rejected.extend(alternate_rejected)
-                    if alternate:
-                        results, _, _ = rank_search_results(query, [*alternate, *results])
-                        backend = "DuckDuckGo Lite (Bing RSS fallback)"
-                    else:
-                        fallback_warning = {"code": "SEARCH_FALLBACK_NO_RELEVANT_RESULTS"}
-                except (ValueError, OSError) as exc:
-                    fallback_warning = {"code": "SEARCH_FALLBACK_UNAVAILABLE", "message": str(exc)}
-            results = results[:limit]
-            warnings = ([{"code": "MALFORMED_SEARCH_RESULTS_SKIPPED", "count": skipped}] if skipped else [])
-            if fallback_warning:
-                warnings.append(fallback_warning)
-            if rejected:
-                warnings.append({"code": "IRRELEVANT_SEARCH_RESULTS_SKIPPED", "count": len(rejected)})
-            discovery_only = not results or all(item["discovery_only"] for item in results)
-            recovery_domains = domains or list(dict.fromkeys(parse.urlsplit(item["url"]).hostname for item in results))[:3]
-            recovery = {"tool": "research_web", "arguments": {"query": query, "limit": 2}}
-            if recovery_domains:
-                recovery["arguments"]["domains"] = recovery_domains
-            return {"status": "ok", "query": query, "results": results, "source_backend": backend,
-                    "warnings": warnings,
-                    **({"code": "SEARCH_DISCOVERY_ONLY" if results else "SEARCH_NO_RELEVANT_RESULTS",
-                        "recovery": recovery} if discovery_only else {}),
-                    "content_is_untrusted_data": True, "sources_verified": False,
-                    "next_step": ("Search has no report evidence. Use research_web with the supplied recovery arguments to follow source links; do not repeat query variants or answer from these navigation leads."
-                                  if discovery_only else "Inspect result URLs before relying on them as citation evidence.")}
-        except (DocumentError, ValueError, OSError, ET.ParseError) as exc:
-            return {"status": "unavailable", "code": getattr(exc, "code", "SEARCH_INVALID_RESPONSE"),
-                    "message": str(exc), "source_backend": backend, "results": []}
+        from agentic_analytics.agent.tools.search_pipeline import run_search
+        return run_search(query, limit, configured_url=self.searxng_url, fetch=fetch_public_url, deadline=_deadline)
 
     def _contract_schema(self):
         """Describe the store contract without restricting its metadata extension fields."""

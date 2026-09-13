@@ -6,6 +6,7 @@ Public result URLs still use the source reader's DNS and redirect controls.
 import json
 from html.parser import HTMLParser
 import re
+import time
 import unicodedata
 from urllib import parse, request
 
@@ -34,11 +35,35 @@ def rank_search_results(query, items):
               "ocak", "subat", "mart", "nisan", "mayis", "haziran", "temmuz", "agustos", "eylul", "ekim", "kasim", "aralik"}
     topic = {"financial", "finansal", "report", "reports", "rapor", "raporu", "raporlar", "konsolide", "consolidated", "statements", "statement",
              "results", "sonuclar", "earnings", "assets", "aktif", "aktifler", "total", "toplam", "investor", "relations", "yatirimci", "iliskileri"}
-    stop = months | topic | {"pdf", "xlsx", "csv", "the", "and", "for", "of", "in", "as", "at", "or", "ve", "ile", "icin", "bir", "public", "latest", "guncel", "com", "org", "gov", "www"}
+    subject_terms = {"ortaklik", "yapisi", "ortak", "ortaklar", "ortaklari", "hissedar", "hissedarlar", "hissedarlari",
+                     "shareholder", "shareholders", "shareholding", "ownership", "structure", "kurulus", "kurulusu",
+                     "kurulusunda", "kurucu", "kurucular", "founded", "founder", "founders", "founding", "established",
+                     "uyelik", "uyeler", "uyeleri", "member", "members", "membership", "bankalar", "bankalari",
+                     "list", "liste", "listesi", "kim", "kimdir", "hangi", "hakkinda", "about", "what", "who"}
+    stop = months | topic | subject_terms | {"pdf", "xlsx", "csv", "the", "and", "for", "of", "in", "as", "at", "or", "ve", "ile", "icin", "bir", "public", "latest", "guncel", "com", "org", "gov", "www"}
     words = set(re.findall(r"[a-z][a-z0-9]+", normalized))
     distinctive = {word for word in words - stop if len(word) >= 3}
+    # Generic institution words are not evidence of the requested identity.
+    # In particular, another lender mentioning credit must not match Yapı Kredi.
+    generic_names = {"bank", "banks", "bankasi", "bankasinin", "bankacilik", "banking", "kredi", "credit",
+                     "turkiye", "turkish", "turkey", "anonim", "sirketi", "company", "group", "grubu",
+                     "holding", "holdings", "inc", "limited", "ltd"}
+    identity_words = distinctive - generic_names
+    # Preserve multiword names adjacent to institution descriptors, while
+    # allowing connecting words and legal suffixes in the published name.
+    name_groups, group = [], []
+    name_separators = stop | {"ortaklari", "ortaklar", "hissedarlar", "hissedarlari", "shareholders", "ownership", "kimdir"}
+    for word in re.findall(r"[a-z0-9]+", normalized) + ["0"]:
+        if word.isdigit() or word in name_separators:
+            if set(group) & generic_names and set(group) - generic_names:
+                name_groups.append(set(group) - generic_names)
+            group = []
+        else:
+            group.append(word)
     short_names = [search_text(word) for word in re.findall(r"[^\W\d_]+", query)
                    if len(word) == 2 and any(ord(char) > 127 for char in word)]
+    acronyms = {search_text(word) for word in re.findall(r"(?<!\w)[A-ZÇĞİÖŞÜ]{2,8}(?!\w)", query)
+                if search_text(word) not in stop | generic_names | {"tl", "try", "usd", "eur", "html", "xml", "json"}}
     protected_phrases = [search_text(phrase) for phrase in re.findall(r'"([^"\d]+)"', query)
                          if len(phrase.split()) >= 2]
     # Keep short proper names attached to their neighbour. Matching "İş" and
@@ -47,6 +72,10 @@ def rank_search_results(query, items):
         protected_phrases.extend(re.findall(r"(?<!\w)" + re.escape(short_name) + r"\s+[a-z]+", normalized))
     financial_request = bool(words & topic)
     years = set(re.findall(r"\b(?:19|20)\d{2}\b", normalized))
+    solo_pattern = r"konsolide[\s_-]*olmayan|unconsolidated|standalone|bank[\s_-]*only"
+    consolidated_pattern = r"\bkonsolide\b|\bconsolidated\b"
+    wants_solo = bool(re.search(solo_pattern, normalized))
+    wants_consolidated = bool(re.search(consolidated_pattern, re.sub(solo_pattern, "", normalized)))
     financial_pattern = r"financ|finans|konsolid|consolid|earnings|\breports?\b|\brapor\w*|\bstatements?\b|bilan[cç]|balance.sheet|total.assets|toplam.aktif|investor.relations|yatirimci.ilisk|mali.tablo"
     kept, rejected = [], []
     seen = set()
@@ -59,8 +88,18 @@ def rank_search_results(query, items):
         if domains and not any(domain_match(domain) for domain in domains) or any(domain_match(domain) for domain in excluded):
             reason = "outside_requested_domain"
         label = search_text(item.get("title", "") + " " + item.get("snippet", "") + " " + parse.unquote(url))
+        solo_label = bool(re.search(solo_pattern, label))
+        consolidated_label = bool(re.search(consolidated_pattern, re.sub(solo_pattern, "", label)))
+        if reason is None and (wants_consolidated and not wants_solo and solo_label and not consolidated_label
+                               or wants_solo and not wants_consolidated and consolidated_label and not solo_label):
+            reason = "conflicting_consolidation_scope"
         matched = [word for word in distinctive if re.search(r"(?<![a-z])" + re.escape(word) + r"(?![a-z])", label)]
-        entity_match = (not distinctive or bool(matched)) and (not short_names or all(
+        identity_match = not distinctive or bool(set(matched) & identity_words) or not identity_words and bool(matched)
+        if name_groups:
+            identity_match = all(all(re.search(r"(?<![a-z])" + re.escape(word) + r"(?![a-z])", label)
+                                     for word in names) for names in name_groups)
+        entity_match = identity_match and all(re.search(r"(?<![a-z])" + re.escape(word) + r"(?![a-z])", label)
+                                             for word in acronyms) and (not short_names or all(
             re.search(r"(?<![a-z])" + re.escape(word) + r"(?![a-z])", label) for word in short_names)) and all(
                 phrase in " ".join(label.split()) for phrase in protected_phrases)
         # Search abstracts can omit the issuer entirely. A dated report is a
@@ -84,7 +123,8 @@ def rank_search_results(query, items):
         kept.append({**item, "discovery_only": discovery,
                      "entity_verification_required": not entity_match,
                      "relevance": "navigation_lead" if discovery else "query_match"})
-    kept.sort(key=lambda item: (item["discovery_only"], -sum(year in item["title"] + item.get("snippet", "") for year in years)))
+    kept.sort(key=lambda item: (item["discovery_only"], item["entity_verification_required"],
+                               -sum(year in item["title"] + item.get("snippet", "") for year in years)))
     return kept, rejected, domains
 
 
@@ -157,6 +197,13 @@ def _flight_objects(raw):
             pending.extend(value)
 
 
+def kap_search_applicable(query):
+    normalized = search_text(query)
+    return (len(set(re.findall(r"\b(?:19|20)\d{2}\b", normalized))) == 1
+            and bool(re.search(r"financ|finans|konsolid|consolid|bilan[cç]|financial.report", normalized))
+            and not search_domains(query))
+
+
 def kap_financial_search(query, fetch):
     """Resolve issuer and reporting period against KAP's public source registry.
 
@@ -167,9 +214,7 @@ def kap_financial_search(query, fetch):
     """
     normalized = search_text(query)
     years = set(re.findall(r"\b(?:19|20)\d{2}\b", normalized))
-    if len(years) != 1 or not re.search(r"financ|finans|konsolid|consolid|bilan[cç]|financial.report", normalized):
-        return []
-    if search_domains(query):
+    if not kap_search_applicable(query):
         return []  # An explicit site restriction is never silently widened.
     year = int(next(iter(years)))
     months = {
@@ -267,7 +312,31 @@ class NoRedirect(request.HTTPRedirectHandler):
         return None
 
 
-def configured_search(base_url, query):
+def read_bounded_response(response, *, max_bytes, deadline):
+    """Bound total body time, including a peer that slowly drips bytes."""
+    blocks, total = [], 0
+    while True:
+        remaining = deadline - time.monotonic()
+        if remaining <= 0:
+            raise TimeoutError("Response time budget exceeded.")
+        # HTTPResponse.read1 performs at most one socket read. BytesIO and
+        # simple test responses can safely use their ordinary in-memory read.
+        stream = getattr(response, "fp", None)
+        sock = getattr(getattr(stream, "raw", None), "_sock", None)
+        if sock is not None:
+            sock.settimeout(remaining)
+        read = getattr(response, "read1", None) or response.read
+        chunk = read(min(65536, max_bytes - total + 1))
+        if not chunk:
+            break
+        total += len(chunk)
+        if total > max_bytes:
+            raise ValueError("Response exceeds its size limit.")
+        blocks.append(chunk)
+    return b"".join(blocks)
+
+
+def configured_search(base_url, query, *, timeout=15, with_diagnostics=False):
     if not isinstance(base_url, str) or not 1 <= len(base_url) <= 4096 or any(ord(char) < 32 for char in base_url):
         raise ValueError("Invalid configured SearXNG URL.")
     endpoint = parse.urlsplit(base_url)
@@ -279,14 +348,23 @@ def configured_search(base_url, query):
     url = base_url.rstrip("/") + "/search?" + parse.urlencode({"q": query, "format": "json"})
     opener = request.build_opener(request.ProxyHandler({}), NoRedirect())
     query_request = request.Request(url, headers={"User-Agent": "AgenticMinds-SourceReader/1", "Accept": "application/json", "Accept-Encoding": "identity"})
-    with opener.open(query_request, timeout=15) as response:
+    deadline = time.monotonic() + timeout
+    with opener.open(query_request, timeout=timeout) as response:
         size = response.headers.get("Content-Length")
         if size and (not size.isdecimal() or int(size) > 1024**2):
             raise ValueError("Configured search response exceeds its size limit.")
-        raw = response.read(1024**2 + 1)
-    if len(raw) > 1024**2:
-        raise ValueError("Configured search response exceeds its size limit.")
+        raw = read_bounded_response(response, max_bytes=1024**2, deadline=deadline)
     payload = json.loads(raw)
     if not isinstance(payload, dict) or not isinstance(payload.get("results"), list):
         raise ValueError("Configured search did not return a JSON results array.")
-    return payload["results"]
+    if not with_diagnostics:
+        return payload["results"]
+    diagnostics = []
+    failed = payload.get("unresponsive_engines", [])
+    for failure in failed[:12] if isinstance(failed, list) else []:
+        if isinstance(failure, (list, tuple)) and len(failure) >= 2:
+            diagnostics.append({"engine": str(failure[0])[:80], "reason": str(failure[1])[:160]})
+        elif isinstance(failure, dict):
+            diagnostics.append({"engine": str(failure.get("engine", ""))[:80],
+                                "reason": str(failure.get("error", failure.get("reason", "")))[:160]})
+    return {"results": payload["results"], "diagnostics": diagnostics}
