@@ -9,7 +9,7 @@ import duckdb
 
 from app.activity import public_run
 from agentic_analytics.agent.delivery import (
-    _analysis_confirmation, _cell_confirmation, _scope_confirmation,
+    _analysis_confirmation, _cell_confirmation, _scope_confirmation, _source_scope_confirmation,
     _statistics_confirmation, _display_label, _display_period,
 )
 
@@ -128,6 +128,7 @@ def present_run(store, run):
             _analysis_confirmation, _statistics_confirmation,
             _cell_confirmation, _scope_confirmation,
         )]
+        parts.append(_source_scope_confirmation(store, run["workspace_id"], state, run.get("message", "")))
         message = _compact_summary_periods(store, run, "\n\n".join(part for part in parts if part))
     except (ValueError, OSError, duckdb.Error):
         # Missing or changed historical artifacts cannot support fresh prose.

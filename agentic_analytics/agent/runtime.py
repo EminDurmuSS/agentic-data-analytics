@@ -1388,6 +1388,15 @@ class AgentRuntime:
                 self.run_store.checkpoint(run_id, state)
                 if state["repairs"] > self.max_repairs:
                     return self._finish(record, state, "blocked", "Model geçerli bir cevap üretmedi.", errors=[{"code": "EMPTY_MODEL_RESPONSE", "message": "No content or tool calls."}])
+            # The last permitted call may itself finish a required source read.
+            # Recheck its evidence after pending results have been processed;
+            # no additional provider decision or source read is made here.
+            evidence = self._source_final_evidence(state)
+            if evidence:
+                errors = [error for failures in state.get("unresolved_errors", {}).values() for error in failures]
+                errors.extend(self._task_delivery_errors(state))
+                errors.append({"code": "SOURCE_DATA_NOT_VERIFIED", "message": "Source reading ended within the decision budget with an explicit relevant limitation; requested numerical outputs remain unproduced."})
+                return self._finish(record, state, "partial", self._source_final_receipt(evidence), errors=errors)
             if (state.get("analysis_updated") or state.get("chart_updated")) and not state.get("unresolved_errors"):
                 return self._complete(record, state, "Analiz kaydedildi; son yanıtı üretme sınırına ulaşıldı.", terminal_status="partial", warnings=[{"code": "FINAL_RESPONSE_BUDGET_EXCEEDED", "message": "Verified analysis is available; no additional provider call was made for prose synthesis."}])
             refusal = self._barren_refusal(state)

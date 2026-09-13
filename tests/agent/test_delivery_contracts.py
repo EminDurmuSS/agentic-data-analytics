@@ -1964,3 +1964,44 @@ def test_source_gap_ranking_prefers_requested_heading_and_never_another_run_or_s
     assert runtime._source_final_evidence(state, stalled_source="b") == []
     state["unresolved_errors"]["execute"] = [{"code": "INVALID_PLAN"}]
     assert runtime._source_final_evidence(state, stalled_source="a") == []
+
+
+@pytest.mark.parametrize("last_read", ["success", "failed", "other_source"])
+def test_last_allowed_read_can_close_a_previously_blocked_source_assessment(env, last_read):
+    _, _, journal, _, build = env
+    executed = []
+    tools = page_navigation_tools(executed)
+    find, inspect = tools["find_source_pages"]["handler"], tools["inspect_source"]["handler"]
+    def search(args):
+        result = find(args)
+        if args["query"] != "credit sectors":
+            result["matches"] = [{"page": 48}]
+            result["suggested_inspection"]["page_numbers"] = [48]
+        return result
+    def read(args):
+        result = inspect(args)
+        result["pages"][0]["text"] = ("Credit risk disclosures\nNot prepared in compliance with reporting requirements."
+            if args["page_numbers"] == [47] else "An adjacent source section was read.")
+        if args["page_numbers"] == [48] and last_read == "failed":
+            result.update(status="blocked", errors=[{"code": "SOURCE_NOT_FOUND"}])
+        return result
+    tools["find_source_pages"]["handler"], tools["inspect_source"]["handler"] = search, read
+    responses = [call("plan_task", {"deliverables": ["analysis", "chart", "sources"]}),
+        call("find_source_pages", {"source_id": "a", "query": "credit sectors"}, "find1"),
+        call("inspect_source", {"source_id": "a", "page_numbers": [47]}, "read1"),
+        *[call("find_source_pages", {"source_id": "a", "query": f"credit sectors detail {n}"}, f"find{n+2}") for n in range(3)],
+        call("inspect_source", {"source_id": "b" if last_read == "other_source" else "a", "page_numbers": [48]}, "last_read")]
+    runtime, client = build(responses, more=tools, max_decisions=7)
+    result = runtime.run("Kredi dağılımını kaynakta bul, tablo ve grafik göster.")
+    assert result["decisions"] == 7 and len(client.requests) == 7
+    assert client.options[-1]["tools"]  # Last decision still needed a real read.
+    state = journal.get(result["run_id"])["state"]
+    assert not state.get("source_final_review")
+    if last_read == "success":
+        assert result["status"] == "partial" and "#page=47" in result["message"]
+        assert "Not prepared" in result["message"] and "tablosu, oranlar ve grafik oluşturulmadı" in result["message"]
+        assert not state["unresolved_errors"]
+        assert {error["code"] for error in result["errors"]} >= {"SOURCE_DATA_NOT_VERIFIED", "TASK_DELIVERABLE_MISSING"}
+    else:
+        assert result["status"] == "blocked"
+        assert "SOURCE_DATA_NOT_VERIFIED" not in {error["code"] for error in result["errors"]}

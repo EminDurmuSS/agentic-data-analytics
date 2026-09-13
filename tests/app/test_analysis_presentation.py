@@ -65,6 +65,30 @@ def test_saved_run_gets_new_display_without_changing_recorded_result(saved_compa
     assert _evidence_hashes(context) == evidence
 
 
+def test_saved_pdf_footnote_survives_public_run_projection(saved_comparison):
+    context, _, wid, aid, run_id = saved_comparison
+    frame, manifest = context.store.load_analysis(aid)
+    lineage = copy.deepcopy(manifest["lineage"])
+    url = "https://reports.example.org/loans.pdf"
+    lineage["sources"]["company_assets"]["binding"]["document_provenance"] = {
+        "source_id": "source-loans", "source_url": url, "raw_sha256": "abc", "page": 96,
+        "preparation": {"source_table_id": "table-loans"},
+        "source_scope_evidence": [{"basis": "selected_pdf_table_footnote", "source_id": "source-loans",
+            "source_table_id": "table-loans", "source_url": url, "raw_sha256": "abc", "page": 96,
+            "source_quote": "(*) Non-performing loans are not included."}]}
+    saved = context.store.save_analysis(wid, frame, manifest["plan"], lineage, schema=manifest["schema"],
+                                        expected_version=context.store.workspace(wid)["version"])
+    run = context.run_store.get(run_id)
+    run["message"] = "Takipteki krediler bu tabloya dahil mi?"
+    run["state"]["analysis_id"] = saved["analysis_id"]
+    run["result"]["analysis_id"] = saved["analysis_id"]
+    recorded = copy.deepcopy(run)
+    public = present_run(context.store, run)
+    assert "takipteki krediler bu tutarlara dahil değil" in public["result"]["display_message"]
+    assert f"{url}#page=96" in public["result"]["display_message"]
+    assert run == recorded
+
+
 def test_default_table_projects_common_units_but_csv_keeps_original_values(saved_comparison):
     context, client, wid, aid, _ = saved_comparison
     response = client.get(f"/api/workspaces/{wid}/analyses/{aid}")
