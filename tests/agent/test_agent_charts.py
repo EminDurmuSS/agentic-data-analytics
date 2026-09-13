@@ -122,7 +122,7 @@ class AgentChartTests(unittest.TestCase):
         self.assertEqual(notes["exact_event_period_end"]["level"], "info")
         self.assertIn("ara dönemlere", notes["exact_event_period_end"]["message"])
         self.assertNotIn("heterogeneous_scopes_aligned", notes)
-        self.assertIn("resmi pazar payı değildir", notes["cross_scope_comparison"]["message"])
+        self.assertIn("resmî pazar payı olduğu varsayılmaz", notes["cross_scope_comparison"]["message"])
         for technical in ["SESSION_DATASET", "source_financial_facts", "PRIVATE MODEL", "999"]:
             self.assertNotIn(technical, json.dumps(presentation, ensure_ascii=False))
         after_frame, after_manifest = self.store.load_analysis(aid)
@@ -169,7 +169,7 @@ class AgentChartTests(unittest.TestCase):
         self.assertEqual({notice["code"] for notice in notices}, {
             "exact_event_period_end", "cross_scope_comparison", "source_method_note"})
         self.assertEqual(next(note for note in notices if note["code"] == "exact_event_period_end")["level"], "info")
-        self.assertIn("resmi pazar payı değildir", next(note for note in notices if note["code"] == "cross_scope_comparison")["message"])
+        self.assertIn("resmî pazar payı olduğu varsayılmaz", next(note for note in notices if note["code"] == "cross_scope_comparison")["message"])
         self.assertNotIn("PRIVATE", str(notices))
         self.assertEqual(path.read_bytes(), encoded)
         self.assertEqual(original_path.read_bytes(), original_bytes)

@@ -214,9 +214,41 @@ def _scope_confirmation(store, workspace_id, state):
         raise ValueError("Delivery analysis belongs to another workspace")
     warnings = manifest.get("lineage", {}).get("warnings", [])
     if any(isinstance(note, dict) and note.get("code") == "cross_scope_comparison" for note in warnings):
-        return "Kurum ve raporlama kapsamları farklıdır. Bu oran yalnız büyüklük karşılaştırmasıdır; resmi sektör/pazar payı değildir."
+        return "Oran, seçilen pay ve paydanın sayısal karşılaştırmasıdır. Kaynak kapsamları ayrıca incelenmelidir; resmî sektör veya pazar payı olduğu varsayılmaz."
     if any(isinstance(note, dict) and note.get("code") == "heterogeneous_scopes_aligned" for note in warnings):
         return "Kaynakların dönemleri eşleştirildi; kurum ve raporlama kapsamlarının aynı olduğu varsayılmadı."
+    return None
+
+
+def _source_scope_confirmation(store, workspace_id, state, request):
+    """State a requested PDF scope exclusion only from the published table's evidence."""
+    question = request.casefold().replace("ı", "i").replace("i\u0307", "i")
+    if not re.search(r"takipteki kredi|non.performing loan|\bnpl\b", question) or not state.get("analysis_id"):
+        return None
+    _, manifest = store.load_analysis(state["analysis_id"])
+    if manifest.get("workspace_id") != workspace_id:
+        raise ValueError("Delivery analysis belongs to another workspace")
+    for source in manifest.get("lineage", {}).get("sources", {}).values():
+        provenance = source.get("binding", {}).get("document_provenance") or {}
+        for note in provenance.get("source_scope_evidence") or []:
+            if not isinstance(note, dict) or note.get("basis") != "selected_pdf_table_footnote":
+                continue
+            if any(note.get(key) != provenance.get(key) for key in ("source_id", "source_url", "raw_sha256", "page")):
+                continue
+            if note.get("source_table_id") != (provenance.get("preparation") or {}).get("source_table_id"):
+                continue
+            quote_text = " ".join(str(note.get("source_quote") or "").split()).casefold()
+            if not re.search(r"\bnon.performing loans are not included\b", quote_text):
+                continue
+            page, url = note["page"], note["source_url"]
+            if type(page) is not int or not isinstance(url, str):
+                continue
+            try:
+                safe = urlsplit(url).scheme in {"http", "https"} and bool(urlsplit(url).hostname) and not any(ord(char) < 32 for char in url)
+            except ValueError:
+                safe = False
+            reference = f"[kaynak, s. {page}]({quote(url.split('#', 1)[0] + f'#page={page}', safe=':/?#&=%+@')})" if safe else f"kaynak, s. {page}"
+            return f"Seçilen kredi tablosunun dipnotuna göre takipteki krediler bu tutarlara dahil değil ({reference})."
     return None
 
 

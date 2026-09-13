@@ -7,7 +7,9 @@ It deliberately refuses uncertain date groups, units and numeric conventions.
 from __future__ import annotations
 
 from decimal import Decimal, InvalidOperation
+import copy
 import hashlib
+import io
 import json
 import re
 
@@ -242,6 +244,11 @@ class FinancialImportTools:
             self._refuse("Value columns must be distinct source numeric columns for the selected rows.", "AMBIGUOUS_IMPORT_VALUES", value_columns=numeric_columns)
         header_matches = []
         if value_header:
+            printed = table.get("source_header_quotes") or table.get("original_columns", {})
+            matches = [column for column in numeric_columns
+                       if _label_key(printed.get(column, "")) == _label_key(value_header)]
+            if matches:
+                header_matches.append(matches)
             for row_number in headers:
                 values = table["rows"][row_number - 1]
                 matches = [column for column in numeric_columns if _label_key(values[all_columns.index(column)] or "") == _label_key(value_header)]
@@ -318,6 +325,75 @@ class FinancialImportTools:
                          "AMBIGUOUS_IMPORT_INTERVAL", source_date_candidates=alternatives[:8])
         return wanted, dates, recipe, basis
 
+    def _report_header_dates(self, table, numeric_columns, args, *, allow_missing_periods=False):
+        """Bind an explicit current-period column to its own PDF page heading.
+
+        Prior periods are never calculated from the report date. This fallback
+        requires an explicit requested date and keeps its literal page evidence.
+        Missing dates may be resolved for a non-publishing retry suggestion only.
+        """
+        manifest = self.documents.source(args["source_id"])
+        if ((not args.get("periods") and not allow_missing_periods)
+                or type(table.get("page")) is not int or table.get("preparation")
+                or manifest.get("mime_type") != "application/pdf"):
+            return None
+        printed = table.get("source_header_quotes") or table.get("original_columns", {})
+        current = [column for column in numeric_columns
+                   if _label_key(printed.get(column, "")) in {"currentperiod", "caridonem"}]
+        if len(current) != 1 or (args.get("value_columns") and args["value_columns"] != current):
+            return None
+        column = current[0]
+        if args.get("value_header") and _label_key(args["value_header"]) != _label_key(printed[column]):
+            return None
+        import pdfplumber
+        with pdfplumber.open(io.BytesIO(self.documents.raw_source_bytes(args["source_id"]))) as pdf:
+            text = pdf.pages[table["page"] - 1].extract_text() or ""
+        lines = text.splitlines()[:6]
+        heading = "\n".join(lines)
+        if not re.search(r"financial\s+report|financial\s+statements|finansal\s+rapor|finansal\s+tablolar", _search_text(heading)):
+            return None
+        dates, evidence = set(), []
+        for line_number, line in enumerate(lines, 1):
+            for fmt in ("english_dmy", "dmy"):
+                for literal in self.documents._source_date_occurrences(line, fmt):
+                    normalized = self.documents._source_period_label(literal, fmt)
+                    dates.add(normalized)
+                    if re.search(r"\bas\s+of\b|\bat\s+\d|\bperiod\s+ended\b|\bending\b|itibariyla|tarihli", _search_text(line)):
+                        evidence.append({"page": table["page"], "line": line_number, "source_quote": line,
+                            "matched_source_date": literal, "source_format": fmt, "normalized_date": normalized,
+                            "raw_sha256": manifest["raw_sha256"]})
+        if len(dates) != 1 or not evidence:
+            return None
+        date = next(iter(dates))
+        if args.get("periods") and set(args["periods"]) != {date}:
+            return None
+        proof = {"candidate_header": column, "source_header_quote": printed[column],
+                 "report_header": evidence[0]}
+        return [column], {column: date}, {"report_period_binding": {column: proof}}, {
+            "basis": "current_period_from_same_page_report_heading", "source_period_binding": {column: proof},
+            "unresolved_value_columns": [value for value in numeric_columns if value != column]}
+
+    def _prepare_report_period(self, prepared, binding):
+        """Create a new immutable candidate; raw amount and label cells stay put."""
+        source_id = prepared["source_id"]
+        candidate = copy.deepcopy(self._candidate(source_id, prepared["table_id"]))
+        period_index = candidate["columns"].index("period")
+        for row, origin in zip(candidate["rows"], candidate["cell_origins"]):
+            column = origin["period"]["candidate_header"]
+            proof = binding[column]
+            row[period_index] = proof["report_header"]["normalized_date"]
+            origin["period"] = copy.deepcopy(proof)
+        candidate["preparation"]["report_period_binding"] = copy.deepcopy(binding)
+        candidate["table_id"] = "table_c" + hashlib.sha256(_canonical(candidate["preparation"])).hexdigest()[:20]
+        cache = self.documents._directory(source_id) / "inspection.json"
+        inspection = json.loads(cache.read_text())
+        if not any(table["table_id"] == candidate["table_id"] for table in inspection["tables"]):
+            if len(inspection["tables"]) >= 500:
+                raise DocumentError("Source candidate cache limit reached.", "TABLE_LIMIT")
+            inspection["tables"].append(candidate)
+            _write_json(cache, inspection)
+        return candidate
+
     def _number_style(self, table, rows, columns, requested):
         raw = [table["rows"][row - 1][table["columns"].index(column)] for row in rows for column in columns]
         styles = [requested] if requested else ["decimal_dot", "decimal_dot_grouped", "decimal_comma"]
@@ -377,6 +453,139 @@ class FinancialImportTools:
                 proof.append({"printed_expression": expression, "expression_row": number, "total": address(number), "operands": [address(codes[code][0]) for code in operands]})
         return proof
 
+    def _note_statement_scope(self, table):
+        """Recognize balance notes through actual numbered section ancestry.
+
+        A loan label alone is not a stock proof. Every numbered heading on the
+        selected page must belong to the same explicit balance-sheet section;
+        movement/flow subsections keep their unresolved semantics.
+        """
+        page_number, source_id = table.get("page"), table.get("source_id")
+        if type(page_number) is not int or not source_id or table.get("preparation"):
+            return None
+        manifest = self.documents.source(source_id)
+        if manifest.get("mime_type") != "application/pdf":
+            return None
+        import pdfplumber
+        def headings(text, page):
+            return [(tuple(int(part) for part in match[1].split(".")), match[2],
+                     {"page": page, "line": line_number, "source_quote": line, "raw_sha256": manifest["raw_sha256"]})
+                    for line_number, line in enumerate(text.splitlines(), 1)
+                    if (match := re.match(r"^(\d+(?:\.\d+)+)\.?\s+([A-Za-zİıŞşÇçÖöÜüĞğ].{2,160})$", line))]
+        def parent(code, child):
+            return len(code) <= len(child) and child[:len(code)] == code
+        changing = re.compile(r"\b(?:changes?|movements?|income|expenses?|cash\s+flows?|increases?|decreases?|additions?|collections?|write[- ]?offs?|interest|amortization|depreciation|hareketler|degisimler|gelirler|giderler)\b")
+        balance = re.compile(r"(?:(?:consolidated|unconsolidated|combined)\s+)?(?:assets|liabilities|shareholders'?\s+equity|equity)|(?:konsolide\s+)?(?:aktifler|varliklar|yukumlulukler|ozkaynaklar)")
+        with pdfplumber.open(io.BytesIO(self.documents.raw_source_bytes(source_id))) as pdf:
+            local_text = pdf.pages[page_number - 1].extract_text() or ""
+            local = headings(local_text, page_number)
+            # Movement tables often have unnumbered headings and combine
+            # opening/closing balances with additions, collections or write-offs.
+            # Mixed pages remain unknown; do not promote their flows to stocks.
+            if not local or changing.search(_search_text(local_text)):
+                return None
+            for number in range(page_number, max(0, page_number - 30), -1):
+                entries = local if number == page_number else headings(pdf.pages[number - 1].extract_text() or "", number)
+                for code, title, proof in reversed(entries):
+                    if not all(parent(code, child) for child, _, _ in local):
+                        continue
+                    folded = _search_text(title).strip()
+                    if changing.search(folded):
+                        return None
+                    if balance.fullmatch(folded):
+                        return {"kind": "stock", "basis": "numbered_note_under_source_balance_section",
+                                "section": proof, "note_headings": [item[2] for item in local]}
+        return None
+
+    def _table_scope_evidence(self, table):
+        """Retain literal scope notes belonging to this exact PDF table.
+
+        Page-wide text is insufficient: a neighbouring disclosure can have a
+        different population. Match the original parsed cells to one physical
+        table, then stop at the next section/table or unrelated footnote.
+        """
+        page_number, source_id = table.get("page"), table.get("source_id")
+        if (type(page_number) is not int or not source_id or table.get("preparation")
+                or table.get("review") or table.get("origin", "parsed") != "parsed"):
+            return []
+        manifest = self.documents.source(source_id)
+        if manifest.get("mime_type") != "application/pdf":
+            return []
+        import pdfplumber
+        settings = ({"vertical_strategy": "text", "horizontal_strategy": "text", "min_words_vertical": 3}
+                    if table.get("table_strategy") == "text" else {})
+        heading = re.compile(r"^\d+(?:\.\d+)+\.?\s+\S")
+        marker = re.compile(r"^\((\*+|\d{1,2}|[a-z])\)\s+", re.I)
+        scope = re.compile(r"\b(?:includ(?:e[ds]?|ing)|exclud(?:e[ds]?|ing)|haric|dahil|kapsam\s+disi)\b")
+        with pdfplumber.open(io.BytesIO(self.documents.raw_source_bytes(source_id))) as pdf:
+            page = pdf.pages[page_number - 1]
+            physical_tables = page.find_tables(settings)
+            matches = []
+            for physical in physical_tables:
+                candidate = self.documents._table(physical.extract(), page=page_number)
+                if candidate and all(candidate.get(key) == table.get(key) for key in ("columns", "rows", "original_columns")):
+                    matches.append(physical)
+            if len(matches) != 1:
+                return []
+            target = matches[0]
+            lines = page.extract_text_lines()
+            sections = [line for line in lines if line["bottom"] <= target.bbox[1] and heading.match(line["text"])]
+            if not sections:
+                return []
+            section = sections[-1]
+            # A prior section separated by another table is not this table's title.
+            if any(section["bottom"] < other.bbox[1] < target.bbox[1] for other in physical_tables if other is not target):
+                return []
+            end = min([page.height, *[other.bbox[1] for other in physical_tables if other.bbox[1] > target.bbox[3]]])
+            below = [(number, line) for number, line in enumerate(lines, 1)
+                     if target.bbox[3] <= line["top"] < end]
+            selected, used = [], set()
+            for offset, (number, line) in enumerate(below):
+                if heading.match(line["text"]):
+                    break
+                if offset in used or line["top"] - target.bbox[3] > 48:
+                    continue
+                note_marker = marker.match(line["text"])
+                if offset and not note_marker:
+                    # A continuation of an unreferenced note is not an
+                    # independent table-wide scope statement.
+                    continue
+                title = section["text"] + " " + " ".join(table.get("original_columns", {}).values())
+                if note_marker and note_marker[0].strip() not in title:
+                    continue
+                chunk = [(number, line)]
+                for position in range(offset + 1, min(offset + 6, len(below))):
+                    next_number, next_line = below[position]
+                    if (heading.match(next_line["text"]) or marker.match(next_line["text"])
+                            or next_line["top"] - chunk[-1][1]["bottom"] > 8):
+                        break
+                    chunk.append((next_number, next_line))
+                quote = "\n".join(item["text"] for _, item in chunk)
+                if len(quote) > 900 or not scope.search(_search_text(quote)):
+                    continue
+                used.update(range(offset, offset + len(chunk)))
+                selected.append({"basis": "selected_pdf_table_footnote", "source_id": source_id,
+                    "source_table_id": table["table_id"], "source_url": manifest.get("source_url"),
+                    "raw_sha256": manifest["raw_sha256"], "page": page_number,
+                    "line_start": number, "line_end": chunk[-1][0], "line_basis": "pdf_text_lines",
+                    "source_quote": quote, "section_quote": section["text"], "table_bbox": list(target.bbox)})
+            return selected[:3]
+
+    def _prepare_scope_evidence(self, prepared, evidence):
+        """Copy the prepared candidate so source originals remain immutable."""
+        candidate = copy.deepcopy(self._candidate(prepared["source_id"], prepared["table_id"]))
+        candidate["source_scope_evidence"] = copy.deepcopy(evidence)
+        candidate["preparation"]["source_scope_evidence"] = copy.deepcopy(evidence)
+        candidate["table_id"] = "table_c" + hashlib.sha256(_canonical(candidate["preparation"])).hexdigest()[:20]
+        cache = self.documents._directory(prepared["source_id"]) / "inspection.json"
+        inspection = json.loads(cache.read_text())
+        if not any(table["table_id"] == candidate["table_id"] for table in inspection["tables"]):
+            if len(inspection["tables"]) >= 500:
+                raise DocumentError("Source candidate cache limit reached.", "TABLE_LIMIT")
+            inspection["tables"].append(candidate)
+            _write_json(cache, inspection)
+        return candidate
+
     def _semantics(self, table, value_columns, requested_kind):
         context = table.get("context_text", "")
         captions = table.get("unit_caption", "") + "\n" + _unit_caption(context)
@@ -394,6 +603,9 @@ class FinancialImportTools:
         stock = bool(re.search(r"balance sheet|statements? of financial position|bilan[cç]o|finansal durum", title))
         flow = bool(re.search(r"statements? of (?:profit|income|cash flows)|kar veya zarar tablosu", title))
         inferred = "stock" if stock and not flow else "flow" if flow and not stock else "unknown"
+        note_scope = self._note_statement_scope(table) if inferred == "unknown" else None
+        if note_scope:
+            inferred = note_scope["kind"]
         if requested_kind != "unknown" and inferred not in {"unknown", requested_kind}:
             self._refuse("Requested measurement kind conflicts with the actual statement title.", "IMPORT_SEMANTICS_CONFLICT", source_kind=inferred, source_title=context[:500])
         # A model's business selection alone is not independent financial
@@ -402,6 +614,9 @@ class FinancialImportTools:
         spec = {"dtype": "integer", "unit": unit, "currency": unit, "scale": scale, "kind": kind, "nullable": True,
                 "aggregation": "last" if kind == "stock" else "none"}
         evidence = {"unit_quote": quote, "kind_source_title": context[:500], "kind_selection": requested_kind}
+        if note_scope:
+            evidence["statement_scope"] = note_scope
+            spec["source_semantics"] = "Period-end balance disclosed within the source's numbered balance-sheet section."
         if kind == "flow":
             # The compiler has only a reporting end date. Keep interval flows
             # nonadditive until an explicit source interval is represented.
@@ -480,20 +695,53 @@ class FinancialImportTools:
         if not numeric:
             return {"status": "ok", "import_status": "unsupported_layout", "publication_performed": False,
                     "message": "No aligned amount columns were found for these lines. Use source review and advanced prepare_source_table for this layout."}
-        values, dates, recipe, date_basis = self._dates(table, rows, numeric, args["value_header"], args["value_columns"])
+        try:
+            values, dates, recipe, date_basis = self._dates(table, rows, numeric, args["value_header"], args["value_columns"])
+        except DocumentError as exc:
+            ambiguity = (getattr(exc, "recovery", None) or {}).get("business_choices", {})
+            # Report headings may fill absent dates, never overrule conflicting
+            # date cells or duplicate periods already printed above the amounts.
+            fallback = (self._report_header_dates(table, numeric, args, allow_missing_periods=not args.get("periods"))
+                        if exc.code == "AMBIGUOUS_IMPORT_PERIODS"
+                        and not any(ambiguity.get(key) for key in ("date_candidates", "columns_and_periods")) else None)
+            if fallback is None:
+                raise
+            if not args.get("periods"):
+                # Keep omission blocked and side-effect free. The model receives
+                # the actual same-page date instead of guessing metric IDs or
+                # changing extraction strategy before facts exist.
+                suggested = {key: value for key, value in args.items() if value is not None}
+                suggested["periods"] = sorted(set(fallback[1].values()))
+                exc.recovery = {**(getattr(exc, "recovery", None) or {}),
+                    "publication_performed": False, "source_period_evidence": fallback[3],
+                    "suggested_ingest_arguments": suggested,
+                    "next_request": {"tool": "ingest_source_table", "arguments": suggested},
+                    "next_step": "The selected Current Period column has one date verified in this same source page's report heading. Retry ingest_source_table with the exact suggested arguments and periods. No dataset or metric exists yet; use available_series returned only after successful publication."}
+                raise
+            values, dates, recipe, date_basis = fallback
         periods = args["periods"]
         if periods:
             missing = sorted(set(periods) - set(dates.values()))
             if missing:
                 self._refuse("Requested periods must occur in this statement's actual date headers.", "IMPORT_PERIOD_NOT_FOUND", requested_missing=missing, available_periods=sorted(set(dates.values())))
             values = [column for column in values if dates[column] in periods]
-            recipe["period_sources"] = {column: recipe["period_sources"][column] for column in values}
+            if "period_sources" in recipe:
+                recipe["period_sources"] = {column: recipe["period_sources"][column] for column in values}
         style, dtype, equations = self._number_style(table, rows, values, args["number_style"])
         amount, semantic_evidence = self._semantics(table, values, args["measure_kind"])
         amount["dtype"] = dtype
-        unpivot = {"columns": values, "period_column": "period", "value_column": "amount", **recipe}
+        scope_evidence = self._table_scope_evidence(table)
+        if scope_evidence:
+            semantic_evidence["source_scope_evidence"] = scope_evidence
+        report_binding = recipe.get("report_period_binding")
+        unpivot = {"columns": values, "period_column": "period", "value_column": "amount",
+                   **({"period_format": "source_header"} if report_binding else recipe)}
         prepared = self.documents.prepare_source_table(source_id, table_id, selected_rows=rows, selected_columns=[*labels, *values],
             unpivot=unpivot, join_columns={"columns": labels, "output": "line_item", "separator": separator} if len(labels) > 1 else None)
+        if report_binding:
+            prepared = self._prepare_report_period(prepared, report_binding)
+        if scope_evidence:
+            prepared = self._prepare_scope_evidence(prepared, scope_evidence)
         contract = {"name": "source_financial_facts", "frequency": "event", "date_column": "period", "key": ["line_item", "period"],
                     "grain": ["line_item", "period"], "expected_rows": len(rows) * len(values), "number_format": style,
                     "negative_format": "accounting_parentheses", "null_values": sorted(_NULLS), "columns": {
@@ -535,13 +783,15 @@ class FinancialImportTools:
                               "unit": amount["unit"], "scale": amount.get("scale", 1), "currency": amount.get("currency"),
                               "observed_periods": periods[:12], "observed_periods_count": len(periods),
                               "observed_periods_truncated": len(periods) > 12})
+            if amount.get("kind") in {"stock", "count_stock"} and status == "ready" and publication["frequency"] == "event":
+                available[-1]["required_calendar_alignment"] = "period_end"
         result = {**publication, "import_status": "published", "publication_performed": True,
                   "available_series": available, "available_series_count": len(labels), "available_series_truncated": len(labels) > 30,
                   "compile_receipt": {key: value for key, value in receipt.items() if key != "publication_arguments"}}
         result["analysis_request"] = {"tool": "aggregate_dataset", "arguments": {
             "dataset_id": publication["dataset_id"], "group_by": "line_item", "time_bucket": {"frequency": "daily"},
             "measures": [{"name": "reported_amount", "op": "source_value", "column": "amount"}]}}
-        result["next_step"] = "For standalone source display, run analysis_request and chart its saved analysis. To combine this source with existing metrics, use available_series metric_id and dimensions in execute at the intended common frequency. Preserve native event dates; ready stock/count_stock may use alignment=period_end only at exact output calendar endpoints. Do not aggregate_dataset first merely to enable cross-source arithmetic. Reporting flows keep unresolved interval semantics; raw display does not permit temporal summation."
+        result["next_step"] = "For requested scale conversions or ratios, select available_series as separate execute columns; ready event stock/count_stock requires alignment=period_end even at daily frequency and actual dates must equal output calendar endpoints. Use scale.target_scale=1000000 for millions and explicitly selected numerator/denominator columns. Different line_item slices require ratio.scope_policy=explicit_comparison with the requested comparison reason; do not claim population equivalence. For raw standalone display only, run analysis_request. aggregate_dataset results cannot take execute operations or revise_analysis; do not detour through raw display when arithmetic was requested. Reporting flows and unknown kinds keep unresolved semantics."
         return result
 
     def ingest_source_table(self, source_id, table_id, expected_version, row_numbers=None, row_labels=None,

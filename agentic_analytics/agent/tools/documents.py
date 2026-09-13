@@ -1715,7 +1715,7 @@ class DocumentTools:
             contract["document_provenance"]["numeric_parsing"]["declared_at_top_level"] = parsing_aliases
         if normalization:
             contract["document_provenance"]["unit_normalization"] = normalization
-        for detail in ("formula_cells", "source_pages", "row_origins", "combination", "preparation", "cell_origins", "header_rows", "cell_spans", "extraction_artifact_ref", "header_hypothesis"):
+        for detail in ("formula_cells", "source_pages", "row_origins", "combination", "preparation", "cell_origins", "header_rows", "cell_spans", "extraction_artifact_ref", "header_hypothesis", "source_scope_evidence"):
             if detail == "row_origins" and (table.get("preparation") or table.get("review")):
                 # A selected/unpivoted/reviewed candidate has its own row set.
                 # Its cell addresses plus source recipe retain the parent row

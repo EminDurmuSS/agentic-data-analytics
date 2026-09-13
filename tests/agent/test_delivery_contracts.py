@@ -13,6 +13,7 @@ import pytest
 
 from agentic_analytics.agent.run_store import AgentRunStore
 from agentic_analytics.agent.context import _model_tool_result
+from agentic_analytics.agent.delivery import _source_scope_confirmation
 from agentic_analytics.agent.runtime import AgentRuntime, _requests_shared_scale
 from agentic_analytics.agent.schemas import obj
 from agentic_analytics.agent.tools.charts import ChartTools
@@ -31,6 +32,24 @@ def call(name, arguments, identifier=None):
 
 def final(text="Sonuç hazır."):
     return {"content": text, "finish_reason": "stop", "tool_calls": []}
+
+
+def page_navigation_tools(executed):
+    def search(args):
+        executed.append(("find", copy.deepcopy(args)))
+        return {"status": "ok", "source_id": args["source_id"], "complete": True,
+                "searched_pages": list(range(1, 81)), "matches": [{"page": 47, "excerpt": "Credit risk disclosures"}],
+                "suggested_inspection": {"source_id": args["source_id"], "page_numbers": [47]}}
+    def inspect(args):
+        executed.append(("read", copy.deepcopy(args)))
+        return {"status": "ok", "source_id": args["source_id"], "source_url": "https://reports.example.org/report.pdf",
+                "pages": [{"page": page, "text": "Credit risk disclosures. The requested breakdown is not provided."}
+                          for page in args["page_numbers"]]}
+    parameters = {
+        "find_source_pages": obj({"source_id": {"type": "string"}, "query": {"type": "string"}}),
+        "inspect_source": obj({"source_id": {"type": "string"}, "page_numbers": {"type": "array", "items": {"type": "integer"}}})}
+    return {name: {"schema": {"type": "function", "function": {"name": name, "parameters": parameters[name]}}, "handler": handler}
+            for name, handler in (("find_source_pages", search), ("inspect_source", inspect))}
 
 
 def result_of(messages, name):
@@ -80,6 +99,206 @@ def env(tmp_path):
         return AgentRuntime(store, wid, client, journal, extra_tools={**extras, **(more or {})}, **kwargs), client
 
     return store, wid, journal, plan, runtime
+
+
+def test_page_search_rewrites_require_reading_and_recover_without_workspace_mutation(env):
+    store, wid, journal, _, build = env
+    executed = []
+    search = lambda text, identifier: call("find_source_pages", {"source_id": "document-a", "query": text}, identifier)
+    runtime, client = build([search("credit sectors", "find1"), search("sector allocation", "find2"),
+        search("credit sectors", "blocked-find"), call("inspect_source", {"source_id": "document-a", "page_numbers": [47]}, "read"),
+        search("credit sectors", "after-read"), final("Kaynağın ilgili bölümü okundu.")], more=page_navigation_tools(executed))
+    result = runtime.run("Raporun ilgili kredi bölümünü incele.")
+    assert result["status"] == "completed" and result["repairs"] == 1
+    assert len([step for step in executed if step[0] == "find"]) == 3
+    assert store.workspace(wid)["version"] == 0
+    state = journal.get(result["run_id"])["state"]
+    assert not state["unresolved_errors"]
+    assert state["source_page_progress"]["document-a"]["candidate_read_after_search"]
+    errors = [step for step in result["tool_results"] if step["call_id"] == "blocked-find"]
+    assert errors[0]["result"]["errors"][0]["code"] == "SOURCE_READ_REQUIRED"
+    events = [event for event in journal.events(result["run_id"]) if event["payload"].get("call_id") == "blocked-find"]
+    assert [event["kind"] for event in events] == ["tool_result"]
+    # Recovery survives a resumed persisted result without counting it twice.
+    before = copy.deepcopy(state["source_page_progress"])
+    runtime._dispatch(result["run_id"], {**state, "decisions": 5}, client.responses[0] if client.responses else
+        search("credit sectors", "after-read")["tool_calls"][0])
+    assert state["source_page_progress"] == before
+
+
+def test_source_navigation_only_actual_new_candidate_read_clears_own_error(env):
+    *_, build = env
+    runtime, _ = build([])
+    state = {}
+    args = {"source_id": "a", "query": "credit", "start_page": 1}
+    first = {"status": "ok", "source_id": "a", "complete": False, "next_start_page": 31,
+             "matches": [{"page": 12, "excerpt": "credit"}]}
+    runtime._track_source_pages(state, "find_source_pages", args, first, "f1")
+    runtime._track_source_pages(state, "find_source_pages", args, first, "f2")
+    assert runtime._source_read_required(state, "find_source_pages", {**args, "start_page": 31}) is None
+    assert runtime._source_read_required(state, "find_source_pages", {"source_id": "b", "query": "credit"}) is None
+    error = runtime._source_read_required(state, "find_source_pages", args)["errors"][0]
+    state["unresolved_errors"] = {"find_source_pages": [error], "execute": [{"code": "INVALID_PLAN"}]}
+    cases = [("inspect_source", {"status": "blocked", "source_id": "a", "pages": [{"page": 12, "text": "bad"}]}),
+             ("inspect_source", {"status": "ok", "source_id": "a", "pages": [{"page": 12, "text": ""}]}),
+             ("inspect_source", {"status": "ok", "source_id": "a", "pages": [{"page": 1, "text": "cover"}]}),
+             ("inspect_source", {"status": "ok", "source_id": "b", "pages": [{"page": 12, "text": "other report"}]}),
+             ("read_source_table", {"status": "ok", "source_id": "a", "page": 12, "rows": []})]
+    for index, (name, payload) in enumerate(cases):
+        runtime._track_source_pages(state, name, {"source_id": payload["source_id"]}, payload, f"bad{index}")
+        assert state["unresolved_errors"]["find_source_pages"] == [error]
+        assert runtime._source_read_required(state, "find_source_pages", args)
+    read = {"status": "ok", "source_id": "a", "pages": [{"page": 12, "text": "Relevant source body"}]}
+    runtime._track_source_pages(state, "inspect_source", args, read, "read1")
+    assert state["unresolved_errors"] == {"execute": [{"code": "INVALID_PLAN"}]}
+    runtime._track_source_pages(state, "find_source_pages", args, {**first, "matches": [{"page": 40}]}, "f3")
+    runtime._track_source_pages(state, "find_source_pages", args, {**first, "matches": [{"page": 40}]}, "f4")
+    runtime._track_source_pages(state, "inspect_source", args, read, "same-read-new-call")
+    assert runtime._source_read_required(state, "find_source_pages", args)
+
+
+def test_complete_search_and_relevant_read_preserve_cited_limitation_as_partial(env):
+    store, wid, journal, _, build = env
+    limitation = "İstenen dağılım raporda bulunmuyor. Bu nedenle sektör tablosu, oranlar ve grafik üretilemedi. [Kredi dipnotu](https://reports.example.org/report.pdf#page=47)."
+    runtime, client = build([call("plan_task", {"deliverables": ["analysis", "chart", "sources"]}),
+        call("find_source_pages", {"source_id": "a", "query": "credit sectors"}),
+        call("inspect_source", {"source_id": "a", "page_numbers": [47]}), final(limitation)], more=page_navigation_tools([]))
+    result = runtime.run("Raporda sektör dağılımını bul, tablo ve grafik göster.")
+    assert result["status"] == "partial"
+    assert result["message"].startswith(limitation)
+    assert {error.get("deliverable") for error in result["errors"]} >= {"analysis", "chart"}
+    assert not result["analysis_updated"] and not result["chart_updated"]
+    assert store.workspace(wid)["version"] == 0
+    assert len(client.requests) == 4 and not journal.get(result["run_id"])["state"].get("delivery_repairs")
+    saved_state = journal.get(result["run_id"])["state"]
+    assert not runtime._sourced_limitation({**saved_state, "analysis_updated": True}, limitation, result["errors"])
+
+
+@pytest.mark.parametrize("case", ["search_only", "incomplete", "wrong_source", "wrong_page", "empty", "failed", "no_citation", "no_limitation"])
+def test_limitation_never_promotes_navigation_or_failed_reads_to_evidence(env, case):
+    *_, build = env
+    runtime, _ = build([])
+    state = {}
+    runtime._track_source_pages(state, "find_source_pages", {"source_id": "a", "query": "sectors"},
+        {"status": "ok", "source_id": "a", "complete": case != "incomplete", "matches": [{"page": 47}]}, "search")
+    if case != "search_only":
+        runtime._track_source_pages(state, "inspect_source", {}, {"status": "blocked" if case == "failed" else "ok",
+            "source_id": "b" if case == "wrong_source" else "a", "source_url": "https://reports.example.org/report.pdf",
+            "pages": [{"page": 1 if case == "wrong_page" else 47, "text": "" if case == "empty" else "Source body"}]}, "read")
+    text = "Dağılım raporda bulunmuyor." if case != "no_limitation" else "İstenen analiz tamamlandı."
+    if case != "no_citation":
+        text += " [Kaynak](https://reports.example.org/report.pdf#page=47)"
+    assert not runtime._sourced_limitation(state, text, [{"code": "TASK_DELIVERABLE_MISSING", "deliverable": "chart"}])
+
+
+def test_focused_page_projection_retains_each_body_and_accurate_search_excerpt_lines():
+    pages = [{"page": page, "text": "Repeating header " * 30 + f"Body of page {page}: source omission.", "text_truncated": False}
+             for page in (41, 42, 43)]
+    payload = {"status": "ok", "pages": pages, "text": "unhelpful combined header", "total_pages": 80}
+    projected = _model_tool_result("inspect_source", payload)
+    for page in projected["pages"]:
+        assert f"Body of page {page['page']}" in page["text"]
+        assert not page["text_truncated"]
+    assert "text" not in projected
+    payload["pages"][0]["text_truncated"] = True
+    assert _model_tool_result("inspect_source", payload)["pages"][0]["text_truncated"]
+    search = _model_tool_result("find_source_pages", {"matches": [{"page": 41, "line_start": 8, "line_end": 60,
+        "excerpt": "one line\n" * 200}], "suggested_inspection": {"source_id": "a", "page_numbers": [41]}})
+    match = search["matches"][0]
+    assert match["excerpt_truncated"] and match["line_end"] == 8 + len(match["excerpt"].splitlines()) - 1
+    assert search["suggested_inspection"]["page_numbers"] == [41]
+    article = _model_tool_result("inspect_source", {"status": "ok", "pages": [],
+        "text": "The institution's current ownership list is readable HTML."})
+    assert article["text"] == "The institution's current ownership list is readable HTML."
+
+
+def test_duplicate_read_guard_records_result_without_executing_a_third_read(env):
+    _, _, journal, _, build = env
+    executed = []
+    runtime, _ = build([call("inspect_source", {"source_id": "a", "page_numbers": [47]}, f"read{n}") for n in range(3)],
+                      more=page_navigation_tools(executed))
+    result = runtime.run("Belgeyi incele.")
+    assert result["status"] == "blocked" and result["errors"][0]["code"] == "NO_PROGRESS"
+    assert len(executed) == 2
+    events = [event for event in journal.events(result["run_id"]) if event["payload"].get("call_id") == "read2"]
+    assert [event["kind"] for event in events] == ["tool_result"]
+
+
+def test_repeated_candidate_read_gets_one_focused_cited_limitation_response(env):
+    _, _, journal, _, build = env
+    executed = []
+    limitation = "İstenen dağılımı okunan dipnotta doğrulayamadım. Bu nedenle tablo ve grafik oluşturulamadı. [Dipnot](https://reports.example.org/report.pdf#page=47)."
+    runtime, client = build([call("plan_task", {"deliverables": ["analysis", "chart", "sources"]}),
+        call("find_source_pages", {"source_id": "a", "query": "credit sectors"}),
+        *[call("inspect_source", {"source_id": "a", "page_numbers": [47]}, f"read{n}") for n in range(3)], final(limitation)],
+        more=page_navigation_tools(executed))
+    result = runtime.run("Kredi dağılımını kaynakta bul, tablo ve grafik göster.")
+    assert result["status"] == "partial" and result["message"].startswith(limitation)
+    assert len([item for item in executed if item[0] == "read"]) == 2
+    assert "SOURCE_READ_REPEATED" in {error["code"] for error in result["errors"]}
+    assert "Aynı belge okuması tekrarlandığı" in client.requests[-1][0]["content"]
+    tool_messages = [message for message in client.requests[-1] if message.get("role") == "tool"]
+    assert any("The requested breakdown is not provided" in message["content"] for message in tool_messages)
+    state = journal.get(result["run_id"])["state"]
+    assert state["source_read_repair_used"] and not state.get("source_read_repair_pending")
+    bad = {**state, "unresolved_errors": {"execute": [{"code": "INVALID_PLAN"}]}}
+    assert not runtime._sourced_limitation(bad, limitation, result["errors"])
+
+
+def test_repeated_read_recovery_does_not_disable_the_loop_guard(env):
+    _, _, journal, _, build = env
+    executed = []
+    runtime, _ = build([call("find_source_pages", {"source_id": "a", "query": "credit sectors"}),
+        *[call("inspect_source", {"source_id": "a", "page_numbers": [47]}, f"read{n}") for n in range(4)]],
+        more=page_navigation_tools(executed))
+    result = runtime.run("Kredi dipnotunu incele.")
+    assert result["status"] == "blocked" and result["errors"][0]["code"] == "NO_PROGRESS"
+    assert len([item for item in executed if item[0] == "read"]) == 2
+    failures = [item["result"]["errors"][0]["code"] for item in result["tool_results"] if item["result"].get("errors")]
+    assert failures == ["SOURCE_READ_REPEATED", "NO_PROGRESS"]
+
+
+def test_explicit_four_page_read_preserves_each_late_body_with_a_shared_budget():
+    pages = [{"page": page, "text": "Header text " * 30 + f"Late body of page {page}. " * 150} for page in (41, 42, 43, 44)]
+    projected = _model_tool_result("inspect_source", {"status": "ok", "selected_pages": [41, 42, 43, 44], "pages": pages})
+    assert sum(len(page["text"]) for page in projected["pages"]) <= 12000
+    assert all(f"Late body of page {page['page']}" in page["text"] for page in projected["pages"])
+    assert all(page["text_truncated"] for page in projected["pages"])
+
+
+@pytest.mark.parametrize("case", ["new_table", "new_page_body", "duplicate", "empty", "failed", "other_source", "other_page"])
+def test_only_fresh_same_source_candidate_evidence_clears_repeated_read_failure(env, case):
+    _, _, _, _, build = env
+    runtime, _ = build([])
+    state = {"source_read_repair_used": {"source_id": "a"}}
+    runtime._track_source_pages(state, "find_source_pages", {"source_id": "a"},
+        {"status": "ok", "source_id": "a", "matches": [{"page": 47}], "complete": True}, "find")
+    original = {"status": "ok", "source_id": "a", "pages": [{"page": 47, "text": "A relevant source note."}]}
+    runtime._track_source_pages(state, "inspect_source", {}, original, "first")
+    state["unresolved_errors"] = {
+        "inspect_source": [{"code": "SOURCE_READ_REPEATED", "source_id": "a"}, {"code": "SOURCE_READ_REPEATED", "source_id": "b"}],
+        "execute": [{"code": "INVALID_PLAN"}]}
+    result = copy.deepcopy(original)
+    tool = "inspect_source"
+    if case == "new_table":
+        tool = "read_source_table"
+        result = {"status": "ok", "source_id": "a", "page": 47, "table_id": "table_a", "rows": [{"label": "Domestic", "amount": "12"}]}
+    elif case == "new_page_body":
+        result["pages"][0]["text"] += " Newly read full text."
+    elif case == "empty":
+        result["pages"][0]["text"] = ""
+    elif case == "failed":
+        result["status"] = "blocked"
+    elif case == "other_source":
+        result["source_id"] = "b"
+    elif case == "other_page":
+        result["pages"][0]["page"] = 12
+    runtime._track_source_pages(state, tool, {}, result, "next")
+    remaining = state["unresolved_errors"]["inspect_source"]
+    assert ({"code": "SOURCE_READ_REPEATED", "source_id": "a"} not in remaining) == (case in {"new_table", "new_page_body"})
+    assert {"code": "SOURCE_READ_REPEATED", "source_id": "b"} in remaining
+    assert state["unresolved_errors"]["execute"] == [{"code": "INVALID_PLAN"}]
+    assert state["source_read_repair_used"] == {"source_id": "a"}
 
 
 def test_final_numbers_come_from_saved_values_and_not_model_prose(env):
@@ -343,12 +562,41 @@ def test_cross_scope_disclosure_comes_from_saved_warning_and_survives_chart_edit
     runtime,client=build([final("Bu resmi pazar payı 999.")])
     result=runtime.run("Mevcut analizin sonucunu açıkla",conversation_id="scope-warning")
     assert result["status"]=="completed"
-    assert "Kurum ve raporlama kapsamları farklıdır" in result["message"]
-    assert "resmi sektör/pazar payı değildir" in result["message"] and "999" not in result["message"]
+    assert "seçilen pay ve paydanın sayısal karşılaştırmasıdır" in result["message"]
+    assert "Kurum ve raporlama kapsamları farklıdır" not in result["message"]
+    assert "resmî sektör veya pazar payı olduğu varsayılmaz" in result["message"] and "999" not in result["message"]
     client.responses.extend([call("create_chart",{"analysis_id":saved["analysis_id"],"kind":"line"}),final()])
     later=runtime.run("Çizgi grafiğini göster",conversation_id="scope-warning")
     assert later["status"]=="completed" and later["chart_updated"]
-    assert "resmi sektör/pazar payı değildir" in later["message"] and "999" not in later["message"]
+    assert "resmî sektör veya pazar payı olduğu varsayılmaz" in later["message"] and "999" not in later["message"]
+
+
+def test_selected_pdf_footnote_is_rendered_only_with_matching_published_evidence(env):
+    import pandas as pd
+    store, wid, _, _, _ = env
+    url = "https://reports.example.org/statement.pdf"
+    provenance = {"source_id": "source-a", "source_url": url, "raw_sha256": "abc", "page": 96,
+                  "preparation": {"source_table_id": "table-96"},
+                  "source_scope_evidence": [{"basis": "selected_pdf_table_footnote", "source_id": "source-a",
+                      "source_table_id": "table-96", "source_url": url, "raw_sha256": "abc", "page": 96,
+                      "line_start": 12, "line_end": 12, "source_quote": "(*) Non-performing loans are not included.",
+                      "section_quote": "Allocation of domestic and foreign loans"}]}
+    analysis = store.save_analysis(wid, pd.DataFrame({"period": ["2026-03"], "credit": [100.0]}), {},
+        {"sources": {"credit": {"binding": {"document_provenance": provenance}}}},
+        schema={"period": {"kind": "dimension"}, "credit": {"kind": "stock", "dtype": "float64", "unit": "TRY", "scale": 1000}},
+        expected_version=0)
+    state = {"analysis_id": analysis["analysis_id"]}
+    question = "Takipteki krediler bu tabloya dahil mi?"
+    response = _source_scope_confirmation(store, wid, state, question)
+    assert "takipteki krediler bu tutarlara dahil değil" in response
+    assert f"{url}#page=96" in response
+    assert _source_scope_confirmation(store, wid, state, "Tabloyu göster") is None
+    provenance["source_scope_evidence"][0]["raw_sha256"] = "unrelated"
+    bad = store.save_analysis(wid, pd.DataFrame({"period": ["2026-03"], "credit": [100.0]}), {},
+        {"sources": {"credit": {"binding": {"document_provenance": provenance}}}},
+        schema={"period": {"kind": "dimension"}, "credit": {"kind": "stock", "dtype": "float64", "unit": "TRY", "scale": 1000}},
+        expected_version=1)
+    assert _source_scope_confirmation(store, wid, {"analysis_id": bad["analysis_id"]}, question) is None
 
 
 @pytest.mark.parametrize("text,expected", [
@@ -1529,3 +1777,190 @@ def test_plain_pay_column_still_is_unrequested_owner_statistics():
     state = {'external_facts_required': True, 'institutional_fact_kind': 'relationship', 'ownership_subject': 'example'}
     assert _institutional_role_errors(state, '| Ortak banka/kurum (rapordaki rol: ortak) | Pay |\n| Alpha | %9,09 |',
         [{'text': 'Example ortakları Alpha ve Beta.'}])[0]['code'] == 'UNSOLICITED_INSTITUTIONAL_STATISTICS'
+
+
+def test_institutional_followup_keeps_user_intent_across_two_implicit_turns(env):
+    _, _, journal, _, build = env
+    source = {'status':'ok','source_id':'source','source_url':'https://example.org/owners',
+              'text':'Example ortakları: Alpha Bank, Beta Bank ve Gamma Bank.'}
+    more = {'inspect_source': {'schema': {'type':'function','function':{'name':'inspect_source',
+             'parameters':obj({'url':{'type':'string'}})}}, 'handler':lambda args:copy.deepcopy(source)}}
+    good = 'Rapordaki ortaklar Alpha Bank, Beta Bank ve Gamma Bank.'
+    runtime, client = build([call('inspect_source',{'url':source['source_url']}),final(good),
+        final('Kaynağı okumadan 57 bankalık yeni bir liste veriyorum.'),
+        call('inspect_source',{'url':source['source_url']}),final(good),
+        call('inspect_source',{'url':source['source_url']}),final(good)], more=more)
+    first = runtime.run("Example'nin ortakları kimler?")
+    second = runtime.run('tamam liste olarak versene bana bunlar hangi bankalardı', conversation_id=first['conversation_id'])
+    third = runtime.run('hangi bankalarla ortak', conversation_id=first['conversation_id'])
+    assert first['status'] == second['status'] == third['status'] == 'completed'
+    assert '57' not in second['message']
+    for result in (second, third):
+        state = journal.get(result['run_id'])['state']
+        assert state['external_facts_required'] and state['ownership_subject'] == 'example'
+        assert state['institutional_fact_kind'] == 'ownership'
+        assert not state['ownership_percentages_requested']
+    assert journal.get(second['run_id'])['state']['delivery_repairs'] == 1
+    assert 'Example' in journal.get(third['run_id'])['state']['institutional_request']
+
+
+@pytest.mark.parametrize('current,previous_kind,inherit',[
+    ('tamam liste olarak ver',None,False),
+    ('Mart kredilerini liste olarak ver','ownership',False),
+    ('grafiğe ekle','ownership',False),
+    ("OtherCompany'nin ortakları kim?",'ownership',False),
+    ('liste olarak göster','ownership',True),
+])
+def test_institutional_followup_never_jumps_across_a_changed_user_topic(env,current,previous_kind,inherit):
+    _, wid, journal, _, build = env
+    runtime,_ = build([])
+    previous = {'run_id':'previous','message':'Mart kredilerini göster' if previous_kind is None else "Example'nin ortakları kim?",
+                'state':{'external_facts_required':bool(previous_kind),'institutional_fact_kind':previous_kind,
+                         'ownership_subject':'example','institutional_origin_request':"Example'nin ortakları kim?"}}
+    state = {'messages':[{'role':'user','content':"EarlierCompany'nin ortakları kim?"},
+                        {'role':'assistant','content':'An invented institution list must not be used.'},
+                        {'role':'user','content':previous['message']},{'role':'user','content':current}]}
+    with patch.object(journal,'list',return_value=[previous]):
+        intent=runtime._institutional_intent({'message':current,'run_id':'current','conversation_id':'conversation'},state)
+    assert (intent['ownership_subject']=='example') is inherit
+    if current.startswith('OtherCompany'):
+        assert intent['ownership_subject']=='othercompany'
+
+
+def test_institutional_followup_does_not_inherit_percentage_permission(env):
+    _, _, journal, _, build = env
+    runtime, _ = build([])
+    previous={'run_id':'previous','message':"Example'nin ortaklık yüzdeleri nedir?",'state':{
+        'external_facts_required':True,'institutional_fact_kind':'ownership','ownership_subject':'example',
+        'ownership_percentages_requested':True}}
+    message='liste olarak ver'
+    with patch.object(journal,'list',return_value=[previous]):
+        intent=runtime._institutional_intent({'message':message,'run_id':'current','conversation_id':'conversation'},
+            {'messages':[{'role':'user','content':previous['message']},{'role':'user','content':message}]})
+    from agentic_analytics.agent.runtime import _requests_ownership_percentages
+    assert intent['institutional_fact_kind']=='ownership' and not _requests_ownership_percentages(message)
+
+
+@pytest.mark.parametrize("case", ["other_source", "other_page", "empty", "failed"])
+def test_dispatch_does_not_clear_an_unrecovered_source_read_stall(env, case):
+    _, _, journal, _, build = env
+    executed = []
+    tools = page_navigation_tools(executed)
+    inspect = tools["inspect_source"]["handler"]
+    def inspect_result(args):
+        result = inspect(args)
+        if args["page_numbers"] == [48] and case in {"empty", "failed"}:
+            result["pages"][0]["text"] = ""
+            if case == "failed":
+                result.update(status="blocked", errors=[{"code": "SOURCE_NOT_FOUND"}])
+        return result
+    tools["inspect_source"]["handler"] = inspect_result
+    next_args = {"source_id": "b" if case == "other_source" else "a", "page_numbers": [47] if case == "other_source" else [48]}
+    runtime, _ = build([call("find_source_pages", {"source_id": "a", "query": "credit sectors"}),
+        *[call("inspect_source", {"source_id": "a", "page_numbers": [47]}, f"read{n}") for n in range(3)],
+        call("inspect_source", next_args, "different_read"), final("Kaynak incelemesi tamamlanamadı.")], more=tools)
+    result = runtime.run("Kredi dipnotunu incele.")
+    assert result["status"] == "partial"
+    state = journal.get(result["run_id"])["state"]
+    assert {"code": "SOURCE_READ_REPEATED", "source_id": "a"}.items() <= next(
+        error for error in state["unresolved_errors"]["inspect_source"] if error.get("code") == "SOURCE_READ_REPEATED").items()
+    assert state["source_read_repair_used"]["source_id"] == "a"
+
+
+@pytest.mark.parametrize("last_response", [final("Raporda sektör dağılımı kesinlikle yoktur. Tutar 999 milyon TL."),
+    call("find_source_pages", {"source_id": "a", "query": "one more query"}, "unused_search"),
+    final("")])
+def test_final_existing_decision_closes_an_explicit_read_source_gap_without_more_tools(env, last_response):
+    _, _, journal, _, build = env
+    executed = []
+    tools = page_navigation_tools(executed)
+    inspect = tools["inspect_source"]["handler"]
+    def omission(args):
+        result = inspect(args)
+        result["pages"][0]["text"] = "4.8 Credit risk disclosures\nNot prepared in compliance with the reporting requirements.\n4.9 Other disclosures"
+        return result
+    tools["inspect_source"]["handler"] = omission
+    runtime, client = build([call("plan_task", {"deliverables": ["analysis", "chart", "sources", "summary"]}),
+        call("find_source_pages", {"source_id": "a", "query": "credit sectors"}),
+        call("inspect_source", {"source_id": "a", "page_numbers": [47]}), last_response],
+        more=tools, max_decisions=4)
+    result = runtime.run("Kredi dağılımını bul, tutar tablosu, oranlar ve grafik göster.")
+    assert result["status"] == "partial" and result["decisions"] == 4
+    assert len(client.requests) == 4 and client.options[-1]["tools"] == []
+    assert len(executed) == 2
+    assert "Not prepared in compliance" in result["message"]
+    assert "https://reports.example.org/report.pdf#page=47" in result["message"]
+    assert "tablosu, oranlar ve grafik oluşturulmadı" in result["message"]
+    assert "999" not in result["message"] and "kesinlikle yoktur" not in result["message"]
+    assert "DECISION_BUDGET_EXCEEDED" not in {error["code"] for error in result["errors"]}
+    assert "SOURCE_DATA_NOT_VERIFIED" in {error["code"] for error in result["errors"]}
+    state = journal.get(result["run_id"])["state"]
+    assert state["source_final_review"][0]["page"] == 47
+    assert not state.get("analysis_updated") and not state.get("chart_updated")
+
+
+@pytest.mark.parametrize("case", ["search_only", "incomplete", "unrelated_source", "wrong_page", "failed", "empty", "no_omission", "tool_error"])
+def test_final_source_gap_requires_actual_candidate_omission_and_complete_search(env, case):
+    _, _, _, _, build = env
+    runtime, _ = build([])
+    state = {"source_page_progress": {"a": {"complete_search": case != "incomplete", "candidate_read_after_search": True,
+        "candidate_pages": [47], "source_url": "https://reports.example.org/report.pdf"}}, "tool_results": []}
+    if case != "search_only":
+        state["tool_results"] = [{"tool": "inspect_source", "result": {"status": "blocked" if case == "failed" else "ok",
+            "source_id": "b" if case == "unrelated_source" else "a", "pages": [{"page": 48 if case == "wrong_page" else 47,
+                "text": "" if case == "empty" else "Credit risk disclosures\n" + ("Domestic loans table" if case == "no_omission" else "Not prepared in compliance with reporting requirements.")} ]}}]
+    if case == "tool_error":
+        state["unresolved_errors"] = {"execute": [{"code": "INVALID_PLAN"}]}
+    assert runtime._source_final_evidence(state) == []
+
+
+@pytest.mark.parametrize("case", ["relevant_omission", "unrelated_omission", "other_source", "search_only"])
+def test_repeated_search_terminal_preserves_only_a_read_same_source_relevant_gap(env, case):
+    _, _, _, _, build = env
+    executed = []
+    tools = page_navigation_tools(executed)
+    inspect = tools["inspect_source"]["handler"]
+    def read(args):
+        result = inspect(args)
+        label = "Allocation of loans by customers" if case != "unrelated_omission" else "Write-off policy"
+        result["pages"][0]["text"] = label + "\nNot prepared in compliance with reporting requirements."
+        return result
+    tools["inspect_source"]["handler"] = read
+    responses = [call("plan_task", {"deliverables": ["analysis", "chart", "sources"]}),
+        call("find_source_pages", {"source_id": "a", "query": "loans to customers by sector"}, "initial_search")]
+    if case != "search_only":
+        responses.append(call("inspect_source", {"source_id": "b" if case == "other_source" else "a", "page_numbers": [47]}))
+    responses += [call("find_source_pages", {"source_id": "a", "query": "loans by sector"}, f"search{n}") for n in range(3)]
+    # In negative cases the ordinary read-required guard can stop first;
+    # all such failures must remain technical blocks without an absence claim.
+    runtime, _ = build(responses, more=tools, max_repairs=1)
+    result = runtime.run("Kredi dağılımını kaynakta bul ve grafik göster.")
+    if case == "relevant_omission":
+        assert result["status"] == "partial"
+        assert "Allocation of loans by customers" in result["message"]
+        assert "#page=47" in result["message"]
+        assert "tablosu, oranlar ve grafik oluşturulmadı" in result["message"]
+        assert {"NO_PROGRESS", "SOURCE_DATA_NOT_VERIFIED"} <= {error["code"] for error in result["errors"]}
+        assert next(error for error in result["errors"] if error["code"] == "NO_PROGRESS")["source_id"] == "a"
+        assert len([action for action in executed if action[0] == "find"]) == 3
+    else:
+        assert result["status"] == "blocked"
+        assert "SOURCE_DATA_NOT_VERIFIED" not in {error["code"] for error in result["errors"]}
+
+
+def test_source_gap_ranking_prefers_requested_heading_and_never_another_run_or_source(env):
+    _, _, _, _, build = env
+    runtime, _ = build([])
+    state = {"source_page_progress": {"a": {"complete_search": True, "candidate_read_after_search": True,
+        "candidate_pages": [47, 51], "last_query": "loans to customers by sector", "source_url": "https://reports.example.org/report.pdf"}},
+        "tool_results": [
+            {"tool": "inspect_source", "result": {"status": "ok", "source_id": "a", "pages": [{"page": 47,
+                "text": "Allocation of loans by customers\nNot prepared in compliance with reporting requirements."}]}},
+            {"tool": "inspect_source", "result": {"status": "ok", "source_id": "a", "pages": [{"page": 51,
+                "text": "Write-off policy\nNot prepared in compliance with reporting requirements."}]}}],
+        "unresolved_errors": {"find_source_pages": [{"code": "NO_PROGRESS", "source_id": "a"}]}}
+    evidence = runtime._source_final_evidence(state, stalled_source="a")
+    assert len(evidence) == 1 and evidence[0]["page"] == 47
+    assert runtime._source_final_evidence(state, stalled_source="b") == []
+    state["unresolved_errors"]["execute"] = [{"code": "INVALID_PLAN"}]
+    assert runtime._source_final_evidence(state, stalled_source="a") == []

@@ -631,7 +631,7 @@ class ChartTools:
             if code == "exact_event_period_end":
                 message, level = "Kaynak tarihi, gösterilen dönemin son günüyle eşleşiyor; ara dönemlere değer taşınmadı.", "info"
             elif code == "cross_scope_comparison":
-                message = "Kurum ve raporlama kapsamları farklıdır. Bu oran büyüklük karşılaştırmasıdır; resmi pazar payı değildir."
+                message = "Oran, seçilen pay ve paydanın sayısal karşılaştırmasıdır. Kaynak kapsamları ayrıca incelenmelidir; resmî pazar payı olduğu varsayılmaz."
             elif code in {"heterogeneous_scopes_aligned", "native_calendar_unverified", "observed_sample_mean", "RANK_PRESERVED_FROM_PARENT"}:
                 level = "info"
             notice = {"code": code if code in _WARNING_TEXT or code == "exact_event_period_end" else "source_method_note",

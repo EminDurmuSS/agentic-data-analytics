@@ -1,5 +1,6 @@
 """Business selections compile financial facts without caller-authored ETL."""
 import copy
+import io
 import json
 from pathlib import Path
 import tempfile
@@ -42,6 +43,293 @@ class FinancialImportTests(unittest.TestCase):
     def basic(self, **kwargs):
         return self.source([[None, "31 December 2025", "31 March 2026"], ["Total assets", "1,234,567", "2,345,678"],
                             ["Cash", "123456", "234567"]], **kwargs)
+
+    def pdf_note(self, heading=None, current_header="Current Period", date_rows=None, section_titles=None, note_titles=None, footnotes=None):
+        from pypdf import PdfWriter
+        from pypdf.generic import DictionaryObject, NameObject, DecodedStreamObject
+        writer, buffer = PdfWriter(), io.BytesIO()
+        font = DictionaryObject({NameObject("/Type"): NameObject("/Font"), NameObject("/Subtype"): NameObject("/Type1"),
+                                 NameObject("/BaseFont"): NameObject("/Helvetica")})
+        for number in (1, 2):
+            page = writer.add_blank_page(width=612, height=792)
+            page[NameObject("/Resources")] = DictionaryObject({NameObject("/Font"): DictionaryObject({NameObject("/F1"): font})})
+            commands = []
+            def text(x, y, value):
+                escaped = value.replace("(", r"\(").replace(")", r"\)")
+                commands.append(f"BT /F1 10 Tf {x} {y} Td ({escaped}) Tj ET")
+            for index, line in enumerate(heading if number == 2 and heading is not None else [
+                    "Consolidated Financial Report", "for the Three-Month Period Ended 30 June 2027" if number == 2 else
+                    "as of 31 December 2026", "Thousands of Turkish Lira (TL)"]):
+                text(40, 750 - index * 15, line)
+            if number == 1:
+                for index, line in enumerate(section_titles or []):
+                    text(40, 690 - index * 15, line)
+            if number == 2:
+                # Separate the report heading from the table's own dates.
+                for y, line in zip((705, 695, 685), note_titles or ("Loan disclosures", "Historical comparisons", "Relevant statement table")):
+                    text(40, y, line)
+                rows = [["", current_header, "Prior Period"], *(date_rows or []),
+                        ["Domestic Loans", "1,234,567", "987,654"], ["Foreign Loans", "234,567", "123,456"],
+                        ["Total", "1,469,134", "1,111,110"]]
+                bottom = 680 - len(rows) * 20
+                for x in (40, 220, 350, 490):
+                    commands.append(f"{x} {bottom} m {x} 680 l S")
+                for y in range(bottom, 681, 20):
+                    commands.append(f"40 {y} m 490 {y} l S")
+                for row, y in zip(rows, range(666, bottom, -20)):
+                    for x, value in zip((45, 225, 355), row):
+                        text(x, y, value)
+                for index, line in enumerate(footnotes or []):
+                    text(40, bottom - 14 - index * 14, line)
+            stream = DecodedStreamObject()
+            stream.set_data("\n".join(commands).encode())
+            page[NameObject("/Contents")] = writer._add_object(stream)
+        writer.write(buffer)
+        source = self.docs._register(buffer.getvalue(), "note.pdf", "application/pdf")
+        inspected = self.docs.inspect_source(source_id=source["source_id"], page_numbers=[2])
+        table = next(table for table in inspected["tables"] if table.get("row_count") == 3 + len(date_rows or []))
+        return {"source_id": source["source_id"], "table_id": table["table_id"], "expected_version": 0,
+                "row_labels": ["Domestic Loans", "Foreign Loans", "Total"], "periods": ["2027-06-30"], "measure_kind": "stock"}
+
+    def test_pdf_note_current_header_binds_own_report_date_and_preserves_original_cells(self):
+        args = self.pdf_note()
+        original = self.docs.review_candidate(args["source_id"], args["table_id"])
+        original_bytes = self.docs.raw_source_bytes(args["source_id"])
+        result = self.handler(args)
+        self.assertEqual(result["status"], "ok", result)
+        frame = pd.read_parquet(self.store.overlay_path(result["dataset_id"]))
+        self.assertEqual(frame["amount"].tolist(), [1234567, 234567, 1469134])
+        self.assertEqual(frame["period"].tolist(), ["2027-06-30"] * 3)
+        self.assertEqual(result["published_columns"]["amount"]["scale"], 1000)
+        self.assertEqual(self.docs.review_candidate(args["source_id"], args["table_id"]), original)
+        self.assertEqual(self.docs.raw_source_bytes(args["source_id"]), original_bytes)
+        for row, origin in enumerate(result["provenance"]["cell_origins"], 1):
+            self.assertEqual(origin["amount"], {"candidate_row": row, "candidate_column": "Current_Period"})
+            self.assertEqual(origin["period"]["source_header_quote"], "Current Period")
+            proof = origin["period"]["report_header"]
+            self.assertEqual((proof["page"], proof["line"], proof["matched_source_date"]), (2, 2, "30 June 2027"))
+            self.assertEqual(proof["raw_sha256"], original["raw_sha256"])
+        self.assertEqual(result["compile_receipt"]["date_mapping_evidence"]["unresolved_value_columns"], ["Prior_Period"])
+        again = self.handler(args)
+        self.assertEqual(again["dataset_id"], result["dataset_id"])
+        self.assertEqual(self.store.workspace("financial_import")["version"], 1)
+
+    def test_pdf_note_accepts_actual_column_header_as_business_selection(self):
+        result = self.handler({**self.pdf_note(), "value_header": "Current Period", "value_columns": ["Current_Period"]})
+        self.assertEqual(result["status"], "ok", result)
+
+    def test_pdf_scope_footnote_is_bound_to_selected_section_and_published_lineage(self):
+        from agentic_analytics.lakehouse.service import LakehouseService
+        args = self.pdf_note(section_titles=["7.3 Consolidated assets"], note_titles=["7.3.2 Loans (*)"],
+            footnotes=["(*) Non-performing loans are not included.", "7.3.3 Related party loans",
+                       "(*) Foreign subsidiaries are excluded."])
+        original = copy.deepcopy(self.compiler._candidate(args["source_id"], args["table_id"]))
+        raw = self.docs.raw_source_bytes(args["source_id"])
+        result = self.handler(args)
+        self.assertEqual(result["status"], "ok", result)
+        notes = result["provenance"]["source_scope_evidence"]
+        self.assertEqual(len(notes), 1)
+        note = notes[0]
+        self.assertEqual(note["source_quote"], "(*) Non-performing loans are not included.")
+        self.assertEqual(note["section_quote"], "7.3.2 Loans (*)")
+        self.assertEqual((note["page"], note["source_table_id"], note["raw_sha256"]),
+                         (2, args["table_id"], original["raw_sha256"]))
+        self.assertEqual(note["line_start"], note["line_end"])
+        self.assertEqual(self.compiler._candidate(args["source_id"], args["table_id"]), original)
+        self.assertEqual(self.docs.raw_source_bytes(args["source_id"]), raw)
+        service = LakehouseService(self.store, "financial_import")
+        metric = service.describe({"metric_id": result["available_series"][0]["metric_id"]})["metric"]
+        self.assertEqual(metric["document_provenance"]["source_scope_evidence"], notes)
+        again = self.handler(args)
+        self.assertEqual(again["dataset_id"], result["dataset_id"])
+        self.assertEqual(again["provenance"]["source_scope_evidence"], notes)
+
+    def test_pdf_scope_does_not_borrow_next_section_or_unmatched_footnote(self):
+        for heading, footnotes in [
+            ("7.3.2 Loans (*)", ["7.3.3 Related party loans", "(*) Foreign subsidiaries are excluded."]),
+            ("7.3.2 Loans (*)", ["(2) Non-performing loans are not included."]),
+            ("Loan table without section association", ["(*) Non-performing loans are not included."]),
+        ]:
+            with self.subTest(heading=heading, footnotes=footnotes):
+                args = self.pdf_note(note_titles=[heading], footnotes=footnotes)
+                self.assertEqual(self.compiler._table_scope_evidence(self.compiler._candidate(args["source_id"], args["table_id"])), [])
+
+    def test_pdf_note_never_guesses_prior_period_or_accepts_requested_date_as_evidence(self):
+        args = self.pdf_note()
+        for selection in ({"value_columns": ["Prior_Period"]}, {"value_header": "Prior Period"},
+                          {"periods": None}, {"periods": ["2026-12-31"]},
+                          {"periods": ["2027-06-30", "2026-12-31"]},
+                          {"value_columns": ["Current_Period", "Prior_Period"]}):
+            with self.subTest(selection=selection):
+                result = self.handler({key: value for key, value in {**args, **selection}.items() if value is not None})
+                self.assertEqual(result["code"], "AMBIGUOUS_IMPORT_PERIODS", result)
+                self.assertEqual(self.store.workspace("financial_import")["version"], 0)
+
+    def test_omitted_periods_returns_source_verified_retry_without_publishing(self):
+        args = self.pdf_note(section_titles=["7.3 Consolidated assets"], note_titles=["7.3.2 Loans"])
+        args.pop("periods")
+        args["value_header"] = "Current Period"
+        original = self.compiler._candidate(args["source_id"], args["table_id"])
+        cache = (self.docs._directory(args["source_id"]) / "inspection.json").read_bytes()
+        blocked = self.handler(args)
+        self.assertEqual(blocked["code"], "AMBIGUOUS_IMPORT_PERIODS", blocked)
+        recovery = blocked["recovery"]
+        self.assertFalse(recovery["publication_performed"])
+        suggested = recovery["suggested_ingest_arguments"]
+        self.assertEqual(suggested, {**args, "periods": ["2027-06-30"], "measure_kind": "stock"})
+        self.assertEqual(recovery["next_request"], {"tool": "ingest_source_table", "arguments": suggested})
+        proof = recovery["source_period_evidence"]["source_period_binding"]["Current_Period"]["report_header"]
+        self.assertEqual((proof["page"], proof["line"], proof["normalized_date"], proof["raw_sha256"]),
+                         (2, 2, "2027-06-30", original["raw_sha256"]))
+        self.assertEqual(self.store.workspace("financial_import")["version"], 0)
+        self.assertEqual((self.docs._directory(args["source_id"]) / "inspection.json").read_bytes(), cache)
+        self.assertEqual(list(self.compiler.root.glob("import_*.json")), [])
+        published = self.handler(suggested)
+        self.assertEqual(published["status"], "ok", published)
+        self.assertEqual(published["available_series"][0]["observed_periods"], ["2027-06-30"])
+        self.assertEqual(self.store.workspace("financial_import")["version"], 1)
+
+    def test_omitted_period_retry_is_not_offered_for_prior_or_conflicting_dates(self):
+        cases = [
+            ({}, {"value_header": "Prior Period"}),
+            ({}, {"value_columns": ["Prior_Period"]}),
+            ({}, {"periods": ["2027-03-31"], "value_header": "Current Period"}),
+            ({"heading": ["Consolidated Financial Report", "as of 30 June 2027", "as of 31 March 2027",
+                          "Thousands of Turkish Lira (TL)"]}, {"value_header": "Current Period"}),
+            ({"date_rows": [["", "30 June 2027", "31 December 2026"],
+                            ["", "31 March 2027", "30 September 2026"]]}, {"value_header": "Current Period"}),
+        ]
+        for fixture, selection in cases:
+            with self.subTest(fixture=fixture, selection=selection):
+                args = self.pdf_note(**fixture)
+                args.pop("periods")
+                blocked = self.handler({**args, **selection})
+                self.assertEqual(blocked["code"], "AMBIGUOUS_IMPORT_PERIODS", blocked)
+                self.assertNotIn("suggested_ingest_arguments", blocked.get("recovery", {}))
+                self.assertEqual(self.store.workspace("financial_import")["version"], 0)
+
+    def test_pdf_note_date_must_be_unique_explicit_report_heading_on_its_own_page(self):
+        headings = [
+            ["Consolidated Financial Report", "Loan note without its date", "Thousands of Turkish Lira (TL)"],
+            ["Consolidated Financial Report", "Approved on 30 June 2027", "Thousands of Turkish Lira (TL)"],
+            ["Consolidated Financial Report", "as of 30 June 2027", "Published on 15 July 2027", "Thousands of Turkish Lira (TL)"],
+            ["Loan customer example", "as of 30 June 2027", "Thousands of Turkish Lira (TL)"],
+        ]
+        for heading in headings:
+            with self.subTest(heading=heading):
+                result = self.handler(self.pdf_note(heading))
+                self.assertEqual(result["code"], "AMBIGUOUS_IMPORT_PERIODS", result)
+                self.assertEqual(self.store.workspace("financial_import")["version"], 0)
+
+    def test_pdf_report_date_binding_verifies_original_bytes_before_publication(self):
+        args = self.pdf_note()
+        raw = self.docs._directory(args["source_id"]) / "raw.bin"
+        raw.write_bytes(raw.read_bytes() + b"\nchanged")
+        result = self.handler(args)
+        self.assertEqual(result["code"], "SOURCE_HASH_MISMATCH", result)
+        self.assertEqual(self.store.workspace("financial_import")["version"], 0)
+
+    def test_report_heading_never_overrides_conflicting_table_date_cells(self):
+        args = self.pdf_note(date_rows=[["", "30 June 2027", "31 December 2026"],
+                                       ["", "31 March 2027", "30 September 2026"]])
+        original = self.docs.review_candidate(args["source_id"], args["table_id"])
+        for selection in ({}, {"value_columns": ["Current_Period"]}, {"value_header": "Current Period"}):
+            with self.subTest(selection=selection):
+                result = self.handler({**args, **selection})
+                self.assertEqual(result["code"], "AMBIGUOUS_IMPORT_PERIODS", result)
+                self.assertTrue(result["recovery"]["business_choices"]["date_candidates"])
+                self.assertEqual(self.store.workspace("financial_import")["version"], 0)
+                self.assertEqual(self.docs.review_candidate(args["source_id"], args["table_id"]), original)
+
+    def test_balance_note_semantics_require_numbered_source_ancestry_not_loan_labels(self):
+        args = self.pdf_note(section_titles=["7.3 Consolidated assets"], note_titles=["7.3.2 Loans"])
+        result = self.handler(args)
+        self.assertEqual(result["status"], "ok", result)
+        self.assertTrue(all(item["kind"] == "stock" and item["status"] == "ready" for item in result["available_series"]))
+        proof = result["compile_receipt"]["semantic_evidence"]["statement_scope"]
+        self.assertEqual(proof["section"]["page"], 1)
+        self.assertEqual(proof["section"]["source_quote"], "7.3 Consolidated assets")
+        self.assertEqual(proof["note_headings"][0]["source_quote"], "7.3.2 Loans")
+        self.assertEqual(proof["section"]["raw_sha256"], result["compile_receipt"]["source_raw_sha256"])
+
+    def test_loan_notes_outside_balance_scope_or_under_movements_stay_unreviewed(self):
+        variants = [({}, "no section"), ({"section_titles": ["7.2 Consolidated assets"], "note_titles": ["7.3.2 Loans"]}, "unrelated"),
+                    ({"section_titles": ["7.3 Consolidated assets", "7.3.2 Changes in loans"], "note_titles": ["7.3.2.4 Loans"]}, "movement ancestor"),
+                    ({"section_titles": ["7.3 Consolidated assets"], "note_titles": ["7.3.2 Interest income"]}, "flow note"),
+                    ({"section_titles": ["7.3 Consolidated assets"], "note_titles": ["7.3.2 Loan groups", "Movements in non-performing loan groups", "Additions during the period"]}, "unnumbered movement table"),
+                    ({"section_titles": ["7.3 Consolidated assets"], "note_titles": ["7.3.2 Expected credit losses", "Collections and write-offs"]}, "mixed balances and flows"),
+                    ({"section_titles": ["7.3 Consolidated assets"], "note_titles": ["7.3.2 Loans", "7.4.1 Deposits"]}, "mixed sections")]
+        for options, name in variants:
+            with self.subTest(case=name):
+                args = self.pdf_note(**options)
+                result = self.handler({**args, "expected_version": self.store.workspace("financial_import")["version"]})
+                self.assertEqual(result["status"], "ok", result)
+                self.assertTrue(all(item["kind"] == "unknown" and item["status"] == "review_required" for item in result["available_series"]))
+
+    def test_event_balance_execute_recovery_preserves_million_scales_ratio_operands_and_source_lineage(self):
+        from agentic_analytics.agent.tools.lakehouse import lakehouse_tools
+        from agentic_analytics.lakehouse.service import LakehouseService
+        result = self.handler(self.pdf_note(section_titles=["7.3 Consolidated assets"], note_titles=["7.3.2 Loans"]))
+        metric = result["available_series"][0]["metric_id"]
+        service = LakehouseService(self.store, "financial_import")
+        execute = lakehouse_tools(service)["execute"]["handler"]
+        plan = {"start": "2027-06-30", "end": "2027-06-30", "frequency": "daily", "columns": [
+            {"name": name, "metric_id": metric, "dimensions": {"line_item": label}, "alignment": "native"}
+            for name, label in zip(("domestic", "foreign", "total"), ("Domestic Loans", "Foreign Loans", "Total"))],
+            "operations": [{"op": "scale", "column": name, "output": name + "_million", "target_scale": 1000000}
+                for name in ("domestic", "foreign", "total")] + [
+                {"op": "ratio", "column": name + "_million", "denominator": "total_million", "output": name + "_pct",
+                 "multiplier": 100, "scope_policy": "same_scope", "scope_reason": "Numerical comparison with the explicitly selected source total."}
+                for name in ("domestic", "foreign")]}
+        original = copy.deepcopy(plan)
+        before = self.store.workspace("financial_import")
+        blocked = execute(plan)
+        self.assertEqual(blocked["status"], "blocked", blocked)
+        self.assertEqual(self.store.workspace("financial_import"), before)
+        self.assertEqual(plan, original)
+        retry = blocked["recovery"]["next_request"]["arguments"]
+        self.assertTrue(all(column["alignment"] == "period_end" for column in retry["columns"]))
+        self.assertEqual(retry["operations"][:3], plan["operations"][:3])
+        self.assertEqual(retry["operations"][3]["denominator"], "total_million")
+        self.assertEqual(retry["operations"][3]["scope_policy"], "explicit_comparison")
+        saved = execute(retry)
+        self.assertEqual(saved["status"], "ok", saved)
+        frame, manifest = self.store.load_analysis(saved["analysis_id"])
+        self.assertEqual(frame["domestic_million"].tolist(), [1234.567])
+        self.assertAlmostEqual(frame["domestic_pct"].iloc[0], 1234567 / 1469134 * 100)
+        explanation = service.explain_value({"analysis_id": saved["analysis_id"], "column": "domestic_pct", "period": "2027-06-30"})
+        self.assertEqual(explanation["status"], "ok", explanation)
+        self.assertTrue(explanation["source_references_complete"])
+        sources = [branch["inputs"][0] for branch in explanation["lineage"]["inputs"]]
+        self.assertEqual([source["dimensions"]["line_item"] for source in sources], ["Domestic Loans", "Total"])
+        self.assertTrue(all(len(source["source_cells"]) == 1 for source in sources))
+
+    def test_event_recovery_keeps_valid_same_scope_ratio_and_only_validates_alignment(self):
+        from agentic_analytics.agent.tools.lakehouse import lakehouse_tools
+        from agentic_analytics.lakehouse.service import LakehouseService
+        result = self.handler(self.pdf_note(section_titles=["7.3 Consolidated assets"], note_titles=["7.3.2 Loans"]))
+        service = LakehouseService(self.store, "financial_import")
+        plan = {"start": "2027-06-30", "end": "2027-06-30", "frequency": "daily", "columns": [{
+            "name": "loans", "metric_id": result["available_series"][0]["metric_id"],
+            "dimensions": {"line_item": "Domestic Loans"}, "alignment": "native"}],
+            "operations": [{"op": "ratio", "column": "loans", "denominator": "loans", "output": "same_source_pct",
+                            "scope_policy": "same_scope", "multiplier": 100}]}
+        with patch.object(service, "validate_plan", wraps=service.validate_plan) as validate:
+            blocked = lakehouse_tools(service)["execute"]["handler"](plan)
+        self.assertEqual(validate.call_count, 1)
+        self.assertEqual(blocked["recovery"]["scope_policy_changes"], [])
+        self.assertEqual(blocked["recovery"]["next_request"]["arguments"]["operations"], plan["operations"])
+        self.assertEqual(blocked["recovery"]["validation_status"], "valid")
+
+    def test_unknown_event_kind_cannot_receive_calendar_alignment_recovery(self):
+        from agentic_analytics.agent.tools.lakehouse import lakehouse_tools
+        from agentic_analytics.lakehouse.service import LakehouseService
+        result = self.handler(self.pdf_note())
+        execute = lakehouse_tools(LakehouseService(self.store, "financial_import"))["execute"]["handler"]
+        blocked = execute({"start": "2027-06-30", "end": "2027-06-30", "frequency": "daily", "columns": [{
+            "name": "loans", "metric_id": result["available_series"][0]["metric_id"], "dimensions": {"line_item": "Domestic Loans"}}]})
+        self.assertEqual(blocked["status"], "blocked")
+        self.assertNotIn("recovery", blocked)
 
     def test_business_labels_publish_exact_sorted_cells_and_native_analysis(self):
         args = {**self.basic(), "row_labels": ["Total assets", "Cash"], "periods": ["2026-03-31", "2025-12-31"]}

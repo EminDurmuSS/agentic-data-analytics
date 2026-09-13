@@ -169,8 +169,15 @@ def _document_result(name, result):
         view["model_table_count"] = len(view["tables"])
         view["model_tables_truncated"] = len(result["tables"]) > len(view["tables"])
     if isinstance(result.get("pages"), list):
-        view["pages"] = [{"page": page.get("page"), "text": str(page.get("text", ""))[:240],
+        # Selected reads need the body of every requested page, not only the
+        # repeating report header. Broad initial inspections stay navigation.
+        focused = 1 <= len(result["pages"]) <= 3 or bool(result.get("selected_pages")) and 1 <= len(result["pages"]) <= 6
+        page_budget = min(4000, 12000 // len(result["pages"])) if focused else 240
+        view["pages"] = [{"page": page.get("page"), "text": str(page.get("text", ""))[:page_budget],
+                          "text_truncated": bool(page.get("text_truncated") or len(str(page.get("text", ""))) > page_budget),
                           "extraction_method": page.get("extraction_method")} for page in result["pages"][:10] if isinstance(page, dict)]
+        if focused and all(str(page.get("text") or "").strip() for page in result["pages"]):
+            view.pop("text", None)  # Do not duplicate the first selected page.
         view["model_pages_truncated"] = len(result["pages"]) > len(view["pages"])
     if name == "read_source_table":
         view.update(table_card(result))
@@ -184,9 +191,15 @@ def _document_result(name, result):
         view["next_row_start"] = (view["rows"][-1]["candidate_row"] + 1
                                   if view["rows"] and view["rows"][-1]["candidate_row"] < result.get("row_count", 0) else None)
     if name == "find_source_pages":
-        view["matches"] = [{**match, "excerpt": str(match.get("excerpt", ""))[:1200]}
-                           for match in result.get("matches", [])[:8]]
-        for key in ("complete", "searched_pages", "next_start_page", "image_only_pages"):
+        view["matches"] = []
+        for match in result.get("matches", [])[:8]:
+            excerpt = str(match.get("excerpt", ""))[:1200]
+            card = {**match, "excerpt": excerpt,
+                    "excerpt_truncated": bool(match.get("excerpt_truncated") or len(str(match.get("excerpt", ""))) > 1200)}
+            if type(match.get("line_start")) is int:
+                card["line_end"] = match["line_start"] + max(0, len(excerpt.splitlines()) - 1)
+            view["matches"].append(card)
+        for key in ("complete", "searched_pages", "next_start_page", "image_only_pages", "suggested_inspection", "page_number_basis"):
             if key in result:
                 view[key] = copy.deepcopy(result[key])
     if isinstance(result.get("sources"), list):
@@ -400,6 +413,76 @@ def _archive_prior_searches(messages, current_turn, call_names):
             for message in archived]
 
 
+def _compact_source_navigation(messages, current_turn, call_names, arguments, remaining_chars):
+    """Under pressure, retain addresses of earlier reads, not repeated PDF dumps."""
+    records = []
+    for index, message in enumerate(messages[current_turn:], current_turn):
+        name = call_names.get(message.get("tool_call_id"))
+        if message.get("role") != "tool" or name not in {"find_source_pages", "inspect_source"}:
+            continue
+        try:
+            result = json.loads(message["content"])
+        except (TypeError, ValueError):
+            continue
+        if result.get("status") != "ok" or result.get("errors") or not result.get("source_id"):
+            continue
+        records.append((index, name, result, arguments.get(message["tool_call_id"], {})))
+    latest_search, read_addresses = {}, {}
+    for index, name, result, args in records:
+        source = result["source_id"]
+        if name == "find_source_pages":
+            latest_search[source] = index
+        elif args.get("page_numbers") and any(page.get("text") for page in result.get("pages", []) if isinstance(page, dict)):
+            address = canonical({"pages": sorted(set(args["page_numbers"])), "table_strategy": args.get("table_strategy", "lines")})
+            read_addresses.setdefault(source, {})[address] = index
+    reads = {source: sorted(addresses.values()) for source, addresses in read_addresses.items()}
+    candidates = [entry for entry in records if entry[1] == "find_source_pages" and entry[0] != latest_search[entry[2]["source_id"]]]
+    candidates += [entry for entry in records if entry[1] == "inspect_source"
+                   and entry[0] not in reads.get(entry[2]["source_id"], [])[-2:]
+                   and any(index > entry[0] for index in reads.get(entry[2]["source_id"], []))]
+    for index, name, result, args in candidates:
+        if len(canonical(messages)) <= remaining_chars:
+            break
+        keys = ("status", "source_id", "source_url", "raw_sha256", "filename", "mime_type", "total_pages",
+                "processed_pages", "selected_pages", "inspection_complete", "warnings", "query",
+                "complete", "searched_pages", "next_start_page", "image_only_pages", "suggested_inspection", "page_number_basis")
+        receipt = {key: copy.deepcopy(result[key]) for key in keys if key in result}
+        receipt["tables"] = [{key: copy.deepcopy(table[key]) for key in
+            ("table_id", "page", "sheet", "source_pages", "row_count",
+             "unit_caption", "units", "unit_contexts", "layout_review_required", "missing_formula_cache", "quality_notes", "review")
+            if key in table} for table in result.get("tables", []) if isinstance(table, dict)]
+        receipt["matches"] = [{key: copy.deepcopy(match[key]) for key in
+            ("page", "match_type", "all_query_terms")
+            if key in match} for match in result.get("matches", []) if isinstance(match, dict)]
+        receipt.update(model_evidence_view="source_navigation_receipt", full_evidence_retained=True,
+                       source_content_omitted=True, re_read={"tool": name, "arguments": copy.deepcopy(args)},
+                       navigation_hint="Earlier current-turn source content is retained in the full ledger. These are navigation addresses, not evidence of omitted values or absence. Re-read the exact page/table when its omitted body is needed; later focused source reads remain below.")
+        reduced = canonical(_compact(receipt))
+        if len(reduced) < len(messages[index]["content"]):
+            messages[index]["content"] = reduced
+    # Keep both recent page bodies; retire only duplicate table previews from
+    # the focused inspections if navigation receipts are insufficient. Numeric
+    # read_source_table responses are never included in these candidates.
+    for index, name, result, args in records:
+        source_reads = reads.get(result["source_id"], [])
+        if len(canonical(messages)) <= remaining_chars:
+            break
+        if name != "inspect_source" or index not in source_reads[-2:]:
+            continue
+        if not any(table.get("preview") for table in result.get("tables", [])):
+            continue
+        view = copy.deepcopy(result)
+        for table in view.get("tables", []):
+            for key in ("preview", "context_text", "original_columns", "source_header_quotes"):
+                table.pop(key, None)
+            table["preview_truncated"] = True
+        view.update(model_table_previews_omitted=True, full_evidence_retained=True,
+                    re_read={"tool": name, "arguments": copy.deepcopy(args)})
+        reduced = canonical(view)
+        if len(reduced) < len(messages[index]["content"]):
+            messages[index]["content"] = reduced
+
+
 def model_messages(state, *, context_factory, charts_enabled, max_context_chars, system_prompt=None):
     messages = copy.deepcopy(state["messages"])
     for message in messages:
@@ -500,6 +583,7 @@ def model_messages(state, *, context_factory, charts_enabled, max_context_chars,
             receipt = canonical(_published_navigation_receipt(name, result, arguments, publication[1]))
             if len(receipt) < len(messages[index]["content"]):
                 messages[index]["content"] = receipt
+    _compact_source_navigation(messages, current_turn, call_names, call_arguments, max_context_chars - len(system))
     messages = _archive_prior_searches(messages, current_turn, call_names)
     # Keep complete user turns, never orphan a tool result from its call.
     while (len(system) + len(canonical(messages)) > max_context_chars or len(messages) > 180) and sum(m["role"] == "user" for m in messages) > 1:

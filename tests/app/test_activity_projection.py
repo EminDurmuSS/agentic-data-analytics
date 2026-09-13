@@ -229,6 +229,15 @@ def test_failed_attempt_stays_visible_after_a_successful_retry():
     assert "PRIVATE" not in str(value["actions"])
 
 
+def test_repeated_source_read_explains_recovery_without_claiming_new_read():
+    events = attempt("inspect_source", {"status": "blocked", "errors": [
+        {"code": "SOURCE_READ_REPEATED", "message": "PRIVATE"}]}, source_id="s", page_numbers=[92, 93, 94, 95])
+    action = item(activity_journey(events, "running"), "sources")["actions"][0]
+    assert action["status"] == "attention"
+    assert "Aynı kaynak okuması tekrarlandı" in action["label"]
+    assert "incelendi" not in action["label"] and "PRIVATE" not in str(action)
+
+
 def test_active_and_interrupted_actions_do_not_claim_completion():
     events = attempt("inspect_source", page_numbers=[11, 12])
     action = item(activity_journey(events, "running"), "sources")["actions"][0]

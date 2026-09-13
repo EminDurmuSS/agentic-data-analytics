@@ -272,6 +272,8 @@ def _attempt_action(attempt, run_status):
         codes = {error.get("code") for error in result.get("errors", []) if isinstance(error, dict)} | {result.get("code")}
         if tool == "find_source_pages" and codes & {"NO_PROGRESS", "SOURCE_READ_REQUIRED"}:
             label = "Sayfa araması tekrarlandı; devam etmek için bulunan sayfaların içeriği incelenmeli."
+        elif tool in {"inspect_source", "read_source_table"} and "SOURCE_READ_REPEATED" in codes:
+            label = "Aynı kaynak okuması tekrarlandı; önceki okuma korunarak sonraki adım değerlendiriliyor."
         elif tool == "ask_user":
             label = "Devam etmek için yanıtınız bekleniyor."
         elif tool == "web_search" and result.get("status") == "ok":
@@ -291,7 +293,7 @@ def _attempt_action(attempt, run_status):
                      "validate_plan": "Hesap planı kontrollerden geçemedi."}.get(tool,
                          _JOURNEY_TOOLS[tool][2] + " tamamlanamadı.")
         pages, count = _addresses(args.get("page_numbers"))
-        if tool == "inspect_source" and pages:
+        if tool == "inspect_source" and pages and "SOURCE_READ_REPEATED" not in codes:
             label = f"Belgenin {pages}. " + ("sayfası" if count == 1 else "sayfaları") + " incelenemedi."
     elif tool == "inspect_source":
         pages, count = _addresses(result.get("processed_pages"))

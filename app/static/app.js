@@ -881,7 +881,7 @@ async function loadAnalysis(id, result = {}) {
   $("#more-rows").hidden = state.analysis.row_count <= 250;
   await window.AnalysisCharts.load(workspacePath, id, Boolean(result.chart_updated || result.chart_id));
 }
-const scopeWarning = "Bu oran farklı kurum veya raporlama kapsamlarını karşılaştırır. Kaynakların aynı nüfusu veya geçerli bir pay-payda ilişkisini temsil ettiği doğrulanmamıştır; resmi sektör/pazar payı değildir.";
+const scopeWarning = "Oran, seçilen pay ve paydanın sayısal karşılaştırmasıdır. Kaynak kapsamlarını inceleyin; resmî sektör veya pazar payı olduğu varsayılmaz.";
 function warningText(w) {
   if (typeof w === "string") {
     if (/cross_scope_comparison|different (?:reporting )?(?:populations|scopes)|Farklı kapsamlar açık karşılaştırma/i.test(w)) return scopeWarning;

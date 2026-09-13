@@ -15,10 +15,10 @@ import duckdb
 import jsonschema
 
 from agentic_analytics.agent.context import _compact, _model_tool_result, model_messages, workspace_context
-from agentic_analytics.agent.prompts import INSTITUTIONAL_REPAIR_PROMPT
+from agentic_analytics.agent.prompts import INSTITUTIONAL_REPAIR_PROMPT, SOURCE_READING_PROMPT, SOURCE_READ_REPAIR_PROMPT
 from agentic_analytics.agent.delivery import (
     _analysis_confirmation, _cell_confirmation, _chart_confirmation, _requests_chart, _requests_table,
-    _scope_confirmation, _statistics_confirmation, _display_label, _source_confirmation, _published_source_ids,
+    _scope_confirmation, _source_scope_confirmation, _statistics_confirmation, _display_label, _source_confirmation, _published_source_ids,
 )
 from agentic_analytics.agent.run_store import AgentRunStore, canonical, fingerprint
 from agentic_analytics.agent.schemas import COLUMN_NAME, obj
@@ -152,6 +152,21 @@ def _institutional_fact_kind(message):
     working = re.search(r"çaliş\w*|başla\w*|iş\s*birli\w*|work\w*\s+with|start\w*\s+with", text)
     institutions = re.search(r"\b(?:banka\w*|kurum\w*|şirket\w*|kimlerle|banks?|institutions?|companies|who)\b", text)
     return "relationship" if asking and (relationship or working and institutions) else None
+
+
+def _institutional_followup_kind(message):
+    """Only naming/format continuations, never arbitrary short commands."""
+    text = _fact_text(message).strip(" .?!,;\n")
+    if len(text) > 240 or _ownership_subject(message):
+        return None
+    if re.fullmatch(r"(?:(?:peki|tamam|evet)\s+)?hangi\s+(?:banka|kurum)\w*\s+(?:ortak|hissedar)", text):
+        return "ownership"
+    words = re.findall(r"\w+", text)
+    allowed = r"tamam|peki|evet|bana|bun\w*|onlar\w*|hangi|kimler\w*|banka\w*|kurum\w*|liste\w*|olarak|ver\w*|göster\w*|yaz\w*|bir|lütfen|please|okay|ok|list|them|these|those|which|ones|banks|companies|show|give|me"
+    if (words and all(re.fullmatch(allowed, word) for word in words)
+            and any(re.fullmatch(r"liste\w*|list", word) for word in words)):
+        return "continue"
+    return None
 
 
 def _requests_ownership_percentages(message):
@@ -599,9 +614,17 @@ class AgentRuntime:
         progress = state.get("search_progress", {})
         if progress.get("paused"):
             context["source_recovery"] = self._search_recovery(state)
+        navigation = [self._source_page_recovery(state, source_id) for source_id, progress in state.get("source_page_progress", {}).items()
+                      if progress.get("searches_since_read", 0) >= 2 and self._unread_source_pages(progress)]
+        if navigation:
+            context["source_page_recovery"] = navigation[:6]
+        if any(progress.get("candidate_pages") or progress.get("read_pages") for progress in state.get("source_page_progress", {}).values()):
+            context["source_reading_requirement"] = SOURCE_READING_PROMPT
         return context
 
     def _model_tool_schemas(self, state):
+        if state.get("source_final_review"):
+            return []
         hidden = ({"prepare_source_table", "publish_selected_table"}
                   if "ingest_source_table" in self.tools and not any(state.get("advanced_source_tables", {}).values()) else set())
         if state.get("search_progress", {}).get("paused"):
@@ -655,6 +678,180 @@ class AgentRuntime:
                             unresolved[navigation] = remaining
                         else:
                             unresolved.pop(navigation, None)
+
+    @staticmethod
+    def _unread_source_pages(progress):
+        return [page for page in progress.get("candidate_pages", []) if page not in progress.get("read_pages", [])]
+
+    def _source_page_recovery(self, state, source_id):
+        progress = state.get("source_page_progress", {}).get(source_id, {})
+        return {"source_id": source_id, "navigation_only": True,
+            "suggested_inspection": {"source_id": source_id, "page_numbers": self._unread_source_pages(progress)[:3]},
+            "search_complete": progress.get("complete_search", False), "next_start_page": progress.get("next_start_page"),
+            "next_step": "Read the suggested physical pages with inspect_source, then relevant table rows with read_source_table. "
+                "Search excerpts locate pages; they do not verify a table or its absence. Changing query wording without reading is not progress. "
+                "Continue an incomplete search using its next_start_page when necessary; do not invent PDF page offsets."}
+
+    def _track_source_pages(self, state, name, args, result, call_id):
+        if name not in {"find_source_pages", "inspect_source", "read_source_table"} or result.get("status") != "ok":
+            return
+        source_id = result.get("source_id") or args.get("source_id")
+        if not source_id:
+            return
+        progress = state.setdefault("source_page_progress", {}).setdefault(source_id, {
+            "searches_since_read": 0, "candidate_pages": [], "read_pages": [], "reads": [], "events": []})
+        if call_id in progress["events"]:
+            return
+        progress["events"] = [*progress["events"], call_id][-100:]
+        if name == "find_source_pages":
+            pages = [*(result.get("suggested_inspection") or {}).get("page_numbers", []),
+                     *(match.get("page") for match in result.get("matches", []) if isinstance(match, dict))]
+            pages = [page for page in pages if type(page) is int and page > 0]
+            progress["candidate_pages"] = list(dict.fromkeys([*pages, *progress["candidate_pages"]]))[:40]
+            progress["searches_since_read"] += 1
+            progress["complete_search"] = progress.get("complete_search", False) or result.get("complete") is True
+            progress["next_start_page"] = result.get("next_start_page")
+            progress["last_query"] = args.get("query")
+            if progress["searches_since_read"] >= 2 and self._unread_source_pages(progress):
+                result["recovery"] = self._source_page_recovery(state, source_id)
+            return
+        if name == "read_source_table":
+            if not result.get("rows"):
+                return
+            pages = [result.get("page"), *(result.get("source_pages") or [])]
+        else:
+            pages = [page.get("page") for page in result.get("pages", []) if isinstance(page, dict) and str(page.get("text") or "").strip()]
+        pages = [page for page in pages if type(page) is int and page > 0]
+        candidates = set(progress["candidate_pages"])
+        progress["read_pages"] = sorted(set([*progress["read_pages"], *pages]))
+        if result.get("source_url"):
+            progress["source_url"] = result["source_url"]
+        if not candidates.intersection(pages):
+            return
+        read_key = fingerprint({key: result.get(key) for key in ("source_id", "raw_sha256", "table_id", "pages", "text", "tables", "rows")})
+        if read_key in progress["reads"]:
+            return
+        progress["reads"].append(read_key)
+        progress["searches_since_read"] = 0
+        progress["candidate_read_after_search"] = True
+        unresolved = state.setdefault("unresolved_errors", {})
+        remaining = [error for error in unresolved.get("find_source_pages", [])
+                     if error.get("code") != "SOURCE_READ_REQUIRED" or error.get("source_id") != source_id]
+        if remaining:
+            unresolved["find_source_pages"] = remaining
+        else:
+            unresolved.pop("find_source_pages", None)
+        # A fresh candidate-page/table read replaces the repeated-read stall
+        # for that source only. Keep the one-shot allowance consumed, and keep
+        # unrelated execution or other-source failures visible.
+        for tool in ("inspect_source", "read_source_table"):
+            remaining = [error for error in unresolved.get(tool, [])
+                         if error.get("code") != "SOURCE_READ_REPEATED" or error.get("source_id") != source_id]
+            if remaining:
+                unresolved[tool] = remaining
+            else:
+                unresolved.pop(tool, None)
+
+    def _source_read_required(self, state, name, args):
+        if name != "find_source_pages":
+            return None
+        source_id = args.get("source_id")
+        progress = state.get("source_page_progress", {}).get(source_id, {})
+        if (progress.get("searches_since_read", 0) < 2 or not self._unread_source_pages(progress)
+                or (progress.get("next_start_page") == args.get("start_page")
+                    and args.get("start_page", 1) > 1 and args.get("query") == progress.get("last_query"))):
+            return None
+        return {"status": "blocked", "errors": [{"code": "SOURCE_READ_REQUIRED", "source_id": source_id,
+            "message": "Several searches located source pages, but those pages have not been read. Inspect the suggested pages before rewording this source search."}],
+            "recovery": self._source_page_recovery(state, source_id)}
+
+    @staticmethod
+    def _source_final_evidence(state, *, stalled_source=None):
+        """Reserve the last existing decision only for a read, explicit gap.
+
+        Search results alone and unrelated failed actions cannot justify this
+        closeout. A published source still needs the normal calculation path.
+        """
+        if (state.get("analysis_id") or state.get("analysis_updated") or state.get("chart_updated")
+                or state.get("external_facts_required") or _published_source_ids(state)
+                or any(error.get("code") != "SOURCE_READ_REPEATED"
+                       and not (stalled_source and error.get("code") == "NO_PROGRESS" and error.get("source_id") == stalled_source)
+                       for errors in state.get("unresolved_errors", {}).values() for error in errors)):
+            return []
+        from agentic_analytics.agent.tools.source_index import _term_key
+        def terms(text):
+            return {_term_key(word) for word in re.findall(r"\w+", str(text or ""))
+                    if len(word) > 2 and word.casefold() not in {"the", "and", "for", "ile", "veya"}}
+        evidence, seen = [], set()
+        for item in reversed(state.get("tool_results", [])):
+            result = item.get("result", {})
+            if item.get("tool") != "inspect_source" or result.get("status") != "ok":
+                continue
+            source_id = result.get("source_id")
+            if stalled_source and source_id != stalled_source:
+                continue
+            progress = state.get("source_page_progress", {}).get(source_id, {})
+            url = result.get("source_url") or progress.get("source_url")
+            if not (url and progress.get("complete_search") and progress.get("candidate_read_after_search")):
+                continue
+            queries = [progress.get("last_query"), *[entry.get("result", {}).get("query") for entry in state.get("tool_results", [])
+                if entry.get("tool") == "find_source_pages" and entry.get("result", {}).get("status") == "ok"
+                and entry.get("result", {}).get("source_id") == source_id]]
+            topic_terms = set().union(*(terms(query) for query in queries))
+            for page in result.get("pages", []):
+                number = page.get("page")
+                if number not in progress.get("candidate_pages", []):
+                    continue
+                lines = str(page.get("text") or "").splitlines()
+                for index, line in enumerate(lines):
+                    if not re.match(r"\s*(?:Not (?:prepared|provided|disclosed|presented)|Hazırlanmamıştır|Sunulmamıştır|Açıklanmamıştır)\b", line, re.I):
+                        continue
+                    key = (source_id, number, line.strip())
+                    if key in seen:
+                        continue
+                    seen.add(key)
+                    label = next((text.strip()[:180] for text in reversed(lines[:index]) if text.strip()), "Okunan dipnot")
+                    relevance = len(terms(label) & topic_terms)
+                    if not relevance:
+                        continue  # An omitted unrelated note is not the requested-data gap.
+                    sentence = re.split(r"(?<=[.!?])\s+", " ".join(lines[index:index + 2]).strip(), maxsplit=1)[0]
+                    words = sentence.split()
+                    evidence.append({"source_id": source_id, "page": number, "label": label,
+                        "url": url.split("#", 1)[0] + f"#page={number}",
+                        "quote": " ".join(words[:25]), "quote_truncated": len(words) > 25,
+                        "raw_sha256": result.get("raw_sha256"), "topic_overlap": relevance})
+        # Source words are only a relevance ranking. The receipt states what
+        # was not verified, never that a matching heading proves global absence.
+        return sorted(evidence, key=lambda item: -item["topic_overlap"])[:1]
+
+    @staticmethod
+    def _source_final_receipt(evidence):
+        notes = "\n".join(f"- [{item['label']}, s. {item['page']}]({item['url']}): “{item['quote']}{'…' if item.get('quote_truncated') else ''}”" for item in evidence)
+        return ("İstenen dağılımı okunan kaynak bölümlerinden doğrulayamadım. İlgili dipnotlarda şu açıklamalar yer alıyor:\n\n"
+            + notes + "\n\nBu nedenle istenen tutar tablosu, oranlar ve grafik oluşturulmadı. "
+            "Bu sonuç okunan bölümlerin sınırını gösterir; belgenin incelenmeyen bölümleri için kesin yokluk iddiası değildir.")
+
+    @staticmethod
+    def _sourced_limitation(state, content, errors):
+        """A read, cited limitation can preserve prose, never fulfill artifacts."""
+        if state.get("analysis_id") or state.get("analysis_updated") or state.get("chart_updated"):
+            return False  # Computed results keep the verified-artifact renderer.
+        if not errors or any(error.get("code") not in {
+                "TASK_DELIVERABLE_MISSING", "CHART_NOT_CREATED", "TABLE_NOT_CREATED",
+                "NORMALIZATION_ANALYSIS_MISSING", "SOURCE_READ_REPEATED"} for error in errors):
+            return False
+        if any(error.get("code") != "SOURCE_READ_REPEATED" for failures in state.get("unresolved_errors", {}).values() for error in failures):
+            return False
+        limitation = re.search(r"bulamad[ıi]m|bulunamad[ıi]|bulunmuyor|doğrulayamad[ıi]m|doğrulanam[ıi]yor|doğrulanamad[ıi]|"
+            r"yer alm[ıi]yor|sunulmam[ıi]ş|haz[ıi]rlanmam[ıi]ş|yay[ıi]mlanmam[ıi]ş|not (?:provided|prepared|disclosed|available)|could not (?:find|verify)", content, re.I)
+        if not limitation:
+            return False
+        citations = {_search_url(url.rstrip(".,;")) for url in re.findall(r"https?://[^\s<>\])]+", content)}
+        repeated_sources = {error.get("source_id") for error in errors if error.get("code") == "SOURCE_READ_REPEATED"}
+        return any(progress.get("complete_search") and progress.get("candidate_read_after_search")
+                   and progress.get("source_url") and _search_url(progress["source_url"]) in citations
+                   and (not repeated_sources or repeated_sources == {source_id})
+                   for source_id, progress in state.get("source_page_progress", {}).items())
 
     @staticmethod
     def _external_fact_errors(state, content):
@@ -720,6 +917,10 @@ class AgentRuntime:
 
     def _failure_message(self, state, errors):
         codes = {error.get("code") for error in errors}
+        if "SOURCE_READ_REPEATED" in codes:
+            return "İlgili sayfalar okundu, ancak aynı okuma tekrarlandığı için kaynak incelemesi sonuçlandırılamadı. İstenen tablo ve hesaplar henüz doğrulanamadı."
+        if "SOURCE_READ_REQUIRED" in codes or ("NO_PROGRESS" in codes and (state.get("tool_results") or [{}])[-1].get("tool") == "find_source_pages"):
+            return "Belgede arama yapıldı, ancak ilgili sayfaların incelemesi tamamlanamadı. Bu nedenle istenen tablo ve hesaplar kaynak üzerinden doğrulanamadı."
         if "UNSOLICITED_OWNERSHIP_PERCENTAGES" in codes:
             return "Yanıt, istenmeyen ve kaynakla tutarlılığı doğrulanmamış ortaklık oranları içerdiği için sunulamadı. Ortak adları ve karşılaştırmanın sonraki adımıyla sınırlı bir yanıt gerekiyor."
         if "EXTERNAL_FACTS_UNVERIFIED" in codes:
@@ -806,6 +1007,59 @@ class AgentRuntime:
             grants.pop(source_id, None)
 
     def _messages(self, state):
+        if state.get("source_final_review"):
+            context = self._context(state)
+            context.pop("initial_metric_candidates", None)
+            context["read_source_limitation_evidence"] = state["source_final_review"]
+            question = next(message for message in reversed(state["messages"]) if message.get("role") == "user")
+            return model_messages({**state, "messages": [copy.deepcopy(question)]}, context_factory=lambda _: context,
+                charts_enabled=False, max_context_chars=self.max_context_chars,
+                system_prompt=SOURCE_READ_REPAIR_PROMPT + "\nBu son kararın kaynak okuması tamamlandı ve yeni araç çağrısı yoktur. "
+                    "Yalnız read_source_limitation_evidence içindeki bölüm adı, fiziksel sayfa, birebir kısa alıntı ve bağlantıları kullan. "
+                    "İstenen dağılımın okunan bölümlerden doğrulanamadığını, tablo, oran ve grafiğin oluşturulmadığını açıkça söyle. "
+                    "Bütün PDF hakkında kesin yokluk iddiası veya başka finansal sayı verme. Kısa, kaynaklı bir sınırlama yanıtı yaz.")
+        if state.get("source_read_repair_pending"):
+            # One focused response to a repeated read, retaining actual source
+            # bodies and obligations rather than speculative assistant prose.
+            current = max(index for index, message in enumerate(state["messages"]) if message.get("role") == "user")
+            messages = state["messages"][current:]
+            calls = {call["id"]: call for message in messages for call in message.get("tool_calls", [])}
+            reads, searches, keep = {}, [], set()
+            for message in messages:
+                call = calls.get(message.get("tool_call_id"))
+                if not call:
+                    continue
+                name = call["function"]["name"]
+                try:
+                    args = json.loads(call["function"]["arguments"])
+                except (TypeError, ValueError):
+                    args = {}
+                if not isinstance(args, dict):
+                    args = {}
+                result = json.loads(message["content"])
+                if name == "inspect_source" and result.get("status") == "ok":
+                    key = canonical({"source_id": result.get("source_id"), "pages": sorted(args.get("page_numbers") or []), "strategy": args.get("table_strategy", "lines")})
+                    reads.pop(key, None)
+                    reads[key] = call["id"]
+                elif name == "find_source_pages":
+                    searches.append(call["id"])
+                elif name == "read_source_table" or result.get("errors"):
+                    keep.add(call["id"])
+            keep.update(list(reads.values())[-3:])
+            keep.update(searches[-2:])
+            selected = []
+            for message in messages:
+                if message.get("role") == "user" or message.get("tool_call_id") in keep:
+                    selected.append(copy.deepcopy(message))
+                elif message.get("tool_calls"):
+                    retained = [call for call in message["tool_calls"] if call["id"] in keep]
+                    if retained:
+                        selected.append({"role": "assistant", "content": None, "tool_calls": copy.deepcopy(retained)})
+            context = self._context(state)
+            context.pop("initial_metric_candidates", None)
+            context["source_read_repair"] = state["source_read_repair_used"]
+            return model_messages({**state, "messages": selected}, context_factory=lambda _: context,
+                charts_enabled=False, max_context_chars=self.max_context_chars, system_prompt=SOURCE_READ_REPAIR_PROMPT)
         if state.get("institutional_delivery_repair"):
             # Reuse the existing one-shot correction with a focused model view.
             # The complete conversation and original tool ledger stay durable.
@@ -839,6 +1093,32 @@ class AgentRuntime:
                 raise ValueError("Run belongs to another workspace")
             return self._run(record)
 
+    def _institutional_intent(self, record, state):
+        message = record["message"]
+        kind, subject = _institutional_fact_kind(message), _ownership_subject(message)
+        intent = {"institutional_fact_kind": kind, "institutional_request": message,
+                  "institutional_origin_request": message, "ownership_subject": subject}
+        followup = _institutional_followup_kind(message)
+        if not followup:
+            return intent
+        users = [item.get("content") for item in state["messages"] if item.get("role") == "user"]
+        if len(users) < 2:
+            return intent
+        previous = next((item for item in self.run_store.list(self.workspace_id, record["conversation_id"], limit=2)
+                         if item["run_id"] != record["run_id"]), None)
+        # The immediately preceding user turn is the boundary. Do not search
+        # older institution topics across intervening financial requests.
+        if not previous or previous["message"] != users[-2]:
+            return intent
+        prior = previous["state"]
+        if not prior.get("external_facts_required") or not prior.get("institutional_fact_kind"):
+            return intent
+        origin = prior.get("institutional_origin_request") or previous["message"]
+        intent.update(institutional_fact_kind=prior["institutional_fact_kind"] if followup == "continue" else followup,
+                      ownership_subject=prior.get("ownership_subject"), institutional_origin_request=origin,
+                      institutional_request=origin + "\nBu turdaki kullanıcı isteği: " + message)
+        return intent
+
     def _run(self, record):
         if record["result"] is not None:
             return record["result"]
@@ -848,7 +1128,8 @@ class AgentRuntime:
         invocation_started = time.monotonic()
         state, run_id = record["state"], record["run_id"]
         try:
-            state.setdefault("institutional_fact_kind", _institutional_fact_kind(record["message"]))
+            if "institutional_fact_kind" not in state:
+                state.update(self._institutional_intent(record, state))
             state.setdefault("institutional_request", record["message"])
             state.setdefault("external_facts_required", bool(state["institutional_fact_kind"]))
             state.setdefault("ownership_subject", _ownership_subject(record["message"]))
@@ -931,9 +1212,19 @@ class AgentRuntime:
                     unresolved = state.setdefault("unresolved_errors", {})
                     tool_name = call["function"]["name"]
                     if failed:
-                        unresolved[tool_name] = result.get("errors", [])
+                        retained = [error for error in unresolved.get(tool_name, [])
+                                    if error.get("code") in {"SOURCE_READ_REQUIRED", "SOURCE_READ_REPEATED"}
+                                    and not any(replacement.get("code") == error.get("code")
+                                                and replacement.get("source_id") == error.get("source_id")
+                                                for replacement in result.get("errors", []))]
+                        unresolved[tool_name] = [*retained, *result.get("errors", [])]
                     elif result.get("status") in {"ok", "valid"}:
-                        unresolved.pop(tool_name, None)
+                        retained = [error for error in unresolved.get(tool_name, [])
+                                    if error.get("code") in {"SOURCE_READ_REQUIRED", "SOURCE_READ_REPEATED"}]
+                        if retained:
+                            unresolved[tool_name] = retained
+                        else:
+                            unresolved.pop(tool_name, None)
                         if tool_name == "research_web" and result.get("sources"):
                             state["web_research_completed"] = True
                             # A web result can recover a failed search, but does
@@ -1005,12 +1296,24 @@ class AgentRuntime:
                         state["repairs"] += 1
                         self.run_store.checkpoint(run_id, state)
                         if state["repairs"] > self.max_repairs or any(e.get("code") in {"UNKNOWN_MUTATION_OUTCOME", "NO_PROGRESS"} for e in result.get("errors", [])):
+                            source_stall = next((error.get("source_id") for error in result.get("errors", [])
+                                if error.get("code") == "NO_PROGRESS" and error.get("source_id")), None)
+                            evidence = self._source_final_evidence(state, stalled_source=source_stall) if source_stall else []
+                            if evidence:
+                                errors = [error for failures in state.get("unresolved_errors", {}).values() for error in failures]
+                                errors.extend(self._task_delivery_errors(state))
+                                errors.append({"code": "SOURCE_DATA_NOT_VERIFIED", "message": "Repeated navigation stopped after an explicit source limitation was read; requested numerical outputs remain unproduced."})
+                                return self._finish(record, state, "partial", self._source_final_receipt(evidence), errors=errors)
                             refusal = self._barren_refusal(state)
                             if refusal:
                                 return self._finish(record, state, "completed", refusal[0], warnings=[refusal[1]])
                             return self._finish(record, state, "blocked", self._failure_message(state, result.get("errors", [])), errors=result.get("errors", []))
                     continue
 
+                if state["decisions"] == self.max_decisions - 1:
+                    evidence = self._source_final_evidence(state)
+                    if evidence:
+                        state["source_final_review"] = evidence
                 messages = self._messages(state)
                 elapsed = time.monotonic() - invocation_started
                 if elapsed >= self.max_elapsed_seconds:
@@ -1024,11 +1327,21 @@ class AgentRuntime:
                 # exhausting the bounded output on private reasoning alone.
                 tool_schemas = self._model_tool_schemas(state)
                 response = self.client.chat(messages, tools=tool_schemas, temperature=0, max_tokens=4096, enable_thinking=False)
+                state.pop("source_read_repair_pending", None)
                 calls = response.get("tool_calls") or []
                 content = response.get("content")
                 usage = response.get("usage") or {}
                 state["usage"].append(usage)
                 self.run_store.event(run_id, "model_response", {"decision": state["decisions"], "finish_reason": response.get("finish_reason"), "tool_names": [c["function"]["name"] for c in calls], "usage": usage, "response_id": response.get("response_id"), "request_meta": response.get("request_meta", {})})
+                if state.get("source_final_review"):
+                    # This reserved decision cannot reopen the exhausted search.
+                    # The bounded receipt contains only literal read evidence;
+                    # it never promotes an absent artifact into a completed one.
+                    evidence = state["source_final_review"]
+                    errors = [error for failures in state.get("unresolved_errors", {}).values() for error in failures]
+                    errors.extend(self._task_delivery_errors(state))
+                    errors.append({"code": "SOURCE_DATA_NOT_VERIFIED", "message": "The requested data was not verified from the read source sections; requested numerical outputs remain unproduced."})
+                    return self._finish(record, state, "partial", self._source_final_receipt(evidence), errors=errors)
                 if response.get("finish_reason") == "length":
                     state["repairs"] += 1
                     state["messages"].append({"role": "assistant", "content": "Önceki model çıktısı kesildi; hiçbir araç çalıştırılmadı."})
@@ -1052,6 +1365,7 @@ class AgentRuntime:
                     missing_outputs = self._task_delivery_errors(state) + self._numeric_evidence_errors(state, content) + self._external_fact_errors(state, content)
                     corrective_errors = self._corrective_delivery_errors(state)
                     if ((missing_outputs or corrective_errors)
+                            and not self._sourced_limitation(state, content, missing_outputs + corrective_errors)
                             and (not state.get("unresolved_errors") or corrective_errors)
                             and state.get("delivery_repairs", 0) < 1 and state["decisions"] < self.max_decisions):
                         state["delivery_repairs"] = state.get("delivery_repairs", 0) + 1
@@ -1130,7 +1444,8 @@ class AgentRuntime:
         cells = _cell_confirmation(self.store, self.workspace_id, state)
         chart = _chart_confirmation(state, record["message"])
         scope = _scope_confirmation(self.store, self.workspace_id, state)
-        grounded = "\n\n".join(part for part in (chart or quantitative, statistics, cells, scope) if part)
+        source_scope = _source_scope_confirmation(self.store, self.workspace_id, state, record["message"])
+        grounded = "\n\n".join(part for part in (chart or quantitative, statistics, cells, scope, source_scope) if part)
         web_sources, seen_urls = [], set()
         for item in state.get("tool_results", []):
             result = item.get("result", {})
@@ -1144,6 +1459,9 @@ class AgentRuntime:
                     seen_urls.add(_search_url(url))
                     web_sources.append(source)
         if errors:
+            if self._sourced_limitation(state, content, errors):
+                return self._finish(record, state, "partial", content, errors=errors,
+                                    **({"warnings": warnings} if warnings else {}))
             facts_missing = any(error.get("code") in {"EXTERNAL_FACTS_UNVERIFIED", "UNSOLICITED_OWNERSHIP_PERCENTAGES"} for error in errors)
             has_output = state.get("analysis_updated") or state.get("chart_updated") or (bool(web_sources) and not facts_missing)
             message = "Bazı istenen adımlar tamamlanamadı; kaydedilen sonuçlar ve hata ayrıntıları korundu."
@@ -1586,6 +1904,7 @@ class AgentRuntime:
                 if step["result"] is not None:
                     if name in {"web_search", "research_web", "inspect_source", "read_source_table"}:
                         self._track_search_progress(state, name, step["result"])
+                    self._track_source_pages(state, name, args, step["result"], step_id)
                     return step["result"]
                 recovered = self._recover(step, definition)
                 if recovered is not None:
@@ -1594,20 +1913,41 @@ class AgentRuntime:
                     self.run_store.event(run_id, "tool_recovered", {"tool": name, "call_id": call["id"], "result": recovered})
                     return recovered
             else:
-                key = fingerprint({"name": name, "args": args, "revision": self.store.workspace(self.workspace_id)["revision_id"]})
+                navigation_error = self._source_read_required(state, name, args)
+                if navigation_error:
+                    self.run_store.event(run_id, "tool_result", {"tool": name, "call_id": call["id"], "result": navigation_error})
+                    return navigation_error
+                identity = {"name": name, "args": args, "revision": self.store.workspace(self.workspace_id)["revision_id"]}
+                if name == "find_source_pages":
+                    identity["source_read_epoch"] = len(state.get("source_page_progress", {}).get(args.get("source_id"), {}).get("reads", []))
+                key = fingerprint(identity)
                 if name == "web_search" and state.get("search_progress", {}).get("paused"):
                     result = _blocked("SEARCH_STRATEGY_EXHAUSTED", "Raw searches are paused because they yielded no new source URLs. Read or research a source instead of rewording the same query.")
                     result["recovery"] = self._search_recovery(state)
                     self.run_store.event(run_id, "tool_result", {"tool": name, "call_id": call["id"], "result": result})
                     return result
                 if state["seen"].get(key, 0) >= 2:
+                    source_id = args.get("source_id")
+                    if (name in {"inspect_source", "read_source_table"} and not state.get("source_read_repair_used")
+                            and state["decisions"] < self.max_decisions
+                            and state.get("source_page_progress", {}).get(source_id, {}).get("candidate_read_after_search")):
+                        state["source_read_repair_used"] = {"tool": name, "arguments": args, "source_id": source_id}
+                        state["source_read_repair_pending"] = True
+                        result = {"status": "blocked", "errors": [{"code": "SOURCE_READ_REPEATED", "source_id": source_id,
+                            "message": "These exact source pages or rows were already read twice. The repeated call was not executed. Use the retained read evidence to answer, or choose a new source heading/table needed to resolve the question. A search-only absence claim is not evidence."}]}
+                        self.run_store.event(run_id, "tool_result", {"tool": name, "call_id": call["id"], "result": result})
+                        return result
                     if name == "web_search":
                         state.setdefault("search_progress", {"urls": [], "stale_calls": 0})["paused"] = True
                         result = _blocked("SEARCH_NO_PROGRESS", "The same search has already run twice without new evidence. Continue with a source-reading tool; the repeated search was not executed.")
                         result["recovery"] = self._search_recovery(state)
                         self.run_store.event(run_id, "tool_result", {"tool": name, "call_id": call["id"], "result": result})
                         return result
-                    return _blocked("NO_PROGRESS", "The same tool request has already been attempted twice without a workspace change.")
+                    result = _blocked("NO_PROGRESS", "The same tool request has already been attempted twice without a workspace change.")
+                    if name in {"find_source_pages", "inspect_source", "read_source_table"} and source_id:
+                        result["errors"][0]["source_id"] = source_id
+                    self.run_store.event(run_id, "tool_result", {"tool": name, "call_id": call["id"], "result": result})
+                    return result
                 state["seen"][key] = state["seen"].get(key, 0) + 1
                 current = self.store.workspace(self.workspace_id)
                 intent = {"workspace_id": self.workspace_id, "input_revision": current["revision_id"], "workspace_version": current["version"], "expected_plan": self._expected_plan(name, args)}
@@ -1632,6 +1972,7 @@ class AgentRuntime:
             result = _normalize_result(result)
             if name in {"web_search", "research_web", "inspect_source", "read_source_table"}:
                 self._track_search_progress(state, name, result)
+            self._track_source_pages(state, name, args, result, step_id)
             if name == "create_chart" and any(error.get("code") == "CHART_SERIES_LIMIT" for error in result.get("errors", [])):
                 self._remember_chart_capacity_selection(state, args)
             canonical(result)
@@ -1665,7 +2006,8 @@ class AgentRuntime:
                     parts = [_analysis_confirmation(self.store, self.workspace_id, state),
                              _statistics_confirmation(self.store, self.workspace_id, state),
                              _cell_confirmation(self.store, self.workspace_id, state),
-                             _scope_confirmation(self.store, self.workspace_id, state)]
+                             _scope_confirmation(self.store, self.workspace_id, state),
+                             _source_scope_confirmation(self.store, self.workspace_id, state, record["message"])]
                     message += "\n\n" + "\n\n".join(part for part in parts if part)
                 except (ValueError, OSError, duckdb.Error) as exc:
                     # An integrity/read failure must never relabel unverified
