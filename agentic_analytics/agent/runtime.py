@@ -9,6 +9,7 @@ import copy
 import json
 import re
 import time
+from urllib.parse import quote, urlsplit, urlunsplit
 
 import duckdb
 import jsonschema
@@ -16,7 +17,7 @@ import jsonschema
 from agentic_analytics.agent.context import _compact, _model_tool_result, model_messages, workspace_context
 from agentic_analytics.agent.delivery import (
     _analysis_confirmation, _cell_confirmation, _chart_confirmation, _requests_chart, _requests_table,
-    _scope_confirmation, _statistics_confirmation,
+    _scope_confirmation, _statistics_confirmation, _display_label,
 )
 from agentic_analytics.agent.run_store import AgentRunStore, canonical, fingerprint
 from agentic_analytics.agent.schemas import COLUMN_NAME, obj
@@ -28,6 +29,143 @@ from agentic_analytics.providers.mia import MiaError
 
 def _blocked(code, message):
     return {"status": "blocked", "errors": [{"code": code, "message": message}]}
+
+
+_SEARCH_FAILURES = {"SEARCH_NO_PROGRESS", "SEARCH_STRATEGY_EXHAUSTED", "SEARCH_UNAVAILABLE",
+                    "WEB_SEARCH_UNCONFIGURED", "SEARCH_INVALID_RESPONSE", "NO_READABLE_SOURCES",
+                    "OFFICIAL_SOURCE_NOT_FOUND", "SEARCH_NO_RELEVANT_RESULTS"}
+_RECOVERABLE_SEARCH_ERRORS = _SEARCH_FAILURES | {"INVALID_TOOL_ARGUMENTS"}
+
+
+def _fact_text(value):
+    return str(value or "").casefold().replace("ı", "i").replace("i\u0307", "i")
+
+
+def _ownership_subject(message):
+    # Only explicit possessive names/acronyms are reliable here. Ambiguous
+    # references remain for the model to resolve, rather than guessing an entity.
+    match = re.search(r"\b([\w&.-]+)(?:['’]\s*|\s+)(?:nin|in|nun|un|s)\s+(?:ortak|hissedar|shareholder|ownership)", _fact_text(message))
+    return match.group(1) if match and match.group(1) not in {"bu", "onun", "şirket", "kurum", "company"} else None
+
+
+def _ownership_source(result, subject=None):
+    if result.get("status") != "ok":
+        return False
+    sources = result.get("sources") if isinstance(result.get("sources"), list) else [result]
+    for source in sources:
+        if not isinstance(source, dict):
+            continue
+        article = source.get("article") or {}
+        # Read text and table cells only; search snippets and navigation links
+        # mentioning shareholders do not establish an ownership statement.
+        text = " ".join(str(value or "") for value in [source.get("content"), source.get("text"),
+            article.get("article_body"), *[page.get("text") for page in source.get("pages", []) if isinstance(page, dict)],
+            *[canonical(table) for table in source.get("tables", []) if isinstance(table, dict)],
+            canonical({key: source[key] for key in ("columns", "original_columns", "rows") if key in source})])
+        text = _fact_text(text)
+        if not re.search(r"\b(?:ortaklar\w*|ortaklik\s+yap\w*|hissedar\w*|pay\s+sahip\w*|shareholders?|shareholding|ownership|owned\s+by)\b", text):
+            continue
+        identity = text + " " + _fact_text(source.get("title")) + " " + _fact_text(article.get("title"))
+        try:
+            hostname = urlsplit(source.get("url") or source.get("source_url") or "").hostname or ""
+            identity += " " + " ".join(hostname.split(".")[:-1])
+        except ValueError:
+            pass
+        if not subject or re.search(r"(?<!\w)" + re.escape(subject) + r"(?!\w)", identity):
+            return True
+    return False
+
+
+def _permission_to_research(question):
+    text = _fact_text(question)
+    return bool(re.search(r"kontrol|teyit|doğrula|araştir|incele|verify|check|research", text)
+                and re.search(r"ister\s+mi|edeyim\s+mi|yapayim\s+mi|onay|should\s+i|would\s+you\s+like|shall\s+i", text))
+
+
+def _external_research_forbidden(messages):
+    """Respect explicit user source restrictions, including earlier user turns."""
+    for message in reversed(messages):
+        if message.get("role") != "user":
+            continue
+        text = _fact_text(message.get("content"))
+        if (re.search(r"\b(?:internet\w*|web\w*)\s+(?:kullanma|arama|araştirma|çikma|bağlanma)\b|"
+                      r"\b(?:internet|web|diş kaynak)\s+araştirmasi\s+yapma|"
+                      r"\b(?:no\s+(?:internet|web)|do\s+not\s+(?:browse|search\s+(?:the\s+)?(?:web|internet)))\b", text)
+                or re.search(r"\b(?:yalnizca|sadece|only)\b.{0,65}(?:yükle\w*|uploaded|local\s+files?|yerel\s+dosya)", text)):
+            return True
+        if re.search(r"\b(?:internette|webde|web'de)\s+ara|\binterneti\s+kullan\b|"
+                     r"\bweb\s+ara(?:ma|ştirma)si\s+yap\b|"
+                     r"\b(?:search|browse)\s+(?:the\s+)?(?:web|internet)\b", text):
+            return False
+    return False
+
+
+def _source_permission_question(question):
+    text = _fact_text(question)
+    # Keep actual entity, period, consolidation and business choices available.
+    if re.search(r"\bhangi\s+(?:banka|şirket|kurum|dönem|tarih|kapsam|para birimi)|"
+                 r"\b(?:konsolide|solo|bireysel)\s+mi\b|\bwhich\s+(?:company|bank|period|scope|currency)\b", text):
+        return False
+    if not re.search(r"kaynak|rapor|resmi|source|report|official", text):
+        return False
+    return bool(_permission_to_research(question)
+                or re.search(r"hangi\s+kaynaktan|which\s+source", text)
+                or re.search(r"kullan(?:ayim|mam)i?\s+mi|kullanmami\s+ister|may\s+i\s+use", text)
+                or (re.search(r"url|link|bağlanti|dosya|file", text)
+                    and re.search(r"paylaş|yükle|gönder|provide|upload|share", text)))
+
+
+def _ownership_question(message):
+    """Identify concrete institutional ownership questions, not general lessons."""
+    text = message.casefold().replace("ı", "i").replace("i\u0307", "i")
+    if re.fullmatch(r"\s*(?:(?:what is|explain)\s+(?:the\s+)?(?:ownership structure|shareholding|shareholders?)|"
+                    r"(?:ortaklik yapisi|hissedarlik)\s+(?:nedir|ne demek|açikla))(?:[?.!\s]*)", text):
+        return False
+    if re.search(r"(?:ortaklik|hissedarlik|ownership|shareholding)\s+(?:(?:yapisi|structure)\s+)?(?:nedir|ne demek|ne anlama|means|meaning)", text):
+        # A possessive named entity makes the same wording a factual question.
+        if not re.search(r"(?:['’](?:nin|in|un)|\b\w+(?:nin|nın)\b).{0,20}(?:ortaklik|hissedarlik)", text):
+            return False
+    return bool(re.search(r"\b(?:ortaklari\w*|hissedarlari\w*|shareholders?\b|owners?\b|owned\s+by\b|ownership\s+structure\b)", text)
+                or re.search(r"\b(?:ortaklik|hissedarlik)\s+yapisi\b", text))
+
+
+def _requests_ownership_percentages(message):
+    text = re.sub(r"https?://[^\s<>]+", "", _fact_text(message))
+    return bool(re.search(r"%|\b(?:yüzde\w*|oran\w*|pay(?:i|ini|inin|lar(?:i|ini|inin)?)?|"
+                          r"hisse(?:si|leri)?|dağilim\w*|percent\w*|proportions?|stakes?|shares?)\b", text))
+
+
+def _ownership_percentage_errors(state, content):
+    if not state.get("external_facts_required") or state.get("ownership_percentages_requested"):
+        return []
+    # Percent-encoded citation URLs are navigation, not numerical claims.
+    text = re.sub(r"https?://[^\s<>]+", "", _fact_text(content))
+    if not re.search(r"%\s*\d|\d[\d., ]*\s*%|\b(?:yüzde|percent)\s*\d|\d[\d., ]*\s*\bpercent\b", text):
+        return []
+    return [{"code": "UNSOLICITED_OWNERSHIP_PERCENTAGES", "message":
+        "The current ownership question asks for names/recommendations, not ownership percentages. "
+        "Rewrite using the complete source-verified owner names and a concrete next analysis action. "
+        "Do not add percentages or justify recommendations using unrequested ownership size/rank; "
+        "do not merely remove percent signs while retaining those numerical claims. Keep source citations."}]
+
+
+def _source_read(result):
+    """Search snippets never satisfy a read; each read still needs interpretation."""
+    return (result.get("status") == "ok" and bool(
+        result.get("text") or result.get("tables") or result.get("rows")
+        or any(page.get("text") for page in result.get("pages", []) if isinstance(page, dict))
+        or any(source.get("content") or source.get("text") or source.get("tables")
+               for source in result.get("sources", []) if isinstance(source, dict))))
+
+
+def _search_url(value):
+    try:
+        parsed = urlsplit(value)
+        if parsed.scheme not in {"http", "https"} or not parsed.hostname:
+            return None
+        return urlunsplit((parsed.scheme.lower(), parsed.netloc.lower(), parsed.path.rstrip("/"), parsed.query, ""))
+    except (TypeError, ValueError):
+        return None
 
 
 def _schema_validation_error(error, tool_schema):
@@ -208,39 +346,31 @@ def _normalize_result(result):
     return result
 
 
-def _web_research_message(result):
-    lines = ["Web kaynakları doğrudan okunarak bulundu. Aşağıdaki bilgiler yalnızca içerikleri okunabilen kaynaklara dayanır.", ""]
-    for index, source in enumerate(result.get("sources", []), 1):
-        title = source.get("title") or source.get("domain") or "Kaynak"
-        date = source.get("date_published") or source.get("date_modified")
-        summary = " ".join(str(source.get("content", "")).split())[:500]
-        lines.append(f"{index}. **{title}**")
-        if date:
-            lines.append(f"   Yayın tarihi: {date}")
-        if summary:
-            lines.append(f"   Kaynak metninden kısa bölüm: {summary}")
-        for table in source.get("tables", [])[:1]:
-            # preview rows are dicts keyed by the SANITIZED column names; original_columns
-            # maps those to the human header. Look up by sanitized key, display the header.
-            keys = table.get("columns") or []
-            header_map = table.get("original_columns") if isinstance(table.get("original_columns"), dict) else {}
-            headers = [header_map.get(key) or key for key in keys]
-            rows = table.get("preview", [])[:8]
-            if keys and rows:
-                lines.append("   Tablo:")
-                lines.append("   | " + " | ".join(str(header) for header in headers) + " |")
-                lines.append("   | " + " | ".join("---" for _ in keys) + " |")
-                for row in rows:
-                    cells = [str(row.get(key, "")) for key in keys] if isinstance(row, dict) else [str(value) for value in row][:len(keys)]
-                    lines.append("   | " + " | ".join(cells) + " |")
-        if source.get("url"):
-            lines.append(f"   Kaynak: [{source.get('url')}]({source.get('url')})")
-        else:
-            lines.append(f"   Yüklenen kaynak: {title}")
-        lines.append("")
-    if result.get("failures"):
-        lines.append(f"Not: {len(result['failures'])} kaynak okunamadığı için listeye alınmadı.")
-    return "\n".join(lines).strip()
+def _web_research_message(result, content=""):
+    """Compact citations for read sources; extracted previews stay in the ledger.
+
+    A page's opening text or first parsed table is not a summary of the user's
+    question. In particular, report covers and SVG labels must not replace the
+    model's source-backed explanation and recommendations.
+    """
+    links, seen = [], set()
+    for source in result.get("sources", []):
+        url = source.get("url") or source.get("source_url")
+        try:
+            parsed = urlsplit(url) if isinstance(url, str) else None
+            safe = (parsed and parsed.scheme in {"http", "https"} and parsed.hostname
+                    and not parsed.username and not parsed.password and not any(ord(char) < 32 for char in url))
+        except ValueError:
+            safe = False
+        if not safe:
+            continue
+        key = _search_url(url)
+        if key in seen or url in content:
+            continue
+        seen.add(key)
+        title = source.get("title") or source.get("filename") or parsed.hostname
+        links.append(f"[{_display_label(title)}]({quote(url, safe=':/?#&=%+@')})")
+    return "Okunan kaynaklar: " + " · ".join(links[:8]) + "." if links else ""
 
 
 def _web_research_failure_message(result):
@@ -318,16 +448,132 @@ class AgentRuntime:
                 "advanced_tools_require": "explicit unsupported_layout for the exact source and table",
                 "authorized_tables": [{"source_id": source, "table_id": table, "root_table_id": root}
                     for source, tables in state.get("advanced_source_tables", {}).items() for table, root in tables.items()]}
+        if state.get("external_facts_required"):
+            context["current_task"]["external_facts_requirement"] = (
+                "Read an authoritative source for the requested institution's ownership/shareholders. "
+                "Memory, previous assistant lists and search snippets are not evidence. "
+                "Do not substitute the active financial table for an institutional fact answer.")
+        progress = state.get("search_progress", {})
+        if progress.get("paused"):
+            context["source_recovery"] = self._search_recovery(state)
         return context
 
     def _model_tool_schemas(self, state):
         hidden = ({"prepare_source_table", "publish_selected_table"}
                   if "ingest_source_table" in self.tools and not any(state.get("advanced_source_tables", {}).values()) else set())
+        if state.get("search_progress", {}).get("paused"):
+            hidden.add("web_search")
         return [definition["schema"] for name, definition in self.tools.items() if name not in hidden]
+
+    def _search_recovery(self, state):
+        return {"reason": "Searches are not finding new source URLs; changing query wording alone is not progress.",
+                "available_tools": [name for name in ("research_web", "inspect_source", "find_source_pages", "read_source_table") if name in self.tools],
+                "candidate_urls": state.get("search_progress", {}).get("urls", [])[-8:],
+                "next_step": "Read a relevant official result and follow its discovered report links, or use research_web with the institution's domain. Do not guess URLs, dates, values or treat snippets as evidence. If no source is readable, explain what is missing and retain the existing analysis."}
+
+    def _track_search_progress(self, state, name, result):
+        """Track source novelty across query rewrites, durably with each step."""
+        progress = state.setdefault("search_progress", {"urls": [], "stale_calls": 0})
+        if name == "web_search" and result.get("status") == "ok":
+            urls = list(dict.fromkeys(url for item in result.get("results", []) if isinstance(item, dict)
+                                     if (url := _search_url(item.get("url")))))
+            seen = set(progress["urls"])
+            fresh = [url for url in urls if url not in seen]
+            progress["urls"] = [*progress["urls"], *fresh][-300:]
+            progress["stale_calls"] = 0 if fresh else progress["stale_calls"] + 1
+            result["progress"] = {"new_source_urls": len(fresh), "repeated_result_sets": progress["stale_calls"]}
+            if progress["stale_calls"] >= 2:
+                progress["paused"] = True
+                if not any(warning.get("code") == "SEARCH_RESULTS_REPEATED" for warning in result.get("warnings", [])):
+                    result.setdefault("warnings", []).append({"code": "SEARCH_RESULTS_REPEATED",
+                        "message": "Successive searches produced no new source URLs. Raw search is paused until a source is read."})
+                result["recovery"] = self._search_recovery(state)
+        elif name in {"research_web", "inspect_source", "read_source_table"} and _source_read(result):
+            # Only a successful source read reopens discovery. A duplicate read
+            # cannot reset the stall repeatedly or erase unrelated tool errors.
+            read_key = fingerprint({key: result.get(key) for key in ("source_id", "source_url", "text", "pages", "tables", "rows", "sources")})
+            if read_key not in progress.get("reads", []):
+                progress.setdefault("reads", []).append(read_key)
+                progress["paused"] = False
+                progress["stale_calls"] = 0
+                unresolved = state.setdefault("unresolved_errors", {})
+                # Dispatch tracks progress before appending the current result.
+                # For ownership research, the replacement read must also meet
+                # the existing topic/institution gate, not merely open a page.
+                evidence = {**state, "tool_results": [*state.get("tool_results", []), {"tool": name, "result": result}]}
+                if not self._external_fact_errors(evidence, ""):
+                    for navigation in ("web_search", "research_web"):
+                        remaining = [error for error in unresolved.get(navigation, [])
+                                     if error.get("code") not in _RECOVERABLE_SEARCH_ERRORS]
+                        if remaining:
+                            unresolved[navigation] = remaining
+                        else:
+                            unresolved.pop(navigation, None)
+
+    @staticmethod
+    def _external_fact_errors(state, content):
+        if not state.get("external_facts_required"):
+            return []
+        # A short clarification may ask the user to name the institution; it
+        # makes no ownership assertion and should not require an arbitrary search.
+        if len(content) < 240 and re.match(r"\s*(?:Hangi|Hangisini|Which)\b", content, re.I) and content.rstrip().endswith("?"):
+            return []
+        percentage_errors = _ownership_percentage_errors(state, content)
+        reads = [item for item in state.get("tool_results", []) if item.get("tool") in {"research_web", "inspect_source", "read_source_table"}]
+        identities = {}
+        for item in reads:
+            result = item.get("result", {})
+            if result.get("status") != "ok":
+                continue
+            for source in result.get("sources", [result]):
+                if source.get("source_id") and (source.get("url") or source.get("source_url")):
+                    identities[source["source_id"]] = {"source_url": source.get("url") or source["source_url"],
+                        "title": source.get("title") or source.get("article", {}).get("title"), "raw_sha256": source.get("raw_sha256")}
+        for item in reads:
+            result = item.get("result", {})
+            identity = identities.get(result.get("source_id"))
+            if item["tool"] == "read_source_table" and identity and (
+                    not identity.get("raw_sha256") or not result.get("raw_sha256") or identity["raw_sha256"] == result["raw_sha256"]):
+                # Row reads carry their registered source ID; use the URL from
+                # that same successful read, never infer identity from ID text.
+                result = {**identity, **result}
+            if _ownership_source(result, state.get("ownership_subject")):
+                return percentage_errors
+        return [*percentage_errors, {"code": "EXTERNAL_FACTS_UNVERIFIED", "message":
+                 "Institutional ownership/shareholder facts require matching ownership content read in this turn, for the explicitly named institution when present. Read the authoritative ownership page or table; unrelated reports, search snippets and remembered bank lists do not verify membership."}]
+
+    def _failure_message(self, state, errors):
+        codes = {error.get("code") for error in errors}
+        if "UNSOLICITED_OWNERSHIP_PERCENTAGES" in codes:
+            return "Yanıt, istenmeyen ve kaynakla tutarlılığı doğrulanmamış ortaklık oranları içerdiği için sunulamadı. Ortak adları ve karşılaştırmanın sonraki adımıyla sınırlı bir yanıt gerekiyor."
+        if "EXTERNAL_FACTS_UNVERIFIED" in codes:
+            return "Ortaklık bilgilerini doğrulayabileceğim bir kaynak okuyamadım; doğrulanmamış bir kurum listesi veremiyorum. Kurumun resmi ortaklık sayfasını paylaşırsanız oradan kontrol edebilirim."
+        if codes & _SEARCH_FAILURES or state.get("search_progress", {}).get("paused"):
+            return ("Arama sonuçlarından istenen rapora ulaşıp gerekli veriyi doğrulayamadım. "
+                    "Aynı sonuçları getiren aramalar durduruldu. Mevcut analiz korundu; arama özetleri doğrulanmış veri olarak kullanılmadı. "
+                    "Devam etmek için ilgili dönemin resmi rapor bağlantısını paylaşabilir veya dosyayı yükleyebilirsiniz.")
+        return "Analiz güvenilir biçimde tamamlanamadı. Araç hata ayrıntıları kaydedildi."
 
     def _advanced_source_allowed(self, state, args):
         return ("ingest_source_table" not in self.tools or
                 args.get("table_id") in state.get("advanced_source_tables", {}).get(args.get("source_id"), {}))
+
+    def _premature_source_question(self, record, state, question):
+        if (state.get("source_clarification_repair") or state["decisions"] >= self.max_decisions
+                or not _source_permission_question(question)
+                or not re.search(r"\b(?:ekle|ekleyelim|ekleyebilir\w*|dahil\s+et|add|include|extend)\b", _fact_text(record["message"]))
+                or _external_research_forbidden(state.get("messages", []))
+                or not self.store.workspace(self.workspace_id).get("analysis_head")
+                or not any(name in self.tools for name in ("research_web", "web_search"))):
+            return False
+        results = state.get("tool_results", [])
+        if any(item.get("tool") in {"web_search", "research_web", "inspect_source", "find_source_pages", "read_source_table"}
+               for item in results):
+            return False
+        return any((item.get("tool") == "discover" and item.get("result", {}).get("no_confident_match"))
+                   or (item.get("tool") == "dimension_values" and item.get("result", {}).get("status") == "ok"
+                       and item["result"].get("total") == 0)
+                   for item in results)
 
     @staticmethod
     def _clear_source_workflow_errors(state, source_id, table_id):
@@ -405,6 +651,9 @@ class AgentRuntime:
         invocation_started = time.monotonic()
         state, run_id = record["state"], record["run_id"]
         try:
+            state.setdefault("external_facts_required", _ownership_question(record["message"]))
+            state.setdefault("ownership_subject", _ownership_subject(record["message"]))
+            state.setdefault("ownership_percentages_requested", _requests_ownership_percentages(record["message"]))
             if "request_normalization" not in state:
                 state["request_normalization"] = {"same_unit_scale": True} if _requests_shared_scale(record["message"]) else None
             if state.get("delivery_pending") and not state["pending"]:
@@ -488,7 +737,11 @@ class AgentRuntime:
                             state["web_research_completed"] = True
                             # A web result can recover a failed search, but does
                             # not repair an invalid calculation or failed chart.
-                            unresolved.pop("web_search", None)
+                            search_errors = [error for error in unresolved.get("web_search", []) if error.get("code") not in _RECOVERABLE_SEARCH_ERRORS]
+                            if search_errors:
+                                unresolved["web_search"] = search_errors
+                            else:
+                                unresolved.pop("web_search", None)
                             for lookup in ("discover", "describe", "dimension_values"):
                                 if unresolved.get(lookup) and all(error.get("code") in {
                                         "METRIC_NOT_FOUND", "DIMENSION_VALUE_NOT_FOUND", "SOURCE_NOT_FOUND"}
@@ -509,6 +762,36 @@ class AgentRuntime:
                             unresolved.pop(tool_name, None)
                         return self._complete(record, state, **state["delivery_pending"])
                     if result.get("status") == "needs_input":
+                        if tool_name == "ask_user":
+                            remaining = [error for error in unresolved.get(tool_name, []) if error.get("code") != "INVALID_TOOL_ARGUMENTS"]
+                            if remaining:
+                                unresolved[tool_name] = remaining
+                            else:
+                                unresolved.pop(tool_name, None)
+                        if tool_name == "ask_user" and self._premature_source_question(record, state, result.get("message", "")):
+                            state["source_clarification_repair"] = True
+                            state["messages"].append({"role": "assistant", "content":
+                                "Kullanıcı mevcut analize ekleme yapılmasını istedi. Katalogda bulunmaması, resmi kaynak araştırması için yeniden izin istemeyi gerektirmez. "
+                                "Bu turda henüz dış kaynak araştırılmadı: mevcut araçlarla resmi kaynağı ara ve oku. "
+                                "Dönem, ölçü, birim ve kurum kapsamını güncel active_plan ve active_schema üzerinden koru; güncel workspace_version değerini kullan. "
+                                "Kullanıcının adını verdiği tek bir kurum yerine onu da içeren toplu bir sektör grubunu seçenek olarak sunma. "
+                                "Kaynak adresi, tutar veya yeni bir kapsam uydurma. Uygun kaynağa ulaşamazsan eksikliği açıklayıp bağlantı iste; gerçek kapsam veya kurum belirsizliğinde seçim sorabilirsin."})
+                            self.run_store.event(run_id, "delivery_repair", {"reason": "premature_source_request"})
+                            self.run_store.checkpoint(run_id, state)
+                            continue
+                        missing_facts = self._external_fact_errors(state, "")
+                        if missing_facts and _permission_to_research(result.get("message", "")):
+                            if (not state.get("ownership_clarification_repair") and state["decisions"] < self.max_decisions
+                                    and any(name in self.tools for name in ("research_web", "inspect_source"))):
+                                state["ownership_clarification_repair"] = True
+                                state["messages"].append({"role": "assistant", "content":
+                                    "Kullanıcı ortaklık bilgisini zaten sordu; araştırmak için yeniden izin isteme. "
+                                    "Önce kurumun resmi ortaklık kaynağını oku ve doğrulanmış bilgiyi sun. "
+                                    "Sonrasında gerekiyorsa yalnız analize eklenecek kurum seçimini sor."})
+                                self.run_store.event(run_id, "delivery_repair", {"errors": missing_facts, "reason": "unnecessary_research_permission"})
+                                self.run_store.checkpoint(run_id, state)
+                                continue
+                            return self._finish(record, state, "blocked", self._failure_message(state, missing_facts), errors=missing_facts)
                         # A clarifying question asked AFTER a result was produced this turn
                         # must not bury it behind a dead-end needs_input; present the saved
                         # analysis/chart and surface the question with it instead.
@@ -523,7 +806,7 @@ class AgentRuntime:
                             refusal = self._barren_refusal(state)
                             if refusal:
                                 return self._finish(record, state, "completed", refusal[0], warnings=[refusal[1]])
-                            return self._finish(record, state, "blocked", "Analiz güvenilir biçimde tamamlanamadı. Araç hata ayrıntıları kaydedildi.", errors=result.get("errors", []))
+                            return self._finish(record, state, "blocked", self._failure_message(state, result.get("errors", [])), errors=result.get("errors", []))
                     continue
 
                 messages = self._messages(state)
@@ -564,7 +847,7 @@ class AgentRuntime:
                         if state["repairs"] > self.max_repairs:
                             return self._finish(record, state, "blocked", "Model okunabilir bir Türkçe cevap üretemedi.", errors=[{"code": "UNREADABLE_MODEL_OUTPUT", "message": "Final answer failed the charset/language readability check."}])
                         continue
-                    missing_outputs = self._task_delivery_errors(state) + self._numeric_evidence_errors(state, content)
+                    missing_outputs = self._task_delivery_errors(state) + self._numeric_evidence_errors(state, content) + self._external_fact_errors(state, content)
                     corrective_errors = self._corrective_delivery_errors(state)
                     if ((missing_outputs or corrective_errors)
                             and (not state.get("unresolved_errors") or corrective_errors)
@@ -588,6 +871,9 @@ class AgentRuntime:
             refusal = self._barren_refusal(state)
             if refusal:
                 return self._finish(record, state, "completed", refusal[0], warnings=[refusal[1]])
+            if state.get("search_progress", {}).get("paused"):
+                errors = [{"code": "SEARCH_STRATEGY_EXHAUSTED", "message": "Search result novelty was exhausted; no successful source-reading recovery completed within the decision budget."}]
+                return self._finish(record, state, "blocked", self._failure_message(state, errors), errors=errors)
             return self._finish(record, state, "blocked", "Bu adımın model çağrı sınırına ulaşıldı; mevcut sonuçlar korundu.", errors=[{"code": "DECISION_BUDGET_EXCEEDED", "message": "Bounded agent decision budget reached."}])
         except MiaError as exc:
             return self._finish(record, state, "failed", str(exc), errors=[{"code": exc.code, "message": str(exc), "retryable": exc.retryable, "attempts": exc.attempts, "usage_unknown": True}])
@@ -618,6 +904,9 @@ class AgentRuntime:
         errors = [error for failures in state.get("unresolved_errors", {}).values() for error in failures]
         errors.extend(self._task_delivery_errors(state))
         errors.extend(self._numeric_evidence_errors(state, content))
+        errors.extend(self._external_fact_errors(state, content))
+        if state.get("search_progress", {}).get("paused"):
+            errors.append({"code": "SEARCH_STRATEGY_EXHAUSTED", "message": "Repeated search results remain unresolved; a relevant source has not been read."})
         if "create_chart" in self.tools and _requests_chart(record["message"]) and not state.get("chart_updated"):
             errors.append({"code": "CHART_NOT_CREATED", "message": "This turn requested a chart but produced no saved chart artifact."})
         source_table = any(
@@ -637,30 +926,38 @@ class AgentRuntime:
         web_sources, seen_urls = [], set()
         for item in state.get("tool_results", []):
             result = item.get("result", {})
-            if item.get("tool") != "research_web" or result.get("status") != "ok":
+            if item.get("tool") not in {"research_web", "inspect_source", "read_source_table"} or result.get("status") != "ok":
                 continue
-            for source in result.get("sources", []):
-                if source.get("url") and source["url"] not in seen_urls:
-                    seen_urls.add(source["url"])
+            sources = result.get("sources", []) if item.get("tool") == "research_web" else [result]
+            for source in sources:
+                readable = _source_read({"status": "ok", **source}) or source.get("content") or (source.get("article") or {}).get("article_body")
+                url = source.get("url") or source.get("source_url")
+                if readable and url and _search_url(url) not in seen_urls:
+                    seen_urls.add(_search_url(url))
                     web_sources.append(source)
-        if web_sources:
-            source_message = _web_research_message({"sources": web_sources})
-            grounded = "\n\n".join(part for part in (grounded, source_message) if part)
         if errors:
-            has_output = state.get("analysis_updated") or state.get("chart_updated") or bool(web_sources)
+            facts_missing = any(error.get("code") in {"EXTERNAL_FACTS_UNVERIFIED", "UNSOLICITED_OWNERSHIP_PERCENTAGES"} for error in errors)
+            has_output = state.get("analysis_updated") or state.get("chart_updated") or (bool(web_sources) and not facts_missing)
             message = "Bazı istenen adımlar tamamlanamadı; kaydedilen sonuçlar ve hata ayrıntıları korundu."
             if not has_output:
                 message = "İstenen işlem tamamlanamadı; yeni bir analiz veya grafik sonucu üretilmedi."
-            if grounded:
-                message += "\n\n" + grounded
+            if any(error.get("code") in _SEARCH_FAILURES | {"EXTERNAL_FACTS_UNVERIFIED", "UNSOLICITED_OWNERSHIP_PERCENTAGES"} for error in errors):
+                message = self._failure_message(state, errors)
+            source_message = "" if facts_missing else _web_research_message({"sources": web_sources}, grounded)
+            partial_receipt = "\n\n".join(part for part in (grounded, source_message) if part)
+            if partial_receipt:
+                message += "\n\n" + partial_receipt
             return self._finish(record, state, "partial" if has_output else "blocked", message, errors=errors,
                                 **({"warnings": warnings} if warnings else {}))
         message = grounded or content
-        if set((state.get("task_plan") or {}).get("deliverables", [])) == {"explanation"} and not grounded:
+        if set((state.get("task_plan") or {}).get("deliverables", [])) == {"explanation"} and not grounded and not web_sources:
             message = "Genel açıklama (kaynak verilerden hesaplanmış bir sonuç değildir):\n\n" + content
         if followup and grounded:
             # Keep a clearly labeled question separate from computed facts.
             message += "\n\nDevam için soru: " + content
+        source_message = _web_research_message({"sources": web_sources}, message)
+        if source_message:
+            message += "\n\n" + source_message
         return self._finish(record, state, terminal_status, message,
                             **({"warnings": warnings} if warnings else {}))
 
@@ -955,9 +1252,9 @@ class AgentRuntime:
         it looped on a missing row or a genuinely absent concept. Returns
         (message, warning) or None to fall through to the plain terminal. Loop errors
         (NO_PROGRESS) are non-blocking here; any real tool failure suppresses the refusal."""
-        if state.get("analysis_updated") or state.get("chart_updated"):
+        if state.get("analysis_updated") or state.get("chart_updated") or state.get("external_facts_required"):
             return None
-        if any(e.get("code") not in {"NO_PROGRESS", "UNKNOWN_MUTATION_OUTCOME"}
+        if any(e.get("code") not in {"NO_PROGRESS"}
                for errors in (state.get("unresolved_errors") or {}).values() for e in errors):
             return None
         if state.get("dimension_barren"):
@@ -1072,6 +1369,8 @@ class AgentRuntime:
                 if step["args"] != args or step["name"] != name:
                     raise PlanError("Persisted call identity changed", code="CALL_ID_CONFLICT")
                 if step["result"] is not None:
+                    if name in {"web_search", "research_web", "inspect_source", "read_source_table"}:
+                        self._track_search_progress(state, name, step["result"])
                     return step["result"]
                 recovered = self._recover(step, definition)
                 if recovered is not None:
@@ -1081,7 +1380,18 @@ class AgentRuntime:
                     return recovered
             else:
                 key = fingerprint({"name": name, "args": args, "revision": self.store.workspace(self.workspace_id)["revision_id"]})
+                if name == "web_search" and state.get("search_progress", {}).get("paused"):
+                    result = _blocked("SEARCH_STRATEGY_EXHAUSTED", "Raw searches are paused because they yielded no new source URLs. Read or research a source instead of rewording the same query.")
+                    result["recovery"] = self._search_recovery(state)
+                    self.run_store.event(run_id, "tool_result", {"tool": name, "call_id": call["id"], "result": result})
+                    return result
                 if state["seen"].get(key, 0) >= 2:
+                    if name == "web_search":
+                        state.setdefault("search_progress", {"urls": [], "stale_calls": 0})["paused"] = True
+                        result = _blocked("SEARCH_NO_PROGRESS", "The same search has already run twice without new evidence. Continue with a source-reading tool; the repeated search was not executed.")
+                        result["recovery"] = self._search_recovery(state)
+                        self.run_store.event(run_id, "tool_result", {"tool": name, "call_id": call["id"], "result": result})
+                        return result
                     return _blocked("NO_PROGRESS", "The same tool request has already been attempted twice without a workspace change.")
                 state["seen"][key] = state["seen"].get(key, 0) + 1
                 current = self.store.workspace(self.workspace_id)
@@ -1105,6 +1415,8 @@ class AgentRuntime:
             else:
                 result = definition["handler"](args)
             result = _normalize_result(result)
+            if name in {"web_search", "research_web", "inspect_source", "read_source_table"}:
+                self._track_search_progress(state, name, result)
             if name == "create_chart" and any(error.get("code") == "CHART_SERIES_LIMIT" for error in result.get("errors", [])):
                 self._remember_chart_capacity_selection(state, args)
             canonical(result)

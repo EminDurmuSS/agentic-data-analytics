@@ -71,6 +71,57 @@ class FinancialImportTests(unittest.TestCase):
         analysis = DatasetTools(self.store, "financial_import").aggregate_dataset(**query["arguments"])
         self.assertEqual(analysis["status"], "ok", analysis)
 
+    def test_turkish_uppercase_long_currency_caption_keeps_exact_source_quote(self):
+        args = self.basic(caption="BİN TÜRK LİRASI", title="KONSOLİDE BİLANÇO (FİNANSAL DURUM TABLOSU)")
+        result = self.handler({**args, "row_labels": ["Total assets"], "measure_kind": "stock"})
+        self.assertEqual(result["status"], "ok", result)
+        amount = result["published_columns"]["amount"]
+        self.assertEqual((amount["unit"], amount["currency"], amount["scale"]), ("TRY", "TRY", 1000))
+        self.assertEqual(result["compile_receipt"]["semantic_evidence"]["unit_quote"], "BİN TÜRK LİRASI")
+        self.assertEqual(pd.read_parquet(self.store.overlay_path(result["dataset_id"]))["amount"].tolist(), [1234567, 2345678])
+
+    def test_stale_version_preserves_workspace_and_same_selection_can_retry_current_version(self):
+        source = self.basic()
+        first = self.handler({**source, "row_labels": ["Cash"]})
+        self.assertEqual(first["status"], "ok", first)
+        before = self.store.workspace("financial_import")
+        first_path = self.store.overlay_path(first["dataset_id"])
+        original_bytes = first_path.read_bytes()
+        args = {**source, "row_labels": ["Total assets"], "periods": ["2026-03-31"], "measure_kind": "stock"}
+        submitted = copy.deepcopy(args)
+        blocked = self.handler(args)
+        self.assertEqual(blocked["code"], "VERSION_CONFLICT", blocked)
+        self.assertEqual(blocked["submitted_version"], 0)
+        self.assertEqual(blocked["current_version"], before["version"])
+        self.assertEqual(blocked["current_revision_id"], before["revision_id"])
+        self.assertFalse(blocked["publication_performed"])
+        self.assertEqual(self.store.workspace("financial_import"), before)
+        self.assertEqual(first_path.read_bytes(), original_bytes)
+        self.assertEqual(args, submitted)
+        retry = blocked["recovery"]["suggested_ingest_arguments"]
+        self.assertEqual(retry, {**submitted, "expected_version": before["version"]})
+        result = self.handler(retry)
+        self.assertEqual(result["status"], "ok", result)
+        self.assertEqual(pd.read_parquet(self.store.overlay_path(result["dataset_id"])).to_dict("records"),
+                         [{"line_item": "Total assets", "period": "2026-03-31", "amount": 2345678}])
+        self.assertEqual(self.store.workspace("financial_import")["version"], before["version"] + 1)
+
+    def test_turkish_money_caption_still_requires_one_explicit_common_currency_and_scale(self):
+        from agentic_analytics.agent.tools.documents import _unit_caption
+        from agentic_analytics.lakehouse.units import unit_quote_matches
+        for caption, scale in [("BİN TÜRK LİRASI", 1000), ("MİLYON TÜRK LİRASI", 1000000),
+                               ("(Milyar Türk Lirası)", 1000000000)]:
+            with self.subTest(caption=caption):
+                self.assertEqual(_unit_caption("KONSOLİDE BİLANÇO\n" + caption), caption)
+                self.assertTrue(unit_quote_matches("TRY", scale, caption))
+                self.assertFalse(unit_quote_matches("USD", scale, caption))
+                self.assertFalse(unit_quote_matches("TRY", scale * 1000, caption))
+        for caption in ("", "Banka geçen yıl bin Türk Lirası yatırmıştır.", "BİN TÜRK LİRASI\nMİLYON TÜRK LİRASI"):
+            with self.subTest(ambiguous=caption):
+                result = self.handler({**self.basic(caption=caption), "row_labels": ["Total assets"]})
+                self.assertEqual(result["code"], "AMBIGUOUS_IMPORT_UNIT", result)
+                self.assertEqual(self.store.workspace("financial_import")["version"], 0)
+
     def test_repeated_header_groups_require_explicit_total_and_bind_their_dates(self):
         args = self.source([[None, None, "31 March 2026", None, "31 December 2025", None, None],
                             [None, "LC", "FC", "Total", "LC", "FC", "Total"],

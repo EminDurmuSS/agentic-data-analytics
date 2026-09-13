@@ -446,6 +446,322 @@ class AgentRuntimeTests(unittest.TestCase):
         result = runtime.run("empty")
         self.assertEqual(result["errors"][0]["code"], "EMPTY_MODEL_RESPONSE")
 
+    @staticmethod
+    def source_tools(search=None, inspect=None, research=None):
+        tools = {}
+        for name, field, handler in (("web_search", "query", search), ("inspect_source", "url", inspect), ("research_web", "query", research)):
+            if handler is not None:
+                tools[name] = {"schema": {"type": "function", "function": {"name": name,
+                    "parameters": obj({field: {"type": "string"}})}}, "handler": handler}
+        return tools
+
+    def test_search_query_rewrites_with_same_urls_switch_to_source_reading(self):
+        attempts = []
+        def search(args):
+            attempts.append(args["query"])
+            # Different ranking and fragments must not count as new sources.
+            urls = ["https://example.org/", "https://example.org/reports"]
+            if len(attempts) % 2 == 0:
+                urls = [url + "#top" for url in reversed(urls)]
+            return {"status": "ok", "results": [{"url": url} for url in urls]}
+        extra = self.source_tools(search, lambda args: {"status": "ok", "source_id": "report",
+                                  "source_url": args["url"], "text": "Verified report text."})
+        responses = [call("web_search", {"query": f"company report variant {i}"}, f"search-{i}") for i in range(3)]
+        responses += [call("inspect_source", {"url": "https://example.org/reports"}, "read"), call("execute", self.plan), FINAL]
+        runtime, client = self.runtime(responses, extra_tools=extra)
+        result = runtime.run("Başka bir şirketi mevcut analize ekle")
+        self.assertEqual(result["status"], "completed", result)
+        self.assertEqual(len(attempts), 3)
+        self.assertNotIn("web_search", {tool["function"]["name"] for tool in client.options[3]["tools"]})
+        self.assertIn("web_search", {tool["function"]["name"] for tool in client.options[4]["tools"]})
+        warning = result["tool_results"][2]["result"]["warnings"][0]
+        self.assertEqual(warning["code"], "SEARCH_RESULTS_REPEATED")
+        self.assertEqual(result["tool_results"][2]["result"]["progress"]["new_source_urls"], 0)
+        self.assertEqual(self.store.workspace(self.workspace_id)["version"], 1)
+
+    def test_identical_search_guard_is_recoverable_without_repeating_handler(self):
+        attempts = []
+        def search(args):
+            attempts.append(args)
+            return {"status": "ok", "results": [{"url": "https://example.org/reports"}]}
+        extra = self.source_tools(search, research=lambda args: {"status": "ok", "sources": [
+            {"url": "https://example.org/reports/quarter.pdf", "content": "Quarterly report."}]})
+        responses = [call("web_search", {"query": "company report"}, f"search-{i}") for i in range(3)]
+        responses += [call("research_web", {"query": "company financial report"}, "research"), call("execute", self.plan), FINAL]
+        runtime, client = self.runtime(responses, extra_tools=extra)
+        result = runtime.run("Kaynağı bul ve analiz yap")
+        self.assertEqual(result["status"], "completed", result)
+        self.assertEqual(len(attempts), 2)
+        self.assertEqual(result["repairs"], 1)
+        self.assertEqual(result["tool_results"][2]["result"]["errors"][0]["code"], "SEARCH_NO_PROGRESS")
+        self.assertIn("research_web", result["tool_results"][2]["result"]["recovery"]["available_tools"])
+        self.assertFalse(self.journal.get(result["run_id"])["state"]["unresolved_errors"])
+        self.assertEqual(len(client.requests), 6)
+
+    def test_ignored_search_stall_is_bounded_and_explains_preserved_analysis(self):
+        initial, _ = self.runtime([call("execute", self.plan), FINAL])
+        parent = initial.run("Kredi tablosunu oluştur")
+        before = self.store.workspace(self.workspace_id)
+        attempts = []
+        def search(args):
+            attempts.append(args)
+            return {"status": "ok", "results": [{"url": "https://example.org/"}]}
+        extra = self.source_tools(search, lambda args: {"status": "ok", "text": "Unused source."})
+        responses = [call("web_search", {"query": f"report variant {i}"}, f"search-{i}") for i in range(6)]
+        runtime, client = self.runtime(responses, extra_tools=extra)
+        result = runtime.run("Yeni şirketi ekle", conversation_id=parent["conversation_id"])
+        self.assertEqual(result["status"], "blocked")
+        self.assertEqual(len(attempts), 3)
+        self.assertEqual(len(client.requests), 6)
+        self.assertEqual(result["errors"][0]["code"], "SEARCH_STRATEGY_EXHAUSTED")
+        self.assertIn("Mevcut analiz korundu", result["message"])
+        self.assertIn("rapor bağlantısını", result["message"])
+        self.assertEqual(self.store.workspace(self.workspace_id), before)
+
+    def test_source_failure_can_use_another_url_but_mutation_unknown_stops(self):
+        attempts = []
+        def inspect(args):
+            attempts.append(args["url"])
+            return ({"status": "blocked", "code": "SOURCE_NOT_FOUND", "message": "Unavailable URL"}
+                    if len(attempts) == 1 else {"status": "ok", "source_id": "report", "text": "Source read."})
+        runtime, _ = self.runtime([call("inspect_source", {"url": "https://example.org/old"}, "old"),
+            call("inspect_source", {"url": "https://example.org/new"}, "new"), call("execute", self.plan), FINAL],
+            extra_tools=self.source_tools(inspect=inspect))
+        result = runtime.run("Kaynağı bul ve analiz yap")
+        self.assertEqual(result["status"], "completed", result)
+        runtime, client = self.runtime([call("inspect_source", {"url": "https://example.org/"})],
+            extra_tools=self.source_tools(inspect=lambda args: {"status": "blocked", "code": "UNKNOWN_MUTATION_OUTCOME", "message": "Unreconciled write"}))
+        result = runtime.run("Durumu kontrol et")
+        self.assertEqual(result["status"], "blocked")
+        self.assertEqual(result["errors"][0]["code"], "UNKNOWN_MUTATION_OUTCOME")
+        self.assertEqual(len(client.requests), 1)
+
+    def test_institutional_ownership_requires_source_read_and_repairs_once(self):
+        invented = {"content": "Ortakları Alpha, Beta, Gamma ve diğer tüm bankalardır.", "tool_calls": [], "finish_reason": "stop"}
+        extra = self.source_tools(research=lambda args: {"status": "ok", "sources": [
+            {"url": "https://example.org/shareholders", "title": "Shareholders", "content": "Alpha and Beta are the shareholders."}]})
+        runtime, client = self.runtime([invented, call("research_web", {"query": "Example company official shareholders"}), FINAL], extra_tools=extra)
+        result = runtime.run("Bu şirketin ortakları kimler, hangilerini karşılaştırmaya ekleyelim?")
+        self.assertEqual(result["status"], "completed", result)
+        self.assertIn("https://example.org/shareholders", result["message"])
+        self.assertNotIn("Gamma", result["message"])
+        self.assertIn("EXTERNAL_FACTS_UNVERIFIED", json.dumps(client.requests[1]))
+        self.assertNotIn("Gamma", json.dumps(self.journal.get(result["run_id"])["state"]["messages"]))
+
+    def test_search_snippets_never_verify_shareholder_list(self):
+        invented = {"content": "Ortakları Alpha ve Beta bankalarıdır.", "tool_calls": [], "finish_reason": "stop"}
+        extra = self.source_tools(search=lambda args: {"status": "ok", "results": [
+            {"url": "https://example.org/shareholders", "snippet": "Alpha and Beta are shareholders."}]})
+        runtime, client = self.runtime([call("web_search", {"query": "Example shareholders"}), invented, invented], extra_tools=extra)
+        result = runtime.run("Example şirketinin hissedarları kim?")
+        self.assertEqual(result["status"], "blocked")
+        self.assertIn("EXTERNAL_FACTS_UNVERIFIED", {error["code"] for error in result["errors"]})
+        self.assertNotIn("Alpha", result["message"])
+        self.assertEqual(len(client.requests), 3)
+
+    def test_replaced_search_argument_error_does_not_poison_successful_research(self):
+        extra = self.source_tools(search=lambda args: {"status": "ok", "results": []},
+            research=lambda args: {"status": "ok", "sources": [{"url": "https://example.org/report", "content": "Quarterly report read."}]})
+        extra["web_search"]["schema"]["function"]["parameters"]["properties"]["limit"] = {"type": "integer"}
+        runtime, _ = self.runtime([call("web_search", {"query": "company report", "limit": "5"}),
+            call("research_web", {"query": "company report"}, "read"), call("execute", self.plan, "save"), FINAL], extra_tools=extra)
+        result = runtime.run("Kaynağı bul ve analize ekle")
+        self.assertEqual(result["status"], "completed", result)
+        self.assertTrue(result["analysis_updated"])
+        self.assertEqual(result["tool_results"][0]["result"]["errors"][0]["code"], "INVALID_TOOL_ARGUMENTS")
+
+    def test_ownership_permission_request_repairs_to_research_without_user_pause(self):
+        permission = call("ask_user", {"question": "Resmi ortaklarını kontrol etmemi ister misiniz?"})
+        tools = self.source_tools(research=lambda args: {"status": "ok", "sources": [
+            {"url": "https://example.org/ownership", "content": "Example ortakları: Alpha ve Beta."}]})
+        runtime, client = self.runtime([call("ask_user", {"question": 123}, "invalid-question"), permission,
+            call("research_web", {"query": "Example ortaklık yapısı"}),
+            {**FINAL, "content": "Example ortakları Alpha ve Beta'dır."}], extra_tools=tools)
+        result = runtime.run("Example'nin ortakları kimler?")
+        self.assertEqual(result["status"], "completed", result)
+        self.assertIn("Alpha", result["message"])
+        self.assertEqual(len(client.requests), 4)
+        self.assertTrue(self.journal.get(result["run_id"])["state"]["ownership_clarification_repair"])
+        runtime, client = self.runtime([permission, permission], extra_tools=tools)
+        result = runtime.run("Example'nin ortakları kimler?")
+        self.assertEqual(result["status"], "blocked")
+        self.assertEqual(len(client.requests), 2)
+        self.assertEqual(result["errors"][0]["code"], "EXTERNAL_FACTS_UNVERIFIED")
+
+    def test_ownership_requires_matching_topic_and_explicit_subject(self):
+        invented = {"content": "Ortakları Alpha, Beta ve uydurma Gamma bankalarıdır.", "tool_calls": [], "finish_reason": "stop"}
+        for source in [
+            {"text": "Example quarterly total assets report."},
+            {"text": "OtherCo shareholders are Alpha and Beta.", "source_url": "https://otherco.example/shareholders"},
+            {"article": {"source_links": [{"title": "Shareholders"}]}, "text": "Example home page."},
+        ]:
+            with self.subTest(source=source):
+                tools = self.source_tools(inspect=lambda args: {"status": "ok", "source_id": "any_registered_id", **source})
+                runtime, _ = self.runtime([call("inspect_source", {"url": "https://example.org/report"}), invented, invented], extra_tools=tools)
+                result = runtime.run("Example'nin hissedarları kimler?")
+                self.assertEqual(result["status"], "blocked", result)
+                self.assertNotIn("Gamma", result["message"])
+        for source in [
+            {"article": {"article_body": "Example ortakları: Alpha ve Beta."}},
+            {"columns": ["Shareholders"], "rows": [{"Shareholders": "Alpha"}], "source_url": "https://example.org/shareholders"},
+        ]:
+            with self.subTest(source=source):
+                tools = self.source_tools(inspect=lambda args: {"status": "ok", "source_id": "unrelated_id_is_not_evidence", **source})
+                runtime, _ = self.runtime([call("inspect_source", {"url": "https://example.org/ownership"}), FINAL], extra_tools=tools)
+                result = runtime.run("Example'nin hissedarları kimler?")
+                self.assertEqual(result["status"], "completed", result)
+
+    def test_ownership_can_still_ask_for_missing_institution(self):
+        runtime, client = self.runtime([call("ask_user", {"question": "Hangi kurumun hissedarlarını öğrenmek istiyorsunuz?"})])
+        result = runtime.run("Hissedarları kim?")
+        self.assertEqual(result["status"], "needs_input")
+        self.assertEqual(len(client.requests), 1)
+
+    def test_existing_analysis_addition_researches_before_premature_source_permission(self):
+        seed, _ = self.runtime([call("execute", self.plan), FINAL])
+        previous = seed.run("Kredi tablosunu göster")
+        service = LakehouseService(self.store, self.workspace_id)
+        service.dimension_values = lambda args: {"status": "ok", "dimension": "group_code",
+            "total": 0 if args.get("query") else 10, "values": [] if args.get("query") else ["Sektör", "Mevduat"]}
+        for question in (
+            "İş Bankası için resmi kaynağı kullanayım mı? Kaynak URL/dosya adını paylaşın.",
+            "İş Bankası toplam aktiflerini hangi kaynaktan ekleyelim? (1) Konsolide PDF (Garanti’deki gibi), (2) BDDK Yerli Özel bankalar grubu (tek başına değil).",
+        ):
+            with self.subTest(question=question):
+                permission = call("ask_user", {"question": question}, "permission")
+                tools = self.source_tools(research=lambda args: {"status": "ok", "sources": [
+                    {"url": "https://example.org/report", "content": "Official report read."}]})
+                runtime, client = self.runtime([
+                    call("dimension_values", {"metric_id": "credit", "dimension": "group_code", "query": "İş Bankası"}, "empty"),
+                    call("dimension_values", {"metric_id": "credit", "dimension": "group_code"}, "groups"), permission,
+                    call("research_web", {"query": "Official report for the current analysis period"}, "research"),
+                    call("execute", self.plan, "save"), FINAL], service=service, extra_tools=tools)
+                result = runtime.run("İş Bankası\nekle", conversation_id=previous["conversation_id"])
+                self.assertEqual(result["status"], "completed", result)
+                self.assertTrue(result["analysis_updated"])
+                self.assertTrue(self.journal.get(result["run_id"])["state"]["source_clarification_repair"])
+                repaired_request = json.dumps(client.requests[3], ensure_ascii=False)
+                self.assertIn("active_plan", repaired_request)
+                self.assertIn("2021-03", repaired_request)
+                self.assertIn("workspace_version", repaired_request)
+                self.assertEqual(sum(item["tool"] == "research_web" for item in result["tool_results"]), 1)
+
+    def test_source_permission_repair_is_once_and_does_not_override_real_choices_or_restrictions(self):
+        seed, _ = self.runtime([call("execute", self.plan), FINAL])
+        previous = seed.run("Kredi tablosunu göster")
+        service = LakehouseService(self.store, self.workspace_id)
+        service.dimension_values = lambda args: {"status": "ok", "total": 0, "values": [], "dimension": "group_code"}
+        tools = self.source_tools(research=lambda args: {"status": "blocked", "code": "NO_READABLE_SOURCES", "message": "Unavailable"})
+        lookup = call("dimension_values", {"metric_id": "credit", "dimension": "group_code", "query": "OtherCo"}, "lookup")
+        question = "Resmi kaynak URL veya dosyasını paylaşır mısınız?"
+        permission = call("ask_user", {"question": question}, "permission")
+        for request, answer in [
+            ("OtherCo ekle, internet kullanma.", question),
+            ("OtherCo ekle. Sadece yüklediğim dosyaları kullan.", question),
+            ("Add OtherCo, no internet.", question),
+            ("Add OtherCo using only uploaded files.", question),
+            ("OtherCo ekle", "Hangi dönemin resmi kaynak dosyasını kullanayım?"),
+            ("OtherCo ekle", "Konsolide mi solo mu? Resmi kaynağı paylaşır mısınız?"),
+            ("OtherCo ekle", "Hangi şirketin resmi kaynak dosyasını ekleyelim?"),
+        ]:
+            with self.subTest(request=request, answer=answer):
+                runtime, client = self.runtime([lookup, call("ask_user", {"question": answer}, "question")],
+                    service=service, extra_tools=tools)
+                result = runtime.run(request)
+                self.assertEqual(result["status"], "needs_input", result)
+                self.assertEqual(len(client.requests), 2)
+                self.assertFalse(self.journal.get(result["run_id"])["state"].get("source_clarification_repair"))
+        # An explicit restriction from the prior user turn still applies.
+        restricted, _ = self.runtime([call("ask_user", {"question": "Hangi kurum?"})])
+        restricted_turn = restricted.run("Sadece yüklediğim dosyaları kullan.")
+        runtime, client = self.runtime([lookup, permission], service=service, extra_tools=tools)
+        result = runtime.run("OtherCo ekle", conversation_id=restricted_turn["conversation_id"])
+        self.assertEqual(result["status"], "needs_input")
+        self.assertEqual(len(client.requests), 2)
+        for middle in ([], [call("research_web", {"query": "OtherCo report"}, "attempt")]):
+            with self.subTest(attempted=bool(middle)):
+                # Either a repeated question after the one repair or a real
+                # failed research attempt can ask for the missing source.
+                responses = [lookup, *middle, permission] if middle else [lookup, permission, permission]
+                runtime, client = self.runtime(responses, service=service, extra_tools=tools)
+                result = runtime.run("OtherCo ekle")
+                self.assertEqual(result["status"], "needs_input", result)
+                self.assertEqual(len(client.requests), 3)
+
+    def test_research_restriction_uses_whole_negative_verbs_and_latest_explicit_preference(self):
+        from agentic_analytics.agent.runtime import _external_research_forbidden
+        prior = [{"role": "user", "content": "Sadece yüklediğim dosyaları kullan."}]
+        for text in ("web araması yap", "web araştırması yap", "internette ara", "search the web"):
+            with self.subTest(text=text):
+                current = {"role": "user", "content": text}
+                self.assertFalse(_external_research_forbidden([current]))
+                self.assertFalse(_external_research_forbidden([*prior, current]))
+        for text in ("web arama", "web araştırması yapma", "interneti kullanma"):
+            with self.subTest(text=text):
+                self.assertTrue(_external_research_forbidden([{"role": "user", "content": text}]))
+
+    def test_source_url_request_is_valid_when_only_url_reader_exists(self):
+        seed, _ = self.runtime([call("execute", self.plan), FINAL])
+        seed.run("Kredi tablosunu göster")
+        service = LakehouseService(self.store, self.workspace_id)
+        service.dimension_values = lambda args: {"status": "ok", "total": 0, "values": []}
+        tools = self.source_tools(inspect=lambda args: {"status": "ok", "source_id": "source", "text": "Read"})
+        runtime, client = self.runtime([
+            call("dimension_values", {"metric_id": "credit", "dimension": "group_code", "query": "OtherCo"}),
+            call("ask_user", {"question": "Resmi kaynak URL veya dosyasını paylaşır mısınız?"})],
+            service=service, extra_tools=tools)
+        result = runtime.run("OtherCo ekle")
+        self.assertEqual(result["status"], "needs_input", result)
+        self.assertEqual(len(client.requests), 2)
+
+    def test_ownership_table_uses_registered_source_identity(self):
+        tools = self.source_tools(inspect=lambda args: {"status": "ok", "source_id": "registered_source",
+            "source_url": "https://example.org/report", "raw_sha256": "hash", "text": "Financial report cover."})
+        tools["read_source_table"] = {"schema": {"type": "function", "function": {"name": "read_source_table", "parameters": obj({"source_id": {"type": "string"}})}},
+            "handler": lambda args: {"status": "ok", "source_id": args["source_id"], "raw_sha256": "hash", "columns": ["Shareholders"], "rows": [{"candidate_row": 1, "values": {"Shareholders": "Alpha"}}]}}
+        runtime, _ = self.runtime([call("inspect_source", {"url": "https://example.org/report"}),
+            call("read_source_table", {"source_id": "registered_source"}, "ownership-rows"), FINAL], extra_tools=tools)
+        result = runtime.run("Example'nin hissedarları kimler?")
+        self.assertEqual(result["status"], "completed", result)
+
+    def test_general_lessons_and_clarifications_do_not_force_web_research(self):
+        for message, content in [("Ortaklık yapısı nedir?", "Bir şirkette payların sahipler arasındaki dağılımıdır."),
+                                 ("What is ownership structure?", "Bir şirkette payların sahipler arasındaki dağılımıdır."),
+                                 ("Teşekkür ederim", "Rica ederim."),
+                                 ("Hissedarları kim?", "Hangi kurumun hissedarlarını öğrenmek istiyorsunuz?")]:
+            with self.subTest(message=message):
+                runtime, client = self.runtime([{"content": content, "tool_calls": [], "finish_reason": "stop"}])
+                result = runtime.run(message)
+                self.assertEqual(result["status"], "completed", result)
+                self.assertEqual(len(client.requests), 1)
+
+    def test_search_stall_progress_survives_crash_after_result_journaling(self):
+        class Crash(BaseException):
+            pass
+        calls = []
+        def search(args):
+            calls.append(args["query"])
+            return {"status": "ok", "results": [{"url": "https://example.org/reports"}]}
+        extras = self.source_tools(search, lambda args: {"status": "ok", "text": "Source read."})
+        original = self.journal.complete_step
+        def crash_after_journal(run_id, step_id, result):
+            original(run_id, step_id, result)
+            if result.get("progress", {}).get("repeated_result_sets") == 2:
+                raise Crash()
+        self.journal.complete_step = crash_after_journal
+        runtime, _ = self.runtime([call("web_search", {"query": f"variant {i}"}, f"s{i}") for i in range(3)], extra_tools=extras)
+        with self.assertRaises(Crash):
+            runtime.run("Kaynağı bul", request_id="stalled-crash")
+        record = self.journal.find_request(self.workspace_id, "stalled-crash")
+        self.journal = AgentRunStore(self.root / self.workspace_id)
+        runtime, client = self.runtime([call("inspect_source", {"url": "https://example.org/reports"}), FINAL], extra_tools=extras)
+        result = runtime.resume(record["run_id"])
+        self.assertEqual(result["status"], "completed", result)
+        self.assertEqual(len(calls), 3)
+        self.assertNotIn("web_search", {tool["function"]["name"] for tool in client.options[0]["tools"]})
+        stalled = next(item["result"] for item in result["tool_results"] if item["call_id"] == "s2")
+        self.assertEqual(len(stalled["warnings"]), 1)
+
     def test_clarification_continues_and_pending_calls_are_closed(self):
         first = call("ask_user", {"question": "Hangi dönemi inceleyelim?"})
         first["tool_calls"].append(call("describe", {"metric_id": "credit"}, "unused")["tool_calls"][0])

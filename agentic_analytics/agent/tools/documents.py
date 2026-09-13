@@ -44,6 +44,10 @@ _DNS_SLOTS = threading.BoundedSemaphore(4)
 # Curated provider hints stay separate from generic search. They improve query
 # formulation without allowing a non-official result to enter an official run.
 OFFICIAL_SOURCE_REGISTRY = {
+    "kkb.com.tr": {
+        "institution": "Kredi Kayıt Bürosu",
+        "search_variants": ("{query}",),
+    },
     "tcmb.gov.tr": {
         "institution": "TCMB",
         "search_variants": ("{query}", "{query} PDF", "{query} yayın rapor"),
@@ -84,6 +88,7 @@ def _unit_caption(text):
         declaration = any(term in folded for term in ("amounts are", "amounts expressed", "all amounts", "all figures", "figures in", "amounts in", "tutarlar", "aksi belirtilmedikce", "birim:", "unit:"))
         standalone = bool(re.fullmatch(r"[()\s]*(?:(?:tl|try|usd|eur|gbp)\s+(?:million|millions|thousand|thousands|billion|mn|bn|000)|(?:million|millions|thousand|thousands|billion|milyon|milyar|bin)\s+(?:tl|try|usd|eur|gbp))[()\s]*", folded))
         standalone = standalone or bool(re.fullmatch(r"[()\s]*(?:thousands?|millions?|billions?)(?: of)?\s+(?:turkish lira(?:\s*\(tl\))?|us dollars?(?:\s*\(usd\))?|euros?(?:\s*\(eur\))?)[()\s]*", folded))
+        standalone = standalone or bool(re.fullmatch(r"[()\s]*(?:bin|milyon|milyar)\s+(?:turk lirasi(?:\s*\((?:tl|try)\))?|abd dolari(?:\s*\(usd\))?|avro(?:\s*\(eur\))?)[()\s]*", folded))
         if declaration or standalone:
             lines.append(line.strip())
     return "\n".join(lines)[:4000]
@@ -257,12 +262,16 @@ class _HTMLReadable(HTMLParser):
         super().__init__(convert_charrefs=True)
         self.hidden, self.focus = [], 0
         self.text, self.focus_text, self.links = [], [], []
+        self.link_positions = {}
         self.anchor = None
+        self.svg_depth = 0
 
     def handle_starttag(self, tag, attrs):
         attrs = dict(attrs)
-        if tag in {"script", "style", "noscript", "nav", "footer"}:
+        if tag in {"script", "style", "noscript", "nav", "footer", "defs", "symbol"}:
             self.hidden.append(tag)
+        if tag == "svg":
+            self.svg_depth += 1
         if tag in {"main", "article"}:
             self.focus += 1
         if tag in {"p", "div", "h1", "h2", "h3", "li", "tr", "br"}:
@@ -272,6 +281,21 @@ class _HTMLReadable(HTMLParser):
             self.anchor = {"href": attrs.get("href", ""), "text": [],
                            "in_main_content": bool(self.focus) and not self.hidden,
                            "in_navigation": bool(self.hidden)}
+        if tag == "img" and attrs.get("alt", "").strip():
+            # Shareholder and partner lists often consist of linked logos.
+            # Their alternative text is source-authored content, not OCR.
+            self.handle_data(" " + attrs["alt"].strip() + " ")
+        if self.svg_depth and tag in {"svg", "g", "circle", "path", "rect", "use"} and not self.hidden:
+            # Preserve source-authored names in charts whose logos are paths.
+            # Symbol IDs alone are implementation details, not readable names.
+            label = " ".join(attrs.get("aria-label", "").split())[:300]
+            if label:
+                self.handle_data("\n" + label + "\n")
+            elif attrs.get("role") == "progressbar" and attrs.get("data-slice-name", "").strip():
+                label = " ".join(attrs["data-slice-name"].split())[:300]
+                self.handle_data("\nGrafik kategorisi (kaynak etiketi): " + label + "\n")
+            # aria-valuenow may be a rounded visual size. Do not promote it
+            # to an exact amount, percentage, or shareholder interest.
 
     def handle_data(self, value):
         if self.anchor is not None:
@@ -283,14 +307,24 @@ class _HTMLReadable(HTMLParser):
             self.focus_text.append(value)
 
     def handle_endtag(self, tag):
+        if tag == "svg":
+            self.svg_depth = max(0, self.svg_depth - 1)
         if self.hidden and tag == self.hidden[-1]:
             self.hidden.pop()
         if tag in {"main", "article"}:
             self.focus = max(0, self.focus - 1)
         if tag == "a" and self.anchor is not None:
-            if len(self.links) < 500:
-                self.links.append({"href": self.anchor["href"], "title": " ".join("".join(self.anchor["text"]).split())[:300],
-                                   "in_main_content": self.anchor["in_main_content"], "in_navigation": self.anchor["in_navigation"]})
+            link = {"href": self.anchor["href"], "title": " ".join("".join(self.anchor["text"]).split())[:300],
+                    "in_main_content": self.anchor["in_main_content"], "in_navigation": self.anchor["in_navigation"]}
+            key = (link["href"], link["title"])
+            position = self.link_positions.get(key)
+            if position is not None:
+                old = self.links[position]
+                old["in_main_content"] |= link["in_main_content"]
+                old["in_navigation"] &= link["in_navigation"]
+            elif len(self.links) < 2000:
+                self.link_positions[key] = len(self.links)
+                self.links.append(link)
             self.anchor = None
 
 
@@ -325,7 +359,8 @@ def _article_metadata(data, mime_type, final_url):
                            if re.search(r"\.(?:pdf|xlsx?|csv)(?:$|[?#])", link["href"], re.I)][:50],
         "source_links": [{"url": parse.urljoin(final_url, link["href"]), "title": link["title"],
                           "in_main_content": link["in_main_content"], "in_navigation": link["in_navigation"]}
-                         for link in readable.links if link["href"] and not link["href"].startswith(("#", "javascript:", "mailto:", "tel:"))][:500],
+                         for link in sorted(readable.links, key=lambda link: (not link["in_main_content"], link["in_navigation"]))
+                         if link["href"] and not link["href"].startswith(("#", "javascript:", "mailto:", "tel:"))][:500],
         "link_count": len(readable.links),
         "image": image if isinstance(image, str) else None,
     }
@@ -767,12 +802,16 @@ class DocumentTools:
             raise DocumentError("Research query and limit exceed their bounds.")
         lowered = _search_text(query)
         inferred_domains = {
+            "kkb": ["kkb.com.tr"],
+            "kredi kayit burosu": ["kkb.com.tr"],
             "tcmb": ["tcmb.gov.tr"],
             "bddk": ["bddk.org.tr"],
             "tüik": ["tuik.gov.tr"],
             "tuik": ["tuik.gov.tr"],
         }
-        preferred = domains or next((values for key, values in inferred_domains.items() if key in lowered), None)
+        from agentic_analytics.agent.tools.search_backend import search_domains
+        preferred = domains or search_domains(query) or next((values for key, values in inferred_domains.items()
+            if re.search(r"(?<!\w)" + re.escape(_search_text(key)) + r"(?!\w)", lowered)), None)
         if preferred:
             preferred = [domain.strip().casefold() for domain in preferred]
             if any(not re.fullmatch(r"[a-z0-9](?:[a-z0-9-]*[a-z0-9])?(?:\.[a-z0-9](?:[a-z0-9-]*[a-z0-9])?)+", domain) for domain in preferred):
@@ -781,6 +820,12 @@ class DocumentTools:
             hostname = (parse.urlsplit(url).hostname or "").casefold()
             return parse.urlsplit(url).scheme in {"https", "http"} and (not preferred or any(
                 hostname == domain or hostname.endswith("." + domain) for domain in preferred))
+        def same_source_host(left, right):
+            # Public sites often serve the bare root while their own links use
+            # www. Treat that alias as the same site, keeping all other hosts
+            # subject to the original domain and public-address checks.
+            host = lambda url: (parse.urlsplit(url).hostname or "").casefold().removeprefix("www.")
+            return bool(host(left)) and host(left) == host(right)
         registry = OFFICIAL_SOURCE_REGISTRY.get(preferred[0]) if preferred else None
         topic_terms = [term for term in re.findall(r"[\wçğıöşü]+", lowered)
                    if len(term) >= 4 and term not in {"tcmb", "bddk", "tüik", "tuik", "yılında", "raporları", "için", "kaynak", "bağlantısı"}]
@@ -793,7 +838,7 @@ class DocumentTools:
         topic_terms.extend(value for key, value in month_pairs.items() if key in lowered and value not in topic_terms)
         variants = registry["search_variants"] if registry else ("{query}",)
         variant_queries = [variant.format(query=query) for variant in variants]
-        search_queries = ["site:" + preferred[0] + " " + variant for variant in variant_queries] if preferred else variant_queries
+        search_queries = ["site:" + preferred[0] + " " + variant for variant in variant_queries] if preferred and not search_domains(query) else variant_queries
         searches = [self.web_search(search_query, limit=min(10, max(5, limit * 2)))
                     for search_query in search_queries[:3]]
         results, seen_urls = [], set()
@@ -839,6 +884,9 @@ class DocumentTools:
         topic_aliases = {"results": ("results", "earnings", "sonuclar", "financial performance"),
                          "earnings": ("earnings", "results", "financial performance"),
                          "financial": ("financial", "finansal"), "finansal": ("finansal", "financial")}
+        ownership_terms = ("ortaklar", "ortaklari", "ortaklik", "hissedar", "hissedarlari", "hissedarlar",
+                           "shareholder", "shareholders", "shareholding", "ownership")
+        topic_aliases.update({term: ownership_terms for term in ownership_terms})
         def topic_matches(value):
             normalized = " ".join(_search_text(value).split())
             return sum(any(re.search(r"(?<!\w)" + re.escape(alias) + r"(?!\w)", normalized)
@@ -846,10 +894,14 @@ class DocumentTools:
         # These are language/topic aliases, not institution-specific URL rules.
         archive_terms = ["archive", "arşiv", "press release", "basın duyuru", "announcements", "duyurular"]
         specialized_terms = []
+        if any(term in lowered for term in ownership_terms):
+            specialized_terms += ["ortaklar", "ortaklık yapısı", "hissedarlar", "shareholders", "ownership", "shareholding",
+                                  "hakkımızda", "about us", "about-us", "kurumsal yönetim", "corporate governance"]
         if any(term in lowered for term in ("interest", "rate", "faiz", "policy", "politika")):
             specialized_terms += ["monetary policy", "para politikası", "interest rates", "faiz oranları"]
         if any(term in lowered for term in ("report", "rapor", "financial", "finansal")):
             specialized_terms += ["financial results", "finansal sonuç", "annual reports", "faaliyet rapor", "investor relations", "yatırımcı ilişkileri", "earnings", "finansal bilgiler", "publications and results", "financial statements", "mali tablolar"]
+        financial_navigation = any(term in lowered for term in ("report", "rapor", "financial", "finansal"))
         specialized_terms = [_search_text(term) for term in specialized_terms]
         archive_terms = [_search_text(term) for term in archive_terms] + specialized_terms
         day_numbers = set(re.findall(r"\b(?:[1-9]|[12]\d|3[01])\b", lowered))
@@ -896,9 +948,8 @@ class DocumentTools:
                     raise DocumentError("The fetched source redirected outside the requested source domains.", "OFFICIAL_SOURCE_REDIRECT")
                 # A report landing page can be the path to the actual data.
                 # Follow only bounded same-host links in addition to search hits.
-                hostname = parse.urlsplit(source_url).hostname
                 linked = [link for link in article.get("document_links", []) if allowed(link.get("url", ""))
-                          and parse.urlsplit(link["url"]).hostname == hostname and link["url"] not in seen_urls]
+                          and same_source_host(link["url"], source_url) and link["url"] not in seen_urls]
                 depth = result.get("discovery_depth", 0)
                 archive_links = []
                 for link in article.get("source_links", []):
@@ -906,11 +957,21 @@ class DocumentTools:
                     target = link.get("url", "").split("#", 1)[0]
                     label = identity(link)
                     precise_date = bool(requested_dates.intersection(source_dates(label)))
+                    report_navigation = (not financial_navigation or precise_date or bool(re.search(
+                        r"financ|finans|rapor|report|statement|earnings|investor|yatirimci|publications|mali.tablo", label))
+                        or str(link.get("title", "")).strip() in requested_years and link.get("topic_context"))
                     if (depth < 4 or precise_date and depth < 6) and (target not in seen_urls and allowed(target)
-                            and parse.urlsplit(target).hostname == hostname and not different_year(link)
+                            and same_source_host(target, source_url) and not different_year(link)
+                            and report_navigation
                             and (relevance(link) >= 2 or any(term in label for term in archive_terms))):
                         archive_links.append({**link, "url": target})
-                candidates = {link["url"]: link for link in [*linked, *archive_links] if not different_year(link)}
+                candidates = {}
+                for link in [*linked, *archive_links]:
+                    if different_year(link):
+                        continue
+                    previous = candidates.get(link["url"])
+                    if previous is None or relevance(link) > relevance(previous):
+                        candidates[link["url"]] = link
                 ranked_links = sorted(candidates.values(), key=lambda link: relevance(link) + sum(
                     term in identity(link) for term in archive_terms)
                     + 3 * sum(term in identity(link) for term in specialized_terms), reverse=True)
@@ -920,11 +981,16 @@ class DocumentTools:
                 path_text = parse.urlsplit(source_url).path.casefold()
                 title_text = _search_text(article.get("title") or result.get("title", ""))
                 searchable = _search_text(" ".join([article.get("title", ""), article.get("description", ""), content]))
+                from agentic_analytics.agent.tools.search_backend import rank_search_results
+                checked, _, _ = rank_search_results(query, [{"url": source_url,
+                    "title": article.get("title", ""), "snippet": content[:2500]}])
+                if result.get("entity_verification_required") and (not checked or checked[0]["entity_verification_required"]):
+                    raise DocumentError("The requested issuer or named subject is not established in the fetched content.", "SOURCE_ENTITY_UNVERIFIED")
                 if (result.get("discovery_only") or not path_text.strip("/") or re.fullmatch(r"/[a-z]{2}(?:-[a-z]{2})?/?", path_text)
                         or path_text.endswith(('/kurlar/kurlar_tr.html', '/main+page+site+area/bugun'))):
                     raise DocumentError("Source is a generic landing page.", "GENERIC_SOURCE")
                 if (article.get("link_count", 0) > 20 and not article.get("article_body")
-                        and not any(term in title_text for term in topic_terms)
+                        and not topic_matches(title_text)
                         and not any(year in title_text + path_text + str(article.get("date_published", "")) for year in requested_years)):
                     raise DocumentError("Navigation-heavy source has no topic-specific title or requested-period identity.", "GENERIC_SOURCE")
                 if topical_terms and topic_matches(searchable) < min(2, len(topical_terms)):
@@ -939,9 +1005,12 @@ class DocumentTools:
                     raise DocumentError("Source does not establish the requested full calendar date.", "SOURCE_DATE_UNVERIFIED")
                 paragraphs = [line.strip() for line in content.splitlines() if line.strip()]
                 if len(content) > 3000 and len(paragraphs) > 1:
-                    ranked = sorted(enumerate(paragraphs), key=lambda pair: sum(term in pair[1].casefold() for term in topic_terms), reverse=True)
-                    selected = sorted(ranked[:8], key=lambda pair: pair[0])
-                    excerpt = "\n".join(line for _, line in selected)[:3000]
+                    ranked = sorted(enumerate(paragraphs), key=lambda pair: topic_matches(pair[1]), reverse=True)
+                    # Keep a contiguous passage around the strongest match.
+                    # Joining isolated keyword hits can put members under an
+                    # earlier shareholders heading or detach numbers from units.
+                    start = max(0, ranked[0][0] - 1)
+                    excerpt = "\n".join(paragraphs[start:])[:3000]
                 else:
                     excerpt = content[:3000]
                 card = {
@@ -966,9 +1035,8 @@ class DocumentTools:
                     "verification": "direct_public_fetch",
                     "content_is_untrusted_data": True,
                 }
-                specific_title_terms = [term for term in topic_terms if not term.isdigit()]
                 discovery_index = (archive_links and not article.get("article_body") and article.get("link_count", 0) > 20
-                                   and not any(term in title_text for term in specific_title_terms))
+                                   and not topic_matches(title_text))
                 discovery_index = discovery_index or bool(requested_dates and any(
                     requested_dates.intersection(source_dates(identity(link))) for link in archive_links)
                     and not requested_dates.intersection(source_dates(title_text)))
@@ -1673,29 +1741,70 @@ class DocumentTools:
                           "content": item.findtext("description", "")} for item in rss.findall("./channel/item")]
             if not isinstance(items, list):
                 raise DocumentError("Search results must be an array.", "SEARCH_INVALID_RESPONSE")
-            results, skipped = [], 0
-            for item in items[:50]:
-                if len(results) >= limit:
-                    break
-                if not isinstance(item, dict) or not isinstance(item.get("url"), str) or not 1 <= len(item["url"]) <= 4096:
-                    skipped += 1
-                    continue
-                target = item.get("url", "")
-                try:
-                    parsed_target = parse.urlsplit(target)
-                    valid = parsed_target.scheme in {"http", "https"} and bool(parsed_target.hostname)
-                except ValueError:
-                    valid = False
-                if not valid:
-                    skipped += 1
-                    continue
-                results.append({"title": str(item.get("title", ""))[:300], "url": target, "snippet": str(item.get("content", ""))[:1200]})
+            def normalize_entries(entries):
+                results, skipped = [], 0
+                for item in entries[:50]:
+                    if not isinstance(item, dict) or not isinstance(item.get("url"), str) or not 1 <= len(item["url"]) <= 4096:
+                        skipped += 1
+                        continue
+                    target = item.get("url", "")
+                    try:
+                        parsed_target = parse.urlsplit(target)
+                        valid = (parsed_target.scheme in {"http", "https"} and bool(parsed_target.hostname)
+                                 and not parsed_target.username and not parsed_target.password and not any(ord(char) < 32 for char in target))
+                    except ValueError:
+                        valid = False
+                    if not valid:
+                        skipped += 1
+                        continue
+                    results.append({"title": str(item.get("title", ""))[:300], "url": target, "snippet": str(item.get("content", ""))[:1200],
+                                    **{key: item[key] for key in ("discovered_from", "registry_evidence") if key in item}})
+                return results, skipped
+            results, skipped = normalize_entries(items)
             if skipped and not results:
                 raise DocumentError("Search returned only malformed result entries.", "SEARCH_INVALID_RESPONSE")
+            from agentic_analytics.agent.tools.search_backend import rank_search_results, public_search_fallback, kap_financial_search
+            results, rejected, domains = rank_search_results(query, results)
+            fallback_warning = None
+            if not self.searxng_url and (not results or all(item["discovery_only"] for item in results)):
+                try:
+                    registry, _ = normalize_entries(kap_financial_search(query, fetch_public_url))
+                    if registry:
+                        results, _, _ = rank_search_results(query, [*registry, *results])
+                        backend = "KAP Public Financial Registry (Bing RSS fallback)"
+                except (ValueError, OSError) as exc:
+                    fallback_warning = {"code": "FINANCIAL_REGISTRY_UNAVAILABLE", "message": str(exc)}
+            if not self.searxng_url and (not results or all(item["discovery_only"] for item in results)):
+                try:
+                    alternate, alternate_skipped = normalize_entries(public_search_fallback(query, fetch_public_url))
+                    alternate, alternate_rejected, _ = rank_search_results(query, alternate)
+                    skipped += alternate_skipped
+                    rejected.extend(alternate_rejected)
+                    if alternate:
+                        results, _, _ = rank_search_results(query, [*alternate, *results])
+                        backend = "DuckDuckGo Lite (Bing RSS fallback)"
+                    else:
+                        fallback_warning = {"code": "SEARCH_FALLBACK_NO_RELEVANT_RESULTS"}
+                except (ValueError, OSError) as exc:
+                    fallback_warning = {"code": "SEARCH_FALLBACK_UNAVAILABLE", "message": str(exc)}
+            results = results[:limit]
+            warnings = ([{"code": "MALFORMED_SEARCH_RESULTS_SKIPPED", "count": skipped}] if skipped else [])
+            if fallback_warning:
+                warnings.append(fallback_warning)
+            if rejected:
+                warnings.append({"code": "IRRELEVANT_SEARCH_RESULTS_SKIPPED", "count": len(rejected)})
+            discovery_only = not results or all(item["discovery_only"] for item in results)
+            recovery_domains = domains or list(dict.fromkeys(parse.urlsplit(item["url"]).hostname for item in results))[:3]
+            recovery = {"tool": "research_web", "arguments": {"query": query, "limit": 2}}
+            if recovery_domains:
+                recovery["arguments"]["domains"] = recovery_domains
             return {"status": "ok", "query": query, "results": results, "source_backend": backend,
-                    "warnings": ([{"code": "MALFORMED_SEARCH_RESULTS_SKIPPED", "count": skipped}] if skipped else []),
+                    "warnings": warnings,
+                    **({"code": "SEARCH_DISCOVERY_ONLY" if results else "SEARCH_NO_RELEVANT_RESULTS",
+                        "recovery": recovery} if discovery_only else {}),
                     "content_is_untrusted_data": True, "sources_verified": False,
-                    "next_step": "Inspect result URLs before relying on them as citation evidence."}
+                    "next_step": ("Search has no report evidence. Use research_web with the supplied recovery arguments to follow source links; do not repeat query variants or answer from these navigation leads."
+                                  if discovery_only else "Inspect result URLs before relying on them as citation evidence.")}
         except (DocumentError, ValueError, OSError, ET.ParseError) as exc:
             return {"status": "unavailable", "code": getattr(exc, "code", "SEARCH_INVALID_RESPONSE"),
                     "message": str(exc), "source_backend": backend, "results": []}

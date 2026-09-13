@@ -60,17 +60,29 @@ class WebResearchMessageTests(unittest.TestCase):
                                          "original_columns": {"column_1": "Tarih", "column_2": "Endeks"},
                                          "preview": preview}]}]}
 
-    def test_renders_source_table_cells_by_sanitized_key(self):
-        # Regression: preview rows are keyed by sanitized names; the header uses the
-        # original column, and the data cells must not come out blank.
+    def test_citations_do_not_dump_source_excerpt_or_first_table(self):
         msg = _web_research_message(self._source([{"column_1": "2026-06", "column_2": "102,0"}]))
-        self.assertIn("| Tarih | Endeks |", msg)
-        self.assertIn("2026-06", msg)
-        self.assertIn("102,0", msg)
+        self.assertEqual(msg, "Okunan kaynaklar: [TCMB RPPI](https://www.tcmb.gov.tr/x).")
+        self.assertNotIn("102,0", msg)
+        self.assertNotIn("özet metin", msg)
 
     def test_positional_list_row_does_not_crash(self):
         msg = _web_research_message(self._source([["2026-07", "103,0"]]))
-        self.assertIn("103,0", msg)
+        self.assertIn("TCMB RPPI", msg)
+        self.assertNotIn("103,0", msg)
+
+    def test_only_safe_read_source_links_are_rendered_once(self):
+        result = self._source([])
+        result["sources"] += [dict(result["sources"][0]),
+            {"url": "javascript:alert(1)", "title": "Unsafe"},
+            {"url": "https://user:pass@example.org/", "title": "Credentials"},
+            {"url": "https://example.org/next(report)", "title": "[Next]"}]
+        msg = _web_research_message(result)
+        self.assertEqual(msg.count("https://www.tcmb.gov.tr/x"), 1)
+        self.assertNotIn("Unsafe", msg)
+        self.assertNotIn("Credentials", msg)
+        self.assertIn("next%28report%29", msg)
+        self.assertEqual(_web_research_message(self._source([]), "[Existing](https://www.tcmb.gov.tr/x)"), "")
 
 
 if __name__ == "__main__":

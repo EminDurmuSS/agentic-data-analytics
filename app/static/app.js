@@ -860,6 +860,17 @@ function warningText(w) {
     domestic_customers_only: "Bu kaynak yalnızca yurt içi yerleşik müşterileri kapsıyor.",
     regulatory_weighting: "Düzenleyici ağırlık içeren değerler, ağırlıksız bilanço tutarlarıyla eşdeğer değildir.",
     source_value_passthrough: "Değerler kaynakta bildirilen dönem ve birimleriyle gösteriliyor; dönemler arasında toplam alınmadı.",
+    SEARCH_NO_PROGRESS: "Aramalar aynı bağlantılara döndüğü için durduruldu. Devam etmek için resmi rapor bağlantısını paylaşabilir veya dosyayı yükleyebilirsiniz.",
+    SEARCH_STRATEGY_EXHAUSTED: "Aramalar aynı bağlantılara döndüğü için durduruldu. Devam etmek için resmi rapor bağlantısını paylaşabilir veya dosyayı yükleyebilirsiniz.",
+    SEARCH_NO_RELEVANT_RESULTS: "Aramada konuya uygun bir kaynak bulunamadı. İlgisiz bağlantılar analize alınmadı.",
+    SEARCH_NO_RESULTS: "Aramada kullanılabilir bir bağlantı bulunamadı. Resmi kaynak bağlantısını paylaşabilir veya dosyayı yükleyebilirsiniz.",
+    SEARCH_DISCOVERY_ONLY: "Kurumun sayfaları bulundu; istenen rapor henüz bulunamadı.",
+    NO_READABLE_SOURCES: "Bulunan bağlantılardan gerekli içerik okunamadı. Resmi rapor bağlantısıyla veya yükleyeceğiniz dosyayla devam edebilirsiniz.",
+    OFFICIAL_SOURCE_NOT_FOUND: "İstenen kurumun resmi sitesinde uygun bir kaynak bulunamadı.",
+    EXTERNAL_FACTS_UNVERIFIED: "Ortaklık bilgileri kaynak üzerinden doğrulanamadı; doğrulanmamış bir kurum listesi kullanılmadı.",
+    WEB_SEARCH_UNCONFIGURED: "Web araması şu anda kullanılamıyor. Kaynağı bağlantı veya dosya olarak ekleyebilirsiniz.",
+    SEARCH_UNAVAILABLE: "Web araması şu anda yanıt vermiyor. Kaynağı bağlantı veya dosya olarak ekleyebilirsiniz.",
+    SEARCH_INVALID_RESPONSE: "Arama hizmetinden kullanılabilir bir sonuç alınamadı. Kaynağı bağlantı veya dosya olarak ekleyebilirsiniz.",
   };
   return map[w.code] || warningText(w.detail || w.message || "");
 }
@@ -1031,6 +1042,52 @@ function showExtraResults(result) {
     card.append(raw);
     holder.append(card);
   }
+  const searches = records.filter((step) => step.tool === "web_search");
+  if (searches.length) {
+    const searchLinks = new Map(), rejectedLinks = new Set();
+    const normalizeLink = (value) => {
+      try {
+        const url = new URL(value);
+        if (!["http:", "https:"].includes(url.protocol) || url.username || url.password) return null;
+        url.hash = "";
+        return url.href.replace(/\/$/, "");
+      } catch { return null; }
+    };
+    for (const step of searches)
+      for (const item of step.result?.rejected_results || []) {
+        const url = normalizeLink(typeof item === "string" ? item : item.url);
+        if (url) rejectedLinks.add(url);
+      }
+    for (const step of searches) {
+      if (step.result?.status !== "ok") continue;
+      for (const item of step.result.results || []) {
+        const url = normalizeLink(item.url);
+        if (!url || rejectedLinks.has(url) || item.rejected === true) continue;
+        if (!searchLinks.has(url)) searchLinks.set(url, { title: item.title || new URL(url).hostname, href: item.url });
+      }
+    }
+    if (searchLinks.size) {
+      const navigation = el("details", null, "source-card search-navigation");
+      navigation.append(el("summary", "Arama bağlantıları (" + searchLinks.size + ")"));
+      navigation.append(el("p", "Bunlar aramada bulunan bağlantılardır. İçerikleri okunmadan kaynak kanıtı sayılmazlar."));
+      for (const item of searchLinks.values()) {
+        const link = el("a", item.title, "text-button");
+        link.href = item.href;
+        link.target = "_blank";
+        link.rel = "noopener noreferrer";
+        const paragraph = el("p");
+        paragraph.append(link);
+        navigation.append(paragraph);
+      }
+      holder.append(navigation);
+    }
+  }
+  if (["blocked", "failed", "partial"].includes(result.status)) {
+    const lastSearch = records.findLast((step) => ["web_search", "research_web"].includes(step.tool))?.result || {};
+    const failures = result.errors?.length ? result.errors : lastSearch.errors?.length ? lastSearch.errors : [lastSearch];
+    const note = failures.find((item) => /^(?:SEARCH_|WEB_SEARCH_|NO_READABLE_SOURCES|OFFICIAL_SOURCE_NOT_FOUND|EXTERNAL_FACTS_UNVERIFIED)/.test(item.code || ""));
+    if (note && warningText(note)) holder.append(el("p", warningText(note), "warning search-recovery"));
+  }
   for (const step of records) {
     const name = step.tool;
     const toolResult = step.result;
@@ -1124,21 +1181,6 @@ function showExtraResults(result) {
         link.target = "_blank";
         link.rel = "noopener";
         card.append(link);
-      }
-      holder.append(card);
-    }
-    if (name === "web_search" && toolResult.status === "ok") {
-      const card = el("div", null, "source-card");
-      card.append(el("strong", "Bulunan web kaynakları"));
-      for (const item of toolResult.results || []) {
-        if (!/^https?:\/\//i.test(item.url)) continue;
-        const link = el("a", item.title, "text-button");
-        link.href = item.url;
-        link.target = "_blank";
-        link.rel = "noopener noreferrer";
-        const paragraph = el("p");
-        paragraph.append(link);
-        card.append(paragraph);
       }
       holder.append(card);
     }

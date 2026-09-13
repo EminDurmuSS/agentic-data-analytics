@@ -17,8 +17,13 @@ UNIT_WORDS = {"percent": ["%", "yüzde", "percent"], "person": ["kişi", "person
 
 
 def _quote_identity(quote):
-    lowered = unicodedata.normalize("NFKC", quote).casefold().replace("ı", "i").replace("_", " ")
-    contains = lambda term: re.search(r"(?<!\w)" + re.escape(term) + r"(?!\w)", lowered) is not None
+    def folded(value):
+        # Turkish uppercase İ casefolds to i + combining dot. Normalize both
+        # source and vocabulary so BİN TÜRK LİRASI retains its stated unit.
+        value = unicodedata.normalize("NFKD", value.casefold().replace("ı", "i").replace("_", " "))
+        return " ".join("".join(char for char in value if not unicodedata.combining(char)).split())
+    lowered = folded(quote)
+    contains = lambda term: re.search(r"(?<!\w)" + re.escape(folded(term)) + r"(?!\w)", lowered) is not None
     currencies = {unit for unit, words in CURRENCY_WORDS.items() if any(contains(word) for word in words)}
     scales = {scale for scale, words in MULTIPLIER_WORDS.items() if any(contains(word) for word in words)}
     units = {unit for unit, words in UNIT_WORDS.items() if any(contains(word.replace("ı", "i")) for word in words)}

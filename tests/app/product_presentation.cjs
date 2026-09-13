@@ -17,6 +17,15 @@ const assert = require('node:assert/strict');
       tool_results: [1, 2, 3].map(index => ({ tool: 'inspect_source', result: { ...inspection, processed_pages: [index] } })) };
     result.tool_results.push({ tool: 'ingest_source_table', result: { status: 'ok', import_status: 'published', source_id: 'source_fixture', dataset_id: 'dataset_fixture', row_count: 1,
       available_series: [{ observed_periods: ['2026-03-31'], status: 'ready' }] } });
+    for (let index = 0; index < 10; index++) result.tool_results.push({ tool: 'web_search', result: {
+      status: 'ok', query: 'Company financial report ' + index, sources_verified: false,
+      results: [
+        { title: 'Kurumun raporları', url: 'https://example.test/reports' + (index % 2 ? '#top' : '') },
+        { title: '<img src=x onerror="window.searchInjected=true"> Kaynak bağlantısı', url: 'https://example.test/report.pdf' },
+        { title: 'Rejected unrelated result', url: 'https://irrelevant.test/' },
+        { title: 'Unsafe result', url: 'javascript:alert(1)' },
+      ], rejected_results: [{ url: 'https://irrelevant.test/', reason: 'No topical match' }],
+    } });
     const workspace = { workspace_id: 'workspace_fixture', name: 'Synthetic presentation test', profile: 'finance', version: 1,
       analysis_head: 'analysis_fixture', runs: [{ message: 'Synthetic source comparison', result }] };
     const analysis = { analysis_id: 'analysis_fixture', row_count: 1, columns: ['period', 'alias_raw', 'alias_scaled', 'share_pct'],
@@ -56,6 +65,18 @@ const assert = require('node:assert/strict');
     assert.equal(await page.locator('#table-container th').count(), 3);
     assert.deepEqual(await page.locator('#table-container tbody td').allTextContents(), ['Mart 2026', '1', '10']);
     assert.equal(await page.locator('.source-summary').count(), 1, 'Repeated inspection must produce one source card');
+    assert.equal(await page.locator('.search-navigation').count(), 1, 'Ten searches must share one navigation disclosure');
+    assert.equal(await page.locator('.search-navigation').evaluate(node => node.open), false);
+    assert.equal(await page.locator('.search-navigation a').count(), 2, 'Repeated URL rankings/fragments must not duplicate links');
+    assert.equal(await page.locator('.search-navigation a[href*="irrelevant.test"]').count(), 0);
+    assert.equal(await page.locator('.search-navigation a[href^="javascript:"]').count(), 0);
+    assert.equal(await page.locator('.search-navigation img').count(), 0);
+    assert.equal(await page.evaluate(() => window.searchInjected), undefined);
+    await page.locator('.search-navigation summary').focus();
+    await page.keyboard.press('Enter');
+    assert.equal(await page.locator('.search-navigation').evaluate(node => node.open), true);
+    assert.match(await page.locator('.search-navigation').innerText(), /İçerikleri okunmadan kaynak kanıtı sayılmazlar/);
+    await page.locator('.search-navigation summary').click();
     assert.equal(await page.locator('#extra-result pre').count(), 0, 'Closed details must not eagerly create JSON');
     assert.equal(await page.locator('#analysis-plan').textContent(), '');
     assert.equal((await page.locator('body').textContent()).includes('PRIVATE_TECHNICAL_SENTINEL'), false);
@@ -91,6 +112,15 @@ const assert = require('node:assert/strict');
     await page.waitForSelector('.tool-ledger pre');
     assert.match(await page.locator('.tool-ledger pre').textContent(), /PRIVATE_TECHNICAL_SENTINEL/);
     assert.equal(await page.locator('.tool-ledger pre').count(), 1);
+    assert.equal(await page.locator('.tool-ledger > details').count(), result.tool_results.length + 1, 'Every original search remains in the lazy technical ledger');
+    result.status = 'blocked';
+    result.errors = [{ code: 'SEARCH_STRATEGY_EXHAUSTED', message: 'INTERNAL_SEARCH_FAILURE_SENTINEL' }];
+    await page.reload();
+    await page.waitForSelector('.search-recovery');
+    assert.match(await page.locator('.search-recovery').innerText(), /resmi rapor bağlantısını paylaşabilir veya dosyayı yükleyebilirsiniz/);
+    assert.equal((await page.locator('#extra-result').innerText()).includes('INTERNAL_SEARCH_FAILURE_SENTINEL'), false);
+    assert.equal(await page.locator('#extra-result pre').count(), 0);
+    assert.equal(await page.locator('.search-navigation').count(), 1);
     assert.deepEqual(pageErrors, []);
     assert.deepEqual(writes, [], 'Presentation must not mutate analyses or saved chart selections');
     process.stdout.write('Product presentation: functional browser assertions passed\n');

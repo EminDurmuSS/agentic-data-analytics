@@ -27,7 +27,7 @@ Terminalde tanımlı değişkenler, `.env` ve `--env-file` değerlerinden öncel
 | Değişken | Anlamı |
 | --- | --- |
 | `MIA_API_KEY` | Canlı model kullanımı için anahtar. Boşken arayüz açılır, model işi başlatılamaz |
-| `SEARXNG_URL` | İsteğe bağlı, JSON araması etkin SearXNG sunucusunun temel adresi. Docker içinde örneğin aynı ağdaki `http://searxng:8080`; boşken Bing RSS kullanılır. Modelin seçtiği belge URL'leri için ağ kontrolleri ayrı uygulanır |
+| `SEARXNG_URL` | İsteğe bağlı, JSON araması etkin SearXNG sunucusunun temel adresi. Docker içinde örneğin aynı ağdaki `http://searxng:8080`; boşken Bing RSS ve gerektiğinde tek DuckDuckGo Lite denemesi kullanılır. Modelin seçtiği belge URL'leri için ağ kontrolleri ayrı uygulanır |
 | `AGENT_PORT` | Host portu; varsayılan `8870` |
 | `LAKEHOUSE_DIR` | `analytics.duckdb` dosyasını içeren host dizini; varsayılan `./data_pipeline/lakehouse` |
 

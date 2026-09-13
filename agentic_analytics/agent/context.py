@@ -234,8 +234,103 @@ def _published_navigation_receipt(name, result, arguments, publication):
     return receipt
 
 
+def _historical_tool_receipt(name, result, arguments):
+    """Keep prior-turn source addresses and outcomes, not a second PDF dump.
+
+    Only the provider-facing copy changes. The current turn's evidence and every
+    failed/recovery response stay intact; full historical evidence remains in
+    the journal and can be retrieved by its original source or analysis ID.
+    """
+    if not isinstance(result, dict) or result.get("status") not in {"ok", "valid", "completed"} or result.get("errors") or result.get("recovery"):
+        return None
+    keys = ("status", "code", "message", "warnings", "source_id", "source_url", "filename",
+            "artifact_ref", "artifact_id", "analysis_id", "dataset_id", "table_id", "chart_id",
+            "summary_id", "raw_sha256", "total_pages", "processed_pages", "inspection_complete",
+            "publication_performed", "import_status", "quality_status", "row_count", "unit",
+            "scale", "currency", "kind", "temporal_semantics", "scope_caveats", "title")
+    receipt = {key: copy.deepcopy(result[key]) for key in keys if key in result}
+    if name == "discover":
+        receipt.update(_model_tool_result(name, result, terse=True))
+    if isinstance(result.get("metric"), dict):
+        receipt["metric"] = {key: copy.deepcopy(value) for key, value in result["metric"].items()
+            if key in {"metric_id", "title", "status", "unit", "scale", "currency", "kind",
+                       "dimensions", "coverage_start", "coverage_end", "temporal_semantics", "scope_caveats"}}
+    for field in ("tables", "available_series", "sources", "results"):
+        if isinstance(result.get(field), list):
+            receipt[field] = [{key: copy.deepcopy(item[key]) for key in
+                ("source_id", "table_id", "metric_id", "title", "url", "page", "sheet", "status",
+                 "unit", "scale", "currency", "kind", "dimensions", "row_count", "layout_review_required",
+                 "quality_notes", "review", "warnings", "verification", "scope_caveats") if key in item}
+                for item in result[field][:12] if isinstance(item, dict)]
+            if len(result[field]) > 12:
+                receipt[field + "_truncated"] = True
+    # Store only read-only navigation. Never offer a prior mutation as a replay.
+    if name in {"inspect_source", "read_source_table", "find_source_pages"} and result.get("source_id"):
+        args = {key: copy.deepcopy(value) for key, value in arguments.items()
+                if key in {"table_id", "page_numbers", "row_start", "limit", "query", "start_page", "max_pages", "table_strategy"}}
+        args["source_id"] = result["source_id"]
+        receipt["re_read"] = {"tool": name, "arguments": args}
+    receipt.update(model_evidence_view="historical_tool_receipt", full_evidence_retained=True,
+                   historical_only=True,
+                   navigation_hint="Prior user turn: source addresses and outcomes only. This is not new evidence for the current question. Re-read the source or saved analysis before using omitted facts; use the current workspace plan/schema when extending the analysis.")
+    return _compact(receipt)
+
+
+def _archive_prior_searches(messages, current_turn, call_names):
+    """Do not teach a new turn to replay old search-query loops.
+
+    Searches are navigation, not read evidence. Keep their outcome and links
+    once per previous turn, while source reads and the durable ledger retain
+    their original identities. Current-turn calls are never changed here.
+    """
+    archived, receipt, receipt_position = [], None, 0
+    search_ids = {call["id"] for message in messages[:current_turn] for call in message.get("tool_calls", [])
+                  if call_names.get(call["id"]) == "web_search"}
+    for index, message in enumerate(messages):
+        if index >= current_turn:
+            archived.append(message)
+            continue
+        if message.get("role") == "user":
+            receipt = None
+            receipt_position = len(archived) + 1
+        if message.get("tool_calls"):
+            retained = [call for call in message["tool_calls"] if call["id"] not in search_ids]
+            if len(retained) != len(message["tool_calls"]):
+                message = {**message, "tool_calls": retained}
+                if not retained:
+                    message.pop("tool_calls")
+                    if not message.get("content"):
+                        continue
+        if message.get("role") == "tool" and message.get("tool_call_id") in search_ids:
+            if receipt is None:
+                receipt = {"historical_searches": 0, "historical_only": True, "full_evidence_retained": True,
+                           "error_codes": [], "unverified_navigation": [],
+                           "meaning": "Previous user turn's search attempts, not current evidence or pending instructions. Form a new query from the current request and active analysis; old queries are archived in the technical ledger."}
+                archived.insert(receipt_position, {"role": "assistant", "content": receipt})
+            receipt["historical_searches"] += 1
+            try:
+                result = json.loads(message["content"])
+            except (TypeError, ValueError):
+                receipt["unreadable_results"] = receipt.get("unreadable_results", 0) + 1
+                continue
+            if not isinstance(result, dict):
+                continue
+            receipt["error_codes"] = sorted(set(receipt["error_codes"]) | {error["code"] for error in result.get("errors", []) if error.get("code")})
+            for item in result.get("results", []):
+                if not isinstance(item, dict):
+                    continue
+                link = {key: item[key] for key in ("url", "title") if key in item}
+                if link.get("url") and not any(old.get("url") == link["url"] for old in receipt["unverified_navigation"]):
+                    receipt["unverified_navigation"].append(link)
+            continue
+        archived.append(message)
+    return [{**message, "content": canonical(message["content"])} if isinstance(message.get("content"), dict) else message
+            for message in archived]
+
+
 def model_messages(state, *, context_factory, charts_enabled, max_context_chars):
     messages = copy.deepcopy(state["messages"])
+    current_turn = max((i for i, message in enumerate(messages) if message.get("role") == "user"), default=0)
     call_names, call_arguments, discovery_messages = {}, {}, []
     source_navigation, publications = [], {}
     # Reapply the compact view when resuming old journals created before
@@ -285,6 +380,20 @@ def model_messages(state, *, context_factory, charts_enabled, max_context_chars)
                 continue
             message["content"] = canonical(_model_tool_result("discover", result))
             discovery_messages.append((index, result))
+    # Prior completed work is navigation, not the working set for a new user
+    # question. Compact it before hitting the context limit, so the original
+    # request (period, scope and normalization) is not discarded wholesale.
+    for index, message in enumerate(messages[:current_turn]):
+        if message.get("role") != "tool":
+            continue
+        try:
+            result = json.loads(message["content"])
+        except (TypeError, ValueError):
+            continue
+        call_id = message.get("tool_call_id")
+        receipt = _historical_tool_receipt(call_names.get(call_id), result, call_arguments.get(call_id, {}))
+        if receipt is not None and len(canonical(receipt)) < len(message["content"]):
+            message["content"] = canonical(receipt)
     prompt = SYSTEM_PROMPT + (CHART_PROMPT if charts_enabled else "")
     context = _compact(context_factory(state))
     system = prompt + "\nGüncel güvenilir çalışma alanı bağlamı:\n" + canonical(context)
@@ -292,6 +401,8 @@ def model_messages(state, *, context_factory, charts_enabled, max_context_chars)
     # need only their metric identity/title/readiness once context is tight.
     if len(system) + len(canonical(messages)) > max_context_chars * .75:
         for index, result in discovery_messages[:-2]:
+            if index < current_turn:
+                continue
             messages[index]["content"] = canonical(_model_tool_result("discover", result, terse=True))
     # New tool families add fixed instructions. If the complete current turn is
     # still too large, preserve identities of the newest candidates as well,
@@ -299,6 +410,8 @@ def model_messages(state, *, context_factory, charts_enabled, max_context_chars)
     for index, result in discovery_messages[-2:]:
         if len(system) + len(canonical(messages)) <= max_context_chars:
             break
+        if index < current_turn:
+            continue
         messages[index]["content"] = canonical(_model_tool_result("discover", result, terse=True))
     # Only under actual pressure, retire successful navigation that preceded a
     # publication of this source. Keep active re-reads and every failed/recovery
@@ -306,11 +419,14 @@ def model_messages(state, *, context_factory, charts_enabled, max_context_chars)
     for index, result, name, arguments in source_navigation:
         if len(system) + len(canonical(messages)) <= max_context_chars:
             break
+        if index < current_turn:
+            continue
         publication = publications.get(result["source_id"])
         if publication and index < publication[0]:
             receipt = canonical(_published_navigation_receipt(name, result, arguments, publication[1]))
             if len(receipt) < len(messages[index]["content"]):
                 messages[index]["content"] = receipt
+    messages = _archive_prior_searches(messages, current_turn, call_names)
     # Keep complete user turns, never orphan a tool result from its call.
     while (len(system) + len(canonical(messages)) > max_context_chars or len(messages) > 180) and sum(m["role"] == "user" for m in messages) > 1:
         next_user = next(i for i, m in enumerate(messages[1:], 1) if m["role"] == "user")
@@ -321,6 +437,28 @@ def model_messages(state, *, context_factory, charts_enabled, max_context_chars)
     if len(system) + len(canonical(messages)) > max_context_chars and isinstance(context.get("initial_metric_candidates"), dict):
         context["initial_metric_candidates"] = _model_tool_result("discover", context["initial_metric_candidates"], terse=True)
         system = prompt + "\nGüncel güvenilir çalışma alanı bağlamı:\n" + canonical(context)
+    # Repeated successful retrievals can return exactly the same candidates.
+    # Under pressure, reference the first retained card set instead of copying
+    # it again. Compare all projected metadata so a changed scope or warning
+    # never disappears just because the metric IDs happen to match.
+    if len(system) + len(canonical(messages)) > max_context_chars:
+        seen_candidates = {}
+        for message in messages:
+            call_id = message.get("tool_call_id")
+            if message.get("role") != "tool" or call_names.get(call_id) != "discover":
+                continue
+            result = json.loads(message["content"])
+            if result.get("status") != "ok" or result.get("errors") or not result.get("metrics"):
+                continue
+            cards = canonical({key: result.get(key) for key in ("metrics", "near_matches")})
+            if cards in seen_candidates:
+                result.update(metrics=[], repeated_candidates_from=seen_candidates[cards],
+                              model_card_count=0, model_cards_truncated=True,
+                              navigation_hint="Identical candidate cards are retained in the referenced tool result; describe a metric before using its semantics.")
+                result.pop("near_matches", None)
+                message["content"] = canonical(result)
+            else:
+                seen_candidates[cards] = call_id
     if len(system) + len(canonical(messages)) > max_context_chars:
         raise PlanError("Current task exceeds the configured context budget; use a smaller scope.", code="CONTEXT_BUDGET_EXCEEDED")
     return [{"role": "system", "content": system}] + messages

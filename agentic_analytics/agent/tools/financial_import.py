@@ -12,7 +12,7 @@ import json
 import re
 
 from agentic_analytics.agent.tools.documents import DocumentError, _canonical, _search_text, _unit_caption, _write_json
-from agentic_analytics.lakehouse.store import StoreError
+from agentic_analytics.lakehouse.store import StoreError, VersionConflict
 from agentic_analytics.lakehouse.units import _quote_identity
 
 
@@ -627,6 +627,20 @@ class FinancialImportTools:
                 return self.ingest_source_table(**args)
             except jsonschema.ValidationError as exc:
                 return {"status": "blocked", "code": "INVALID_ARGUMENTS", "message": exc.message}
+            except VersionConflict as exc:
+                result = {"status": "blocked", "code": "VERSION_CONFLICT", "message": str(exc),
+                          "submitted_version": args.get("expected_version"), "publication_performed": False}
+                try:
+                    workspace = self.store.workspace(self.workspace_id)
+                except StoreError:
+                    result["recovery"] = {"publication_performed": False,
+                        "next_step": "Read the current workspace revision, then retry ingest_source_table with its current expected_version and the same source cells. Do not guess a version or change the source selection."}
+                    return result
+                result.update(current_version=workspace["version"], current_revision_id=workspace["revision_id"])
+                result["recovery"] = {"publication_performed": False,
+                    "suggested_ingest_arguments": {**args, "expected_version": workspace["version"]},
+                    "next_step": "Read current_version and current_revision_id above before retrying ingest_source_table. Keep the same source, table, row, period and value selections; only expected_version is updated in suggested_ingest_arguments. This is a retry suggestion, not a completed publication; if the workspace changes again, refresh its revision again."}
+                return result
             except (DocumentError, StoreError, ValueError, KeyError, TypeError) as exc:
                 return {"status": "blocked", "code": getattr(exc, "code", "IMPORT_FAILED"), "message": str(exc),
                         **({"recovery": exc.recovery} if getattr(exc, "recovery", None) else {})}

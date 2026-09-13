@@ -53,7 +53,7 @@ python -m app --prompt-key --port 8870
 | `--port` | Varsayılan `8870` |
 | `--db /dosya/analytics.duckdb` | Finans profili için farklı kaynak veritabanı |
 | `--runtime-root /dizin/agent-app` | Snapshot, konuşma ve sonuç kayıtları için ayrı kök |
-| `SEARXNG_URL` | Web araması için yapılandırılmış SearXNG adresi; yoksa Bing RSS kullanılır |
+| `SEARXNG_URL` | Web araması için yapılandırılmış SearXNG adresi; yoksa Bing RSS ve gerektiğinde tek DuckDuckGo Lite denemesi kullanılır |
 
 Standart MIA yapılandırması `kkbhackathon2026/Qwen3.8-27B` sohbet modelini kullanır. Model ve HTTP adaptörü [providers/mia.py](../agentic_analytics/providers/mia.py) içinde, uygulama bağlantısı [app/cli.py](../app/cli.py) içindedir.
 

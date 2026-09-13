@@ -290,6 +290,116 @@ class AgentDocumentTests(unittest.TestCase):
         with patch("agentic_analytics.agent.tools.documents.fetch_public_url", return_value=(b"<html>challenge</html>", "text/html", "https://www.bing.com/search")):
             self.assertEqual(self.docs.web_search("public report")["code"], "SEARCH_INVALID_RESPONSE")
 
+    def test_drifted_search_uses_one_alternate_index_and_retains_full_query(self):
+        from urllib.parse import parse_qs, urlsplit
+        rss = b'<rss><channel><item><title>Example Bank</title><link>https://example.org/</link></item><item><title>Job listings</title><link>https://jobs.test/</link></item></channel></rss>'
+        html = b'''<table><tr><td><a class="result-link" href="//duckduckgo.com/l/?uddg=https%3A%2F%2Fexample.org%2F2026%2Ffinancial-report.pdf">Example Bank March 2026 consolidated report</a></td></tr>
+        <tr><td class="result-snippet">Consolidated <b>financial statements</b> for March 2026.</td></tr></table>'''
+        query = 'Example Bank March 2026 consolidated financial report PDF'
+        with patch('agentic_analytics.agent.tools.search_backend.kap_financial_search', return_value=[]), \
+                patch("agentic_analytics.agent.tools.documents.fetch_public_url", side_effect=[
+                (rss, 'application/rss+xml', 'https://www.bing.com/search'),
+                (html, 'text/html', 'https://lite.duckduckgo.com/lite/')]) as fetch:
+            result = self.docs.web_search(query)
+        self.assertEqual(fetch.call_count, 2)
+        self.assertEqual(parse_qs(urlsplit(fetch.call_args_list[1].args[0]).query)['q'], [query])
+        self.assertEqual(result['results'][0]['url'], 'https://example.org/2026/financial-report.pdf')
+        self.assertNotIn('jobs.test', json.dumps(result['results']))
+        self.assertIn('DuckDuckGo Lite', result['source_backend'])
+        self.assertFalse(result['sources_verified'])
+
+    def test_search_domain_filter_applies_to_every_backend_and_returns_actionable_recovery(self):
+        self.docs.searxng_url = 'http://localhost:8080'
+        entries = [
+            {'title': '31 meaning', 'url': 'https://unrelated.test/31', 'content': '31 March 2026'},
+            {'title': 'Financial report', 'url': 'https://example.org.evil.test/report.pdf'},
+            {'title': 'Example Bank', 'url': 'https://example.org/'}]
+        with patch('agentic_analytics.agent.tools.search_backend.configured_search', return_value=entries), \
+                patch('agentic_analytics.agent.tools.documents.fetch_public_url') as public:
+            result = self.docs.web_search('site:example.org 31 March 2026 consolidated financial report')
+        public.assert_not_called()
+        self.assertEqual([item['url'] for item in result['results']], ['https://example.org/'])
+        self.assertEqual(result['code'], 'SEARCH_DISCOVERY_ONLY')
+        self.assertEqual(result['recovery']['arguments']['domains'], ['example.org'])
+        self.assertEqual(result['warnings'][0]['count'], 2)
+
+    def test_search_challenge_preserves_navigation_lead_without_claiming_report_found(self):
+        rss = b'<rss><channel><item><title>Example Bank</title><link>https://example.org/</link></item></channel></rss>'
+        with patch('agentic_analytics.agent.tools.search_backend.kap_financial_search', return_value=[]), \
+                patch('agentic_analytics.agent.tools.documents.fetch_public_url', side_effect=[
+                (rss, 'text/xml', 'https://www.bing.com/search'),
+                (b'<html>Challenge required</html>', 'text/html', 'https://lite.duckduckgo.com/lite/')]) as fetch:
+            result = self.docs.web_search('Example Bank 2026 financial report')
+        self.assertEqual(fetch.call_count, 2)
+        self.assertEqual(result['code'], 'SEARCH_DISCOVERY_ONLY')
+        self.assertEqual(result['warnings'][0]['code'], 'SEARCH_FALLBACK_UNAVAILABLE')
+        self.assertTrue(result['results'][0]['discovery_only'])
+
+    def test_research_verifies_issuer_after_dated_search_abstract_omits_it(self):
+        from agentic_analytics.agent.tools.search_backend import rank_search_results
+        query = 'Example Bank 31 March 2026 consolidated financial report'
+        result = {'title': '31 March 2026 consolidated financial report', 'url': 'https://filings.test/report.pdf', 'snippet': ''}
+        ranked, _, _ = rank_search_results(query, [result])
+        self.assertTrue(ranked[0]['entity_verification_required'])
+        self.docs.web_search = lambda *args, **kwargs: {'status': 'ok', 'results': ranked}
+        self.docs.inspect_source = lambda **kwargs: {'source_id': 'report', 'source_url': result['url'],
+            'text': 'Unrelated Company 31 March 2026 consolidated financial report'}
+        self.assertEqual(self.docs.research_web(query, limit=1)['sources'], [])
+        self.docs.inspect_source = lambda **kwargs: {'source_id': 'report', 'source_url': result['url'],
+            'text': 'Example Bank 31 March 2026 consolidated financial report'}
+        self.assertEqual(self.docs.research_web(query, limit=1)['sources'][0]['source_id'], 'report')
+
+    def test_logo_names_and_late_document_links_survive_repeated_navigation(self):
+        navigation = '<nav><a href="/home">Home</a></nav>' * 600
+        html = (navigation + '<main><h1>Shareholders</h1><a href="https://example.org"><img alt="Example Bank" src="bank.png"></a>'
+                '<a href="/report.pdf">2026 consolidated report</a></main>').encode()
+        result = _article_metadata(html, 'text/html', 'https://issuer.test/owners')
+        self.assertIn('Example Bank', result['readable_text'])
+        self.assertEqual(result['source_links'][0]['title'], 'Example Bank')
+        self.assertEqual(result['document_links'][0]['url'], 'https://issuer.test/report.pdf')
+
+    def test_svg_chart_source_labels_stay_with_shareholder_section_without_inferred_names_or_amounts(self):
+        html = '''<main><h4>Ortaklık Yapısı</h4><svg>
+            <defs><symbol id="unused-bank"><title>Unused Bank</title></symbol></defs>
+            <circle role="progressbar" data-slice-name="examplebank" aria-valuenow="18" />
+            <circle role="progressbar" aria-label="Başka Banka" aria-valuenow="9" />
+            <use href="#unlabelled-symbol" />
+            </svg><h4>Üye Dağılımı</h4><p>Only Member Bank</p></main>'''.encode()
+        text = _article_metadata(html, 'text/html', 'https://issuer.test/owners')['readable_text']
+        owners, members = text.split('Üye Dağılımı')
+        self.assertIn('Ortaklık Yapısı', owners)
+        self.assertIn('Grafik kategorisi (kaynak etiketi): examplebank', owners)
+        self.assertIn('Başka Banka', owners)
+        self.assertNotIn('Only Member Bank', owners)
+        self.assertIn('Only Member Bank', members)
+        for absent in ('Unused Bank', 'unlabelled-symbol', '18', '9', 'Example Bank'):
+            self.assertNotIn(absent, text)
+
+    def test_ownership_research_follows_about_page_across_www_alias_before_unrelated_pdf(self):
+        root = 'https://kkb.com.tr/'
+        about = 'https://www.kkb.com.tr/hakkimizda'
+        owners = 'https://www.kkb.com.tr/ortaklik-yapisi'
+        pages = {
+            root: {'source_id': 'root', 'source_url': root, 'text': 'KKB ana sayfa', 'article': {
+                'title': 'Ana Sayfa', 'source_links': [
+                    {'url': about, 'title': 'Hakkımızda', 'in_main_content': True},
+                    {'url': about, 'title': 'Hakkımızda', 'in_navigation': True}],
+                'document_links': [{'url': 'https://www.kkb.com.tr/other.pdf', 'title': 'Diğer rapor'}]}},
+            about: {'source_id': 'about', 'source_url': about, 'text': 'KKB kurum bilgileri', 'article': {
+                'title': 'Hakkımızda', 'link_count': 40, 'source_links': [
+                    {'url': owners, 'title': 'Ortaklık Yapısı', 'in_main_content': True}]}},
+            owners: {'source_id': 'owners', 'source_url': owners,
+                     'text': 'KKB Ortaklık Yapısı\nÖrnek Bankası\nBaşka Bankası',
+                     'article': {'title': 'Ortaklık Yapısı', 'link_count': 40}}}
+        with patch.object(self.docs, 'web_search', return_value={'status': 'ok', 'results': [
+                {'url': root, 'title': 'KKB', 'discovery_only': True}]}) as search, \
+                patch.object(self.docs, 'inspect_source', side_effect=lambda **args: pages[args['url']]) as read:
+            result = self.docs.research_web('KKB Bankası ortakları hissedarları', limit=1)
+        self.assertTrue(search.call_args.args[0].startswith('site:kkb.com.tr '))
+        self.assertEqual([call.kwargs['url'] for call in read.call_args_list], [root, about, owners])
+        self.assertEqual(result['sources'][0]['url'], owners)
+        self.assertIn('Örnek Bankası', result['sources'][0]['content'])
+
     def test_research_web_reads_json_ld_article_content_and_skips_unreadable_results(self):
         html = b'''<html><head><title>Fallback title</title>
         <script type="application/ld+json">{"@type":"NewsArticle","headline":"Official report",

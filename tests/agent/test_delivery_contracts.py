@@ -702,6 +702,162 @@ def test_web_source_cannot_erase_failed_calculation(env):
     assert not result["analysis_updated"]
 
 
+def test_source_backed_ownership_answer_keeps_complete_list_and_recommendation(env):
+    store, wid, journal, plan, build = env
+    # A follow-up can research ownership while an earlier quantitative analysis
+    # remains active; it must not be replaced by that analysis or a page excerpt.
+    previous, _ = build([call("execute", plan), final()])
+    prior = previous.run("Kredi tablosunu göster")
+    names = ["Alpha", "Beta", "Gamma", "Delta", "Epsilon", "Zeta", "Eta", "Theta", "Iota"]
+    ownership = {"url": "https://example.org/shareholders", "title": "Example ortaklık yapısı",
+                 "content": "Example ortakları. " + "Kaynak açıklaması. " * 40 + ", ".join(names)}
+    cover = {"url": "https://example.org/report.pdf", "title": "Report",
+             "content": "Financial report cover", "tables": [{"columns": ["Cover"], "preview": [{"Cover": None}]}]}
+    response = ("Example ortakları: " + ", ".join(names) + ". "
+                "[Resmi ortaklık sayfası](https://example.org/shareholders)\n\n"
+                "Karşılaştırmayı Alpha ve Beta ile genişletmeyi öneriyorum. "
+                "Her biri için aynı dönem ve konsolidasyon kapsamındaki raporu inceleyelim.")
+    runtime, _ = build([call("research_web", {"query": "Example shareholders"}), final(response)],
+                       more=web_tool(lambda args: {"status": "ok", "sources": [ownership, cover]}))
+    result = runtime.run("Example'nin ortakları kimler, karşılaştırmaya hangilerini ekleyelim?",
+                         conversation_id=prior["conversation_id"])
+    assert result["status"] == "completed"
+    assert result["message"].startswith(response)
+    assert all(name in result["message"] for name in names)
+    assert result["message"].count(ownership["url"]) == 1
+    assert "Kaynak metninden" not in result["message"] and "None" not in result["message"]
+    assert "150" not in result["message"] and not result["analysis_updated"]
+    assert store.workspace(wid)["analysis_head"] == prior["analysis_id"]
+    assert result["tool_results"][0]["result"]["sources"][1]["tables"] == cover["tables"]
+    delivered = journal.get(result["run_id"])["state"]["messages"][-1]["content"]
+    assert response in delivered
+
+
+@pytest.mark.parametrize("repair", [True, False])
+def test_unsolicited_ownership_percentages_are_repaired_or_not_delivered(env, repair):
+    _, _, journal, _, build = env
+    source = {"url": "https://example.org/owners", "title": "Example ortakları",
+              "content": "Example ortakları: Alpha yüzde 9,09; Beta yüzde 18,18."}
+    bad = "Example ortakları Alpha (%9,09) ve Beta (%18,18). Alpha'yı öneririm: en büyük ortaklardan (%18,18)."
+    corrected = ("Example ortakları Alpha ve Beta. Alpha'nın mevcut analizle aynı dönem ve konsolidasyon "
+                 "kapsamındaki raporunu bularak karşılaştırmaya eklemeyi öneriyorum.")
+    runtime, client = build([call("research_web", {"query": "Example shareholders"}), final(bad),
+                            final(corrected if repair else bad)],
+                            more=web_tool(lambda args: {"status": "ok", "sources": [source]}))
+    result = runtime.run("Example'nin ortakları kimler, hangisini karşılaştırmaya ekleyelim?")
+    assert len(client.requests) == 3
+    assert "UNSOLICITED_OWNERSHIP_PERCENTAGES" in json.dumps(client.requests[2])
+    assert "9,09" not in result["message"] and "18,18" not in result["message"]
+    assert result["tool_results"][0]["result"]["sources"][0] == source
+    history = journal.get(result["run_id"])["state"]["messages"]
+    delivered_prose = [item["content"] for item in history if item.get("role") == "assistant" and not item.get("tool_calls")]
+    assert bad not in delivered_prose
+    if repair:
+        assert result["status"] == "completed"
+        assert result["message"].startswith(corrected)
+        assert source["url"] in result["message"]
+    else:
+        assert result["status"] == "blocked"
+        assert "UNSOLICITED_OWNERSHIP_PERCENTAGES" in {error["code"] for error in result["errors"]}
+
+
+@pytest.mark.parametrize("question", ["Example'nin ortakları ve payları nedir?", "Who are Example's shareholders and their percentages?"])
+def test_requested_ownership_percentages_are_not_silently_removed(env, question):
+    *_, build = env
+    source = {"url": "https://example.org/owners", "title": "Example ortakları",
+              "content": "Example shareholders: Alpha 40%, Beta 60%."}
+    response = "Example ortakları Alpha (%40) ve Beta (%60)."
+    runtime, client = build([call("research_web", {"query": "Example shareholders"}), final(response)],
+                           more=web_tool(lambda args: {"status": "ok", "sources": [source]}))
+    result = runtime.run(question)
+    assert result["status"] == "completed" and result["message"].startswith(response)
+    assert len(client.requests) == 2
+
+
+def test_percent_encoded_citation_and_nonownership_analysis_do_not_trigger_ownership_gate(env):
+    from agentic_analytics.agent.runtime import _ownership_percentage_errors, _requests_ownership_percentages
+    state = {"external_facts_required": True, "ownership_percentages_requested": False}
+    assert not _ownership_percentage_errors(state, "[Ortaklar](https://example.org/ortak%20listesi?name=%25)")
+    assert not _ownership_percentage_errors({"external_facts_required": False}, "Büyüme %20.")
+    assert not _requests_ownership_percentages("Example'nin ortaklarını paylaşır mısın? https://example.org/ortak%20listesi")
+    for claim in ("Alpha yüzde 18,18", "Alpha 18.18 percent", "Alpha %18,18", "Alpha 18,18%"):
+        assert _ownership_percentage_errors(state, claim)[0]["code"] == "UNSOLICITED_OWNERSHIP_PERCENTAGES"
+
+
+def test_research_links_cannot_replace_verified_arithmetic_with_model_claims(env):
+    _, _, _, plan, build = env
+    research = lambda args: {"status": "ok", "sources": [{
+        "url": "https://example.org/report", "title": "Report", "content": "Model sees unrelated 777 TL here."}]}
+    runtime, _ = build([call("research_web", {"query": "report"}), call("execute", plan),
+                         final("Kredi 999 TL, büyüme yüzde 888.")], more=web_tool(research))
+    result = runtime.run("Kaynak bul ve kredi tablosunu göster")
+    assert result["status"] == "completed"
+    assert "150" in result["message"]
+    assert all(value not in result["message"] for value in ("777", "888", "999"))
+    assert "[Report](https://example.org/report)" in result["message"]
+
+
+def test_inspected_source_answer_has_citation_without_research_wrapper(env):
+    *_, build = env
+    tools = {"inspect_source": {"schema": {"type": "function", "function": {"name": "inspect_source",
+             "parameters": obj({"url": {"type": "string"}})}}, "handler": lambda args: {
+             "status": "ok", "source_id": "source", "source_url": args["url"],
+             "text": "Example ortakları: Alpha ve Beta.", "title": "Example ortaklık yapısı"}}}
+    response = "Example ortakları Alpha ve Beta. Karşılaştırmaya Alpha ile başlamayı öneriyorum."
+    runtime, _ = build([call("inspect_source", {"url": "https://example.org/shareholders"}), final(response)], more=tools)
+    result = runtime.run("Example'nin ortakları kimler ve hangisini ekleyelim?")
+    assert result["status"] == "completed"
+    assert result["message"].startswith(response)
+    assert "[Example ortaklık yapısı](https://example.org/shareholders)" in result["message"]
+
+
+@pytest.mark.parametrize("read_status,source_text,completes", [
+    ("ok", "Example ortakları: Alpha ve Beta.", True),
+    ("ok", "OtherCo shareholders are Alpha and Beta.", False),
+    ("ok", "Example total assets report.", False),
+    ("blocked", "", False),
+])
+def test_failed_research_is_replaced_only_by_relevant_ownership_read(env, read_status, source_text, completes):
+    *_, build = env
+    tools = web_tool(lambda args: {"status": "blocked", "code": "NO_READABLE_SOURCES", "message": "No readable result"})
+    tools["inspect_source"] = {"schema": {"type": "function", "function": {"name": "inspect_source",
+        "parameters": obj({"url": {"type": "string"}})}}, "handler": lambda args: {
+            "status": read_status, "source_id": "source", "text": source_text,
+            "source_url": "https://otherco.org/shareholders" if "OtherCo" in source_text else args["url"],
+            **({"code": "SOURCE_NOT_FOUND", "message": "Unavailable"} if read_status != "ok" else {})}}
+    response = "Example ortakları Alpha ve Beta. Karşılaştırmaya Alpha ile başlamayı öneriyorum."
+    runtime, _ = build([call("research_web", {"query": "Example shareholders"}),
+        call("inspect_source", {"url": "https://example.org/shareholders"}), final(response)], more=tools, max_decisions=3)
+    result = runtime.run("Example'nin ortakları kimler, hangisini ekleyelim?")
+    errors = {error["code"] for error in result.get("errors", [])}
+    if completes:
+        assert result["status"] == "completed"
+        assert result["message"].startswith(response)
+        assert "https://example.org/shareholders" in result["message"]
+        assert not errors
+    else:
+        assert result["status"] == "blocked"
+        assert {"NO_READABLE_SOURCES", "EXTERNAL_FACTS_UNVERIFIED"} <= errors
+        assert "Alpha" not in result["message"]
+    # Reconciliation changes live error state, never the original evidence.
+    assert result["tool_results"][0]["result"]["errors"][0]["code"] == "NO_READABLE_SOURCES"
+
+
+def test_research_replacement_read_does_not_clear_calculation_error(env):
+    _, _, _, plan, build = env
+    invalid = {**plan, "operations": [{"op": "deflate", "column": "credit", "index": "credit", "base_period": "2026-01", "output": "real"}]}
+    tools = web_tool(lambda args: {"status": "blocked", "code": "NO_READABLE_SOURCES", "message": "Unavailable"})
+    tools["inspect_source"] = {"schema": {"type": "function", "function": {"name": "inspect_source",
+        "parameters": obj({"url": {"type": "string"}})}}, "handler": lambda args: {
+            "status": "ok", "source_id": "source", "text": "Report read.", "source_url": args["url"]}}
+    runtime, _ = build([call("execute", invalid), call("research_web", {"query": "report"}),
+        call("inspect_source", {"url": "https://example.org/report"}), final()], more=tools)
+    result = runtime.run("Kaynağı bul ve analiz yap")
+    assert result["status"] == "partial"
+    assert "UNIT_MISMATCH" in {error["code"] for error in result["errors"]}
+    assert "NO_READABLE_SOURCES" not in {error["code"] for error in result["errors"]}
+
+
 def test_default_first_last_does_not_satisfy_declared_period_total(env):
     _, _, _, plan, build = env
     task = {"deliverables": ["analysis", "summary"], "summary": {"statistics": ["sum"]}}
