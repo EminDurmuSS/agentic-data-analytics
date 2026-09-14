@@ -4,6 +4,7 @@ from __future__ import annotations
 import hashlib
 
 from fastapi import APIRouter, HTTPException
+from fastapi.responses import FileResponse
 
 from app.activity import activity_feed, activity_journey
 from app.presentation import present_run
@@ -66,6 +67,29 @@ def create_router(context: AppContext) -> APIRouter:
     @router.post("/api/workspaces/{workspace_id}/runs/{run_id}/followups")
     def start_followups(workspace_id: str, run_id: str):
         return browser_json(context.followups.start(workspace_id, run_id))
+
+    @router.post("/api/workspaces/{workspace_id}/runs/{run_id}/voice")
+    def create_voice_summary(workspace_id: str, run_id: str):
+        return context.submit_voice(workspace_id, run_id)
+
+    @router.get("/api/voice-jobs/{job_id}")
+    def voice_job(job_id: str):
+        return context.voice_job(job_id)
+
+    @router.get("/api/workspaces/{workspace_id}/voice/{voice_id}")
+    def voice_summary(workspace_id: str, voice_id: str):
+        try:
+            return browser_json(context.voice_summaries().load(workspace_id, voice_id))
+        except ValueError as error:
+            raise HTTPException(404, str(error)) from error
+
+    @router.get("/api/workspaces/{workspace_id}/voice/{voice_id}/audio")
+    def voice_audio(workspace_id: str, voice_id: str):
+        try:
+            audio = context.voice_summaries().audio_path(workspace_id, voice_id)
+        except ValueError as error:
+            raise HTTPException(404, str(error)) from error
+        return FileResponse(audio, media_type="audio/wav", filename="sesli-ozet.wav")
 
     @router.get("/api/jobs/{job_id}")
     def job(job_id: str):
