@@ -4,13 +4,14 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <title>Agentic Minds | Analiz çalışma alanı</title>
-    <link rel="stylesheet" href="/static/app.css?v=13" />
+    <link rel="stylesheet" href="/static/app.css?v=14" />
     <link rel="stylesheet" href="/static/charts.css?v=9" />
     <script src="/static/vendor/echarts.min.js" defer></script>
     <script src="/static/charts.js?v=9" defer></script>
     <script src="/static/activity.js?v=2" defer></script>
     <script src="/static/followups.js?v=2" defer></script>
-    <script src="/static/app.js?v=15" defer></script>
+    <script src="/static/voice-orb.js?v=1" defer></script>
+    <script src="/static/app.js?v=16" defer></script>
   </head>
   <body>
     <aside class="sidebar">
@@ -186,6 +187,14 @@
                 aria-selected="false"
               >
                 Hesap adımları
+              </button
+              ><button
+                class="tab"
+                data-tab="voice"
+                role="tab"
+                aria-selected="false"
+              >
+                Sesli özet
               </button>
             </div>
             <div id="tab-table" class="tab-panel">
@@ -239,6 +248,30 @@
                 <summary>Teknik ayrıntılar <span>Kayıtlı hesap planı</span></summary>
                 <pre id="analysis-plan"></pre>
               </details>
+            </div>
+            <div id="tab-voice" class="tab-panel" hidden>
+              <section class="voice-summary" aria-labelledby="voice-title">
+                <div class="voice-heading">
+                  <div>
+                    <h3 id="voice-title">Sesli özet</h3>
+                  </div>
+                  <span class="voice-model">EMA-TTS</span>
+                </div>
+                <div id="voice-status" class="voice-status" role="status">
+                  Sesli özet bu panel açıldığında hazırlanır.
+                </div>
+                <div id="voice-content" hidden>
+                  <div class="voice-player">
+                    <div id="voice-orb" class="voice-orb"></div>
+                    <span id="voice-time" class="voice-time">0:00 / 0:00</span>
+                  </div>
+                  <audio id="voice-audio" preload="metadata" class="voice-audio-engine"></audio>
+                  <details class="voice-transcript">
+                    <summary class="voice-transcript-label">Seslendirilmiş metin</summary>
+                    <p id="voice-transcript"></p>
+                  </details>
+                </div>
+              </section>
             </div>
             <div id="warnings" class="warnings"></div>
             <div id="preserved" class="preserved" hidden></div>
