@@ -9,11 +9,14 @@ WORKDIR /app
 
 COPY requirements-app.lock ./requirements-app.lock
 RUN pip install --no-cache-dir -r requirements-app.lock
+# EMA-TTS only imports VoxCPM's Apache-2.0 AudioVAE decoder. Installing this
+# pinned wheel without its unused full TTS stack avoids CUDA and web UI packages.
+RUN pip install --no-cache-dir --no-deps voxcpm==2.0.3
 
 RUN groupadd --gid 10001 agent \
     && useradd --uid 10001 --gid agent --create-home agent \
-    && mkdir -p /app/.lakehouse-runtime /app/data_pipeline/lakehouse \
-    && chown agent:agent /app/.lakehouse-runtime
+    && mkdir -p /app/.lakehouse-runtime /app/.voice-models /app/data_pipeline/lakehouse \
+    && chown agent:agent /app/.lakehouse-runtime /app/.voice-models
 
 COPY agentic_analytics ./agentic_analytics
 COPY app ./app
