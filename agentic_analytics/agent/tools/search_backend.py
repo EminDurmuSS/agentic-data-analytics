@@ -77,6 +77,7 @@ def rank_search_results(query, items):
     wants_solo = bool(re.search(solo_pattern, normalized))
     wants_consolidated = bool(re.search(consolidated_pattern, re.sub(solo_pattern, "", normalized)))
     financial_pattern = r"financ|finans|konsolid|consolid|earnings|\breports?\b|\brapor\w*|\bstatements?\b|bilan[cç]|balance.sheet|total.assets|toplam.aktif|investor.relations|yatirimci.ilisk|mali.tablo"
+    wants_methodology = bool(re.search(r"metodoloji|methodology|metaveri|metadata", normalized))
     kept, rejected = [], []
     seen = set()
     for item in items:
@@ -119,12 +120,18 @@ def rank_search_results(query, items):
         is_document = bool(re.search(r"\.(?:pdf|xlsx?|csv)(?:$|[?#])", url, re.I))
         on_topic = bool(re.search(financial_pattern, label)) or is_document
         root_page = not target.path.strip("/") or bool(re.fullmatch(r"/[a-z]{2}(?:-[a-z]{2})?/?", target.path))
-        discovery = root_page or financial_request and not on_topic
+        discovery = root_page or (financial_request and not on_topic)
+        if not wants_methodology and bool(re.search(r"metaveri|metadata|revizyon.politika|metodoloji", label)):
+            discovery = True
         kept.append({**item, "discovery_only": discovery,
                      "entity_verification_required": not entity_match,
-                     "relevance": "navigation_lead" if discovery else "query_match"})
+                     "relevance": "navigation_lead" if discovery else "query_match",
+                     "is_bulletin": bool(re.search(r"\bbulten|\bgelisme|\brapor", label))})
     kept.sort(key=lambda item: (item["discovery_only"], item["entity_verification_required"],
+                               not item["is_bulletin"],
                                -sum(year in item["title"] + item.get("snippet", "") for year in years)))
+    for item in kept:
+        item.pop("is_bulletin", None)
     return kept, rejected, domains
 
 

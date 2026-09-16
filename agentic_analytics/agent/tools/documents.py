@@ -50,15 +50,15 @@ OFFICIAL_SOURCE_REGISTRY = {
     },
     "tcmb.gov.tr": {
         "institution": "TCMB",
-        "search_variants": ("{query}", "{query} PDF", "{query} yayın rapor"),
+        "search_variants": ("{query}", "{query} bülten", "{query} raporu", "{query} gelişmeleri", "{query} yayın"),
     },
     "bddk.org.tr": {
         "institution": "BDDK",
-        "search_variants": ("{query}", "{query} PDF", "{query} duyuru rapor"),
+        "search_variants": ("{query}", "{query} bülten", "{query} raporu", "{query} gelişmeleri", "{query} duyuru"),
     },
     "tuik.gov.tr": {
         "institution": "TÜİK",
-        "search_variants": ("{query}", "{query} PDF", "{query} bülten rapor"),
+        "search_variants": ("{query}", "{query} bülten", "{query} raporu", "{query} gelişmeleri", "{query} haber bülteni"),
     },
 }
 
@@ -78,6 +78,18 @@ def _canonical(value):
 def _search_text(value):
     return "".join(character for character in unicodedata.normalize("NFKD", str(value).casefold().replace("ı", "i"))
                    if not unicodedata.combining(character))
+
+
+def _safe_truncate(text, max_len):
+    if len(text) <= max_len:
+        return text
+    truncated = text[:max_len]
+    cut = max(truncated.rfind("."), truncated.rfind("\n"))
+    if cut <= max_len // 2:
+        cut = truncated.rfind(" ")
+    if cut <= 0:
+        return truncated
+    return truncated[:cut + 1]
 
 
 def _unit_caption(text):
@@ -143,6 +155,35 @@ def _public_destination(url, *, timeout=5):
     return parsed, resolved[0], port
 
 
+def _fetch_trusted_internal(url: str, *, max_bytes: int = 2 * 1024 ** 2, timeout: int = 15) -> bytes:
+    parsed = parse.urlsplit(url)
+    if parsed.scheme not in {"http", "https"} or parsed.username or parsed.password:
+        raise DocumentError("Invalid trusted URL.", "UNSAFE_URL")
+    req = request.Request(
+        url,
+        headers={
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AgenticMinds-SourceReader/1",
+            "Accept": "application/json",
+            "Accept-Encoding": "identity",
+        },
+    )
+    opener = request.build_opener(request.ProxyHandler({}))
+    try:
+        with opener.open(req, timeout=timeout) as response:
+            blocks, total = [], 0
+            while True:
+                chunk = response.read(min(65536, max_bytes - total + 1))
+                if not chunk:
+                    break
+                total += len(chunk)
+                if total > max_bytes:
+                    raise DocumentError("Response exceeds limit.", "SOURCE_TOO_LARGE")
+                blocks.append(chunk)
+            return b"".join(blocks)
+    except (OSError, error.URLError) as exc:
+        raise DocumentError(f"Internal fetch failed: {exc}", "FETCH_FAILED") from exc
+
+
 class _NoRedirect(request.HTTPRedirectHandler):
     def redirect_request(self, req, fp, code, msg, headers, newurl):
         return None
@@ -183,7 +224,7 @@ def fetch_public_url(url, *, max_bytes=16 * 1024**2, timeout=20, max_redirects=3
                 return self.do_open(PinnedHTTPS, req)
 
         opener = request.build_opener(request.ProxyHandler({}), _NoRedirect(), HTTPHandler(), HTTPSHandler())
-        req = request.Request(current, headers={"User-Agent": "AgenticMinds-SourceReader/1", "Accept-Encoding": "identity"})
+        req = request.Request(current, headers={"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AgenticMinds-SourceReader/1", "Accept-Encoding": "identity"})
         try:
             response = opener.open(req, timeout=min(remaining, 5))
         except error.HTTPError as exc:
@@ -376,6 +417,7 @@ def _column_name(value, index, used):
 
 class DocumentTools:
     def __init__(self, store, workspace_id, *, upload_root=None, ocr_callback=None, searxng_url=None,
+                 trusted_internal_urls=None,
                  max_source_bytes=32 * 1024**2, max_rows=5000, max_columns=64, max_pages=30):
         self.store, self.workspace_id = store, workspace_id
         self.store.workspace(workspace_id)
@@ -383,9 +425,30 @@ class DocumentTools:
         self.root.mkdir(parents=True, exist_ok=True)
         self.upload_root = Path(upload_root or store.root / "uploads").resolve()
         self.upload_root.mkdir(parents=True, exist_ok=True)
-        self.ocr_callback, self.searxng_url = ocr_callback, searxng_url
+        self.ocr_callback = ocr_callback
         self.max_source_bytes, self.max_rows = max_source_bytes, max_rows
         self.max_columns, self.max_pages = max_columns, max_pages
+
+        # SearXNG ve güvenilir iç ağ yapılandırması
+        if searxng_url is None:
+            searxng_url = os.environ.get("SEARXNG_URL", "http://searxng:8080")
+        self.searxng_url = searxng_url
+
+        if trusted_internal_urls is None:
+            raw_trusted = os.environ.get("TRUSTED_INTERNAL_URLS", "http://searxng:8080")
+            trusted_internal_urls = [u.strip() for u in raw_trusted.split(",") if u.strip()]
+
+        self._trusted_prefixes = tuple(
+            u.rstrip("/") for u in (trusted_internal_urls or []) if isinstance(u, str) and u.strip()
+        )
+        if self.searxng_url:
+            s_pref = self.searxng_url.rstrip("/")
+            if s_pref not in self._trusted_prefixes:
+                self._trusted_prefixes = self._trusted_prefixes + (s_pref,)
+
+    def _is_trusted_url(self, url: str) -> bool:
+        """Verilen URL güvenilir iç ağ prefixlerinden biriyle başlıyorsa True döner."""
+        return any(url.startswith(p) for p in self._trusted_prefixes)
 
     def _directory(self, source_id):
         if not isinstance(source_id, str) or not re.fullmatch(r"source_[a-f0-9]{64}", source_id):
@@ -1064,9 +1127,9 @@ class DocumentTools:
                     # Joining isolated keyword hits can put members under an
                     # earlier shareholders heading or detach numbers from units.
                     start = max(0, ranked[0][0] - 1)
-                    excerpt = "\n".join(paragraphs[start:])[:3000]
+                    excerpt = _safe_truncate("\n".join(paragraphs[start:]), 3000)
                 else:
-                    excerpt = content[:3000]
+                    excerpt = _safe_truncate(content, 3000)
                 card = {
                     "title": source_title,
                     "url": source_url,
@@ -1846,7 +1909,7 @@ class DocumentTools:
                  "page_numbers": {"type": "array", "items": {"type": "integer", "minimum": 1}, "minItems": 1,
                                   "maxItems": self.max_pages, "uniqueItems": True,
                                   "description": "Optional exact 1-based PDF pages. Default inspects the first bounded page batch, not the whole long report. Reuse source_id to inspect later pages; existing table IDs remain stable."}}, []),
-            "publish_selected_table": (self.publish_selected_table, "Publish one inspected table with explicit dtype/unit/kind/grain contract and source unit quotes. Example monthly columns: month={dtype:date,unit:calendar,kind:dimension,nullable:false}, visits={dtype:integer,unit:visits,kind:count_flow,nullable:false}; name=clinic_visits, key=[month], grain=[month], date_column=month, frequency=monthly. Use actual candidate column names or explicit column_mapping, not these example names when different.",
+            "publish_selected_table": (self.publish_selected_table, "Publish one inspected table with explicit dtype/unit/kind/grain contract and source unit quotes. Found valid web tables via research_web/inspect_source can also be published as an overlay dataset for auto-ingestion. Example monthly columns: month={dtype:date,unit:calendar,kind:dimension,nullable:false}, visits={dtype:integer,unit:visits,kind:count_flow,nullable:false}; name=clinic_visits, key=[month], grain=[month], date_column=month, frequency=monthly. Use actual candidate column names or explicit column_mapping, not these example names when different.",
                 {"source_id": {"type": "string"}, "table_id": {"type": "string"}, "contract": self._contract_schema(),
                  "expected_version": {"type": "integer", "minimum": 0}, "column_mapping": {"type": "object",
                     "description": "Direction is SOURCE COLUMN -> OUTPUT CONTRACT COLUMN. Example actual candidate columns ['raw_month','raw_amount'] and contract columns ['month','amount'] require {'raw_month':'month','raw_amount':'amount'}. Cover every candidate column exactly once; mappings cannot select rows, drop columns or reshape a table. Omit only if candidate and contract column names already match.",
@@ -1888,7 +1951,7 @@ class DocumentTools:
                  "row_limit": {"type": "integer", "minimum": 1, "maximum": 100}}, ["source_id", "table_id"]),
             "web_search": (self.web_search, "Find public sources with Bing RSS or configured SearXNG. Inspect result URLs before using them as citation evidence.",
                 {"query": {"type": "string", "maxLength": 500}, "limit": {"type": "integer", "minimum": 1, "maximum": 10}}, ["query"]),
-            "research_web": (self.research_web, "Search public web sources, read a bounded number of result URLs, and return source-grounded content with titles, dates and links. Use this for current reports, official announcements and news; do not rely on search snippets alone.",
+            "research_web": (self.research_web, "Search public web sources, read a bounded number of result URLs, and return source-grounded content with titles, dates and links. Do not dump raw text; synthesize the findings in complete, grammatically correct sentences or bullet points. Use this for current reports, official announcements and news; do not rely on search snippets alone.",
                 {"query": {"type": "string", "maxLength": 500}, "limit": {"type": "integer", "minimum": 1, "maximum": 3},
                  "domains": {"type": "array", "maxItems": 5, "items": {"type": "string", "minLength": 1}}}, ["query"]),
         }

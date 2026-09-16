@@ -1,33 +1,22 @@
-use_default_settings:
-  engines:
-    keep_only:
-      - google
-      - bing
-      - duckduckgo
-      - brave
-
+use_default_settings: true
 server:
+  secret_key: "agentic_analytics_searxng_secret_key"
   limiter: false
   public_instance: false
-  image_proxy: false
-
 outgoing:
-  request_timeout: 8.0
-  max_request_timeout: 12.0
-
+  request_timeout: 10.0
+  useragent_suffix: ""
+enabled_plugins: []
 search:
-  safe_search: 1
+  safe_search: 0
   autocomplete: ""
   formats:
     - html
     - json
-
 engines:
   - name: google
-    disabled: false
+    engine: google
   - name: bing
-    disabled: false
+    engine: bing
   - name: duckduckgo
-    disabled: false
-  - name: brave
-    disabled: false
+    engine: duckduckgo
