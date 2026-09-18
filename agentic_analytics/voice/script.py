@@ -17,7 +17,7 @@ class VoiceScriptError(ValueError):
 
 def _prompt(brief: VoiceBriefInput) -> list[dict[str, str]]:
     return [
-        {"role": "system", "content": "Sen kaynaklı finansal analiz sonucunu seslendirmek için kısa Türkçe metin yazarsın. Yalnız verilen kanıt kapsülündeki gerçekleri kullan. Yeni hesap, sayı, tarih, kaynak, nedensellik veya öneri üretme. Sayı kullanırsan kapsüldeki biçimini aynen rakamla yaz; sayı sözcüğüyle yazma. Eksik veri ve kapsam uyarısını varsa söyle. Başlık, Markdown, URL ve kaynakça yazma."},
+        {"role": "system", "content": "Sen kaynaklı finansal analiz sonucunu seslendirmek için kısa Türkçe metin yazarsın. Grafik bilgisi kanıt kapsülünde varsa metne tam olarak 'Grafik incelendiğinde,' diye başla; grafik yoksa bu ifadeyi kullanma. Ardından grafikteki ve analizdeki gerçek değerleri açıkla. Son cümlede, yalnız kanıt kapsülündeki değerlere dayanarak ve nedensellik iddia etmeden '... görülebilir.' biçiminde kısa bir içgörü sun. Yalnız verilen kanıt kapsülündeki gerçekleri kullan. Yeni hesap, sayı, tarih, kaynak, nedensellik veya öneri üretme. Sayı kullanırsan kapsüldeki biçimini aynen rakamla yaz; sayı sözcüğüyle yazma. Eksik veri ve kapsam uyarısını varsa söyle. Başlık, Markdown, URL ve kaynakça yazma."},
         {"role": "user", "content": "45 saniyeyi aşmayacak sade bir ses metni üret. Kanıt kapsülü:\n" + json.dumps(brief.public_dict(), ensure_ascii=False, allow_nan=False, separators=(",", ":"))},
     ]
 

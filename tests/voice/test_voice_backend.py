@@ -89,6 +89,7 @@ class VoiceBackendTests(unittest.TestCase):
         script_client = Provider([{"content": "Kredi bakiyesi incelenen dönemde arttı."}])
         self.assertEqual(VoiceScriptService(script_client).generate(brief), "Kredi bakiyesi incelenen dönemde arttı.")
         self.assertEqual(script_client.requests[0]["tool_choice"], "none")
+        self.assertIn("Grafik incelendiğinde", script_client.requests[0]["messages"][0]["content"])
         with self.assertRaises(VoiceScriptError):
             VoiceScriptService(Provider([{"content": "# başlık"}])).generate(brief)
         with self.assertRaises(VoiceScriptError):
