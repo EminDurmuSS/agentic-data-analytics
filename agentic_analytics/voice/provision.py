@@ -25,6 +25,24 @@ def _sha256(path: Path) -> str:
     return digest.hexdigest()
 
 
+def _existing_manifest(target: Path, hub_cache: Path) -> dict[str, object] | None:
+    """Return the prior installation only when both model and codec are usable."""
+    manifest_path = target / "PROVISIONED.json"
+    if not all((target / name).is_file() for name in REQUIRED_FILES):
+        return None
+    if not any(hub_cache.rglob(CODEC_FILENAME)):
+        return None
+    try:
+        manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return None
+    if not isinstance(manifest, dict):
+        return None
+    if manifest.get("model_repository") != MODEL_REPOSITORY or manifest.get("codec_repository") != CODEC_REPOSITORY:
+        return None
+    return manifest
+
+
 def provision(model_dir: str | Path, *, cache_dir: str | Path | None = None, download=snapshot_download, codec_download=hf_hub_download) -> dict[str, object]:
     """Materialise code, model, and codec in a volume before serving requests."""
     target = Path(model_dir).resolve()
@@ -32,6 +50,9 @@ def provision(model_dir: str | Path, *, cache_dir: str | Path | None = None, dow
     hub_cache = cache / "hub"
     target.parent.mkdir(parents=True, exist_ok=True)
     hub_cache.mkdir(parents=True, exist_ok=True)
+    existing = _existing_manifest(target, hub_cache)
+    if existing is not None:
+        return existing
     with tempfile.TemporaryDirectory(prefix="ema-provision-", dir=target.parent) as temporary:
         staged = Path(temporary) / "ema-tts"
         download(MODEL_REPOSITORY, local_dir=str(staged), local_dir_use_symlinks=False)

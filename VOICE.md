@@ -167,7 +167,11 @@ yarışmadaki "haricî bulut Voice API yasak" koşulunu karşılamazlar.
    kontrolü, metin transkripti, yükleniyor/hata durumları ve klavye erişimini
    ekle. Aynı analiz tekrar açıldığında kayıtlı metin/artefakt doğrulanır.
 
-Yerel çalıştırma için sunucuya açıkça `VOICE_EMA_MODEL` tanımlanır. Bu dizin,
+Yerel çalıştırmada `docker compose up` önce `voice-provision` init servisini
+çalıştırır; bu servis `VOICE_EMA_MODEL` dizininde model ve codec yoksa bir kez
+indirir, varsa manifest ve dosyaları doğrulayıp hemen çıkar. Böylece `down -v`
+ile volume silinse bile sonraki `up` ses modeli hazır olmadan uygulamayı
+başlatmaz. Bu dizin,
 EMA-TTS kaynak kodunu, `ckpt/model.safetensors`, `ckpt/config.json` ve ilk
 kurulumda önceden indirilmiş AudioVAE cache'ini içerir. Model yoksa servis
 güvenli biçimde hata verir; uygulama model indirmez ve çalışma anında dış ağa

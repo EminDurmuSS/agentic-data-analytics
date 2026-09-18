@@ -55,7 +55,7 @@ docker compose ps
 docker compose logs --tail=100 agent-app
 ```
 
-Varsayılan adres [http://127.0.0.1:8870](http://127.0.0.1:8870). `ps` çıktısındaki `healthy`, konteyner içinden `/api/status` yanıtının alındığını gösterir; model anahtarını, finans veri kapsamını veya analiz doğruluğunu sınamaz. İlk çalıştırma temel imajı ve bağımlılıkları indirebilir.
+Varsayılan adres [http://127.0.0.1:8870](http://127.0.0.1:8870). `ps` çıktısındaki `healthy`, konteyner içinden `/api/status` yanıtının alındığını gösterir; model anahtarını, finans veri kapsamını veya analiz doğruluğunu sınamaz. İlk çalıştırma temel imajı ve bağımlılıkları indirebilir. Sesli özet etkinse Compose, `agent-app` başlamadan önce `voice-provision` init servisiyle EMA-TTS modelini volume'a kurar. Bu yalnız ilk açılışta (veya `docker compose down -v` ile volume silindiyse) indirme süresi ekler; model hazırsa sonraki `up` komutları indirme yapmaz.
 
 
 Uygulama konteyner içinde `0.0.0.0:8870` dinler. Compose portu host üzerinde `127.0.0.1:${AGENT_PORT:-8870}` adresine bağlar. Bu yapı yerel kullanım içindir; açık internete yayın ve kimlik doğrulama kurulumu içermez. Docker'ın port yayınlama davranışı için [resmî ağ rehberine](https://docs.docker.com/engine/network/port-publishing/) bakın.
