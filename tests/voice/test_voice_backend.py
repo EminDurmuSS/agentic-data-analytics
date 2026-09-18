@@ -95,6 +95,14 @@ class VoiceBackendTests(unittest.TestCase):
         with self.assertRaises(VoiceScriptError):
             VoiceScriptService(Provider([{"content": "Kredi bakiyesi 999 arttı."}])).generate(brief)
 
+    def test_voice_script_expands_tl_for_clear_turkish_pronunciation(self):
+        run = self._completed_run()
+        brief = build_voice_brief(self.app.state.context.store, run)
+        service = VoiceScriptService(Provider([{"content": "Kredi bakiyesi 120 TL oldu; 100 TL'den yükseldi."}]))
+
+        self.assertEqual(service.generate(brief), "Kredi bakiyesi 120 Türk lirası oldu; 100 Türk lirasından yükseldi.")
+        self.assertIn("'Türk lirası'", service.client.requests[0]["messages"][0]["content"])
+
     def _ema_model(self):
         model = Path(self.temp.name) / "ema"
         (model / "ckpt").mkdir(parents=True)

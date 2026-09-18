@@ -9,6 +9,7 @@ from agentic_analytics.voice.context import VoiceBriefInput
 MAX_SCRIPT_CHARS = 900
 _URL = re.compile(r"https?://|```|[#*_`]")
 _NUMBER = re.compile(r"\d[\d.,%]*")
+_TURKISH_LIRA = re.compile(r"\bTL(?:(?:['’])(ye|ya|yi|yı|nin|nın|den|dan))?\b", re.IGNORECASE)
 
 
 class VoiceScriptError(ValueError):
@@ -17,7 +18,7 @@ class VoiceScriptError(ValueError):
 
 def _prompt(brief: VoiceBriefInput) -> list[dict[str, str]]:
     return [
-        {"role": "system", "content": "Sen kaynaklı finansal analiz sonucunu seslendirmek için kısa Türkçe metin yazarsın. Grafik bilgisi kanıt kapsülünde varsa metne tam olarak 'Grafik incelendiğinde,' diye başla; grafik yoksa bu ifadeyi kullanma. Ardından grafikteki ve analizdeki gerçek değerleri açıkla. Son cümlede, yalnız kanıt kapsülündeki değerlere dayanarak ve nedensellik iddia etmeden '... görülebilir.' biçiminde kısa bir içgörü sun. Yalnız verilen kanıt kapsülündeki gerçekleri kullan. Yeni hesap, sayı, tarih, kaynak, nedensellik veya öneri üretme. Sayı kullanırsan kapsüldeki biçimini aynen rakamla yaz; sayı sözcüğüyle yazma. Eksik veri ve kapsam uyarısını varsa söyle. Başlık, Markdown, URL ve kaynakça yazma."},
+        {"role": "system", "content": "Sen kaynaklı finansal analiz sonucunu seslendirmek için kısa Türkçe metin yazarsın. Grafik bilgisi kanıt kapsülünde varsa metne tam olarak 'Grafik incelendiğinde,' diye başla; grafik yoksa bu ifadeyi kullanma. Ardından grafikteki ve analizdeki gerçek değerleri açıkla. Son cümlede, yalnız kanıt kapsülündeki değerlere dayanarak ve nedensellik iddia etmeden '... görülebilir.' biçiminde kısa bir içgörü sun. Yalnız verilen kanıt kapsülündeki gerçekleri kullan. Yeni hesap, sayı, tarih, kaynak, nedensellik veya öneri üretme. Sayı kullanırsan kapsüldeki biçimini aynen rakamla yaz; sayı sözcüğüyle yazma. Para birimi için 'TL' kısaltmasını yazma; her zaman 'Türk lirası' yaz. Eksik veri ve kapsam uyarısını varsa söyle. Başlık, Markdown, URL ve kaynakça yazma."},
         {"role": "user", "content": "45 saniyeyi aşmayacak sade bir ses metni üret. Kanıt kapsülü:\n" + json.dumps(brief.public_dict(), ensure_ascii=False, allow_nan=False, separators=(",", ":"))},
     ]
 
@@ -29,10 +30,22 @@ def _permitted_numbers(brief: VoiceBriefInput) -> set[str]:
     return {"".join(char for char in token if char.isdigit()) for value in values for token in _NUMBER.findall(value)}
 
 
+def _expand_turkish_lira(match: re.Match[str]) -> str:
+    suffix = (match.group(1) or "").casefold()
+    forms = {
+        "ye": "Türk lirasına", "ya": "Türk lirasına",
+        "yi": "Türk lirasını", "yı": "Türk lirasını",
+        "nin": "Türk lirasının", "nın": "Türk lirasının",
+        "den": "Türk lirasından", "dan": "Türk lirasından",
+    }
+    return forms.get(suffix, "Türk lirası")
+
+
 def validate_voice_script(value: object, brief: VoiceBriefInput | None = None) -> str:
     if not isinstance(value, str):
         raise VoiceScriptError("Ses metni boş veya geçersiz.")
     text = " ".join(value.replace("\x00", " ").split())
+    text = _TURKISH_LIRA.sub(_expand_turkish_lira, text)
     if not 1 <= len(text) <= MAX_SCRIPT_CHARS or _URL.search(text):
         raise VoiceScriptError("Ses metni biçimi veya uzunluğu geçersiz.")
     if not re.search(r"[a-zçğıöşü]", text, re.IGNORECASE):
