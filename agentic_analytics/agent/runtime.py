@@ -1590,10 +1590,18 @@ class AgentRuntime:
             return chart_coverage_errors
         successful = [item for item in state.get("tool_results", []) if item.get("result", {}).get("status") == "ok"]
         results = [item["result"] for item in successful]
+        analysis_sources = False
+        analysis_id = state.get("analysis_id")
+        if isinstance(analysis_id, str) and state.get("analysis_updated"):
+            try:
+                _, manifest = self.store.load_analysis(analysis_id)
+                analysis_sources = bool((manifest.get("lineage") or {}).get("sources"))
+            except (OSError, ValueError, duckdb.Error):
+                pass
         evidence = {
             "analysis": bool(state.get("analysis_updated")),
             "chart": bool(state.get("chart_updated")),
-            "sources": any(result.get("sources") or result.get("source_id") for result in results),
+            "sources": analysis_sources or any(result.get("sources") or result.get("source_id") for result in results),
             "dataset": any(result.get("dataset_id") for result in results),
             "statistics": any(item["tool"] in {"rolling_anomalies", "detect_changes", "analyze_relationship", "summarize_analysis"}
                               and item["result"].get("analysis_id") == state.get("analysis_id") for item in successful),

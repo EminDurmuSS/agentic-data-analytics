@@ -745,6 +745,21 @@ def test_prior_scaled_level_cannot_normalize_a_later_in_place_difference(env, re
         assert "NORMALIZATION_NOT_SATISFIED" in {item["code"] for item in runtime._task_delivery_errors(state)}
 
 
+def test_saved_analysis_lineage_fulfils_sources_deliverable(env):
+    store,_,_,_,build = env
+    plan = {"start":"2026-01","end":"2026-03","frequency":"monthly",
+            "columns":[{"name":"credit","metric_id":"credit","dimensions":{}}]}
+    runtime,_ = build([call("execute", plan), final()])
+    result = runtime.run("Konut kredisi stokunu kaynaklarıyla göster")
+    analysis_id = result["analysis_id"]
+    _, manifest = store.load_analysis(analysis_id)
+    assert manifest["lineage"]["sources"]
+    state = {"analysis_id": analysis_id, "analysis_updated": True,
+             "task_plan": {"deliverables": ["analysis", "sources"]},
+             "tool_results": result["tool_results"]}
+    assert runtime._task_delivery_errors(state) == []
+
+
 def test_single_date_delivery_has_each_presented_amount_once_and_sources_without_technical_boilerplate(env):
     from agentic_analytics.agent.delivery import _analysis_confirmation, _cell_confirmation
     store,wid,journal,_,build=env
