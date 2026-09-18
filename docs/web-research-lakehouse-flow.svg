@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="760" viewBox="0 0 1400 760" role="img" aria-labelledby="title desc">
+  <title id="title">Web araştırmasından doğrulanmış lakehouse yayınına akış</title>
+  <desc id="desc">Agent önce lakehouse'u arar. Veri yoksa resmi web kaynaklarını inceler. Doğrulanmış tablolar yalnız çalışma alanına eklenir. Ortak lakehouse'a yazım insan ve yayın kontrollerinden sonra ayrı bir release ile yapılır.</desc>
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0,0 L10,5 L0,10 Z" fill="#527aa3"/></marker>
+    <marker id="warnArrow" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0,0 L10,5 L0,10 Z" fill="#b55236"/></marker>
+    <style>
+      .title { font: 700 27px Arial, sans-serif; fill: #002048; }
+      .subtitle { font: 15px Arial, sans-serif; fill: #5b6f84; }
+      .node { stroke-width: 1.4; rx: 14; }
+      .main { fill: #f3f7fb; stroke: #8eafcc; }
+      .web { fill: #fff8ee; stroke: #e8b46d; }
+      .workspace { fill: #edf8f1; stroke: #8cbca0; }
+      .release { fill: #eaf1fa; stroke: #527aa3; stroke-width: 2; }
+      .warning { fill: #fff5f2; stroke: #d88b77; }
+      .node-title { font: 700 16px Arial, sans-serif; fill: #002048; }
+      .node-text { font: 13px Arial, sans-serif; fill: #425a72; }
+      .label { font: 700 12px Arial, sans-serif; fill: #527aa3; }
+      .warning-label { font: 700 12px Arial, sans-serif; fill: #a3402a; }
+      .line { fill: none; stroke: #527aa3; stroke-width: 2; marker-end: url(#arrow); }
+      .warn-line { fill: none; stroke: #b55236; stroke-width: 2; stroke-dasharray: 7 5; marker-end: url(#warnArrow); }
+    </style>
+  </defs>
+
+  <rect width="1400" height="760" fill="#ffffff"/>
+  <text x="60" y="55" class="title">Emin’in önerdiği web araştırması ve lakehouse akışı</text>
+  <text x="60" y="82" class="subtitle">Önce mevcut veri; eksikse kontrollü araştırma. Ortak veri katmanı yalnız doğrulanmış release ile değişir.</text>
+
+  <rect x="60" y="145" width="220" height="108" class="node main"/>
+  <text x="82" y="181" class="node-title">1. Kullanıcı sorusu</text>
+  <text x="82" y="208" class="node-text">Örn. “XBANK’i göster”</text>
+  <text x="82" y="230" class="node-text">Çalışma alanı + konuşma bağlamı</text>
+
+  <rect x="355" y="145" width="250" height="108" class="node main"/>
+  <text x="377" y="181" class="node-title">2. Lakehouse keşfi</text>
+  <text x="377" y="208" class="node-text">Metrik, birim, frekans, kapsam</text>
+  <text x="377" y="230" class="node-text">ve fiziksel gözlem kontrolü</text>
+
+  <rect x="680" y="105" width="250" height="108" class="node workspace"/>
+  <text x="702" y="141" class="node-title">Veri yerelde bulundu</text>
+  <text x="702" y="168" class="node-text">Kaynaklı analiz / grafik üret</text>
+  <text x="702" y="190" class="node-text">Lakehouse değişmez</text>
+
+  <rect x="680" y="300" width="250" height="124" class="node web"/>
+  <text x="702" y="336" class="node-title">3. Kontrollü web araştırması</text>
+  <text x="702" y="363" class="node-text">SearXNG + resmi alan filtresi</text>
+  <text x="702" y="385" class="node-text">Belge/URL oku, tabloyu incele</text>
+  <text x="702" y="407" class="node-text">Snippet’i kanıt sayma</text>
+
+  <rect x="1005" y="300" width="270" height="124" class="node workspace"/>
+  <text x="1027" y="336" class="node-title">4. Workspace overlay</text>
+  <text x="1027" y="363" class="node-text">Seçilmiş, doğrulanmış tablo</text>
+  <text x="1027" y="385" class="node-text">yalnız bu çalışma alanına eklenir</text>
+  <text x="1027" y="407" class="node-text">Aynı konuşmada analiz devam eder</text>
+
+  <rect x="1005" y="515" width="270" height="124" class="node release"/>
+  <text x="1027" y="551" class="node-title">5. Kalıcı yayın adayı</text>
+  <text x="1027" y="578" class="node-text">Kaynak + hash + birim + frekans</text>
+  <text x="1027" y="600" class="node-text">Sözleşme, kalite testi, onay</text>
+  <text x="1027" y="622" class="node-text">Sürümlü lakehouse release</text>
+
+  <rect x="680" y="550" width="250" height="90" class="node warning"/>
+  <text x="702" y="586" class="node-title">Kaynak bulunamadı</text>
+  <text x="702" y="613" class="node-text">Dürüst eksik veri yanıtı + test kaydı</text>
+
+  <path d="M280 199 H345" class="line"/>
+  <path d="M605 177 H670" class="line"/>
+  <text x="622" y="164" class="label">yerelde var</text>
+  <path d="M480 253 V360 H670" class="line"/>
+  <text x="506" y="344" class="label">yerelde yok / kapsam eksik</text>
+  <path d="M930 362 H995" class="line"/>
+  <text x="945" y="349" class="label">okunabilir ve doğrulanmış</text>
+  <path d="M1138 424 V505" class="line"/>
+  <text x="1152" y="474" class="label">kalıcı seri adayı</text>
+  <path d="M805 424 V540" class="warn-line"/>
+  <text x="821" y="482" class="warning-label">resmi kaynak/table yok</text>
+
+  <path d="M1005 577 H960 V274 H630 V199" class="line"/>
+  <text x="670" y="510" class="label">onaylı yeni release → sonraki workspace’ler</text>
+
+  <rect x="60" y="690" width="1215" height="42" rx="10" fill="#fff5f2" stroke="#d88b77"/>
+  <text x="82" y="716" class="warning-label">Güvenlik sınırı:</text>
+  <text x="214" y="716" class="node-text">Agent’in web araştırması ortak lakehouse’a doğrudan yazmaz; yalnız workspace overlay oluşturabilir. Kalıcı yayın ayrı doğrulama ve release adımıdır.</text>
+</svg>
