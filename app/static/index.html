@@ -250,12 +250,16 @@
               </details>
             </div>
             <div id="tab-voice" class="tab-panel" hidden>
-              <section class="voice-summary" aria-labelledby="voice-title">
+              <section id="voice-summary" class="voice-summary" aria-labelledby="voice-title">
                 <div class="voice-heading">
                   <div>
                     <h3 id="voice-title">Sesli özet</h3>
                   </div>
-                  <span class="voice-model">EMA-TTS</span>
+                  <div class="voice-heading-actions">
+                    <span class="voice-model">EMA-TTS</span>
+                    <button id="voice-minimize" class="voice-window-action" type="button" aria-label="Sesli özeti arka plana al" title="Arka plana al">—</button>
+                    <button id="voice-close" class="voice-window-action" type="button" aria-label="Sesli özeti kapat" title="Kapat">×</button>
+                  </div>
                 </div>
                 <div id="voice-status" class="voice-status" role="status">
                   Sesli özet bu panel açıldığında hazırlanır.
@@ -263,6 +267,11 @@
                 <div id="voice-content" hidden>
                   <div class="voice-player">
                     <div id="voice-orb" class="voice-orb"></div>
+                    <div class="voice-controls" aria-label="Ses oynatma denetimleri">
+                      <button id="voice-back" type="button" class="voice-control" aria-label="10 saniye geri al">↶ 10</button>
+                      <button id="voice-play-pause" type="button" class="voice-control voice-control-primary" aria-label="Oynat">▶ Oynat</button>
+                      <button id="voice-forward" type="button" class="voice-control" aria-label="10 saniye ileri al">10 ↷</button>
+                    </div>
                     <span id="voice-time" class="voice-time">0:00 / 0:00</span>
                   </div>
                   <audio id="voice-audio" preload="metadata" class="voice-audio-engine"></audio>
@@ -273,6 +282,7 @@
                 </div>
               </section>
             </div>
+            <button id="voice-launcher" class="voice-launcher" type="button" hidden>Sesli özeti aç</button>
             <div id="warnings" class="warnings"></div>
             <div id="preserved" class="preserved" hidden></div>
           </div>

@@ -343,6 +343,11 @@ function clearVoice() {
   if (state.voice?.meterTimer) clearInterval(state.voice.meterTimer);
   window.VoiceOrb?.clear();
   state.voice = null;
+  const voicePanel = $("#voice-summary"), launcher = $("#voice-launcher");
+  voicePanel?.classList.remove("voice-floating");
+  voicePanel?.removeAttribute("hidden");
+  if (voicePanel) $("#tab-voice")?.append(voicePanel);
+  launcher?.setAttribute("hidden", "");
   $("#voice-content")?.setAttribute("hidden", "");
   const status = $("#voice-status");
   if (status) {
@@ -1617,6 +1622,27 @@ function renderVoiceTime() {
   const audio = $("#voice-audio");
   $("#voice-time").textContent = formatAudioTime(audio.currentTime) + " / " + formatAudioTime(audio.duration);
 }
+function syncVoicePlayControl() {
+  const audio = $("#voice-audio"), button = $("#voice-play-pause");
+  if (!audio || !button) return;
+  const playing = !audio.paused && !audio.ended;
+  button.textContent = playing ? "Ⅱ Duraklat" : "▶ Oynat";
+  button.setAttribute("aria-label", playing ? "Duraklat" : "Oynat");
+}
+function setVoiceWindow(open) {
+  const panel = $("#voice-summary"), launcher = $("#voice-launcher");
+  if (!panel || !launcher || !state.voice?.summary) return;
+  if (open) document.body.append(panel);
+  panel.classList.add("voice-floating");
+  panel.hidden = !open;
+  launcher.hidden = open;
+}
+function seekVoice(seconds) {
+  const audio = $("#voice-audio");
+  if (!audio || !Number.isFinite(audio.duration)) return;
+  audio.currentTime = Math.max(0, Math.min(audio.duration, audio.currentTime + seconds));
+  renderVoiceTime();
+}
 function renderVoiceOrb(orbState = "idle", volume = 0, bands = []) {
   window.VoiceOrb?.render({
     state: orbState,
@@ -1712,8 +1738,10 @@ function renderVoiceSummary(summary) {
   $("#voice-transcript").textContent = summary.transcript;
   audio.src = base() + "/voice/" + encodeURIComponent(summary.voice_id) + "/audio";
   $("#voice-content").hidden = false;
+  setVoiceWindow(true);
   showVoiceStatus("Ses özeti hazır.", "complete");
   renderVoiceTime();
+  syncVoicePlayControl();
   renderVoiceOrb("connecting");
 }
 async function pollVoiceSummary(voice) {
@@ -1756,11 +1784,13 @@ async function ensureVoiceSummary() {
   }
 }
 $("#voice-audio").addEventListener("play", () => {
+  syncVoicePlayControl();
   void startVoiceMeter();
 });
-$("#voice-audio").addEventListener("playing", () => void startVoiceMeter());
+$("#voice-audio").addEventListener("playing", () => { syncVoicePlayControl(); void startVoiceMeter(); });
 for (const event of ["pause", "ended"]) $("#voice-audio").addEventListener(event, () => {
   renderVoiceTime();
+  syncVoicePlayControl();
   stopVoiceMeter();
 });
 $("#voice-audio").addEventListener("loadstart", () => { if (state.voice) renderVoiceOrb("connecting"); });
@@ -1772,6 +1802,17 @@ $("#voice-audio").addEventListener("timeupdate", renderVoiceTime);
 $("#voice-audio").addEventListener("timeupdate", () => {
   if (!$("#voice-audio").paused && !state.voice?.meterTimer) void startVoiceMeter();
 });
+$("#voice-play-pause").addEventListener("click", () => {
+  const audio = $("#voice-audio");
+  if (!audio) return;
+  if (audio.paused) audio.play().catch((error) => showVoiceStatus("Ses oynatılamadı: " + error.message, "error"));
+  else audio.pause();
+});
+$("#voice-back").addEventListener("click", () => seekVoice(-10));
+$("#voice-forward").addEventListener("click", () => seekVoice(10));
+for (const id of ["voice-minimize", "voice-close"])
+  $("#" + id).addEventListener("click", () => setVoiceWindow(false));
+$("#voice-launcher").addEventListener("click", () => setVoiceWindow(true));
 document.addEventListener("visibilitychange", () => {
   if (!document.hidden && !$("#voice-audio").paused) void startVoiceMeter();
 });
@@ -1784,7 +1825,10 @@ function showTab(name) {
   for (const panel of document.querySelectorAll(".tab-panel"))
     panel.hidden = panel.id !== "tab-" + name;
   if (name === "chart") window.AnalysisCharts.render();
-  if (name === "voice") void ensureVoiceSummary();
+  if (name === "voice") {
+    if (state.voice?.summary) setVoiceWindow(true);
+    void ensureVoiceSummary();
+  }
 }
 for (const button of document.querySelectorAll(".tab"))
   button.addEventListener("click", () => showTab(button.dataset.tab));
