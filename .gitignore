@@ -27,6 +27,8 @@ data_pipeline/bddk/weekly_group_*/
 
 # Local immutable releases, session uploads and analysis results.
 .lakehouse-runtime/
+/.voice-models/
+node_modules/
 /runtime-backup*/
 data_pipeline/lakehouse/analytics.duckdb
 data_pipeline/lakehouse/analytics.duckdb.wal
@@ -35,3 +37,5 @@ data_pipeline/lakehouse/analytics.duckdb.wal
 # The collector ledger and release manifests document local acquisition.
 data_pipeline/evds/full_catalog/
 data_pipeline/evds/.full_catalog*/
+
+docs/meeting-notes

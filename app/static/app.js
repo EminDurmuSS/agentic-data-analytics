@@ -14,7 +14,9 @@ const state = {
   fullColumns: false,
   followupContext: null,
   selectedSources: [],
+  voice: null,
 };
+let voiceAudioGraph = null;
 const el = (tag, text, cls) => {
   const node = document.createElement(tag);
   if (text !== undefined && text !== null) node.textContent = text;
@@ -320,6 +322,7 @@ async function refreshWorkspaces() {
   return workspaces;
 }
 function clearResult() {
+  clearVoice();
   state.analysisRequest++;
   window.AnalysisCharts?.clear();
   state.analysis = null;
@@ -329,6 +332,49 @@ function clearResult() {
   $("#extra-result").hidden = true;
   $("#result-title").textContent = "Hesabın tamamı, tek yerde.";
   showResultStatus();
+}
+function clearVoice() {
+  const audio = $("#voice-audio");
+  if (audio) {
+    audio.pause();
+    audio.removeAttribute("src");
+    audio.load();
+  }
+  if (state.voice?.meterTimer) clearInterval(state.voice.meterTimer);
+  window.VoiceOrb?.clear();
+  state.voice = null;
+  const voicePanel = $("#voice-summary"), opener = $("#voice-open");
+  voicePanel?.classList.remove("voice-floating");
+  voicePanel?.removeAttribute("hidden");
+  voicePanel?.style.removeProperty("left");
+  voicePanel?.style.removeProperty("top");
+  voicePanel?.style.removeProperty("right");
+  voicePanel?.style.removeProperty("bottom");
+  if (voicePanel) $("#voice-summary-parking")?.append(voicePanel);
+  opener?.setAttribute("hidden", "");
+  $("#voice-content")?.setAttribute("hidden", "");
+  const status = $("#voice-status");
+  if (status) {
+    status.className = "voice-status";
+    status.textContent = "Sesli özet bu panel açıldığında hazırlanır.";
+  }
+}
+function setVoiceRun(run) {
+  const runId = run?.run_id || run?.result?.run_id;
+  if (!state.workspace?.workspace_id || !runId) return;
+  if (state.voice?.workspaceId === state.workspace.workspace_id && state.voice.runId === runId) return;
+  clearVoice();
+  state.voice = {
+    workspaceId: state.workspace.workspace_id,
+    runId,
+    status: "idle",
+    jobId: null,
+    summary: null,
+    meterTimer: null,
+    audioContext: null,
+    analyser: null,
+    audioSource: null,
+  };
 }
 function showResultStatus(result, journey) {
   if (state.analysis) return;
@@ -424,6 +470,10 @@ async function selectWorkspace(id) {
     $("#message-list").append(welcome);
     examples();
   }
+  const analysisRun = [...runs].reverse().find((run) =>
+    run.status === "completed" && run.result?.analysis_id === workspace.analysis_head,
+  );
+  if (analysisRun) setVoiceRun(analysisRun);
   if (workspace.analysis_head) await loadAnalysis(workspace.analysis_head);
   if (request !== state.workspaceRequest) return;
   const recent = runs.at(-1);
@@ -558,7 +608,10 @@ async function submitQuestion(event) {
     );
     state.conversation =
       result.conversation_id || job.run?.conversation_id || state.conversation;
-    if (result.analysis_id) await loadAnalysis(result.analysis_id, result);
+    if (result.analysis_id) {
+      setVoiceRun(job.run || { run_id: result.run_id, result });
+      await loadAnalysis(result.analysis_id, result);
+    }
     else if (state.analysis) await window.AnalysisCharts.load(base(), state.analysis.analysis_id, Boolean(result.chart_updated || result.chart_id));
     if (result.status === "blocked" || result.status === "failed")
       notice(result.message);
@@ -839,6 +892,7 @@ async function loadAnalysis(id, result = {}) {
   const analysis = await api(workspacePath + "/analyses/" + id + "?limit=250");
   if (request !== state.analysisRequest || workspacePath !== base()) return;
   state.analysis = analysis;
+  if (result.run_id) setVoiceRun({ run_id: result.run_id, result });
   state.fullColumns = false;
   $("#result-content").hidden = false;
   $("#result-empty").hidden = true;
@@ -855,6 +909,7 @@ async function loadAnalysis(id, result = {}) {
     : "Kaynak veriden hesaplandı";
   $("#csv-download").hidden = false;
   $("#csv-download").href = base() + "/analyses/" + id + "/csv";
+  $("#voice-open").hidden = !state.voice;
   renderAnalysisMethod();
   renderTable();
   renderSources();
@@ -1561,6 +1616,239 @@ $("#url-form").addEventListener("submit", async (event) => {
 });
 for (const button of document.querySelectorAll("[data-close]"))
   button.addEventListener("click", () => $("#" + button.dataset.close).close());
+function voiceCurrent(voice) {
+  return voice === state.voice && voice.workspaceId === state.workspace?.workspace_id;
+}
+function formatAudioTime(value) {
+  if (!Number.isFinite(value) || value < 0) return "0:00";
+  return Math.floor(value / 60) + ":" + String(Math.floor(value % 60)).padStart(2, "0");
+}
+function renderVoiceTime() {
+  const audio = $("#voice-audio");
+  $("#voice-time").textContent = formatAudioTime(audio.currentTime) + " / " + formatAudioTime(audio.duration);
+}
+function syncVoicePlayControl() {
+  const audio = $("#voice-audio"), button = $("#voice-play-pause");
+  if (!audio || !button) return;
+  const playing = !audio.paused && !audio.ended;
+  button.textContent = playing ? "Ⅱ Duraklat" : "▶ Oynat";
+  button.setAttribute("aria-label", playing ? "Duraklat" : "Oynat");
+}
+function setVoiceWindow(open) {
+  const panel = $("#voice-summary"), opener = $("#voice-open");
+  if (!panel || !state.voice) return;
+  if (open) document.body.append(panel);
+  panel.classList.add("voice-floating");
+  panel.hidden = !open;
+  if (opener) opener.hidden = false;
+}
+let voiceDrag = null;
+const voiceDragHandle = $("#voice-summary")?.querySelector(".voice-heading");
+voiceDragHandle?.addEventListener("pointerdown", (event) => {
+  if (event.button !== 0 || event.target.closest("button") || !state.voice) return;
+  const panel = $("#voice-summary");
+  if (!panel?.classList.contains("voice-floating")) return;
+  const rect = panel.getBoundingClientRect();
+  voiceDrag = { pointerId: event.pointerId, offsetX: event.clientX - rect.left, offsetY: event.clientY - rect.top };
+  voiceDragHandle.setPointerCapture(event.pointerId);
+  event.preventDefault();
+});
+voiceDragHandle?.addEventListener("pointermove", (event) => {
+  if (!voiceDrag || event.pointerId !== voiceDrag.pointerId) return;
+  const panel = $("#voice-summary");
+  const maxLeft = Math.max(8, window.innerWidth - panel.offsetWidth - 8);
+  const maxTop = Math.max(8, window.innerHeight - panel.offsetHeight - 8);
+  panel.style.left = Math.max(8, Math.min(maxLeft, event.clientX - voiceDrag.offsetX)) + "px";
+  panel.style.top = Math.max(8, Math.min(maxTop, event.clientY - voiceDrag.offsetY)) + "px";
+  panel.style.right = "auto";
+  panel.style.bottom = "auto";
+});
+for (const eventName of ["pointerup", "pointercancel"])
+  voiceDragHandle?.addEventListener(eventName, (event) => {
+    if (voiceDrag?.pointerId === event.pointerId) voiceDrag = null;
+  });
+function seekVoice(seconds) {
+  const audio = $("#voice-audio");
+  if (!audio || !Number.isFinite(audio.duration)) return;
+  audio.currentTime = Math.max(0, Math.min(audio.duration, audio.currentTime + seconds));
+  renderVoiceTime();
+}
+function renderVoiceOrb(orbState = "idle", volume = 0, bands = []) {
+  window.VoiceOrb?.render({
+    state: orbState,
+    volume: Math.max(0, Math.min(1, volume)),
+    bands,
+    onStart: () => $("#voice-audio").play().catch((error) => showVoiceStatus("Ses oynatılamadı: " + error.message, "error")),
+    onStop: () => $("#voice-audio").pause(),
+  });
+}
+function stopVoiceMeter() {
+  if (state.voice?.meterTimer) clearInterval(state.voice.meterTimer);
+  if (state.voice) {
+    state.voice.meterTimer = null;
+    state.voice.meterStarting = false;
+    state.voice.meterToken = (state.voice.meterToken ?? 0) + 1;
+    state.voice.volume = 0;
+    state.voice.bands = [];
+  }
+  renderVoiceOrb("idle");
+}
+async function startVoiceMeter() {
+  const voice = state.voice, audio = $("#voice-audio");
+  if (!voice || !audio || audio.paused || voice.meterTimer || voice.meterStarting) return;
+  voice.meterStarting = true;
+  const meterToken = (voice.meterToken ?? 0) + 1;
+  voice.meterToken = meterToken;
+  try {
+    if (!voiceAudioGraph) {
+      const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+      const audioContext = new AudioContextClass();
+      const analyser = audioContext.createAnalyser();
+      analyser.fftSize = 1024;
+      analyser.smoothingTimeConstant = 0.72;
+      const audioSource = audioContext.createMediaElementSource(audio);
+      audioSource.connect(analyser);
+      analyser.connect(audioContext.destination);
+      voiceAudioGraph = { audioContext, analyser, audioSource };
+    }
+    Object.assign(voice, voiceAudioGraph);
+    await voice.audioContext.resume();
+    if (voice.audioContext.state !== "running") throw new Error("Ses analizörü başlatılamadı.");
+    if (!voiceCurrent(voice) || audio.paused || voice.meterToken !== meterToken) {
+      voice.meterStarting = false;
+      return;
+    }
+  } catch (error) {
+    voice.meterStarting = false;
+    showVoiceStatus("Ses çalıyor, ancak ses seviyesi görselleştirilemedi. Yeniden oynatmayı deneyin.", "error");
+    console.warn("Voice analyser unavailable", error);
+    return;
+  }
+  const samples = new Uint8Array(voice.analyser.frequencyBinCount);
+  const bandCount = 17;
+  if (!Array.isArray(voice.bands) || voice.bands.length !== bandCount)
+    voice.bands = Array(bandCount).fill(0);
+  let meterTimer = null;
+  const update = () => {
+    if (!voiceCurrent(voice) || audio.paused || voice.meterToken !== meterToken) {
+      if (meterTimer) clearInterval(meterTimer);
+      if (voice.meterTimer === meterTimer) voice.meterTimer = null;
+      return;
+    }
+    voice.analyser.getByteFrequencyData(samples);
+    const rms = Math.sqrt(samples.reduce((sum, value) => sum + (value / 255) ** 2, 0) / samples.length);
+    // Smooth each real frequency band independently so the bars do not share a synthetic pattern.
+    for (let index = 0; index < bandCount; index++) {
+      const start = Math.floor((index / bandCount) ** 1.8 * samples.length);
+      const end = Math.max(start + 1, Math.floor(((index + 1) / bandCount) ** 1.8 * samples.length));
+      const level = Math.sqrt(samples.slice(start, end).reduce((sum, value) => sum + (value / 255) ** 2, 0) / (end - start));
+      voice.bands[index] += (level - voice.bands[index]) * 0.16;
+    }
+    voice.volume = (voice.volume ?? 0) + (Math.min(1, rms * 1.8) - (voice.volume ?? 0)) * 0.12;
+    renderVoiceOrb("speaking", voice.volume, voice.bands);
+  };
+  voice.meterStarting = false;
+  update();
+  if (!voiceCurrent(voice) || audio.paused || voice.meterToken !== meterToken) return;
+  meterTimer = setInterval(update, 50);
+  voice.meterTimer = meterTimer;
+}
+function showVoiceStatus(message, kind = "") {
+  const status = $("#voice-status");
+  status.className = "voice-status" + (kind ? " " + kind : "");
+  status.textContent = message;
+  status.hidden = false;
+}
+function renderVoiceSummary(summary) {
+  const audio = $("#voice-audio");
+  const voice = state.voice;
+  if (!voiceCurrent(voice)) return;
+  voice.summary = summary;
+  voice.status = "completed";
+  $("#voice-transcript").textContent = summary.transcript;
+  audio.src = base() + "/voice/" + encodeURIComponent(summary.voice_id) + "/audio";
+  $("#voice-content").hidden = false;
+  setVoiceWindow(true);
+  showVoiceStatus("Ses özeti hazır.", "complete");
+  renderVoiceTime();
+  syncVoicePlayControl();
+  renderVoiceOrb("connecting");
+}
+async function pollVoiceSummary(voice) {
+  for (let attempt = 0; attempt < 90; attempt++) {
+    if (!voiceCurrent(voice)) return;
+    const job = await api("/api/voice-jobs/" + encodeURIComponent(voice.jobId));
+    if (!voiceCurrent(voice)) return;
+    voice.status = job.status;
+    if (job.status === "completed") {
+      renderVoiceSummary(job.result);
+      return;
+    }
+    if (job.status === "failed") throw new Error(job.detail || "Ses özeti üretilemedi.");
+    showVoiceStatus(job.status === "running" ? "Sesli özet hazırlanıyor…" : "Sesli özet sıraya alındı…", "loading");
+    renderVoiceOrb("connecting");
+    await new Promise((resolve) => setTimeout(resolve, 700));
+  }
+  throw new Error("Ses özeti hâlâ hazırlanıyor. Biraz sonra bu sekmeyi yeniden açın.");
+}
+async function ensureVoiceSummary() {
+  const voice = state.voice;
+  if (!voice) {
+    showVoiceStatus("Bu analiz için seslendirilebilir tamamlanmış bir çalışma bulunamadı.", "error");
+    return;
+  }
+  if (voice.summary || ["queued", "running"].includes(voice.status)) return;
+  try {
+    voice.status = "queued";
+    showVoiceStatus("Sesli özet hazırlanmak üzere doğrulanıyor…", "loading");
+    renderVoiceOrb("connecting");
+    const job = await api(base() + "/runs/" + encodeURIComponent(voice.runId) + "/voice", { method: "POST" });
+    if (!voiceCurrent(voice)) return;
+    voice.jobId = job.voice_job_id;
+    voice.status = job.status;
+    await pollVoiceSummary(voice);
+  } catch (error) {
+    if (!voiceCurrent(voice)) return;
+    voice.status = "failed";
+    showVoiceStatus(error.message || "Ses özeti üretilemedi.", "error");
+  }
+}
+$("#voice-audio").addEventListener("play", () => {
+  syncVoicePlayControl();
+  void startVoiceMeter();
+});
+$("#voice-audio").addEventListener("playing", () => { syncVoicePlayControl(); void startVoiceMeter(); });
+for (const event of ["pause", "ended"]) $("#voice-audio").addEventListener(event, () => {
+  renderVoiceTime();
+  syncVoicePlayControl();
+  stopVoiceMeter();
+});
+$("#voice-audio").addEventListener("loadstart", () => { if (state.voice) renderVoiceOrb("connecting"); });
+$("#voice-audio").addEventListener("loadedmetadata", () => {
+  renderVoiceTime();
+  if (state.voice) renderVoiceOrb("idle");
+});
+$("#voice-audio").addEventListener("timeupdate", renderVoiceTime);
+$("#voice-audio").addEventListener("timeupdate", () => {
+  if (!$("#voice-audio").paused && !state.voice?.meterTimer) void startVoiceMeter();
+});
+$("#voice-play-pause").addEventListener("click", () => {
+  const audio = $("#voice-audio");
+  if (!audio) return;
+  if (audio.paused) audio.play().catch((error) => showVoiceStatus("Ses oynatılamadı: " + error.message, "error"));
+  else audio.pause();
+});
+$("#voice-back").addEventListener("click", () => seekVoice(-10));
+$("#voice-forward").addEventListener("click", () => seekVoice(10));
+for (const id of ["voice-minimize", "voice-close"])
+  $("#" + id).addEventListener("click", () => setVoiceWindow(false));
+$("#voice-open").addEventListener("click", () => {
+  setVoiceWindow(true);
+  void ensureVoiceSummary();
+});
+document.addEventListener("visibilitychange", () => {
+  if (!document.hidden && !$("#voice-audio").paused) void startVoiceMeter();
+});
 function showTab(name) {
   for (const button of document.querySelectorAll(".tab")) {
     const active = button.dataset.tab === name;

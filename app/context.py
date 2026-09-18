@@ -45,16 +45,65 @@ class AppContext:
         self.snapshots = {}
         self.snapshot_sources = {}
         self._metadata = self.root / "application"
-        for name in ("jobs", "workspaces"):
+        for name in ("jobs", "voice-jobs", "workspaces"):
             (self._metadata / name).mkdir(parents=True, exist_ok=True)
         from app.followups import FollowupService
         if followup_client is None and callable(getattr(client, "with_limits", None)):
             followup_client = client.with_limits(timeout=20, max_retries=0)
         self.followups = FollowupService(self._metadata / "followups", self.store, self.run_store, followup_client)
+        self._voice_service = None
+        self.voice_futures = {}
 
     def close(self):
         self.pool.shutdown(wait=True)
         self.followups.close()
+
+    def voice_summaries(self):
+        """Create the local-only voice service lazily after provider validation."""
+        if self.client is None:
+            raise HTTPException(503, "Ses metni için Kloudeks anahtarı sunucu ortamında tanımlı değil.")
+        if self._voice_service is None:
+            from agentic_analytics.voice.service import VoiceSummaryService
+            self._voice_service = VoiceSummaryService(self._metadata / "voice", self.store, self.run_store, self.client)
+        return self._voice_service
+
+    def submit_voice(self, workspace_id: str, run_id: str) -> dict:
+        """Queue one local voice artifact without holding an HTTP request open."""
+        workspace_id, run_id = _safe_id(workspace_id), _safe_id(run_id)
+        self.workspace(workspace_id)
+        job_id = "voice_job_" + hashlib.sha256((workspace_id + ":" + run_id).encode()).hexdigest()[:32]
+        path = self._metadata / "voice-jobs" / (job_id + ".json")
+        with self.lock:
+            if path.exists():
+                previous = json.loads(path.read_text())
+                if previous.get("status") in {"queued", "running"}:
+                    return self.voice_job(job_id)
+                if previous.get("status") == "completed":
+                    voice_id = (previous.get("result") or {}).get("voice_id")
+                    prompt = self._metadata / "voice" / workspace_id / (voice_id + ".prompt.json") if isinstance(voice_id, str) else None
+                    if prompt is not None and prompt.is_file():
+                        return self.voice_job(job_id)
+            values = {"voice_job_id": job_id, "workspace_id": workspace_id, "run_id": run_id, "status": "queued"}
+            write_json(path, values)
+
+            def work():
+                write_json(path, {**values, "status": "running"})
+                try:
+                    result = self.voice_summaries().create(workspace_id, run_id)
+                except Exception as error:
+                    detail = str(error) if isinstance(error, ValueError) else "Ses özeti güvenli biçimde üretilemedi."
+                    write_json(path, {**values, "status": "failed", "detail": detail})
+                else:
+                    write_json(path, {**values, "status": "completed", "result": result})
+
+            self.voice_futures[job_id] = self.pool.submit(work)
+        return browser_json(values)
+
+    def voice_job(self, job_id: str) -> dict:
+        path = self._metadata / "voice-jobs" / (_safe_id(job_id) + ".json")
+        if not path.exists():
+            raise HTTPException(404, "Ses özeti çalışması bulunamadı.")
+        return browser_json(json.loads(path.read_text()))
 
     def snapshot(self, profile):
         with self.lock:
