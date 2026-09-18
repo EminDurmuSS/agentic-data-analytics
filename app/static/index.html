@@ -119,7 +119,10 @@
               <span class="eyebrow">ANALİZ SONUCU</span>
               <h2 id="result-title">Hesabın tamamı, tek yerde.</h2>
             </div>
-            <a id="csv-download" class="quiet" hidden>CSV indir ↓</a>
+            <div class="result-heading-actions">
+              <button id="voice-open" class="quiet" type="button" hidden>Sesli özet</button>
+              <a id="csv-download" class="quiet" hidden>CSV indir ↓</a>
+            </div>
           </div>
           <div id="result-empty" class="result-empty">
             <svg
@@ -187,14 +190,6 @@
                 aria-selected="false"
               >
                 Hesap adımları
-              </button
-              ><button
-                class="tab"
-                data-tab="voice"
-                role="tab"
-                aria-selected="false"
-              >
-                Sesli özet
               </button>
             </div>
             <div id="tab-table" class="tab-panel">
@@ -249,7 +244,7 @@
                 <pre id="analysis-plan"></pre>
               </details>
             </div>
-            <div id="tab-voice" class="tab-panel" hidden>
+            <div id="voice-summary-parking" hidden>
               <section id="voice-summary" class="voice-summary" aria-labelledby="voice-title">
                 <div class="voice-heading">
                   <div>
@@ -282,7 +277,6 @@
                 </div>
               </section>
             </div>
-            <button id="voice-launcher" class="voice-launcher" type="button" hidden>Sesli özeti aç</button>
             <div id="warnings" class="warnings"></div>
             <div id="preserved" class="preserved" hidden></div>
           </div>

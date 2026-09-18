@@ -343,11 +343,15 @@ function clearVoice() {
   if (state.voice?.meterTimer) clearInterval(state.voice.meterTimer);
   window.VoiceOrb?.clear();
   state.voice = null;
-  const voicePanel = $("#voice-summary"), launcher = $("#voice-launcher");
+  const voicePanel = $("#voice-summary"), opener = $("#voice-open");
   voicePanel?.classList.remove("voice-floating");
   voicePanel?.removeAttribute("hidden");
-  if (voicePanel) $("#tab-voice")?.append(voicePanel);
-  launcher?.setAttribute("hidden", "");
+  voicePanel?.style.removeProperty("left");
+  voicePanel?.style.removeProperty("top");
+  voicePanel?.style.removeProperty("right");
+  voicePanel?.style.removeProperty("bottom");
+  if (voicePanel) $("#voice-summary-parking")?.append(voicePanel);
+  opener?.setAttribute("hidden", "");
   $("#voice-content")?.setAttribute("hidden", "");
   const status = $("#voice-status");
   if (status) {
@@ -905,6 +909,7 @@ async function loadAnalysis(id, result = {}) {
     : "Kaynak veriden hesaplandı";
   $("#csv-download").hidden = false;
   $("#csv-download").href = base() + "/analyses/" + id + "/csv";
+  $("#voice-open").hidden = !state.voice;
   renderAnalysisMethod();
   renderTable();
   renderSources();
@@ -1630,13 +1635,38 @@ function syncVoicePlayControl() {
   button.setAttribute("aria-label", playing ? "Duraklat" : "Oynat");
 }
 function setVoiceWindow(open) {
-  const panel = $("#voice-summary"), launcher = $("#voice-launcher");
-  if (!panel || !launcher || !state.voice?.summary) return;
+  const panel = $("#voice-summary"), opener = $("#voice-open");
+  if (!panel || !state.voice) return;
   if (open) document.body.append(panel);
   panel.classList.add("voice-floating");
   panel.hidden = !open;
-  launcher.hidden = open;
+  if (opener) opener.hidden = false;
 }
+let voiceDrag = null;
+const voiceDragHandle = $("#voice-summary")?.querySelector(".voice-heading");
+voiceDragHandle?.addEventListener("pointerdown", (event) => {
+  if (event.button !== 0 || event.target.closest("button") || !state.voice) return;
+  const panel = $("#voice-summary");
+  if (!panel?.classList.contains("voice-floating")) return;
+  const rect = panel.getBoundingClientRect();
+  voiceDrag = { pointerId: event.pointerId, offsetX: event.clientX - rect.left, offsetY: event.clientY - rect.top };
+  voiceDragHandle.setPointerCapture(event.pointerId);
+  event.preventDefault();
+});
+voiceDragHandle?.addEventListener("pointermove", (event) => {
+  if (!voiceDrag || event.pointerId !== voiceDrag.pointerId) return;
+  const panel = $("#voice-summary");
+  const maxLeft = Math.max(8, window.innerWidth - panel.offsetWidth - 8);
+  const maxTop = Math.max(8, window.innerHeight - panel.offsetHeight - 8);
+  panel.style.left = Math.max(8, Math.min(maxLeft, event.clientX - voiceDrag.offsetX)) + "px";
+  panel.style.top = Math.max(8, Math.min(maxTop, event.clientY - voiceDrag.offsetY)) + "px";
+  panel.style.right = "auto";
+  panel.style.bottom = "auto";
+});
+for (const eventName of ["pointerup", "pointercancel"])
+  voiceDragHandle?.addEventListener(eventName, (event) => {
+    if (voiceDrag?.pointerId === event.pointerId) voiceDrag = null;
+  });
 function seekVoice(seconds) {
   const audio = $("#voice-audio");
   if (!audio || !Number.isFinite(audio.duration)) return;
@@ -1812,7 +1842,10 @@ $("#voice-back").addEventListener("click", () => seekVoice(-10));
 $("#voice-forward").addEventListener("click", () => seekVoice(10));
 for (const id of ["voice-minimize", "voice-close"])
   $("#" + id).addEventListener("click", () => setVoiceWindow(false));
-$("#voice-launcher").addEventListener("click", () => setVoiceWindow(true));
+$("#voice-open").addEventListener("click", () => {
+  setVoiceWindow(true);
+  void ensureVoiceSummary();
+});
 document.addEventListener("visibilitychange", () => {
   if (!document.hidden && !$("#voice-audio").paused) void startVoiceMeter();
 });
@@ -1825,10 +1858,6 @@ function showTab(name) {
   for (const panel of document.querySelectorAll(".tab-panel"))
     panel.hidden = panel.id !== "tab-" + name;
   if (name === "chart") window.AnalysisCharts.render();
-  if (name === "voice") {
-    if (state.voice?.summary) setVoiceWindow(true);
-    void ensureVoiceSummary();
-  }
 }
 for (const button of document.querySelectorAll(".tab"))
   button.addEventListener("click", () => showTab(button.dataset.tab));
