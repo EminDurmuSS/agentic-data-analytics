@@ -26,7 +26,10 @@ class HTMLTableExtractor(HTMLParser):
         elif tag == "tr":
             self.row = []
         elif tag in {"td", "th"} and self.row is not None:
-            attrs = dict(attrs)
+            # A bare attribute (<td colspan>, valid HTML) parses as None, not
+            # "1"; int(None) raises TypeError, which the except below does not
+            # catch, so normalize before it reaches int().
+            attrs = {key: value if value is not None else "" for key, value in attrs}
             try:
                 colspan, rowspan = int(attrs.get("colspan", 1)), int(attrs.get("rowspan", 1))
                 if not 1 <= colspan <= self.max_columns or not 1 <= rowspan <= self.max_rows:

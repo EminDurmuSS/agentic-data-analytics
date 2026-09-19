@@ -86,6 +86,17 @@ class AgentDocumentTests(unittest.TestCase):
         self.assertEqual(self.store.workspace("workspace_docs")["version"], 1)
         self.assertEqual(result["row_count"], 2)
 
+    def test_ragged_csv_downgrades_to_a_warning_instead_of_losing_the_source(self):
+        # A trailing footnote line (common in official exports) makes the CSV
+        # inconsistent-width. That single ragged table must not discard the
+        # whole source; the text stays readable and the issue is a warning.
+        content = "month,value\n2026-01,100\n2026-02,120\nNot: kaynak dipnotu\n"
+        inspected = self.upload("ragged.csv", content)
+        self.assertEqual(inspected["status"], "ok")
+        self.assertEqual(inspected["tables"], [])
+        self.assertIn("AMBIGUOUS_TABLE", [w["code"] for w in inspected["warnings"]])
+        self.assertIn("2026-01", inspected["text"])
+
     def test_unit_quote_and_numeric_format_are_gates(self):
         inspected = self.upload("profit.csv", 'month,value (million TL)\n2026-01,"1,25"\n2026-02,120\n')
         arguments = {"source_id": inspected["source_id"], "table_id": "table_001", "contract": self.contract,
@@ -437,6 +448,16 @@ class AgentDocumentTests(unittest.TestCase):
         self.assertEqual(result['sources'][0]['url'], owners)
         self.assertIn('Örnek Bankası', result['sources'][0]['content'])
 
+    def test_article_metadata_survives_valueless_html_attributes(self):
+        # A bare attribute (<img alt>, <a href>, <link rel>, <script type>) is
+        # valid HTML and html.parser hands it back as None, not "". Any
+        # unguarded attrs.get(name, "").strip()/.split() crashes with an
+        # AttributeError on real-world pages using this shorthand.
+        html = (b'<html><head><title>T</title><link rel><script type>{}</script></head>'
+                b'<body><a href><img src="x" alt></a><svg><path aria-label></path></svg></body></html>')
+        article = _article_metadata(html, "text/html", "https://example.org/page")
+        self.assertEqual(article["title"], "T")
+
     def test_research_web_reads_json_ld_article_content_and_skips_unreadable_results(self):
         html = b'''<html><head><title>Fallback title</title>
         <script type="application/ld+json">{"@type":"NewsArticle","headline":"Official report",
@@ -521,6 +542,15 @@ class AgentDocumentTests(unittest.TestCase):
         self.assertTrue(_direct_document_url(annual_report))
         self.assertFalse(_direct_document_url("https://www.borsaistanbul.com/endeks/xu100"))
         self.assertEqual("unavailable", result["status"])
+
+    def test_research_web_starts_at_curated_entrypoints_when_search_finds_nothing(self):
+        from agentic_analytics.agent.tools.documents import OFFICIAL_SOURCE_REGISTRY
+        self.docs.web_search = MagicMock(return_value={"status": "ok", "results": []})
+        with patch.object(self.docs, "inspect_source", side_effect=DocumentError("unavailable", "FETCH_FAILED")) as inspect:
+            self.docs.research_web("2010 IMKB 100 kapanış verisi", limit=1)
+        attempted = {call.kwargs["url"] for call in inspect.call_args_list}
+        self.assertTrue(attempted & set(OFFICIAL_SOURCE_REGISTRY["borsaistanbul.com"]["entrypoints"]))
+        self.assertNotIn("https://borsaistanbul.com/", attempted)
 
     def test_search_publication_date_never_becomes_fetched_document_date(self):
         from agentic_analytics.agent.context import _model_tool_result
