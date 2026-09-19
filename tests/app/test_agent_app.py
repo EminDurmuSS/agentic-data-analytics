@@ -14,6 +14,7 @@ import duckdb
 from fastapi.testclient import TestClient
 import pandas as pd
 
+from app.context import voice_job_id
 from app.server import create_app
 
 
@@ -119,7 +120,15 @@ class AgentAppTests(unittest.TestCase):
         self.context.futures[job_id].result(timeout=10)
         job = self.client.get(f"/api/jobs/{job_id}")
         self.assertEqual(job.status_code, 200, job.text)
-        return job.json()
+        result = job.json()
+        # A completed run pre-warms its voice job on the same provider. Wait
+        # for it so provider call counts/ordering are deterministic here.
+        run_id = (result.get("run") or {}).get("run_id")
+        if run_id:
+            future = self.context.voice_futures.get(voice_job_id(workspace_id, run_id))
+            if future is not None:
+                future.result(timeout=10)
+        return result
 
     def analysis(self, workspace_id):
         self.provider.responses.extend([tool("execute", self.plan), FINAL])
@@ -162,7 +171,9 @@ class AgentAppTests(unittest.TestCase):
         self.assertEqual(replay.status_code, 200)
         self.assertEqual(replay.json()["job_id"], job["job_id"])
         self.assertEqual(replay.json()["result"], result)
-        self.assertEqual(len(self.provider.messages), 2)
+        # 2 agent calls (tool decision + final) plus 1 voice pre-warm call;
+        # the replay above must not add any further calls of either kind.
+        self.assertEqual(len(self.provider.messages), 3)
         self.assertEqual(self.context.store.workspace(workspace["workspace_id"])["version"], 1)
         conflict = self.client.post(f"/api/workspaces/{workspace['workspace_id']}/runs",
                                     json={"message": "Başka soru", "request_id": "same-request"})
