@@ -1,4 +1,4 @@
-"""Durable local voice artifacts bound to one completed workspace analysis."""
+"""Durable local voice artifacts bound to one persisted workspace analysis."""
 from __future__ import annotations
 
 import hashlib
@@ -82,7 +82,8 @@ class VoiceSummaryService:
                                   "warning_count": len(brief.warnings)},
                                  "qwen": {"seconds": round(script_seconds, 3), "model": script_record["model"],
                                           "usage": script_record["usage"], "tool_steps": script_record["tool_steps"],
-                                          "thinking_enabled": script_record["thinking_enabled"]},
+                                          "thinking_enabled": script_record["thinking_enabled"],
+                                          "fallback": script_record["fallback"]},
                                  "ema_tts_seconds": round(tts_seconds, 3),
                                  "total_seconds": round(time.perf_counter() - started, 3)}}
         write_json(prompt, {"version": 1, "voice_id": voice_id, "messages": script_record["prompt"]})

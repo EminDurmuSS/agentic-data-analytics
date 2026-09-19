@@ -10,8 +10,8 @@ import wave
 import duckdb
 from fastapi.testclient import TestClient
 
-from agentic_analytics.voice.context import VoiceContextError, build_voice_brief
-from agentic_analytics.voice.script import VoiceScriptError, VoiceScriptService
+from agentic_analytics.voice.context import build_voice_brief
+from agentic_analytics.voice.script import VoiceScriptService
 from agentic_analytics.voice.service import VoiceServiceError, VoiceSummaryService
 from agentic_analytics.voice.ema import EmaTTS, VoiceTTSError
 from app.server import create_app
@@ -79,22 +79,36 @@ class VoiceBackendTests(unittest.TestCase):
         self.assertNotIn("https://", brief.answer)
         self.assertEqual(brief.sources[0]["title"], "Kredi bakiyesi")
 
-    def test_context_rejects_web_research_and_script_has_no_tools(self):
+    def test_context_accepts_persisted_analysis_after_web_or_provider_failure(self):
         run = self._completed_run()
         run["state"]["tool_results"].append({"tool": "research_web", "result": {"status": "ok"}})
-        with self.assertRaises(VoiceContextError):
-            build_voice_brief(self.app.state.context.store, run)
-        run["state"]["tool_results"].pop()
+        run["status"] = "failed"
+        run["result"] = {"status": "failed", "message": "MIA bağlantısı tamamlanamadı.", "errors": [{"code": "PROVIDER_UNAVAILABLE"}]}
+        brief = build_voice_brief(self.app.state.context.store, run)
+        self.assertEqual(brief.answer, "")
+        self.assertEqual(brief.analysis_id, run["state"]["analysis_id"])
+
+    def test_script_has_no_tools_and_falls_back_when_provider_is_unavailable(self):
+        run = self._completed_run()
         brief = build_voice_brief(self.app.state.context.store, run)
         script_client = Provider([{"content": "Kredi bakiyesi incelenen dönemde arttı."}])
         self.assertEqual(VoiceScriptService(script_client).generate(brief), "Kredi bakiyesi incelenen dönemde arttı.")
         self.assertEqual(script_client.requests[0]["tool_choice"], "none")
         self.assertIn("Grafik incelendiğinde", script_client.requests[0]["messages"][0]["content"])
         self.assertIn("parantez içi yer veya kod", script_client.requests[0]["messages"][0]["content"])
-        with self.assertRaises(VoiceScriptError):
-            VoiceScriptService(Provider([{"content": "# başlık"}])).generate(brief)
-        with self.assertRaises(VoiceScriptError):
-            VoiceScriptService(Provider([{"content": "Kredi bakiyesi 999 arttı."}])).generate(brief)
+        invalid_markdown = VoiceScriptService(Provider([{"content": "# başlık"}])).generate_record(brief)
+        invalid_number = VoiceScriptService(Provider([{"content": "Kredi bakiyesi 999 arttı."}])).generate_record(brief)
+        self.assertTrue(invalid_markdown["fallback"])
+        self.assertTrue(invalid_number["fallback"])
+
+        class UnavailableProvider:
+            def chat(self, *_args, **_kwargs):
+                raise ConnectionError("MIA bağlantısı tamamlanamadı.")
+
+        fallback = VoiceScriptService(UnavailableProvider()).generate_record(brief)
+        self.assertTrue(fallback["fallback"])
+        self.assertEqual(fallback["model"], "yerel-yedek")
+        self.assertIn("Kaydedilmiş analiz incelendiğinde", fallback["transcript"])
 
     def test_voice_script_expands_tl_for_clear_turkish_pronunciation(self):
         run = self._completed_run()
@@ -151,6 +165,7 @@ class VoiceBackendTests(unittest.TestCase):
         self.assertEqual(saved["analysis_id"], run["state"]["analysis_id"])
         self.assertEqual(saved["validation"]["qwen"]["tool_steps"], 0)
         self.assertFalse(saved["validation"]["qwen"]["thinking_enabled"])
+        self.assertFalse(saved["validation"]["qwen"]["fallback"])
         self.assertEqual(saved["validation"]["evidence"]["source_count"], 1)
         self.assertTrue(service.audio_path(run["workspace_id"], saved["voice_id"]).is_file())
         self.assertTrue((Path(self.temp.name) / "voice" / run["workspace_id"] / (saved["voice_id"] + ".prompt.json")).is_file())

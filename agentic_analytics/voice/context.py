@@ -19,7 +19,7 @@ _URL = re.compile(r"https?://\S+", re.IGNORECASE)
 
 
 class VoiceContextError(ValueError):
-    """The selected run does not supply a safe, completed voice brief."""
+    """The selected run does not supply a safe, persisted voice brief."""
 
 
 @dataclass(frozen=True)
@@ -53,16 +53,14 @@ def _short_text(value: object, limit: int) -> str:
 
 def _run_result(run: dict[str, Any]) -> tuple[dict[str, Any], dict[str, Any]]:
     result, state = run.get("result"), run.get("state")
-    if not isinstance(result, dict) or not isinstance(state, dict):
+    if not isinstance(state, dict):
         raise VoiceContextError("Çalışma sonucu sesli özet için hazır değil.")
-    if run.get("status") != "completed" or result.get("status") != "completed" or result.get("errors"):
-        raise VoiceContextError("Yalnız tamamlanmış ve hatasız analizler seslendirilebilir.")
-    if not state.get("analysis_updated") or not isinstance(state.get("analysis_id"), str):
+    if not isinstance(state.get("analysis_id"), str):
         raise VoiceContextError("Sesli özet için kaydedilmiş bir analiz sonucu gerekli.")
-    tool_names = {item.get("tool") for item in state.get("tool_results", []) if isinstance(item, dict)}
-    if "research_web" in tool_names:
-        raise VoiceContextError("Web araştırması içeren çalışma ilk sürümde seslendirilemez.")
-    return result, state
+    # A provider outage can happen after execute/create_chart persisted valid
+    # artifacts. Those bytes are still safe to summarize; the eventual run
+    # status and its raw error text must not discard a usable result.
+    return result if isinstance(result, dict) else {}, state
 
 
 def _artifact_ids(state: dict[str, Any], tool: str, key: str) -> list[str]:
@@ -188,9 +186,12 @@ def build_voice_brief(store, run: dict[str, Any], *, answer: str | None = None) 
                 "columns": [{"name": name, "label": _short_text(labels.get(name, name), 120), "unit": schema.get(name, {}).get("unit"), "scale": schema.get(name, {}).get("scale")}
                             for name in presentation.get("columns", [])][:12],
                 "plan": _small_mapping(manifest.get("plan"), limit=10)}
-    message = _short_text(answer if answer is not None else result.get("display_message") or result.get("message"), MAX_MESSAGE_CHARS)
-    if not message:
-        raise VoiceContextError("Sesli özet için gösterilebilir bir yanıt bulunamadı.")
+    # A failed final provider call commonly leaves only its transport error in
+    # `message`. Do not feed that error to the spoken-summary model. The
+    # persisted analysis/chart below is enough for the local fallback script.
+    terminal_failed = result.get("status") in {"failed", "blocked"} or bool(result.get("errors"))
+    candidate = answer if answer is not None else ("" if terminal_failed else result.get("display_message") or result.get("message"))
+    message = _short_text(candidate, MAX_MESSAGE_CHARS)
     return VoiceBriefInput(workspace_id=workspace_id, run_id=run_id, analysis_id=analysis_id,
                            data_sha256=manifest["data_sha256"], snapshot_id=manifest.get("snapshot_id"),
                            question=_short_text(run.get("message"), 800), answer=message, analysis=analysis,

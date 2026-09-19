@@ -59,9 +59,7 @@ class AppContext:
         self.followups.close()
 
     def voice_summaries(self):
-        """Create the local-only voice service lazily after provider validation."""
-        if self.client is None:
-            raise HTTPException(503, "Ses metni için Kloudeks anahtarı sunucu ortamında tanımlı değil.")
+        """Create the local voice service; wording falls back without a provider."""
         if self._voice_service is None:
             from agentic_analytics.voice.service import VoiceSummaryService
             self._voice_service = VoiceSummaryService(self._metadata / "voice", self.store, self.run_store, self.client)

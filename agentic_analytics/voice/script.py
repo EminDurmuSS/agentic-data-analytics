@@ -41,6 +41,22 @@ def _expand_turkish_lira(match: re.Match[str]) -> str:
     return forms.get(suffix, "Türk lirası")
 
 
+def _local_fallback_script(brief: VoiceBriefInput) -> str:
+    """Describe only persisted metadata when the text model is unavailable."""
+    period = brief.analysis.get("period") if isinstance(brief.analysis, dict) else None
+    start = period.get("start") if isinstance(period, dict) else None
+    end = period.get("end") if isinstance(period, dict) else None
+    rows = brief.analysis.get("row_count") if isinstance(brief.analysis, dict) else None
+    chart_title = brief.chart.get("title") if isinstance(brief.chart, dict) else ""
+    subject = chart_title or "kaydedilmiş analiz"
+    prefix = "Grafik incelendiğinde," if brief.chart else "Kaydedilmiş analiz incelendiğinde,"
+    range_text = f" {start} ile {end} arasındaki" if start and end else ""
+    row_text = f" {rows} kayıt" if isinstance(rows, int) else " kayıtlı veri"
+    warning = (" Bazı veri veya kapsam uyarıları bulunduğu için sonuçlar dikkatle değerlendirilmelidir."
+               if brief.warnings else " Kaynaklı verilerdeki eğilim incelenebilir.")
+    return validate_voice_script(f"{prefix} {subject} için{range_text}{row_text} görüntülenmektedir.{warning}", brief)
+
+
 def validate_voice_script(value: object, brief: VoiceBriefInput | None = None) -> str:
     if not isinstance(value, str):
         raise VoiceScriptError("Ses metni boş veya geçersiz.")
@@ -62,8 +78,6 @@ class VoiceScriptService:
     """Use the configured text model once; it has no tool access."""
 
     def __init__(self, client):
-        if client is None or not callable(getattr(client, "chat", None)):
-            raise VoiceScriptError("Ses metni modeli yapılandırılmamış.")
         self.client = client
 
     def generate(self, brief: VoiceBriefInput) -> str:
@@ -71,16 +85,25 @@ class VoiceScriptService:
 
     def generate_record(self, brief: VoiceBriefInput) -> dict[str, object]:
         prompt = _prompt(brief)
-        response = self.client.chat(prompt, temperature=0, max_tokens=220,
-                                    tool_choice="none", enable_thinking=False)
-        if not isinstance(response, dict):
-            raise VoiceScriptError("Ses metni modeli geçersiz yanıt verdi.")
-        tool_calls = response.get("tool_calls") or []
-        if tool_calls:
-            raise VoiceScriptError("Ses metni modeli araç çağrısı yapmamalı.")
-        usage = response.get("usage") if isinstance(response.get("usage"), dict) else {}
-        return {"transcript": validate_voice_script(response.get("content"), brief),
-                "prompt": prompt,
-                "model": response.get("model") if isinstance(response.get("model"), str) else None,
-                "usage": {key: value for key, value in usage.items() if isinstance(key, str) and isinstance(value, (int, float))},
-                "tool_steps": 0, "thinking_enabled": False}
+        try:
+            if self.client is None or not callable(getattr(self.client, "chat", None)):
+                raise VoiceScriptError("Ses metni modeli kullanılamıyor.")
+            response = self.client.chat(prompt, temperature=0, max_tokens=220,
+                                        tool_choice="none", enable_thinking=False)
+            if not isinstance(response, dict):
+                raise VoiceScriptError("Ses metni modeli geçersiz yanıt verdi.")
+            tool_calls = response.get("tool_calls") or []
+            if tool_calls:
+                raise VoiceScriptError("Ses metni modeli araç çağrısı yapmamalı.")
+            usage = response.get("usage") if isinstance(response.get("usage"), dict) else {}
+            return {"transcript": validate_voice_script(response.get("content"), brief),
+                    "prompt": prompt,
+                    "model": response.get("model") if isinstance(response.get("model"), str) else None,
+                    "usage": {key: value for key, value in usage.items() if isinstance(key, str) and isinstance(value, (int, float))},
+                    "tool_steps": 0, "thinking_enabled": False, "fallback": False}
+        except (ConnectionError, TimeoutError, OSError, RuntimeError, TypeError, ValueError):
+            # The audio model is local. A text-provider outage must therefore
+            # degrade wording only, never remove the already verified output.
+            return {"transcript": _local_fallback_script(brief), "prompt": prompt,
+                    "model": "yerel-yedek", "usage": {}, "tool_steps": 0,
+                    "thinking_enabled": False, "fallback": True}
