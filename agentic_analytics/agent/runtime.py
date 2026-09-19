@@ -6,6 +6,7 @@ paths or a shell. Tool results are journaled before advancing the conversation.
 from __future__ import annotations
 
 import copy
+from decimal import Decimal, InvalidOperation
 import json
 import re
 import time
@@ -18,10 +19,13 @@ from agentic_analytics.agent.context import _compact, _model_tool_result, model_
 from agentic_analytics.agent.prompts import INSTITUTIONAL_REPAIR_PROMPT, SOURCE_READING_PROMPT, SOURCE_READ_REPAIR_PROMPT
 from agentic_analytics.agent.delivery import (
     _analysis_confirmation, _cell_confirmation, _chart_confirmation, _requests_chart, _requests_table,
-    _scope_confirmation, _source_scope_confirmation, _statistics_confirmation, _display_label, _source_confirmation, _published_source_ids,
+    _scope_confirmation, _source_scope_confirmation, _statistics_confirmation, _selection_confirmation,
+    _bundle_confirmation, _display_label, _source_confirmation, _published_source_ids, _successful_bundle,
+    _verified_source_table_confirmation,
 )
 from agentic_analytics.agent.run_store import AgentRunStore, canonical, fingerprint
 from agentic_analytics.agent.schemas import COLUMN_NAME, obj
+from agentic_analytics.agent.tools.documents import _consolidation_scope, _document_type, _requested_document_type
 from agentic_analytics.agent.tools.lakehouse import lakehouse_tools
 from agentic_analytics.lakehouse.discovery import initial_query
 from agentic_analytics.lakehouse.service import LakehouseService, PlanError, error_envelope
@@ -32,11 +36,29 @@ def _blocked(code, message):
     return {"status": "blocked", "errors": [{"code": code, "message": message}]}
 
 
+def _successful_selection(state):
+    return any(item.get("tool") == "select_analysis_rows"
+               and item.get("result", {}).get("status") == "ok"
+               and item.get("result", {}).get("artifact_id")
+               for item in state.get("tool_results", []))
+
+
+def _requests_relationship_statistics(message):
+    text = _fact_text(message)
+    return bool(re.search(
+        r"\b(?:korelasyon\w*|correlation\w*|pearson\w*|spearman\w*|granger\w*|"
+        r"iliski\w*|relationship\w*|association\w*|regresyon\w*|regression\w*|"
+        r"gecikmeli\s+(?:iliski\w*|baglanti\w*)|lagged\s+(?:relationship|association))\b",
+        text,
+    ))
+
+
 _SEARCH_FAILURES = {"SEARCH_NO_PROGRESS", "SEARCH_STRATEGY_EXHAUSTED", "SEARCH_UNAVAILABLE",
                     "WEB_SEARCH_UNCONFIGURED", "SEARCH_INVALID_RESPONSE", "NO_READABLE_SOURCES",
                     "OFFICIAL_SOURCE_NOT_FOUND", "SEARCH_NO_RELEVANT_RESULTS", "SEARCH_BUDGET_EXHAUSTED"}
 _RECOVERABLE_SEARCH_ERRORS = _SEARCH_FAILURES | {"INVALID_TOOL_ARGUMENTS", "RESEARCH_QUERY_SCOPE_MISMATCH"}
-_INSTITUTIONAL_REPAIR_TOOLS = {"research_web", "web_search", "inspect_source", "find_source_pages", "read_source_table", "describe"}
+_INSTITUTIONAL_REPAIR_TOOLS = {"research_web", "web_search", "inspect_source", "find_source_pages",
+                               "read_source_table", "find_source_table_rows", "describe"}
 
 
 def _fact_text(value):
@@ -284,12 +306,135 @@ def _source_read(result):
                for source in result.get("sources", []) if isinstance(source, dict))))
 
 
+_NUMERIC_LITERAL = re.compile(r"(?<![\w])[-+]?\d(?:[\d\s.,'’]*\d)?(?![\w])")
+
+
+def _numeric_literal_values(literal):
+    """Return conservative locale-independent identities for one literal."""
+    raw = re.sub(r"[\s'’]", "", str(literal)).strip(".,")
+    if not raw or not re.search(r"\d", raw):
+        return set()
+    sign = ""
+    if raw[0] in "+-":
+        sign, raw = raw[0], raw[1:]
+    if not raw:
+        return set()
+    values = set()
+
+    def add(value):
+        try:
+            decimal = Decimal(("-" if sign == "-" else "") + value)
+        except InvalidOperation:
+            return
+        rendered = format(decimal, "f")
+        if "." in rendered:
+            rendered = rendered.rstrip("0").rstrip(".")
+        values.add("0" if rendered in {"-0", ""} else rendered)
+
+    separators = [character for character in raw if character in ".,"]
+    if not separators:
+        add(raw)
+        return values
+    if "." in raw and "," in raw:
+        decimal_separator = "." if raw.rfind(".") > raw.rfind(",") else ","
+        whole, fraction = raw.rsplit(decimal_separator, 1)
+        add(whole.replace(".", "").replace(",", "") + "." + fraction)
+        return values
+    separator = separators[0]
+    parts = raw.split(separator)
+    if len(parts) > 2 and all(len(part) == 3 for part in parts[1:]):
+        add("".join(parts))
+        return values
+    if len(parts) == 2 and all(parts):
+        if len(parts[1]) <= 3:
+            add(parts[0] + "." + parts[1])
+        if len(parts[1]) == 3:
+            add(parts[0] + parts[1])
+        return values
+    add("".join(parts))
+    return values
+
+
+def _material_numeric_literals(text):
+    """Extract answer quantities while excluding navigation and date notation."""
+    scrubbed = re.sub(r"https?://[^\s<>\])]+", " ", str(text or ""))
+    scrubbed = re.sub(r"\b(?:19|20)\d{2}[-/.](?:0?[1-9]|1[0-2])[-/.](?:0?[1-9]|[12]\d|3[01])\b", " ", scrubbed)
+    month = (r"ocak|şubat|subat|mart|nisan|mayıs|mayis|haziran|temmuz|ağustos|agustos|eylül|eylul|"
+             r"ekim|kasım|kasim|aralık|aralik|january|february|march|april|may|june|july|august|"
+             r"september|october|november|december")
+    scrubbed = re.sub(r"\b(?:0?[1-9]|[12]\d|3[01])\s+(?:" + month + r")\s+(?:19|20)\d{2}\b", " ", scrubbed, flags=re.I)
+    scrubbed = re.sub(r"\b(?:19|20)\d{2}\s*(?:Q[1-4]|/[1-4]\s*Q|[1-4]\.\s*çeyrek)\b", " ", scrubbed, flags=re.I)
+    scrubbed = re.sub(r"\b(?:sayfa|page|s\.|satır|satir|row|tablo|table)\s*#?\s*\d+\b", " ", scrubbed, flags=re.I)
+    found = []
+    for match in _NUMERIC_LITERAL.finditer(scrubbed):
+        literal = match.group(0).strip()
+        compact = re.sub(r"\D", "", literal)
+        if re.fullmatch(r"(?:19|20)\d{2}", compact) and not re.search(r"[.,]", literal):
+            continue
+        values = _numeric_literal_values(literal)
+        if values:
+            found.append((literal, values))
+    return found
+
+
+def _direct_source_numeric_values(state):
+    """Collect numbers only from fetched content and literal table cells."""
+    texts = []
+
+    def add_tables(tables):
+        for table in tables or []:
+            if not isinstance(table, dict):
+                continue
+            for row in table.get("rows", table.get("preview", [])) or []:
+                values = row.get("values", row) if isinstance(row, dict) else row
+                if isinstance(values, dict):
+                    texts.extend(str(value) for value in values.values() if value is not None)
+                elif isinstance(values, list):
+                    texts.extend(str(value) for value in values if value is not None)
+
+    read = False
+    for item in state.get("tool_results", []):
+        result = item.get("result", {})
+        if result.get("status") != "ok":
+            continue
+        tool = item.get("tool")
+        if tool == "research_web":
+            for source in result.get("sources", []):
+                if not isinstance(source, dict) or source.get("source_role") == "discovery_index":
+                    continue
+                source_texts = [source.get("content"), source.get("text"),
+                                (source.get("article") or {}).get("article_body")]
+                source_texts.extend(page.get("text") for page in source.get("pages", []) if isinstance(page, dict))
+                source_texts.extend(passage.get("text") for passage in source.get("passages", []) if isinstance(passage, dict))
+                if any(isinstance(value, str) and value.strip() for value in source_texts) or source.get("tables"):
+                    read = True
+                texts.extend(value for value in source_texts if isinstance(value, str))
+                add_tables(source.get("tables"))
+        elif tool == "inspect_source":
+            source_texts = [result.get("text"), (result.get("article") or {}).get("article_body")]
+            source_texts.extend(page.get("text") for page in result.get("pages", []) if isinstance(page, dict))
+            if any(isinstance(value, str) and value.strip() for value in source_texts) or result.get("tables"):
+                read = True
+            texts.extend(value for value in source_texts if isinstance(value, str))
+            add_tables(result.get("tables"))
+        elif tool in {"read_source_table", "find_source_table_rows"}:
+            if result.get("rows"):
+                read = True
+                add_tables([result])
+    values = set()
+    for text in texts:
+        for _, variants in _material_numeric_literals(text):
+            values.update(variants)
+    return read, values
+
+
 def _research_scope_error(state, name, args):
     """Do not turn an unanswered institutional question into a product search."""
     if (name not in {"discover", "research_web", "web_search"} or not state.get("external_facts_required")
             or any(_ownership_source(item.get("result", {}), state.get("ownership_subject"),
                                      state.get("institutional_fact_kind") == "relationship")
-                   for item in state.get("tool_results", []) if item.get("tool") in {"research_web", "inspect_source", "read_source_table"})):
+                   for item in state.get("tool_results", []) if item.get("tool") in {
+                       "research_web", "inspect_source", "read_source_table", "find_source_table_rows"})):
         return None
     request, query = _fact_text(state.get("institutional_request")), _fact_text(args.get("query"))
     facets = (r"kredi\s+karti|credit\s+cards?", r"konut\s+kred\w*|mortgage\w*", r"taşit\s+kred\w*|vehicle\s+loans?",
@@ -564,8 +709,8 @@ class AgentRuntime:
         }, ["statistics"])
         summary["description"] = "Omit before a saved analysis exists. Later specify only user-requested statistics on actual saved columns/native periods. Initial example: {deliverables:[analysis,chart,sources]}."
         parameters = obj({
-            "deliverables": {"type": "array", "minItems": 1, "maxItems": 7, "uniqueItems": True,
-                             "items": {"enum": ["analysis", "chart", "sources", "dataset", "statistics", "summary", "explanation"]}},
+            "deliverables": {"type": "array", "minItems": 1, "maxItems": 8, "uniqueItems": True,
+                             "items": {"enum": ["analysis", "bundle", "selection", "chart", "sources", "dataset", "statistics", "summary", "explanation"]}},
             "summary": summary,
             "normalization": obj({
                 "same_unit_scale": {"const": True},
@@ -635,7 +780,8 @@ class AgentRuntime:
 
     def _search_recovery(self, state):
         return {"reason": "Searches are not finding new source URLs; changing query wording alone is not progress.",
-                "available_tools": [name for name in ("research_web", "inspect_source", "find_source_pages", "read_source_table") if name in self.tools],
+                "available_tools": [name for name in ("research_web", "inspect_source", "find_source_pages",
+                                                       "find_source_table_rows", "read_source_table") if name in self.tools],
                 "candidate_urls": state.get("search_progress", {}).get("urls", [])[-8:],
                 "next_step": "Read a relevant official result and follow its discovered report links, or use research_web with the institution's domain. Do not guess URLs, dates, values or treat snippets as evidence. If no source is readable, explain what is missing and retain the existing analysis."}
 
@@ -656,7 +802,7 @@ class AgentRuntime:
                     result.setdefault("warnings", []).append({"code": "SEARCH_RESULTS_REPEATED",
                         "message": "Successive searches produced no new source URLs. Raw search is paused until a source is read."})
                 result["recovery"] = self._search_recovery(state)
-        elif name in {"research_web", "inspect_source", "read_source_table"} and _source_read(result):
+        elif name in {"research_web", "inspect_source", "read_source_table", "find_source_table_rows"} and _source_read(result):
             # Only a successful source read reopens discovery. A duplicate read
             # cannot reset the stall repeatedly or erase unrelated tool errors.
             read_key = fingerprint({key: result.get(key) for key in ("source_id", "source_url", "text", "pages", "tables", "rows", "sources")})
@@ -688,12 +834,12 @@ class AgentRuntime:
         return {"source_id": source_id, "navigation_only": True,
             "suggested_inspection": {"source_id": source_id, "page_numbers": self._unread_source_pages(progress)[:3]},
             "search_complete": progress.get("complete_search", False), "next_start_page": progress.get("next_start_page"),
-            "next_step": "Read the suggested physical pages with inspect_source, then relevant table rows with read_source_table. "
+            "next_step": "Read the suggested physical pages with inspect_source, then locate a line item with find_source_table_rows or read relevant rows with read_source_table. "
                 "Search excerpts locate pages; they do not verify a table or its absence. Changing query wording without reading is not progress. "
                 "Continue an incomplete search using its next_start_page when necessary; do not invent PDF page offsets."}
 
     def _track_source_pages(self, state, name, args, result, call_id):
-        if name not in {"find_source_pages", "inspect_source", "read_source_table"} or result.get("status") != "ok":
+        if name not in {"find_source_pages", "inspect_source", "read_source_table", "find_source_table_rows"} or result.get("status") != "ok":
             return
         source_id = result.get("source_id") or args.get("source_id")
         if not source_id:
@@ -715,7 +861,7 @@ class AgentRuntime:
             if progress["searches_since_read"] >= 2 and self._unread_source_pages(progress):
                 result["recovery"] = self._source_page_recovery(state, source_id)
             return
-        if name == "read_source_table":
+        if name in {"read_source_table", "find_source_table_rows"}:
             if not result.get("rows"):
                 return
             pages = [result.get("page"), *(result.get("source_pages") or [])]
@@ -744,7 +890,7 @@ class AgentRuntime:
         # A fresh candidate-page/table read replaces the repeated-read stall
         # for that source only. Keep the one-shot allowance consumed, and keep
         # unrelated execution or other-source failures visible.
-        for tool in ("inspect_source", "read_source_table"):
+        for tool in ("inspect_source", "read_source_table", "find_source_table_rows"):
             remaining = [error for error in unresolved.get(tool, [])
                          if error.get("code") != "SOURCE_READ_REPEATED" or error.get("source_id") != source_id]
             if remaining:
@@ -773,6 +919,7 @@ class AgentRuntime:
         closeout. A published source still needs the normal calculation path.
         """
         if (state.get("analysis_id") or state.get("analysis_updated") or state.get("chart_updated")
+                or _successful_bundle(state)
                 or state.get("external_facts_required") or _published_source_ids(state)
                 or any(error.get("code") != "SOURCE_READ_REPEATED"
                        and not (stalled_source and error.get("code") == "NO_PROGRESS" and error.get("source_id") == stalled_source)
@@ -834,7 +981,7 @@ class AgentRuntime:
     @staticmethod
     def _sourced_limitation(state, content, errors):
         """A read, cited limitation can preserve prose, never fulfill artifacts."""
-        if state.get("analysis_id") or state.get("analysis_updated") or state.get("chart_updated"):
+        if state.get("analysis_id") or state.get("analysis_updated") or state.get("chart_updated") or _successful_bundle(state):
             return False  # Computed results keep the verified-artifact renderer.
         if not errors or any(error.get("code") not in {
                 "TASK_DELIVERABLE_MISSING", "CHART_NOT_CREATED", "TABLE_NOT_CREATED",
@@ -863,7 +1010,8 @@ class AgentRuntime:
             return []
         percentage_errors = _ownership_percentage_errors(state, content)
         relationship = state.get("institutional_fact_kind") == "relationship"
-        reads = [item for item in state.get("tool_results", []) if item.get("tool") in {"research_web", "inspect_source", "read_source_table"}]
+        reads = [item for item in state.get("tool_results", []) if item.get("tool") in {
+            "research_web", "inspect_source", "read_source_table", "find_source_table_rows"}]
         identities = {}
         relevant, relevant_evidence, complete_read = [], [], False
         for item in reads:
@@ -877,7 +1025,7 @@ class AgentRuntime:
         for item in reads:
             result = item.get("result", {})
             identity = identities.get(result.get("source_id"))
-            if item["tool"] == "read_source_table" and identity and (
+            if item["tool"] in {"read_source_table", "find_source_table_rows"} and identity and (
                     not identity.get("raw_sha256") or not result.get("raw_sha256") or identity["raw_sha256"] == result["raw_sha256"]):
                 # Row reads carry their registered source ID; use the URL from
                 # that same successful read, never infer identity from ID text.
@@ -950,7 +1098,8 @@ class AgentRuntime:
                 or not any(name in self.tools for name in ("research_web", "web_search"))):
             return False
         results = state.get("tool_results", [])
-        if any(item.get("tool") in {"web_search", "research_web", "inspect_source", "find_source_pages", "read_source_table"}
+        if any(item.get("tool") in {"web_search", "research_web", "inspect_source", "find_source_pages",
+                                    "read_source_table", "find_source_table_rows"}
                for item in results):
             return False
         return any((item.get("tool") == "discover" and item.get("result", {}).get("no_confident_match"))
@@ -1043,7 +1192,7 @@ class AgentRuntime:
                     reads[key] = call["id"]
                 elif name == "find_source_pages":
                     searches.append(call["id"])
-                elif name == "read_source_table" or result.get("errors"):
+                elif name in {"read_source_table", "find_source_table_rows"} or result.get("errors"):
                     keep.add(call["id"])
             keep.update(list(reads.values())[-3:])
             keep.update(searches[-2:])
@@ -1086,11 +1235,13 @@ class AgentRuntime:
             record = self.run_store.start(self.workspace_id, message, conversation_id, request_id, source_ids=selected)
             return self._run(record)
 
-    def resume(self, run_id):
+    def resume(self, run_id, *, retry_terminal=False):
         with self.run_store.workspace_lock(self.workspace_id):
             record = self.run_store.get(run_id)
             if record["workspace_id"] != self.workspace_id:
                 raise ValueError("Run belongs to another workspace")
+            if retry_terminal and record["result"] is not None:
+                record = self.run_store.reopen_retryable(run_id)
             return self._run(record)
 
     def _institutional_intent(self, record, state):
@@ -1180,6 +1331,9 @@ class AgentRuntime:
                                 state["chart_id"] = None
                                 state["chart_columns"] = []
                                 state["recommendations"] = []
+                    if result.get("bundle_id") and result.get("status") == "ok":
+                        state["analysis_bundle_id"] = result["bundle_id"]
+                        state["bundle_updated"] = True
                     if call["function"]["name"] == "create_chart" and result.get("status") == "ok":
                         state["chart_id"] = result.get("chart_id")
                         state["chart_analysis_id"] = result.get("analysis_id")
@@ -1242,6 +1396,13 @@ class AgentRuntime:
                         if tool_name in {"execute", "revise_analysis", "query_grouped", "aggregate_dataset"}:
                             for resolved_name in ("execute", "revise_analysis", "query_grouped", "aggregate_dataset", "validate_plan"):
                                 unresolved.pop(resolved_name, None)
+                        if tool_name == "select_analysis_rows":
+                            remaining = [error for error in unresolved.get("analyze_relationship", [])
+                                         if error.get("code") != "UNREQUESTED_STATISTICAL_METHOD"]
+                            if remaining:
+                                unresolved["analyze_relationship"] = remaining
+                            else:
+                                unresolved.pop("analyze_relationship", None)
                     for key in ("artifact_ref", "artifact_id", "source_id"):
                         if result.get(key):
                             item = {"kind": key, "id": result[key]}
@@ -1291,7 +1452,7 @@ class AgentRuntime:
                         # omission was actually read, close with that exact source
                         # evidence. This also avoids repeating unsupported claims
                         # from a model-generated clarification.
-                        if tool_name == "ask_user" and not (state.get("analysis_updated") or state.get("chart_updated")):
+                        if tool_name == "ask_user" and not (state.get("analysis_updated") or state.get("chart_updated") or _successful_bundle(state)):
                             evidence = self._source_final_evidence(state)
                             if evidence:
                                 errors = self._task_delivery_errors(state)
@@ -1301,7 +1462,7 @@ class AgentRuntime:
                         # A clarifying question asked AFTER a result was produced this turn
                         # must not bury it behind a dead-end needs_input; present the saved
                         # analysis/chart and surface the question with it instead.
-                        if state.get("analysis_updated") or state.get("chart_updated"):
+                        if state.get("analysis_updated") or state.get("chart_updated") or _successful_bundle(state):
                             return self._complete(record, state, result["message"], followup=True,
                                                 warnings=[{"code": "CLARIFICATION_AFTER_RESULT", "message": "A result was produced this turn; the model's follow-up question is surfaced alongside it rather than pausing for input."}])
                         return self._finish(record, state, "needs_input", result["message"])
@@ -1375,7 +1536,8 @@ class AgentRuntime:
                         if state["repairs"] > self.max_repairs:
                             return self._finish(record, state, "blocked", "Model okunabilir bir Türkçe cevap üretemedi.", errors=[{"code": "UNREADABLE_MODEL_OUTPUT", "message": "Final answer failed the charset/language readability check."}])
                         continue
-                    missing_outputs = self._task_delivery_errors(state) + self._numeric_evidence_errors(state, content) + self._external_fact_errors(state, content)
+                    missing_outputs = (self._task_delivery_errors(state) + self._numeric_evidence_errors(state, content)
+                                       + self._source_semantic_errors(state, content) + self._external_fact_errors(state, content))
                     corrective_errors = self._corrective_delivery_errors(state)
                     if ((missing_outputs or corrective_errors)
                             and not self._sourced_limitation(state, content, missing_outputs + corrective_errors)
@@ -1410,7 +1572,8 @@ class AgentRuntime:
                 errors.extend(self._task_delivery_errors(state))
                 errors.append({"code": "SOURCE_DATA_NOT_VERIFIED", "message": "Source reading ended within the decision budget with an explicit relevant limitation; requested numerical outputs remain unproduced."})
                 return self._finish(record, state, "partial", self._source_final_receipt(evidence), errors=errors)
-            if (state.get("analysis_updated") or state.get("chart_updated")) and not state.get("unresolved_errors"):
+            if (state.get("analysis_updated") or state.get("chart_updated") or _successful_selection(state)
+                    or _successful_bundle(state)) and not state.get("unresolved_errors"):
                 return self._complete(record, state, "Analiz kaydedildi; son yanıtı üretme sınırına ulaşıldı.", terminal_status="partial", warnings=[{"code": "FINAL_RESPONSE_BUDGET_EXCEEDED", "message": "Verified analysis is available; no additional provider call was made for prose synthesis."}])
             refusal = self._barren_refusal(state)
             if refusal:
@@ -1420,7 +1583,25 @@ class AgentRuntime:
                 return self._finish(record, state, "blocked", self._failure_message(state, errors), errors=errors)
             return self._finish(record, state, "blocked", "İşlem sınırına ulaşıldığı için analiz tamamlanamadı.", errors=[{"code": "DECISION_BUDGET_EXCEEDED", "message": "Bounded agent decision budget reached."}])
         except MiaError as exc:
-            return self._finish(record, state, "failed", str(exc), errors=[{"code": exc.code, "message": str(exc), "retryable": exc.retryable, "attempts": exc.attempts, "usage_unknown": True}])
+            error = {"code": exc.code, "message": str(exc), "retryable": exc.retryable,
+                     "attempts": exc.attempts, "usage_unknown": True}
+            self.run_store.event(run_id, "provider_error", {key: error[key] for key in ("code", "retryable", "attempts")})
+            source_receipt = _verified_source_table_confirmation(state)
+            selection_receipt = _selection_confirmation(self.store, self.workspace_id, state)
+            bundle_receipt = _bundle_confirmation(self.store, self.workspace_id, state)
+            if bundle_receipt:
+                return self._finish(record, state, "partial",
+                    bundle_receipt + "\n\nSon açıklama adımı sağlayıcı bağlantısı kesildiği için tamamlanamadı. "
+                    "Kayıtlı analiz paketi korunuyor ve çalışma yeniden sürdürülebilir.", errors=[error])
+            if selection_receipt:
+                return self._finish(record, state, "partial",
+                    "Son açıklama adımı sağlayıcı bağlantısı kesildiği için tamamlanamadı. "
+                    "Kayıtlı satır seçimi korunuyor ve çalışma yeniden sürdürülebilir.", errors=[error])
+            if source_receipt and not (state.get("analysis_updated") or state.get("chart_updated")):
+                return self._finish(record, state, "partial",
+                    source_receipt + "\n\nSon açıklama adımı sağlayıcı bağlantısı kesildiği için tamamlanamadı. "
+                    "Kayıtlı kaynak hücreleri korunuyor ve çalışma yeniden sürdürülebilir.", errors=[error])
+            return self._finish(record, state, "failed", str(exc), errors=[error])
         except (ValueError, OSError, duckdb.Error) as exc:
             error = error_envelope(exc)
             return self._finish(record, state, "blocked", "Çalışma alanı veya plan doğrulaması tamamlanamadı.", errors=error["errors"])
@@ -1448,6 +1629,7 @@ class AgentRuntime:
         errors = [error for failures in state.get("unresolved_errors", {}).values() for error in failures]
         errors.extend(self._task_delivery_errors(state))
         errors.extend(self._numeric_evidence_errors(state, content))
+        errors.extend(self._source_semantic_errors(state, content))
         errors.extend(self._external_fact_errors(state, content))
         if state.get("search_progress", {}).get("paused"):
             errors.append({"code": "SEARCH_STRATEGY_EXHAUSTED", "message": "Repeated search results remain unresolved; a relevant source has not been read."})
@@ -1457,21 +1639,26 @@ class AgentRuntime:
             item.get("result", {}).get("status") == "ok" and (
                 item["result"].get("tables") or any(source.get("tables") for source in item["result"].get("sources", [])))
             for item in state.get("tool_results", []))
-        if _requests_table(record["message"]) and not state.get("analysis_updated") and not source_table:
+        if (_requests_table(record["message"]) and not state.get("analysis_updated") and not source_table
+                and not _successful_selection(state) and not _successful_bundle(state)):
             # A chart-only edit can legitimately retain the existing table.
             if not state.get("chart_updated"):
                 errors.append({"code": "TABLE_NOT_CREATED", "message": "This turn requested a table but produced no saved analysis or inspected source table."})
         quantitative = _analysis_confirmation(self.store, self.workspace_id, state)
+        selection = _selection_confirmation(self.store, self.workspace_id, state)
         statistics = _statistics_confirmation(self.store, self.workspace_id, state)
         cells = _cell_confirmation(self.store, self.workspace_id, state)
         chart = _chart_confirmation(state, record["message"])
         scope = _scope_confirmation(self.store, self.workspace_id, state)
         source_scope = _source_scope_confirmation(self.store, self.workspace_id, state, record["message"])
-        grounded = "\n\n".join(part for part in (chart or quantitative, statistics, cells, scope, source_scope) if part)
+        source_cells = _verified_source_table_confirmation(state, targeted_only=True, provider_outage=False)
+        bundle = _bundle_confirmation(self.store, self.workspace_id, state)
+        grounded = "\n\n".join(part for part in (
+            selection or chart or quantitative, statistics, cells, scope, source_scope, source_cells, bundle) if part)
         web_sources, seen_urls = [], set()
         for item in state.get("tool_results", []):
             result = item.get("result", {})
-            if item.get("tool") not in {"research_web", "inspect_source", "read_source_table"} or result.get("status") != "ok":
+            if item.get("tool") not in {"research_web", "inspect_source", "read_source_table", "find_source_table_rows"} or result.get("status") != "ok":
                 continue
             sources = result.get("sources", []) if item.get("tool") == "research_web" else [result]
             for source in sources:
@@ -1485,7 +1672,8 @@ class AgentRuntime:
                 return self._finish(record, state, "partial", content, errors=errors,
                                     **({"warnings": warnings} if warnings else {}))
             facts_missing = any(error.get("code") in {"EXTERNAL_FACTS_UNVERIFIED", "UNSOLICITED_OWNERSHIP_PERCENTAGES"} for error in errors)
-            has_output = state.get("analysis_updated") or state.get("chart_updated") or (bool(web_sources) and not facts_missing)
+            has_output = (state.get("analysis_updated") or state.get("chart_updated") or _successful_selection(state)
+                          or _successful_bundle(state) or (bool(web_sources) and not facts_missing))
             message = "Bazı istenen adımlar tamamlanamadı; kaydedilen sonuçlar ve hata ayrıntıları korundu."
             if not has_output:
                 message = "İstenen işlem tamamlanamadı; yeni bir analiz veya grafik sonucu üretilmedi."
@@ -1600,6 +1788,8 @@ class AgentRuntime:
                 pass
         evidence = {
             "analysis": bool(state.get("analysis_updated")),
+            "bundle": _successful_bundle(state),
+            "selection": _successful_selection(state),
             "chart": bool(state.get("chart_updated")),
             "sources": analysis_sources or any(result.get("sources") or result.get("source_id") for result in results),
             "dataset": any(result.get("dataset_id") for result in results),
@@ -1774,18 +1964,16 @@ class AgentRuntime:
             invalid("Window comparison needs exactly two native windows and a sum, mean, first or last basis")
 
     def _numeric_evidence_errors(self, state, content):
-        """Gate unsupported numeric answers when the catalogue matched a dataset.
-
-        Digits only select an evidence requirement, never validate arithmetic or
-        whitelist values. Sourced dates, ratios and educational examples remain
-        possible. The calculation's output is rendered from verified artifacts.
-        """
+        """Reject model-written quantities absent from analysis or direct source bytes."""
         initial = state.get("initial_candidates") or {}
-        if (not re.search(r"\d", content) or initial.get("no_confident_match")
-                or not initial.get("metrics") or state.get("analysis_id")
+        claims = _material_numeric_literals(content)
+        if (not claims or state.get("analysis_id")
                 or self.store.workspace(self.workspace_id).get("analysis_head")):
             return []
-        if set((state.get("task_plan") or {}).get("deliverables", [])) == {"explanation"}:
+        source_tools = {"web_search", "research_web", "inspect_source", "find_source_pages",
+                        "read_source_table", "find_source_table_rows"}
+        source_attempted = any(item.get("tool") in source_tools for item in state.get("tool_results", []))
+        if set((state.get("task_plan") or {}).get("deliverables", [])) == {"explanation"} and not source_attempted:
             return []
         for item in state.get("tool_results", []):
             result = item.get("result", {})
@@ -1793,22 +1981,123 @@ class AgentRuntime:
                 continue
             if item.get("tool") in {"summarize_analysis", "explain_value", "rolling_anomalies", "detect_changes", "analyze_relationship"}:
                 return []
-            if item.get("tool") in {"inspect_source", "read_source_table", "research_web", "find_source_pages"}:
-                if (result.get("text") or result.get("tables") or result.get("rows")
-                        or any(page.get("text") for page in result.get("pages", []))
-                        or any(match.get("excerpt") for match in result.get("matches", []))
-                        or any(source.get("content") or source.get("text") or source.get("tables")
-                               for source in result.get("sources", []))):
-                    return []
+        source_read, evidence = _direct_source_numeric_values(state)
+        if source_read:
+            unsupported = [literal for literal, variants in claims if not variants.intersection(evidence)]
+            unsupported = list(dict.fromkeys(unsupported))
+            if not unsupported:
+                return []
+            return [{"code": "EXTERNAL_NUMERIC_CLAIM_UNVERIFIED",
+                     "message": "The answer contains quantities not present in directly read source text or table cells. "
+                                "Read the exact source row, or publish and calculate a transformed value before answering.",
+                     "unsupported_numbers": unsupported[:20]}]
+        if not source_attempted and (initial.get("no_confident_match") or not initial.get("metrics")):
+            return []
         return [{"code": "NUMERICAL_EVIDENCE_MISSING", "message":
-                 "A matching dataset exists, but the numerical answer has no supporting calculation or source-reading tool result."}]
+                 "The numerical answer has no supporting calculation or directly read source result. Search snippets and metadata are not evidence."}]
+
+    def _source_semantic_errors(self, state, content):
+        """Keep document type, financial scope and policy instrument attached to source facts."""
+        request = next((str(message.get("content") or "") for message in reversed(state.get("messages", []))
+                        if message.get("role") == "user"), "")
+        expected_type = _requested_document_type(request)
+        requested_scope = _consolidation_scope(request) if expected_type == "financial_report" else None
+        if not expected_type and not requested_scope:
+            return []
+
+        identities = {}
+        documents = []
+        row_reads = []
+
+        def add(source, tool):
+            if not isinstance(source, dict) or source.get("source_role") == "discovery_index":
+                return
+            source_id = source.get("source_id")
+            if source_id:
+                current = identities.setdefault(source_id, {})
+                for key in ("source_url", "url", "title", "filename", "raw_sha256", "document_type",
+                            "reporting_period", "consolidation_scope", "unit_caption", "publisher"):
+                    if source.get(key) and not current.get(key):
+                        current[key] = source[key]
+            readable = _source_read({"status": "ok", **source})
+            if readable:
+                documents.append((tool, source))
+
+        for item in state.get("tool_results", []):
+            result = item.get("result", {})
+            if result.get("status") != "ok":
+                continue
+            if item.get("tool") == "research_web":
+                for source in result.get("sources", []):
+                    add(source, item["tool"])
+            elif item.get("tool") in {"inspect_source", "read_source_table", "find_source_table_rows"}:
+                add(result, item["tool"])
+                if item.get("tool") in {"read_source_table", "find_source_table_rows"} and result.get("rows"):
+                    row_reads.append(result)
+
+        merged = []
+        for tool, source in documents:
+            identity = identities.get(source.get("source_id"), {})
+            value = {**identity, **source}
+            text = " ".join(str(part or "") for part in (
+                value.get("title"), value.get("filename"), value.get("source_url") or value.get("url"),
+                value.get("text"), value.get("content"), (value.get("article") or {}).get("article_body")))
+            value["document_type"] = value.get("document_type") or _document_type(text)
+            value["consolidation_scope"] = value.get("consolidation_scope") or _consolidation_scope(text)
+            merged.append((tool, value))
+        if not merged:
+            return []
+
+        matching = [value for _, value in merged if value.get("document_type") == expected_type]
+        observed_types = sorted({value.get("document_type") for _, value in merged if value.get("document_type")})
+        if expected_type and not matching:
+            return [{"code": "SOURCE_DOCUMENT_TYPE_MISMATCH" if observed_types else "SOURCE_DOCUMENT_TYPE_UNVERIFIED",
+                     "message": "The directly read source does not establish the requested document type.",
+                     "expected_document_type": expected_type, "observed_document_types": observed_types}]
+
+        if requested_scope:
+            observed_scopes = sorted({value.get("consolidation_scope") for value in matching
+                                      if value.get("consolidation_scope")})
+            if requested_scope not in observed_scopes:
+                return [{"code": "SOURCE_SCOPE_MISMATCH" if observed_scopes else "SOURCE_SCOPE_UNVERIFIED",
+                         "message": "The directly read financial report does not establish the requested consolidation scope.",
+                         "expected_scope": requested_scope, "observed_scopes": observed_scopes}]
+
+        if expected_type == "policy_decision" and _material_numeric_literals(content):
+            answer = _fact_text(content)
+            if re.search(r"ticari\s+kredi|konut\s+kred|ihtiyac\s+kred|commercial\s+loan|mortgage\s+rate|consumer\s+loan", answer):
+                return [{"code": "POLICY_RATE_INSTRUMENT_MISMATCH", "message":
+                         "The policy decision concerns the one-week repo auction rate, not a commercial or consumer loan rate."}]
+            if not re.search(r"bir\s+hafta\s+vadeli\s+repo|one[ -]week\s+repo", answer):
+                return [{"code": "POLICY_RATE_INSTRUMENT_UNVERIFIED", "message":
+                         "Name the policy-rate instrument as the one-week repo auction rate when reporting this decision."}]
+
+        request_text = _fact_text(request)
+        if expected_type == "financial_report" and re.search(r"toplam\s+aktif|total\s+assets?", request_text):
+            valid_proof = False
+            for result in row_reads:
+                identity = identities.get(result.get("source_id"), {})
+                proof = {**identity, **result}
+                values = " ".join(str(value) for row in result.get("rows", []) if isinstance(row, dict)
+                                  for value in (row.get("values") or {}).values() if value is not None)
+                if (re.search(r"toplam\s+aktif|total\s+assets?", _fact_text(values))
+                        and isinstance(proof.get("page"), int) and proof.get("table_id")
+                        and proof.get("raw_sha256") and proof.get("unit_caption") and proof.get("reporting_period")):
+                    valid_proof = True
+                    break
+            if not valid_proof:
+                return [{"code": "FINANCIAL_REPORT_CELL_PROOF_INCOMPLETE", "message":
+                         "A total-assets answer requires a directly read matching row with physical page, table_id, "
+                         "raw source hash, reporting period and explicit unit/scale evidence."}]
+        return []
 
     def _barren_refusal(self, state):
         """Pick a grounded refusal for a run terminating with no saved analysis because
         it looped on a missing row or a genuinely absent concept. Returns
         (message, warning) or None to fall through to the plain terminal. Loop errors
         (NO_PROGRESS) are non-blocking here; any real tool failure suppresses the refusal."""
-        if state.get("analysis_updated") or state.get("chart_updated") or state.get("external_facts_required") or _published_source_ids(state):
+        if (state.get("analysis_updated") or state.get("chart_updated") or _successful_selection(state)
+                or _successful_bundle(state) or state.get("external_facts_required") or _published_source_ids(state)):
             return None
         if any(e.get("code") not in {"NO_PROGRESS"}
                for errors in (state.get("unresolved_errors") or {}).values() for e in errors):
@@ -1889,6 +2178,15 @@ class AgentRuntime:
             jsonschema.Draft202012Validator(definition["schema"]["function"]["parameters"]).validate(args)
             if state.get("institutional_delivery_repair") and name not in _INSTITUTIONAL_REPAIR_TOOLS:
                 raise PlanError("This institutional answer repair permits source reading only. Explain the verified role/name list and requested analysis suggestions; do not change the analysis or request permission to repeat the same research.", code="INSTITUTIONAL_REPAIR_READ_ONLY")
+            if name == "analyze_relationship":
+                current_request = next((str(message.get("content") or "") for message in reversed(state.get("messages", []))
+                                        if message.get("role") == "user"), "")
+                if not _requests_relationship_statistics(current_request):
+                    raise PlanError(
+                        "The user requested row filtering or ranking, not a correlation, regression or Granger method. "
+                        "Use select_analysis_rows with explicit predicates and sorting.",
+                        code="UNREQUESTED_STATISTICAL_METHOD",
+                    )
             scope_error = _research_scope_error(state, name, args)
             if scope_error:
                 result = {"status": "blocked", "errors": [scope_error]}
@@ -1932,7 +2230,7 @@ class AgentRuntime:
                 if step["args"] != args or step["name"] != name:
                     raise PlanError("Persisted call identity changed", code="CALL_ID_CONFLICT")
                 if step["result"] is not None:
-                    if name in {"web_search", "research_web", "inspect_source", "read_source_table"}:
+                    if name in {"web_search", "research_web", "inspect_source", "read_source_table", "find_source_table_rows"}:
                         self._track_search_progress(state, name, step["result"])
                     self._track_source_pages(state, name, args, step["result"], step_id)
                     return step["result"]
@@ -1958,7 +2256,7 @@ class AgentRuntime:
                     return result
                 if state["seen"].get(key, 0) >= 2:
                     source_id = args.get("source_id")
-                    if (name in {"inspect_source", "read_source_table"} and not state.get("source_read_repair_used")
+                    if (name in {"inspect_source", "read_source_table", "find_source_table_rows"} and not state.get("source_read_repair_used")
                             and state["decisions"] < self.max_decisions
                             and state.get("source_page_progress", {}).get(source_id, {}).get("candidate_read_after_search")):
                         state["source_read_repair_used"] = {"tool": name, "arguments": args, "source_id": source_id}
@@ -1974,7 +2272,7 @@ class AgentRuntime:
                         self.run_store.event(run_id, "tool_result", {"tool": name, "call_id": call["id"], "result": result})
                         return result
                     result = _blocked("NO_PROGRESS", "The same tool request has already been attempted twice without a workspace change.")
-                    if name in {"find_source_pages", "inspect_source", "read_source_table"} and source_id:
+                    if name in {"find_source_pages", "inspect_source", "read_source_table", "find_source_table_rows"} and source_id:
                         result["errors"][0]["source_id"] = source_id
                     self.run_store.event(run_id, "tool_result", {"tool": name, "call_id": call["id"], "result": result})
                     return result
@@ -2000,7 +2298,7 @@ class AgentRuntime:
             else:
                 result = definition["handler"](args)
             result = _normalize_result(result)
-            if name in {"web_search", "research_web", "inspect_source", "read_source_table"}:
+            if name in {"web_search", "research_web", "inspect_source", "read_source_table", "find_source_table_rows"}:
                 self._track_search_progress(state, name, result)
             self._track_source_pages(state, name, args, result, step_id)
             if name == "create_chart" and any(error.get("code") == "CHART_SERIES_LIMIT" for error in result.get("errors", [])):
@@ -2029,15 +2327,18 @@ class AgentRuntime:
         state["pending"] = []
 
     def _finish(self, record, state, status, message, **extra):
-        if status in {"blocked", "failed", "partial"} and (state.get("analysis_updated") or state.get("chart_updated")):
+        if status in {"blocked", "failed", "partial"} and (state.get("analysis_updated") or state.get("chart_updated")
+                or _successful_selection(state) or _successful_bundle(state)):
             status = "partial"
             if not state.get("delivery_pending"):
                 try:
-                    parts = [_analysis_confirmation(self.store, self.workspace_id, state),
+                    parts = [_selection_confirmation(self.store, self.workspace_id, state),
+                             _analysis_confirmation(self.store, self.workspace_id, state),
                              _statistics_confirmation(self.store, self.workspace_id, state),
                              _cell_confirmation(self.store, self.workspace_id, state),
                              _scope_confirmation(self.store, self.workspace_id, state),
-                             _source_scope_confirmation(self.store, self.workspace_id, state, record["message"])]
+                             _source_scope_confirmation(self.store, self.workspace_id, state, record["message"]),
+                             _bundle_confirmation(self.store, self.workspace_id, state)]
                     message += "\n\n" + "\n\n".join(part for part in parts if part)
                 except (ValueError, OSError, duckdb.Error) as exc:
                     # An integrity/read failure must never relabel unverified
@@ -2049,7 +2350,8 @@ class AgentRuntime:
             # task's declared outputs. They cannot bypass the delivery boundary.
             missing = self._task_delivery_errors(state)
             if missing:
-                status = "partial" if state.get("analysis_updated") or state.get("chart_updated") else "blocked"
+                status = "partial" if (state.get("analysis_updated") or state.get("chart_updated")
+                                       or _successful_selection(state) or _successful_bundle(state)) else "blocked"
                 extra["errors"] = [*extra.get("errors", []), *missing]
         if status in {"blocked", "failed", "partial"} and not state.get("analysis_updated"):
             try:
@@ -2073,6 +2375,8 @@ class AgentRuntime:
                   "workspace_id": self.workspace_id, "status": status, "message": message,
                   "analysis_id": state.get("analysis_id"), "analysis_updated": state.get("analysis_updated", False),
                   "active_analysis_id": workspace.get("analysis_head"),
+                  "analysis_bundle_id": state.get("analysis_bundle_id"),
+                  "bundle_updated": state.get("bundle_updated", False),
                   "chart_id": state.get("chart_id"), "chart_updated": state.get("chart_updated", False),
                   "recommendations": state.get("recommendations", []),
                   "artifacts": state["artifacts"], "tool_results": state["tool_results"],

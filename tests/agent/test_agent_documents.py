@@ -13,7 +13,14 @@ from urllib import error
 
 import duckdb
 
-from agentic_analytics.agent.tools.documents import DocumentError, DocumentTools, _article_metadata, _public_destination, fetch_public_url
+from agentic_analytics.agent.tools.documents import (
+    DocumentError,
+    DocumentTools,
+    _article_metadata,
+    _official_registry,
+    _public_destination,
+    fetch_public_url,
+)
 from agentic_analytics.lakehouse.store import LakehouseStore
 
 
@@ -433,6 +440,37 @@ class AgentDocumentTests(unittest.TestCase):
         self.assertEqual(result.get("sources"), [])
         self.assertEqual(result["sources"], [])
 
+    def test_official_registry_resolves_subdomains_without_accepting_lookalikes(self):
+        self.assertEqual(_official_registry("www.garantibbvainvestorrelations.com")["institution"],
+                         "Garanti BBVA Yatırımcı İlişkileri")
+        self.assertEqual(_official_registry("evds3.tcmb.gov.tr")["institution"], "TCMB EVDS")
+        self.assertEqual(_official_registry("veriportali.tuik.gov.tr")["institution"], "TÜİK Veri Portalı")
+        self.assertIsNone(_official_registry("borsaistanbul.com.evil.test"))
+
+    def test_named_official_sources_are_scoped_before_search_and_use_safe_entrypoints(self):
+        cases = [
+            ("Garanti BBVA 31 Mart 2026 konsolide finansal raporu", "garantibbvainvestorrelations.com",
+             "https://www.garantibbvainvestorrelations.com/en/library/brsa-consolidated-financials-pdf/PDF/1268/0/0"),
+            ("KAP 2025 finansal raporu", "kap.org.tr", "https://www.kap.org.tr/tr/bist-sirketler"),
+            ("İMKB 100 BIST 100 endeks ad değişikliği", "borsaistanbul.com",
+             "https://www.borsaistanbul.com/datum/duyuru_ekleri/GenelMektup_4030_Endeks_Adlari.pdf"),
+            ("EVDS TP.MK.F.BILESIK aylık kapanış", "evds3.tcmb.gov.tr", "https://evds3.tcmb.gov.tr/anasayfa"),
+            ("TÜİK Veri Portalı İstanbul konut satışları", "veriportali.tuik.gov.tr", "https://veriportali.tuik.gov.tr/"),
+        ]
+        for query, domain, entrypoint in cases:
+            with self.subTest(query=query):
+                searches, reads = [], []
+                self.docs.web_search = lambda value, **kwargs: searches.append(value) or {
+                    "status": "ok", "results": []}
+                def unreadable(**kwargs):
+                    reads.append(kwargs["url"])
+                    raise DocumentError("unavailable", "FETCH_FAILED")
+                self.docs.inspect_source = unreadable
+                result = self.docs.research_web(query, limit=1)
+                self.assertTrue(searches[0].startswith("site:" + domain + " "))
+                self.assertEqual(reads[0], entrypoint)
+                self.assertEqual(result["status"], "unavailable")
+
     def test_search_publication_date_never_becomes_fetched_document_date(self):
         from agentic_analytics.agent.context import _model_tool_result
         url = 'https://example.org/financial-report'
@@ -481,10 +519,11 @@ class AgentDocumentTests(unittest.TestCase):
 
     def test_actual_http_connection_uses_pinned_public_ip_and_download_size_cap(self):
         class FakeSocket:
-            def __init__(self, body):
+            def __init__(self, body, content_length=None):
                 self.body = body
+                self.content_length = content_length or str(len(body)).encode()
             def makefile(self, *args):
-                return io.BytesIO(b"HTTP/1.1 200 OK\r\nContent-Type: text/csv\r\nContent-Length: " + str(len(self.body)).encode() + b"\r\n\r\n" + self.body)
+                return io.BytesIO(b"HTTP/1.1 200 OK\r\nContent-Type: text/csv\r\nContent-Length: " + self.content_length + b"\r\n\r\n" + self.body)
             def sendall(self, data):
                 pass
             def close(self):
@@ -495,6 +534,12 @@ class AgentDocumentTests(unittest.TestCase):
             self.assertEqual(body, b"x\n1\n")
             self.assertEqual(mime, "text/csv")
             self.assertEqual(connect.call_args.args[0], ("93.184.216.34", 80))
+        with patch("agentic_analytics.agent.tools.documents.socket.getaddrinfo", return_value=addresses), patch(
+                "agentic_analytics.agent.tools.documents.socket.create_connection",
+                return_value=FakeSocket(b"x\n1\n", b"4        ")):
+            body, mime, _ = fetch_public_url("http://public.test/data.csv")
+            self.assertEqual(body, b"x\n1\n")
+            self.assertEqual(mime, "text/csv")
         with patch("agentic_analytics.agent.tools.documents.socket.getaddrinfo", return_value=addresses), patch("agentic_analytics.agent.tools.documents.socket.create_connection", return_value=FakeSocket(b"123456")):
             with self.assertRaisesRegex(DocumentError, "size limit"):
                 fetch_public_url("http://public.test/data.csv", max_bytes=3)
@@ -839,6 +884,113 @@ class AgentDocumentTests(unittest.TestCase):
         result = self.docs.research_web("Monetary policy committee 6 March 2025 interest rate decision weekly repo auctions", limit=1, domains=["example.org"])
         self.assertEqual(result["sources"][0]["url"], target)
         self.assertEqual(visited, [root, archive, target])
+
+    def test_official_financial_report_archive_is_seeded_even_when_search_returns_a_presentation(self):
+        presentation = "https://www.garantibbvainvestorrelations.com/en/images/pdf/1Q26_Financial_Results.pdf"
+        archive = "https://www.garantibbvainvestorrelations.com/en/library/brsa-consolidated-financials-pdf/PDF/1268/0/0"
+        target = "https://www.garantibbvainvestorrelations.com/en/images/pdf/31_March_2026_Consolidated_Financial_Report.pdf"
+        self.docs.web_search = lambda *args, **kwargs: {"status": "ok", "results": [{
+            "title": "31 March 2026 financial results presentation", "url": presentation}]}
+        visited = []
+
+        def inspect(url=None, **kwargs):
+            visited.append(url)
+            if url == presentation:
+                return {"status": "ok", "source_id": "presentation", "source_url": url,
+                    "raw_sha256": "1" * 64, "text": "Garanti BBVA 31 March 2026 financial results presentation",
+                    "article": {"title": "31 March 2026 Financial Results Presentation"}}
+            if url == archive:
+                decoys = [{"url": f"https://www.garantibbvainvestorrelations.com/en/images/pdf/report_{index}_2026.pdf",
+                            "title": "2026 consolidated financial report", "in_main_content": True}
+                           for index in range(12)]
+                return {"status": "ok", "source_id": "archive", "source_url": url,
+                    "raw_sha256": "2" * 64, "text": "Garanti BBVA consolidated financial reports archive",
+                    "article": {"title": "Consolidated Financial Reports", "source_links": [*decoys, {
+                        "url": target, "title": "2026/1Q", "in_main_content": True}], "link_count": 375}}
+            if url == target:
+                return {"status": "ok", "source_id": "target", "source_url": url,
+                    "raw_sha256": "3" * 64,
+                    "text": "Garanti BBVA consolidated financial report. TOTAL ASSETS 4,783,750,292. Amounts in thousands of Turkish Lira.",
+                    "article": {"title": "31 March 2026 Consolidated Financial Report"}}
+            raise DocumentError("Decoy should not be fetched before the exact dated report", "WRONG_CANDIDATE")
+
+        self.docs.inspect_source = inspect
+        result = self.docs.research_web("Garanti BBVA 31 Mart 2026 konsolide finansal raporu", limit=1)
+        self.assertEqual(result["status"], "ok", result)
+        self.assertEqual(result["sources"][0]["url"], target)
+        self.assertEqual(result["sources"][0]["document_type"], "financial_report")
+        self.assertEqual(result["sources"][0]["reporting_period"], "2026-03-31")
+        self.assertEqual(result["sources"][0]["consolidation_scope"], "consolidated")
+        self.assertEqual(visited[:3], [presentation, archive, target])
+
+    def test_tcmb_policy_decision_archive_is_seeded_and_meeting_summary_is_rejected(self):
+        summary = "https://www.tcmb.gov.tr/meeting-summary-2025-15"
+        archive = "https://www.tcmb.gov.tr/wps/wcm/connect/TR/TCMB+TR/Main+Menu/Duyurular/Basin/2025"
+        decision = archive + "/DUY2025-15"
+        self.docs.web_search = lambda *args, **kwargs: {"status": "ok", "results": [{
+            "title": "6 Mart 2025 Para Politikası Kurulu Toplantı Özeti", "url": summary}]}
+        visited = []
+
+        def inspect(url=None, **kwargs):
+            visited.append(url)
+            if url == summary:
+                return {"status": "ok", "source_id": "summary", "source_url": url, "raw_sha256": "4" * 64,
+                    "text": "6 Mart 2025 Para Politikası Kurulu toplantı özeti ve politika değerlendirmesi",
+                    "article": {"title": "Para Politikası Kurulu Toplantı Özeti"}}
+            if url == archive:
+                return {"status": "ok", "source_id": "archive", "source_url": url, "raw_sha256": "5" * 64,
+                    "text": "TCMB 2025 basın duyuruları", "article": {"title": "2025 Basın Duyuruları",
+                    "source_links": [{"url": decision, "title": "Faiz Oranlarına İlişkin Basın Duyurusu (2025-15)",
+                                      "in_main_content": True}], "link_count": 150}}
+            if url == decision:
+                return {"status": "ok", "source_id": "decision", "source_url": url, "raw_sha256": "6" * 64,
+                    "text": "6 Mart 2025. Para Politikası Kurulu politika faizi olan bir hafta vadeli repo ihale faiz oranının yüzde 45'ten yüzde 42,5'e indirilmesine karar vermiştir.",
+                    "article": {"title": "Faiz Oranlarına İlişkin Basın Duyurusu (2025-15)"}}
+            raise DocumentError("Unexpected source", "WRONG_CANDIDATE")
+
+        self.docs.inspect_source = inspect
+        result = self.docs.research_web("TCMB 6 Mart 2025 Para Politikası Kurulu faiz kararı", limit=1)
+        self.assertEqual(result["status"], "ok", result)
+        self.assertEqual(result["sources"][0]["url"], decision)
+        self.assertEqual(result["sources"][0]["document_type"], "policy_decision")
+        self.assertEqual(visited[:3], [summary, archive, decision])
+        self.assertTrue(any(failure["code"] == "DOCUMENT_TYPE_MISMATCH" for failure in result["failures"]))
+
+    def test_url_underscore_date_establishes_exact_financial_reporting_period(self):
+        url = "https://example.org/31_March_2026_Consolidated_Financial_Report.pdf"
+        self.docs.web_search = lambda *args, **kwargs: {"status": "ok", "results": [{"title": "2026/1Q", "url": url}]}
+        self.docs.inspect_source = lambda **kwargs: {"status": "ok", "source_id": "report", "source_url": url,
+            "raw_sha256": "7" * 64, "text": "Example Bank consolidated financial report. TOTAL ASSETS.",
+            "article": {"title": "2026/1Q Consolidated Financial Report"}}
+        result = self.docs.research_web("Example Bank 31 March 2026 consolidated financial report", limit=1,
+                                        domains=["example.org"])
+        self.assertEqual(result["status"], "ok", result)
+        self.assertEqual(result["sources"][0]["reporting_period"], "2026-03-31")
+
+    def test_research_deduplicates_identical_document_bytes_across_urls(self):
+        urls = ["https://example.org/report", "https://example.org/report-copy"]
+        self.docs.web_search = lambda *args, **kwargs: {"status": "ok", "results": [
+            {"title": "Official report 2026", "url": url} for url in urls]}
+        self.docs.inspect_source = lambda url=None, **kwargs: {"status": "ok", "source_id": url.rsplit("/", 1)[-1],
+            "source_url": url, "raw_sha256": "8" * 64, "text": "Official report 2026 verified source text",
+            "article": {"title": "Official report 2026"}}
+        result = self.docs.research_web("Official report 2026", limit=2, domains=["example.org"])
+        self.assertEqual(len(result["sources"]), 1)
+        self.assertTrue(any(failure["code"] == "DUPLICATE_SOURCE_CONTENT" for failure in result["failures"]))
+
+    def test_find_source_table_rows_locates_a_row_beyond_the_preview(self):
+        rows = ["line,value", *[f"Other line {index},{index}" for index in range(1, 12)],
+                "TOTAL ASSETS,4783750292", "Other line 13,13"]
+        source = self.upload("long-financial-table.csv", "\n".join(rows) + "\n")
+        table_id = source["tables"][0]["table_id"]
+        self.assertTrue(source["tables"][0]["preview_truncated"])
+        result = self.docs.extra_tools()["find_source_table_rows"]["handler"]({
+            "source_id": source["source_id"], "table_id": table_id, "query": "total assets"})
+        self.assertEqual(result["status"], "ok", result)
+        self.assertEqual(result["total_matches"], 1)
+        self.assertEqual(result["rows"][0]["candidate_row"], 12)
+        self.assertEqual(result["rows"][0]["values"]["value"], "4783750292")
+        self.assertEqual(result["raw_sha256"], source["raw_sha256"])
 
 
     def test_year_only_navigation_link_inherits_the_parent_archive_topic(self):

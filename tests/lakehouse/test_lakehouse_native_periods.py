@@ -34,6 +34,7 @@ class NativePeriodTests(unittest.TestCase):
             "annual": ("annual", "review_required", ["2023", "2024"], [100, 200]),
             "quarter": ("quarterly", "review_required", ["2024-Q1", "2024-Q2"], [100, 200]),
             "weekly": ("weekly_friday", "review_required", ["2024-01-05", "2024-01-12"], [100, 200]),
+            "weekly_observed": ("weekly_observed", "ready", ["2026-03-13", "2026-03-19", "2026-03-27"], [100, 120, 125]),
         }
         rows = []
         for metric_id, (frequency, status, periods, values) in definitions.items():
@@ -145,6 +146,17 @@ class NativePeriodTests(unittest.TestCase):
                 _, frame, _ = self.run_plan(self.plan(metric, frequency, start, end))
                 self.assertEqual([start, end], frame.period.tolist())
                 self.assertEqual([100, 200], frame.measure.tolist())
+
+    def test_observed_weekly_keeps_holiday_shifted_dates_and_supports_differences(self):
+        plan = self.plan("weekly_observed", "weekly_observed", "2026-03-13", "2026-03-27")
+        plan["operations"] = [{"op": "difference", "column": "measure", "output": "change", "periods": 1,
+                               "prior_scope": "selected_window"}]
+        result, frame, manifest = self.run_plan(plan)
+        self.assertEqual(["2026-03-13", "2026-03-19", "2026-03-27"], frame.period.tolist())
+        self.assertTrue(pd.isna(frame.iloc[0].change))
+        self.assertEqual([20, 5], frame.change.iloc[1:].tolist())
+        self.assertEqual("union_of_observed_native_dates", manifest["lineage"]["calendar_policy"])
+        self.assertIn("actual_weekly_source_dates", {item["code"] for item in result["warnings"]})
 
 
 if __name__ == "__main__":

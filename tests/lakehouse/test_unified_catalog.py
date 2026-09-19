@@ -93,6 +93,28 @@ class UnifiedCatalogTests(unittest.TestCase):
         self.assertTrue(tbb_flow["temporal_semantics"].eq("flow").all())
         self.assertTrue(tbb_flow["native_frequency"].eq("quarterly").all())
 
+    def test_weekly_credit_table_has_narrow_reviewed_stock_semantics(self):
+        weekly = self.metrics.loc[
+            self.metrics["metric_id"].eq("bddk_weekly:table289_289_4_total")
+        ].iloc[0]
+        self.assertEqual("weekly_observed", weekly["native_frequency"])
+        self.assertEqual("source_date_stock", weekly["temporal_semantics"])
+        self.assertEqual("last", weekly["default_aggregation"])
+        self.assertEqual("provisional_revisable", weekly["revision_status"])
+        self.assertEqual(
+            "https://www.bddk.org.tr/BultenHaftalik/tr/Home/Aciklama",
+            weekly["source_metadata_url"],
+        )
+
+        other = self.metrics.loc[
+            self.metrics["metric_id"].eq("bddk_weekly:table290_290_1_total")
+        ]
+        self.assertFalse(other.empty)
+        self.assertEqual(
+            "source_reported_requires_semantic_review",
+            other.iloc[0]["temporal_semantics"],
+        )
+
     def test_queryable_metrics_have_local_relative_assets(self):
         queryable = self.metrics.loc[self.metrics["observation_available"]]
         self.assertTrue(queryable["metric_name_tr"].fillna("").ne("").all())
@@ -133,10 +155,35 @@ class UnifiedCatalogTests(unittest.TestCase):
         metrics = self.metrics.loc[
             self.metrics["source_system"].eq("TUIK_DATA_PORTAL")
         ]
-        self.assertEqual(5, len(metrics))
+        self.assertEqual(10, len(metrics))
         self.assertTrue(metrics["observation_available"].all())
-        mortgage = metrics.loc[
-            metrics["source_metric_code"].eq("housing_sales_mortgaged_count")
+        current = metrics.loc[
+            metrics["dataset_id"].eq("tuik.province_housing_sales_v1")
+        ]
+        first_published = metrics.loc[
+            metrics["dataset_id"].eq(
+                "tuik.province_housing_sales_first_published_v1"
+            )
+        ]
+        self.assertEqual(5, len(current))
+        self.assertEqual(5, len(first_published))
+        self.assertTrue(
+            current["vintage_policy"].eq("latest_official_bulk_snapshot").all()
+        )
+        self.assertTrue(
+            first_published["vintage_policy"]
+            .eq("first_official_publication_for_each_reference_month")
+            .all()
+        )
+        self.assertTrue(current["is_archive"].eq(False).all())
+        self.assertTrue(first_published["is_archive"].eq(True).all())
+        self.assertEqual(
+            set(current["source_metric_code"]),
+            set(first_published["source_metric_code"]),
+        )
+        self.assertTrue(set(current["metric_id"]).isdisjoint(first_published["metric_id"]))
+        mortgage = current.loc[
+            current["source_metric_code"].eq("housing_sales_mortgaged_count")
         ].iloc[0]
         self.assertEqual(10, mortgage["missing_observation_count"])
         self.assertIn("identity-derived zero=10", mortgage["notes"])

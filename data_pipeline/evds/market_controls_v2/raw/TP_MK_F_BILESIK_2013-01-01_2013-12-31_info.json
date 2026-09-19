@@ -1,0 +1,32 @@
+{
+  "status": "validated",
+  "series_code": "TP.MK.F.BILESIK",
+  "frequency": "İŞ GÜNÜ",
+  "aggregation": "last",
+  "chunk_start": "2013-01-01",
+  "chunk_end": "2013-12-31",
+  "request_file": "raw/TP_MK_F_BILESIK_2013-01-01_2013-12-31_request.json",
+  "request_sha256": "cddd71b16f7cd69bb8d948d1d56a7fabb501d54c18a9fc1540e71175da9cfea2",
+  "response_file": "raw/TP_MK_F_BILESIK_2013-01-01_2013-12-31_response.json.gz",
+  "response_sha256": "ddb7ed51ce5ddd106f059ab641811808d9ff4afa0fc4eb3929d8436a1b894522",
+  "served_from_cache": false,
+  "http_status": 200,
+  "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "content_type": "application/json;charset=UTF-8",
+  "url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "started_at_utc": "2026-09-19T15:15:45.435290+00:00",
+  "completed_at_utc": "2026-09-19T15:15:46.032687+00:00",
+  "bytes": 43498,
+  "sha256": "ddb7ed51ce5ddd106f059ab641811808d9ff4afa0fc4eb3929d8436a1b894522",
+  "transport": "curl",
+  "tls_verification": true,
+  "response_total_count": 261,
+  "retained_rows": 261,
+  "outside_requested_range_rows": 0,
+  "series_names": {
+    "TP_MK_F_BILESIK": "(FİYAT) BİST 100 Endeks (XU100), Kapanış Fiyatlarına Göre (Ocak 1986=0,01)"
+  },
+  "frequency_conversion": {
+    "TP.MK.F.BILESIK": true
+  }
+}

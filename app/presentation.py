@@ -10,7 +10,7 @@ import duckdb
 from app.activity import public_run
 from agentic_analytics.agent.delivery import (
     _analysis_confirmation, _cell_confirmation, _scope_confirmation, _source_scope_confirmation,
-    _statistics_confirmation, _display_label, _display_period,
+    _statistics_confirmation, _selection_confirmation, _bundle_confirmation, _display_label, _display_period,
 )
 
 
@@ -116,19 +116,26 @@ def present_run(store, run):
             public["result"] = {**result, "display_message": compact}
     except (ValueError, OSError, duckdb.Error):
         pass
+    has_selection = any(item.get("tool") == "select_analysis_rows"
+                        and item.get("result", {}).get("status") == "ok"
+                        for item in state.get("tool_results", []))
+    has_bundle = any(item.get("tool") == "save_analysis_bundle"
+                     and item.get("result", {}).get("status") == "ok"
+                     for item in state.get("tool_results", []))
     if (run.get("status") != "completed" or result.get("status") != "completed"
-            or not (state.get("analysis_updated") or state.get("analysis_observed"))
-            or not state.get("analysis_id") or result.get("errors")
+            or not (state.get("analysis_updated") or state.get("analysis_observed") or has_selection or has_bundle)
+            or (not state.get("analysis_id") and not has_bundle) or result.get("errors")
             or (state.get("chart_updated") and not state.get("analysis_updated"))
             or "Devam için soru:" in result.get("message", "")
             or any(item.get("tool") == "research_web" for item in state.get("tool_results", []))):
         return public
     try:
         parts = [render(store, run["workspace_id"], state) for render in (
-            _analysis_confirmation, _statistics_confirmation,
+            _selection_confirmation, _analysis_confirmation, _statistics_confirmation,
             _cell_confirmation, _scope_confirmation,
         )]
         parts.append(_source_scope_confirmation(store, run["workspace_id"], state, run.get("message", "")))
+        parts.append(_bundle_confirmation(store, run["workspace_id"], state))
         message = _compact_summary_periods(store, run, "\n\n".join(part for part in parts if part))
     except (ValueError, OSError, duckdb.Error):
         # Missing or changed historical artifacts cannot support fresh prose.

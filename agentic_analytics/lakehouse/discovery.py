@@ -123,11 +123,34 @@ def query_intent(query):
     basis = "stock" if re.search(r"\b(?:bakiye\w*|stok\w*|stock|balance|outstanding)\b", text) else None
     if re.search(r"\b(?:akim\w*|flow|disbursements?)\b|\b(?:yeni|new)\s+(?:kredi\w*|loans?|kullandirilan\w*|acilan\w*)\b", text):
         basis = "flow"
+    first_published = bool(re.search(
+        r"\b(?:ilk\s+(?:yayin\w*|yayim\w*|yayinlan\w*|yayimlan\w*)|"
+        r"orijinal\s+(?:yayin\w*|bulten\w*|deger\w*)|"
+        r"first\s+(?:published|publication|release)|originally\s+published|as\s+published|contemporaneous)\b",
+        text,
+    ))
+    current_revised = bool(re.search(
+        r"\b(?:guncel\w*|revize\w*|duzeltil\w*|son\s+(?:surum\w*|revizyon\w*|vintage)|"
+        r"current|latest|revised|restated)\b",
+        text,
+    ))
+    vintage_preference = (
+        "conflicting"
+        if first_published and current_revised
+        else "first_published"
+        if first_published
+        else "current_revised"
+        if current_revised
+        else "unspecified"
+    )
+    reference_years = sorted({int(year) for year in re.findall(r"\b(?:19|20)\d{2}\b", text)})
     return {"families": _hits(FAMILIES, text), "qualifiers": _hits(QUALIFIERS, text),
             "meaning_terms": _meaning_terms(text),
             "measure": measure, "time_basis": basis,
             "measurement_basis": "regulatory_liquidity_weighted" if re.search(r"\blikidite\w*\b|\bliquidity\b", text) else "source_reported" if basis == "stock" or measure == "money" else None,
             "overall": bool(re.search(r"\b(?:toplam\w*|total|overall|genel|tum|butun)\b", text)),
+            "vintage_preference": vintage_preference,
+            "reference_years": reference_years,
             "cash_class": "non_cash" if re.search(r"\bgayrinakdi\w*\b|\bnon[ -]?cash\b", text)
             else "cash" if re.search(r"\bnakdi\w*\b|\bcash\b", text) else None}
 
@@ -148,12 +171,27 @@ def semantic_profile(binding):
         cash_class = "cash"
     elif "credit" in families and measure == "money":
         cash_class, inferred_cash = "cash", True
+    policy = _fold(binding.get("vintage_policy") or "")
+    revision = _fold(binding.get("revision_status") or "")
+    temporal = _fold(binding.get("temporal_semantics") or "")
+    # Structured source fields outrank prose notes. A current-series warning
+    # may literally say "not the first published series" and must never be
+    # classified from that negated phrase.
+    if re.search(r"first.?(?:official.)?(?:publication|published)|historical.first.publication", policy + " " + revision):
+        vintage_class = "first_published"
+    elif re.search(r"latest.official|current.official|current.revised|methodology.revision", policy + " " + revision):
+        vintage_class = "current_revised"
+    elif re.search(r"first.publication", temporal):
+        vintage_class = "first_published"
+    else:
+        vintage_class = "unspecified"
     return {"measure": measure, "quantity_kind": kind, "time_basis": "stock" if kind in {"stock", "count_stock"} else "flow" if kind in {"flow", "count_flow"} else None,
             "families": families, "title_qualifiers": _hits(QUALIFIERS, title),
             "meaning_terms": _meaning_terms(title),
             "population_scope": binding.get("population_scope"),
             "measurement_basis": binding.get("measurement_basis", "source_reported"),
             "cash_class": cash_class, "cash_class_inferred": inferred_cash,
+            "vintage_class": vintage_class,
             "meaning_title": re.sub(r"\s+", " ", title).strip(),
             "slice_label": binding.get("value_dimension"),
             "interpretation": "Title hints support candidate selection; a total slice does not certify total population coverage."}
@@ -194,6 +232,19 @@ def compare_intent(intent, profile):
     restricted = bool(intent["overall"] and (profile.get("population_scope") or {}).get("exclusions"))
     if restricted:
         cautions.append({"code": "restricted_reporting_population", "message": "Publisher metadata documents excluded reporting institutions. This total cannot silently substitute for the complete reporting population; inspect population_scope and source_scope_evidence."})
+    expected_vintage = intent.get("vintage_preference")
+    observed_vintage = profile.get("vintage_class")
+    if expected_vintage in {"first_published", "current_revised"}:
+        if observed_vintage == expected_vintage:
+            matches.append("vintage_policy")
+        elif observed_vintage == "unspecified":
+            cautions.append({"code": "vintage_policy_unverified", "expected": expected_vintage})
+        else:
+            conflicts.append({"code": "vintage_policy_mismatch", "expected": expected_vintage,
+                              "actual": observed_vintage})
+    elif expected_vintage == "conflicting":
+        cautions.append({"code": "conflicting_vintage_request",
+                         "message": "The request names both first-published and current/revised vintages; keep them separate."})
     penalty = (len(conflicts) * 100 + len(missing) * 30 + len(extras) * (35 if intent["overall"] else 25)
                + len(additional_context) * (12 if intent["overall"] else 8) + int(absent_family) * 40 + int(restricted) * 35)
     unverified = [warning["facet"] for warning in cautions if warning["code"] == "semantic_facet_unverified"]

@@ -12,6 +12,8 @@ from tools.EVDS_Manifest_Indirme_Araci import (
     parse_period_label,
     parse_response,
     request_chunks,
+    selection_window,
+    validate_existing_config,
 )
 
 
@@ -85,6 +87,44 @@ class EvdsManifestDownloaderTests(unittest.TestCase):
     def test_expected_months_are_calendar_complete(self):
         periods = expected_periods(date(2026, 4, 10), date(2026, 6, 2), "AYLIK")
         self.assertEqual(["2026-04", "2026-05", "2026-06"], [row[0] for row in periods])
+
+    def test_series_specific_window_can_extend_only_one_selected_series(self):
+        default_start, default_end = date(2020, 1, 1), date(2026, 6, 30)
+        self.assertEqual(
+            (date(2010, 1, 1), default_end),
+            selection_window(
+                {"series_code": "TP.MK.F.BILESIK", "start_date": "2010-01-01"},
+                default_start,
+                default_end,
+            ),
+        )
+        self.assertEqual(
+            (default_start, default_end),
+            selection_window(
+                {"series_code": "TP.ALTINPIYASA.KAP02"},
+                default_start,
+                default_end,
+            ),
+        )
+
+    def test_existing_output_update_rejects_dataset_or_series_identity_change(self):
+        base = {
+            "endpoint": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+            "dataset_id": "market",
+            "catalog_sha256": "a" * 64,
+            "series_count": 1,
+            "series_codes": ["TP.MK.F.BILESIK"],
+        }
+        validate_existing_config(base, {**base, "manifest_sha256": "new"}, update_existing=True)
+        for changed in (
+            {**base, "dataset_id": "other"},
+            {**base, "series_codes": ["TP.KTF12"]},
+        ):
+            with self.subTest(changed=changed):
+                with self.assertRaises(ValueError):
+                    validate_existing_config(base, changed, update_existing=True)
+        with self.assertRaisesRegex(ValueError, "--update-existing"):
+            validate_existing_config(base, {**base, "manifest_sha256": "new"}, update_existing=False)
 
 
 class EvdsHousingSnapshotTests(unittest.TestCase):

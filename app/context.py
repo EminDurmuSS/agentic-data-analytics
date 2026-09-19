@@ -254,6 +254,8 @@ class AppContext:
     def runtime(self, workspace_id):
         from agentic_analytics.agent.runtime import AgentRuntime
         from agentic_analytics.agent.tools.statistics import StatisticsTools
+        from agentic_analytics.agent.tools.selection import AnalysisSelectionTools
+        from agentic_analytics.agent.tools.bundles import AnalysisBundleTools
         from agentic_analytics.agent.tools.charts import ChartTools
         from agentic_analytics.agent.tools.summary import SummaryTools
         from agentic_analytics.agent.tools.datasets import DatasetTools
@@ -265,6 +267,8 @@ class AppContext:
         tools = FinancialImportTools(documents).extra_tools()
         tools.update(documents.extra_tools())
         tools.update(StatisticsTools(self.store, workspace_id).extra_tools())
+        tools.update(AnalysisSelectionTools(self.store, workspace_id).extra_tools())
+        tools.update(AnalysisBundleTools(self.store, workspace_id).extra_tools())
         tools.update(ChartTools(self.store, workspace_id).extra_tools())
         tools.update(SummaryTools(self.store, workspace_id).extra_tools())
         tools.update(DatasetTools(self.store, workspace_id).extra_tools())
@@ -326,6 +330,57 @@ class AppContext:
         return {"job_id": job_id, "workspace_id": workspace_id, "request_id": request_id, "status": "queued",
                 "journey": activity_journey([], "queued")}
 
+    def resume_job(self, job_id):
+        """Resume an interrupted run or explicitly reopen a transient provider failure."""
+        job_id = _safe_id(job_id)
+        job_path = self._metadata / "jobs" / (job_id + ".json")
+        if not job_path.exists():
+            raise HTTPException(404, "Çalışma bulunamadı.")
+        with self.lock:
+            previous = json.loads(job_path.read_text())
+            future = self.futures.get(job_id)
+            if future is not None and not future.done():
+                return self.job(job_id)
+            run = self.run_store.find_request(previous["workspace_id"], previous["request_id"])
+            retry_terminal = bool(run and run.get("result") is not None
+                                  and self.run_store.retryable_provider_result(run["result"]))
+            if run and run.get("result") is not None and not retry_terminal:
+                return self.job(job_id)
+            values = {key: previous.get(key) for key in
+                      ("job_id", "workspace_id", "request_id", "conversation_id", "message", "source_ids")}
+            values["source_ids"] = values.get("source_ids") or []
+            write_json(job_path, {**values, "status": "queued"})
+
+            def work():
+                write_json(job_path, {**values, "status": "running"})
+                try:
+                    runtime = self.runtime(values["workspace_id"])
+                    if run is None:
+                        result = runtime.run(values["message"], conversation_id=values.get("conversation_id"),
+                            request_id=values["request_id"], **({"source_ids": values["source_ids"]} if values["source_ids"] else {}))
+                    else:
+                        result = runtime.resume(run["run_id"], retry_terminal=retry_terminal)
+                    write_json(job_path, {**values, "status": "finished", "result": result})
+                except Exception as exc:
+                    log_job_failure(exc, job_id=job_id, workspace_id=values["workspace_id"])
+                    detail = error_envelope(exc) if isinstance(exc, (PlanError, StoreError)) else {
+                        "status": "failed",
+                        "message": "Çalışma tamamlanamadı. Kaydedilmiş araç adımları korunuyor.",
+                        "error_type": type(exc).__name__,
+                    }
+                    write_json(job_path, {**values, "status": "failed", "result": detail})
+                    return
+                if result.get("status") == "completed" and self.followups.client is not None:
+                    try:
+                        self.followups.start(values["workspace_id"], result["run_id"])
+                    except Exception:
+                        pass
+
+            self.futures[job_id] = self.pool.submit(work)
+        return {"job_id": job_id, "workspace_id": values["workspace_id"],
+                "request_id": values["request_id"], "status": "queued",
+                "journey": activity_journey(self.run_store.events(run["run_id"]) if run else [], "queued")}
+
     def job(self, job_id):
         path = self._metadata / "jobs" / (_safe_id(job_id) + ".json")
         if not path.exists():
@@ -341,7 +396,8 @@ class AppContext:
         job["activity_count"] = len(job["activity"])
         if job["status"] in {"queued", "running"} and job_id not in self.futures:
             job["status"] = "interrupted"
-        status = (job.get("result") or {}).get("status") or (run or {}).get("status") or job["status"]
+        status = ("running" if job["status"] in {"queued", "running"} else
+                  (job.get("result") or {}).get("status") or (run or {}).get("status") or job["status"])
         if job["status"] in {"failed", "interrupted"} and status not in {"blocked", "failed"}:
             status = "failed"
         job["journey"] = activity_journey(events, status)

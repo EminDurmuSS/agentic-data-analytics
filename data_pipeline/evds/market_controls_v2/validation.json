@@ -2,20 +2,20 @@
   "status": "passed",
   "dataset_id": "housing_credit_market_controls_v2",
   "series_count": 3,
-  "request_count": 21,
-  "observation_count": 5085,
-  "non_null_observation_count": 3453,
-  "missing_observation_count": 1632,
-  "structural_missing_observation_count": 1476,
+  "request_count": 31,
+  "observation_count": 7693,
+  "non_null_observation_count": 5967,
+  "missing_observation_count": 1726,
+  "structural_missing_observation_count": 1570,
   "unresolved_missing_observation_count": 156,
   "missing_kind_counts": {
     "before_series_start": 19,
-    "calendar_non_observation": 1457,
+    "calendar_non_observation": 1551,
     "source_not_published": 156
   },
   "expected_period_without_source_row_count": 0,
   "expected_period_gap_kind_counts": {},
-  "first_period_start": "2020-01-01",
+  "first_period_start": "2010-01-01",
   "last_period_end": "2026-06-30",
   "frequency_counts": {
     "İŞ GÜNÜ": 3

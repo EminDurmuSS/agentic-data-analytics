@@ -5,7 +5,8 @@ import re
 from typing import Any
 
 CONTRACT_VERSION = "1.0.0"
-SEMANTIC_POLICY_VERSION = "1.1.1"
+SEMANTIC_POLICY_VERSION = "1.2.0"
+BDDK_WEEKLY_EXPLANATION_URL = "https://www.bddk.org.tr/BultenHaftalik/tr/Home/Aciklama"
 FREQUENCIES = {
     "AYLIK": "monthly", "ÜÇ AYLIK": "quarterly", "YILLIK": "yearly",
     "ALTI AYLIK": "half_yearly", "GÜNLÜK": "daily", "İŞ GÜNÜ": "business_daily",
@@ -51,6 +52,51 @@ def apply_semantic_policy(binding: dict[str, Any]) -> dict[str, Any]:
         binding.update(index_role="price_deflator", deflator_currency="TRY",
                        price_scope="Turkey general consumer price basket",
                        role_evidence="housing_causality_v1 manifest: price_deflator")
+    if (binding.get("source_system") == "BDDK_WEEKLY"
+            and str(binding.get("source_code") or "").startswith("table289:")):
+        # Table 289 is the bulletin's credit-balance table. Keep the actual
+        # publication observation date instead of coercing holiday-shifted
+        # issues onto a synthetic Friday label.
+        binding.update(
+            native_frequency="weekly_observed",
+            kind="stock",
+            aggregation="last",
+            additive_over_time=False,
+            temporal_semantics="source_date_stock",
+            measurement_basis="temporary_regulatory_financial_statement_balance",
+            revision_status="provisional_revisable",
+            source_url=BDDK_WEEKLY_EXPLANATION_URL,
+            source_metadata_url=BDDK_WEEKLY_EXPLANATION_URL,
+            source_frequency_evidence=(
+                "BDDK Interactive Weekly Bulletin explanation: Bank Reporting "
+                "System data are supplied daily or weekly."
+            ),
+            source_scope_evidence={
+                "explanations_url": BDDK_WEEKLY_EXPLANATION_URL,
+                "checked_on": "2026-09-19",
+                "table_id": 289,
+                "table_name": "Krediler",
+                "date_policy": "preserve_actual_source_observation_date",
+            },
+        )
+        caveats = list(binding.get("scope_caveats") or [])
+        revision_caveat = {
+            "code": "provisional_revisable_weekly_bulletin",
+            "source_url": BDDK_WEEKLY_EXPLANATION_URL,
+            "message": (
+                "BDDK states that the weekly bulletin is prepared from temporary "
+                "financial statements and a period value may change in later issues."
+            ),
+        }
+        branch_caveat = {
+            "code": "domestic_and_foreign_branches",
+            "source_url": BDDK_WEEKLY_EXPLANATION_URL,
+            "message": "BDDK weekly bank data cover domestic and foreign branches.",
+        }
+        for caveat in (revision_caveat, branch_caveat):
+            if caveat not in caveats:
+                caveats.append(caveat)
+        binding["scope_caveats"] = caveats
     return binding
 
 

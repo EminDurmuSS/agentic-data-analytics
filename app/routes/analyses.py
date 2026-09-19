@@ -94,4 +94,20 @@ def create_router(context: AppContext) -> APIRouter:
         except (ValueError, FileNotFoundError):
             raise HTTPException(404, "Hesap özeti bu çalışma alanında bulunamadı.") from None
 
+    @router.get("/api/workspaces/{workspace_id}/selections/{artifact_id}")
+    def selection(workspace_id: str, artifact_id: str):
+        from agentic_analytics.agent.tools.selection import AnalysisSelectionTools, SelectionError
+        try:
+            return browser_json(AnalysisSelectionTools(context.store, workspace_id).load_artifact(artifact_id))
+        except (SelectionError, FileNotFoundError):
+            raise HTTPException(404, "Satır seçimi bu çalışma alanında bulunamadı.") from None
+
+    @router.get("/api/workspaces/{workspace_id}/analysis-bundles/{bundle_id}")
+    def analysis_bundle(workspace_id: str, bundle_id: str):
+        from agentic_analytics.agent.tools.bundles import AnalysisBundleError, AnalysisBundleTools
+        try:
+            return browser_json(AnalysisBundleTools(context.store, workspace_id).load_bundle(bundle_id))
+        except (AnalysisBundleError, FileNotFoundError, ValueError):
+            raise HTTPException(404, "Analiz paketi bu çalışma alanında bulunamadı.") from None
+
     return router

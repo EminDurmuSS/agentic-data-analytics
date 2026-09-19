@@ -1,9 +1,9 @@
 {
   "status": "passed",
   "data_readiness_status": "local_snapshot_validated_evds_coverage_incomplete",
-  "asset_count": 72,
-  "metric_count": 55501,
-  "queryable_metric_count": 3402,
+  "asset_count": 75,
+  "metric_count": 55506,
+  "queryable_metric_count": 3407,
   "metadata_only_metric_count": 52099,
   "metrics_by_source_system": {
     "BDDK_FINTURK": 76,
@@ -14,7 +14,7 @@
     "TBB_RISK_CENTER": 5,
     "TCMB_EVDS": 52696,
     "TCMB_EVDS_DERIVED": 1,
-    "TUIK_DATA_PORTAL": 5
+    "TUIK_DATA_PORTAL": 10
   },
   "assets_by_source_system": {
     "BDDK_FINTURK": 10,
@@ -26,7 +26,7 @@
     "TBB_REPORTS": 5,
     "TBB_RISK_CENTER": 4,
     "TCMB_EVDS": 22,
-    "TUIK_DATA_PORTAL": 4
+    "TUIK_DATA_PORTAL": 7
   },
   "selected_evds_observation_series": 599,
   "evds_metadata_series": 52696,

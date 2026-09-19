@@ -193,6 +193,22 @@ def test_each_document_attempt_shows_observed_pages_and_rows_in_order():
     assert events == before
 
 
+def test_source_table_row_search_is_visible_without_exposing_query_or_values():
+    events = attempt("find_source_table_rows", {"status": "ok", "source_id": "source_secret",
+        "table_id": "table_secret", "page": 11, "total_matches": 1,
+        "rows": [{"candidate_row": 31, "values": {"Line": "TOTAL ASSETS", "Total": "4783750292"}}]},
+        source_id="source_secret", table_id="table_secret", query="PRIVATE QUERY")
+    before = copy.deepcopy(events)
+    value = item(activity_journey(events, "completed"), "sources")
+    assert value["status"] == "complete"
+    assert value["actions"] == [{"label": "11. sayfadaki tablonun 31. satırı bulundu.", "status": "complete"}]
+    assert "seçili tablolardan 1 satır okundu" in value["detail"]
+    rendered = json.dumps(value, ensure_ascii=False)
+    for forbidden in ("PRIVATE", "4783750292", "source_secret", "table_secret", "TOTAL ASSETS"):
+        assert forbidden not in rendered
+    assert events == before
+
+
 def test_page_search_with_no_matches_describes_only_the_searched_range():
     events = attempt("find_source_pages", {"status": "ok", "matches": [], "searched_pages": list(range(1, 31)),
         "complete": False, "total_pages": 141, "next_start_page": 31}, query="PRIVATE")

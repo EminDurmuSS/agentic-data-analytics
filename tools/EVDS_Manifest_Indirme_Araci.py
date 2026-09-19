@@ -450,6 +450,52 @@ def build_catalog_index(path: Path) -> dict[str, dict[str, Any]]:
     return result
 
 
+def selection_window(
+    selection: dict[str, Any], default_start: date, default_end: date
+) -> tuple[date, date]:
+    """Resolve an optional series-specific request window.
+
+    A market series may need a longer history than the other controls in the
+    same package. Keeping the override on the selected series avoids expanding
+    unrelated downloads and records the exact interval in the output catalog.
+    """
+
+    start = date.fromisoformat(str(selection.get("start_date") or default_start))
+    end = date.fromisoformat(str(selection.get("end_date") or default_end))
+    if start > end:
+        raise ValueError(
+            f"EVDS seri araligi baslangici bitisten sonra: "
+            f"{selection.get('series_code')}, {start}/{end}"
+        )
+    return start, end
+
+
+def validate_existing_config(
+    existing: dict[str, Any], current: dict[str, Any], *, update_existing: bool
+) -> None:
+    """Allow an explicit in-place history extension, never an identity swap."""
+
+    if existing == current:
+        return
+    if not update_existing:
+        raise ValueError(
+            "Cikti klasoru farkli bir EVDS manifestiyle kullanilmis. "
+            "Dogrulanmis ayni veri setini genisletmek icin --update-existing kullanin."
+        )
+    immutable = ("endpoint", "dataset_id", "catalog_sha256")
+    changed = [key for key in immutable if existing.get(key) != current.get(key)]
+    if changed:
+        raise ValueError(
+            "Mevcut EVDS ciktisinin kimligi degistirilemez: " + ", ".join(changed)
+        )
+    existing_codes = existing.get("series_codes")
+    if existing_codes is not None:
+        if list(existing_codes) != current["series_codes"]:
+            raise ValueError("Mevcut EVDS ciktisinin seri secimi degistirilemez.")
+    elif int(existing.get("series_count", -1)) != int(current["series_count"]):
+        raise ValueError("Mevcut EVDS ciktisinin seri sayisi degistirilemez.")
+
+
 def run(args: argparse.Namespace) -> int:
     manifest_path = args.manifest.expanduser().resolve()
     catalog_path = args.catalog.expanduser().resolve()
@@ -469,6 +515,10 @@ def run(args: argparse.Namespace) -> int:
     missing_catalog = sorted(set(codes) - set(catalog))
     if missing_catalog:
         raise ValueError(f"EVDS katalogunda bulunmayan seriler: {missing_catalog}")
+    series_windows = {
+        str(selection["series_code"]): selection_window(selection, start, end)
+        for selection in selections
+    }
 
     config = {
         "endpoint": ENDPOINT,
@@ -480,6 +530,15 @@ def run(args: argparse.Namespace) -> int:
         "start_date": start.isoformat(),
         "end_date": end.isoformat(),
         "series_count": len(codes),
+        "series_codes": codes,
+        "series_ranges": [
+            {
+                "series_code": code,
+                "start_date": series_windows[code][0].isoformat(),
+                "end_date": series_windows[code][1].isoformat(),
+            }
+            for code in codes
+        ],
         "transport": args.transport,
         "tls_verification": True,
     }
@@ -489,8 +548,11 @@ def run(args: argparse.Namespace) -> int:
     config_path = output / "request_config.json"
     if config_path.exists():
         existing = json.loads(config_path.read_text(encoding="utf-8"))
-        if existing != config:
-            raise ValueError("Cikti klasoru farkli bir EVDS manifestiyle kullanilmis.")
+        validate_existing_config(
+            existing,
+            config,
+            update_existing=bool(getattr(args, "update_existing", False)),
+        )
     atomic_json(config_path, config)
 
     all_rows: list[dict[str, Any]] = []
@@ -499,6 +561,7 @@ def run(args: argparse.Namespace) -> int:
     series_records: list[dict[str, Any]] = []
     for selection in selections:
         code = str(selection["series_code"])
+        series_start, series_end = series_windows[code]
         metadata = catalog[code]
         if metadata.get("is_archive"):
             raise ValueError(f"Aktif manifestte arsiv seri kullaniliyor: {code}")
@@ -514,7 +577,9 @@ def run(args: argparse.Namespace) -> int:
             raise ValueError(f"Desteklenmeyen EVDS toplulastirmasi: {code}, {aggregation}")
         series_rows: list[dict[str, Any]] = []
         chunk_records = []
-        for chunk_start, chunk_end in request_chunks(start, end, frequency):
+        for chunk_start, chunk_end in request_chunks(
+            series_start, series_end, frequency
+        ):
             safe_code = code.replace(".", "_")
             stem = f"{safe_code}_{chunk_start.isoformat()}_{chunk_end.isoformat()}"
             request_path = raw_dir / f"{stem}_request.json"
@@ -638,7 +703,7 @@ def run(args: argparse.Namespace) -> int:
             series_rows, frequency
         )
         coverage_gaps = missing_expected_periods(
-            series_rows, frequency, start, end
+            series_rows, frequency, series_start, series_end
         )
         for gap in coverage_gaps:
             gap.update(
@@ -657,8 +722,8 @@ def run(args: argparse.Namespace) -> int:
             {
                 **selection,
                 **metadata,
-                "requested_start": start.isoformat(),
-                "requested_end": end.isoformat(),
+                "requested_start": series_start.isoformat(),
+                "requested_end": series_end.isoformat(),
                 "request_frequency_code": FREQUENCY_CODES[frequency],
                 "aggregation_used": aggregation,
                 "chunk_count": len(chunk_records),
@@ -822,6 +887,14 @@ def main() -> int:
     parser.add_argument("--timeout", type=int, default=60)
     parser.add_argument("--retries", type=int, default=3)
     parser.add_argument("--delay", type=float, default=0.25)
+    parser.add_argument(
+        "--update-existing",
+        action="store_true",
+        help=(
+            "Extend or refresh an existing output only when endpoint, dataset, "
+            "catalog and selected series identities still match."
+        ),
+    )
     parser.add_argument(
         "--transport",
         choices=["curl", "urllib"],

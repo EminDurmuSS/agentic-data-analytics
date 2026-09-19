@@ -59,10 +59,34 @@ class AgentStatisticsTests(unittest.TestCase):
         result = self.stats.analyze_relationship(analysis, "value", "response", lag=1)
         self.assertAlmostEqual(result["results"]["correlation"], 1.0)
         self.assertEqual(result["results"]["sample_size"], 79)
+        self.assertEqual(result["results"]["candidate_pair_count"], 79)
+        self.assertEqual(result["results"]["sample_start_period"], "2000-02")
+        self.assertEqual(result["results"]["sample_end_period"], "2006-08")
+        self.assertEqual(result["results"]["lag_dropped_periods"], ["2000-01"])
+        self.assertEqual(result["results"]["excluded_missing_periods"], [])
         self.assertIn("value(t-1)", result["results"]["lag_interpretation"])
         self.assertFalse(result["causal_claim"])
         zero = self.stats.analyze_relationship(analysis, "value", "response", lag=0)
         self.assertLess(abs(zero["results"]["correlation"]), 0.5)
+
+    def test_spearman_uses_the_same_complete_pairs_and_records_missing_periods(self):
+        x = np.arange(1, 19, dtype=float)
+        y = x ** 3
+        x[3] = np.nan
+        y[7] = np.nan
+        analysis = self.save(x, response=y)
+        pearson = self.stats.analyze_relationship(
+            analysis, "value", "response", method="pearson", max_missing_fraction=0.2)
+        spearman = self.stats.analyze_relationship(
+            analysis, "value", "response", method="spearman", max_missing_fraction=0.2)
+        self.assertLess(pearson["results"]["correlation"], 0.95)
+        self.assertAlmostEqual(spearman["results"]["correlation"], 1.0)
+        for key in ("sample_size", "candidate_pair_count", "sample_start_period", "sample_end_period",
+                    "excluded_missing_pairs", "excluded_missing_periods", "sample_period_basis"):
+            self.assertEqual(pearson["results"][key], spearman["results"][key])
+        self.assertEqual(spearman["results"]["sample_size"], 16)
+        self.assertEqual(spearman["results"]["excluded_missing_periods"], ["2000-04", "2000-08"])
+        self.assertEqual(spearman["method"], "lagged_spearman")
 
     def test_granger_direction_and_stationarity_gate(self):
         rng = np.random.default_rng(17)
@@ -72,6 +96,9 @@ class AgentStatisticsTests(unittest.TestCase):
         result = self.stats.analyze_relationship(analysis, "value", "response", lag=1, method="granger")
         self.assertLess(result["results"]["p_value"], 0.001)
         self.assertEqual(result["results"]["direction"], "past value adds predictive information for response")
+        self.assertEqual(result["results"]["test"], "ssr_ftest")
+        self.assertIn("do not add predictive information", result["results"]["null_hypothesis"])
+        self.assertEqual(result["results"]["sample_start_period"], "2000-01")
         self.assertFalse(result["causal_claim"])
         missing = self.save(np.r_[x[:30], np.nan, x[31:]], response=y)
         with self.assertRaisesRegex(StatisticsError, "contiguous complete"):

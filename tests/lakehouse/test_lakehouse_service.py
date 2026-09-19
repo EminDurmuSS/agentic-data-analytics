@@ -106,6 +106,25 @@ class LakehouseServiceTests(unittest.TestCase):
         self.assertTrue(pd.isna(frame.loc[frame.period == "2021-03", "mom"].iloc[0]))
         self.assertTrue(any(note["code"] == "missing_result" for note in result["warnings"]))
 
+    def test_selected_window_difference_keeps_first_visible_period_empty(self):
+        plan = self.plan(
+            operations=[{
+                "op": "difference", "column": "credit", "output": "change",
+                "periods": 1, "prior_scope": "selected_window",
+            }]
+        )
+        result = self.service.execute(plan)
+        frame, _ = self.store.load_analysis(result["analysis_id"])
+        self.assertTrue(pd.isna(frame.iloc[0].change))
+        self.assertEqual(10, frame.iloc[1].change)
+
+    def test_default_difference_can_use_verified_history_before_window(self):
+        result = self.service.execute(self.plan(
+            operations=[{"op": "difference", "column": "credit", "output": "change", "periods": 1}]
+        ))
+        frame, _ = self.store.load_analysis(result["analysis_id"])
+        self.assertEqual(10, frame.iloc[0].change)
+
     def test_revisions_preserve_other_columns_and_parent_bytes(self):
         first = self.service.execute(self.plan(operations=[{"op": "growth", "column": "credit", "output": "yoy", "periods": 12}]))
         original, _ = self.store.load_analysis(first["analysis_id"])

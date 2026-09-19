@@ -136,6 +136,8 @@ def validate_connection(connection: duckdb.DuckDBPyConnection) -> dict:
         "bddk.weekly_measurements":["observation_date","period_id","table_id","group_code","metric_code","currency_dimension"],
         "bddk.finturk_measurements":["quarter","table_no","measure_code","group_code","city"],
         "evds.legacy_observations":["series_code","period"],
+        "tuik.province_housing_sales_monthly":["province_key","month","metric_code"],
+        "tuik.province_housing_sales_first_published":["province_key","month","metric_code"],
     }.items():
         zero(f"nonempty:{table}",f"SELECT CASE WHEN count(*)=0 THEN 1 ELSE 0 END FROM {table}")
         zero(f"required_keys:{table}",f"SELECT count(*) FROM {table} WHERE "+" OR ".join(f"{key} IS NULL" for key in key_columns))
@@ -180,6 +182,13 @@ def validate_connection(connection: duckdb.DuckDBPyConnection) -> dict:
         SELECT series_code,period FROM evds.legacy_observations GROUP BY ALL HAVING count(*)>1)""")
     zero("risk_center_vintage_identity_unique", """SELECT count(*) FROM (
         SELECT observation_month,metric_code,publication_month FROM risk_center.housing_metric_vintages GROUP BY ALL HAVING count(*)>1)""")
+    zero("tuik_current_vintage_is_explicit", """SELECT count(*) FROM tuik.province_housing_sales_monthly
+        WHERE vintage_policy <> 'latest_official_bulk_snapshot'
+           OR revision_status <> 'current_official_series_after_2026_methodology_revision'""")
+    zero("tuik_first_published_vintage_is_explicit", """SELECT count(*) FROM tuik.province_housing_sales_first_published
+        WHERE vintage_policy <> 'first_official_publication_for_each_reference_month'
+           OR revision_status <> 'first_publication'
+           OR source_press_id IS NULL OR release_at IS NULL OR source_cell IS NULL""")
     for table, key in [("analysis.housing_credit_monthly","month"),
                        ("analysis.housing_credit_quarterly","quarter"),
                        ("regional.housing_quarterly","province_key||':'||quarter")]:

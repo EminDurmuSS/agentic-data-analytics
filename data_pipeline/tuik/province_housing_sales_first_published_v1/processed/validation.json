@@ -1,0 +1,220 @@
+{
+  "changed_observation_count": 8634,
+  "coverage_end": "2024-12",
+  "coverage_start": "2023-01",
+  "current_revised_values_missing": 0,
+  "dataset_id": "tuik.province_housing_sales_first_published_v1",
+  "duplicate_observation_keys": 0,
+  "expected_observation_count": 9720,
+  "istanbul_first_published_annual_totals": {
+    "2023": 198739,
+    "2024": 239213
+  },
+  "metric_count": 5,
+  "observation_count": 9720,
+  "province_count": 81,
+  "publication_audit": [
+    {
+      "observation_count": 405,
+      "period": "2023-01",
+      "press_id": 49519,
+      "province_count": 81,
+      "release_at": "2023-02-17T10:00:00",
+      "workbook_sha256": "dcf3f4a3945a1f1f89895b0cb304d8b75b8f2121466bcc134289c96a6a3eb50f"
+    },
+    {
+      "observation_count": 405,
+      "period": "2023-02",
+      "press_id": 49515,
+      "province_count": 81,
+      "release_at": "2023-03-15T10:00:00",
+      "workbook_sha256": "42d80d8c7368a95e02ea28eb85e9fe40609d61a61e3aafadabafc15168dc899c"
+    },
+    {
+      "observation_count": 405,
+      "period": "2023-03",
+      "press_id": 49517,
+      "province_count": 81,
+      "release_at": "2023-04-17T10:00:00",
+      "workbook_sha256": "de26a102f1b4a3ebcf05df668568c3cdad913a61a5e86a8fc0c976ed41184190"
+    },
+    {
+      "observation_count": 405,
+      "period": "2023-04",
+      "press_id": 49520,
+      "province_count": 81,
+      "release_at": "2023-05-16T10:00:00",
+      "workbook_sha256": "dd3d43b0923a25dff4dab3ac4da4b1cd7e29432e57b58c081886d74f33bd4d8f"
+    },
+    {
+      "observation_count": 405,
+      "period": "2023-05",
+      "press_id": 49525,
+      "province_count": 81,
+      "release_at": "2023-06-15T10:00:00",
+      "workbook_sha256": "d25197783293527c917314a5949a5d87cee2f1faa71a80fffb63e90632d6fbbe"
+    },
+    {
+      "observation_count": 405,
+      "period": "2023-06",
+      "press_id": 49521,
+      "province_count": 81,
+      "release_at": "2023-07-14T10:00:00",
+      "workbook_sha256": "62308738cc49967ac739d51f22c7ba0c8fdbbeba0e7a770f969278903206b181"
+    },
+    {
+      "observation_count": 405,
+      "period": "2023-07",
+      "press_id": 49522,
+      "province_count": 81,
+      "release_at": "2023-08-15T10:00:00",
+      "workbook_sha256": "c49962e887568dafa1abf761267f13c47f24455f029c3b3873e36350aaf671f1"
+    },
+    {
+      "observation_count": 405,
+      "period": "2023-08",
+      "press_id": 49523,
+      "province_count": 81,
+      "release_at": "2023-09-15T10:00:00",
+      "workbook_sha256": "13c068416766c61b4dc020a0dd95792d876432a7367e2fbce68967b778e29589"
+    },
+    {
+      "observation_count": 405,
+      "period": "2023-09",
+      "press_id": 49518,
+      "province_count": 81,
+      "release_at": "2023-10-16T10:00:00",
+      "workbook_sha256": "611a2d373cb22ecb0ac674c6d78b9631465a7db4bfec2ec8b3d59100821204d6"
+    },
+    {
+      "observation_count": 405,
+      "period": "2023-10",
+      "press_id": 49514,
+      "province_count": 81,
+      "release_at": "2023-11-16T10:00:00",
+      "workbook_sha256": "76e5a96d317d6bef94893a153df530aa8362069f53a8ed05e6fa425087636809"
+    },
+    {
+      "observation_count": 405,
+      "period": "2023-11",
+      "press_id": 49524,
+      "province_count": 81,
+      "release_at": "2023-12-15T10:00:00",
+      "workbook_sha256": "6150f0c63d7223c319c7adf5723ccee2af9a279f9910b46e24bc13fe1a04d628"
+    },
+    {
+      "observation_count": 405,
+      "period": "2023-12",
+      "press_id": 49516,
+      "province_count": 81,
+      "release_at": "2024-01-19T10:00:00",
+      "workbook_sha256": "0222e16fb6ffbefbff5de389ac098e6f35d3c43595802ae245bc2c51dadcb738"
+    },
+    {
+      "observation_count": 405,
+      "period": "2024-01",
+      "press_id": 53766,
+      "province_count": 81,
+      "release_at": "2024-02-16T10:00:00",
+      "workbook_sha256": "9f2fbbf50fb876120c7793734017a204e1e65f9ef343774617f301f0cc1731c5"
+    },
+    {
+      "observation_count": 405,
+      "period": "2024-02",
+      "press_id": 53757,
+      "province_count": 81,
+      "release_at": "2024-03-14T10:00:00",
+      "workbook_sha256": "c53a991f235d5323048aa33db19f0776393e6de42231f1873ea362c0faf85604"
+    },
+    {
+      "observation_count": 405,
+      "period": "2024-03",
+      "press_id": 53767,
+      "province_count": 81,
+      "release_at": "2024-04-18T10:00:00",
+      "workbook_sha256": "101cac18c7285d3c9b63ae9ebb6b452518db5e38d353c14b97c9aab8f82e818d"
+    },
+    {
+      "observation_count": 405,
+      "period": "2024-04",
+      "press_id": 53758,
+      "province_count": 81,
+      "release_at": "2024-05-17T10:00:00",
+      "workbook_sha256": "c18aac860ec9b2a9d29e7ab35d8e69e1010bc0b04f211aa8ce6ddad2b9696dc0"
+    },
+    {
+      "observation_count": 405,
+      "period": "2024-05",
+      "press_id": 53759,
+      "province_count": 81,
+      "release_at": "2024-06-13T10:00:00",
+      "workbook_sha256": "c9b5e04415b278e52c1c6170009cffef137329206702589719a91a789ed08a6a"
+    },
+    {
+      "observation_count": 405,
+      "period": "2024-06",
+      "press_id": 53760,
+      "province_count": 81,
+      "release_at": "2024-07-17T10:00:00",
+      "workbook_sha256": "eddab22d834931f397f39e1f8b2e35961a602e26e005c8f682957e0bb00d62e3"
+    },
+    {
+      "observation_count": 405,
+      "period": "2024-07",
+      "press_id": 53761,
+      "province_count": 81,
+      "release_at": "2024-08-13T10:00:00",
+      "workbook_sha256": "c234f2030e1e6256a8bc9ebeac93a394b1cb9c550cc6534574abbaf3b550da74"
+    },
+    {
+      "observation_count": 405,
+      "period": "2024-08",
+      "press_id": 53768,
+      "province_count": 81,
+      "release_at": "2024-09-17T10:00:00",
+      "workbook_sha256": "84a0fb8a19b10f91405b15a6bd9ae6bc4179fbb55a5ed1d3c812da8a36885d7a"
+    },
+    {
+      "observation_count": 405,
+      "period": "2024-09",
+      "press_id": 53762,
+      "province_count": 81,
+      "release_at": "2024-10-17T10:00:00",
+      "workbook_sha256": "be7a21d301d7aabc0e3718aa065e34679d34c64ecb4efaeb8783f8bc26fc9b07"
+    },
+    {
+      "observation_count": 405,
+      "period": "2024-10",
+      "press_id": 53763,
+      "province_count": 81,
+      "release_at": "2024-11-13T10:00:00",
+      "workbook_sha256": "65542ae72b2cb2e3d2cfb48b1d78e2124f771f6ffbbace8251a8c7cd70ec228f"
+    },
+    {
+      "observation_count": 405,
+      "period": "2024-11",
+      "press_id": 53764,
+      "province_count": 81,
+      "release_at": "2024-12-18T10:00:00",
+      "workbook_sha256": "64e3a354f0044c03b2f1fed7b75b015d832064d4621a8ba73b81eccfc5e52c80"
+    },
+    {
+      "observation_count": 405,
+      "period": "2024-12",
+      "press_id": 54146,
+      "province_count": 81,
+      "release_at": "2025-01-21T10:00:00",
+      "workbook_sha256": "9700c3fb6de475074c87f7568f2a60a0ae06a293e917bc83e7191353dbb1a513"
+    }
+  ],
+  "publication_count": 24,
+  "quality_policy": [
+    "Each monthly value is copied from the province table attached to that reference month's first official bulletin.",
+    "The mutable current bulk dataflow remains a separate revised series and is never overwritten by this dataset.",
+    "Every value retains bulletin ID, release time, workbook hash, worksheet and exact source cell.",
+    "Total equals mortgaged plus other and also first-hand plus second-hand for every source row.",
+    "No absent observation is filled, carried forward, interpolated or inferred."
+  ],
+  "status": "passed",
+  "vintage_policy": "first_official_publication_for_each_reference_month"
+}

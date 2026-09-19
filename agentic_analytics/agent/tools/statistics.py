@@ -57,7 +57,7 @@ class StatisticsTools:
         labels = frame[time_column].astype(str)
         frequency = manifest.get("plan", {}).get("frequency") or manifest.get("lineage", {}).get("frequency")
         aliases = {"monthly": "M", "quarterly": "Q", "annual": "Y", "yearly": "Y",
-                   "daily": "D", "weekly": "W-FRI", "weekly_friday": "W-FRI",
+                   "daily": "D", "weekly_observed": "D", "weekly": "W-FRI", "weekly_friday": "W-FRI",
                    "weekly_wednesday": "W-WED", "business_daily": "B"}
         # Infer only for legacy analyses without metadata. An explicit event or
         # twice-monthly calendar must never become daily just because it uses dates.
@@ -85,7 +85,7 @@ class StatisticsTools:
             else:
                 periods = pd.PeriodIndex(labels, freq=aliases[frequency])
                 ordinals = periods.asi8
-                if frequency.startswith("weekly") and list(periods.end_time.strftime("%Y-%m-%d")) != labels.tolist():
+                if frequency in {"weekly", "weekly_friday", "weekly_wednesday"} and list(periods.end_time.strftime("%Y-%m-%d")) != labels.tolist():
                     raise StatisticsError("Weekly labels must be native week-ending dates.", "INVALID_TIME_LABEL")
                 if frequency == "business_daily" and (pd.DatetimeIndex(labels).dayofweek > 4).any():
                     raise StatisticsError("Business-day labels cannot include weekends.", "INVALID_TIME_LABEL")
@@ -93,7 +93,11 @@ class StatisticsTools:
             if isinstance(exc, StatisticsError):
                 raise
             raise StatisticsError("Time labels do not match the saved frequency.") from exc
-        if len(ordinals) > 1 and not (np.diff(ordinals) == 1).all():
+        if frequency == "weekly_observed" and len(ordinals) > 1:
+            gaps = np.diff(ordinals)
+            if not ((gaps >= 4) & (gaps <= 10)).all():
+                raise StatisticsError("Observed weekly dates must be strictly ordered and 4 to 10 days apart.", "IRREGULAR_TIME_AXIS")
+        elif len(ordinals) > 1 and not (np.diff(ordinals) == 1).all():
             raise StatisticsError("Missing calendar periods must be represented explicitly as null rows.", "IRREGULAR_TIME_AXIS")
         for column in columns:
             semantics = manifest.get("schema", {}).get(column, {})
@@ -137,6 +141,11 @@ class StatisticsTools:
             truncated = True
         if isinstance(preview.get("changes"), list) and len(preview["changes"]) > 100:
             preview.update(change_count=len(preview["changes"]), changes=preview["changes"][:100])
+            truncated = True
+        if isinstance(preview.get("excluded_missing_periods"), list) and len(preview["excluded_missing_periods"]) > 120:
+            periods = preview["excluded_missing_periods"]
+            preview.update(excluded_missing_periods=periods[:10] + periods[-10:],
+                           excluded_missing_period_count=len(periods))
             truncated = True
         return {**payload, "results": preview, "preview_truncated": truncated,
                 "artifact_id": artifact_id, "artifact_ref": artifact_id}
@@ -218,27 +227,47 @@ class StatisticsTools:
         lag = _integer(lag, 0, 24, "lag")
         min_samples = _integer(min_samples, 6, 10000, "min_samples")
         missing = _number(max_missing_fraction, 0, 0.5, "max_missing_fraction")
-        if x == y or method not in {"pearson", "granger"} or transform not in {"none", "difference"}:
-            raise StatisticsError("Choose distinct series, pearson/granger, and none/difference transformation.")
+        if x == y or method not in {"pearson", "spearman", "granger"} or transform not in {"none", "difference"}:
+            raise StatisticsError("Choose distinct series, pearson/spearman/granger, and none/difference transformation.")
         frame, manifest, frequency = self._load(analysis_id, [x, y], time_column)
-        series = frame[[x, y]].copy()
+        series = frame[[time_column, x, y]].copy()
+        source_start, source_end = str(series.iloc[0][time_column]), str(series.iloc[-1][time_column])
+        transform_dropped_periods = []
         if transform == "difference":
-            series = series.diff().iloc[1:]
+            transform_dropped_periods = [str(series.iloc[0][time_column])]
+            series.loc[:, [x, y]] = series[[x, y]].diff()
+            series = series.iloc[1:].copy()
         params = {"x": x, "y": y, "time_column": time_column, "frequency": frequency, "lag": lag,
                   "method": method, "transform": transform, "min_samples": min_samples, "max_missing_fraction": missing}
-        if method == "pearson":
-            from scipy.stats import pearsonr
-            paired = pd.DataFrame({"x": series[x].shift(lag), "y": series[y]}).iloc[lag:]
+        if method in {"pearson", "spearman"}:
+            from scipy.stats import pearsonr, spearmanr
+            lag_dropped_periods = series[time_column].iloc[:lag].astype(str).tolist() if lag else []
+            paired = pd.DataFrame({"period": series[time_column].astype(str),
+                                   "x": series[x].shift(lag), "y": series[y]}).iloc[lag:].copy()
+            missing_mask = paired[["x", "y"]].isna().any(axis=1)
+            excluded_missing_periods = paired.loc[missing_mask, "period"].tolist()
             complete = paired.dropna()
             if len(complete) < min_samples or len(complete) < len(paired) * (1 - missing):
                 raise StatisticsError("Too few complete aligned pairs or excessive missingness.", "INSUFFICIENT_SAMPLE")
             if (complete.nunique() < 2).any():
                 raise StatisticsError("Correlation requires variation in both series.", "CONSTANT_SERIES")
-            coefficient, pvalue = pearsonr(complete["x"], complete["y"])
+            correlation = pearsonr if method == "pearson" else spearmanr
+            coefficient, pvalue = correlation(complete["x"], complete["y"])
             result = {"correlation": float(coefficient), "p_value_iid_assumption": float(pvalue),
                       "sample_size": len(complete), "excluded_missing_pairs": len(paired) - len(complete),
+                      "candidate_pair_count": len(paired),
+                      "sample_start_period": str(complete.iloc[0]["period"]),
+                      "sample_end_period": str(complete.iloc[-1]["period"]),
+                      "source_start_period": source_start, "source_end_period": source_end,
+                      "excluded_missing_periods": excluded_missing_periods,
+                      "transform_dropped_periods": transform_dropped_periods,
+                      "lag_dropped_periods": lag_dropped_periods,
+                      "sample_period_basis": f"{y}(t)",
                       "lag_interpretation": f"{x}(t-{lag}) paired with {y}(t)"}
-            warnings = ["Association is not causation. The p-value assumes independent observations; autocorrelated time series may violate that assumption."]
+            warnings = [
+                "Association is not causation. The p-value assumes independent observations; autocorrelated time series may violate that assumption.",
+                "Only complete aligned pairs are used; missing pairs are not filled or treated as zero.",
+            ]
         else:
             from statsmodels.tools.sm_exceptions import InfeasibleTestError
             from statsmodels.tsa.stattools import adfuller, grangercausalitytests
@@ -259,6 +288,12 @@ class StatisticsTools:
                 raise StatisticsError("The selected series produce a singular or infeasible Granger model.", "INFEASIBLE_STATISTICAL_MODEL") from exc
             result = {"f_statistic": float(fit[0]), "p_value": float(fit[1]), "df_denominator": float(fit[2]),
                       "df_numerator": float(fit[3]), "sample_size": len(series), "adf_p_values": stationarity,
+                      "sample_start_period": str(series.iloc[0][time_column]),
+                      "sample_end_period": str(series.iloc[-1][time_column]),
+                      "source_start_period": source_start, "source_end_period": source_end,
+                      "transform_dropped_periods": transform_dropped_periods,
+                      "test": "ssr_ftest",
+                      "null_hypothesis": f"past {x} values through lag {lag} do not add predictive information for {y}",
                       "direction": f"past {x} adds predictive information for {y}"}
             warnings = ["Granger tests conditional predictive association, not a causal effect. ADF screening does not establish model adequacy or remove omitted-variable bias."]
         return self._persist(manifest, "lagged_" + method, params, result, warnings)
@@ -272,9 +307,9 @@ class StatisticsTools:
             "detect_changes": (self.detect_changes, "Describe persistent median shifts with complete adjacent windows; no causal claim.",
                 {**common, "column": {"type": "string"}, "window": {"type": "integer", "minimum": 3, "maximum": 120},
                  "threshold": {"type": "number", "minimum": 0.1}}, ["analysis_id", "column"]),
-            "analyze_relationship": (self.analyze_relationship, "Measure lagged correlation or gated Granger predictive association in a saved analysis.",
+            "analyze_relationship": (self.analyze_relationship, "Measure lagged Pearson/Spearman association or gated Granger predictive association in a saved analysis.",
                 {**common, "x": {"type": "string"}, "y": {"type": "string"}, "lag": {"type": "integer", "minimum": 0, "maximum": 24},
-                 "method": {"type": "string", "enum": ["pearson", "granger"]}, "transform": {"type": "string", "enum": ["none", "difference"]},
+                 "method": {"type": "string", "enum": ["pearson", "spearman", "granger"]}, "transform": {"type": "string", "enum": ["none", "difference"]},
                  "min_samples": {"type": "integer", "minimum": 6}, "max_missing_fraction": {"type": "number", "minimum": 0, "maximum": 0.5}}, ["analysis_id", "x", "y"]),
         }
         registry = {}

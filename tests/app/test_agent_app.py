@@ -15,6 +15,8 @@ from fastapi.testclient import TestClient
 import pandas as pd
 
 from app.server import create_app
+from agentic_analytics.agent.tools.bundles import AnalysisBundleTools
+from agentic_analytics.providers.mia import MiaError
 
 
 def tool(name, arguments, call_id="call-1"):
@@ -143,6 +145,45 @@ class AgentAppTests(unittest.TestCase):
         self.assertEqual(untouched["runs"], [])
         self.assertNotIn(analysis_id, json.dumps(untouched))
 
+    def test_analysis_bundle_endpoint_returns_verified_bundle_and_enforces_workspace_ownership(self):
+        own, other = self.workspace(), self.workspace()
+        first = self.analysis(own["workspace_id"])
+        second_plan = {
+            **self.plan,
+            "operations": [{
+                "op": "difference",
+                "column": "credit",
+                "output": "credit_change",
+                "periods": 1,
+                "prior_scope": "selected_window",
+            }],
+        }
+        self.provider.responses.extend([tool("execute", second_plan), FINAL])
+        second_job = self.submit_and_wait(own["workspace_id"], message="Aylık farkı da kaydet")
+        self.assertEqual(second_job["result"]["status"], "completed", second_job)
+        second = second_job["result"]["analysis_id"]
+        saved = AnalysisBundleTools(self.context.store, own["workspace_id"]).save_analysis_bundle(
+            [
+                {"analysis_id": first, "role": "level", "label": "Kredi stoku"},
+                {"analysis_id": second, "role": "change", "label": "Aylık değişim"},
+            ],
+            "Kredi seviye ve değişim paketi",
+        )
+
+        response = self.client.get(
+            f"/api/workspaces/{own['workspace_id']}/analysis-bundles/{saved['bundle_id']}"
+        )
+        self.assertEqual(response.status_code, 200, response.text)
+        payload = response.json()
+        self.assertEqual(payload["bundle_id"], saved["bundle_id"])
+        self.assertEqual({item["role"] for item in payload["components"]}, {"level", "change"})
+        self.assertEqual(payload["missing_value_policy"]["mode"], "preserve_nulls")
+
+        denied = self.client.get(
+            f"/api/workspaces/{other['workspace_id']}/analysis-bundles/{saved['bundle_id']}"
+        )
+        self.assertEqual(denied.status_code, 404, denied.text)
+
     def test_run_submit_poll_and_request_id_replay_preserve_single_write(self):
         workspace = self.workspace()
         self.provider.responses.extend([tool("execute", self.plan), FINAL])
@@ -208,6 +249,28 @@ class AgentAppTests(unittest.TestCase):
         self.assertEqual(finished["result"]["run_id"], job["run"]["run_id"])
         self.assertEqual(finished["result"]["analysis_id"], committed["analysis_head"])
         self.assertEqual(self.context.store.workspace(workspace["workspace_id"])["version"], 1)
+
+    def test_retryable_terminal_provider_failure_resumes_the_same_job_and_run(self):
+        workspace = self.workspace()
+        def unavailable(_messages):
+            raise MiaError("PROVIDER_UNAVAILABLE", "MIA bağlantısı tamamlanamadı.", retryable=True, attempts=3)
+        self.provider.responses.append(unavailable)
+        failed = self.submit_and_wait(workspace["workspace_id"], message="Kısa bir açıklama ver", request_id="provider-retry")
+        self.assertEqual(failed["status"], "finished")
+        self.assertEqual(failed["result"]["status"], "failed")
+        run_id = failed["run"]["run_id"]
+        workspace_view = self.client.get(f"/api/workspaces/{workspace['workspace_id']}").json()
+        self.assertEqual(workspace_view["retryable_job_id"], failed["job_id"])
+
+        self.provider.responses.append(FINAL)
+        queued = self.client.post(f"/api/jobs/{failed['job_id']}/resume")
+        self.assertEqual(queued.status_code, 200, queued.text)
+        self.context.futures[failed["job_id"]].result(timeout=10)
+        finished = self.client.get(f"/api/jobs/{failed['job_id']}").json()
+        self.assertEqual(finished["result"]["status"], "completed")
+        self.assertEqual(finished["run"]["run_id"], run_id)
+        self.assertEqual(finished["result"]["decisions"], 2)
+        self.assertTrue(any(event["kind"] == "run_reopened" for event in finished["activity"]))
 
     def test_restarted_app_detects_interrupted_job_and_recovers_from_tool_intent(self):
         class SimulatedProcessExit(BaseException):

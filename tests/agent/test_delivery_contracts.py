@@ -13,7 +13,7 @@ import pytest
 
 from agentic_analytics.agent.run_store import AgentRunStore
 from agentic_analytics.agent.context import _model_tool_result
-from agentic_analytics.agent.delivery import _source_scope_confirmation
+from agentic_analytics.agent.delivery import _requests_table, _source_scope_confirmation
 from agentic_analytics.agent.runtime import AgentRuntime, _requests_shared_scale
 from agentic_analytics.agent.schemas import obj
 from agentic_analytics.agent.tools.charts import ChartTools
@@ -384,6 +384,14 @@ def test_table_claim_without_produced_result_is_not_completed(env):
     result = runtime.run("Kredi tablosunu oluştur")
     assert result["status"] == "blocked"
     assert "TABLE_NOT_CREATED" in {error["code"] for error in result["errors"]}
+
+
+def test_source_table_metadata_field_is_not_mistaken_for_a_materialized_table_request():
+    assert not _requests_table(
+        "Kod, ad, kaynak tablo, kapsam, birim ve doğal frekansı listele."
+    )
+    assert _requests_table("Kaynak tablosunu göster.")
+    assert _requests_table("Sonucu tablo halinde göster.")
 
 
 @pytest.mark.parametrize("repair_full", [False, True])
@@ -884,6 +892,85 @@ def test_confident_dataset_numeric_answer_requires_tool_evidence(env, repairs):
         assert result["status"] == "blocked"
         assert "NUMERICAL_EVIDENCE_MISSING" in {error["code"] for error in result["errors"]}
     assert len(client.requests) == len(responses)
+
+
+def test_direct_source_numeric_claims_must_exist_in_read_evidence(env):
+    *_, build = env
+    runtime, _ = build([])
+    state = {"initial_candidates": {"status": "ok", "no_confident_match": True, "metrics": []},
+        "task_plan": {"deliverables": ["sources"]}, "tool_results": [{"tool": "inspect_source", "result": {
+            "status": "ok", "source_id": "source", "source_url": "https://example.org/decision-2025-15",
+            "text": "6 Mart 2025 tarihinde bir hafta vadeli repo faizi yüzde 45'ten yüzde 42,5'e indirildi."}}]}
+    assert runtime._numeric_evidence_errors(state, "Politika faizi yüzde 45'ten yüzde 42.5'e indirildi.") == []
+    errors = runtime._numeric_evidence_errors(state, "Politika faizi yüzde 45'ten yüzde 41'e indirildi.")
+    assert errors[0]["code"] == "EXTERNAL_NUMERIC_CLAIM_UNVERIFIED"
+    assert errors[0]["unsupported_numbers"] == ["41"]
+
+
+def test_grouping_separator_variants_match_but_unpublished_rounding_does_not(env):
+    *_, build = env
+    runtime, _ = build([])
+    state = {"initial_candidates": {"status": "ok", "no_confident_match": True, "metrics": []},
+        "task_plan": {"deliverables": ["sources"]}, "tool_results": [{"tool": "find_source_table_rows", "result": {
+            "status": "ok", "source_id": "source", "raw_sha256": "a" * 64, "table_id": "table_p000011_text_001",
+            "page": 11, "rows": [{"candidate_row": 31, "values": {"Line": "TOTAL ASSETS", "Total": "4,783,750,292"}}]}}]}
+    assert runtime._numeric_evidence_errors(state, "Toplam aktifler 4.783.750.292 bin TL'dir.") == []
+    errors = runtime._numeric_evidence_errors(state, "Toplam aktifler 4.783,8 milyon TL'dir.")
+    assert errors[0]["code"] == "EXTERNAL_NUMERIC_CLAIM_UNVERIFIED"
+    assert errors[0]["unsupported_numbers"] == ["4.783,8"]
+
+
+def test_search_snippet_is_not_numeric_evidence(env):
+    *_, build = env
+    runtime, _ = build([])
+    state = {"initial_candidates": {"status": "ok", "metrics": [{"metric_id": "credit"}]},
+        "task_plan": {"deliverables": ["sources"]}, "tool_results": [{"tool": "web_search", "result": {
+            "status": "ok", "results": [{"url": "https://example.org/result", "snippet": "Invented value 999"}]}}]}
+    errors = runtime._numeric_evidence_errors(state, "Doğrulanan değer 999 TL'dir.")
+    assert errors[0]["code"] == "NUMERICAL_EVIDENCE_MISSING"
+
+
+def test_policy_decision_cannot_be_satisfied_by_a_meeting_summary(env):
+    *_, build = env
+    runtime, _ = build([])
+    state = {"messages": [{"role": "user", "content": "TCMB 6 Mart 2025 Para Politikası Kurulu faiz kararını göster"}],
+        "tool_results": [{"tool": "inspect_source", "result": {"status": "ok", "source_id": "summary",
+            "source_url": "https://www.tcmb.gov.tr/summary", "document_type": "meeting_summary",
+            "text": "Toplantı özeti içinde yüzde 42,5 oranı değerlendirildi."}}]}
+    errors = runtime._source_semantic_errors(state, "Politika faizi yüzde 42,5 oldu.")
+    assert errors[0]["code"] == "SOURCE_DOCUMENT_TYPE_MISMATCH"
+
+
+def test_policy_rate_answer_must_name_the_one_week_repo_instrument(env):
+    *_, build = env
+    runtime, _ = build([])
+    state = {"messages": [{"role": "user", "content": "TCMB 6 Mart 2025 Para Politikası Kurulu faiz kararını göster"}],
+        "tool_results": [{"tool": "inspect_source", "result": {"status": "ok", "source_id": "decision",
+            "source_url": "https://www.tcmb.gov.tr/decision", "document_type": "policy_decision",
+            "text": "Bir hafta vadeli repo ihale faiz oranı yüzde 45'ten yüzde 42,5'e indirildi."}}]}
+    errors = runtime._source_semantic_errors(state, "Ticari kredi faizi yüzde 42,5 oldu.")
+    assert errors[0]["code"] == "POLICY_RATE_INSTRUMENT_MISMATCH"
+    assert runtime._source_semantic_errors(
+        state, "Politika faizi olan bir hafta vadeli repo ihale faizi yüzde 45'ten yüzde 42,5'e indirildi.") == []
+
+
+def test_consolidated_total_assets_requires_scoped_page_table_and_unit_proof(env):
+    *_, build = env
+    runtime, _ = build([])
+    request = "Garanti BBVA 31 Mart 2026 konsolide finansal raporundaki toplam aktifleri doğrula"
+    base = {"messages": [{"role": "user", "content": request}], "tool_results": [{"tool": "find_source_table_rows",
+        "result": {"status": "ok", "source_id": "source", "source_url": "https://example.org/report.pdf",
+            "raw_sha256": "a" * 64, "document_type": "financial_report", "reporting_period": "2026-03-31",
+            "consolidation_scope": "solo", "page": 11, "table_id": "table_11", "unit_caption": "THOUSANDS OF TL",
+            "rows": [{"candidate_row": 20, "values": {"Line": "TOTAL ASSETS", "Total": "4783750292"}}]}}]}
+    errors = runtime._source_semantic_errors(base, "Toplam aktifler 4.783.750.292 bin TL'dir.")
+    assert errors[0]["code"] == "SOURCE_SCOPE_MISMATCH"
+    valid = copy.deepcopy(base)
+    valid["tool_results"][0]["result"]["consolidation_scope"] = "consolidated"
+    assert runtime._source_semantic_errors(valid, "Toplam aktifler 4.783.750.292 bin TL'dir.") == []
+    del valid["tool_results"][0]["result"]["unit_caption"]
+    errors = runtime._source_semantic_errors(valid, "Toplam aktifler 4.783.750.292 bin TL'dir.")
+    assert errors[0]["code"] == "FINANCIAL_REPORT_CELL_PROOF_INCOMPLETE"
 
 
 def test_educational_numeric_example_is_labeled_and_not_mistaken_for_source_data(env):

@@ -86,7 +86,7 @@ def test_public_financial_registry_resolves_identifiers_and_preserves_scope_from
 
 
 def test_financial_registry_does_not_guess_ambiguous_issuers_or_widen_sites():
-    from agentic_analytics.agent.tools.search_backend import kap_financial_search
+    from agentic_analytics.agent.tools.search_backend import kap_financial_search, kap_search_applicable
     calls = []
     def fetch(url, **kwargs):
         calls.append(url)
@@ -97,6 +97,9 @@ def test_financial_registry_does_not_guess_ambiguous_issuers_or_widen_sites():
     assert kap_financial_search('site:acme.test Acme March 2026 financial report', fetch) == []
     assert kap_financial_search('Acme financial report', fetch) == []
     assert len(calls) == 1
+    assert kap_search_applicable('site:kap.org.tr Acme March 2026 financial report')
+    assert kap_search_applicable('site:www.kap.org.tr Acme March 2026 financial report')
+    assert not kap_search_applicable('site:kap.org.tr site:example.org Acme March 2026 financial report')
 
 
 def test_dated_issuer_search_keeps_short_name_together_and_rejects_date_only_drift():

@@ -113,8 +113,16 @@ def _search_terms(value: str) -> list[str]:
                "kari": "kar", "karin": "kar", "karini": "kar", "karinin": "kar", "karlari": "kar",
                "bank": "banka", "banks": "banka", "banking": "banka", "bankalar": "banka",
                "bankalarin": "banka", "bankalarinin": "banka", "bankacilik": "banka", "bankaciligi": "banka",
-               "bankaciligin": "banka", "bankaciliginin": "banka", "sektoru": "sektor", "sektorunun": "sektor"}
-    return [aliases.get(word, word) for word in re.findall(r"[a-z0-9_:.]+", _fold(value))]
+               "bankaciligin": "banka", "bankaciliginin": "banka", "sektoru": "sektor", "sektorunun": "sektor",
+               "satis": "satis", "satisi": "satis", "satislari": "satis", "satislarini": "satis",
+               "satislarinin": "satis", "satislar": "satis", "sales": "satis",
+               "endeksi": "endeks", "indices": "endeks", "index": "endeks",
+               "imkb": "bist", "ise": "bist", "il": "province", "iller": "province",
+               "illeri": "province", "ilinde": "province", "illerde": "province"}
+    # Dots and colons are valid inside a metric code, but sentence punctuation
+    # at a token edge must not become an impossible catalogue search term.
+    words = [word.strip(".:") for word in re.findall(r"[a-z0-9_:.]+", _fold(value))]
+    return [aliases.get(word, word) for word in words if word]
 
 
 # Only the non-"toplam"/"total"-prefixed aggregate token needs listing; the rest
@@ -153,7 +161,14 @@ def _query_terms(value: str) -> tuple[list[str], set[str]]:
                  "hesapla", "hesaplayabilir", "goster", "analiz", "et", "eder", "misin", "istiyorum",
                  "ver", "veri", "verileri", "sonuc", "sonuclari", "tablo", "tablosu", "tum", "butun",
                  "ilk", "son", "ikinci", "ucuncu", "dorduncu", "yil", "yili", "yilin", "ay", "ayi",
-                 "ayin", "ceyrek", "ceyrekte", "ceyreginde", "en", "yuksek", "dusuk", "sirala", "olarak"}
+                 "yilina", "yilinda", "ayin", "ceyrek", "ceyrekte", "ceyreginde", "en", "yuksek", "dusuk",
+                 "sirala", "olarak", "ait", "da", "de", "bu", "simdi", "pekala", "tabloya", "tabloyu",
+                 "ekle", "ekleyin", "ekler", "serisi", "serisini", "verisi", "verisini", "deger", "degeri",
+                 "degerini", "ariyorum", "isterim", "istiyoruz", "ocak", "subat", "mart", "nisan", "mayis",
+                 "haziran", "temmuz", "agustos", "eylul", "ekim", "kasim", "aralik",
+                 "bazinda", "ortak", "bulunan", "anlam", "anlami", "birim", "birimi", "gercekten",
+                 "eslesen", "eslesme", "gosterge", "gostergeler", "gostergeleri", "katalog", "katalogda",
+                 "kataloglar", "kataloglarda", "kataloglarinda"}
     frequency_hints = {"aylik": "monthly", "monthly": "monthly", "ceyreklik": "quarterly",
                        "quarterly": "quarterly", "haftalik": "weekly", "weekly": "weekly",
                        "gunluk": "daily", "daily": "daily", "yillik": "annual", "annual": "annual"}
@@ -162,14 +177,154 @@ def _query_terms(value: str) -> tuple[list[str], set[str]]:
             {frequency_hints[term] for term in terms if term in frequency_hints})
 
 
+_SOURCE_ALIASES = {
+    "bddk": {"source_system": ("bddk_",), "organization": ("bddk",)},
+    "finturk": {"source_system": ("bddk_finturk",), "organization": ("finturk",)},
+    "tcmb": {"source_system": ("tcmb_evds", "tcmb_evds_derived"), "organization": ("tcmb",)},
+    "evds": {"source_system": ("tcmb_evds", "tcmb_evds_derived"), "organization": ("evds",)},
+    "tuik": {"source_system": ("tuik_data_portal",), "organization": ("tuik",)},
+    "tbb": {"source_system": ("tbb_",), "organization": ("turkiye bankalar birligi",)},
+    "bist": {"source_system": (), "organization": ("borsa istanbul", "bist")},
+}
+
+
+def _requested_sources(value: str) -> list[str]:
+    """Extract explicit source names separately from metric meaning.
+
+    Source names are routing constraints, not words that every candidate title
+    must contain. This matters for requests comparing two official catalogues.
+    """
+    folded = _fold(value)
+    aliases = []
+    for alias in _SOURCE_ALIASES:
+        patterns = {
+            "tuik": r"\btuik\b|\bturkiye\s+istatistik\s+kurumu\b",
+            "tbb": r"\btbb\b|\bturkiye\s+bankalar\s+birligi\b",
+            "bist": r"\bbist\b|\bborsa\s+istanbul\b|\bimkb\b|\bise\b",
+        }
+        pattern = patterns.get(alias, rf"\b{re.escape(alias)}\b")
+        match = re.search(pattern, folded)
+        if match:
+            aliases.append((match.start(), alias))
+    return [alias for _, alias in sorted(aliases)]
+
+
+def _source_match(binding: dict, requested: list[str]) -> dict | None:
+    if not requested:
+        return None
+    system = _fold(binding.get("source_system") or "")
+    organization = _fold(binding.get("source_organization") or "")
+    matches = []
+    for alias in requested:
+        spec = _SOURCE_ALIASES[alias]
+        direct = any(system == token or system.startswith(token) for token in spec["source_system"])
+        indirect = any(re.search(r"(?<![a-z0-9])" + re.escape(token) + r"(?![a-z0-9])", organization)
+                       for token in spec["organization"])
+        if direct or indirect:
+            matches.append({"requested_source": alias,
+                            "basis": "source_system" if direct else "source_organization",
+                            "strength": 3 if direct else 1})
+    if not matches:
+        return None
+    strongest = max(matches, key=lambda item: (item["strength"], -requested.index(item["requested_source"])))
+    return {**strongest, "matched_sources": [item["requested_source"] for item in matches],
+            "requested_source_count": len(requested)}
+
+
+def _coverage_includes_years(card: dict, years: list[int]) -> bool:
+    """Return whether a discovery card covers every explicitly requested year."""
+    if not years:
+        return True
+    try:
+        start = int(str(card.get("coverage_start") or "")[:4])
+        end = int(str(card.get("coverage_end") or "")[:4])
+    except ValueError:
+        return False
+    return start <= min(years) and max(years) <= end
+
+
+def _vintage_rank(intent: dict, card: dict) -> int:
+    """Rank source vintages without hiding a competing official definition.
+
+    Explicit user wording always wins. For a closed historical period whose
+    first-publication and later-revised series are both available, the
+    contemporaneous publication is ranked first for reproducibility. Discovery
+    also emits the competing current series and a mandatory disclosure below.
+    """
+    observed = (card.get("semantic_profile") or {}).get("vintage_class", "unspecified")
+    requested = intent.get("vintage_preference", "unspecified")
+    if requested in {"first_published", "current_revised"}:
+        return 0 if observed == requested else 1 if observed == "unspecified" else 2
+    years = intent.get("reference_years") or []
+    if years and _coverage_includes_years(card, years):
+        return 0 if observed == "first_published" else 1 if observed == "current_revised" else 2
+    return 0 if observed == "current_revised" else 1 if observed == "unspecified" else 2
+
+
+def _vintage_selection(intent: dict, cards: list[dict]) -> dict | None:
+    """Describe competing official vintages that share one source metric code."""
+    groups: dict[tuple, list[dict]] = {}
+    years = intent.get("reference_years") or []
+    for card in cards:
+        vintage = (card.get("semantic_profile") or {}).get("vintage_class")
+        source_code = card.get("source_code")
+        if vintage not in {"first_published", "current_revised"} or not source_code:
+            continue
+        if years and not _coverage_includes_years(card, years):
+            continue
+        key = (
+            card.get("source_system"),
+            source_code,
+            tuple(sorted((card.get("dimensions") or {}).items())),
+            card.get("kind"),
+            card.get("unit"),
+            card.get("scale"),
+        )
+        groups.setdefault(key, []).append(card)
+    competing = []
+    for grouped in groups.values():
+        classes = {(card.get("semantic_profile") or {}).get("vintage_class") for card in grouped}
+        if classes != {"first_published", "current_revised"}:
+            continue
+        competing.append({
+            "source_metric_code": grouped[0].get("source_code"),
+            "candidates": [{
+                "metric_id": card["metric_id"],
+                "vintage_class": (card.get("semantic_profile") or {}).get("vintage_class"),
+                "vintage_policy": card.get("vintage_policy"),
+                "revision_status": card.get("revision_status"),
+                "coverage_start": card.get("coverage_start"),
+                "coverage_end": card.get("coverage_end"),
+            } for card in sorted(grouped, key=lambda item: _vintage_rank(intent, item))],
+        })
+    if not competing:
+        return None
+    requested = intent.get("vintage_preference", "unspecified")
+    historical = bool(years)
+    recommended = requested if requested in {"first_published", "current_revised"} else (
+        "first_published" if historical else "current_revised"
+    )
+    return {
+        "status": "explicit" if requested in {"first_published", "current_revised"} else "requires_disclosure",
+        "requested": requested,
+        "recommended": recommended,
+        "reference_years": years,
+        "candidate_groups": competing,
+        "message": (
+            "The requested concept has distinct official first-published and current-revised vintages. "
+            "Do not mix their cells. Preserve the chosen metric on follow-up turns and disclose the alternative."
+        ),
+    }
+
+
 def _flow_period_count(native: str, target: str) -> int | None:
     return {("monthly", "quarterly"): 3, ("monthly", "annual"): 12,
             ("monthly", "yearly"): 12, ("quarterly", "annual"): 4,
             ("quarterly", "yearly"): 4}.get((native, target))
 
 
-_FREQUENCIES = {"monthly": "M", "quarterly": "Q", "weekly_friday": "W-FRI", "weekly_wednesday": "W-WED", "weekly": "W-FRI", "daily": "D", "business_daily": "B", "annual": "Y", "yearly": "Y", "half_yearly": "2Q-DEC", "twice_monthly": "D"}
-_FREQUENCY_RANK = {"daily": 0, "business_daily": 0, "weekly_friday": 1, "weekly_wednesday": 1, "weekly": 1, "twice_monthly": 1, "monthly": 2, "quarterly": 3, "half_yearly": 4, "annual": 5, "yearly": 5}
+_FREQUENCIES = {"monthly": "M", "quarterly": "Q", "weekly_observed": "D", "weekly_friday": "W-FRI", "weekly_wednesday": "W-WED", "weekly": "W-FRI", "daily": "D", "business_daily": "B", "annual": "Y", "yearly": "Y", "half_yearly": "2Q-DEC", "twice_monthly": "D"}
+_FREQUENCY_RANK = {"daily": 0, "business_daily": 0, "weekly_observed": 1, "weekly_friday": 1, "weekly_wednesday": 1, "weekly": 1, "twice_monthly": 1, "monthly": 2, "quarterly": 3, "half_yearly": 4, "annual": 5, "yearly": 5}
 _NATIVE_ONLY_FREQUENCIES = {"half_yearly", "twice_monthly"}
 
 
@@ -184,7 +339,7 @@ def _period(value: Any, frequency: str) -> pd.Period:
             quarter = 1 if value.endswith("H1") else 3
             return pd.Period(f"{value[:4]}Q{quarter}", freq="2Q-DEC")
         period = pd.Period(value, freq=_FREQUENCIES[frequency])
-        if frequency.startswith("weekly") and period.end_time.date().isoformat() != value:
+        if frequency in {"weekly", "weekly_friday", "weekly_wednesday"} and period.end_time.date().isoformat() != value:
             raise PlanError("Weekly bounds must be native week-ending dates")
         return period
     except (ValueError, KeyError) as exc:
@@ -282,7 +437,7 @@ class LakehouseService:
     def _card(binding: dict) -> dict:
         from agentic_analytics.lakehouse.discovery import semantic_profile
 
-        fields = ("metric_id", "title", "title_en", "group_name", "value_dimension", "is_archive", "temporal_semantics", "quality_status", "source_system", "source_namespace", "native_frequency", "kind", "unit", "scale", "currency", "status", "dimensions", "institution_scope", "geography_scope", "notes", "index_role", "deflator_currency", "price_scope", "price_basis", "blocked_reason", "cumulative_evidence", "semantic_policy_version", "coverage_start", "coverage_end", "observation_count", "missing_observation_count")
+        fields = ("metric_id", "dataset_id", "source_code", "title", "title_en", "group_name", "value_dimension", "is_archive", "temporal_semantics", "quality_status", "source_system", "source_organization", "competition_scope", "source_namespace", "native_frequency", "kind", "unit", "scale", "currency", "status", "dimensions", "institution_scope", "geography_scope", "notes", "index_role", "deflator_currency", "price_scope", "price_basis", "blocked_reason", "cumulative_evidence", "semantic_policy_version", "coverage_start", "coverage_end", "observation_count", "missing_observation_count", "vintage_policy", "release_date", "revision_status", "methodology_revision_date", "canonical_series_code", "historical_name", "current_name", "name_change_effective_date", "name_change_source_url", "methodology_source_url", "official_series_url", "source_metadata_url", "source_url", "source_frequency_evidence")
         fields += ("population_scope", "measurement_basis", "scope_caveats", "source_table_category", "source_scope_evidence", "source_scope_policy_version")
         return {key: binding.get(key) for key in fields} | {"semantic_profile": semantic_profile(binding)}
 
@@ -299,13 +454,18 @@ class LakehouseService:
             raise PlanError("Unknown readiness status")
         searched_query = initial_query(request["query"])
         terms, frequencies = _query_terms(searched_query)
+        requested_sources = _requested_sources(searched_query)
+        terms = [term for term in terms if term not in set(requested_sources)]
         intent = query_intent(searched_query)
         with self._context() as (connection, bindings, workspace):
             matches, near, dimension_cache = [], [], {}
             for binding in bindings.values():
                 if request.get("status") and binding["status"] != request["status"]:
                     continue
-                searchable = " ".join(_search_terms(" ".join(str(binding.get(key) or "") for key in ("metric_id", "title", "title_en", "searchable_text", "group_name", "source_system"))))
+                source_match = _source_match(binding, requested_sources)
+                if requested_sources and source_match is None:
+                    continue
+                searchable = " ".join(_search_terms(" ".join(str(binding.get(key) or "") for key in ("metric_id", "title", "title_en", "searchable_text", "group_name", "source_system", "source_organization"))))
                 title = " ".join(_search_terms(str(binding.get("title") or "") + " " + str(binding.get("title_en") or "")))
                 profile = semantic_profile(binding)
                 searchable += " " + semantic_search_text(profile)
@@ -353,25 +513,56 @@ class LakehouseService:
                     score = title_matches * 10 + (adjacent_matches + reversed_matches) * 30 + int(frequency_match) * 3 + len(matched_dimensions) * 2
                     if frequencies:
                         card["frequency_hint_requires_upsampling"] = not compatible
+                    if intent.get("reference_years"):
+                        card["requested_period_covered"] = _coverage_includes_years(
+                            card, intent["reference_years"]
+                        )
                     if matched_dimensions:
                         card["matched_dimensions"] = _json(matched_dimensions)
+                    if source_match:
+                        card["source_match"] = source_match
                     card["semantic_match"] = semantic_match
-                    matches.append((compatible, score, card))
+                    source_strength = source_match["strength"] if source_match else 0
+                    source_coverage = len(source_match["matched_sources"]) if source_match else 0
+                    directness = 0 if str(binding.get("competition_scope") or "").startswith(("explicit_", "supporting_official")) else 1
+                    matches.append((compatible, source_strength, source_coverage, directness, score, card))
                 elif terms and len(missing) < len(terms):
                     # Partial match: store only cheap sort scalars plus references; the
                     # card is materialized later, and only if no full match is found.
-                    near.append((binding["status"] != "ready", len(missing), title, matched_dimensions, missing, binding, semantic_match))
-            # Structural canonical ordering: after readiness/frequency/score, prefer
-            # the live (non-archive) aggregate slice from a curated source, so a
-            # Tp/Yp/size-bracket/archived decoy no longer wins on an alphabetical id.
+                    near.append((binding["status"] != "ready", len(missing), title, matched_dimensions, missing, binding, semantic_match, source_match))
+            # Structural canonical ordering: after semantics and frequency, use
+            # the explicit vintage request. A closed historical query ranks its
+            # first official publication ahead of a later methodology revision,
+            # while the result keeps both candidates and an ambiguity receipt.
             matches.sort(key=lambda item: (
-                not item[0], len(item[2]["semantic_match"]["conflicts"]), len(item[2]["semantic_match"]["unverified_facets"]),
-                item[2]["semantic_match"]["penalty"], item[2]["status"] != "ready", -item[1],
-                1 if item[2].get("is_archive") else 0,
-                0 if _is_total_slice(item[2]) else 1,
-                0 if str(item[2].get("quality_status") or "").startswith("passed") else 1,
-                item[2]["metric_id"]))
-            result = {"status": "ok", "snapshot_id": workspace["snapshot_id"], "total": len(matches), "metrics": [card for _, _, card in matches[:limit]], "query_intent": intent}
+                not item[0], len(item[5]["semantic_match"]["conflicts"]),
+                not item[5].get("requested_period_covered", True),
+                _vintage_rank(intent, item[5]),
+                len(item[5]["semantic_match"]["unverified_facets"]),
+                item[5]["semantic_match"]["penalty"], item[5]["status"] != "ready",
+                -item[1], item[3], -item[2], -item[4],
+                1 if item[5].get("is_archive") else 0,
+                0 if _is_total_slice(item[5]) else 1,
+                0 if str(item[5].get("quality_status") or "").startswith("passed") else 1,
+                item[5]["metric_id"]))
+            all_cards = [card for _, _, _, _, _, card in matches]
+            result = {"status": "ok", "snapshot_id": workspace["snapshot_id"], "total": len(matches), "metrics": all_cards[:limit], "query_intent": intent}
+            if requested_sources:
+                represented = list(dict.fromkeys(
+                    source for card in all_cards for source in (card.get("source_match") or {}).get("matched_sources", [])
+                ))
+                result["source_selection"] = {
+                    "requested": requested_sources,
+                    "represented": represented,
+                    "mode": "compare_sources" if len(requested_sources) > 1 else "single_source",
+                    "message": (
+                        "Source names are routing constraints. For a comparison, inspect and select a source-native metric "
+                        "for each requested source; a derived multi-source panel must not silently replace them."
+                    ),
+                }
+            vintage_selection = _vintage_selection(intent, all_cards)
+            if vintage_selection:
+                result["vintage_selection"] = vintage_selection
             if searched_query != request["query"]:
                 result["searched_query"] = searched_query
                 result["query_projection_note"] = "A metric-bearing clause was used for candidate discovery. This does not resolve the rest of the task or certify source equivalence."
@@ -381,14 +572,21 @@ class LakehouseService:
                 near.sort(key=lambda item: (not all(_FREQUENCY_RANK.get(item[5].get("native_frequency"), 999) <= _FREQUENCY_RANK[hint] for hint in frequencies),
                                             len(item[6]["conflicts"]), len(item[6]["unverified_facets"]),
                                             item[6]["penalty"], item[1], item[0],
+                                            -(item[7] or {}).get("strength", 0),
                                             -sum(_term_matches(term, item[2]) for term in terms if term != "toplam"),
                                             not _is_total_slice(item[5]), item[5]["metric_id"]))
                 near_cards = []
-                for _, _, _, matched_dims, missing_terms, binding, semantic_match in near[:min(limit, 6)]:
+                for _, _, _, matched_dims, missing_terms, binding, semantic_match, source_match in near[:min(limit, 6)]:
                     card = self._card(binding)
                     card["semantic_match"] = semantic_match
+                    if source_match:
+                        card["source_match"] = source_match
                     if frequencies:
                         card["frequency_hint_requires_upsampling"] = not all(_FREQUENCY_RANK.get(binding.get("native_frequency"), 999) <= _FREQUENCY_RANK[hint] for hint in frequencies)
+                    if intent.get("reference_years"):
+                        card["requested_period_covered"] = _coverage_includes_years(
+                            card, intent["reference_years"]
+                        )
                     if matched_dims:
                         card["matched_dimensions"] = _json(matched_dims)
                     card["missing_terms"] = missing_terms
@@ -532,7 +730,43 @@ class LakehouseService:
                 raise PlanError("Mean alignment requires a rate, ratio, index or price", code="INVALID_TEMPORAL_AGGREGATION")
             if native != frequency and binding["status"] != "ready":
                 raise PlanError("Unreviewed semantics permit native raw selection only", code="SEMANTICS_REVIEW_REQUIRED")
-            schemas[name] = {key: binding.get(key) for key in ("kind", "unit", "scale", "currency", "status", "index_role", "deflator_currency", "price_scope", "price_basis", "cumulative_evidence", "additive_over_time", "semantic_policy_version")}
+            schemas[name] = {
+                key: binding.get(key)
+                for key in (
+                    "kind",
+                    "unit",
+                    "scale",
+                    "currency",
+                    "status",
+                    "index_role",
+                    "deflator_currency",
+                    "price_scope",
+                    "price_basis",
+                    "cumulative_evidence",
+                    "additive_over_time",
+                    "semantic_policy_version",
+                    "vintage_policy",
+                    "release_date",
+                    "revision_status",
+                )
+            }
+            # Index identity evidence is exceptional metadata, not part of the
+            # fixed schema footprint for every metric. Keeping absent values out
+            # prevents large multi-metric analyses from spending context on
+            # repeated null keys while preserving the evidence for XU100 and
+            # any other series that actually carries it.
+            for key in (
+                "canonical_series_code",
+                "historical_name",
+                "current_name",
+                "name_change_effective_date",
+                "name_change_source_url",
+                "methodology_source_url",
+                "official_series_url",
+            ):
+                value = binding.get(key)
+                if value not in (None, ""):
+                    schemas[name][key] = value
             schemas[name]["measurement_basis"] = binding.get("measurement_basis", "source_reported")
             schemas[name]["metric_id"] = metric_id
             schemas[name]["scope"] = {
@@ -550,15 +784,15 @@ class LakehouseService:
                 raise PlanError("operation must be an object")
             op = operation.get("op")
             fields = {
-                "growth": {"op", "column", "output", "periods"},
-                "difference": {"op", "column", "output", "periods"},
+                "growth": {"op", "column", "output", "periods", "prior_scope"},
+                "difference": {"op", "column", "output", "periods", "prior_scope"},
                 "deflate": {"op", "column", "index", "base_period", "output"},
                 "scale": {"op", "column", "output", "target_scale"},
                 "ratio": {"op", "column", "denominator", "output", "multiplier", "scope_policy", "scope_reason"},
             }
             if not isinstance(op, str) or op not in fields:
                 raise PlanError(f"Unsupported operation {op!r}")
-            required = fields[op] - ({"periods"} if op in {"growth", "difference"} else {"multiplier", "scope_policy", "scope_reason"} if op == "ratio" else set())
+            required = fields[op] - ({"periods", "prior_scope"} if op in {"growth", "difference"} else {"multiplier", "scope_policy", "scope_reason"} if op == "ratio" else set())
             _object(operation, fields[op], required, "operation")
             output = _name(operation["output"])
             column = operation["column"]
@@ -576,8 +810,14 @@ class LakehouseService:
                 periods = operation.get("periods", 1)
                 if isinstance(periods, bool) or not isinstance(periods, int) or not 1 <= periods <= 120:
                     raise PlanError("periods must be an integer between 1 and 120")
-                # Sum is conservative for chained operations and preserves warmup.
-                warmup += periods
+                prior_scope = operation.get("prior_scope", "available_history")
+                if prior_scope not in {"available_history", "selected_window"}:
+                    raise PlanError("prior_scope must be available_history or selected_window")
+                # Sum is conservative for chained operations and preserves
+                # warmup unless the user explicitly wants the first visible
+                # row to remain empty.
+                if prior_scope == "available_history":
+                    warmup += periods
                 if op == "growth":
                     if source["kind"] in {"rate", "ratio"} and source["unit"] in {"percent", "%", "ratio"}:
                         raise PlanError("Use difference for rates and ratios to obtain percentage points", code="UNIT_MISMATCH")
@@ -766,7 +1006,8 @@ class LakehouseService:
         return series.reindex(calendar), {"binding": copy.deepcopy(binding), "dimensions": selection.get("dimensions", {}), "alignment": alignment, "cells": cells}, warnings
 
     def _evaluate(self, connection: Any, bindings: dict, plan: dict, validated: dict) -> tuple[pd.DataFrame, dict, list[dict]]:
-        calendar = pd.period_range(validated["start"] - validated["warmup"], validated["end"], freq=validated["start"].freq)
+        warmup = validated["warmup"] * 7 if plan["frequency"] == "weekly_observed" else validated["warmup"]
+        calendar = pd.period_range(validated["start"] - warmup, validated["end"], freq=validated["start"].freq)
         frame = pd.DataFrame(index=calendar)
         lineage: dict[str, Any] = {"sources": {}, "operations": [], "frequency": plan["frequency"]}
         warnings = []
@@ -798,7 +1039,7 @@ class LakehouseService:
             overlapping = [item for item in definitions if str(item.get("start", "0000")) <= str(calendar[-1].end_time.date()) and str(item.get("end") or "9999") >= str(calendar[0].start_time.date())]
             if len({item.get("definition_id", item.get("label")) for item in overlapping}) > 1 and any(selection["name"] in (op.get("column"), op.get("index"), op.get("denominator")) for op in plan.get("operations", [])):
                 raise PlanError(f"{selection['name']}: calculation crosses a source definition change", code="DEFINITION_BREAK")
-        if plan["frequency"] == "twice_monthly":
+        if plan["frequency"] in {"twice_monthly", "weekly_observed"}:
             # The metadata does not certify 15th/month-end publication dates.
             # Keep exact observed date keys, including source-null rows, across
             # the selected series. Unobserved dates never become synthetic rows.
@@ -806,7 +1047,10 @@ class LakehouseService:
                                for proof in lineage["sources"].values() for label in proof["cells"]})
             frame = frame.loc[pd.PeriodIndex(observed, freq="D")]
             lineage["calendar_policy"] = "union_of_observed_native_dates"
-            warnings.append({"code": "native_calendar_unverified", "detail": "Twice-monthly output retains observed source dates only; no fixed publication days or complete calendar are assumed"})
+            if plan["frequency"] == "weekly_observed":
+                warnings.append({"code": "actual_weekly_source_dates", "detail": "Weekly output retains actual source observation dates, including holiday-shifted issues; no synthetic weekday labels are created"})
+            else:
+                warnings.append({"code": "native_calendar_unverified", "detail": "Twice-monthly output retains observed source dates only; no fixed publication days or complete calendar are assumed"})
         elif plan["frequency"] == "half_yearly":
             lineage["calendar_policy"] = "calendar_half_years_january_june_and_july_december"
         schemas = {s["name"]: {key: bindings[s["metric_id"]].get(key) for key in ("kind", "unit", "scale", "currency")} for s in plan["columns"]}
@@ -822,6 +1066,9 @@ class LakehouseService:
             if op in {"growth", "difference"}:
                 previous = source.shift(operation.get("periods", 1))
                 result = (source / previous.where(previous != 0) - 1) * 100 if op == "growth" else source - previous
+                if operation.get("prior_scope", "available_history") == "selected_window":
+                    visible = result.index[result.index >= validated["start"]]
+                    result.loc[visible[: operation.get("periods", 1)]] = np.nan
                 if op == "growth" and (previous == 0).any():
                     warnings.append({"code": "zero_denominator", "column": output})
             elif op == "deflate":

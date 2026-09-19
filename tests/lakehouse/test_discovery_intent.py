@@ -77,6 +77,12 @@ class DiscoveryIntentTests(unittest.TestCase):
         self.assertEqual("Toplam", interbank["slice_label"])
         self.assertIn("bank_recipient", compare_intent(intent, interbank)["unrequested_qualifiers"])
 
+    def test_vintage_intent_is_explicit_and_never_inferred_from_a_bare_year(self):
+        self.assertEqual("unspecified", query_intent("2024 aylık konut satışları")["vintage_preference"])
+        self.assertEqual([2024], query_intent("2024 aylık konut satışları")["reference_years"])
+        self.assertEqual("first_published", query_intent("ilk yayımlanan 2024 konut satışları")["vintage_preference"])
+        self.assertEqual("current_revised", query_intent("güncel revize 2024 konut satışları")["vintage_preference"])
+
     def test_task_projection_keeps_requested_subsets_flow_and_unknown_meaning(self):
         requests = [
             ("Yüklediğim source_1234567890 dokümanı örnek krediler içeriyor. "
@@ -125,6 +131,59 @@ class RealCatalogueIntentTests(unittest.TestCase):
                 self.assertIn(result["metrics"][0]["metric_id"], expected if isinstance(expected, set) else {expected})
                 self.assertTrue(all("semantic_match" in card and "coverage_end" in card for card in result["metrics"]))
 
+    def test_explicit_source_name_prefers_the_source_native_metric_over_a_derived_panel(self):
+        database = Path(__file__).parents[2] / "data_pipeline/lakehouse/analytics.duckdb"
+
+        class ReadOnlyStore:
+            def workspace(self, _):
+                return {"snapshot_id": "real-source-ranking", "datasets": []}
+
+            def snapshot_path(self, _):
+                return database
+
+        result = LakehouseService(ReadOnlyStore(), "real-source-ranking").discover({
+            "query": "2025 BDDK toplam konut kredisi stoku",
+            "limit": 10,
+            "status": "ready",
+        })
+        self.assertEqual(
+            "bddk_monthly:table04:2:fffae80eca08:Toplam",
+            result["metrics"][0]["metric_id"],
+        )
+        self.assertEqual("BDDK", result["metrics"][0]["source_organization"])
+        self.assertEqual("source_system", result["metrics"][0]["source_match"]["basis"])
+        self.assertEqual(["bddk"], result["source_selection"]["requested"])
+
+    def test_cross_source_reconciliation_language_returns_native_candidates_for_each_source(self):
+        database = Path(__file__).parents[2] / "data_pipeline/lakehouse/analytics.duckdb"
+
+        class ReadOnlyStore:
+            def workspace(self, _):
+                return {"snapshot_id": "real-cross-source-discovery", "datasets": []}
+
+            def snapshot_path(self, _):
+                return database
+
+        result = LakehouseService(ReadOnlyStore(), "real-cross-source-discovery").discover({
+            "query": "TÜİK ve EVDS kataloglarında il bazında ortak bulunan, anlamı ve birimi gerçekten eşleşen konut satış göstergeleri",
+            "limit": 25,
+            "status": "ready",
+        })
+        self.assertFalse(result.get("no_confident_match"), result)
+        self.assertEqual(["tuik", "evds"], result["source_selection"]["requested"])
+        self.assertEqual("compare_sources", result["source_selection"]["mode"])
+        direct = {
+            card["source_match"]["requested_source"]: card
+            for card in result["metrics"]
+            if card.get("source_match", {}).get("basis") == "source_system"
+        }
+        self.assertIn("tuik", direct)
+        self.assertIn("evds", direct)
+        self.assertEqual("TUIK_DATA_PORTAL", direct["tuik"]["source_system"])
+        self.assertEqual("TCMB_EVDS", direct["evds"]["source_system"])
+        self.assertNotIn("bazinda", result.get("uncovered_terms", []))
+        self.assertNotIn("gostergeleri", result.get("uncovered_terms", []))
+
     def test_actual_full_import_task_prefills_overall_loans_and_prefix_stays_provisional(self):
         # Verbatim task from live round 1. The source and company describe a
         # clearly synthetic upload; all reference candidates are the real catalogue.
@@ -152,3 +211,89 @@ class RealCatalogueIntentTests(unittest.TestCase):
         self.assertTrue(prefix["no_confident_match"])
         self.assertEqual("bddk_monthly:table01:10:d19739aeda4a:Toplam", prefix["near_matches"][0]["metric_id"])
         self.assertFalse(any("source_" in word or ".csv" in word for word in prefix["uncovered_terms"]))
+
+    def test_natural_housing_sales_prompts_preserve_historical_first_publication_vintage(self):
+        database = Path(__file__).parents[2] / "data_pipeline/lakehouse/analytics.duckdb"
+
+        class ReadOnlyStore:
+            def workspace(self, _):
+                return {"snapshot_id": "real-housing-sales-discovery", "datasets": []}
+
+            def snapshot_path(self, _):
+                return database
+
+        service = LakehouseService(ReadOnlyStore(), "real-housing-sales-discovery")
+        expected = "tuik_province_housing_sales_first_published:housing_sales_total_count"
+        revised = "tuik_province_housing_sales:housing_sales_total_count"
+        for prompt in (
+            "2024 yılında İstanbul'da aylık toplam konut satışlarını göster.",
+            "Pekâlâ, şimdi bu tabloya 2023 yılı İstanbul toplam konut satışlarını da ekle.",
+        ):
+            with self.subTest(prompt=prompt):
+                result = service.discover({"query": initial_query(prompt), "limit": 5, "status": "ready"})
+                self.assertFalse(result.get("no_confident_match"), result)
+                self.assertEqual(result["metrics"][0]["metric_id"], expected)
+                self.assertEqual(result["metrics"][0]["matched_dimensions"]["province_key"], ["istanbul"])
+                self.assertEqual(result["metrics"][0]["native_frequency"], "monthly")
+                self.assertEqual(
+                    [expected, revised],
+                    [card["metric_id"] for card in result["metrics"][:2]],
+                )
+                self.assertEqual("requires_disclosure", result["vintage_selection"]["status"])
+                self.assertEqual("first_published", result["vintage_selection"]["recommended"])
+                self.assertEqual(
+                    {"first_published", "current_revised"},
+                    {
+                        candidate["vintage_class"]
+                        for group in result["vintage_selection"]["candidate_groups"]
+                        for candidate in group["candidates"]
+                    },
+                )
+
+    def test_explicit_housing_sales_vintage_wording_overrides_historical_default(self):
+        database = Path(__file__).parents[2] / "data_pipeline/lakehouse/analytics.duckdb"
+
+        class ReadOnlyStore:
+            def workspace(self, _):
+                return {"snapshot_id": "real-housing-sales-vintage", "datasets": []}
+
+            def snapshot_path(self, _):
+                return database
+
+        service = LakehouseService(ReadOnlyStore(), "real-housing-sales-vintage")
+        cases = (
+            ("2024 İstanbul ilk yayımlanan toplam konut satışları",
+             "first_published", "tuik_province_housing_sales_first_published:housing_sales_total_count"),
+            ("2024 İstanbul güncel revize toplam konut satışları",
+             "current_revised", "tuik_province_housing_sales:housing_sales_total_count"),
+        )
+        for prompt, preference, expected in cases:
+            with self.subTest(prompt=prompt):
+                result = service.discover({"query": prompt, "limit": 5, "status": "ready"})
+                self.assertEqual(preference, result["query_intent"]["vintage_preference"])
+                self.assertEqual(expected, result["metrics"][0]["metric_id"])
+                if "vintage_selection" in result:
+                    self.assertEqual("explicit", result["vintage_selection"]["status"])
+
+    def test_historical_imkb_wording_resolves_to_the_bist_xu100_identity(self):
+        database = Path(__file__).parents[2] / "data_pipeline/lakehouse/analytics.duckdb"
+
+        class ReadOnlyStore:
+            def workspace(self, _):
+                return {"snapshot_id": "real-imkb-discovery", "datasets": []}
+
+            def snapshot_path(self, _):
+                return database
+
+        service = LakehouseService(ReadOnlyStore(), "real-imkb-discovery")
+        result = service.discover({"query": initial_query("2010 yılına ait İMKB 100 kapanış verisini arıyorum."),
+                                   "limit": 5, "status": "ready"})
+        self.assertFalse(result.get("no_confident_match"), result)
+        self.assertEqual(result["metrics"][0]["metric_id"], "evds:TP.MK.F.BILESIK")
+        self.assertEqual(result["metrics"][0]["coverage_start"], "2010-01-01")
+        described = service.describe({"metric_id": "evds:TP.MK.F.BILESIK"})["metric"]
+        self.assertEqual("XU100", described["canonical_series_code"])
+        self.assertEqual("İMKB 100", described["historical_name"])
+        self.assertEqual("BIST 100", described["current_name"])
+        self.assertEqual("2013-04-05", described["name_change_effective_date"])
+        self.assertIn("GenelMektup_4030", described["name_change_source_url"])

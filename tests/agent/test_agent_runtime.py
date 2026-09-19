@@ -12,8 +12,11 @@ import pandas as pd
 from agentic_analytics.agent.run_store import AgentRunStore
 from agentic_analytics.agent.runtime import AgentRuntime
 from agentic_analytics.agent.schemas import obj
+from agentic_analytics.agent.tools.selection import AnalysisSelectionTools
+from agentic_analytics.agent.tools.statistics import StatisticsTools
 from agentic_analytics.lakehouse.service import LakehouseService
 from agentic_analytics.lakehouse.store import LakehouseStore
+from agentic_analytics.providers.mia import MiaError
 
 
 def call(name, args, call_id="call-1"):
@@ -166,6 +169,81 @@ class AgentRuntimeTests(unittest.TestCase):
         self.assertEqual(result["status"], "completed")
         self.assertEqual(result["decisions"], 2)
         self.assertEqual(len(client.requests), 1)
+
+    def test_explicit_resume_reopens_retryable_provider_failure_and_keeps_decision_debits(self):
+        def unavailable(_messages):
+            raise MiaError("PROVIDER_UNAVAILABLE", "MIA bağlantısı tamamlanamadı.", retryable=True, attempts=3)
+
+        runtime, client = self.runtime([unavailable])
+        failed = runtime.run("Kısa bir açıklama ver", request_id="retry-provider")
+        self.assertEqual(failed["status"], "failed")
+        self.assertEqual(failed["decisions"], 1)
+        self.assertTrue(failed["errors"][0]["retryable"])
+        self.assertEqual(runtime.resume(failed["run_id"]), failed)
+
+        runtime, resumed_client = self.runtime([FINAL])
+        resumed = runtime.resume(failed["run_id"], retry_terminal=True)
+        self.assertEqual(resumed["status"], "completed")
+        self.assertEqual(resumed["run_id"], failed["run_id"])
+        self.assertEqual(resumed["decisions"], 2)
+        self.assertEqual(len(client.requests), 1)
+        self.assertEqual(len(resumed_client.requests), 1)
+        self.assertNotIn("MIA bağlantısı tamamlanamadı", json.dumps(resumed_client.requests[0], ensure_ascii=False))
+        events = self.journal.events(failed["run_id"])
+        self.assertEqual(sum(event["kind"] == "run_reopened" for event in events), 1)
+
+    def test_nonretryable_provider_failure_cannot_be_reopened(self):
+        def unauthorized(_messages):
+            raise MiaError("PROVIDER_AUTH_ERROR", "MIA isteği HTTP 401 ile tamamlanamadı.", status_code=401, attempts=1)
+
+        runtime, _ = self.runtime([unauthorized])
+        failed = runtime.run("Kısa bir açıklama ver", request_id="auth-provider")
+        self.assertEqual(failed["status"], "failed")
+        with self.assertRaisesRegex(ValueError, "retryable provider failure"):
+            runtime.resume(failed["run_id"], retry_terminal=True)
+
+    def test_final_provider_failure_can_resume_without_repeating_committed_analysis(self):
+        def unavailable(_messages):
+            raise MiaError("PROVIDER_UNAVAILABLE", "MIA bağlantısı tamamlanamadı.", retryable=True, attempts=3)
+
+        runtime, _ = self.runtime([call("execute", self.plan), unavailable])
+        partial = runtime.run("Kredi tablosunu göster", request_id="analysis-provider")
+        self.assertEqual(partial["status"], "partial")
+        self.assertTrue(partial["analysis_updated"])
+        committed = self.store.workspace(self.workspace_id)
+        self.assertEqual(committed["version"], 1)
+        self.assertIn("100", partial["message"])
+        self.assertIn("150", partial["message"])
+
+        runtime, client = self.runtime([FINAL])
+        resumed = runtime.resume(partial["run_id"], retry_terminal=True)
+        self.assertEqual(resumed["status"], "completed")
+        self.assertEqual(resumed["analysis_id"], committed["analysis_head"])
+        self.assertEqual(self.store.workspace(self.workspace_id)["version"], 1)
+        self.assertEqual(sum(item["tool"] == "execute" for item in resumed["tool_results"]), 1)
+        self.assertEqual(len(client.requests), 1)
+
+    def test_provider_failure_after_direct_table_read_returns_exact_partial_receipt(self):
+        source_id = "source_" + "a" * 64
+        source_url = "https://example.org/official-table"
+        tools = {"inspect_source": {
+            "schema": {"type": "function", "function": {"name": "inspect_source", "parameters": obj({"source_id": {"type": "string"}})}},
+            "handler": lambda _args: {"status": "ok", "source_id": source_id, "source_url": source_url,
+                "raw_sha256": "b" * 64, "title": "Resmi karar tablosu", "snippet": "uydurma 999",
+                "tables": [{"table_id": "table_001", "page": 4, "columns": ["karar_tarihi", "onceki_oran", "yeni_oran"],
+                            "preview": [{"karar_tarihi": "6 Mart 2025", "onceki_oran": "45", "yeni_oran": "42,5"}]}]},
+        }}
+        def unavailable(_messages):
+            raise MiaError("PROVIDER_UNAVAILABLE", "MIA bağlantısı tamamlanamadı.", retryable=True, attempts=3)
+
+        runtime, _ = self.runtime([call("inspect_source", {"source_id": source_id}), unavailable], extra_tools=tools)
+        result = runtime.run("Resmi karar tablosunu göster", request_id="source-provider")
+        self.assertEqual(result["status"], "partial")
+        self.assertIn("6 Mart 2025", result["message"])
+        self.assertIn("42,5", result["message"])
+        self.assertIn(source_url + "#page=4", result["message"])
+        self.assertNotIn("999", result["message"])
+        self.assertIn("yeni hesap", result["message"].casefold())
 
     def test_active_invocation_deadline_stops_further_model_calls(self):
         runtime, client = self.runtime([call("describe", {"metric_id": "credit"})], max_elapsed_seconds=240)
@@ -794,6 +872,57 @@ class AgentRuntimeTests(unittest.TestCase):
         runtime, _ = self.runtime([FINAL], extra_tools=extra)
         continuation = runtime.run("Bu kaynağa dön", conversation_id=result["conversation_id"])
         self.assertEqual(continuation["artifacts"], result["artifacts"])
+
+    def test_conditional_row_request_blocks_unrequested_correlation_then_recovers_with_selection(self):
+        initial_runtime, _ = self.runtime([call("execute", {
+            **self.plan,
+            "columns": [
+                {"name": "credit", "metric_id": "credit", "dimensions": {}},
+                {"name": "cpi", "metric_id": "cpi", "dimensions": {}},
+            ],
+        }), FINAL])
+        initial = initial_runtime.run("Kredi ve endeks tablosunu getir")
+        invoked = []
+        statistics = StatisticsTools(self.store, self.workspace_id).extra_tools()
+        original = statistics["analyze_relationship"]["handler"]
+        statistics["analyze_relationship"]["handler"] = lambda args: invoked.append(args) or original(args)
+        tools = {**statistics, **AnalysisSelectionTools(self.store, self.workspace_id).extra_tools()}
+        runtime, _ = self.runtime([
+            call("analyze_relationship", {
+                "analysis_id": initial["analysis_id"], "x": "credit", "y": "cpi",
+            }, "wrong-method"),
+            call("select_analysis_rows", {
+                "analysis_id": initial["analysis_id"],
+                "filters": [{"column": "credit", "op": "gt", "value": 110}],
+                "columns": ["period", "credit"],
+            }, "right-method"),
+            FINAL,
+        ], extra_tools=tools)
+        result = runtime.run("Kredi 110'un üstündeyken hangi aylar var?", conversation_id=initial["conversation_id"])
+        self.assertEqual("completed", result["status"], result)
+        self.assertEqual([], invoked)
+        blocked = next(item["result"] for item in result["tool_results"] if item["call_id"] == "wrong-method")
+        self.assertEqual("UNREQUESTED_STATISTICAL_METHOD", blocked["errors"][0]["code"])
+        self.assertIn("Şubat 2021", result["message"])
+        self.assertIn("Mart 2021", result["message"])
+        self.assertNotIn("Korelasyon", result["message"])
+
+    def test_explicit_relationship_request_is_not_stopped_by_the_drift_guard(self):
+        initial_runtime, _ = self.runtime([call("execute", {
+            **self.plan,
+            "columns": [
+                {"name": "credit", "metric_id": "credit", "dimensions": {}},
+                {"name": "cpi", "metric_id": "cpi", "dimensions": {}},
+            ],
+        }), FINAL])
+        initial = initial_runtime.run("Kredi ve endeks tablosunu getir")
+        tools = StatisticsTools(self.store, self.workspace_id).extra_tools()
+        runtime, _ = self.runtime([call("analyze_relationship", {
+            "analysis_id": initial["analysis_id"], "x": "credit", "y": "cpi", "min_samples": 6,
+        })], extra_tools=tools, max_repairs=0)
+        result = runtime.run("Bu iki seri için Pearson korelasyonunu hesapla", conversation_id=initial["conversation_id"])
+        self.assertEqual("INSUFFICIENT_SAMPLE", result["errors"][0]["code"])
+        self.assertNotEqual("UNREQUESTED_STATISTICAL_METHOD", result["errors"][0]["code"])
 
     def test_conversation_cannot_cross_workspaces(self):
         runtime, _ = self.runtime([FINAL])

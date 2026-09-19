@@ -25,7 +25,7 @@ MAX_CONTEXT_CHARS = 19500
 MAX_CANDIDATES = 12
 _CALENDARS = {"monthly": "M", "quarterly": "Q", "annual": "Y", "yearly": "Y",
               "daily": "D", "business_daily": "B", "weekly": "W-FRI",
-              "weekly_friday": "W-FRI", "weekly_wednesday": "W-WED"}
+              "weekly_observed": "D", "weekly_friday": "W-FRI", "weekly_wednesday": "W-WED"}
 _GROWTH_KINDS = {"stock", "flow", "count", "count_stock", "count_flow", "price"}
 
 
@@ -134,6 +134,10 @@ def _regular(periods, frequency):
     if not all(re.fullmatch(pattern, value) for value in periods):
         return False
     try:
+        if frequency == "weekly_observed":
+            dates = pd.DatetimeIndex(periods)
+            gaps = dates.to_series().diff().dropna().dt.days
+            return bool(len(dates) == len(set(periods)) and (gaps.between(4, 10)).all())
         index = pd.PeriodIndex(periods, freq=_CALENDARS[frequency])
         if frequency.startswith("weekly") and list(index.end_time.strftime("%Y-%m-%d")) != periods:
             return False
@@ -288,7 +292,7 @@ def build_followup_context(store, workspace_id, run, history):
                 "group_count": int(frame[group_by].nunique()) if group_by and group_by in frame else 0,
                 "regular_calendar": _regular(periods, frequency), "series": [], "sources": refs,
                 "warning_codes": warning_codes, "completed_operations": [{key: item[key] for key in
-                    ("op", "column", "output", "denominator", "periods", "factor", "start", "end") if key in item} for item in operations[:20]],
+                    ("op", "column", "output", "denominator", "periods", "prior_scope", "factor", "start", "end") if key in item} for item in operations[:20]],
                 "verified_summary_facts": facts[:10], "completed_statistics": statistics,
                 "observed_changes": []}
     context["analysis"] = analysis

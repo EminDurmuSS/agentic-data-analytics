@@ -107,7 +107,8 @@ class AgentRunStore:
             previous = db.execute("SELECT result FROM runs WHERE conversation_id=? AND result IS NOT NULL ORDER BY created_at DESC LIMIT 1", (conversation_id,)).fetchone()
             prior = json.loads(previous["result"]) if previous else {}
             state = {"messages": messages, "selected_source_ids": selected, "decisions": 0, "repairs": 0, "pending": [],
-                     "analysis_id": None, "artifacts": prior.get("artifacts", []), "tool_results": [], "usage": [], "seen": {}}
+                     "analysis_id": None, "analysis_bundle_id": prior.get("analysis_bundle_id"),
+                     "artifacts": prior.get("artifacts", []), "tool_results": [], "usage": [], "seen": {}}
             run_id, now = "run_" + uuid.uuid4().hex, _now()
             db.execute("INSERT INTO runs VALUES (?,?,?,?,?,?,?,?,?,?)", (run_id, workspace_id, conversation_id, request_id, message, "running", canonical(state), None, now, now))
             row = db.execute("SELECT * FROM runs WHERE run_id=?", (run_id,)).fetchone()
@@ -198,3 +199,72 @@ class AgentRunStore:
                 raise ValueError("Unknown run_id")
             db.execute("UPDATE runs SET status=?,state=?,result=?,updated_at=? WHERE run_id=?", (result["status"], canonical(state), canonical(result), _now(), run_id))
             db.execute("UPDATE conversations SET messages=? WHERE conversation_id=?", (canonical(state["messages"]), row["conversation_id"]))
+
+    @staticmethod
+    def retryable_provider_result(result):
+        """Only explicit transient model-provider failures may reopen a run."""
+        if not isinstance(result, dict) or result.get("status") not in {"failed", "partial"}:
+            return False
+        errors = result.get("errors") or []
+        return any(isinstance(error, dict)
+                   and error.get("retryable") is True
+                   and isinstance(error.get("code"), str)
+                   and error["code"].startswith("PROVIDER_")
+                   for error in errors)
+
+    def reopen_retryable(self, run_id):
+        """Reopen one terminal transient-provider run without losing its ledger.
+
+        This is deliberately separate from request-id replay. Normal replay is
+        idempotent and continues to return the terminal result. An explicit
+        resume removes only the synthetic terminal assistant message written by
+        ``finish``; tool messages, persisted steps, analysis IDs and decision
+        debits remain untouched.
+        """
+        run_id = identifier(run_id)
+        with self._db() as db:
+            row = db.execute("SELECT rowid AS db_rowid,* FROM runs WHERE run_id=?", (run_id,)).fetchone()
+            if row is None:
+                raise ValueError("Unknown run_id")
+            result = json.loads(row["result"]) if row["result"] else None
+            if not self.retryable_provider_result(result):
+                raise ValueError("Run does not have a retryable provider failure")
+            later = db.execute(
+                "SELECT run_id FROM runs WHERE conversation_id=? AND rowid>? LIMIT 1",
+                (row["conversation_id"], row["db_rowid"]),
+            ).fetchone()
+            if later is not None:
+                raise ValueError("A newer conversation turn exists; the earlier run cannot be reopened")
+            active = db.execute(
+                "SELECT run_id FROM runs WHERE workspace_id=? AND status='running' AND run_id<>? LIMIT 1",
+                (row["workspace_id"], run_id),
+            ).fetchone()
+            if active is not None:
+                raise ValueError("Workspace already has an active run")
+            state = json.loads(row["state"])
+            message = result.get("message")
+            messages = state.get("messages")
+            if (not isinstance(messages, list) or not messages
+                    or messages[-1].get("role") != "assistant"
+                    or messages[-1].get("content") != message):
+                raise ValueError("Terminal provider result does not match the durable conversation state")
+            messages.pop()
+            retry_errors = [{key: error.get(key) for key in ("code", "attempts", "retryable") if key in error}
+                            for error in result.get("errors", []) if isinstance(error, dict) and error.get("retryable") is True]
+            state.setdefault("provider_resume_history", []).append({
+                "reopened_at": _now(),
+                "errors": retry_errors,
+                "prior_status": result.get("status"),
+            })
+            if len(state["provider_resume_history"]) > 8:
+                state["provider_resume_history"] = state["provider_resume_history"][-8:]
+            now = _now()
+            db.execute("UPDATE runs SET status='running',state=?,result=NULL,updated_at=? WHERE run_id=?",
+                       (canonical(state), now, run_id))
+            db.execute("UPDATE conversations SET messages=? WHERE conversation_id=?",
+                       (canonical(messages), row["conversation_id"]))
+            refreshed = db.execute("SELECT * FROM runs WHERE run_id=?", (run_id,)).fetchone()
+        self.event(run_id, "run_reopened", {"reason": "retryable_provider_failure",
+                                              "prior_status": result.get("status"),
+                                              "errors": retry_errors})
+        return self._run(refreshed)

@@ -4,12 +4,12 @@
   "duplicate_quarters": 0,
   "metric_bindings": {
     "contract_version": "1.0.0",
-    "count": 55501,
+    "count": 55506,
     "status_counts": {
       "metadata_only": 52099,
       "no_numeric": 14,
-      "ready": 2824,
-      "review_required": 564
+      "ready": 2895,
+      "review_required": 498
     }
   },
   "monthly_analysis_rows": 66,
@@ -24,6 +24,7 @@
     "The quarterly analysis table keeps BDDK, FinTurk, EVDS and TBB scope differences visible.",
     "The regional panel keeps official province observations distinct from regional KFE, YKKE and explicitly labelled same-region price proxies.",
     "TÜİK direct observations, identity-derived zero fallbacks and EVDS reconciliation remain separately queryable.",
+    "TÜİK first-published bulletin values and the current post-2026-revision bulk series have separate metric identities and cell provenance.",
     "FinTurk raw branch-count nulls and exact functional-group identity-derived analytical zeros remain separately queryable.",
     "Weekly BDDK data is loaded only after its processed validation exists."
   ],
@@ -84,6 +85,26 @@
       },
       {
         "check": "required_keys:evds.legacy_observations",
+        "passed": true,
+        "violations": 0
+      },
+      {
+        "check": "nonempty:tuik.province_housing_sales_monthly",
+        "passed": true,
+        "violations": 0
+      },
+      {
+        "check": "required_keys:tuik.province_housing_sales_monthly",
+        "passed": true,
+        "violations": 0
+      },
+      {
+        "check": "nonempty:tuik.province_housing_sales_first_published",
+        "passed": true,
+        "violations": 0
+      },
+      {
+        "check": "required_keys:tuik.province_housing_sales_first_published",
         "passed": true,
         "violations": 0
       },
@@ -178,6 +199,16 @@
         "violations": 0
       },
       {
+        "check": "tuik_current_vintage_is_explicit",
+        "passed": true,
+        "violations": 0
+      },
+      {
+        "check": "tuik_first_published_vintage_is_explicit",
+        "passed": true,
+        "violations": 0
+      },
+      {
         "check": "unique:analysis.housing_credit_monthly",
         "passed": true,
         "violations": 0
@@ -252,8 +283,8 @@
   "risk_center_monthly_distinct_months": 66,
   "risk_center_monthly_rows": 66,
   "schema_count": 10,
-  "source_table_manifest_rows": 67,
+  "source_table_manifest_rows": 69,
   "status": "passed",
-  "table_count": 70,
+  "table_count": 72,
   "weekly_measurements_loaded": true
 }

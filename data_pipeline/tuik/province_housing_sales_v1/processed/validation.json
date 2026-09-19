@@ -4,6 +4,12 @@
   "source_url": "https://veriportali.tuik.gov.tr/api/tr/dataflows/DF_SATIS_SEKLI_DURUMU_ILILCE_V3%2BV1.0/file/csv",
   "raw_source_rows": 269276,
   "raw_source_sha256": "433983c1c15af20b7b440b0d57fa2b38939ddc39b30c631d5dd744320de738ec",
+  "source_vintage_at": "2026-09-08T10:36:48.515893+00:00",
+  "revision_status": "current_official_series_after_2026_methodology_revision",
+  "vintage_policy": "latest_official_bulk_snapshot",
+  "methodology_revision_date": "2026-02-19",
+  "methodology_revision_press_id": 58340,
+  "methodology_revision_url": "https://veriportali.tuik.gov.tr/tr/press/58340",
   "coverage_start": "2020-01",
   "coverage_end": "2026-06",
   "province_count": 81,
@@ -24,6 +30,7 @@
     "Processing is cut at 2026-06 even when the source export contains later observations.",
     "A missing mortgaged-sales row becomes zero only when official total sales equals official other sales for the same province-month.",
     "The absent direct row remains null in direct_value and the usable zero is explicitly labelled as identity-derived.",
-    "All common direct TÜİK and EVDS province-month observations must match exactly."
+    "All common direct TÜİK and EVDS province-month observations must match exactly.",
+    "The 2026 methodology revision is identified explicitly; this current bulk snapshot is not labelled as the historical first publication."
   ]
 }

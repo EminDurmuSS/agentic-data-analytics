@@ -206,9 +206,11 @@ def _flight_objects(raw):
 
 def kap_search_applicable(query):
     normalized = search_text(query)
+    domains = search_domains(query)
+    kap_only = not domains or all(domain == "kap.org.tr" or domain.endswith(".kap.org.tr") for domain in domains)
     return (len(set(re.findall(r"\b(?:19|20)\d{2}\b", normalized))) == 1
             and bool(re.search(r"financ|finans|konsolid|consolid|bilan[cç]|financial.report", normalized))
-            and not search_domains(query))
+            and kap_only)
 
 
 def kap_financial_search(query, fetch):

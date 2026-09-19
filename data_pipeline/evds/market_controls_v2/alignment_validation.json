@@ -4,20 +4,20 @@
   "source_series_count": 3,
   "derived_series_count": 1,
   "series_count": 4,
-  "monthly_period_count": 78,
-  "quarterly_period_count": 26,
-  "monthly_audit_rows": 312,
-  "quarterly_audit_rows": 104,
+  "monthly_period_count": 198,
+  "quarterly_period_count": 66,
+  "monthly_audit_rows": 432,
+  "quarterly_audit_rows": 144,
   "quarterly_series_month_rows": 0,
   "quarterly_series_filled_into_intermediate_months": 0,
   "policy_file": "market_controls_alignment_v2.json",
   "value_status_counts": {
     "monthly": {
-      "available_calendar_unverified": 290,
+      "available_calendar_unverified": 410,
       "source_missing": 22
     },
     "quarterly": {
-      "available_calendar_unverified": 102,
+      "available_calendar_unverified": 142,
       "source_missing": 2
     }
   },

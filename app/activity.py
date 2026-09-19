@@ -25,6 +25,8 @@ TOOL_DESCRIPTIONS = {
     "rolling_anomalies": "Olağandışı dönemler aranıyor",
     "detect_changes": "Değişim noktaları inceleniyor",
     "analyze_relationship": "Değişkenler arasındaki ilişki hesaplanıyor",
+    "select_analysis_rows": "Koşullara uyan analiz satırları seçiliyor",
+    "save_analysis_bundle": "Farklı frekanstaki analizler birlikte kaydediliyor",
     "create_chart": "Grafik hazırlanıyor",
     "plan_task": "İstenen sonuçlar ve hesap adımları planlanıyor",
     "summarize_analysis": "Dönem toplamları ve karşılaştırmalar doğrulanıyor",
@@ -32,6 +34,7 @@ TOOL_DESCRIPTIONS = {
     "prepare_source_table": "Kaynak tablosunun yapısı düzenleniyor",
     "combine_source_tables": "Devam eden kaynak tabloları birleştiriliyor",
     "read_source_table": "Kaynağın özgün tablo satırları okunuyor",
+    "find_source_table_rows": "Kaynak tablosunda ilgili satırlar aranıyor",
     "find_source_pages": "Belgede ilgili sayfalar aranıyor",
 }
 
@@ -72,6 +75,12 @@ def _activity(event):
             title, detail = "Qwen yanıtı kesildi", "Çıktı uzunluk sınırına takıldı; fonksiyon çalıştırılmadı."
         else:
             title, detail = "Qwen nihai yanıtı üretti", "Yeni bir fonksiyon çağrısı istemedi."
+    elif kind == "provider_error":
+        title = "Model sağlayıcısına ulaşılamadı"
+        detail = "Geçici bağlantı hatası kaydedildi; tamamlanan adımlar korunuyor."
+    elif kind == "run_reopened":
+        title = "Kayıtlı çalışma yeniden açıldı"
+        detail = "Geçici sağlayıcı hatasından sonraki adımlara aynı çalışma kaydıyla devam ediliyor."
     elif kind == "tool_started":
         title, detail = f"{tool} çalıştırılıyor", _tool_description(tool)
     elif kind == "plan_validation":
@@ -125,6 +134,7 @@ _JOURNEY_TOOLS = {
     "inspect_source": ("sources", "document", "Belge incelemesi", "Belgenin seçili bölümleri inceleniyor"),
     "find_source_pages": ("sources", "document", "Belge incelemesi", "Belgede ilgili sayfalar aranıyor"),
     "read_source_table": ("sources", "document", "Belge incelemesi", "Seçili tablo satırları okunuyor"),
+    "find_source_table_rows": ("sources", "document", "Belge incelemesi", "Kaynak tablosunda ilgili satırlar aranıyor"),
     "prepare_source_table": ("data", "preparation", "Tablo düzeni", "Kaynak tablosu düzenleniyor"),
     "combine_source_tables": ("data", "preparation", "Tablo düzeni", "Devam eden tablolar birleştiriliyor"),
     "ingest_source_table": ("data", "publication", "Verinin eklenmesi", "Seçili kaynak verisi hazırlanıyor"),
@@ -139,6 +149,8 @@ _JOURNEY_TOOLS = {
     "rolling_anomalies": ("checks", "statistics", "İstatistiksel inceleme", "Olağandışı dönemler inceleniyor"),
     "detect_changes": ("checks", "statistics", "İstatistiksel inceleme", "Değişim noktaları inceleniyor"),
     "analyze_relationship": ("checks", "statistics", "İstatistiksel inceleme", "Değişkenler arasındaki ilişki hesaplanıyor"),
+    "select_analysis_rows": ("calculation", "selection", "Koşullu satır seçimi", "Koşullara uyan analiz satırları seçiliyor"),
+    "save_analysis_bundle": ("calculation", "bundle", "Analiz paketi", "Farklı frekanstaki analizler ayrı tablolar olarak birlikte kaydediliyor"),
     "create_chart": ("presentation", "chart", "Grafik", "Grafik hazırlanıyor"),
     "ask_user": ("presentation", "question", "Sizin tercihiniz", "Devam etmek için bilginiz bekleniyor"),
 }
@@ -213,6 +225,8 @@ def _attempt_outcome(attempt):
             return "attention"
     if tool in {"execute", "revise_analysis", "query_grouped", "aggregate_dataset"} and not result.get("analysis_id"):
         return "attention"
+    if tool == "select_analysis_rows" and not result.get("selection_id"):
+        return "attention"
     if tool == "create_chart" and (not (result.get("chart_id") or result.get("artifact_id")) or result.get("complete") is False):
         return "attention"
     if tool == "explain_value" and result.get("source_references_complete") is False:
@@ -232,7 +246,7 @@ def _document_evidence(attempts):
             for page in result.get("processed_pages", []):
                 if _integer(page):
                     pages.add((source, page))
-        if attempt["tool"] == "read_source_table":
+        if attempt["tool"] in {"read_source_table", "find_source_table_rows"}:
             for index, row in enumerate(result.get("rows", [])):
                 address = row.get("candidate_row") if isinstance(row, dict) else None
                 rows.add((source, result.get("table_id") or args.get("table_id"),
@@ -272,7 +286,7 @@ def _attempt_action(attempt, run_status):
         codes = {error.get("code") for error in result.get("errors", []) if isinstance(error, dict)} | {result.get("code")}
         if tool == "find_source_pages" and codes & {"NO_PROGRESS", "SOURCE_READ_REQUIRED"}:
             label = "Sayfa araması tekrarlandı; devam etmek için bulunan sayfaların içeriği incelenmeli."
-        elif tool in {"inspect_source", "read_source_table"} and "SOURCE_READ_REPEATED" in codes:
+        elif tool in {"inspect_source", "read_source_table", "find_source_table_rows"} and "SOURCE_READ_REPEATED" in codes:
             label = "Aynı kaynak okuması tekrarlandı; önceki okuma korunarak sonraki adım değerlendiriliyor."
         elif tool == "ask_user":
             label = "Devam etmek için yanıtınız bekleniyor."
@@ -309,12 +323,14 @@ def _attempt_action(attempt, run_status):
             label = (f"{searched}. sayfalarda arandı; eşleşme bulunamadı." if searched else "Belgede arama yapıldı; eşleşme bulunamadı.")
         if result.get("complete") is False:
             label += " Tarama kısmi."
-    elif tool == "read_source_table":
+    elif tool in {"read_source_table", "find_source_table_rows"}:
         rows = result.get("rows", [])
         addresses, count = _addresses([row.get("candidate_row") for row in rows if isinstance(row, dict)])
         page = result.get("page")
         location = f"{page}. sayfadaki tablonun " if _integer(page) and page > 0 else "Tablonun "
-        label = (location + addresses + (". satırı okundu." if count == 1 else ". satırları okundu.") if addresses else
+        verb = "bulundu" if tool == "find_source_table_rows" else "okundu"
+        label = (location + addresses + (f". satırı {verb}." if count == 1 else f". satırları {verb}.") if addresses else
+                 f"Tabloda {len(rows)} eşleşen satır bulundu." if tool == "find_source_table_rows" and isinstance(rows, list) else
                  f"Tablodan {len(rows)} satır okundu." if isinstance(rows, list) else "Seçili tablo satırları okundu.")
     elif tool in {"discover", "dimension_values"}:
         count = result.get("total")
@@ -338,6 +354,9 @@ def _attempt_action(attempt, run_status):
     elif tool in {"execute", "revise_analysis", "query_grouped", "aggregate_dataset"}:
         count = result.get("row_count")
         label = f"{count} satırlık analiz tablosu kaydedildi." if _integer(count) else "Analiz tablosu kaydedildi."
+    elif tool == "select_analysis_rows":
+        count = result.get("total_match_count")
+        label = f"Koşulları karşılayan {count} analiz satırı seçildi." if _integer(count) else "Koşullara uyan analiz satırları seçildi."
     else:
         label = {"attach_reference_catalogue": "Ortak veri kataloğu çalışma alanında kullanıma hazır.",
                  "summarize_analysis": "Kayıtlı analiz için sonuç özeti hazırlandı.",
@@ -346,6 +365,7 @@ def _attempt_action(attempt, run_status):
                  "rolling_anomalies": "Olağandışı dönem taraması tamamlandı.",
                  "detect_changes": "Verideki değişim noktaları incelendi.",
                  "analyze_relationship": "Seçili değişkenlerin birlikte değişimi incelendi.",
+                 "select_analysis_rows": "Koşullara uyan kayıtlı analiz satırları seçildi.",
                  "create_chart": "Analiz grafiği kaydedildi."}.get(tool, "Kayıtlı işlem tamamlandı.")
     if attempt.get("recovery_kind") == "tool_reused":
         label = "Önceki sonuç yeniden kullanıldı: " + label

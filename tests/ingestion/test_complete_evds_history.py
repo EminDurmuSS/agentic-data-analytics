@@ -70,7 +70,8 @@ class CompleteEvdsHistoryTests(unittest.TestCase):
     def publish_local(self, *, database):
         return real_publish(database, self.package, self.catalog)
 
-    def build_catalog(self, output):
+    def build_catalog(self, output, *, include_full_catalog=False):
+        self.assertTrue(include_full_catalog)
         _, manifest = resolve_publication(self.package)
         output.mkdir(parents=True, exist_ok=True)
         return {"status": "passed", "queryable_metric_count": 2,
@@ -165,7 +166,7 @@ class CompleteEvdsHistoryTests(unittest.TestCase):
     def test_concurrently_advanced_catalog_release_is_rejected(self):
         self.create_queue()
         self.collect()
-        self.catalog_builder.side_effect = lambda _: {"evds_full_catalog": {"publication_id": "another-release"}, "queryable_metric_count": 2}
+        self.catalog_builder.side_effect = lambda _, **kwargs: {"evds_full_catalog": {"publication_id": "another-release"}, "queryable_metric_count": 2}
         with self.assertRaisesRegex(ValueError, "different concurrently published"):
             self.refresh()
         self.assert_previous_database()

@@ -44,23 +44,87 @@ _DNS_SLOTS = threading.BoundedSemaphore(4)
 # Curated provider hints stay separate from generic search. They improve query
 # formulation without allowing a non-official result to enter an official run.
 OFFICIAL_SOURCE_REGISTRY = {
+    "evds3.tcmb.gov.tr": {
+        "institution": "TCMB EVDS",
+        "search_variants": ("{query}", "{query} seri", "{query} veri"),
+        "entrypoints": ("https://evds3.tcmb.gov.tr/anasayfa",),
+    },
+    "evds2.tcmb.gov.tr": {
+        "institution": "TCMB EVDS",
+        "search_variants": ("{query}", "{query} kullanım kılavuzu", "{query} web servis"),
+        "entrypoints": ("https://evds2.tcmb.gov.tr/",),
+    },
+    "veriportali.tuik.gov.tr": {
+        "institution": "TÜİK Veri Portalı",
+        "search_variants": ("{query}", "{query} haber bülteni", "{query} veri tablosu"),
+        "entrypoints": ("https://veriportali.tuik.gov.tr/",),
+    },
+    "garantibbvainvestorrelations.com": {
+        "institution": "Garanti BBVA Yatırımcı İlişkileri",
+        "search_variants": ("{query}", "{query} financial report", "{query} financial results"),
+        "entrypoints": (
+            "https://www.garantibbvainvestorrelations.com/en/library/brsa-consolidated-financials-pdf/PDF/1268/0/0",
+            "https://www.garantibbvainvestorrelations.com/",
+        ),
+    },
+    "kap.org.tr": {
+        "institution": "Kamuyu Aydınlatma Platformu",
+        "search_variants": ("{query}", "{query} finansal rapor", "{query} finansal tablolar"),
+        "entrypoints": ("https://www.kap.org.tr/tr/bist-sirketler",),
+    },
+    "borsaistanbul.com": {
+        "institution": "Borsa İstanbul",
+        "search_variants": ("{query}", "{query} endeks", "{query} metodoloji", "{query} duyuru"),
+        "entrypoints": (
+            "https://www.borsaistanbul.com/endeks/xu100",
+            "https://www.borsaistanbul.com/en/indices",
+            "https://www.borsaistanbul.com/files/bist-pay-endeksleri-temel-kurallari.pdf",
+            "https://www.borsaistanbul.com/datum/duyuru_ekleri/GenelMektup_4030_Endeks_Adlari.pdf",
+            "https://www.borsaistanbul.com/en/index/index-data",
+        ),
+    },
     "kkb.com.tr": {
         "institution": "Kredi Kayıt Bürosu",
         "search_variants": ("{query}",),
+        "entrypoints": ("https://www.kkb.com.tr/",),
     },
     "tcmb.gov.tr": {
         "institution": "TCMB",
         "search_variants": ("{query}", "{query} bülten", "{query} raporu", "{query} gelişmeleri", "{query} yayın"),
+        "entrypoints": ("https://www.tcmb.gov.tr/",),
     },
     "bddk.org.tr": {
         "institution": "BDDK",
         "search_variants": ("{query}", "{query} bülten", "{query} raporu", "{query} gelişmeleri", "{query} duyuru"),
+        "entrypoints": ("https://www.bddk.org.tr/",),
     },
     "tuik.gov.tr": {
         "institution": "TÜİK",
         "search_variants": ("{query}", "{query} bülten", "{query} raporu", "{query} gelişmeleri", "{query} haber bülteni"),
+        "entrypoints": ("https://www.tuik.gov.tr/",),
     },
 }
+
+
+_OFFICIAL_QUERY_DOMAINS = (
+    (r"\bevds\b", ("evds3.tcmb.gov.tr",)),
+    (r"\bveri\s*portali\b", ("veriportali.tuik.gov.tr",)),
+    (r"\bgaranti\s+bbva\b|\bgaranti\s+bankasi\b", ("garantibbvainvestorrelations.com",)),
+    (r"\bkamuyu\s+aydinlatma\s+platformu\b|\bkap\b", ("kap.org.tr",)),
+    (r"\bborsa\s+istanbul\b|\bbist\b|\bimkb\b|\bise\s+100\b", ("borsaistanbul.com",)),
+    (r"\bkredi\s+kayit\s+burosu\b|\bkkb\b", ("kkb.com.tr",)),
+    (r"\btcmb\b", ("tcmb.gov.tr",)),
+    (r"\bbddk\b", ("bddk.org.tr",)),
+    (r"\btuik\b", ("tuik.gov.tr",)),
+)
+
+
+def _official_registry(domain):
+    """Resolve exact and official subdomains without accepting lookalikes."""
+    normalized = str(domain).strip().casefold().removeprefix("www.")
+    matches = [(key.count("."), value) for key, value in OFFICIAL_SOURCE_REGISTRY.items()
+               if normalized == key or normalized.endswith("." + key)]
+    return max(matches, default=(None, None))[1]
 
 
 class DocumentError(ValueError):
@@ -78,6 +142,79 @@ def _canonical(value):
 def _search_text(value):
     return "".join(character for character in unicodedata.normalize("NFKD", str(value).casefold().replace("ı", "i"))
                    if not unicodedata.combining(character))
+
+
+_MONTH_NUMBERS = {
+    **{name: index for index, name in enumerate(
+        ("january", "february", "march", "april", "may", "june", "july", "august", "september", "october", "november", "december"), 1)},
+    **{name: index for index, name in enumerate(
+        ("ocak", "subat", "mart", "nisan", "mayis", "haziran", "temmuz", "agustos", "eylul", "ekim", "kasim", "aralik"), 1)},
+}
+
+
+def _source_dates(value):
+    """Extract exact calendar dates from prose and common official URL names."""
+    normalized = parse.unquote(_search_text(value))
+    observed = set()
+    month_pattern = "|".join(sorted(_MONTH_NUMBERS, key=len, reverse=True))
+    for day, month, year in re.findall(
+            r"(?<!\d)(0?[1-9]|[12]\d|3[01])[\s_/-]+(" + month_pattern
+            + r")[\s_/-]+((?:19|20)\d{2})(?!\d)", normalized):
+        observed.add((int(year), _MONTH_NUMBERS[month], int(day)))
+    for year, month, day in re.findall(r"(?<!\d)((?:19|20)\d{2})[-_/](\d{2})[-_/](\d{2})(?!\d)", normalized):
+        try:
+            observed.add((int(year), int(month), int(day)))
+        except ValueError:
+            continue
+    return observed
+
+
+def _document_type(value):
+    """Classify only document forms that have materially different evidence roles."""
+    text = " ".join(_search_text(value).replace("_", " ").replace("-", " ").split())
+    if re.search(r"toplanti\s+ozeti|meeting\s+(?:summary|minutes)|minutes\s+of\s+the\s+monetary", text):
+        return "meeting_summary"
+    if re.search(r"genelmektup\s*4030|endeks\s+adlari|index\s+names?|name\s+change", text):
+        return "index_name_change"
+    if re.search(r"metodoloji|methodolog|temel\s+kurallari|index\s+(?:rules|method)", text):
+        return "index_methodology"
+    if re.search(r"earnings\s+presentation|financial\s+results|results\s+presentation|"
+                 r"finansal\s+sonuc|sonuc\s+sunum|yatirimci\s+sunum", text):
+        return "financial_results"
+    if re.search(r"consolidated\s+financial\s+report|unconsolidated\s+financial\s+report|"
+                 r"financial\s+statements?|finansal\s+rapor|finansal\s+tablolar|mali\s+tablolar", text):
+        return "financial_report"
+    if re.search(r"faiz\s+oranlarina\s+iliskin\s+basin\s+duyurusu|monetary\s+policy\s+decision|"
+                 r"para\s+politikasi\s+kurulu\s+karari|interest\s+rate\s+decision", text):
+        return "policy_decision"
+    return None
+
+
+def _requested_document_type(query):
+    text = " ".join(_search_text(query).split())
+    if re.search(r"toplanti\s+ozeti|meeting\s+(?:summary|minutes)", text):
+        return "meeting_summary"
+    if re.search(r"ad\s+degisik|isim\s+degisik|index\s+name|genel\s+mektup", text):
+        return "index_name_change"
+    if re.search(r"metodoloji|methodolog|temel\s+kurallar", text):
+        return "index_methodology"
+    if re.search(r"sunum|presentation|earnings|finansal\s+sonuc|financial\s+results", text):
+        return "financial_results"
+    if re.search(r"finansal\s+rapor|financial\s+report|financial\s+statement|finansal\s+tablo|mali\s+tablo", text):
+        return "financial_report"
+    if re.search(r"(?:para\s+politikasi|policy|faiz|interest).{0,80}(?:karar|decision)|"
+                 r"(?:karar|decision).{0,80}(?:para\s+politikasi|policy|faiz|interest)", text):
+        return "policy_decision"
+    return None
+
+
+def _consolidation_scope(value):
+    text = " ".join(_search_text(value).replace("_", " ").replace("-", " ").split())
+    if re.search(r"konsolide\s+olmayan|unconsolidated|standalone|bank\s+only|solo", text):
+        return "solo"
+    if re.search(r"\bkonsolide\b|\bconsolidated\b", text):
+        return "consolidated"
+    return None
 
 
 def _safe_truncate(text, max_len):
@@ -239,6 +376,10 @@ def fetch_public_url(url, *, max_bytes=16 * 1024**2, timeout=20, max_redirects=3
             raise DocumentError("Source download failed or timed out.", "FETCH_FAILED") from exc
         with response:
             declared = response.headers.get("Content-Length")
+            # HTTP field values may contain optional surrounding whitespace.
+            # Treating a valid value such as ``"3692        "`` as malformed
+            # incorrectly blocks official sites that pad response headers.
+            declared = declared.strip() if declared else ""
             if declared and (not declared.isdecimal() or int(declared) > max_bytes):
                 raise DocumentError("Source exceeds the download size limit.", "SOURCE_TOO_LARGE")
             from agentic_analytics.agent.tools.search_backend import read_bounded_response
@@ -854,6 +995,15 @@ class DocumentTools:
                      "preview": [dict(zip(table["columns"], row)) for row in table["rows"][:8]] if all(len(row) == len(table["columns"]) for row in table["rows"]) else [],
                      "raw_preview": table["rows"][:8] if any(len(row) != len(table["columns"]) for row in table["rows"]) else None,
                      "preview_truncated": table["row_count"] > 8} for table in selected_tables[:30]]
+        source_url = manifest.get("source_url") or ""
+        source_identity = " ".join(filter(None, [manifest.get("filename"), source_url, article.get("title"),
+                                                  article.get("description"), selected_text[:4000]]))
+        identity_dates = _source_dates(" ".join(filter(None, [manifest.get("filename"), source_url,
+                                                               article.get("title"), article.get("date_published") or ""])))
+        publisher = _official_registry(parse.urlsplit(source_url).hostname or "") if source_url else None
+        unit_caption = "\n".join(dict.fromkeys(filter(None, [
+            _unit_caption(selected_text), *(table.get("unit_caption", "") for table in selected_tables)
+        ])))[:4000]
         return {**manifest, "status": "ok", "tables": previews, "text": selected_text[:12000],
                 "text_truncated": inspection["text_truncated"] or len(selected_text) > 12000,
                 "pages": [{**page, "text": page["text"][:page_text_limit],
@@ -864,6 +1014,12 @@ class DocumentTools:
                 "inspection_complete": inspection.get("total_pages") is None or len(selected_pages) == inspection["total_pages"],
                 "warnings": inspection["warnings"], "article": article,
                 "document_metadata": inspection.get("document_metadata", {}),
+                "title": article.get("title") or manifest.get("filename"),
+                "publisher": publisher.get("institution") if publisher else None,
+                "document_type": _document_type(source_identity),
+                "reporting_period": ("%04d-%02d-%02d" % min(identity_dates)) if len(identity_dates) == 1 else None,
+                "consolidation_scope": _consolidation_scope(source_identity),
+                "unit_caption": unit_caption or None,
                 "publication_requires_explicit_contract": True}
 
     def _research_pdf(self, inspected, topic_matches):
@@ -901,19 +1057,14 @@ class DocumentTools:
         read_deadline = time.monotonic() + 120
         search_deadline = min(read_deadline, time.monotonic() + 45)
         lowered = _search_text(query)
-        inferred_domains = {
-            "kkb": ["kkb.com.tr"],
-            "kredi kayit burosu": ["kkb.com.tr"],
-            "tcmb": ["tcmb.gov.tr"],
-            "bddk": ["bddk.org.tr"],
-            "tüik": ["tuik.gov.tr"],
-            "tuik": ["tuik.gov.tr"],
-        }
+        requested_years = set(re.findall(r"\b(?:19|20)\d{2}\b", lowered))
+        requested_dates = _source_dates(query)
+        expected_document_type = _requested_document_type(query)
         from agentic_analytics.agent.tools.search_backend import search_domains
-        preferred = domains or search_domains(query) or next((values for key, values in inferred_domains.items()
-            if re.search(r"(?<!\w)" + re.escape(_search_text(key)) + r"(?!\w)", lowered)), None)
+        preferred = domains or search_domains(query) or next(
+            (values for pattern, values in _OFFICIAL_QUERY_DOMAINS if re.search(pattern, lowered)), None)
         if preferred:
-            preferred = [domain.strip().casefold() for domain in preferred]
+            preferred = [domain.strip().casefold().removeprefix("www.") for domain in preferred]
             if any(not re.fullmatch(r"[a-z0-9](?:[a-z0-9-]*[a-z0-9])?(?:\.[a-z0-9](?:[a-z0-9-]*[a-z0-9])?)+", domain) for domain in preferred):
                 raise DocumentError("Domains must be hostname names without paths, ports or wildcards.")
         def allowed(url):
@@ -926,7 +1077,7 @@ class DocumentTools:
             # subject to the original domain and public-address checks.
             host = lambda url: (parse.urlsplit(url).hostname or "").casefold().removeprefix("www.")
             return bool(host(left)) and host(left) == host(right)
-        registry = OFFICIAL_SOURCE_REGISTRY.get(preferred[0]) if preferred else None
+        registry = _official_registry(preferred[0]) if preferred else None
         topic_terms = [term for term in re.findall(r"[\wçğıöşü]+", lowered)
                    if len(term) >= 4 and term not in {"tcmb", "bddk", "tüik", "tuik", "yılında", "raporları", "için", "kaynak", "bağlantısı"}]
         if preferred:
@@ -958,12 +1109,28 @@ class DocumentTools:
                 if url and url not in seen_urls and allowed(url):
                     seen_urls.add(url)
                     results.append(item)
+        if preferred and registry and len(preferred) == 1:
+            entrypoints = list(registry.get("entrypoints", ()))
+            if preferred[0] == "tcmb.gov.tr":
+                entrypoints = [*("https://www.tcmb.gov.tr/wps/wcm/connect/TR/TCMB+TR/Main+Menu/Duyurular/Basin/" + year
+                                  for year in sorted(requested_years, reverse=True)), *entrypoints]
+            # Official archive roots are always available as bounded recovery,
+            # even when a search provider returns one plausible but wrong item.
+            for url in entrypoints:
+                url = url.split("#", 1)[0]
+                if url not in seen_urls and allowed(url):
+                    seen_urls.add(url)
+                    results.append({"url": url, "title": parse.urlsplit(url).hostname,
+                                    "discovery_only": True, "official_entrypoint": True})
         if not results:
             if preferred:
                 # When keyword search cannot locate a page, start at the
                 # explicitly requested institution and follow relevant archive
                 # links. These roots remain discovery pages, never answer proof.
-                results = [{"url": "https://" + domain + "/", "title": domain, "discovery_only": True} for domain in preferred]
+                entrypoints = registry.get("entrypoints", ()) if registry and len(preferred) == 1 else ()
+                roots = [url for url in entrypoints if allowed(url)] or ["https://" + domain + "/" for domain in preferred]
+                results = [{"url": url, "title": parse.urlsplit(url).hostname,
+                            "discovery_only": True} for url in roots]
             else:
                 return {"status": "unavailable", "research_status": "unavailable", "code": "SEARCH_NO_RESULTS",
                         "message": "Search did not return usable result URLs.", "query": query, "sources": [],
@@ -976,22 +1143,14 @@ class DocumentTools:
                         "code": "OFFICIAL_SOURCE_NOT_FOUND",
                         "message": "İstenen resmi kurum alanında uygun kaynak bulunamadı.",
                         "query": query, "sources": [], "failures": []}
-        requested_years = set(re.findall(r"\b(?:19|20)\d{2}\b", lowered))
         month_numbers = {name: index for index, pair in enumerate(month_pairs.items(), 1) for name in pair}
-        month_pattern = "|".join(month_numbers)
-        def source_dates(value):
-            normalized = _search_text(value)
-            observed = set()
-            for day, month, year in re.findall(r"\b(0?[1-9]|[12]\d|3[01])\s+(" + month_pattern + r")\s+((?:19|20)\d{2})\b", normalized):
-                observed.add((int(year), month_numbers[month], int(day)))
-            for year, month, day in re.findall(r"\b((?:19|20)\d{2})-(\d{2})-(\d{2})\b", normalized):
-                observed.add((int(year), int(month), int(day)))
-            return observed
-        requested_dates = source_dates(query)
         topical_terms = [term for term in topic_terms if not term.isdigit() and term not in month_numbers]
         topic_aliases = {"results": ("results", "earnings", "sonuclar", "financial performance"),
                          "earnings": ("earnings", "results", "financial performance"),
-                         "financial": ("financial", "finansal"), "finansal": ("finansal", "financial")}
+                         "financial": ("financial", "finansal"), "finansal": ("finansal", "financial"),
+                         "consolidated": ("consolidated", "konsolide"), "konsolide": ("konsolide", "consolidated"),
+                         "report": ("report", "rapor", "raporu"), "rapor": ("rapor", "raporu", "report"),
+                         "raporu": ("raporu", "rapor", "report")}
         ownership_terms = ("ortaklar", "ortaklari", "ortaklik", "hissedar", "hissedarlari", "hissedarlar",
                            "shareholder", "shareholders", "shareholding", "ownership")
         topic_aliases.update({term: ownership_terms for term in ownership_terms})
@@ -1029,12 +1188,13 @@ class DocumentTools:
             topical = topic_matches(label)
             return (4 * topical + 6 * sum(year in label for year in requested_years) * bool(topical or item.get("topic_context"))
                     + 24 * bool(item.get("topic_context") and str(item.get("title", "")).strip() in requested_years)
-                    + 40 * bool(requested_dates.intersection(source_dates(label)))
+                    + 40 * bool(requested_dates.intersection(_source_dates(label)))
+                    + 30 * bool(expected_document_type and _document_type(label) == expected_document_type)
                     + 2 * bool(item.get("in_main_content")) - 2 * bool(item.get("in_navigation"))
                     + 3 * sum(term in label for term in specialized_terms)
                     + sum(bool(re.search(r"\b" + number + r"\b", item.get("title", ""))) for number in day_numbers))
         results.sort(key=relevance, reverse=True)
-        sources, deferred_sources, failures, attempts = [], [], [], 0
+        sources, deferred_sources, failures, attempts, seen_hashes = [], [], [], 0, set()
         while results:
             if len(sources) >= limit:
                 break
@@ -1069,7 +1229,7 @@ class DocumentTools:
                     link = {**link, "topic_context": bool(topic_matches(identity(result)) or result.get("topic_context"))}
                     target = link.get("url", "").split("#", 1)[0]
                     label = identity(link)
-                    precise_date = bool(requested_dates.intersection(source_dates(label)))
+                    precise_date = bool(requested_dates.intersection(_source_dates(label)))
                     report_navigation = (not financial_navigation or precise_date or bool(re.search(
                         r"financ|finans|rapor|report|statement|earnings|investor|yatirimci|publications|mali.tablo", label))
                         or str(link.get("title", "")).strip() in requested_years and link.get("topic_context"))
@@ -1088,7 +1248,9 @@ class DocumentTools:
                 ranked_links = sorted(candidates.values(), key=lambda link: relevance(link) + sum(
                     term in identity(link) for term in archive_terms)
                     + 3 * sum(term in identity(link) for term in specialized_terms), reverse=True)
-                for link in ranked_links[:3]:
+                exact_links = [link for link in ranked_links if requested_dates.intersection(_source_dates(identity(link)))][:3]
+                other_links = [link for link in ranked_links if link not in exact_links][:3]
+                for link in [*exact_links, *other_links]:
                     seen_urls.add(link["url"])
                     results.append({**link, "discovered_from": source_url, "discovery_depth": depth + 1})
                 path_text = parse.urlsplit(source_url).path.casefold()
@@ -1096,6 +1258,12 @@ class DocumentTools:
                 source_title = verified_title or result.get("title", "")
                 title_text = _search_text(source_title)
                 searchable = _search_text(" ".join([verified_title, article.get("description", ""), content]))
+                document_type = _document_type(" ".join([source_title, source_url, content[:4000]]))
+                if expected_document_type and document_type and document_type != expected_document_type:
+                    raise DocumentError(
+                        f"Source document type {document_type} does not satisfy requested {expected_document_type} evidence.",
+                        "DOCUMENT_TYPE_MISMATCH",
+                    )
                 from agentic_analytics.agent.tools.search_backend import rank_search_results
                 checked, _, _ = rank_search_results(query, [{"url": source_url,
                     "title": verified_title, "snippet": content[:2500]}])
@@ -1116,7 +1284,8 @@ class DocumentTools:
                 identified_period = title_text + " " + path_text + " " + str(article.get("date_published", "")) + " " + content[:1500]
                 if requested_years and not any(year in identified_period for year in requested_years):
                     raise DocumentError("The requested year is not established by the source title, address, publication date or opening content.", "SOURCE_PERIOD_UNVERIFIED")
-                if requested_dates and not requested_dates.intersection(source_dates(identified_period + " " + content)):
+                source_date_matches = _source_dates(identified_period + " " + content)
+                if requested_dates and not requested_dates.intersection(source_date_matches):
                     raise DocumentError("Source does not establish the requested full calendar date.", "SOURCE_DATE_UNVERIFIED")
                 paragraphs = [line.strip() for line in content.splitlines() if line.strip()]
                 if pdf_navigation.get("passages"):
@@ -1130,10 +1299,23 @@ class DocumentTools:
                     excerpt = _safe_truncate("\n".join(paragraphs[start:]), 3000)
                 else:
                     excerpt = _safe_truncate(content, 3000)
+                raw_sha256 = inspected.get("raw_sha256")
+                if raw_sha256 and raw_sha256 in seen_hashes:
+                    raise DocumentError("The same fetched document bytes were already inspected under another URL.",
+                                        "DUPLICATE_SOURCE_CONTENT")
+                if raw_sha256:
+                    seen_hashes.add(raw_sha256)
+                period_matches = requested_dates.intersection(source_date_matches) or source_date_matches
+                reporting_period = ("%04d-%02d-%02d" % min(period_matches)) if len(period_matches) == 1 else None
                 card = {
                     "title": source_title,
                     "url": source_url,
                     "domain": parse.urlsplit(source_url).hostname,
+                    "publisher": registry.get("institution") if registry else None,
+                    "document_type": document_type,
+                    "reporting_period": reporting_period,
+                    "consolidation_scope": _consolidation_scope(" ".join([source_title, source_url, content[:4000]])),
+                    "unit_caption": _unit_caption(content),
                     "snippet": article.get("description") or result.get("snippet", ""),
                     "date_published": article.get("date_published"),
                     **({"search_published_at": result["published_at"][:100],
@@ -1148,7 +1330,7 @@ class DocumentTools:
                     "discovery_links": ranked_links[:5],
                     "discovered_from": result.get("discovered_from"),
                     "discovery_depth": depth,
-                    "raw_sha256": inspected.get("raw_sha256"),
+                    "raw_sha256": raw_sha256,
                     "inspection_complete": inspected.get("inspection_complete", True),
                     "warnings": inspected.get("warnings", []),
                     "source_id": inspected["source_id"],
@@ -1159,8 +1341,8 @@ class DocumentTools:
                 discovery_index = (archive_links and not article.get("article_body") and article.get("link_count", 0) > 20
                                    and not topic_matches(title_text))
                 discovery_index = discovery_index or bool(requested_dates and any(
-                    requested_dates.intersection(source_dates(identity(link))) for link in archive_links)
-                    and not requested_dates.intersection(source_dates(title_text)))
+                    requested_dates.intersection(_source_dates(identity(link))) for link in archive_links)
+                    and not requested_dates.intersection(_source_dates(title_text)))
                 if linked and not card["tables"] or discovery_index:
                     card["source_role"] = "discovery_index"
                     deferred_sources.append(card)
@@ -1230,16 +1412,77 @@ class DocumentTools:
         """Read a bounded candidate row window with stable source row addresses."""
         if type(row_start) is not int or row_start < 1 or type(row_limit) is not int or not 1 <= row_limit <= 100:
             raise DocumentError("Read 1 to 100 candidate rows using a positive 1-based row_start.")
+        manifest = self.source(source_id)
         table = self.review_candidate(source_id, table_id)
         rows = table.pop("rows")
         if row_start > len(rows):
             raise DocumentError("Requested row_start exceeds the candidate row count.")
+        source_identity = " ".join(filter(None, [manifest.get("filename"), manifest.get("source_url"),
+                                                  table.get("context_text", "")[:4000]]))
+        identity_dates = _source_dates(" ".join(filter(None, [manifest.get("filename"), manifest.get("source_url")])))
+        publisher = _official_registry(parse.urlsplit(manifest.get("source_url") or "").hostname or "")
+        unit_caption = table.get("unit_caption") or _unit_caption(table.get("context_text", "")) or None
         for key in ("context_text", "cell_origins", "row_origins", "raw_machine_rows"):
             table.pop(key, None)
-        return {**table, "rows": [{"candidate_row": index + 1, "values": dict(zip(table["columns"], rows[index])) if len(rows[index]) == len(table["columns"]) else None,
+        return {**table, "source_url": manifest.get("source_url"), "filename": manifest.get("filename"),
+                "title": manifest.get("filename"), "publisher": publisher.get("institution") if publisher else None,
+                "document_type": _document_type(source_identity),
+                "reporting_period": ("%04d-%02d-%02d" % min(identity_dates)) if len(identity_dates) == 1 else None,
+                "consolidation_scope": _consolidation_scope(source_identity), "unit_caption": unit_caption,
+                "rows": [{"candidate_row": index + 1, "values": dict(zip(table["columns"], rows[index])) if len(rows[index]) == len(table["columns"]) else None,
                                    **({"raw_cells": rows[index]} if len(rows[index]) != len(table["columns"]) else {})}
                                   for index in range(row_start - 1, min(len(rows), row_start - 1 + row_limit))],
                 "preview_truncated": row_start - 1 + row_limit < len(rows)}
+
+    def find_source_table_rows(self, source_id, table_id, query, limit=20):
+        """Find rows in a stored candidate without relying on its short preview."""
+        if (not isinstance(query, str) or not 2 <= len(query.strip()) <= 300
+                or type(limit) is not int or not 1 <= limit <= 50):
+            raise DocumentError("Search a table with a 2 to 300 character query and a limit from 1 to 50.",
+                                "INVALID_SOURCE_TABLE_SEARCH")
+        manifest = self.source(source_id)
+        table = self.review_candidate(source_id, table_id)
+        rows = table.pop("rows")
+        source_identity = " ".join(filter(None, [manifest.get("filename"), manifest.get("source_url"),
+                                                  table.get("context_text", "")[:4000]]))
+        identity_dates = _source_dates(" ".join(filter(None, [manifest.get("filename"), manifest.get("source_url")])))
+        publisher = _official_registry(parse.urlsplit(manifest.get("source_url") or "").hostname or "")
+        unit_caption = table.get("unit_caption") or _unit_caption(table.get("context_text", "")) or None
+        phrase = " ".join(_search_text(query).split())
+        terms = list(dict.fromkeys(term for term in re.findall(r"\w+", phrase)
+                                  if len(term) > 1 and term not in {"and", "the", "for", "ile", "veya"}))
+        if not terms:
+            raise DocumentError("Search for a meaningful table row label.", "INVALID_SOURCE_TABLE_SEARCH")
+        matches = []
+        for index, row in enumerate(rows, 1):
+            cells = ["" if value is None else str(value) for value in row]
+            normalized_cells = [_search_text(value) for value in cells]
+            joined = " ".join(normalized_cells)
+            exact = phrase in joined
+            matched_terms = [term for term in terms if re.search(r"(?<!\w)" + re.escape(term) + r"(?!\w)", joined)]
+            if not exact and len(matched_terms) != len(terms):
+                continue
+            matching_columns = [column for column, value in zip(table["columns"], normalized_cells)
+                                if phrase in value or any(re.search(r"(?<!\w)" + re.escape(term) + r"(?!\w)", value)
+                                                          for term in terms)]
+            matches.append({"candidate_row": index, "values": dict(zip(table["columns"], row)),
+                            "matched_columns": matching_columns, "match_type": "exact_phrase" if exact else "all_terms",
+                            "score": len(matched_terms) + (100 if exact else 0)})
+        matches.sort(key=lambda row: (-row["score"], row["candidate_row"]))
+        selected = [{key: value for key, value in row.items() if key != "score"} for row in matches[:limit]]
+        return {**{key: value for key, value in table.items()
+                   if key not in {"context_text", "cell_origins", "row_origins", "raw_machine_rows"}},
+                "status": "ok", "source_id": source_id, "source_url": manifest.get("source_url"),
+                "filename": manifest.get("filename"), "title": manifest.get("filename"),
+                "publisher": publisher.get("institution") if publisher else None,
+                "document_type": _document_type(source_identity),
+                "reporting_period": ("%04d-%02d-%02d" % min(identity_dates)) if len(identity_dates) == 1 else None,
+                "consolidation_scope": _consolidation_scope(source_identity), "unit_caption": unit_caption,
+                "raw_sha256": manifest["raw_sha256"], "query": query,
+                "rows": selected, "total_matches": len(matches), "matches_truncated": len(matches) > len(selected),
+                "content_is_untrusted_data": True,
+                "next_step": ("Use the returned stable candidate_row and exact values as source evidence. "
+                              "If no rows matched, try a source-language line label; do not infer a missing value.")}
 
     @staticmethod
     def _source_date_occurrences(value, source_format):
@@ -1949,6 +2192,10 @@ class DocumentTools:
             "read_source_table": (self.read_source_table, "Read actual candidate rows with stable 1-based row numbers before selecting financial report lines or a period header row. Supports bounded pagination beyond the initial eight-row preview.",
                 {"source_id": {"type": "string"}, "table_id": {"type": "string"}, "row_start": {"type": "integer", "minimum": 1},
                  "row_limit": {"type": "integer", "minimum": 1, "maximum": 100}}, ["source_id", "table_id"]),
+            "find_source_table_rows": (self.find_source_table_rows, "Search every stored row in one inspected source table for an exact source-language line item such as TOTAL ASSETS. Returns stable candidate_row addresses and literal cells without calculations, even when the row is beyond the preview.",
+                {"source_id": {"type": "string"}, "table_id": {"type": "string"},
+                 "query": {"type": "string", "minLength": 2, "maxLength": 300},
+                 "limit": {"type": "integer", "minimum": 1, "maximum": 50}}, ["source_id", "table_id", "query"]),
             "web_search": (self.web_search, "Find public sources with Bing RSS or configured SearXNG. Inspect result URLs before using them as citation evidence.",
                 {"query": {"type": "string", "maxLength": 500}, "limit": {"type": "integer", "minimum": 1, "maximum": 10}}, ["query"]),
             "research_web": (self.research_web, "Search public web sources, read a bounded number of result URLs, and return source-grounded content with titles, dates and links. Do not dump raw text; synthesize the findings in complete, grammatically correct sentences or bullet points. Use this for current reports, official announcements and news; do not rely on search snippets alone.",

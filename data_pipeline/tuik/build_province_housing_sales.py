@@ -45,6 +45,11 @@ SOURCE_URL = (
 )
 TARGET_START = "2020-01"
 TARGET_END = "2026-06"
+METHODOLOGY_REVISION_DATE = "2026-02-19"
+METHODOLOGY_REVISION_PRESS_ID = 58340
+METHODOLOGY_REVISION_URL = (
+    "https://veriportali.tuik.gov.tr/tr/press/58340"
+)
 
 SOURCE_COLUMNS = {
     "frequency": "Gözlem Sıklığı (M)",
@@ -139,6 +144,8 @@ def build_monthly_long(
             & rows[SOURCE_COLUMNS["breakdown"]].eq(breakdown),
             [SOURCE_COLUMNS["province"], SOURCE_COLUMNS["month"], "numeric_value"],
         ].copy()
+        # pandas index 0 is the first data row after the CSV header.
+        metric_rows["source_row_index"] = metric_rows.index + 2
         metric_rows["metric_code"] = metric_code
         selected.append(metric_rows)
     direct = pd.concat(selected, ignore_index=True).rename(
@@ -172,7 +179,15 @@ def build_monthly_long(
         .merge(pd.DataFrame({"metric_code": list(METRIC_SPECS)}), how="cross")
     )
     result = grid.merge(
-        direct[["province_name", "month", "metric_code", "direct_value"]],
+        direct[
+            [
+                "province_name",
+                "month",
+                "metric_code",
+                "direct_value",
+                "source_row_index",
+            ]
+        ],
         on=["province_name", "month", "metric_code"],
         how="left",
         validate="one_to_one",
@@ -224,6 +239,15 @@ def build_monthly_long(
     result["source_url"] = SOURCE_URL
     result["source_csv_file"] = RAW_PATH.relative_to(PROJECT_ROOT).as_posix()
     result["source_csv_sha256"] = metadata["raw_response_sha256"]
+    result["source_cell"] = result["source_row_index"].map(
+        lambda row: None if pd.isna(row) else f"csv:row={int(row)};column={SOURCE_COLUMNS['value']}"
+    )
+    result["source_vintage_at"] = metadata["completed_at_utc"]
+    result["revision_status"] = "current_official_series_after_2026_methodology_revision"
+    result["vintage_policy"] = "latest_official_bulk_snapshot"
+    result["methodology_revision_date"] = METHODOLOGY_REVISION_DATE
+    result["methodology_revision_press_id"] = METHODOLOGY_REVISION_PRESS_ID
+    result["methodology_revision_url"] = METHODOLOGY_REVISION_URL
     result["unit"] = "count"
     result["native_frequency"] = "monthly"
     return result.sort_values(
@@ -341,6 +365,12 @@ def build(output_dir: Path) -> dict[str, Any]:
         "source_url": SOURCE_URL,
         "raw_source_rows": len(source),
         "raw_source_sha256": metadata["raw_response_sha256"],
+        "source_vintage_at": metadata["completed_at_utc"],
+        "revision_status": "current_official_series_after_2026_methodology_revision",
+        "vintage_policy": "latest_official_bulk_snapshot",
+        "methodology_revision_date": METHODOLOGY_REVISION_DATE,
+        "methodology_revision_press_id": METHODOLOGY_REVISION_PRESS_ID,
+        "methodology_revision_url": METHODOLOGY_REVISION_URL,
         "coverage_start": TARGET_START,
         "coverage_end": TARGET_END,
         "province_count": int(monthly["province_key"].nunique()),
@@ -362,6 +392,7 @@ def build(output_dir: Path) -> dict[str, Any]:
             "A missing mortgaged-sales row becomes zero only when official total sales equals official other sales for the same province-month.",
             "The absent direct row remains null in direct_value and the usable zero is explicitly labelled as identity-derived.",
             "All common direct TÜİK and EVDS province-month observations must match exactly.",
+            "The 2026 methodology revision is identified explicitly; this current bulk snapshot is not labelled as the historical first publication.",
         ],
     }
 

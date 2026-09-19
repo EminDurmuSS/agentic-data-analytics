@@ -17,7 +17,15 @@
     {
       "series_code": "TP.MK.F.BILESIK",
       "role": "equity_market",
-      "reason": "BIST 100 is gunu kapanis fiyat endeksi"
+      "reason": "XU100 kimlik kodlu İMKB 100/BIST 100 iş günü kapanış fiyat endeksi; 5 Nisan 2013 resmî ad değişimi seri kimliğini değiştirmez",
+      "start_date": "2010-01-01",
+      "canonical_index_code": "XU100",
+      "historical_name": "İMKB 100",
+      "current_name": "BIST 100",
+      "name_change_effective_date": "2013-04-05",
+      "name_change_source_url": "https://www.borsaistanbul.com/datum/duyuru_ekleri/GenelMektup_4030_Endeks_Adlari.pdf",
+      "methodology_source_url": "https://www.borsaistanbul.com/files/bist-pay-endeksleri-temel-kurallari.pdf",
+      "official_index_page_url": "https://www.borsaistanbul.com/endeks/xu100"
     }
   ]
 }

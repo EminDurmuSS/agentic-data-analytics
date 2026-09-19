@@ -30,7 +30,7 @@ def _model_tool_result(name, result, *, terse=False):
     ledger. A request for 25 search matches never sends 25 verbose bindings to
     the model, and old search results can shed metadata without losing IDs.
     """
-    if name in {"inspect_source", "read_source_table", "research_web", "find_source_pages"} and isinstance(result, dict):
+    if name in {"inspect_source", "read_source_table", "find_source_table_rows", "research_web", "find_source_pages"} and isinstance(result, dict):
         return _document_result(name, result)
     if name == "web_search" and isinstance(result, dict):
         view = _compact(result)
@@ -41,12 +41,17 @@ def _model_tool_result(name, result, *, terse=False):
     if name != "discover" or not isinstance(result, dict) or not isinstance(result.get("metrics"), list):
         return _compact(result)
     fields = ("metric_id", "title", "status", "value_dimension", "semantic_match") if terse else (
-        "metric_id", "title", "source_system", "group_name", "value_dimension", "is_archive",
+        "metric_id", "dataset_id", "source_code", "title", "source_system", "source_organization",
+        "competition_scope", "source_match", "group_name", "value_dimension", "is_archive",
         "temporal_semantics", "unit", "scale", "currency", "kind",
         "native_frequency", "status", "dimensions", "matched_dimensions", "missing_terms",
         "semantic_profile", "semantic_match", "coverage_start", "coverage_end", "frequency_hint_requires_upsampling",
+        "requested_period_covered",
         "price_basis", "blocked_reason", "cumulative_evidence", "population_scope", "measurement_basis",
-        "scope_caveats", "source_table_category", "source_scope_evidence", "source_scope_policy_version")
+        "scope_caveats", "source_table_category", "source_scope_evidence", "source_scope_policy_version",
+        "vintage_policy", "release_date", "revision_status", "methodology_revision_date",
+        "canonical_series_code", "historical_name", "current_name", "name_change_effective_date",
+        "name_change_source_url", "methodology_source_url", "official_series_url")
 
     def project(cards):
         out = [{key: copy.deepcopy(card[key]) for key in fields if key in card}
@@ -58,7 +63,7 @@ def _model_tool_result(name, result, *, terse=False):
     cards = project(result["metrics"])
     view = {key: copy.deepcopy(result[key]) for key in
             ("status", "snapshot_id", "query", "searched_query", "query_projection_note", "total", "errors",
-             "no_confident_match", "uncovered_terms", "query_intent") if key in result}
+             "no_confident_match", "uncovered_terms", "query_intent", "vintage_selection", "source_selection") if key in result}
     view.update(metrics=cards, model_card_count=len(cards),
                 model_cards_truncated=len(result["metrics"]) > len(cards) or result.get("total", len(cards)) > len(cards))
     if isinstance(result.get("near_matches"), list):
@@ -112,7 +117,8 @@ def _document_result(name, result):
               "source_url", "raw_sha256", "size_bytes", "total_pages", "processed_pages", "selected_pages",
               "inspection_complete", "content_is_untrusted_data", "warnings", "query", "next_step",
               "publication_guidance", "recovery", "source_backend", "budget_exhausted",
-              "table_id", "row_count", "sheet", "page", "read", "searched", "failures", "matches", "total_matches")
+              "table_id", "row_count", "sheet", "page", "read", "searched", "failures", "matches", "total_matches",
+              "publisher", "document_type", "reporting_period", "consolidation_scope", "unit_caption", "matches_truncated")
     view = {key: copy.deepcopy(result[key]) for key in fields if key in result}
     if "provider_attempts" in result:
         view["provider_attempts"] = _provider_attempts(result["provider_attempts"])
@@ -179,7 +185,7 @@ def _document_result(name, result):
         if focused and all(str(page.get("text") or "").strip() for page in result["pages"]):
             view.pop("text", None)  # Do not duplicate the first selected page.
         view["model_pages_truncated"] = len(result["pages"]) > len(view["pages"])
-    if name == "read_source_table":
+    if name in {"read_source_table", "find_source_table_rows"}:
         view.update(table_card(result))
         view.pop("preview", None)
         view["rows"] = [{"candidate_row": row["candidate_row"], "values": {
@@ -207,6 +213,7 @@ def _document_result(name, result):
         for source in result["sources"][:3]:
             card = {key: copy.deepcopy(source[key]) for key in
                     ("source_id", "title", "url", "domain", "date_published", "date_modified", "verification",
+                     "publisher", "document_type", "reporting_period", "consolidation_scope", "unit_caption",
                      "document_links", "discovery_links", "source_role", "raw_sha256", "inspection_complete", "warnings", "content_is_untrusted_data",
                      "filename", "mime_type", "title_basis", "title_page", "total_pages", "cached_pages", "matched_pages",
                      "search_published_at", "search_publication_date_basis",
@@ -225,7 +232,7 @@ def _document_result(name, result):
         view["sources"] = sources
     view["model_evidence_view"] = True
     view["full_evidence_retained"] = True
-    view["navigation_hint"] = "For long documents use find_source_pages, then inspect_source with explicit page_numbers or read_source_table. Omitted or shortened previews are not the complete table; publication reads the stored candidate, not this preview."
+    view["navigation_hint"] = "For long documents use find_source_pages, then inspect_source with explicit page_numbers. Search a known candidate with find_source_table_rows for a line item, or page through it with read_source_table. Omitted or shortened previews are not the complete table; publication reads the stored candidate, not this preview."
     # Even unusually large warning/metadata fields remain inside a fixed model
     # budget. This projection never changes raw source bytes or cached rows.
     view = _compact(view)
@@ -273,11 +280,50 @@ def workspace_context(store, workspace_id, state, *, max_decisions, charts_enabl
                     ("chart_id", "analysis_id", "spec", "title", "recommendations") if key in chart}
             except (ChartError, OSError):
                 context["active_chart"] = {"status": "unavailable", "analysis_id": workspace["analysis_head"]}
+    bundle_id = state.get("analysis_bundle_id")
+    if not bundle_id:
+        bundle_id = next((item.get("id") for item in reversed(state.get("artifacts", []))
+                          if isinstance(item, dict) and str(item.get("id", "")).startswith("analysis_bundle_")), None)
+    if bundle_id:
+        from agentic_analytics.agent.tools.bundles import AnalysisBundleError, AnalysisBundleTools
+        try:
+            bundle = AnalysisBundleTools(store, workspace_id).load_bundle(bundle_id)
+            context["active_analysis_bundle"] = {
+                "bundle_id": bundle_id,
+                "title": bundle["title"],
+                "purpose": bundle.get("purpose"),
+                "parent_bundle_id": bundle.get("parent_bundle_id"),
+                "frequencies": bundle["frequencies"],
+                "frequency_policy": bundle["frequency_policy"],
+                "missing_value_policy": bundle["missing_value_policy"],
+                "components": [{
+                    "analysis_id": component["analysis_id"],
+                    "role": component["role"],
+                    "label": component["label"],
+                    "frequency": component["frequency"],
+                    "period_start": component["period_start"],
+                    "period_end": component["period_end"],
+                    "row_count": component["row_count"],
+                    "columns": [{key: column.get(key) for key in (
+                        "name", "kind", "unit", "scale", "currency", "missing_count",
+                        "additive_over_time", "time_aggregation_policy",
+                    )} for column in component["columns"][:16]],
+                    "sources": [{key: source.get(key) for key in (
+                        "column", "metric_id", "title", "source_system", "source_organization",
+                        "native_frequency", "output_frequency", "alignment", "unit", "scale", "kind",
+                    )} for source in component["sources"][:12]],
+                    "transformations": component["transformations"],
+                } for component in bundle["components"]],
+            }
+        except (AnalysisBundleError, OSError, ValueError, KeyError):
+            context["active_analysis_bundle"] = {"bundle_id": bundle_id, "status": "unavailable"}
     context["artifacts"] = state.get("artifacts", [])[-10:]
     context["current_task"] = {
         "required_outputs": state.get("task_plan"),
         "analysis_id": state.get("analysis_id"),
+        "analysis_bundle_id": state.get("analysis_bundle_id"),
         "analysis_updated": state.get("analysis_updated", False),
+        "bundle_updated": state.get("bundle_updated", False),
         "chart_updated": state.get("chart_updated", False),
         "chart_analysis_id": state.get("chart_analysis_id"),
         "chart_columns": state.get("chart_columns", []),
@@ -286,6 +332,11 @@ def workspace_context(store, workspace_id, state, *, max_decisions, charts_enabl
         "summary_results": [{key: result.get(key) for key in ("analysis_id", "summary_id", "parameters", "warnings")}
                             for item in state.get("tool_results", [])
                             if item.get("tool") == "summarize_analysis" and (result := item.get("result", {})).get("status") == "ok"],
+        "selection_results": [{key: result.get(key) for key in
+                               ("analysis_id", "selection_id", "parameters", "row_count", "total_match_count", "truncated")}
+                              for item in state.get("tool_results", [])
+                              if item.get("tool") == "select_analysis_rows"
+                              and (result := item.get("result", {})).get("status") == "ok"],
     }
     context["initial_metric_candidates"] = _model_tool_result("discover", state.get("initial_candidates"))
     from agentic_analytics.agent.source_context import registered_sources
@@ -332,7 +383,8 @@ def _historical_tool_receipt(name, result, arguments):
             "artifact_ref", "artifact_id", "analysis_id", "dataset_id", "table_id", "chart_id",
             "summary_id", "raw_sha256", "total_pages", "processed_pages", "inspection_complete",
             "publication_performed", "import_status", "quality_status", "row_count", "unit",
-            "scale", "currency", "kind", "temporal_semantics", "scope_caveats", "title")
+            "scale", "currency", "kind", "temporal_semantics", "scope_caveats", "title",
+            "publisher", "document_type", "reporting_period", "consolidation_scope", "unit_caption")
     receipt = {key: copy.deepcopy(result[key]) for key in keys if key in result}
     if name == "discover":
         receipt.update(_model_tool_result(name, result, terse=True))
@@ -345,12 +397,13 @@ def _historical_tool_receipt(name, result, arguments):
             receipt[field] = [{key: copy.deepcopy(item[key]) for key in
                 ("source_id", "table_id", "metric_id", "title", "url", "page", "sheet", "status",
                  "unit", "scale", "currency", "kind", "dimensions", "row_count", "layout_review_required",
-                 "quality_notes", "review", "warnings", "verification", "scope_caveats") if key in item}
+                 "quality_notes", "review", "warnings", "verification", "scope_caveats", "publisher",
+                 "document_type", "reporting_period", "consolidation_scope", "unit_caption") if key in item}
                 for item in result[field][:12] if isinstance(item, dict)]
             if len(result[field]) > 12:
                 receipt[field + "_truncated"] = True
     # Store only read-only navigation. Never offer a prior mutation as a replay.
-    if name in {"inspect_source", "read_source_table", "find_source_pages"} and result.get("source_id"):
+    if name in {"inspect_source", "read_source_table", "find_source_table_rows", "find_source_pages"} and result.get("source_id"):
         args = {key: copy.deepcopy(value) for key, value in arguments.items()
                 if key in {"table_id", "page_numbers", "row_start", "limit", "query", "start_page", "max_pages", "table_strategy"}}
         args["source_id"] = result["source_id"]
@@ -358,6 +411,20 @@ def _historical_tool_receipt(name, result, arguments):
     receipt.update(model_evidence_view="historical_tool_receipt", full_evidence_retained=True,
                    historical_only=True,
                    navigation_hint="Prior user turn: source addresses and outcomes only. This is not new evidence for the current question. Re-read the source or saved analysis before using omitted facts; use the current workspace plan/schema when extending the analysis.")
+    return _compact(receipt)
+
+
+def _resolved_discovery_receipt(result, metric_ids):
+    """Retire navigation cards after a saved analysis records the selection."""
+    receipt = {key: copy.deepcopy(result[key]) for key in
+               ("status", "errors", "warnings", "no_confident_match", "uncovered_terms",
+                "vintage_selection", "source_selection") if key in result}
+    receipt.update(
+        metrics=[],
+        resolved_metric_ids=sorted(metric_ids),
+        historical_search_summary=True,
+        full_evidence_retained=True,
+    )
     return _compact(receipt)
 
 
@@ -490,6 +557,7 @@ def model_messages(state, *, context_factory, charts_enabled, max_context_chars,
     current_turn = max((i for i, message in enumerate(messages) if message.get("role") == "user"), default=0)
     call_names, call_arguments, discovery_messages = {}, {}, []
     source_navigation, publications = [], {}
+    saved_analysis_metric_ids = set()
     # Reapply the compact view when resuming old journals created before
     # small cards existed. Calls and result messages keep their identities.
     for index, message in enumerate(messages):
@@ -511,11 +579,11 @@ def model_messages(state, *, context_factory, charts_enabled, max_context_chars,
                     "\nÖnceki araç çağrısının JSON argümanları eksik veya geçersizdi; çalıştırılmadı. "
                     "Ham çağrı günlükte korunuyor; aşağıdaki hata sonucuna göre tam JSON ile düzelt.").strip()
         if message.get("role") == "tool" and call_names.get(message.get("tool_call_id")) in {
-                "inspect_source", "read_source_table", "research_web", "find_source_pages"}:
+                "inspect_source", "read_source_table", "find_source_table_rows", "research_web", "find_source_pages"}:
             try:
                 result = json.loads(message["content"])
                 message["content"] = canonical(_model_tool_result(call_names[message["tool_call_id"]], result))
-                if (call_names[message["tool_call_id"]] in {"inspect_source", "find_source_pages", "read_source_table"}
+                if (call_names[message["tool_call_id"]] in {"inspect_source", "find_source_pages", "read_source_table", "find_source_table_rows"}
                         and result.get("status") == "ok" and result.get("source_id")
                         and not result.get("errors") and not result.get("recovery")):
                     source_navigation.append((index, result, call_names[message["tool_call_id"]],
@@ -537,6 +605,16 @@ def model_messages(state, *, context_factory, charts_enabled, max_context_chars,
                 continue
             message["content"] = canonical(_model_tool_result("discover", result))
             discovery_messages.append((index, result))
+        if message.get("role") == "tool" and call_names.get(message.get("tool_call_id")) in {
+                "execute", "revise_analysis", "query_grouped", "aggregate_dataset"}:
+            try:
+                result = json.loads(message["content"])
+            except (TypeError, ValueError):
+                continue
+            if result.get("status") == "ok" and result.get("analysis_id"):
+                for schema in (result.get("schema") or {}).values():
+                    if isinstance(schema, dict) and schema.get("metric_id"):
+                        saved_analysis_metric_ids.add(schema["metric_id"])
     # Prior completed work is navigation, not the working set for a new user
     # question. Compact it before hitting the context limit, so the original
     # request (period, scope and normalization) is not discarded wholesale.
@@ -617,6 +695,18 @@ def model_messages(state, *, context_factory, charts_enabled, max_context_chars,
                 message["content"] = canonical(result)
             else:
                 seen_candidates[cards] = call_id
+    # Once a successful analysis has persisted the chosen metric IDs and full
+    # schema, discovery cards are only navigation. Under pressure, retire them
+    # before rejecting the final response. Durable tool results stay untouched.
+    if len(system) + len(canonical(messages)) > max_context_chars and saved_analysis_metric_ids:
+        for index, result in discovery_messages:
+            if index < current_turn:
+                continue
+            reduced = canonical(_resolved_discovery_receipt(result, saved_analysis_metric_ids))
+            if len(reduced) < len(messages[index]["content"]):
+                messages[index]["content"] = reduced
+            if len(system) + len(canonical(messages)) <= max_context_chars:
+                break
     if len(system) + len(canonical(messages)) > max_context_chars:
         raise PlanError("Current task exceeds the configured context budget; use a smaller scope.", code="CONTEXT_BUDGET_EXCEEDED")
     return [{"role": "system", "content": system}] + messages

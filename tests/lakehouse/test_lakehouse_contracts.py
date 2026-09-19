@@ -67,6 +67,23 @@ class PublishedContractTests(unittest.TestCase):
             GROUP BY ALL HAVING count(*)>1)""").fetchone()[0]
         self.assertEqual(9, changes)
 
+    def test_weekly_housing_credit_is_a_ready_revisable_stock_with_actual_dates(self):
+        binding = self.bindings["bddk_weekly:table289_289_4_total"]
+        self.assertEqual("ready", binding["status"])
+        self.assertEqual("stock", binding["kind"])
+        self.assertEqual("weekly_observed", binding["native_frequency"])
+        self.assertEqual("last", binding["aggregation"])
+        self.assertFalse(binding["additive_over_time"])
+        self.assertEqual("provisional_revisable", binding["revision_status"])
+        self.assertEqual(
+            "https://www.bddk.org.tr/BultenHaftalik/tr/Home/Aciklama",
+            binding["source_url"],
+        )
+        self.assertIn(
+            "provisional_revisable_weekly_bulletin",
+            {item["code"] for item in binding["scope_caveats"]},
+        )
+
     def test_unmapped_derived_lineage_cannot_be_marked_ready(self):
         derived = [b for b in self.bindings.values() if b["source_system"] in {
             "TCMB_EVDS_DERIVED", "REGIONAL_HOUSING_ANALYSIS"}]

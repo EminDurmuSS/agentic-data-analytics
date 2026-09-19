@@ -84,6 +84,12 @@ class EvdsMarketControlsTests(unittest.TestCase):
             MARKET_DATA / "observations_long.parquet"
         )
         cls.monthly = pd.read_parquet(MARKET_DATA / "monthly_panel.parquet")
+        cls.monthly_audit = pd.read_parquet(
+            MARKET_DATA / "monthly_alignment_audit.parquet"
+        )
+        cls.catalog = pd.read_parquet(
+            MARKET_DATA / "analysis_series_catalog.parquet"
+        )
 
     def test_market_snapshot_is_unique(self):
         self.assertEqual("passed", self.validation["status"])
@@ -105,6 +111,34 @@ class EvdsMarketControlsTests(unittest.TestCase):
             self.monthly["target_period"].eq("2026-06"), "TP_MK_F_BILESIK"
         ].iloc[0]
         self.assertFalse(pd.isna(june_2026))
+
+    def test_bist_history_uses_last_real_business_day_and_keeps_name_change(self):
+        bist = self.observations.loc[
+            self.observations["series_code"].eq("TP.MK.F.BILESIK")
+        ].copy()
+        self.assertEqual("2010-01-01", bist["period"].min())
+        july_2010 = self.monthly_audit.loc[
+            self.monthly_audit["series_code"].eq("TP.MK.F.BILESIK")
+            & self.monthly_audit["target_period"].eq("2010-07")
+        ].iloc[0]
+        observed = bist.loc[
+            bist["period"].str.startswith("2010-07") & bist["value"].notna()
+        ].sort_values("period")
+        self.assertEqual(observed.iloc[-1]["period"], july_2010["selected_source_period"])
+        self.assertEqual(observed.iloc[-1]["period_end"], july_2010["selected_source_period_end"])
+        self.assertEqual(observed.iloc[-1]["value"], july_2010["value"])
+        self.assertNotEqual("2010-07-31", july_2010["selected_source_period_end"])
+
+        metadata = self.catalog.loc[
+            self.catalog["series_code"].eq("TP.MK.F.BILESIK")
+        ].iloc[0]
+        self.assertEqual("2010-01-01", metadata["requested_start"])
+        self.assertEqual("XU100", metadata["canonical_index_code"])
+        self.assertEqual("İMKB 100", metadata["historical_name"])
+        self.assertEqual("BIST 100", metadata["current_name"])
+        self.assertEqual("2013-04-05", metadata["name_change_effective_date"])
+        self.assertIn("GenelMektup_4030", metadata["name_change_source_url"])
+        self.assertIn("bist-pay-endeksleri", metadata["methodology_source_url"])
 
     def test_tl_per_gram_gold_is_an_explicit_unit_conversion(self):
         june = self.monthly.loc[

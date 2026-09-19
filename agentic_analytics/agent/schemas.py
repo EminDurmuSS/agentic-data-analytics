@@ -20,6 +20,14 @@ def operation_schema():
         required = list(props)
         if name in {"growth", "difference"}:
             props["periods"] = {"type": "integer", "minimum": 1, "maximum": 120}
+            props["prior_scope"] = {
+                "enum": ["available_history", "selected_window"],
+                "description": (
+                    "available_history (default) may use a source observation before start. "
+                    "selected_window keeps the first requested row empty and computes only "
+                    "against prior rows visible inside the requested window."
+                ),
+            }
         elif name == "deflate":
             props.update(index=COLUMN_NAME, base_period=STRING)
             required += ["index", "base_period"]
@@ -38,7 +46,7 @@ def operation_schema():
 OPERATIONS = {"type": "array", "maxItems": 50, "items": operation_schema()}
 PLAN = obj({"start": {"type": "string", "description": "First output period: YYYY-MM for monthly, YYYY-Qn for quarterly, YYYY for yearly, YYYY-H1/H2 for half_yearly, ISO date for daily/weekly/twice_monthly."},
             "end": {"type": "string", "description": "Last output period, using the same format as start. twice_monthly bounds are ISO dates and include only dates actually present in the source."},
-            "frequency": {"enum": ["monthly", "quarterly", "weekly_friday", "weekly_wednesday", "weekly", "daily", "business_daily", "annual", "yearly", "half_yearly", "twice_monthly"],
+            "frequency": {"enum": ["monthly", "quarterly", "weekly_observed", "weekly_friday", "weekly_wednesday", "weekly", "daily", "business_daily", "annual", "yearly", "half_yearly", "twice_monthly"],
                           "description": "half_yearly and twice_monthly support native selection only; do not use conversions or operations with these frequencies."},
             "columns": {"type": "array", "minItems": 1, "maxItems": 25, "items": COLUMN},
             "operations": OPERATIONS}, ["start", "end", "frequency", "columns"])

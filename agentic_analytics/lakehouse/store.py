@@ -389,7 +389,7 @@ class LakehouseStore:
         if not isinstance(grain, list) or set(grain) != set(key) or len(grain) != len(key):
             raise StoreError("Grain must explicitly name the unique key columns.")
         frequency = contract.get("frequency")
-        if frequency not in {"daily", "business_daily", "weekly", "monthly", "quarterly", "annual", "event", "static"}:
+        if frequency not in {"daily", "business_daily", "weekly", "weekly_observed", "monthly", "quarterly", "annual", "event", "static"}:
             raise StoreError("Unsupported or missing native frequency.")
         date_column = contract.get("date_column")
         if frequency != "static" and (date_column not in columns or columns[date_column]["dtype"] != "date" or date_column not in key):

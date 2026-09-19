@@ -45,7 +45,7 @@ def refresh(database: Path, *, output: Path, runtime_root: Path) -> dict:
     emit({"event": "source_published", **publication})
     build_root = runtime_root.resolve() / publication["publication_id"]
     catalog_dir = build_root / "catalog"
-    catalog = build_catalog(catalog_dir)
+    catalog = build_catalog(catalog_dir, include_full_catalog=True)
     if catalog.get("evds_full_catalog", {}).get("publication_id") != publication["publication_id"]:
         raise ValueError("The catalog resolved a different concurrently published EVDS release")
     emit({"event": "catalog_built", "queryable_metric_count": catalog["queryable_metric_count"]})

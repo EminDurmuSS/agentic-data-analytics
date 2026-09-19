@@ -2,12 +2,34 @@
   "endpoint": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
   "dataset_id": "housing_credit_market_controls_v2",
   "manifest_file": "market_controls_v2.json",
-  "manifest_sha256": "a279e8cd21e1358701263f9d65026f50c89b9dc1512bb8a5886ebd4a5537822b",
+  "manifest_sha256": "9fb9b863f32c7b8ad8c841a23edbade37c6e43bc19a5ddeb3e22404e95a80580",
   "catalog_file": "evds_series_catalog.parquet",
   "catalog_sha256": "ccdd130fb752defb99a295857b56e61b088f8c49708722f9b6e303f454e576da",
   "start_date": "2020-01-01",
   "end_date": "2026-06-30",
   "series_count": 3,
+  "series_codes": [
+    "TP.ALTINPIYASA.KAP02",
+    "TP.ALTINPIYASA.KAP05",
+    "TP.MK.F.BILESIK"
+  ],
+  "series_ranges": [
+    {
+      "series_code": "TP.ALTINPIYASA.KAP02",
+      "start_date": "2020-01-01",
+      "end_date": "2026-06-30"
+    },
+    {
+      "series_code": "TP.ALTINPIYASA.KAP05",
+      "start_date": "2020-01-01",
+      "end_date": "2026-06-30"
+    },
+    {
+      "series_code": "TP.MK.F.BILESIK",
+      "start_date": "2010-01-01",
+      "end_date": "2026-06-30"
+    }
+  ],
   "transport": "curl",
   "tls_verification": true
 }

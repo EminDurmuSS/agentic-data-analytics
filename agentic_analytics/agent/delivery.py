@@ -21,6 +21,63 @@ def _published_source_ids(state):
         and result.get("dataset_id") and result.get("publication_performed") is not False))
 
 
+def _successful_bundle(state):
+    return any(item.get("tool") == "save_analysis_bundle"
+               and item.get("result", {}).get("status") == "ok"
+               and item.get("result", {}).get("bundle_id")
+               for item in state.get("tool_results", []))
+
+
+def _bundle_confirmation(store, workspace_id, state):
+    """Render a compact receipt from a verified multi-analysis bundle."""
+    bundle_id = next((item.get("result", {}).get("bundle_id")
+                      for item in reversed(state.get("tool_results", []))
+                      if item.get("tool") == "save_analysis_bundle"
+                      and item.get("result", {}).get("status") == "ok"), None)
+    if not bundle_id:
+        return ""
+    from agentic_analytics.agent.tools.bundles import AnalysisBundleTools
+    bundle = AnalysisBundleTools(store, workspace_id).load_bundle(bundle_id)
+    lines = [f"Kaydedilen çok frekanslı analiz paketi: {_display_label(bundle['title'])}."]
+    for component in bundle["components"]:
+        source_labels = []
+        for source in component.get("sources", []):
+            identity = source.get("metric_id") or source.get("title") or source.get("source_system")
+            if not identity:
+                continue
+            transition = source.get("alignment", "native")
+            if source.get("native_frequency") and source.get("output_frequency"):
+                transition = f"{source['native_frequency']} -> {source['output_frequency']}, {transition}"
+            label = f"{identity} ({transition})"
+            if label not in source_labels:
+                source_labels.append(label)
+        lines.append(
+            f"- {_display_label(component['label'])}: {component['frequency']}, "
+            f"{_display_period(component['period_start'])} - {_display_period(component['period_end'])}, "
+            f"{component['row_count']} satır"
+            + (f"; kaynaklar: {', '.join(source_labels)}" if source_labels else "")
+            + "."
+        )
+    allowed, forbidden = [], []
+    for component in bundle["components"]:
+        for column in component.get("columns", []):
+            if not column.get("numeric"):
+                continue
+            target = f"{component['label']}/{column['name']}"
+            (allowed if column.get("additive_over_time") else forbidden).append(target)
+    if allowed:
+        lines.append("Zaman boyunca toplamaya yalnız metadata tarafından toplamsal olduğu doğrulanan sütunlar uygundur: "
+                     + ", ".join(allowed) + ".")
+    if forbidden:
+        lines.append("Stok, oran veya toplamsallığı doğrulanmamış sütunlar zaman boyunca toplanmaz: "
+                     + ", ".join(forbidden) + ".")
+    lines.append(
+        "Frekans politikası: aylık, haftalık ve çeyreklik bileşenler ayrı immutable analizlerde tutulur; "
+        "çeyreklik değer aylara kopyalanmaz. Eksikler sıfır, önceki değer, interpolasyon veya tahminle doldurulmaz."
+    )
+    return "\n".join(lines)
+
+
 def _source_confirmation(store, workspace_id, state):
     """Report published source facts without implying a comparison was saved."""
     datasets = set(store.workspace(workspace_id).get("datasets", []))
@@ -50,6 +107,138 @@ def _source_confirmation(store, workspace_id, state):
     return "Kaynakta doğrulanan ve çalışma alanına eklenen değerler (özgün birimleriyle):\n\n" + "\n\n".join(lines) if lines else ""
 
 
+def _verified_source_table_confirmation(state, *, targeted_only=False, provider_outage=True):
+    """Render only cells returned by a successful direct source read.
+
+    This is a provider-outage fallback, not an analytical result. Search result
+    snippets and page prose are intentionally ignored. No parsing, arithmetic,
+    unit conversion or inferred period is performed here.
+    """
+    identities = {}
+    candidates = []
+
+    def remember(source):
+        if not isinstance(source, dict) or not source.get("source_id"):
+            return
+        source_id = source["source_id"]
+        article = source.get("article") or {}
+        current = identities.setdefault(source_id, {})
+        for key, value in {
+            "url": source.get("url") or source.get("source_url"),
+            "title": source.get("title") or article.get("title") or source.get("filename"),
+            "raw_sha256": source.get("raw_sha256"),
+            "publisher": source.get("publisher"),
+            "document_type": source.get("document_type"),
+            "date_published": source.get("date_published") or article.get("date_published"),
+            "reporting_period": source.get("reporting_period"),
+            "consolidation_scope": source.get("consolidation_scope"),
+            "unit_caption": source.get("unit_caption"),
+        }.items():
+            if value and not current.get(key):
+                current[key] = value
+
+    def add_tables(source, tables, origin):
+        if not isinstance(source, dict) or source.get("source_role") == "discovery_index":
+            return
+        remember(source)
+        for table in tables or []:
+            if not isinstance(table, dict):
+                continue
+            rows = table.get("rows") if origin in {"read_source_table", "find_source_table_rows"} else table.get("preview")
+            if not isinstance(rows, list) or not rows:
+                continue
+            normalized = []
+            for row in rows:
+                if not isinstance(row, dict):
+                    continue
+                values = row.get("values") if origin in {"read_source_table", "find_source_table_rows"} else row
+                if not isinstance(values, dict):
+                    continue
+                record = dict(values)
+                if origin in {"read_source_table", "find_source_table_rows"} and isinstance(row.get("candidate_row"), int):
+                    record = {"kaynak_satırı": row["candidate_row"], **record}
+                normalized.append(record)
+            if normalized:
+                candidates.append({
+                    "source_id": source.get("source_id"),
+                    "raw_sha256": source.get("raw_sha256"),
+                    "table_id": table.get("table_id") or source.get("table_id"),
+                    "page": table.get("page") or source.get("page"),
+                    "columns": table.get("columns") or source.get("columns"),
+                    "rows": normalized,
+                    "origin": origin,
+                })
+
+    for item in state.get("tool_results", []):
+        result = item.get("result") or {}
+        if result.get("status") != "ok":
+            continue
+        if item.get("tool") == "research_web":
+            for source in result.get("sources", []):
+                if isinstance(source, dict):
+                    add_tables(source, source.get("tables"), "research_web")
+        elif item.get("tool") == "inspect_source":
+            add_tables(result, result.get("tables"), "inspect_source")
+        elif item.get("tool") in {"read_source_table", "find_source_table_rows"}:
+            add_tables(result, [result], item["tool"])
+
+    blocks, seen = [], set()
+    # Prefer explicit row reads over short previews, then prefer the latest read.
+    priority = {"find_source_table_rows": 3, "read_source_table": 2, "inspect_source": 1, "research_web": 0}
+    candidates.sort(key=lambda item: priority[item["origin"]])
+    for candidate in reversed(candidates):
+        if targeted_only and candidate["origin"] != "find_source_table_rows":
+            continue
+        source_id = candidate.get("source_id")
+        identity = identities.get(source_id, {})
+        if (candidate.get("raw_sha256") and identity.get("raw_sha256")
+                and candidate["raw_sha256"] != identity["raw_sha256"]):
+            continue
+        signature = (source_id, candidate.get("table_id"), json.dumps(candidate["rows"], sort_keys=True, ensure_ascii=False))
+        if signature in seen:
+            continue
+        seen.add(signature)
+        rows = candidate["rows"][:8]
+        declared = candidate.get("columns") if isinstance(candidate.get("columns"), list) else []
+        columns = (["kaynak_satırı"] if any("kaynak_satırı" in row for row in rows) else [])
+        columns.extend(column for column in declared if column not in columns)
+        columns.extend(key for row in rows for key in row if key not in columns)
+        columns = columns[:8]
+        if not columns:
+            continue
+        title = identity.get("title") or "Doğrudan okunan kaynak tablosu"
+        page = candidate.get("page")
+        table_id = candidate.get("table_id")
+        label = _display_label(title) + (f", s. {page}" if isinstance(page, int) else "")
+        if table_id:
+            label += ", tablo " + _display_label(table_id)
+        url = identity.get("url")
+        try:
+            safe_url = isinstance(url, str) and urlsplit(url).scheme in {"http", "https"} and bool(urlsplit(url).hostname)
+        except ValueError:
+            safe_url = False
+        if safe_url:
+            target = url.split("#", 1)[0] + (f"#page={page}" if isinstance(page, int) else "")
+            label = f"[{label}]({quote(target, safe=':/?&=#%._~-')})"
+        header = "| " + " | ".join(_display_label(column) for column in columns) + " |"
+        separator = "| " + " | ".join("---" for _ in columns) + " |"
+        body = ["| " + " | ".join(_display_label(row.get(column)) if row.get(column) is not None else "eksik"
+                                      for column in columns) + " |" for row in rows]
+        facts = [("Yayımlayan", identity.get("publisher")), ("Belge türü", identity.get("document_type")),
+                 ("Yayın tarihi", identity.get("date_published")), ("Raporlama dönemi", identity.get("reporting_period")),
+                 ("Kapsam", identity.get("consolidation_scope")), ("Birim/ölçek", identity.get("unit_caption"))]
+        metadata = "; ".join(f"{name}: {_display_label(value)}" for name, value in facts if value)
+        blocks.append(label + ("\n\n" + metadata if metadata else "") + "\n\n" + "\n".join([header, separator, *body]))
+        if len(blocks) == 2:
+            break
+    if not blocks:
+        return None
+    prefix = ("Sağlayıcı kesintisinden önce " if provider_outage else "")
+    return (prefix + "doğrudan kaynak aracının okuduğu hücreler aşağıdadır. "
+            "Değerler kaynak metninden aynen taşındı; yeni hesap, yuvarlama veya eksik değer doldurma yapılmadı.\n\n"
+            + "\n\n".join(blocks))
+
+
 def _requests_table(message):
     """Recognize explicit table production without blocking questions about tables.
 
@@ -57,6 +246,11 @@ def _requests_table(message):
     financial terms, select metrics, or attempt to grade arbitrary language.
     """
     text = message.casefold().replace("ı", "i").replace("i\u0307", "i")
+    # In catalogue requests, "kaynak tablo" / "source table" is commonly one
+    # metadata field alongside code, unit and frequency. It does not ask for a
+    # newly materialized result table. Keep object forms such as "kaynak
+    # tablosunu göster" intact, because those do request the table itself.
+    text = re.sub(r"\b(?:kaynak tablo|source table)\b(?=\s*[,;/]|\s+ve\b)", "source_metadata", text)
     noun = re.search(r"\btablo\w*|\btable\b", text)
     action = re.search(r"göster|oluştur|hazirla|getir|listele|istiyorum|isterim|\bshow\b|\bcreate\b|\bproduce\b", text)
     question = re.search(r"ne demek|nedir|nasil (?:okun|yorumlan)|what (?:is|does)|how (?:to|do i) read", text)
@@ -283,11 +477,87 @@ def _statistics_confirmation(store, workspace_id, state):
             lines.append(f"{column}: komşu dönem pencerelerinde {len(changes)} kalıcı medyan değişimi adayı bulundu. Bu geriye dönük tarama istatistiksel anlamlılık veya neden kanıtı üretmez.")
             for change in changes[:5]:
                 lines.append(f"{_display_label(change['period'])}: önceki pencere medyanı {_display_number(change['median_before'])}, sonraki pencere medyanı {_display_number(change['median_after'])}.")
-        elif params.get("method") == "pearson":
-            lines.append(f"{_display_label(params['x'])} ve {_display_label(params['y'])}: {values['sample_size']} eşleşmiş gözlemde Pearson korelasyonu {_display_number(values['correlation'])}; gecikme {params['lag']} dönem. Bu ilişki nedensellik kanıtı değildir. Zaman serisindeki bağımlılık, bağımsız gözlem varsayımına dayalı anlamlılık hesabını sınırlayabilir.")
+        elif params.get("method") in {"pearson", "spearman"}:
+            method = "Pearson" if params["method"] == "pearson" else "Spearman"
+            period = ""
+            if values.get("sample_start_period") and values.get("sample_end_period"):
+                period = (f", {_display_label(values['sample_start_period'])} ile "
+                          f"{_display_label(values['sample_end_period'])} arasında")
+            excluded = values.get("excluded_missing_pairs", 0)
+            transform = "birinci farklar" if params.get("transform") == "difference" else "özgün seviyeler"
+            lines.append(
+                f"{_display_label(params['x'])} ve {_display_label(params['y'])}: "
+                f"{values['sample_size']} eşleşmiş gözlemde{period} {method} korelasyonu "
+                f"{_display_number(values['correlation'])}; gecikme {params['lag']} dönem, dönüşüm {transform}. "
+                f"Eksik olduğu için dışlanan eşleşme: {excluded}. Bu ilişki nedensellik kanıtı değildir. "
+                "Zaman serisindeki bağımlılık, bağımsız gözlem varsayımına dayalı anlamlılık hesabını sınırlayabilir."
+            )
         else:
-            lines.append(f"Granger öngörü testi: {values['sample_size']} gözlem, gecikme {params['lag']} dönem, p değeri {_display_number(values['p_value'])}. Test, geçmiş {_display_label(params['x'])} değerlerinin {_display_label(params['y'])} için ek öngörü bilgisiyle ilişkisini ölçer; ekonomik nedensellik kanıtlamaz.")
+            period = ""
+            if values.get("sample_start_period") and values.get("sample_end_period"):
+                period = (f", {_display_label(values['sample_start_period'])} ile "
+                          f"{_display_label(values['sample_end_period'])} arasında")
+            lines.append(f"Granger öngörü testi: {values['sample_size']} gözlem{period}, gecikme {params['lag']} dönem, F istatistiği {_display_number(values['f_statistic'])}, p değeri {_display_number(values['p_value'])}. Sıfır hipotezi: geçmiş {_display_label(params['x'])} değerleri {_display_label(params['y'])} için ek öngörü bilgisi sağlamaz. Test ekonomik nedensellik kanıtlamaz.")
     return "\n\n".join(lines) or None
+
+
+def _selection_confirmation(store, workspace_id, state):
+    """Render exact selected rows from hash-verified selection artifacts."""
+    lines, seen = [], set()
+    for item in state.get("tool_results", []):
+        result = item.get("result", {})
+        artifact = result.get("selection_id") or result.get("artifact_id")
+        if item.get("tool") != "select_analysis_rows" or result.get("status") != "ok" or not artifact or artifact in seen:
+            continue
+        from agentic_analytics.agent.tools.selection import AnalysisSelectionTools
+        payload = AnalysisSelectionTools(store, workspace_id).load_artifact(artifact)
+        if state.get("analysis_id") and payload.get("analysis_id") != state["analysis_id"]:
+            continue
+        frame, manifest = store.load_analysis(payload["analysis_id"])
+        if manifest.get("workspace_id") != workspace_id:
+            raise ValueError("Selected rows belong to another workspace")
+        seen.add(artifact)
+        rows = payload.get("rows", [])
+        total = payload.get("total_match_count", len(rows))
+        comparison_caveat = any(
+            isinstance(warning, dict)
+            and warning.get("code") == "NUMERIC_EQUALITY_ONLY_ACROSS_DISTINCT_SOURCE_CONTRACTS"
+            for warning in payload.get("warnings", [])
+        )
+        if not rows:
+            lines.append("Belirtilen koşulların tümünü karşılayan kayıt bulunmadı. Eksik değerler karşılaştırmada sıfır veya farklı değer sayılmadı.")
+            if comparison_caveat:
+                lines.append("Sütunlar arasında yalnız kayıtlı sayısal eşitlik denetlendi; farklı kaynak kapsamları veya ölçüm temelleri eşdeğer sayılmadı.")
+            continue
+        presentation = analysis_presentation(frame, manifest)
+        columns = payload.get("columns", [])
+        headers = []
+        for column in columns:
+            label = "Dönem" if column == "period" else presentation.get("labels", {}).get(column, column.replace("_", " "))
+            meta = payload.get("schema", {}).get(column, {})
+            unit = _display_unit(meta) if column != "period" and meta.get("unit") else ""
+            headers.append(_display_label(label) + (f" ({unit})" if unit else ""))
+        lines.append(f"Koşulları karşılayan kayıtlar ({total}):")
+        lines.append("| " + " | ".join(headers) + " |")
+        lines.append("| " + " | ".join("---" for _ in headers) + " |")
+        for row in rows[:20]:
+            rendered = []
+            for column in columns:
+                value = row.get(column)
+                if value is None:
+                    rendered.append("")
+                elif column == "period":
+                    rendered.append(_display_period(value))
+                elif isinstance(value, numbers.Real) and not isinstance(value, bool):
+                    rendered.append(_display_number(value))
+                else:
+                    rendered.append(_display_label(value))
+            lines.append("| " + " | ".join(rendered) + " |")
+        if len(rows) > 20 or payload.get("truncated"):
+            lines.append(f"İlk {min(20, len(rows))} satır gösterildi; tam seçim kaydı indirilebilir.")
+        if comparison_caveat:
+            lines.append("Sütunlar arasında yalnız kayıtlı sayısal eşitlik denetlendi; farklı kaynak kapsamları veya ölçüm temelleri eşdeğer sayılmadı.")
+    return "\n".join(lines) or None
 
 
 def _cell_confirmation(store, workspace_id, state):

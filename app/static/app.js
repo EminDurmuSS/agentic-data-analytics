@@ -482,6 +482,7 @@ async function selectWorkspace(id) {
     if (recent.result) showExtraResults(recent.result);
     showResultStatus(recent.result || { status: "running" }, workspace.latest_journey);
     if (!recent.result) showResume(workspace.pending_job_id);
+    else if (workspace.retryable_job_id) showResume(workspace.retryable_job_id);
     showFollowups(recent, latestAssistant);
     revealMessage(recent.result ? latestAssistant : $("#message-list").lastElementChild);
   }
@@ -617,6 +618,7 @@ async function submitQuestion(event) {
       notice(result.message);
     showExtraResults(result);
     showResultStatus(result);
+    if (isRetryableResult(result)) showResume(state.job);
     const workspace = await api(base());
     state.workspace = { ...state.workspace, ...workspace };
     $("#workspace-version").textContent = "Sürüm " + workspace.version;
@@ -635,6 +637,11 @@ async function submitQuestion(event) {
     revealMessage(pending);
     await refreshWorkspaces();
   }
+}
+function isRetryableResult(result) {
+  return Boolean(result?.errors?.some((error) =>
+    error?.retryable === true && String(error?.code || "").startsWith("PROVIDER_"),
+  ));
 }
 function showResume(jobId) {
   if (!jobId) return;
@@ -1215,11 +1222,48 @@ function showExtraResults(result) {
         "rolling_anomalies",
         "detect_changes",
         "analyze_relationship",
+        "select_analysis_rows",
         "web_search",
         "research_web",
       ].includes(name)
     )
       continue;
+    if (name === "select_analysis_rows" && toolResult.status === "ok") {
+      const card = el("div", null, "source-card");
+      card.append(el("strong", "Koşulları karşılayan satırlar"));
+      card.append(
+        el(
+          "p",
+          fmt(toolResult.total_match_count ?? toolResult.row_count ?? 0) +
+            " kayıt bulundu. Eksik değerler yalnız açık null koşullarıyla seçilir.",
+        ),
+      );
+      const columns = toolResult.columns || [];
+      if (columns.length && (toolResult.rows || []).length) {
+        const table = el("table"), head = el("tr"), body = el("tbody");
+        for (const column of columns) head.append(el("th", column));
+        const thead = el("thead");
+        thead.append(head);
+        table.append(thead);
+        for (const values of toolResult.rows.slice(0, 20)) {
+          const row = el("tr");
+          for (const column of columns)
+            row.append(el("td", column === "period" ? periodLabel(values[column]) : fmt(values[column]), values[column] === null ? "missing-cell" : ""));
+          body.append(row);
+        }
+        table.append(body);
+        card.append(table);
+      }
+      if (toolResult.selection_id) {
+        const link = el("a", "Tam seçim kaydı ↓", "text-button");
+        link.href = base() + "/selections/" + toolResult.selection_id;
+        link.target = "_blank";
+        link.rel = "noopener";
+        card.append(link);
+      }
+      holder.append(card);
+      continue;
+    }
     if (toolResult.status === "ok" && toolResult.method) {
       const card = el("div", null, "source-card");
       const values = toolResult.results || {};

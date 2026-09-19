@@ -596,6 +596,13 @@ def build(output_path: Path, *, catalog_dir: Path | None = None) -> dict[str, An
             / "province_housing_sales_v1"
             / "processed"
         )
+        tuik_first_published_dir = (
+            PROJECT_ROOT
+            / "data_pipeline"
+            / "tuik"
+            / "province_housing_sales_first_published_v1"
+            / "processed"
+        )
         parquet_tables.extend(
             [
                 (
@@ -612,6 +619,16 @@ def build(output_path: Path, *, catalog_dir: Path | None = None) -> dict[str, An
                     "tuik",
                     "province_housing_sales_identity_zero_fallbacks",
                     tuik_dir / "identity_zero_fallbacks.parquet",
+                ),
+                (
+                    "tuik",
+                    "province_housing_sales_first_published",
+                    tuik_first_published_dir / "monthly_sales_first_published.parquet",
+                ),
+                (
+                    "tuik",
+                    "province_housing_sales_revision_comparison",
+                    tuik_first_published_dir / "revision_comparison.parquet",
                 ),
                 (
                     "regional",
@@ -877,6 +894,7 @@ def build(output_path: Path, *, catalog_dir: Path | None = None) -> dict[str, An
             "The quarterly analysis table keeps BDDK, FinTurk, EVDS and TBB scope differences visible.",
             "The regional panel keeps official province observations distinct from regional KFE, YKKE and explicitly labelled same-region price proxies.",
             "TÜİK direct observations, identity-derived zero fallbacks and EVDS reconciliation remain separately queryable.",
+            "TÜİK first-published bulletin values and the current post-2026-revision bulk series have separate metric identities and cell provenance.",
             "FinTurk raw branch-count nulls and exact functional-group identity-derived analytical zeros remain separately queryable.",
             "Weekly BDDK data is loaded only after its processed validation exists.",
         ],

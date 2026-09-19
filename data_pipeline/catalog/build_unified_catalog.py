@@ -25,6 +25,8 @@ DEFAULT_OUTPUT = CATALOG_DIR / "unified"
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
+from agentic_analytics.lakehouse.semantics import BDDK_WEEKLY_EXPLANATION_URL
+
 MONTHLY_METADATA_COLUMNS = {
     "month",
     "table_no",
@@ -83,6 +85,9 @@ ASSET_COLUMNS = [
     "file_format",
     "validation_file",
     "source_url",
+    "vintage_policy",
+    "release_date",
+    "revision_status",
     "description",
     "searchable_text",
 ]
@@ -114,6 +119,16 @@ METRIC_COLUMNS = [
     "is_archive",
     "source_asset",
     "source_metadata_url",
+    "vintage_policy",
+    "release_date",
+    "revision_status",
+    "canonical_series_code",
+    "historical_name",
+    "current_name",
+    "name_change_effective_date",
+    "name_change_source_url",
+    "methodology_source_url",
+    "official_series_url",
     "notes",
     "searchable_text",
 ]
@@ -373,6 +388,11 @@ def evds_assets_and_metrics() -> tuple[list[dict[str, Any]], list[dict[str, Any]
         metric_name_en = text_value(row.get("series_name_en"))
         group_name = text_value(row.get("group_name_tr"))
         source_organization = text_value(row.get("source")) or "TCMB"
+        identity_values = [
+            text_value(observed.get("canonical_index_code")) if observed else "",
+            text_value(observed.get("historical_name")) if observed else "",
+            text_value(observed.get("current_name")) if observed else "",
+        ]
         searchable_text = " | ".join(
             value
             for value in [
@@ -383,9 +403,20 @@ def evds_assets_and_metrics() -> tuple[list[dict[str, Any]], list[dict[str, Any]
                 source_organization,
                 text_value(row.get("unit")),
                 role,
+                *identity_values,
             ]
             if value
         )
+        identity_note = ""
+        if observed and text_value(observed.get("canonical_index_code")):
+            identity_note = (
+                f" Canonical index code={text_value(observed.get('canonical_index_code'))}; "
+                f"historical name={text_value(observed.get('historical_name'))}; "
+                f"current name={text_value(observed.get('current_name'))}; "
+                f"official name change effective={text_value(observed.get('name_change_effective_date'))}; "
+                f"name-change evidence={text_value(observed.get('name_change_source_url'))}; "
+                f"methodology={text_value(observed.get('methodology_source_url'))}."
+            )
         metrics.append(
             make_metric(
                 metric_id=f"evds:{series_code}",
@@ -420,8 +451,37 @@ def evds_assets_and_metrics() -> tuple[list[dict[str, Any]], list[dict[str, Any]
                 is_archive=bool(row.get("is_archive")),
                 source_asset=relative(source_asset),
                 source_metadata_url=text_value(row.get("metadata_url")),
+                canonical_series_code=(
+                    text_value(observed.get("canonical_index_code")) if observed else ""
+                ),
+                historical_name=(
+                    text_value(observed.get("historical_name")) if observed else ""
+                ),
+                current_name=(
+                    text_value(observed.get("current_name")) if observed else ""
+                ),
+                name_change_effective_date=(
+                    text_value(observed.get("name_change_effective_date"))
+                    if observed
+                    else ""
+                ),
+                name_change_source_url=(
+                    text_value(observed.get("name_change_source_url"))
+                    if observed
+                    else ""
+                ),
+                methodology_source_url=(
+                    text_value(observed.get("methodology_source_url"))
+                    if observed
+                    else ""
+                ),
+                official_series_url=(
+                    text_value(observed.get("official_index_page_url"))
+                    if observed
+                    else ""
+                ),
                 notes=(
-                    text_value(observed.get("reason"))
+                    text_value(observed.get("reason")) + identity_note
                     if observed
                     else "Observation values are not stored locally."
                 ),
@@ -1246,6 +1306,9 @@ def tuik_province_sales_assets_and_metrics() -> tuple[
             file_format="gzip_csv",
             validation_file=relative(validation_path),
             source_url=request["url"],
+            vintage_policy=validation["vintage_policy"],
+            release_date=validation["source_vintage_at"],
+            revision_status=validation["revision_status"],
             description=(
                 "Exact TÜİK province housing-sales bulk CSV response with "
                 f"raw SHA-256 {response['raw_response_sha256']}."
@@ -1276,6 +1339,9 @@ def tuik_province_sales_assets_and_metrics() -> tuple[
             file_format="parquet",
             validation_file=relative(validation_path),
             source_url=request["url"],
+            vintage_policy=validation["vintage_policy"],
+            release_date=validation["source_vintage_at"],
+            revision_status=validation["revision_status"],
             description=(
                 "Province-month housing sales. Direct source-row absence and "
                 "official identity-derived zeros are stored separately."
@@ -1380,11 +1446,202 @@ def tuik_province_sales_assets_and_metrics() -> tuple[
                 is_archive=False,
                 source_asset=relative(monthly_path),
                 source_metadata_url=request["url"],
+                vintage_policy=validation["vintage_policy"],
+                release_date=validation["source_vintage_at"],
+                revision_status=validation["revision_status"],
                 notes=(
                     f"Direct source-row absence={direct_missing}; "
-                    f"official identity-derived zero={identity_derived}."
+                    f"official identity-derived zero={identity_derived}. "
+                    "Current official bulk snapshot uses the housing definition "
+                    "revised on 2026-02-19; do not present it as the values first "
+                    "published in historical bulletins."
                 ),
-                searchable_text=f"{code} {labels[str(code)]} TÜİK il aylık konut satışı",
+                searchable_text=(
+                    f"{code} {labels[str(code)]} TÜİK il aylık konut satışı "
+                    "güncel revize current revised latest vintage"
+                ),
+            )
+        )
+    return assets, metrics
+
+
+def tuik_first_published_sales_assets_and_metrics() -> tuple[
+    list[dict[str, Any]], list[dict[str, Any]]
+]:
+    base = (
+        PROJECT_ROOT
+        / "data_pipeline"
+        / "tuik"
+        / "province_housing_sales_first_published_v1"
+    )
+    processed = base / "processed"
+    manifest_path = base / "manifest.json"
+    validation_path = processed / "validation.json"
+    monthly_path = processed / "monthly_sales_first_published.parquet"
+    comparison_path = processed / "revision_comparison.parquet"
+    manifest = read_json(manifest_path)
+    validation = read_json(validation_path)
+    monthly = pd.read_parquet(monthly_path)
+    comparison = pd.read_parquet(comparison_path)
+    source_url = "https://veriportali.tuik.gov.tr/tr/search?q=konut"
+    first_release = min(item["release_at"] for item in manifest["records"])
+    last_release = max(item["release_at"] for item in manifest["records"])
+
+    assets = [
+        make_asset(
+            asset_id="tuik.province_housing_sales_first_published_v1.source_manifest",
+            dataset_id="tuik.province_housing_sales_first_published_v1",
+            source_system="TUIK_DATA_PORTAL",
+            source_organization="TÜİK",
+            competition_scope="supporting_official_source_historical_vintage",
+            status=validation["status"],
+            data_kind="official_bulletin_source_manifest",
+            native_frequency="monthly",
+            temporal_semantics="first_publication_vintage",
+            geography_grain="province",
+            institution_grain="not_applicable",
+            coverage_start=validation["coverage_start"],
+            coverage_end=validation["coverage_end"],
+            row_count=validation["publication_count"],
+            column_count=None,
+            metric_count=validation["metric_count"],
+            missing_value_count=0,
+            progress_completed=validation["publication_count"],
+            progress_expected=validation["publication_count"],
+            file_path=relative(manifest_path),
+            file_format="json",
+            validation_file=relative(validation_path),
+            source_url=source_url,
+            vintage_policy=validation["vintage_policy"],
+            release_date=last_release,
+            revision_status="historical_first_publication_pre_2026_revision",
+            description=(
+                "Exact official bulletin and workbook identities for each monthly "
+                "province housing-sales first publication."
+            ),
+            searchable_text="TÜİK historical first publication bulletin housing sales vintage",
+        ),
+        make_asset(
+            asset_id="tuik.province_housing_sales_first_published_v1.monthly_sales",
+            dataset_id="tuik.province_housing_sales_first_published_v1",
+            source_system="TUIK_DATA_PORTAL",
+            source_organization="TÜİK",
+            competition_scope="supporting_official_source_historical_vintage",
+            status=validation["status"],
+            data_kind="observations_long",
+            native_frequency="monthly",
+            temporal_semantics="monthly_flow_first_publication",
+            geography_grain="province",
+            institution_grain="not_applicable",
+            coverage_start=validation["coverage_start"],
+            coverage_end=validation["coverage_end"],
+            row_count=len(monthly),
+            column_count=len(monthly.columns),
+            metric_count=validation["metric_count"],
+            missing_value_count=int(monthly["value"].isna().sum()),
+            progress_completed=int(monthly["value"].notna().sum()),
+            progress_expected=len(monthly),
+            file_path=relative(monthly_path),
+            file_format="parquet",
+            validation_file=relative(validation_path),
+            source_url=source_url,
+            vintage_policy=validation["vintage_policy"],
+            release_date=last_release,
+            revision_status="historical_first_publication_pre_2026_revision",
+            description=(
+                "Province-month values copied from each reference month's official "
+                "TÜİK bulletin workbook, before the 2026 methodology revision."
+            ),
+            searchable_text=(
+                "TÜİK province monthly housing sales first published original "
+                "historical bulletin pre revision vintage"
+            ),
+        ),
+        make_asset(
+            asset_id="tuik.province_housing_sales_first_published_v1.revision_comparison",
+            dataset_id="tuik.province_housing_sales_first_published_v1",
+            source_system="TUIK_DATA_PORTAL",
+            source_organization="TÜİK",
+            competition_scope="derived_quality_evidence",
+            status=validation["status"],
+            data_kind="official_vintage_comparison",
+            native_frequency="monthly",
+            temporal_semantics="first_publication_vs_current_revision",
+            geography_grain="province",
+            institution_grain="not_applicable",
+            coverage_start=validation["coverage_start"],
+            coverage_end=validation["coverage_end"],
+            row_count=len(comparison),
+            column_count=len(comparison.columns),
+            metric_count=0,
+            missing_value_count=int(comparison.isna().sum().sum()),
+            progress_completed=len(comparison),
+            progress_expected=len(comparison),
+            file_path=relative(comparison_path),
+            file_format="parquet",
+            validation_file=relative(validation_path),
+            source_url="https://veriportali.tuik.gov.tr/tr/press/58340",
+            vintage_policy="explicit_side_by_side_official_vintages",
+            release_date="2026-02-19T10:00:00",
+            revision_status="comparison_only",
+            description=(
+                "Cell-level comparison of first-published bulletin values with the "
+                "current official bulk series after the 2026 definition revision."
+            ),
+            searchable_text="TÜİK housing sales revision first publication current comparison",
+        ),
+    ]
+
+    labels = {
+        "housing_sales_total_count": "İlk yayımlanan toplam konut satışı",
+        "housing_sales_mortgaged_count": "İlk yayımlanan ipotekli konut satışı",
+        "housing_sales_other_count": "İlk yayımlanan diğer konut satışı",
+        "housing_sales_first_hand_count": "İlk yayımlanan ilk el konut satışı",
+        "housing_sales_second_hand_count": "İlk yayımlanan ikinci el konut satışı",
+    }
+    metrics: list[dict[str, Any]] = []
+    for code, rows in monthly.groupby("metric_code", sort=True):
+        metrics.append(
+            make_metric(
+                metric_id=f"tuik_province_housing_sales_first_published:{code}",
+                dataset_id="tuik.province_housing_sales_first_published_v1",
+                source_system="TUIK_DATA_PORTAL",
+                source_organization="TÜİK",
+                competition_scope="supporting_official_source_historical_vintage",
+                source_metric_code=str(code),
+                metric_name_tr=labels[str(code)],
+                metric_name_en="",
+                group_name="İl bazlı konut satışları, ilk yayımlanan bülten vintage'ı",
+                role="housing_market_outcome",
+                dimension="province",
+                native_frequency="monthly",
+                unit="count",
+                temporal_semantics="flow",
+                default_aggregation="sum",
+                geography_grain="province",
+                institution_grain="not_applicable",
+                coverage_start=validation["coverage_start"],
+                coverage_end=validation["coverage_end"],
+                observation_available=True,
+                observation_count=int(rows["value"].notna().sum()),
+                missing_observation_count=int(rows["value"].isna().sum()),
+                quality_status=validation["status"],
+                is_archive=True,
+                source_asset=relative(monthly_path),
+                source_metadata_url=source_url,
+                vintage_policy=validation["vintage_policy"],
+                release_date=f"{first_release}..{last_release}",
+                revision_status="historical_first_publication_pre_2026_revision",
+                notes=(
+                    "Every monthly value comes from the table attached to that "
+                    "month's first official bulletin. The series predates TÜİK's "
+                    "2026 housing-definition revision and must not be silently "
+                    "mixed with the current revised bulk series."
+                ),
+                searchable_text=(
+                    f"{code} {labels[str(code)]} TÜİK il aylık konut satışı "
+                    "ilk yayın orijinal tarihsel bülten first published vintage"
+                ),
             )
         )
     return assets, metrics
@@ -1818,6 +2075,7 @@ def weekly_bddk_assets_and_metrics() -> tuple[list[dict[str, Any]], list[dict[st
             label = labels[-1] if labels else str(metric_code)
             values = pd.to_numeric(rows["value"], errors="coerce")
             source_code = f"table{int(table_id)}:{metric_code}:{dimension}"
+            reviewed_credit_stock = int(table_id) == 289
             metrics.append(
                 make_metric(
                     metric_id=f"bddk_weekly:{slug(source_code)}",
@@ -1831,10 +2089,20 @@ def weekly_bddk_assets_and_metrics() -> tuple[list[dict[str, Any]], list[dict[st
                     group_name=text_value(rows["table_name"].iloc[0]),
                     role="weekly_banking_supervision",
                     dimension=str(dimension),
-                    native_frequency="weekly",
+                    native_frequency=(
+                        "weekly_observed" if reviewed_credit_stock else "weekly"
+                    ),
                     unit=text_value(rows["source_unit"].dropna().iloc[0]) if rows["source_unit"].notna().any() else "",
-                    temporal_semantics="source_reported_requires_semantic_review",
-                    default_aggregation="semantic_policy_required_for_resampling",
+                    temporal_semantics=(
+                        "source_date_stock"
+                        if reviewed_credit_stock
+                        else "source_reported_requires_semantic_review"
+                    ),
+                    default_aggregation=(
+                        "last"
+                        if reviewed_credit_stock
+                        else "semantic_policy_required_for_resampling"
+                    ),
                     geography_grain="national",
                     institution_grain="all_public_bank_groups",
                     coverage_start=str(rows["observation_date"].min()),
@@ -1845,8 +2113,22 @@ def weekly_bddk_assets_and_metrics() -> tuple[list[dict[str, Any]], list[dict[st
                     quality_status=validation["status"],
                     is_archive=False,
                     source_asset=relative(measurements_path),
-                    source_metadata_url=config["source_url"],
-                    notes="Source labels and currencies are preserved.",
+                    source_metadata_url=(
+                        BDDK_WEEKLY_EXPLANATION_URL
+                        if reviewed_credit_stock
+                        else config["source_url"]
+                    ),
+                    revision_status=(
+                        "provisional_revisable" if reviewed_credit_stock else None
+                    ),
+                    notes=(
+                        "Source labels, currencies, and actual observation dates are preserved. "
+                        "Table 289 credit amounts are source-date stock balances. BDDK states that "
+                        "the weekly bulletin uses temporary financial statements and later issues "
+                        "may revise a period."
+                        if reviewed_credit_stock
+                        else "Source labels and currencies are preserved."
+                    ),
                     searchable_text=" | ".join([source_code, label, str(dimension)]),
                 )
             )
@@ -1963,6 +2245,7 @@ def validate_catalog(
         "evds.regional_housing_v1",
         "evds.household_finance_v1",
         "tuik.province_housing_sales_v1",
+        "tuik.province_housing_sales_first_published_v1",
         "bddk.monthly_all_groups.table_01",
         "bddk.finturk_all_groups_all_cities",
         "bddk.weekly_all_groups",
@@ -2031,7 +2314,7 @@ def validate_catalog(
     }
 
 
-def build(output_dir: Path, *, include_full_catalog: bool = True) -> dict[str, Any]:
+def build(output_dir: Path, *, include_full_catalog: bool = False) -> dict[str, Any]:
     assets: list[dict[str, Any]] = []
     metrics: list[dict[str, Any]] = []
 
@@ -2040,6 +2323,7 @@ def build(output_dir: Path, *, include_full_catalog: bool = True) -> dict[str, A
         monthly_bddk_assets_and_metrics,
         finturk_assets_and_metrics,
         tuik_province_sales_assets_and_metrics,
+        tuik_first_published_sales_assets_and_metrics,
         regional_housing_assets_and_metrics,
         tbb_assets_and_metrics,
         risk_center_assets_and_metrics,
@@ -2084,10 +2368,22 @@ def build(output_dir: Path, *, include_full_catalog: bool = True) -> dict[str, A
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--output", type=Path, default=DEFAULT_OUTPUT)
-    parser.add_argument("--without-full-catalog", action="store_true",
-                        help="Reproduce the distributed seed catalog without optional bulk publications.")
+    publication = parser.add_mutually_exclusive_group()
+    publication.add_argument(
+        "--with-full-catalog",
+        action="store_true",
+        help="Include the local, separately published full EVDS release.",
+    )
+    publication.add_argument(
+        "--without-full-catalog",
+        action="store_true",
+        help="Deprecated explicit spelling of the portable default.",
+    )
     args = parser.parse_args()
-    result = build(args.output.expanduser().resolve(), include_full_catalog=not args.without_full_catalog)
+    result = build(
+        args.output.expanduser().resolve(),
+        include_full_catalog=args.with_full_catalog,
+    )
     print(json.dumps(result, ensure_ascii=False, indent=2))
     return 0
 

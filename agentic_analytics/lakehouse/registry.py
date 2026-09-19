@@ -66,6 +66,19 @@ def build_bindings(connection: duckdb.DuckDBPyConnection) -> dict[str, dict[str,
         binding = {"metric_id":metric["metric_id"], "dataset_id":metric["dataset_id"], "title":metric["metric_name_tr"],
             "title_en":metric.get("metric_name_en"), "searchable_text":metric.get("searchable_text"),
             "group_name":metric.get("group_name"), "role":metric.get("role"),
+            "source_organization":metric.get("source_organization"),
+            "competition_scope":metric.get("competition_scope"),
+            "vintage_policy":metric.get("vintage_policy"), "release_date":metric.get("release_date"),
+            "revision_status":metric.get("revision_status"),
+            "canonical_series_code":metric.get("canonical_series_code"),
+            "historical_name":metric.get("historical_name"),
+            "current_name":metric.get("current_name"),
+            "name_change_effective_date":metric.get("name_change_effective_date"),
+            "name_change_source_url":metric.get("name_change_source_url"),
+            "methodology_source_url":metric.get("methodology_source_url"),
+            "official_series_url":metric.get("official_series_url"),
+            "source_metadata_url":metric.get("source_metadata_url"),
+            "source_url":metric.get("source_metadata_url"),
             "source_system":source, "scope_namespace":source, "source_code":code, "table":table, "time_column":None,
             "value_column":None, "filters":{}, "dimensions":{},
             "native_frequency":FREQUENCIES.get(metric["native_frequency"], metric["native_frequency"]),
@@ -109,9 +122,13 @@ def build_bindings(connection: duckdb.DuckDBPyConnection) -> dict[str, dict[str,
                 dimensions={"group_code":"group_code"}, source_base="data_pipeline/bddk/weekly_all_groups",
                 provenance_columns=["source_file","source_sha256","metric_label","definition_id","period_id","table_id","group_code","currency_dimension"],
                 institution_scope="BDDK_WEEKLY group namespace", definition_periods=definitions.get(metric_code, []))
-            # Native values are discoverable; economic resampling needs an explicit reviewed policy.
-            binding["kind"] = "unknown"
-            binding["notes"] += " Resampling requires reviewed source semantics; historical definitions cannot be mixed."
+            if not code.startswith("table289:"):
+                # Other weekly tables remain discoverable at native grain, but
+                # their economic resampling policy has not been reviewed.
+                binding["kind"] = "unknown"
+                binding["notes"] += " Resampling requires reviewed source semantics; historical definitions cannot be mixed."
+            else:
+                binding["notes"] += " Actual BDDK observation dates are retained, including holiday-shifted weekly issues; historical definitions cannot be mixed."
         elif source == "BDDK_FINTURK":
             number, measure = code.split(":", 1)
             binding.update(time_column="quarter",value_column="usable_value",filters={"table_no":int(number[5:]),"measure_code":measure},
@@ -175,8 +192,31 @@ def build_bindings(connection: duckdb.DuckDBPyConnection) -> dict[str, dict[str,
                 notes=binding["notes"]+" Publication-month label is source vintage, not verified actual release date.")
         elif source == "TUIK_DATA_PORTAL":
             binding.update(time_column="month",value_column="value",filters={"metric_code":code},dimensions={"province_key":"province_key"},
-                source_base="",provenance_columns=["source_csv_file","source_csv_sha256","value_origin","derivation","province_key","metric_code"],
+                source_base="",provenance_columns=["source_csv_file","source_csv_sha256","source_file","source_sha256",
+                    "source_row_index","source_column_index","source_cell","source_sheet","source_press_id","source_press_title",
+                    "source_press_period","source_press_url","source_press_api_url","source_download_url","release_at",
+                    "source_vintage_at","revision_status","vintage_policy","methodology_revision_date",
+                    "methodology_revision_press_id","methodology_revision_url","value_origin","derivation","province_key","metric_code"],
                 hash_basis="decompressed_response")
+            binding["scope_namespace"] = metric["dataset_id"]
+            if metric["dataset_id"] == "tuik.province_housing_sales_first_published_v1":
+                binding["measurement_basis"] = "tuik_housing_definition_pre_2026_first_publication"
+                binding["methodology_revision_date"] = "2026-02-19"
+                binding["notes"] += " This is the first official bulletin vintage, not the current revised series."
+                binding.setdefault("scope_caveats", []).append({
+                    "code": "historical_first_publication_vintage",
+                    "source_url": "https://veriportali.tuik.gov.tr/tr/press/58340",
+                    "message": "TÜİK revised housing-sale history from 2013 in 2026. Keep this first-published bulletin series separate from the current revised bulk series.",
+                })
+            else:
+                binding["measurement_basis"] = "tuik_housing_definition_revised_2026"
+                binding["methodology_revision_date"] = "2026-02-19"
+                binding["notes"] += " This is the current official bulk vintage after the 2026 methodology revision."
+                binding.setdefault("scope_caveats", []).append({
+                    "code": "current_revised_vintage",
+                    "source_url": "https://veriportali.tuik.gov.tr/tr/press/58340",
+                    "message": "Historical values use TÜİK's 2026 revised housing definition and can differ from contemporaneous first publications.",
+                })
         elif source == "REGIONAL_HOUSING_ANALYSIS":
             binding.update(time_column="quarter",value_column=code,dimensions={"province_key":"province_key"},
                 provenance_columns=[],notes=binding["notes"]+" Derived panel. Query-specific missingness applies; source/proxy lineage differs by column.",
@@ -249,6 +289,7 @@ def get_bindings(connection: duckdb.DuckDBPyConnection) -> dict[str, dict[str, A
     # (slice token, archive flag, temporal semantics, curation) so discover/describe
     # can distinguish a canonical metric from its near-identical decoy siblings.
     searchable = [name for name in ("metric_name_en", "searchable_text", "group_name", "role",
+                                    "source_organization", "competition_scope",
                                     "dimension", "is_archive", "temporal_semantics", "quality_status")
                   if name in catalog_columns]
     if searchable:
@@ -272,7 +313,14 @@ def get_bindings(connection: duckdb.DuckDBPyConnection) -> dict[str, dict[str, A
         unit,scale,currency = normalized_unit(metric["unit"] or "")
         result[metric["metric_id"]] = {"metric_id":metric["metric_id"], "dataset_id":metric["dataset_id"], "title":metric["metric_name_tr"],
             "title_en":metric.get("metric_name_en"), "searchable_text":metric.get("searchable_text"), "group_name":metric.get("group_name"),
-            "source_system":metric["source_system"], "scope_namespace":metric["source_system"], "source_code":metric["source_metric_code"],
+            "canonical_series_code":metric.get("canonical_series_code"), "historical_name":metric.get("historical_name"),
+            "current_name":metric.get("current_name"), "name_change_effective_date":metric.get("name_change_effective_date"),
+            "name_change_source_url":metric.get("name_change_source_url"), "methodology_source_url":metric.get("methodology_source_url"),
+            "official_series_url":metric.get("official_series_url"),
+            "source_metadata_url":metric.get("source_metadata_url"), "source_url":metric.get("source_metadata_url"),
+            "source_system":metric["source_system"], "source_organization":metric.get("source_organization"),
+            "competition_scope":metric.get("competition_scope"),
+            "scope_namespace":metric["source_system"], "source_code":metric["source_metric_code"],
             "table":None,"time_column":None,"value_column":None,"filters":{},"dimensions":{},
             "native_frequency":FREQUENCIES.get(metric["native_frequency"],metric["native_frequency"]),
             "kind":"unknown","unit":unit,"scale":scale,"currency":currency,
