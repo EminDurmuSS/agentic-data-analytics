@@ -14,7 +14,7 @@ import pytest
 from agentic_analytics.agent.run_store import AgentRunStore
 from agentic_analytics.agent.context import _model_tool_result
 from agentic_analytics.agent.delivery import _source_scope_confirmation
-from agentic_analytics.agent.runtime import AgentRuntime, _requests_shared_scale
+from agentic_analytics.agent.runtime import AgentRuntime, _explicit_year_window, _requests_shared_scale
 from agentic_analytics.agent.schemas import obj
 from agentic_analytics.agent.tools.charts import ChartTools
 from agentic_analytics.agent.tools.documents import DocumentTools
@@ -758,6 +758,20 @@ def test_saved_analysis_lineage_fulfils_sources_deliverable(env):
              "task_plan": {"deliverables": ["analysis", "sources"]},
              "tool_results": result["tool_results"]}
     assert runtime._task_delivery_errors(state) == []
+
+
+def test_explicit_historical_year_ranges_reject_a_saved_recent_analysis(env):
+    _, _, _, _, build = env
+    plan = {"start": "2020-01", "end": "2026-06", "frequency": "monthly",
+            "columns": [{"name": "credit", "metric_id": "credit", "dimensions": {}}]}
+    runtime, _ = build([call("execute", plan), final()])
+    result = runtime.run("2010–2014 İMKB 100 ile 2014–2018 BIST 100 aylık kapanış verisini tek analizde göster")
+    request = "2010–2014 İMKB 100 ile 2014–2018 BIST 100 aylık kapanış verisini tek analizde göster"
+    errors = runtime._analysis_request_scope_errors({"analysis_id": result["analysis_id"], "analysis_updated": True,
+                                                      "request_message": request})
+    assert _explicit_year_window(request) == (2010, 2018)
+    assert errors[0]["code"] == "REQUESTED_PERIOD_MISMATCH"
+    assert errors[0]["actual_start"] == "2020"
 
 
 def test_single_date_delivery_has_each_presented_amount_once_and_sources_without_technical_boilerplate(env):

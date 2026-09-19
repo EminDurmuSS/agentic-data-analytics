@@ -434,6 +434,23 @@ def _requests_shared_scale(message):
     return False
 
 
+def _explicit_year_window(message):
+    """Return an explicitly requested year-to-year window, never inferred years.
+
+    This is a delivery guard, not a date parser for conversational prose. It
+    only activates when the user has written an actual range such as
+    ``2010–2014``. Multiple adjacent ranges deliberately collapse to their
+    outer bounds, so a historical rename request cannot be satisfied with a
+    recent series.
+    """
+    ranges = [(int(start), int(end)) for start, end in re.findall(
+        r"(?<!\d)((?:19|20)\d{2})\s*(?:-|–|—|to|ile)\s*((?:19|20)\d{2})(?!\d)", _fact_text(message))]
+    if not ranges:
+        return None
+    start, end = min(pair[0] for pair in ranges), max(pair[1] for pair in ranges)
+    return (start, end) if start <= end else None
+
+
 def _unreadable(content):
     """Flag a final answer that is garbled: replacement characters, non-Latin/Turkish
     script, or degenerate repetition with almost no coherent words, so it is
@@ -1131,6 +1148,7 @@ class AgentRuntime:
             if "institutional_fact_kind" not in state:
                 state.update(self._institutional_intent(record, state))
             state.setdefault("institutional_request", record["message"])
+            state.setdefault("request_message", record["message"])
             state.setdefault("external_facts_required", bool(state["institutional_fact_kind"]))
             state.setdefault("ownership_subject", _ownership_subject(record["message"]))
             state.setdefault("ownership_percentages_requested", _requests_ownership_percentages(record["message"]))
@@ -1585,7 +1603,8 @@ class AgentRuntime:
     def _task_delivery_errors(self, state):
         plan = state.get("task_plan") or {}
         required = plan.get("deliverables", [])
-        chart_coverage_errors = self._chart_coverage_errors(state) + self._normalization_errors(state)
+        chart_coverage_errors = (self._chart_coverage_errors(state) + self._normalization_errors(state)
+                                 + self._analysis_request_scope_errors(state))
         if not required:
             return chart_coverage_errors
         successful = [item for item in state.get("tool_results", []) if item.get("result", {}).get("status") == "ok"]
@@ -1641,6 +1660,31 @@ class AgentRuntime:
         return [{"code": "TASK_DELIVERABLE_MISSING", "deliverable": name,
                  "message": f"The declared task requires {name}; no matching completed output was produced."}
                 for name in required if not evidence[name]] + chart_coverage_errors
+
+    def _analysis_request_scope_errors(self, state):
+        """Prevent a saved analysis from silently replacing an explicit year range."""
+        requested = _explicit_year_window(state.get("request_message", ""))
+        if not requested:
+            return []
+        analysis_id = state.get("analysis_id")
+        if not isinstance(analysis_id, str) or not state.get("analysis_updated"):
+            return []
+        try:
+            _, manifest = self.store.load_analysis(analysis_id)
+        except (OSError, ValueError, duckdb.Error):
+            return []
+        plan = manifest.get("plan") or {}
+        actual = (str(plan.get("start", ""))[:4], str(plan.get("end", ""))[:4])
+        if not all(value.isdigit() and len(value) == 4 for value in actual):
+            return [{"code": "REQUESTED_PERIOD_UNVERIFIED", "analysis_id": analysis_id,
+                     "message": "The saved analysis does not retain a usable start/end period for the explicit requested year range."}]
+        actual_years = tuple(map(int, actual))
+        if actual_years != requested:
+            return [{"code": "REQUESTED_PERIOD_MISMATCH", "analysis_id": analysis_id,
+                     "requested_start": str(requested[0]), "requested_end": str(requested[1]),
+                     "actual_start": actual[0], "actual_end": actual[1],
+                     "message": "The saved analysis period differs from the explicit year range in the user request; do not present it as the requested historical series."}]
+        return []
 
     def _normalization_errors(self, state):
         """Verify requested common-scale amounts against immutable analysis.
