@@ -2,7 +2,7 @@
   "endpoint": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
   "dataset_id": "housing_credit_market_controls_v2",
   "manifest_file": "market_controls_v2.json",
-  "manifest_sha256": "9fb9b863f32c7b8ad8c841a23edbade37c6e43bc19a5ddeb3e22404e95a80580",
+  "manifest_sha256": "b3033887d7a82eef3ca005ca7cb57310bd937286305af09269546048f0053368",
   "catalog_file": "evds_series_catalog.parquet",
   "catalog_sha256": "ccdd130fb752defb99a295857b56e61b088f8c49708722f9b6e303f454e576da",
   "start_date": "2020-01-01",

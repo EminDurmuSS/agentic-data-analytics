@@ -1,7 +1,10 @@
+import argparse
 import unittest
 from datetime import date
 import json
 from pathlib import Path
+import tempfile
+from unittest import mock
 
 import pandas as pd
 
@@ -12,7 +15,9 @@ from tools.EVDS_Manifest_Indirme_Araci import (
     parse_period_label,
     parse_response,
     request_chunks,
+    run,
     selection_window,
+    sha256_bytes,
     validate_existing_config,
 )
 
@@ -125,6 +130,89 @@ class EvdsManifestDownloaderTests(unittest.TestCase):
                     validate_existing_config(base, changed, update_existing=True)
         with self.assertRaisesRegex(ValueError, "--update-existing"):
             validate_existing_config(base, {**base, "manifest_sha256": "new"}, update_existing=False)
+
+    def test_validated_cache_preserves_original_acquisition_record(self):
+        response = json.dumps(
+            {
+                "totalCount": 1,
+                "items": [
+                    {
+                        "Tarih": "2026-01",
+                        "TP_TEST": "7.5",
+                        "UNIXTIME": {"$numberLong": "1"},
+                    }
+                ],
+            }
+        ).encode()
+        http_info = {
+            "http_status": 200,
+            "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+            "content_type": "application/json",
+            "url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+            "started_at_utc": "2026-09-19T10:00:00+00:00",
+            "completed_at_utc": "2026-09-19T10:00:01+00:00",
+            "bytes": len(response),
+            "sha256": sha256_bytes(response),
+            "transport": "fixture",
+            "tls_verification": True,
+        }
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            manifest_path = root / "manifest.json"
+            catalog_path = root / "catalog.parquet"
+            output = root / "output"
+            manifest_path.write_text(
+                json.dumps(
+                    {
+                        "dataset_id": "cache-provenance-test",
+                        "start_date": "2026-01-01",
+                        "end_date": "2026-01-31",
+                        "series": [{"series_code": "TP.TEST", "role": "test"}],
+                    }
+                ),
+                encoding="utf-8",
+            )
+            pd.DataFrame(
+                [
+                    {
+                        "series_code": "TP.TEST",
+                        "frequency": "AYLIK",
+                        "default_aggregation": "avg",
+                        "is_archive": False,
+                        "series_name_tr": "Test serisi",
+                        "source": "TCMB EVDS",
+                    }
+                ]
+            ).to_parquet(catalog_path, index=False)
+            args = argparse.Namespace(
+                manifest=manifest_path,
+                catalog=catalog_path,
+                output=output,
+                timeout=1,
+                retries=0,
+                delay=0,
+                update_existing=False,
+                transport="urllib",
+            )
+
+            with mock.patch(
+                "tools.EVDS_Manifest_Indirme_Araci.post_json",
+                return_value=(response, http_info),
+            ) as post:
+                self.assertEqual(0, run(args))
+                info_path = output / "raw" / "TP_TEST_2026-01-01_2026-01-31_info.json"
+                first_info = info_path.read_bytes()
+                first_manifest = (output / "manifest.json").read_bytes()
+
+                self.assertEqual(0, run(args))
+                self.assertEqual(1, post.call_count)
+                self.assertEqual(first_info, info_path.read_bytes())
+                self.assertEqual(first_manifest, (output / "manifest.json").read_bytes())
+
+            record = json.loads(first_info)
+            self.assertFalse(record["served_from_cache"])
+            self.assertEqual("2026-09-19T10:00:00+00:00", record["started_at_utc"])
+            self.assertEqual("2026-09-19T10:00:01+00:00", record["completed_at_utc"])
 
 
 class EvdsHousingSnapshotTests(unittest.TestCase):

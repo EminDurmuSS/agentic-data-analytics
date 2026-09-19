@@ -30,6 +30,12 @@ WEEKLY_HOUSING = "bddk_weekly:table289_289_4_total"
 MONTHLY_HOUSING = "bddk_monthly:table04:2:fffae80eca08:Toplam"
 WEEKLY_HOUSING_RATE = "evds:TP.KTF12"
 FINTURK_ISTANBUL_HOUSING = "bddk_finturk:table03:KonutKredisi"
+TURKEY_TOTAL_HOUSING_SALES = "evds:TP.AKONUTSAT1.KTRTOPLAM"
+TURKEY_MORTGAGED_HOUSING_SALES = "evds:TP.AKONUTSAT2.KTRTOPLAM"
+TUIK_PROVINCE_TOTAL_HOUSING_SALES = "tuik_province_housing_sales:housing_sales_total_count"
+TUIK_PROVINCE_MORTGAGED_HOUSING_SALES = "tuik_province_housing_sales:housing_sales_mortgaged_count"
+EVDS_ISTANBUL_TOTAL_HOUSING_SALES = "evds:TP.AKONUTSAT1.KTR100"
+BIST_100 = "evds:TP.MK.F.BILESIK"
 ISTANBUL_HOUSING_SALES_FIRST_PUBLISHED = (
     "tuik_province_housing_sales_first_published:housing_sales_total_count"
 )
@@ -251,6 +257,40 @@ class RealSnapshotRuntimeTests(unittest.TestCase):
         self.assertIn(first["analysis_id"], second_client.requests[0][0]["content"])
         self.assertIn('"start":"2024-01"', second_client.requests[0][0]["content"])
 
+    def test_w011_current_evds_bist_history_discloses_revised_vintage_and_archive(self):
+        plan = {
+            "start": "2010-12",
+            "end": "2010-12",
+            "frequency": "monthly",
+            "columns": [{
+                "name": "imkb_100_current_vintage",
+                "metric_id": BIST_100,
+                "alignment": "last",
+            }],
+        }
+        runtime, _ = self.runtime([call("execute", plan, "w011-bist"), final()])
+        result = runtime.run(
+            "2010 yılına ait İMKB 100 Aralık kapanış verisini göster.",
+            request_id="w011-imkb-current-vintage",
+        )
+        self.assertEqual("completed", result["status"])
+        frame, manifest = self.store.load_analysis(result["analysis_id"])
+        self.assertEqual([670.26], frame["imkb_100_current_vintage"].tolist())
+        schema = manifest["schema"]["imkb_100_current_vintage"]
+        self.assertEqual("XU100", schema["canonical_series_code"])
+        self.assertEqual("İMKB 100", schema["historical_name"])
+        self.assertEqual("BIST 100", schema["current_name"])
+        self.assertEqual(
+            "current_official_history_after_2020_two_zero_revision",
+            schema["vintage_policy"],
+        )
+        self.assertEqual("2020-07-27", schema["scale_revision_effective_date"])
+        self.assertEqual(0.01, schema["scale_revision_factor"])
+        self.assertFalse(schema["historical_original_scale_included"])
+        self.assertIn("2020-46_Removal_of_Zero", schema["scale_revision_source_url"])
+        self.assertIn("IMKB_FINAL.pdf", schema["historical_archive_source_url"])
+        self.assertNotEqual(66004.48, frame.iloc[0]["imkb_100_current_vintage"])
+
     def test_grouped_total_gold_ranking_and_explanation_use_the_same_city(self):
         request = {"metric_id": GOLD_TOTAL, "group_by": "city", "dimensions": {"group_code": 10001},
                    "start": "2026-Q2", "end": "2026-Q2", "frequency": "quarterly", "limit": 10}
@@ -274,6 +314,331 @@ class RealSnapshotRuntimeTests(unittest.TestCase):
             expected = connection.execute("SELECT usable_value FROM bddk.finturk_measurements WHERE table_no=7 AND measure_code='AltinDepoToplam' AND group_code=10001 AND city='İSTANBUL' AND quarter='2026-06'").fetchone()[0]
         self.assertEqual(expected, proof["value"])
         self.assertTrue(any(note["code"] == "group_populations_not_summed" for note in table["warnings"]))
+
+    def test_q009_filters_requested_months_instead_of_substituting_correlation(self):
+        base_plan = {
+            "start": "2021-01", "end": "2026-06", "frequency": "monthly",
+            "columns": [{
+                "name": "housing_credit",
+                "metric_id": MONTHLY_HOUSING,
+                "dimensions": {"group_code": 10001},
+                "alignment": "native",
+            }],
+        }
+        runtime, _ = self.runtime([call("execute", base_plan, "q006-credit"), final()])
+        q006 = runtime.run(
+            "Ocak 2021-Haziran 2026 arasındaki bankacılık sektörü toplam konut kredisi stokunu aylık getir.",
+            request_id="q006-credit-stock",
+        )
+        self.assertEqual("completed", q006["status"])
+
+        runtime, _ = self.runtime([
+            call("revise_analysis", {
+                "analysis_id": q006["analysis_id"],
+                "add_columns": [{
+                    "name": "housing_rate",
+                    "metric_id": WEEKLY_HOUSING_RATE,
+                    "alignment": "mean",
+                }],
+            }, "q007-rate"),
+            final(),
+        ])
+        q007 = runtime.run(
+            "Şimdi aynı tabloya konut kredisi faiz oranını da ekleyelim. Frekansı farklıysa aylık olarak nasıl hizaladığını söyle.",
+            conversation_id=q006["conversation_id"],
+            request_id="q007-credit-rate",
+        )
+        self.assertEqual("completed", q007["status"])
+
+        revision = {
+            "analysis_id": q007["analysis_id"],
+            "add_columns": [{"name": "cpi", "metric_id": CPI, "alignment": "native"}],
+            "operations": [
+                {"op": "deflate", "column": "housing_credit", "index": "cpi",
+                 "base_period": "2021-01", "output": "real_credit"},
+                {"op": "difference", "column": "housing_rate", "output": "rate_change",
+                 "periods": 1, "prior_scope": "selected_window"},
+                {"op": "difference", "column": "real_credit", "output": "real_credit_change",
+                 "periods": 1, "prior_scope": "selected_window"},
+            ],
+        }
+
+        def select_requested_months(messages):
+            revised = tool_result(messages, "q009-revise")
+            return call("select_analysis_rows", {
+                "analysis_id": revised["analysis_id"],
+                "filters": [
+                    {"column": "rate_change", "op": "not_null"},
+                    {"column": "real_credit_change", "op": "not_null"},
+                    {"column": "rate_change", "op": "lt", "value": 0},
+                    {"column": "real_credit_change", "op": "lte", "value": 0},
+                ],
+                "columns": ["period", "housing_rate", "rate_change", "real_credit", "real_credit_change"],
+                "sort": {"column": "period", "direction": "asc"},
+                "limit": 100,
+            }, "q009-selection")
+
+        selection_tools = AnalysisSelectionTools(self.store, self.workspace_id)
+        runtime, _ = self.runtime([
+            call("revise_analysis", revision, "q009-revise"),
+            select_requested_months,
+            final("Faizin düştüğü ve reel stokun artmadığı aylar seçildi."),
+        ], extra_tools=selection_tools.extra_tools(), max_decisions=5)
+        q009 = runtime.run(
+            "Peki faiz düşerken reel konut kredisi stokunun artmadığı aylar var mı? Yalnız iki değerin de bulunduğu ayları kullanıp tarih ve değişimleri göster.",
+            conversation_id=q006["conversation_id"],
+            request_id="q009-conditional-months",
+        )
+        self.assertEqual("completed", q009["status"])
+        selected = next(item["result"] for item in q009["tool_results"]
+                        if item["tool"] == "select_analysis_rows")
+        self.assertEqual(23, selected["total_match_count"])
+        self.assertEqual("2021-02", selected["rows"][0]["period"])
+        self.assertEqual("2026-01", selected["rows"][-1]["period"])
+        self.assertTrue(all(row["rate_change"] < 0 for row in selected["rows"]))
+        self.assertTrue(all(row["real_credit_change"] <= 0 for row in selected["rows"]))
+        self.assertFalse(any(item["tool"] == "analyze_relationship" for item in q009["tool_results"]))
+        _, manifest = self.store.load_analysis(q009["analysis_id"])
+        self.assertEqual("2021-01", manifest["schema"]["real_credit"]["price_basis"])
+        self.assertEqual("percentage_points", manifest["schema"]["rate_change"]["unit"])
+        self.assertIn("Koşulları karşılayan kayıtlar (23)", q009["message"])
+
+    def test_q023_minimum_and_maximum_mortgaged_share_keep_source_rows(self):
+        base_plan = {
+            "start": "2021-01", "end": "2026-06", "frequency": "monthly",
+            "columns": [
+                {"name": "total_sales", "metric_id": TURKEY_TOTAL_HOUSING_SALES, "alignment": "native"},
+                {"name": "mortgaged_sales", "metric_id": TURKEY_MORTGAGED_HOUSING_SALES,
+                 "alignment": "native"},
+            ],
+        }
+        runtime, _ = self.runtime([call("execute", base_plan, "q021-sales"), final()])
+        q021 = runtime.run(
+            "Türkiye genelinde aylık toplam ve ipotekli konut satışını Ocak 2021-Haziran 2026 arasında getir.",
+            request_id="q021-housing-sales",
+        )
+        self.assertEqual("completed", q021["status"])
+
+        runtime, _ = self.runtime([
+            call("revise_analysis", {
+                "analysis_id": q021["analysis_id"],
+                "operations": [{
+                    "op": "ratio", "column": "mortgaged_sales", "denominator": "total_sales",
+                    "output": "mortgaged_share", "multiplier": 100,
+                }],
+            }, "q022-share"),
+            final(),
+        ])
+        q022 = runtime.run(
+            "Şimdi her ay ipotekli satışların toplam içindeki payını hesaplar mısın?",
+            conversation_id=q021["conversation_id"],
+            request_id="q022-mortgaged-share",
+        )
+        self.assertEqual("completed", q022["status"])
+
+        common = {
+            "analysis_id": q022["analysis_id"],
+            "filters": [{"column": "mortgaged_share", "op": "not_null"}],
+            "columns": ["period", "total_sales", "mortgaged_sales", "mortgaged_share"],
+            "limit": 1,
+        }
+        selection_tools = AnalysisSelectionTools(self.store, self.workspace_id)
+        runtime, _ = self.runtime([
+            call("select_analysis_rows", {**common,
+                "sort": {"column": "mortgaged_share", "direction": "asc"}}, "q023-min"),
+            call("select_analysis_rows", {**common,
+                "sort": {"column": "mortgaged_share", "direction": "desc"}}, "q023-max"),
+            final("İpotekli satış payının en düşük ve en yüksek ayları seçildi."),
+        ], extra_tools=selection_tools.extra_tools(), max_decisions=4)
+        q023 = runtime.run(
+            "Bu payın en düşük ve en yüksek olduğu aylar hangileri? O aylardaki iki satış değerini de göster.",
+            conversation_id=q021["conversation_id"],
+            request_id="q023-share-extremes",
+        )
+        self.assertEqual("completed", q023["status"])
+        selected = {item["call_id"]: item["result"] for item in q023["tool_results"]
+                    if item["tool"] == "select_analysis_rows"}
+        minimum = selected["q023-min"]["rows"][0]
+        maximum = selected["q023-max"]["rows"][0]
+        self.assertEqual({"period": "2023-12", "total_sales": 148724.0,
+                          "mortgaged_sales": 6593.0}, {key: minimum[key]
+                                                       for key in ("period", "total_sales", "mortgaged_sales")})
+        self.assertAlmostEqual(6593 / 148724 * 100, minimum["mortgaged_share"])
+        self.assertEqual({"period": "2022-06", "total_sales": 161684.0,
+                          "mortgaged_sales": 43149.0}, {key: maximum[key]
+                                                        for key in ("period", "total_sales", "mortgaged_sales")})
+        self.assertAlmostEqual(43149 / 161684 * 100, maximum["mortgaged_share"])
+        self.assertEqual(q022["analysis_id"], selected["q023-min"]["analysis_id"])
+        self.assertEqual(q022["analysis_id"], selected["q023-max"]["analysis_id"])
+
+    def test_q039_keeps_quarterly_credit_native_and_sums_three_month_sales_flows(self):
+        credit_plan = {
+            "start": "2026-Q2", "end": "2026-Q2", "frequency": "quarterly",
+            "columns": [{
+                "name": f"{city.casefold().replace('i̇', 'i')}_credit",
+                "metric_id": FINTURK_ISTANBUL_HOUSING,
+                "dimensions": {"group_code": 10001, "city": city},
+                "alignment": "native",
+            } for city in ("İSTANBUL", "ANKARA", "İZMİR")],
+        }
+        runtime, _ = self.runtime([call("execute", credit_plan, "q037-credit"), final()])
+        q037 = runtime.run(
+            "FinTürk konut kredisi metriğinin 2026 ikinci çeyrek İstanbul, Ankara ve İzmir değerlerini getir.",
+            request_id="q037-city-credit",
+        )
+        self.assertEqual("completed", q037["status"])
+
+        sales_columns = []
+        sales_operations = []
+        for city in ("istanbul", "ankara", "izmir"):
+            sales_columns.extend([
+                {"name": f"{city}_total", "metric_id": TUIK_PROVINCE_TOTAL_HOUSING_SALES,
+                 "dimensions": {"province_key": city}, "alignment": "sum"},
+                {"name": f"{city}_mortgaged", "metric_id": TUIK_PROVINCE_MORTGAGED_HOUSING_SALES,
+                 "dimensions": {"province_key": city}, "alignment": "sum"},
+            ])
+            sales_operations.append({
+                "op": "ratio", "column": f"{city}_mortgaged", "denominator": f"{city}_total",
+                "output": f"{city}_share", "multiplier": 100,
+            })
+        sales_plan = {
+            "start": "2026-Q2", "end": "2026-Q2", "frequency": "quarterly",
+            "columns": sales_columns, "operations": sales_operations,
+        }
+
+        def save_city_bundle(messages):
+            sales = tool_result(messages, "q039-sales")
+            return call("save_analysis_bundle", {
+                "components": [
+                    {"analysis_id": q037["analysis_id"], "role": "quarterly_city_credit",
+                     "label": "FinTürk il bazlı çeyrek sonu konut kredisi stokları"},
+                    {"analysis_id": sales["analysis_id"], "role": "quarterly_city_mortgaged_share",
+                     "label": "TÜİK aylık satış akımlarından toplanan çeyreklik ipotekli satış payları"},
+                ],
+                "title": "2026 ikinci çeyrek il bazlı konut kredisi ve ipotekli satış payı",
+                "purpose": "Çeyrek sonu stokları ile aynı çeyreğin üç aylık satış akımlarını ayrı tutmak",
+            }, "q039-bundle")
+
+        bundle_tools = AnalysisBundleTools(self.store, self.workspace_id)
+        runtime, _ = self.runtime([
+            call("execute", sales_plan, "q039-sales"),
+            save_city_bundle,
+            final(),
+        ], extra_tools=bundle_tools.extra_tools(), max_decisions=5)
+        q039 = runtime.run(
+            "Şimdi aynı illerin o çeyrekteki ipotekli satış payını TÜİK'ten ekle. Aylıkları doğru çeyrekte topla, çeyreklik krediyi aylara kopyalama.",
+            conversation_id=q037["conversation_id"],
+            request_id="q039-city-sales-share",
+        )
+        self.assertEqual("completed", q039["status"])
+        bundle = bundle_tools.load_bundle(q039["analysis_bundle_id"])
+        components = {component["role"]: component for component in bundle["components"]}
+        credit, credit_manifest = self.store.load_analysis(components["quarterly_city_credit"]["analysis_id"])
+        sales, sales_manifest = self.store.load_analysis(components["quarterly_city_mortgaged_share"]["analysis_id"])
+        self.assertEqual(["2026-Q2"], credit["period"].tolist())
+        self.assertEqual(["2026-Q2"], sales["period"].tolist())
+        self.assertEqual([228383471.0, 108927596.0, 59970021.0],
+                         credit[["istanbul_credit", "ankara_credit", "izmir_credit"]].iloc[0].tolist())
+        self.assertEqual([66133.0, 31169.0, 20704.0],
+                         sales[["istanbul_total", "ankara_total", "izmir_total"]].iloc[0].tolist())
+        self.assertEqual([15328.0, 7948.0, 4558.0],
+                         sales[["istanbul_mortgaged", "ankara_mortgaged", "izmir_mortgaged"]].iloc[0].tolist())
+        self.assertAlmostEqual(15328 / 66133 * 100, sales.iloc[0]["istanbul_share"])
+        self.assertAlmostEqual(7948 / 31169 * 100, sales.iloc[0]["ankara_share"])
+        self.assertAlmostEqual(4558 / 20704 * 100, sales.iloc[0]["izmir_share"])
+        self.assertTrue(all(column["alignment"] == "native" for column in credit_manifest["plan"]["columns"]))
+        self.assertTrue(all(column["alignment"] == "sum" for column in sales_manifest["plan"]["columns"]))
+        self.assertFalse(bundle["frequency_policy"]["quarterly_values_copied_to_months"])
+
+    def test_q041_q043_source_native_discovery_and_exact_reconciliation(self):
+        discovery_query = (
+            "TÜİK ve EVDS kataloglarında il bazında ortak bulunan, anlamı ve birimi gerçekten "
+            "eşleşen konut satış göstergelerini iki kaynaktaki kodlarıyla listele."
+        )
+        runtime, _ = self.runtime([
+            call("discover", {"query": discovery_query, "status": "ready", "limit": 25}, "q041-discover"),
+            final("İki kaynağın kendi katalog serileri ayrı ayrı listelendi."),
+        ])
+        q041 = runtime.run(discovery_query, request_id="q041-source-native-discovery")
+        self.assertEqual("completed", q041["status"])
+        discovery = next(item["result"] for item in q041["tool_results"]
+                         if item.get("call_id") == "q041-discover")
+        self.assertEqual(["tuik", "evds"], discovery["source_selection"]["requested"])
+        direct = {
+            card["source_match"]["requested_source"]: card
+            for card in discovery["metrics"]
+            if card.get("source_match", {}).get("basis") == "source_system"
+        }
+        self.assertEqual("TUIK_DATA_PORTAL", direct["tuik"]["source_system"])
+        self.assertEqual("TCMB_EVDS", direct["evds"]["source_system"])
+
+        comparison_plan = {
+            "start": "2025-01", "end": "2025-12", "frequency": "monthly",
+            "columns": [
+                {"name": "tuik_sales", "metric_id": TUIK_PROVINCE_TOTAL_HOUSING_SALES,
+                 "dimensions": {"province_key": "istanbul"}, "alignment": "native"},
+                {"name": "evds_sales", "metric_id": EVDS_ISTANBUL_TOTAL_HOUSING_SALES,
+                 "alignment": "native"},
+            ],
+        }
+        runtime, _ = self.runtime([call("execute", comparison_plan, "q042-compare"), final()])
+        q042 = runtime.run(
+            "Bunlardan İstanbul toplam konut satışını seçip 2025 aylarını TÜİK ve EVDS sütunlarında karşılaştır.",
+            conversation_id=q041["conversation_id"],
+            request_id="q042-istanbul-reconciliation",
+        )
+        self.assertEqual("completed", q042["status"])
+        compared, compared_manifest = self.store.load_analysis(q042["analysis_id"])
+        self.assertEqual(12, len(compared))
+        self.assertEqual(TUIK_PROVINCE_TOTAL_HOUSING_SALES,
+                         compared_manifest["schema"]["tuik_sales"]["metric_id"])
+        self.assertEqual(EVDS_ISTANBUL_TOTAL_HOUSING_SALES,
+                         compared_manifest["schema"]["evds_sales"]["metric_id"])
+
+        common_filters = [
+            {"column": "tuik_sales", "op": "not_null"},
+            {"column": "evds_sales", "op": "not_null"},
+        ]
+        selection_tools = AnalysisSelectionTools(self.store, self.workspace_id)
+        runtime, _ = self.runtime([
+            call("select_analysis_rows", {
+                "analysis_id": q042["analysis_id"],
+                "filters": [*common_filters, {"column": "tuik_sales", "op": "eq",
+                                               "other_column": "evds_sales"}],
+                "columns": ["period", "tuik_sales", "evds_sales"],
+                "sort": {"column": "period", "direction": "asc"},
+                "limit": 100,
+            }, "q043-matches"),
+            call("select_analysis_rows", {
+                "analysis_id": q042["analysis_id"],
+                "filters": [*common_filters, {"column": "tuik_sales", "op": "ne",
+                                               "other_column": "evds_sales"}],
+                "columns": ["period", "tuik_sales", "evds_sales"],
+                "sort": {"column": "period", "direction": "asc"},
+                "limit": 100,
+            }, "q043-mismatches"),
+            final("Ortak aylardaki birebir eşleşmeler ve uyuşmayan kayıtlar ayrı ayrı sayıldı."),
+        ], extra_tools=selection_tools.extra_tools(), max_decisions=4)
+        q043 = runtime.run(
+            "Peki ortak aylarda değerler gerçekten eşleşiyor mu? Karşılaştırılan, eşleşen ve uyuşmayan kayıt sayılarını ver.",
+            conversation_id=q041["conversation_id"],
+            request_id="q043-exact-reconciliation",
+        )
+        self.assertEqual("completed", q043["status"])
+        selections = {item["call_id"]: item["result"] for item in q043["tool_results"]
+                      if item["tool"] == "select_analysis_rows"}
+        self.assertEqual(12, selections["q043-matches"]["total_match_count"])
+        self.assertEqual(0, selections["q043-mismatches"]["total_match_count"])
+        self.assertEqual(12, len(selections["q043-matches"]["rows"]))
+        self.assertTrue(all(row["tuik_sales"] == row["evds_sales"]
+                            for row in selections["q043-matches"]["rows"]))
+        caveat_codes = {
+            warning.get("code")
+            for result in selections.values()
+            for warning in result["warnings"]
+            if isinstance(warning, dict)
+        }
+        self.assertIn("NUMERIC_EQUALITY_ONLY_ACROSS_DISTINCT_SOURCE_CONTRACTS", caveat_codes)
 
     def test_q031_q035_weekly_housing_flow_preserves_observed_dates_and_deterministic_peak(self):
         expected_dates = [

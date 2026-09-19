@@ -24,6 +24,13 @@
       "current_name": "BIST 100",
       "name_change_effective_date": "2013-04-05",
       "name_change_source_url": "https://www.borsaistanbul.com/datum/duyuru_ekleri/GenelMektup_4030_Endeks_Adlari.pdf",
+      "vintage_policy": "current_official_history_after_2020_two_zero_revision",
+      "revision_status": "retroactively_rescaled_by_official_publisher",
+      "scale_revision_effective_date": "2020-07-27",
+      "scale_revision_factor": 0.01,
+      "scale_revision_source_url": "https://www.borsaistanbul.com/files/2020-46_Removal_of_Zero_from_the_Index_Go_Live_Date_Announcement.pdf",
+      "historical_archive_source_url": "https://www.borsaistanbul.com/files/IMKB_FINAL.pdf",
+      "historical_original_scale_included": false,
       "methodology_source_url": "https://www.borsaistanbul.com/files/bist-pay-endeksleri-temel-kurallari.pdf",
       "official_index_page_url": "https://www.borsaistanbul.com/endeks/xu100"
     }

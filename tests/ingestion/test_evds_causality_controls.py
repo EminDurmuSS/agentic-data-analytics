@@ -138,6 +138,19 @@ class EvdsMarketControlsTests(unittest.TestCase):
         self.assertEqual("BIST 100", metadata["current_name"])
         self.assertEqual("2013-04-05", metadata["name_change_effective_date"])
         self.assertIn("GenelMektup_4030", metadata["name_change_source_url"])
+        self.assertEqual(
+            "current_official_history_after_2020_two_zero_revision",
+            metadata["vintage_policy"],
+        )
+        self.assertEqual(
+            "retroactively_rescaled_by_official_publisher",
+            metadata["revision_status"],
+        )
+        self.assertEqual("2020-07-27", metadata["scale_revision_effective_date"])
+        self.assertAlmostEqual(0.01, metadata["scale_revision_factor"], places=12)
+        self.assertIn("2020-46_Removal_of_Zero", metadata["scale_revision_source_url"])
+        self.assertIn("IMKB_FINAL.pdf", metadata["historical_archive_source_url"])
+        self.assertFalse(metadata["historical_original_scale_included"])
         self.assertIn("bist-pay-endeksleri", metadata["methodology_source_url"])
 
     def test_tl_per_gram_gold_is_an_explicit_unit_conversion(self):

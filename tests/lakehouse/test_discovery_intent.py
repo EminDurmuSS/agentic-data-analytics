@@ -184,6 +184,36 @@ class RealCatalogueIntentTests(unittest.TestCase):
         self.assertNotIn("bazinda", result.get("uncovered_terms", []))
         self.assertNotIn("gostergeleri", result.get("uncovered_terms", []))
 
+    def test_cross_source_reconciliation_ignores_output_format_words_in_full_prompt(self):
+        database = Path(__file__).parents[2] / "data_pipeline/lakehouse/analytics.duckdb"
+
+        class ReadOnlyStore:
+            def workspace(self, _):
+                return {"snapshot_id": "real-cross-source-full-prompt", "datasets": []}
+
+            def snapshot_path(self, _):
+                return database
+
+        prompt = (
+            "TÜİK ve EVDS kataloglarında il bazında ortak bulunan, anlamı ve birimi gerçekten "
+            "eşleşen konut satış göstergelerini iki kaynaktaki kodlarıyla listele."
+        )
+        result = LakehouseService(ReadOnlyStore(), "real-cross-source-full-prompt").discover({
+            "query": prompt,
+            "limit": 25,
+            "status": "ready",
+        })
+        self.assertFalse(result.get("no_confident_match"), result)
+        self.assertEqual(["tuik", "evds"], result["source_selection"]["requested"])
+        self.assertEqual(["tuik", "evds"], result["source_selection"]["represented"])
+        direct_sources = {
+            card["source_match"]["requested_source"]: card["source_system"]
+            for card in result["metrics"]
+            if card.get("source_match", {}).get("basis") == "source_system"
+        }
+        self.assertEqual("TUIK_DATA_PORTAL", direct_sources["tuik"])
+        self.assertEqual("TCMB_EVDS", direct_sources["evds"])
+
     def test_actual_full_import_task_prefills_overall_loans_and_prefix_stays_provisional(self):
         # Verbatim task from live round 1. The source and company describe a
         # clearly synthetic upload; all reference candidates are the real catalogue.
@@ -297,3 +327,12 @@ class RealCatalogueIntentTests(unittest.TestCase):
         self.assertEqual("BIST 100", described["current_name"])
         self.assertEqual("2013-04-05", described["name_change_effective_date"])
         self.assertIn("GenelMektup_4030", described["name_change_source_url"])
+        self.assertEqual(
+            "current_official_history_after_2020_two_zero_revision",
+            described["vintage_policy"],
+        )
+        self.assertEqual("2020-07-27", described["scale_revision_effective_date"])
+        self.assertEqual(0.01, described["scale_revision_factor"])
+        self.assertIn("2020-46_Removal_of_Zero", described["scale_revision_source_url"])
+        self.assertIn("IMKB_FINAL.pdf", described["historical_archive_source_url"])
+        self.assertFalse(described["historical_original_scale_included"])

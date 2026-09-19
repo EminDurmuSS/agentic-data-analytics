@@ -61,17 +61,18 @@ def test_public_financial_registry_resolves_identifiers_and_preserves_scope_from
     calls = []
     def fetch(url, **kwargs):
         calls.append(url)
-        assert kwargs['max_bytes'] <= 4 * 1024**2
-        assert kwargs['timeout'] == 15
-        if url.endswith('/bist-sirketler'):
-            content = [{'kapMemberTitle': 'ACME BANK A.Ş.', 'mkkMemberOid': issuer_id},
+        if url.endswith('/sirketler/ALL'):
+            assert kwargs == {'max_bytes': 4 * 1024**2, 'timeout': 20}
+            content = [{'kapMemberTitle': 'ACME BANK A.Ş.', 'mkkMemberOid': issuer_id, 'stockCode': 'ACME'},
                        {'kapMemberTitle': 'OTHER COMPANY', 'mkkMemberOid': '3' * 32}]
         elif 'bildirim-sorgu-sonuc?' in url:
+            assert kwargs == {'max_bytes': 4 * 1024**2, 'timeout': 20}
             assert parse_qs(urlsplit(url).query) == {'member': [issuer_id], 'disclosureClass': ['FR']}
             content = [{'disclosureBasic': {'disclosureIndex': index, 'companyTitle': 'ACME BANK A.Ş.',
                         'year': year, 'donem': period, 'disclosureClass': 'FR', 'title': 'Finansal Rapor'}}
                        for index, year, period in [(900, 2026, '3 Aylık'), (901, 2026, '6 Aylık'), (800, 2025, 'Yıllık')]]
         elif url.endswith('/Bildirim/900'):
+            assert kwargs == {'max_bytes': 8 * 1024**2, 'timeout': 45}
             content = {'attachments': [{'objId': '4' * 32, 'fileName': 'Acme_2026_Unconsolidated.pdf'},
                                        {'objId': asset_id, 'fileName': 'Acme_2026_Consolidated.pdf'}]}
         else:
@@ -82,7 +83,34 @@ def test_public_financial_registry_resolves_identifiers_and_preserves_scope_from
     assert [item['url'] for item in results] == [root + '/tr/api/file/download/' + asset_id]
     assert results[0]['discovered_from'] == root + '/tr/Bildirim/900'
     assert results[0]['registry_evidence']['issuer_id'] == issuer_id
+    assert results[0]['registry_evidence']['issuer_codes'] == 'ACME'
     assert results[0]['registry_evidence']['reporting_period'] == '3 Aylık'
+
+
+def test_public_financial_registry_keeps_the_source_owned_ticker_as_identity_evidence():
+    from agentic_analytics.agent.tools.search_backend import kap_financial_search, rank_search_results
+    issuer_id, asset_id = '1' * 32, '2' * 32
+    root = 'https://www.kap.org.tr'
+
+    def fetch(url, **kwargs):
+        if url.endswith('/sirketler/ALL'):
+            content = [{'kapMemberTitle': 'YATIRIM FİNANSMAN MENKUL DEĞERLER A.Ş.',
+                        'mkkMemberOid': issuer_id, 'stockCode': 'YAT, YFMEN'}]
+        elif 'bildirim-sorgu-sonuc?' in url:
+            content = [{'disclosureBasic': {'disclosureIndex': 900, 'companyTitle': 'YATIRIM FİNANSMAN MENKUL DEĞERLER A.Ş.',
+                        'year': 2025, 'donem': 'Yıllık', 'disclosureClass': 'FR', 'title': 'Finansal Rapor'}}]
+        elif url.endswith('/Bildirim/900'):
+            content = {'attachments': [{'objId': asset_id, 'fileName': '31.12.2025 SPK Rapor_Final.pdf'}]}
+        else:
+            raise AssertionError('Unexpected source URL: ' + url)
+        return _server_payload(content), 'text/html', url
+
+    results = kap_financial_search('YFMEN 2025 finansal raporu KAP', fetch)
+    assert results[0]['registry_evidence']['issuer_codes'] == 'YAT, YFMEN'
+    kept, rejected, _ = rank_search_results('YFMEN 2025 finansal raporu KAP', [{
+        'url': results[0]['url'], 'title': results[0]['title'], 'snippet': results[0]['content']}])
+    assert not rejected
+    assert not kept[0]['entity_verification_required']
 
 
 def test_financial_registry_does_not_guess_ambiguous_issuers_or_widen_sites():

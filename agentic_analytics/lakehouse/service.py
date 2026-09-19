@@ -168,7 +168,10 @@ def _query_terms(value: str) -> tuple[list[str], set[str]]:
                  "haziran", "temmuz", "agustos", "eylul", "ekim", "kasim", "aralik",
                  "bazinda", "ortak", "bulunan", "anlam", "anlami", "birim", "birimi", "gercekten",
                  "eslesen", "eslesme", "gosterge", "gostergeler", "gostergeleri", "katalog", "katalogda",
-                 "kataloglar", "kataloglarda", "kataloglarinda"}
+                 "kataloglar", "kataloglarda", "kataloglarinda", "iki", "kaynak", "kaynakta",
+                 "kaynaklarda", "kaynaktaki", "kaynaklardaki", "kod", "kodu", "kodlar", "kodlari",
+                 "kodlariyla", "liste", "listele", "listeleyebilir", "ayri", "sutun", "sutunlar",
+                 "sutunlarda"}
     frequency_hints = {"aylik": "monthly", "monthly": "monthly", "ceyreklik": "quarterly",
                        "quarterly": "quarterly", "haftalik": "weekly", "weekly": "weekly",
                        "gunluk": "daily", "daily": "daily", "yillik": "annual", "annual": "annual"}
@@ -437,7 +440,7 @@ class LakehouseService:
     def _card(binding: dict) -> dict:
         from agentic_analytics.lakehouse.discovery import semantic_profile
 
-        fields = ("metric_id", "dataset_id", "source_code", "title", "title_en", "group_name", "value_dimension", "is_archive", "temporal_semantics", "quality_status", "source_system", "source_organization", "competition_scope", "source_namespace", "native_frequency", "kind", "unit", "scale", "currency", "status", "dimensions", "institution_scope", "geography_scope", "notes", "index_role", "deflator_currency", "price_scope", "price_basis", "blocked_reason", "cumulative_evidence", "semantic_policy_version", "coverage_start", "coverage_end", "observation_count", "missing_observation_count", "vintage_policy", "release_date", "revision_status", "methodology_revision_date", "canonical_series_code", "historical_name", "current_name", "name_change_effective_date", "name_change_source_url", "methodology_source_url", "official_series_url", "source_metadata_url", "source_url", "source_frequency_evidence")
+        fields = ("metric_id", "dataset_id", "source_code", "title", "title_en", "group_name", "value_dimension", "is_archive", "temporal_semantics", "quality_status", "source_system", "source_organization", "competition_scope", "source_namespace", "native_frequency", "kind", "unit", "scale", "currency", "status", "dimensions", "institution_scope", "geography_scope", "notes", "index_role", "deflator_currency", "price_scope", "price_basis", "blocked_reason", "cumulative_evidence", "semantic_policy_version", "coverage_start", "coverage_end", "observation_count", "missing_observation_count", "vintage_policy", "release_date", "revision_status", "methodology_revision_date", "canonical_series_code", "historical_name", "current_name", "name_change_effective_date", "name_change_source_url", "scale_revision_effective_date", "scale_revision_factor", "scale_revision_source_url", "historical_archive_source_url", "historical_original_scale_included", "methodology_source_url", "official_series_url", "source_metadata_url", "source_url", "source_frequency_evidence")
         fields += ("population_scope", "measurement_basis", "scope_caveats", "source_table_category", "source_scope_evidence", "source_scope_policy_version")
         return {key: binding.get(key) for key in fields} | {"semantic_profile": semantic_profile(binding)}
 
@@ -761,6 +764,11 @@ class LakehouseService:
                 "current_name",
                 "name_change_effective_date",
                 "name_change_source_url",
+                "scale_revision_effective_date",
+                "scale_revision_factor",
+                "scale_revision_source_url",
+                "historical_archive_source_url",
+                "historical_original_scale_included",
                 "methodology_source_url",
                 "official_series_url",
             ):

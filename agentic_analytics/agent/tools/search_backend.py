@@ -11,6 +11,10 @@ import unicodedata
 from urllib import parse, request
 
 
+SEARCH_RESPONSE_MAX_BYTES = 8 * 1024**2
+PUBLIC_PROVIDER_TIMEOUT_SECONDS = 45
+
+
 def search_text(value):
     return "".join(char for char in unicodedata.normalize("NFKD", str(value).casefold().replace("ı", "i"))
                    if not unicodedata.combining(char))
@@ -173,7 +177,7 @@ class _LiteSearchHTML(HTMLParser):
 def public_search_fallback(query, fetch):
     """One bounded, key-free alternate index; fetch retains public URL controls."""
     url = "https://lite.duckduckgo.com/lite/?" + parse.urlencode({"q": query})
-    raw, _, _ = fetch(url, max_bytes=1024**2, timeout=15)
+    raw, _, _ = fetch(url, max_bytes=SEARCH_RESPONSE_MAX_BYTES, timeout=PUBLIC_PROVIDER_TIMEOUT_SECONDS)
     parser = _LiteSearchHTML()
     parser.feed(raw.decode("utf-8", errors="replace"))
     if not parser.items:
@@ -253,8 +257,11 @@ def kap_financial_search(query, fetch):
         return []
     requested_month = next(iter(selected_months), None)
     root = "https://www.kap.org.tr"
-    registry_url = root + "/tr/bist-sirketler"
-    raw, _, final = fetch(registry_url, max_bytes=4 * 1024**2, timeout=15)
+    # The BIST-only directory omits investment institutions and other KAP
+    # members (for example YFMEN). The official ALL directory preserves the
+    # same source-owned identifiers while covering every issuer category.
+    registry_url = root + "/tr/sirketler/ALL"
+    raw, _, final = fetch(registry_url, max_bytes=4 * 1024**2, timeout=20)
     if (parse.urlsplit(final).hostname or "").removeprefix("www.") != "kap.org.tr":
         raise ValueError("The KAP registry redirected outside its official domain.")
     companies = {}
@@ -262,15 +269,17 @@ def kap_financial_search(query, fetch):
         title, oid = value.get("kapMemberTitle"), value.get("mkkMemberOid")
         if not isinstance(title, str) or not isinstance(oid, str) or not re.fullmatch(r"[a-fA-F0-9]{24,40}", oid):
             continue
-        candidate = {"title": title, "url": registry_url, "snippet": str(value.get("stockCode", ""))}
+        stock_codes = str(value.get("stockCode", ""))
+        candidate = {"title": title, "url": registry_url, "snippet": stock_codes}
         matches, _, _ = rank_search_results(query, [candidate])
         if matches and not matches[0]["entity_verification_required"]:
-            companies[oid] = title
+            companies[oid] = {"title": title, "stock_codes": stock_codes}
     if len(companies) != 1:
         return []  # No unique issuer identity; never pick the first similar bank.
-    oid, issuer = next(iter(companies.items()))
+    oid, company = next(iter(companies.items()))
+    issuer, issuer_codes = company["title"], company["stock_codes"]
     disclosures_url = root + "/tr/bildirim-sorgu-sonuc?" + parse.urlencode({"member": oid, "disclosureClass": "FR"})
-    raw, _, final = fetch(disclosures_url, max_bytes=4 * 1024**2, timeout=15)
+    raw, _, final = fetch(disclosures_url, max_bytes=4 * 1024**2, timeout=20)
     if (parse.urlsplit(final).hostname or "").removeprefix("www.") != "kap.org.tr":
         raise ValueError("The KAP disclosure list redirected outside its official domain.")
     disclosures = {}
@@ -295,7 +304,11 @@ def kap_financial_search(query, fetch):
     wants_consolidated = not wants_unconsolidated and bool(re.search(r"konsolid|consolid", normalized))
     for index in sorted(disclosures, reverse=True)[:4]:
         detail_url = root + f"/tr/Bildirim/{index}"
-        raw, _, final = fetch(detail_url, max_bytes=4 * 1024**2, timeout=15)
+        # KAP embeds the complete XBRL report in the official Next.js response.
+        # Real year-end disclosures are commonly just over 5 MiB and can take
+        # around 30 seconds to arrive.  This larger bound is restricted to the
+        # already-resolved kap.org.tr disclosure URL, not arbitrary web pages.
+        raw, _, final = fetch(detail_url, max_bytes=8 * 1024**2, timeout=45)
         if (parse.urlsplit(final).hostname or "").removeprefix("www.") != "kap.org.tr":
             raise ValueError("The KAP report redirected outside its official domain.")
         for value in _flight_objects(raw):
@@ -314,9 +327,10 @@ def kap_financial_search(query, fetch):
                 if wants_consolidated and not consolidated or wants_unconsolidated and not unconsolidated:
                     continue
                 results.append({"title": issuer + " | " + name, "url": root + "/tr/api/file/download/" + file_id,
-                                "content": f"{issuer}. {year}, {disclosures[index].get('donem', '')}. {name}",
+                                "content": f"{issuer_codes}. {issuer}. {year}, {disclosures[index].get('donem', '')}. {name}",
                                 "discovered_from": detail_url,
                                 "registry_evidence": {"registry_url": registry_url, "issuer_id": oid,
+                                    "issuer_codes": issuer_codes,
                                     "disclosures_url": disclosures_url, "disclosure_index": index,
                                     "reporting_year": year, "reporting_period": disclosures[index].get("donem")}})
         if results:
@@ -353,7 +367,7 @@ def read_bounded_response(response, *, max_bytes, deadline):
     return b"".join(blocks)
 
 
-def configured_search(base_url, query, *, timeout=15, engines=None, with_diagnostics=False):
+def configured_search(base_url, query, *, timeout=PUBLIC_PROVIDER_TIMEOUT_SECONDS, engines=None, with_diagnostics=False):
     if not isinstance(base_url, str) or not 1 <= len(base_url) <= 4096 or any(ord(char) < 32 for char in base_url):
         raise ValueError("Invalid configured SearXNG URL.")
     endpoint = parse.urlsplit(base_url)
@@ -381,9 +395,9 @@ def configured_search(base_url, query, *, timeout=15, engines=None, with_diagnos
     deadline = time.monotonic() + timeout
     with opener.open(query_request, timeout=timeout) as response:
         size = response.headers.get("Content-Length")
-        if size and (not size.isdecimal() or int(size) > 1024**2):
+        if size and (not size.isdecimal() or int(size) > SEARCH_RESPONSE_MAX_BYTES):
             raise ValueError("Configured search response exceeds its size limit.")
-        raw = read_bounded_response(response, max_bytes=1024**2, deadline=deadline)
+        raw = read_bounded_response(response, max_bytes=SEARCH_RESPONSE_MAX_BYTES, deadline=deadline)
     payload = json.loads(raw)
     if not isinstance(payload, dict) or not isinstance(payload.get("results"), list):
         raise ValueError("Configured search did not return a JSON results array.")

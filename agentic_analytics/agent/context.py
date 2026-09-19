@@ -51,7 +51,9 @@ def _model_tool_result(name, result, *, terse=False):
         "scope_caveats", "source_table_category", "source_scope_evidence", "source_scope_policy_version",
         "vintage_policy", "release_date", "revision_status", "methodology_revision_date",
         "canonical_series_code", "historical_name", "current_name", "name_change_effective_date",
-        "name_change_source_url", "methodology_source_url", "official_series_url")
+        "name_change_source_url", "scale_revision_effective_date", "scale_revision_factor",
+        "scale_revision_source_url", "historical_archive_source_url",
+        "historical_original_scale_included", "methodology_source_url", "official_series_url")
 
     def project(cards):
         out = [{key: copy.deepcopy(card[key]) for key in fields if key in card}
@@ -671,7 +673,11 @@ def model_messages(state, *, context_factory, charts_enabled, max_context_chars,
     # requests that already fit unchanged; shrink these duplicate cards only
     # where the earlier compaction stages would otherwise reject the request.
     if len(system) + len(canonical(messages)) > max_context_chars and isinstance(context.get("initial_metric_candidates"), dict):
-        context["initial_metric_candidates"] = _model_tool_result("discover", context["initial_metric_candidates"], terse=True)
+        context["initial_metric_candidates"] = (
+            _resolved_discovery_receipt(context["initial_metric_candidates"], saved_analysis_metric_ids)
+            if saved_analysis_metric_ids
+            else _model_tool_result("discover", context["initial_metric_candidates"], terse=True)
+        )
         system = prompt + "\nGüncel güvenilir çalışma alanı bağlamı:\n" + canonical(context)
     # Repeated successful retrievals can return exactly the same candidates.
     # Under pressure, reference the first retained card set instead of copying

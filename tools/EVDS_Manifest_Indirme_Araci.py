@@ -595,6 +595,7 @@ def run(args: argparse.Namespace) -> int:
                 json.dumps(request, ensure_ascii=False, indent=2), encoding="utf-8"
             )
             cached = False
+            cached_record: dict[str, Any] | None = None
             if response_path.exists() and info_path.exists():
                 raw = gzip.decompress(response_path.read_bytes())
                 info = json.loads(info_path.read_text(encoding="utf-8"))
@@ -603,6 +604,8 @@ def run(args: argparse.Namespace) -> int:
                     and info.get("response_sha256") == sha256_bytes(raw)
                     and info.get("request_sha256") == sha256_bytes(body)
                 )
+                if cached:
+                    cached_record = info
             if not cached:
                 last_error: Exception | None = None
                 for attempt in range(1, args.retries + 2):
@@ -650,22 +653,31 @@ def run(args: argparse.Namespace) -> int:
 
             source_response = str(Path("raw") / response_path.name)
             source_request = str(Path("raw") / request_path.name)
-            record = {
-                "status": "validated",
-                "series_code": code,
-                "frequency": frequency,
-                "aggregation": aggregation,
-                "chunk_start": chunk_start.isoformat(),
-                "chunk_end": chunk_end.isoformat(),
-                "request_file": source_request,
-                "request_sha256": sha256_bytes(body),
-                "response_file": source_response,
-                "response_sha256": sha256_bytes(raw),
-                "served_from_cache": cached,
-                **http_info,
-                **response_meta,
-            }
-            atomic_json(info_path, record)
+            if cached:
+                if cached_record is None:  # pragma: no cover - guarded above
+                    raise RuntimeError("Dogrulanmis EVDS onbellek kaydi okunamadi.")
+                # The info record describes the original acquisition, not this
+                # rebuild. Reusing it verbatim preserves the source URL and the
+                # original acquisition timestamps instead of replacing them
+                # with a synthetic "served_from_cache" record.
+                record = cached_record
+            else:
+                record = {
+                    "status": "validated",
+                    "series_code": code,
+                    "frequency": frequency,
+                    "aggregation": aggregation,
+                    "chunk_start": chunk_start.isoformat(),
+                    "chunk_end": chunk_end.isoformat(),
+                    "request_file": source_request,
+                    "request_sha256": sha256_bytes(body),
+                    "response_file": source_response,
+                    "response_sha256": sha256_bytes(raw),
+                    "served_from_cache": False,
+                    **http_info,
+                    **response_meta,
+                }
+                atomic_json(info_path, record)
             request_manifest.append(record)
             atomic_json(output / "manifest.json", request_manifest)
             for row in parsed_rows:

@@ -7,7 +7,12 @@ import xml.etree.ElementTree as ET
 from agentic_analytics.agent.tools import search_backend as backend
 
 
-SEARCH_BUDGET_SECONDS = 45
+# Public indexes and official registries can both be slow or return larger
+# result pages.  Give every provider the same bounded opportunity instead of
+# encoding one institution as a special case.  The aggregate deadline still
+# prevents a chain of unavailable providers from hanging indefinitely.
+SEARCH_BUDGET_SECONDS = 180
+PROVIDER_BUDGET_SECONDS = 45
 
 
 class SearchError(ValueError):
@@ -45,7 +50,11 @@ def _normalize(entries):
 
 def _bing(query, fetch):
     url = "https://www.bing.com/search?" + parse.urlencode({"format": "rss", "q": query})
-    raw, _, _ = fetch(url, max_bytes=1024**2, timeout=15)
+    raw, _, _ = fetch(
+        url,
+        max_bytes=backend.SEARCH_RESPONSE_MAX_BYTES,
+        timeout=backend.PUBLIC_PROVIDER_TIMEOUT_SECONDS,
+    )
     if b"<!doctype" in raw.lower() or b"<!entity" in raw.lower():
         raise SearchError("Search response contains unsupported XML declarations.")
     rss = ET.fromstring(raw)
@@ -107,7 +116,7 @@ def run_search(query, limit, *, configured_url, fetch, deadline=None):
         if now >= deadline:
             budget_exhausted = True
             break
-        provider_deadline = min(deadline, now + (15 if provider == "KAP Public Financial Registry" else 10))
+        provider_deadline = min(deadline, now + PROVIDER_BUDGET_SECONDS)
         attempt = {"provider": provider, "raw_count": 0, "accepted_count": 0, "rejected_count": 0}
 
         def remaining():

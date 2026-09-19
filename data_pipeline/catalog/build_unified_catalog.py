@@ -127,6 +127,11 @@ METRIC_COLUMNS = [
     "current_name",
     "name_change_effective_date",
     "name_change_source_url",
+    "scale_revision_effective_date",
+    "scale_revision_factor",
+    "scale_revision_source_url",
+    "historical_archive_source_url",
+    "historical_original_scale_included",
     "methodology_source_url",
     "official_series_url",
     "notes",
@@ -392,6 +397,7 @@ def evds_assets_and_metrics() -> tuple[list[dict[str, Any]], list[dict[str, Any]
             text_value(observed.get("canonical_index_code")) if observed else "",
             text_value(observed.get("historical_name")) if observed else "",
             text_value(observed.get("current_name")) if observed else "",
+            text_value(observed.get("vintage_policy")) if observed else "",
         ]
         searchable_text = " | ".join(
             value
@@ -417,6 +423,15 @@ def evds_assets_and_metrics() -> tuple[list[dict[str, Any]], list[dict[str, Any]
                 f"name-change evidence={text_value(observed.get('name_change_source_url'))}; "
                 f"methodology={text_value(observed.get('methodology_source_url'))}."
             )
+            if text_value(observed.get("scale_revision_effective_date")):
+                identity_note += (
+                    f" Stored value vintage={text_value(observed.get('vintage_policy'))}; "
+                    f"official scale revision effective={text_value(observed.get('scale_revision_effective_date'))}; "
+                    f"publisher revision factor={text_value(observed.get('scale_revision_factor'))}; "
+                    f"scale-revision evidence={text_value(observed.get('scale_revision_source_url'))}; "
+                    f"contemporaneous archive={text_value(observed.get('historical_archive_source_url'))}; "
+                    "current EVDS history is not proof of the originally published pre-revision value."
+                )
         metrics.append(
             make_metric(
                 metric_id=f"evds:{series_code}",
@@ -451,6 +466,12 @@ def evds_assets_and_metrics() -> tuple[list[dict[str, Any]], list[dict[str, Any]
                 is_archive=bool(row.get("is_archive")),
                 source_asset=relative(source_asset),
                 source_metadata_url=text_value(row.get("metadata_url")),
+                vintage_policy=(
+                    text_value(observed.get("vintage_policy")) if observed else ""
+                ),
+                revision_status=(
+                    text_value(observed.get("revision_status")) if observed else ""
+                ),
                 canonical_series_code=(
                     text_value(observed.get("canonical_index_code")) if observed else ""
                 ),
@@ -469,6 +490,29 @@ def evds_assets_and_metrics() -> tuple[list[dict[str, Any]], list[dict[str, Any]
                     text_value(observed.get("name_change_source_url"))
                     if observed
                     else ""
+                ),
+                scale_revision_effective_date=(
+                    text_value(observed.get("scale_revision_effective_date"))
+                    if observed
+                    else ""
+                ),
+                scale_revision_factor=(
+                    observed.get("scale_revision_factor") if observed else None
+                ),
+                scale_revision_source_url=(
+                    text_value(observed.get("scale_revision_source_url"))
+                    if observed
+                    else ""
+                ),
+                historical_archive_source_url=(
+                    text_value(observed.get("historical_archive_source_url"))
+                    if observed
+                    else ""
+                ),
+                historical_original_scale_included=(
+                    observed.get("historical_original_scale_included")
+                    if observed
+                    else None
                 ),
                 methodology_source_url=(
                     text_value(observed.get("methodology_source_url"))

@@ -44,9 +44,9 @@ def test_configured_failure_or_weak_results_try_an_independent_provider(monkeypa
     assert result["results"][0]["url"] == REPORT["url"]
     assert result["source_backend"] == "Bing RSS"
     assert [a["provider"] for a in result["provider_attempts"]] == ["Google via SearXNG", "Bing RSS"]
-    assert 0 < primary.call_args.kwargs["timeout"] <= 10
+    assert 0 < primary.call_args.kwargs["timeout"] <= 45
     assert primary.call_args.kwargs["engines"] == ("google",)
-    assert 0 < fetch.call_args.kwargs["timeout"] <= 10
+    assert 0 < fetch.call_args.kwargs["timeout"] <= 45
     assert not result["sources_verified"]
     unused_registry.assert_not_called()
     unused_alternate.assert_not_called()
@@ -221,8 +221,8 @@ def test_research_search_variants_and_source_reads_use_one_deadline(monkeypatch)
     docs.web_search, docs.inspect_source = search, inspect
     result = docs.research_web("KKB ortakları", limit=1)
     assert len(searches) == 1
-    assert searches[0]["_deadline"] == 145
-    assert reads[0]["_deadline"] == 220
+    assert searches[0]["_deadline"] == 280
+    assert reads[0]["_deadline"] == 400
     assert result["searches"][0]["provider_attempts"][0]["provider"] == "Bing RSS"
 
 

@@ -176,6 +176,25 @@ def test_actual_scope_note_outranks_contents_and_word_boundaries_remain_meaningf
     assert _page_match('1.2 Loan receivables', 'loans', ['loans'])['matched_terms'] == ['loans']
 
 
+def test_primary_balance_sheet_outranks_note_for_total_assets_query():
+    statement = _page_match(
+        'Consolidated Balance Sheet (Statement of Financial Position)\n'
+        'At 31 March 2026\nAssets\nTotal Assets 4,783,750,292',
+        'total assets',
+        ['total', 'assets'],
+    )
+    note = _page_match(
+        '4.7 Consolidated leverage ratio\n'
+        'Total assets in consolidated financial statements prepared in accordance with standards\n'
+        '4,554,932,759',
+        'total assets',
+        ['total', 'assets'],
+    )
+    assert statement['primary_statement_context']
+    assert not note['primary_statement_context']
+    assert statement['score'] > note['score']
+
+
 def test_wrapped_heading_preserves_both_lines_and_clipped_excerpt_line_end():
     phrase, terms = 'sectoral distribution of loans', ['sectoral', 'distribution', 'loans']
     text = '\n'.join(['7.3 Distribution of cash loans', 'by economic sectors', 'Manufacturing 100', 'Construction 200'])

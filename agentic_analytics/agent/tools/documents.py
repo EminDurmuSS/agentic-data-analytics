@@ -70,16 +70,20 @@ OFFICIAL_SOURCE_REGISTRY = {
     "kap.org.tr": {
         "institution": "Kamuyu Aydınlatma Platformu",
         "search_variants": ("{query}", "{query} finansal rapor", "{query} finansal tablolar"),
-        "entrypoints": ("https://www.kap.org.tr/tr/bist-sirketler",),
+        "entrypoints": ("https://www.kap.org.tr/tr/sirketler/ALL",),
     },
     "borsaistanbul.com": {
         "institution": "Borsa İstanbul",
         "search_variants": ("{query}", "{query} endeks", "{query} metodoloji", "{query} duyuru"),
+        "entrypoints_by_year": {
+            "2010": ("https://www.borsaistanbul.com/files/IMKB_FINAL.pdf",),
+        },
         "entrypoints": (
             "https://www.borsaistanbul.com/endeks/xu100",
             "https://www.borsaistanbul.com/en/indices",
             "https://www.borsaistanbul.com/files/bist-pay-endeksleri-temel-kurallari.pdf",
             "https://www.borsaistanbul.com/datum/duyuru_ekleri/GenelMektup_4030_Endeks_Adlari.pdf",
+            "https://www.borsaistanbul.com/files/2020-46_Removal_of_Zero_from_the_Index_Go_Live_Date_Announcement.pdf",
             "https://www.borsaistanbul.com/en/index/index-data",
         ),
     },
@@ -127,6 +131,11 @@ def _official_registry(domain):
     return max(matches, default=(None, None))[1]
 
 
+def _direct_document_url(url):
+    """Return whether a curated official entrypoint is itself a source document."""
+    return bool(re.search(r"\.(?:pdf|xlsx?|csv)(?:$|[?#])", str(url), re.I))
+
+
 class DocumentError(ValueError):
     def __init__(self, message, code="DOCUMENT_ERROR", artifact_ref=None, recovery=None):
         super().__init__(message)
@@ -172,8 +181,26 @@ def _source_dates(value):
 def _document_type(value):
     """Classify only document forms that have materially different evidence roles."""
     text = " ".join(_search_text(value).replace("_", " ").replace("-", " ").split())
-    if re.search(r"toplanti\s+ozeti|meeting\s+(?:summary|minutes)|minutes\s+of\s+the\s+monetary", text):
-        return "meeting_summary"
+    meeting_summary = re.search(
+        r"toplanti\s+ozeti|meeting\s+(?:summary|minutes)|minutes\s+of\s+the\s+monetary",
+        text,
+    )
+    policy_decision = re.search(
+        r"faiz\s+oranlarina\s+iliskin\s+basin\s+duyurusu|monetary\s+policy\s+decision|"
+        r"para\s+politikasi\s+kurulu\s+karari|interest\s+rate\s+decision|"
+        r"press\s+release\s+on\s+interest\s+rates?",
+        text,
+    )
+    if meeting_summary or policy_decision:
+        # Official pages commonly include links to the companion decision or
+        # meeting summary in their navigation. The source title is placed first
+        # in the identity string, so the earliest explicit document label is
+        # the authoritative role instead of a later navigation mention.
+        if meeting_summary and (
+            policy_decision is None or meeting_summary.start() < policy_decision.start()
+        ):
+            return "meeting_summary"
+        return "policy_decision"
     if re.search(r"genelmektup\s*4030|endeks\s+adlari|index\s+names?|name\s+change", text):
         return "index_name_change"
     if re.search(r"metodoloji|methodolog|temel\s+kurallari|index\s+(?:rules|method)", text):
@@ -181,12 +208,9 @@ def _document_type(value):
     if re.search(r"earnings\s+presentation|financial\s+results|results\s+presentation|"
                  r"finansal\s+sonuc|sonuc\s+sunum|yatirimci\s+sunum", text):
         return "financial_results"
-    if re.search(r"consolidated\s+financial\s+report|unconsolidated\s+financial\s+report|"
+    if re.search(r"(?:consolidated|unconsolidated)?\s*financial\s+report|"
                  r"financial\s+statements?|finansal\s+rapor|finansal\s+tablolar|mali\s+tablolar", text):
         return "financial_report"
-    if re.search(r"faiz\s+oranlarina\s+iliskin\s+basin\s+duyurusu|monetary\s+policy\s+decision|"
-                 r"para\s+politikasi\s+kurulu\s+karari|interest\s+rate\s+decision", text):
-        return "policy_decision"
     return None
 
 
@@ -340,7 +364,7 @@ def _ascii_safe_url(url):
     return parse.urlunsplit((parsed.scheme, parsed.netloc, path, query, ""))
 
 
-def fetch_public_url(url, *, max_bytes=16 * 1024**2, timeout=20, max_redirects=3):
+def fetch_public_url(url, *, max_bytes=16 * 1024**2, timeout=45, max_redirects=3):
     """Revalidate each hop and pin the validated IP for the actual connection."""
     deadline = time.monotonic() + timeout
     current = _ascii_safe_url(url)
@@ -383,6 +407,21 @@ def fetch_public_url(url, *, max_bytes=16 * 1024**2, timeout=20, max_redirects=3
                 if exc.code in {301, 302, 303, 307, 308} and exc.headers.get("Location") and hop < max_redirects:
                     current = _ascii_safe_url(parse.urljoin(current, exc.headers["Location"]))
                     continue
+                if exc.code in {401, 407}:
+                    raise DocumentError(
+                        f"Source requires authentication (HTTP {exc.code}); no login was attempted.",
+                        "AUTHENTICATION_REQUIRED",
+                    ) from exc
+                if exc.code == 402:
+                    raise DocumentError(
+                        "Source requires paid access (HTTP 402); no subscription bypass was attempted.",
+                        "PAYWALL_REQUIRED",
+                    ) from exc
+                if exc.code in {403, 429}:
+                    raise DocumentError(
+                        f"Source blocked anonymous automated access (HTTP {exc.code}); no access control was bypassed.",
+                        "SOURCE_ACCESS_RESTRICTED",
+                    ) from exc
                 raise DocumentError(f"Source returned HTTP {exc.code}.", "FETCH_FAILED") from exc
             finally:
                 exc.close()
@@ -556,6 +595,34 @@ def _article_metadata(data, mime_type, final_url):
         "link_count": len(readable.links),
         "image": image if isinstance(image, str) else None,
     }
+
+
+def _access_barrier(article):
+    """Identify explicit public-access barriers without trying to bypass them.
+
+    A normal site may contain a small "login" navigation link, so only strong
+    full-page phrases in the readable title/body are treated as blockers.
+    """
+    text = _search_text(" ".join(str(article.get(key) or "") for key in (
+        "title", "description", "article_body", "readable_text"
+    )))
+    patterns = (
+        ("BOT_CHALLENGE", r"\bcaptcha\b|verify (?:that )?you are human|checking your browser|"
+                          r"security challenge|cloudflare ray id|insan oldugunuzu dogrula"),
+        ("PAYWALL_REQUIRED", r"subscribe to continue|subscription required|paid subscribers? only|"
+                             r"members? only content|abone olarak devam|ucretli abonelik|yalniz aboneler"),
+        ("AUTHENTICATION_REQUIRED", r"sign in to continue|log in to continue|login required|"
+                                    r"authentication required|oturum acmaniz gerekir|giris yapmaniz gerekir"),
+    )
+    for code, pattern in patterns:
+        if re.search(pattern, text):
+            message = {
+                "BOT_CHALLENGE": "Source presented a CAPTCHA or bot challenge; no challenge bypass was attempted.",
+                "PAYWALL_REQUIRED": "Source requires a paid subscription; no paywall bypass was attempted.",
+                "AUTHENTICATION_REQUIRED": "Source requires authentication; no login was attempted.",
+            }[code]
+            return code, message
+    return None
 
 
 def _column_name(value, index, used):
@@ -954,13 +1021,16 @@ class DocumentTools:
             raise DocumentError("PDF table strategy must be lines or text.", "INVALID_TABLE_STRATEGY")
         article = {}
         if url:
-            timeout = min(20, _deadline - time.monotonic()) if _deadline is not None else 20
+            timeout = min(45, _deadline - time.monotonic()) if _deadline is not None else 45
             if timeout <= 0:
                 raise DocumentError("Source research time budget exceeded.", "FETCH_TIMEOUT")
             data, mime, final_url = fetch_public_url(url, max_bytes=self.max_source_bytes, timeout=timeout)
             name = Path(parse.unquote(parse.urlsplit(final_url).path)).name or "source"
-            manifest = self._register(data, name, mime, final_url)
             article = _article_metadata(data, mime, final_url)
+            barrier = _access_barrier(article)
+            if barrier:
+                raise DocumentError(barrier[1], barrier[0])
+            manifest = self._register(data, name, mime, final_url)
             source_id = manifest["source_id"]
         manifest = self.source(source_id)
         if (page_numbers is not None or table_strategy != "lines") and Path(manifest["filename"]).suffix.lower() != ".pdf" and manifest["mime_type"] != "application/pdf":
@@ -1068,8 +1138,11 @@ class DocumentTools:
                 or not 1 <= limit <= 3 or domains is not None and (not isinstance(domains, list)
                 or len(domains) > 5 or any(not isinstance(domain, str) or not domain.strip() for domain in domains))):
             raise DocumentError("Research query and limit exceed their bounds.")
-        read_deadline = time.monotonic() + 120
-        search_deadline = min(read_deadline, time.monotonic() + 45)
+        # Search providers and official source sites can both be slow.  Keep
+        # general, finite request budgets so one prompt can complete discovery
+        # and document inspection without giving any source an unlimited wait.
+        read_deadline = time.monotonic() + 300
+        search_deadline = min(read_deadline, time.monotonic() + 180)
         lowered = _search_text(query)
         requested_years = set(re.findall(r"\b(?:19|20)\d{2}\b", lowered))
         requested_dates = _source_dates(query)
@@ -1124,7 +1197,12 @@ class DocumentTools:
                     seen_urls.add(url)
                     results.append(item)
         if preferred and registry and len(preferred) == 1:
-            entrypoints = list(registry.get("entrypoints", ()))
+            year_entrypoints = registry.get("entrypoints_by_year", {})
+            entrypoints = [
+                url
+                for year in sorted(requested_years, reverse=True)
+                for url in year_entrypoints.get(year, ())
+            ] + list(registry.get("entrypoints", ()))
             if preferred[0] == "tcmb.gov.tr":
                 entrypoints = [*("https://www.tcmb.gov.tr/wps/wcm/connect/TR/TCMB+TR/Main+Menu/Duyurular/Basin/" + year
                                   for year in sorted(requested_years, reverse=True)), *entrypoints]
@@ -1135,16 +1213,21 @@ class DocumentTools:
                 if url not in seen_urls and allowed(url):
                     seen_urls.add(url)
                     results.append({"url": url, "title": parse.urlsplit(url).hostname,
-                                    "discovery_only": True, "official_entrypoint": True})
+                                    "discovery_only": not _direct_document_url(url),
+                                    "official_entrypoint": True})
         if not results:
             if preferred:
                 # When keyword search cannot locate a page, start at the
                 # explicitly requested institution and follow relevant archive
                 # links. These roots remain discovery pages, never answer proof.
-                entrypoints = registry.get("entrypoints", ()) if registry and len(preferred) == 1 else ()
+                year_entrypoints = registry.get("entrypoints_by_year", {}) if registry else {}
+                entrypoints = ([url for year in sorted(requested_years, reverse=True)
+                                for url in year_entrypoints.get(year, ())]
+                               + list(registry.get("entrypoints", ()))) if registry and len(preferred) == 1 else ()
                 roots = [url for url in entrypoints if allowed(url)] or ["https://" + domain + "/" for domain in preferred]
                 results = [{"url": url, "title": parse.urlsplit(url).hostname,
-                            "discovery_only": True} for url in roots]
+                            "discovery_only": not _direct_document_url(url),
+                            "official_entrypoint": True} for url in roots]
             else:
                 return {"status": "unavailable", "research_status": "unavailable", "code": "SEARCH_NO_RESULTS",
                         "message": "Search did not return usable result URLs.", "query": query, "sources": [],
@@ -1273,9 +1356,10 @@ class DocumentTools:
                 title_text = _search_text(source_title)
                 searchable = _search_text(" ".join([verified_title, article.get("description", ""), content]))
                 document_type = _document_type(" ".join([source_title, source_url, content[:4000]]))
-                if expected_document_type and document_type and document_type != expected_document_type:
+                if expected_document_type and document_type != expected_document_type:
                     raise DocumentError(
-                        f"Source document type {document_type} does not satisfy requested {expected_document_type} evidence.",
+                        f"Source document type {document_type or 'unclassified'} does not satisfy requested "
+                        f"{expected_document_type} evidence.",
                         "DOCUMENT_TYPE_MISMATCH",
                     )
                 from agentic_analytics.agent.tools.search_backend import rank_search_results

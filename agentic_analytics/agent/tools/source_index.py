@@ -85,8 +85,19 @@ def _page_match(page_text, phrase, terms):
         for key in found_keys & set(tokens):
             source_terms.setdefault(key, set()).update(tokens[key])
     coverage = len(nearby) / len(keys)
+    opening = _normalized("\n".join(lines[:16]))
+    primary_statement_context = bool(
+        {"total", "asset"}.issubset(keys)
+        and re.search(
+            r"\b(?:consolidated\s+)?balance\s+sheet\b|"
+            r"\bstatement\s+of\s+financial\s+position\b|"
+            r"\bselected\s+balance\s+sheet\s+items\b",
+            opening,
+        )
+    )
     score = (80 * coverage + 10 * len(found_keys) / len(keys) + 15 * len(heading_found) / len(keys)
-             + 5 * len(line_found) / len(keys) + 10 * int(exact))
+             + 5 * len(line_found) / len(keys) + 10 * int(exact)
+             + 30 * int(primary_statement_context))
     contents = bool(re.search(r"\b(?:table of contents|contents|icindekiler)\b|section\s+one\s+page\s+no",
                               _normalized("\n".join(lines[:8]))))
     if contents:
@@ -98,6 +109,7 @@ def _page_match(page_text, phrase, terms):
             "exact_phrase": exact, "all_query_terms": found_keys == keys,
             "match_type": ("contents" if contents else "heading" if heading_found == keys else "local_context" if nearby == keys else
                            "scattered_terms" if found_keys == keys else "partial_terms"),
+            "primary_statement_context": primary_statement_context,
             "excerpt": shown_excerpt, "excerpt_truncated": len(excerpt) > len(shown_excerpt),
             "line_start": first + 1, "line_end": first + len(shown_excerpt.splitlines()), "score": round(score, 6)}
 

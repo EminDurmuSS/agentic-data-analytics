@@ -18,6 +18,8 @@ from agentic_analytics.agent.tools.documents import (
     DocumentTools,
     _ascii_safe_url,
     _article_metadata,
+    _direct_document_url,
+    _document_type,
     _official_registry,
     _public_destination,
     fetch_public_url,
@@ -343,6 +345,33 @@ class AgentDocumentTests(unittest.TestCase):
         self.assertEqual(result['warnings'][0]['code'], 'SEARCH_FALLBACK_UNAVAILABLE')
         self.assertTrue(result['results'][0]['discovery_only'])
 
+    def test_research_reports_login_paywall_and_captcha_without_registering_them_as_sources(self):
+        cases = [
+            ("Sign in to continue. Login required.", "AUTHENTICATION_REQUIRED"),
+            ("Subscribe to continue reading. Subscription required.", "PAYWALL_REQUIRED"),
+            ("Verify you are human. CAPTCHA security challenge.", "BOT_CHALLENGE"),
+        ]
+        for body, code in cases:
+            with self.subTest(code=code):
+                url = "https://example.org/restricted"
+                self.docs.web_search = lambda *args, **kwargs: {"status": "ok", "results": [{
+                    "title": "Official 2026 report", "url": url, "discovery_only": False,
+                    "entity_verification_required": False,
+                }]}
+                html = f"<html><head><title>Official 2026 report</title></head><body><main>{body}</main></body></html>".encode()
+                with patch("agentic_analytics.agent.tools.documents.fetch_public_url",
+                           return_value=(html, "text/html", url)):
+                    result = self.docs.research_web(
+                        "Official 2026 report",
+                        limit=1,
+                        domains=["example.org"],
+                    )
+                self.assertEqual("unavailable", result["status"])
+                self.assertEqual([], result["sources"])
+                self.assertIn(code, {failure["code"] for failure in result["failures"]})
+                self.assertTrue(any("no " in failure["message"].casefold()
+                                    for failure in result["failures"] if failure["code"] == code))
+
     def test_research_verifies_issuer_after_dated_search_abstract_omits_it(self):
         from agentic_analytics.agent.tools.search_backend import rank_search_results
         query = 'Example Bank 31 March 2026 consolidated financial report'
@@ -452,7 +481,7 @@ class AgentDocumentTests(unittest.TestCase):
         cases = [
             ("Garanti BBVA 31 Mart 2026 konsolide finansal raporu", "garantibbvainvestorrelations.com",
              "https://www.garantibbvainvestorrelations.com/en/library/brsa-consolidated-financials-pdf/PDF/1268/0/0"),
-            ("KAP 2025 finansal raporu", "kap.org.tr", "https://www.kap.org.tr/tr/bist-sirketler"),
+            ("KAP 2025 finansal raporu", "kap.org.tr", "https://www.kap.org.tr/tr/sirketler/ALL"),
             ("İMKB 100 BIST 100 endeks ad değişikliği", "borsaistanbul.com",
              "https://www.borsaistanbul.com/datum/duyuru_ekleri/GenelMektup_4030_Endeks_Adlari.pdf"),
             ("EVDS TP.MK.F.BILESIK aylık kapanış", "evds3.tcmb.gov.tr", "https://evds3.tcmb.gov.tr/anasayfa"),
@@ -471,6 +500,27 @@ class AgentDocumentTests(unittest.TestCase):
                 self.assertTrue(searches[0].startswith("site:" + domain + " "))
                 self.assertEqual(reads[0], entrypoint)
                 self.assertEqual(result["status"], "unavailable")
+
+    def test_borsa_2010_research_starts_from_the_official_annual_report_document(self):
+        searches, reads = [], []
+        self.docs.web_search = lambda value, **kwargs: searches.append(value) or {
+            "status": "ok", "results": []}
+
+        def unreadable(**kwargs):
+            reads.append(kwargs["url"])
+            raise DocumentError("unavailable", "FETCH_FAILED")
+
+        self.docs.inspect_source = unreadable
+        result = self.docs.research_web(
+            "2010 yılına ait İMKB 100 kapanış verisini arıyorum.",
+            limit=1,
+        )
+        annual_report = "https://www.borsaistanbul.com/files/IMKB_FINAL.pdf"
+        self.assertTrue(searches[0].startswith("site:borsaistanbul.com "))
+        self.assertEqual(annual_report, reads[0])
+        self.assertTrue(_direct_document_url(annual_report))
+        self.assertFalse(_direct_document_url("https://www.borsaistanbul.com/endeks/xu100"))
+        self.assertEqual("unavailable", result["status"])
 
     def test_search_publication_date_never_becomes_fetched_document_date(self):
         from agentic_analytics.agent.context import _model_tool_result
@@ -983,6 +1033,41 @@ class AgentDocumentTests(unittest.TestCase):
         self.assertEqual(result["sources"][0]["document_type"], "policy_decision")
         self.assertEqual(visited[:3], [summary, archive, decision])
         self.assertTrue(any(failure["code"] == "DOCUMENT_TYPE_MISMATCH" for failure in result["failures"]))
+
+    def test_requested_policy_decision_rejects_unclassified_same_date_document(self):
+        wrong = "https://example.org/2025-policy-program.pdf"
+        self.docs.web_search = lambda *args, **kwargs: {"status": "ok", "results": [
+            {"title": "2025 monetary policy programme", "url": wrong},
+        ]}
+        self.docs.inspect_source = lambda url=None, **kwargs: (
+            {"source_id": "wrong", "source_url": url,
+             "text": "2025 monetary policy programme. Calendar item: 6 March 2025.",
+             "article": {"title": "2025 Monetary Policy Programme"}}
+        )
+        result = self.docs.research_web(
+            "Monetary policy decision 6 March 2025 interest rate",
+            limit=1,
+            domains=["example.org"],
+        )
+        self.assertEqual("unavailable", result["status"])
+        self.assertEqual([], result["sources"])
+        self.assertTrue(any(
+            failure["url"] == wrong and failure["code"] == "DOCUMENT_TYPE_MISMATCH"
+            for failure in result["failures"]
+        ))
+
+    def test_document_type_uses_leading_official_title_before_navigation_links(self):
+        decision = (
+            "TCMB - Faiz Oranlarına İlişkin Basın Duyurusu (2025-15) "
+            "Para Politikası Kurulu Toplantı Özeti bağlantısı"
+        )
+        summary = (
+            "TCMB - Para Politikası Kurulu Toplantı Özeti "
+            "Faiz Oranlarına İlişkin Basın Duyurusu bağlantısı"
+        )
+        self.assertEqual("policy_decision", _document_type(decision))
+        self.assertEqual("meeting_summary", _document_type(summary))
+        self.assertEqual("financial_report", _document_type("Example Bank financial report"))
 
     def test_url_underscore_date_establishes_exact_financial_reporting_period(self):
         url = "https://example.org/31_March_2026_Consolidated_Financial_Report.pdf"
