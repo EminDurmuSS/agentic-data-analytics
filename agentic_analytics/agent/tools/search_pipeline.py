@@ -76,17 +76,28 @@ def run_search(query, limit, *, configured_url, fetch, deadline=None):
     # Google is the first, bounded discovery index.  Do not ask SearXNG to
     # aggregate every enabled engine: a CAPTCHA or slow unrelated engine can
     # otherwise consume the entire request budget before Google responds.
+    kap_applicable = backend.kap_search_applicable(query)
     providers = (["Google via SearXNG"] if configured_url else []) + ["Bing RSS"]
-    if backend.kap_search_applicable(query):
+    if kap_applicable:
         providers.append("KAP Public Financial Registry")
     providers.append("DuckDuckGo Lite")
     attempts, warnings, results = [], [], []
     domains = backend.search_domains(query)
     winning_provider, skipped_total, rejected_total = None, 0, 0
-    budget_exhausted, blocked_providers = False, {}
+    budget_exhausted, blocked_providers, kap_tried = False, {}, not kap_applicable
     for provider in providers:
-        if _state(results) == "success":
+        # Free-text search snippets can rank a merely entity-matched,
+        # on-topic page as "success" even when it is a homepage or stub, not
+        # the actual report. Before the authoritative BIST registry has had
+        # its turn, only an actual document is confident enough to skip it;
+        # once the registry has been consulted, its absence no longer holds
+        # up the loop.
+        if _state(results) == "success" and (kap_tried or any(
+                not item["discovery_only"] and not item["entity_verification_required"] and item.get("is_document")
+                for item in results)):
             break
+        if provider == "KAP Public Financial Registry":
+            kap_tried = True
         if provider in blocked_providers:
             attempts.append({"provider": provider, "status": "skipped", "code": "SEARCH_PROVIDER_BLOCKED",
                              "diagnostics": blocked_providers[provider], "elapsed_ms": 0,

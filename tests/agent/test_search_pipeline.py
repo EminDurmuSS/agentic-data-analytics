@@ -52,6 +52,24 @@ def test_configured_failure_or_weak_results_try_an_independent_provider(monkeypa
     unused_alternate.assert_not_called()
 
 
+def test_weak_non_document_success_does_not_starve_the_official_registry(monkeypatch):
+    """A homepage or navigation page that merely names the issuer and a
+    financial topic must not look confident enough to skip the deterministic
+    BIST registry -- only an actual report document should short-circuit it."""
+    weak = {"url": "https://www.example.org/yatirimci-iliskileri", "title": "Example Bank Investor Relations",
+            "content": "Example Bank financial results and investor relations"}
+    registry_report = {"url": "https://kap.org.tr/tr/api/file/download/xyz", "title": "Example Bank | Consolidated 2026.pdf"}
+    registry = Mock(return_value=[registry_report])
+    monkeypatch.setattr(backend, "kap_financial_search", registry)
+    alternate = Mock()
+    monkeypatch.setattr(backend, "public_search_fallback", alternate)
+    result = pipeline.run_search(QUERY, 5, configured_url=None, fetch=Mock(return_value=rss([weak])))
+    assert [a["provider"] for a in result["provider_attempts"]] == ["Bing RSS", "KAP Public Financial Registry"]
+    registry.assert_called_once()
+    assert registry_report["url"] in [r["url"] for r in result["results"]]
+    alternate.assert_not_called()
+
+
 def test_bing_challenge_continues_to_registry_without_losing_error(monkeypatch):
     monkeypatch.setattr(backend, "kap_financial_search", Mock(return_value=[REPORT]))
     fetch = Mock(return_value=(b"<html>Challenge</html>", "text/html", "https://bing.com"))

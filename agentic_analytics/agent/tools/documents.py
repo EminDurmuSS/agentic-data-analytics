@@ -197,10 +197,24 @@ class _NoRedirect(request.HTTPRedirectHandler):
         return None
 
 
+def _ascii_safe_url(url):
+    """Percent-encode a raw path/query so http.client can send the request line.
+
+    Search providers and discovered links can carry unescaped non-ASCII
+    characters (e.g. Turkish letters in a Wikipedia path). http.client encodes
+    the request line as ASCII and raises UnicodeEncodeError on those bytes, so
+    encode defensively rather than letting a legitimate URL fail to fetch.
+    """
+    parsed = parse.urlsplit(url)
+    path = parse.quote(parsed.path, safe="/%")
+    query = parse.quote(parsed.query, safe="=&%")
+    return parse.urlunsplit((parsed.scheme, parsed.netloc, path, query, ""))
+
+
 def fetch_public_url(url, *, max_bytes=16 * 1024**2, timeout=20, max_redirects=3):
     """Revalidate each hop and pin the validated IP for the actual connection."""
     deadline = time.monotonic() + timeout
-    current = url
+    current = _ascii_safe_url(url)
     for hop in range(max_redirects + 1):
         remaining = deadline - time.monotonic()
         if remaining <= 0:
@@ -238,7 +252,7 @@ def fetch_public_url(url, *, max_bytes=16 * 1024**2, timeout=20, max_redirects=3
         except error.HTTPError as exc:
             try:
                 if exc.code in {301, 302, 303, 307, 308} and exc.headers.get("Location") and hop < max_redirects:
-                    current = parse.urljoin(current, exc.headers["Location"])
+                    current = _ascii_safe_url(parse.urljoin(current, exc.headers["Location"]))
                     continue
                 raise DocumentError(f"Source returned HTTP {exc.code}.", "FETCH_FAILED") from exc
             finally:

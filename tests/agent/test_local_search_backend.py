@@ -112,6 +112,24 @@ def test_dated_issuer_search_keeps_short_name_together_and_rejects_date_only_dri
     assert not next(item for item in results if 'issuer.test' in item['url'])['entity_verification_required']
 
 
+def test_co_branded_acronym_is_not_required_once_the_base_name_matches():
+    # "Garanti BBVA" is the post-rebrand brand name; the bank's official
+    # registry title predates the rebrand and never says "BBVA". A missing
+    # acronym must not by itself reject the official issuer when the rest of
+    # the name already establishes identity.
+    from agentic_analytics.agent.tools.search_backend import rank_search_results
+    query = 'Garanti BBVA 31 Mart 2026 konsolide finansal rapor yatırımcı ilişkileri'
+    kept, rejected, _ = rank_search_results(query, [
+        {'url': 'https://www.kap.org.tr/tr/bist-sirketler', 'title': 'TÜRKİYE GARANTİ BANKASI A.Ş.', 'snippet': 'GARAN'}])
+    assert not rejected
+    assert not kept[0]['entity_verification_required']
+    # An acronym that is the query's only identity signal must still be required literally.
+    kept, rejected, _ = rank_search_results('BBVA quarterly report 2026', [
+        {'url': 'https://other.test/report', 'title': 'Other Bank Q1 2026 report', 'snippet': ''}])
+    assert not kept
+    assert rejected and rejected[0]['reason'] == 'query_terms_missing'
+
+
 def test_server_json_is_read_as_data_and_never_executed():
     from agentic_analytics.agent.tools.search_backend import _flight_objects
     raw = b'<script>self.__next_f.push(invalid);window.location="http://localhost";</script>'
