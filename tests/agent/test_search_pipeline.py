@@ -43,8 +43,9 @@ def test_configured_failure_or_weak_results_try_an_independent_provider(monkeypa
     assert result["status"] == "ok"
     assert result["results"][0]["url"] == REPORT["url"]
     assert result["source_backend"] == "Bing RSS"
-    assert [a["provider"] for a in result["provider_attempts"]] == ["SearXNG", "Bing RSS"]
+    assert [a["provider"] for a in result["provider_attempts"]] == ["Google via SearXNG", "Bing RSS"]
     assert 0 < primary.call_args.kwargs["timeout"] <= 10
+    assert primary.call_args.kwargs["engines"] == ("google",)
     assert 0 < fetch.call_args.kwargs["timeout"] <= 10
     assert not result["sources_verified"]
     unused_registry.assert_not_called()
