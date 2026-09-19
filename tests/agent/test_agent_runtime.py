@@ -498,6 +498,16 @@ class AgentRuntimeTests(unittest.TestCase):
         self.assertFalse(self.journal.get(result["run_id"])["state"]["unresolved_errors"])
         self.assertEqual(len(client.requests), 6)
 
+    def test_unreadable_research_rewrites_are_paused_after_two_attempts(self):
+        runtime, _ = self.runtime([], extra_tools=self.source_tools(research=lambda _args: {"status": "unavailable", "sources": []}))
+        state = {"search_progress": {"urls": [], "stale_calls": 0}, "tool_results": []}
+        first, second = {"status": "unavailable", "sources": []}, {"status": "unavailable", "sources": []}
+        runtime._track_search_progress(state, "research_web", first)
+        runtime._track_search_progress(state, "research_web", second)
+        self.assertTrue(state["search_progress"]["paused"])
+        self.assertEqual(second["warnings"][0]["code"], "RESEARCH_RESULTS_REPEATED")
+        self.assertNotIn("research_web", {tool["function"]["name"] for tool in runtime._model_tool_schemas(state)})
+
     def test_ignored_search_stall_is_bounded_and_explains_preserved_analysis(self):
         initial, _ = self.runtime([call("execute", self.plan), FINAL])
         parent = initial.run("Kredi tablosunu oluştur")
