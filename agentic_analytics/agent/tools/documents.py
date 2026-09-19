@@ -51,6 +51,7 @@ OFFICIAL_SOURCE_REGISTRY = {
     "tcmb.gov.tr": {
         "institution": "TCMB",
         "search_variants": ("{query}", "{query} bülten", "{query} raporu", "{query} gelişmeleri", "{query} yayın"),
+        "seed_urls": ("https://evds3.tcmb.gov.tr/anasayfa",),
     },
     "bddk.org.tr": {
         "institution": "BDDK",
@@ -63,6 +64,9 @@ OFFICIAL_SOURCE_REGISTRY = {
     "borsaistanbul.com": {
         "institution": "Borsa İstanbul",
         "search_variants": ("{query}", "{query} endeks", "{query} endeks verisi", "{query} metodoloji"),
+        "seed_urls": ("https://borsaistanbul.com/en/indices", "https://www.borsaistanbul.com/en/index/index-data",
+                      "https://www.borsaistanbul.com/datum/duyuru_ekleri/GenelMektup_4030_Endeks_Adlari.pdf",
+                      "https://borsaistanbul.com/files/bist-pay-endeksleri-temel-kurallari.pdf"),
     },
     "kap.org.tr": {
         "institution": "Kamuyu Aydınlatma Platformu",
@@ -1009,10 +1013,17 @@ class DocumentTools:
                     results.append(item)
         if not results:
             if preferred:
-                # When keyword search cannot locate a page, start at the
-                # explicitly requested institution and follow relevant archive
-                # links. These roots remain discovery pages, never answer proof.
-                results = [{"url": "https://" + domain + "/", "title": domain, "discovery_only": True} for domain in preferred]
+                # When keyword search cannot locate a page, start at curated,
+                # human-verified entry points for this institution (if any),
+                # else the bare domain root. These remain discovery pages,
+                # never answer proof.
+                seeds = [url for domain in preferred for url in OFFICIAL_SOURCE_REGISTRY.get(domain, {}).get("seed_urls", ())]
+                # A seed document (e.g. a methodology or naming-history PDF)
+                # can itself be the answer; only a listing/index page is pure
+                # navigation. discovery_only controls whether GENERIC_SOURCE
+                # later discards the fetched content outright.
+                results = ([{"url": url, "title": url, "discovery_only": not url.casefold().endswith(".pdf")} for url in seeds] if seeds else
+                           [{"url": "https://" + domain + "/", "title": domain, "discovery_only": True} for domain in preferred])
             else:
                 return {"status": "unavailable", "research_status": "unavailable", "code": "SEARCH_NO_RESULTS",
                         "message": "Search did not return usable result URLs.", "query": query, "sources": [],

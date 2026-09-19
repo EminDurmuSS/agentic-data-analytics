@@ -467,6 +467,15 @@ class AgentDocumentTests(unittest.TestCase):
                 self.assertEqual(result["sources"], [])
                 self.assertTrue(self.docs.web_search.call_args.args[0].startswith("site:" + domain + " "))
 
+    def test_research_web_starts_at_curated_seed_urls_when_search_finds_nothing(self):
+        from agentic_analytics.agent.tools.documents import OFFICIAL_SOURCE_REGISTRY
+        self.docs.web_search = MagicMock(return_value={"status": "ok", "results": []})
+        with patch.object(self.docs, "inspect_source", side_effect=DocumentError("unavailable", "FETCH_FAILED")) as inspect:
+            self.docs.research_web("2010 IMKB 100 kapanış verisi", limit=1)
+        attempted = {call.kwargs["url"] for call in inspect.call_args_list}
+        self.assertTrue(attempted & set(OFFICIAL_SOURCE_REGISTRY["borsaistanbul.com"]["seed_urls"]))
+        self.assertNotIn("https://borsaistanbul.com/", attempted)
+
     def test_search_publication_date_never_becomes_fetched_document_date(self):
         from agentic_analytics.agent.context import _model_tool_result
         url = 'https://example.org/financial-report'
