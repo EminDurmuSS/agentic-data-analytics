@@ -11,7 +11,7 @@ import duckdb
 from fastapi.testclient import TestClient
 
 from agentic_analytics.voice.context import build_voice_brief
-from agentic_analytics.voice.script import VoiceScriptService
+from agentic_analytics.voice.script import VoiceScriptService, validate_voice_script
 from agentic_analytics.voice.service import VoiceServiceError, VoiceSummaryService
 from agentic_analytics.voice.ema import EmaTTS, VoiceTTSError
 from app.server import create_app
@@ -139,6 +139,13 @@ class VoiceBackendTests(unittest.TestCase):
 
         self.assertEqual(service.generate(brief), "Kredi bakiyesi 150 Türk lirası oldu; 100 Türk lirasından yükseldi.")
         self.assertIn("'Türk lirası'", service.client.requests[0]["messages"][0]["content"])
+
+    def test_voice_script_rounds_machine_precision_decimals_for_clear_speech(self):
+        text = "Ocak döneminde endeks değeri 88.57829117 olarak kaydedildi. Aralıkta 110.38696292 oldu."
+        self.assertEqual(
+            validate_voice_script(text),
+            "Ocak döneminde endeks değeri yaklaşık 88,58 olarak kaydedildi. Aralıkta yaklaşık 110,39 oldu.",
+        )
 
     def _ema_model(self):
         model = Path(self.temp.name) / "ema"

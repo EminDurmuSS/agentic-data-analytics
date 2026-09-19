@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import json
 import re
+from decimal import Decimal, ROUND_HALF_UP
 
 from agentic_analytics.voice.context import VoiceBriefInput
 
@@ -10,6 +11,10 @@ MAX_SCRIPT_CHARS = 900
 _URL = re.compile(r"https?://|```|[#*_`]")
 _NUMBER = re.compile(r"\d[\d.,%]*")
 _TURKISH_LIRA = re.compile(r"\bTL(?:(?:['’])(ye|ya|yi|yı|nin|nın|den|dan))?\b", re.IGNORECASE)
+# These are machine-precision observations, not Turkish thousands formatting:
+# e.g. ``88.57829117``.  A number with another separator following its decimal
+# digits (such as ``598.085.487``) intentionally does not match.
+_LONG_DECIMAL = re.compile(r"(?<![\d.,])(\d+)([.,])(\d{5,})(%?)(?![\d.,])")
 
 
 class VoiceScriptError(ValueError):
@@ -18,7 +23,7 @@ class VoiceScriptError(ValueError):
 
 def _prompt(brief: VoiceBriefInput) -> list[dict[str, str]]:
     return [
-        {"role": "system", "content": "Sen kaynaklı finansal analiz sonucunu seslendirmek için kısa Türkçe metin yazarsın. Grafik bilgisi kanıt kapsülünde varsa metne tam olarak 'Grafik incelendiğinde,' diye başla; grafik yoksa bu ifadeyi kullanma. Ardından grafikteki ve analizdeki gerçek değerleri açıkla. Son cümlede, yalnız kanıt kapsülündeki değerlere dayanarak ve nedensellik iddia etmeden '... görülebilir.' biçiminde kısa bir içgörü sun. Yalnız verilen kanıt kapsülündeki gerçekleri kullan. Yeni hesap, sayı, tarih, kaynak, nedensellik veya öneri üretme. Sayı kullanırsan kapsüldeki biçimini aynen rakamla yaz; sayı sözcüğüyle yazma. Para birimi için 'TL' kısaltmasını yazma; her zaman 'Türk lirası' yaz. Gösterge adındaki parantez içi yer veya kod ifadesinden sonra bir nokta koy; sonraki sayısal değere yeni cümleyle geç. Bu yazılı cümle sonu seslendirmedeki kısa duraklamayı da oluşturur. Eksik veri ve kapsam uyarısını varsa söyle. Başlık, Markdown, URL ve kaynakça yazma."},
+        {"role": "system", "content": "Sen kaynaklı finansal analiz sonucunu seslendirmek için kısa Türkçe metin yazarsın. Grafik bilgisi kanıt kapsülünde varsa metne tam olarak 'Grafik incelendiğinde,' diye başla; grafik yoksa bu ifadeyi kullanma. Ardından grafikteki ve analizdeki gerçek değerleri açıkla. Son cümlede, yalnız kanıt kapsülündeki değerlere dayanarak ve nedensellik iddia etmeden '... görülebilir.' biçiminde kısa bir içgörü sun. Yalnız verilen kanıt kapsülündeki gerçekleri kullan. Yeni hesap, sayı, tarih, kaynak, nedensellik veya öneri üretme. Sayı sözcüğüyle yazma. Beş veya daha fazla ondalık basamaklı makine hassasiyetindeki değerleri en fazla iki ondalığa yuvarla ve 'yaklaşık' diye belirt; diğer sayıları kapsüldeki biçimiyle yaz. Para birimi için 'TL' kısaltmasını yazma; her zaman 'Türk lirası' yaz. Gösterge adındaki parantez içi yer veya kod ifadesinden sonra bir nokta koy; sonraki sayısal değere yeni cümleyle geç. Bu yazılı cümle sonu seslendirmedeki kısa duraklamayı da oluşturur. Eksik veri ve kapsam uyarısını varsa söyle. Başlık, Markdown, URL ve kaynakça yazma."},
         {"role": "user", "content": "45 saniyeyi aşmayacak sade bir ses metni üret. Kanıt kapsülü:\n" + json.dumps(brief.public_dict(), ensure_ascii=False, allow_nan=False, separators=(",", ":"))},
     ]
 
@@ -27,7 +32,13 @@ def _permitted_numbers(brief: VoiceBriefInput) -> set[str]:
     values = [brief.question, brief.answer, json.dumps(brief.analysis, ensure_ascii=False)]
     for fact in brief.facts:
         values.extend(str(fact.get(key, "")) for key in ("value", "period_start", "period_end"))
-    return {"".join(char for char in token if char.isdigit()) for value in values for token in _NUMBER.findall(value)}
+    permitted = set()
+    for value in values:
+        for token in _NUMBER.findall(value):
+            permitted.add("".join(char for char in token if char.isdigit()))
+            rounded = _normalise_spoken_decimals(token)
+            permitted.update("".join(char for char in item if char.isdigit()) for item in _NUMBER.findall(rounded))
+    return permitted
 
 
 def _expand_turkish_lira(match: re.Match[str]) -> str:
@@ -39,6 +50,16 @@ def _expand_turkish_lira(match: re.Match[str]) -> str:
         "den": "Türk lirasından", "dan": "Türk lirasından",
     }
     return forms.get(suffix, "Türk lirası")
+
+
+def _normalise_spoken_decimals(value: str) -> str:
+    """Round only overly precise decimal observations for clear Turkish speech."""
+    def replace(match: re.Match[str]) -> str:
+        number = Decimal(match.group(1) + "." + match.group(3)).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
+        rounded = format(number, ".2f").replace(".", ",")
+        return "yaklaşık " + rounded + match.group(4)
+
+    return _LONG_DECIMAL.sub(replace, value)
 
 
 def _local_fallback_script(brief: VoiceBriefInput) -> str:
@@ -62,6 +83,7 @@ def validate_voice_script(value: object, brief: VoiceBriefInput | None = None) -
         raise VoiceScriptError("Ses metni boş veya geçersiz.")
     text = " ".join(value.replace("\x00", " ").split())
     text = _TURKISH_LIRA.sub(_expand_turkish_lira, text)
+    text = _normalise_spoken_decimals(text)
     if not 1 <= len(text) <= MAX_SCRIPT_CHARS or _URL.search(text):
         raise VoiceScriptError("Ses metni biçimi veya uzunluğu geçersiz.")
     if not text.endswith((".", "!", "?", "…")):
