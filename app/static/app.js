@@ -470,8 +470,12 @@ async function selectWorkspace(id) {
     $("#message-list").append(welcome);
     examples();
   }
+  // A provider can fail after an analysis has been durably published.  The
+  // analysis head, rather than a successful final prose response, determines
+  // whether its persisted evidence can be offered to the voice workflow.
   const analysisRun = [...runs].reverse().find((run) =>
-    run.status === "completed" && run.result?.analysis_id === workspace.analysis_head,
+    ["completed", "partial", "failed"].includes(run.status || run.result?.status)
+      && run.result?.analysis_id === workspace.analysis_head,
   );
   if (analysisRun) setVoiceRun(analysisRun);
   if (workspace.analysis_head) await loadAnalysis(workspace.analysis_head);
