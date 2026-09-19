@@ -765,7 +765,7 @@ def test_explicit_historical_year_ranges_reject_a_saved_recent_analysis(env):
     plan = {"start": "2020-01", "end": "2026-06", "frequency": "monthly",
             "columns": [{"name": "credit", "metric_id": "credit", "dimensions": {}}]}
     runtime, _ = build([call("execute", plan), final()])
-    result = runtime.run("2010–2014 İMKB 100 ile 2014–2018 BIST 100 aylık kapanış verisini tek analizde göster")
+    result = runtime.run("2020-2026 kredi stokunu aylık göster")
     request = "2010–2014 İMKB 100 ile 2014–2018 BIST 100 aylık kapanış verisini tek analizde göster"
     errors = runtime._analysis_request_scope_errors({"analysis_id": result["analysis_id"], "analysis_updated": True,
                                                       "request_message": request})

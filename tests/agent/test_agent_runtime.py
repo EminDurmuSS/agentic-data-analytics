@@ -505,6 +505,7 @@ class AgentRuntimeTests(unittest.TestCase):
         runtime._track_search_progress(state, "research_web", first)
         runtime._track_search_progress(state, "research_web", second)
         self.assertTrue(state["search_progress"]["paused"])
+        self.assertTrue(state["search_progress"]["research_web_paused"])
         self.assertEqual(second["warnings"][0]["code"], "RESEARCH_RESULTS_REPEATED")
         self.assertNotIn("research_web", {tool["function"]["name"] for tool in runtime._model_tool_schemas(state)})
 
@@ -789,7 +790,7 @@ class AgentRuntimeTests(unittest.TestCase):
         # must present the table (completed + analysis_id), not bury it behind needs_input.
         runtime, _ = self.runtime([call("execute", self.plan, "e1"),
                                    call("ask_user", {"question": "Tek 24 aylık seri mi iki sütun mu?"}, "q1")])
-        result = runtime.run("2023-2024 tablosu oluştur")
+        result = runtime.run("Kredi tablosu oluştur")
         self.assertEqual(result["status"], "completed", result)
         self.assertIsNotNone(result["analysis_id"])
         self.assertIn("mi", result["message"])

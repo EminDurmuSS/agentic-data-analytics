@@ -644,16 +644,23 @@ class AgentRuntime:
             return []
         hidden = ({"prepare_source_table", "publish_selected_table"}
                   if "ingest_source_table" in self.tools and not any(state.get("advanced_source_tables", {}).values()) else set())
-        if state.get("search_progress", {}).get("paused"):
-            hidden.update({"web_search", "research_web"})
+        progress = state.get("search_progress", {})
+        if progress.get("web_search_paused") or (
+                progress.get("paused") and "web_search_paused" not in progress
+                and "research_web_paused" not in progress):
+            hidden.add("web_search")
+        if progress.get("research_web_paused"):
+            hidden.add("research_web")
         if state.get("institutional_delivery_repair"):
             hidden.update(set(self.tools) - _INSTITUTIONAL_REPAIR_TOOLS)
         return [definition["schema"] for name, definition in self.tools.items() if name not in hidden]
 
     def _search_recovery(self, state):
+        progress = state.get("search_progress", {})
         return {"reason": "Searches are not finding new source URLs; changing query wording alone is not progress.",
-                "available_tools": [name for name in ("research_web", "inspect_source", "find_source_pages", "read_source_table") if name in self.tools],
-                "candidate_urls": state.get("search_progress", {}).get("urls", [])[-8:],
+                "available_tools": [name for name in ("research_web", "inspect_source", "find_source_pages", "read_source_table")
+                                    if name in self.tools and not (name == "research_web" and progress.get("research_web_paused"))],
+                "candidate_urls": progress.get("urls", [])[-8:],
                 "next_step": "Read a relevant official result and follow its discovered report links, or use research_web with the institution's domain. Do not guess URLs, dates, values or treat snippets as evidence. If no source is readable, explain what is missing and retain the existing analysis."}
 
     def _track_search_progress(self, state, name, result):
@@ -668,6 +675,7 @@ class AgentRuntime:
             progress["stale_calls"] = 0 if fresh else progress["stale_calls"] + 1
             result["progress"] = {"new_source_urls": len(fresh), "repeated_result_sets": progress["stale_calls"]}
             if progress["stale_calls"] >= 2:
+                progress["web_search_paused"] = True
                 progress["paused"] = True
                 if not any(warning.get("code") == "SEARCH_RESULTS_REPEATED" for warning in result.get("warnings", [])):
                     result.setdefault("warnings", []).append({"code": "SEARCH_RESULTS_REPEATED",
@@ -679,6 +687,7 @@ class AgentRuntime:
             # force the model to use the already-read evidence or close out.
             progress["stale_research_calls"] = progress.get("stale_research_calls", 0) + 1
             if progress["stale_research_calls"] >= 2:
+                progress["research_web_paused"] = True
                 progress["paused"] = True
                 result.setdefault("warnings", []).append({"code": "RESEARCH_RESULTS_REPEATED",
                     "message": "Successive web research calls produced no readable source. Further web research is paused until an existing source is read."})
@@ -690,6 +699,8 @@ class AgentRuntime:
             if read_key not in progress.get("reads", []):
                 progress.setdefault("reads", []).append(read_key)
                 progress["paused"] = False
+                progress["web_search_paused"] = False
+                progress["research_web_paused"] = False
                 progress["stale_calls"] = 0
                 progress["stale_research_calls"] = 0
                 unresolved = state.setdefault("unresolved_errors", {})
@@ -2006,7 +2017,13 @@ class AgentRuntime:
                 if name == "find_source_pages":
                     identity["source_read_epoch"] = len(state.get("source_page_progress", {}).get(args.get("source_id"), {}).get("reads", []))
                 key = fingerprint(identity)
-                if name in {"web_search", "research_web"} and state.get("search_progress", {}).get("paused"):
+                progress = state.get("search_progress", {})
+                paused = (name == "web_search" and (
+                              progress.get("web_search_paused")
+                              or progress.get("paused") and "web_search_paused" not in progress
+                                 and "research_web_paused" not in progress)
+                          or name == "research_web" and progress.get("research_web_paused"))
+                if paused:
                     result = _blocked("SEARCH_STRATEGY_EXHAUSTED", "Web research is paused because it yielded no new readable source. Read an existing source or complete with the retained evidence instead of rewording the same query.")
                     result["recovery"] = self._search_recovery(state)
                     self.run_store.event(run_id, "tool_result", {"tool": name, "call_id": call["id"], "result": result})
@@ -2023,7 +2040,9 @@ class AgentRuntime:
                         self.run_store.event(run_id, "tool_result", {"tool": name, "call_id": call["id"], "result": result})
                         return result
                     if name == "web_search":
-                        state.setdefault("search_progress", {"urls": [], "stale_calls": 0})["paused"] = True
+                        progress = state.setdefault("search_progress", {"urls": [], "stale_calls": 0})
+                        progress["web_search_paused"] = True
+                        progress["paused"] = True
                         result = _blocked("SEARCH_NO_PROGRESS", "The same search has already run twice without new evidence. Continue with a source-reading tool; the repeated search was not executed.")
                         result["recovery"] = self._search_recovery(state)
                         self.run_store.event(run_id, "tool_result", {"tool": name, "call_id": call["id"], "result": result})
