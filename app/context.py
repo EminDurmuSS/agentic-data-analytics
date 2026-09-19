@@ -28,6 +28,12 @@ def _safe_id(value: str):
     return value
 
 
+def voice_job_id(workspace_id: str, run_id: str) -> str:
+    """One deterministic job id per (workspace, run): the pre-warm on completion
+    and an explicit later request must land on the same idempotent job."""
+    return "voice_job_" + hashlib.sha256((workspace_id + ":" + run_id).encode()).hexdigest()[:32]
+
+
 class AppContext:
     def __init__(self, root: Path, source_db: Path | None, client=None, *, validate_finance=True, searxng_url=None, followup_client=None):
         from agentic_analytics.agent.run_store import AgentRunStore
@@ -69,7 +75,7 @@ class AppContext:
         """Queue one local voice artifact without holding an HTTP request open."""
         workspace_id, run_id = _safe_id(workspace_id), _safe_id(run_id)
         self.workspace(workspace_id)
-        job_id = "voice_job_" + hashlib.sha256((workspace_id + ":" + run_id).encode()).hexdigest()[:32]
+        job_id = voice_job_id(workspace_id, run_id)
         path = self._metadata / "voice-jobs" / (job_id + ".json")
         with self.lock:
             if path.exists():
@@ -325,6 +331,15 @@ class AppContext:
                         self.followups.start(workspace_id, result["run_id"])
                     except Exception:
                         pass  # Optional scheduling never changes a finished job.
+                if result.get("status") == "completed" and result.get("run_id"):
+                    try:
+                        # Pre-warm the voice summary so opening the panel is
+                        # instant. submit_voice is idempotent per run and a
+                        # run without a persisted analysis simply fails this
+                        # background job without affecting the finished run.
+                        self.submit_voice(workspace_id, result["run_id"])
+                    except Exception:
+                        pass  # Optional pre-warm never changes a finished job.
 
             self.futures[job_id] = self.pool.submit(work)
         return {"job_id": job_id, "workspace_id": workspace_id, "request_id": request_id, "status": "queued",

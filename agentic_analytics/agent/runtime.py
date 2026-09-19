@@ -579,6 +579,23 @@ def _requests_shared_scale(message):
     return False
 
 
+def _explicit_year_window(message):
+    """Return an explicitly requested year-to-year window, never inferred years.
+
+    This is a delivery guard, not a date parser for conversational prose. It
+    only activates when the user has written an actual range such as
+    ``2010–2014``. Multiple adjacent ranges deliberately collapse to their
+    outer bounds, so a historical rename request cannot be satisfied with a
+    recent series.
+    """
+    ranges = [(int(start), int(end)) for start, end in re.findall(
+        r"(?<!\d)((?:19|20)\d{2})\s*(?:-|–|—|to|ile)\s*((?:19|20)\d{2})(?!\d)", _fact_text(message))]
+    if not ranges:
+        return None
+    start, end = min(pair[0] for pair in ranges), max(pair[1] for pair in ranges)
+    return (start, end) if start <= end else None
+
+
 def _unreadable(content):
     """Flag a final answer that is garbled: replacement characters, non-Latin/Turkish
     script, or degenerate repetition with almost no coherent words, so it is
@@ -772,17 +789,25 @@ class AgentRuntime:
             return []
         hidden = ({"prepare_source_table", "publish_selected_table"}
                   if "ingest_source_table" in self.tools and not any(state.get("advanced_source_tables", {}).values()) else set())
-        if state.get("search_progress", {}).get("paused"):
+        progress = state.get("search_progress", {})
+        if progress.get("web_search_paused") or (
+                progress.get("paused") and "web_search_paused" not in progress
+                and "research_web_paused" not in progress):
             hidden.add("web_search")
+        if progress.get("research_web_paused"):
+            hidden.add("research_web")
         if state.get("institutional_delivery_repair"):
             hidden.update(set(self.tools) - _INSTITUTIONAL_REPAIR_TOOLS)
         return [definition["schema"] for name, definition in self.tools.items() if name not in hidden]
 
     def _search_recovery(self, state):
+        progress = state.get("search_progress", {})
         return {"reason": "Searches are not finding new source URLs; changing query wording alone is not progress.",
                 "available_tools": [name for name in ("research_web", "inspect_source", "find_source_pages",
-                                                       "find_source_table_rows", "read_source_table") if name in self.tools],
-                "candidate_urls": state.get("search_progress", {}).get("urls", [])[-8:],
+                                                       "find_source_table_rows", "read_source_table")
+                                    if name in self.tools and not (
+                                        name == "research_web" and progress.get("research_web_paused"))],
+                "candidate_urls": progress.get("urls", [])[-8:],
                 "next_step": "Read a relevant official result and follow its discovered report links, or use research_web with the institution's domain. Do not guess URLs, dates, values or treat snippets as evidence. If no source is readable, explain what is missing and retain the existing analysis."}
 
     def _track_search_progress(self, state, name, result):
@@ -797,10 +822,22 @@ class AgentRuntime:
             progress["stale_calls"] = 0 if fresh else progress["stale_calls"] + 1
             result["progress"] = {"new_source_urls": len(fresh), "repeated_result_sets": progress["stale_calls"]}
             if progress["stale_calls"] >= 2:
+                progress["web_search_paused"] = True
                 progress["paused"] = True
                 if not any(warning.get("code") == "SEARCH_RESULTS_REPEATED" for warning in result.get("warnings", [])):
                     result.setdefault("warnings", []).append({"code": "SEARCH_RESULTS_REPEATED",
                         "message": "Successive searches produced no new source URLs. Raw search is paused until a source is read."})
+                result["recovery"] = self._search_recovery(state)
+        elif name == "research_web" and not _source_read(result):
+            # A query rewrite that yields no readable source is not progress.
+            # Keep one retry for a materially different official route, then
+            # force the model to use the already-read evidence or close out.
+            progress["stale_research_calls"] = progress.get("stale_research_calls", 0) + 1
+            if progress["stale_research_calls"] >= 2:
+                progress["research_web_paused"] = True
+                progress["paused"] = True
+                result.setdefault("warnings", []).append({"code": "RESEARCH_RESULTS_REPEATED",
+                    "message": "Successive web research calls produced no readable source. Further web research is paused until an existing source is read."})
                 result["recovery"] = self._search_recovery(state)
         elif name in {"research_web", "inspect_source", "read_source_table", "find_source_table_rows"} and _source_read(result):
             # Only a successful source read reopens discovery. A duplicate read
@@ -809,7 +846,10 @@ class AgentRuntime:
             if read_key not in progress.get("reads", []):
                 progress.setdefault("reads", []).append(read_key)
                 progress["paused"] = False
+                progress["web_search_paused"] = False
+                progress["research_web_paused"] = False
                 progress["stale_calls"] = 0
+                progress["stale_research_calls"] = 0
                 unresolved = state.setdefault("unresolved_errors", {})
                 # Dispatch tracks progress before appending the current result.
                 # For ownership research, the replacement read must also meet
@@ -1282,6 +1322,7 @@ class AgentRuntime:
             if "institutional_fact_kind" not in state:
                 state.update(self._institutional_intent(record, state))
             state.setdefault("institutional_request", record["message"])
+            state.setdefault("request_message", record["message"])
             state.setdefault("external_facts_required", bool(state["institutional_fact_kind"]))
             state.setdefault("ownership_subject", _ownership_subject(record["message"]))
             state.setdefault("ownership_percentages_requested", _requests_ownership_percentages(record["message"]))
@@ -1773,7 +1814,8 @@ class AgentRuntime:
     def _task_delivery_errors(self, state):
         plan = state.get("task_plan") or {}
         required = plan.get("deliverables", [])
-        chart_coverage_errors = self._chart_coverage_errors(state) + self._normalization_errors(state)
+        chart_coverage_errors = (self._chart_coverage_errors(state) + self._normalization_errors(state)
+                                 + self._analysis_request_scope_errors(state))
         if not required:
             return chart_coverage_errors
         successful = [item for item in state.get("tool_results", []) if item.get("result", {}).get("status") == "ok"]
@@ -1831,6 +1873,31 @@ class AgentRuntime:
         return [{"code": "TASK_DELIVERABLE_MISSING", "deliverable": name,
                  "message": f"The declared task requires {name}; no matching completed output was produced."}
                 for name in required if not evidence[name]] + chart_coverage_errors
+
+    def _analysis_request_scope_errors(self, state):
+        """Prevent a saved analysis from silently replacing an explicit year range."""
+        requested = _explicit_year_window(state.get("request_message", ""))
+        if not requested:
+            return []
+        analysis_id = state.get("analysis_id")
+        if not isinstance(analysis_id, str) or not state.get("analysis_updated"):
+            return []
+        try:
+            _, manifest = self.store.load_analysis(analysis_id)
+        except (OSError, ValueError, duckdb.Error):
+            return []
+        plan = manifest.get("plan") or {}
+        actual = (str(plan.get("start", ""))[:4], str(plan.get("end", ""))[:4])
+        if not all(value.isdigit() and len(value) == 4 for value in actual):
+            return [{"code": "REQUESTED_PERIOD_UNVERIFIED", "analysis_id": analysis_id,
+                     "message": "The saved analysis does not retain a usable start/end period for the explicit requested year range."}]
+        actual_years = tuple(map(int, actual))
+        if actual_years != requested:
+            return [{"code": "REQUESTED_PERIOD_MISMATCH", "analysis_id": analysis_id,
+                     "requested_start": str(requested[0]), "requested_end": str(requested[1]),
+                     "actual_start": actual[0], "actual_end": actual[1],
+                     "message": "The saved analysis period differs from the explicit year range in the user request; do not present it as the requested historical series."}]
+        return []
 
     def _normalization_errors(self, state):
         """Verify requested common-scale amounts against immutable analysis.
@@ -2249,8 +2316,14 @@ class AgentRuntime:
                 if name == "find_source_pages":
                     identity["source_read_epoch"] = len(state.get("source_page_progress", {}).get(args.get("source_id"), {}).get("reads", []))
                 key = fingerprint(identity)
-                if name == "web_search" and state.get("search_progress", {}).get("paused"):
-                    result = _blocked("SEARCH_STRATEGY_EXHAUSTED", "Raw searches are paused because they yielded no new source URLs. Read or research a source instead of rewording the same query.")
+                progress = state.get("search_progress", {})
+                paused = (name == "web_search" and (
+                              progress.get("web_search_paused")
+                              or progress.get("paused") and "web_search_paused" not in progress
+                                 and "research_web_paused" not in progress)
+                          or name == "research_web" and progress.get("research_web_paused"))
+                if paused:
+                    result = _blocked("SEARCH_STRATEGY_EXHAUSTED", "Web research is paused because it yielded no new readable source. Read an existing source or complete with the retained evidence instead of rewording the same query.")
                     result["recovery"] = self._search_recovery(state)
                     self.run_store.event(run_id, "tool_result", {"tool": name, "call_id": call["id"], "result": result})
                     return result
@@ -2266,7 +2339,9 @@ class AgentRuntime:
                         self.run_store.event(run_id, "tool_result", {"tool": name, "call_id": call["id"], "result": result})
                         return result
                     if name == "web_search":
-                        state.setdefault("search_progress", {"urls": [], "stale_calls": 0})["paused"] = True
+                        progress = state.setdefault("search_progress", {"urls": [], "stale_calls": 0})
+                        progress["web_search_paused"] = True
+                        progress["paused"] = True
                         result = _blocked("SEARCH_NO_PROGRESS", "The same search has already run twice without new evidence. Continue with a source-reading tool; the repeated search was not executed.")
                         result["recovery"] = self._search_recovery(state)
                         self.run_store.event(run_id, "tool_result", {"tool": name, "call_id": call["id"], "result": result})

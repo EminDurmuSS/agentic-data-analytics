@@ -9,6 +9,7 @@ import duckdb
 import pandas as pd
 from fastapi.testclient import TestClient
 
+from app.context import voice_job_id
 from app.server import create_app
 
 
@@ -102,7 +103,15 @@ class AgentChartWorkflowTests(unittest.TestCase):
         self.context.futures[job_id].result(timeout=15)
         response = self.client.get(f"/api/jobs/{job_id}")
         self.assertEqual(200, response.status_code, response.text)
-        return response.json()
+        job = response.json()
+        # A completed run pre-warms its voice job on the same provider. Wait
+        # for it so provider call counts/ordering stay deterministic here.
+        run_id = (job.get("run") or {}).get("run_id")
+        if run_id:
+            future = self.context.voice_futures.get(voice_job_id(workspace_id, run_id))
+            if future is not None:
+                future.result(timeout=15)
+        return job
 
     def seed_analysis(self):
         workspace_id = self.workspace()
@@ -245,7 +254,9 @@ class AgentChartWorkflowTests(unittest.TestCase):
         self.assertEqual(chart_id, self.chart(wid, aid)["chart_id"])
         offered = {definition["function"]["name"] for definition in self.provider.options[0]["tools"]}
         self.assertIn("create_chart", offered)
-        model_result = json.loads(next(message["content"] for message in self.provider.messages[-1]
+        # -2, not -1: the run's own final call precedes the voice pre-warm
+        # call that the completed run now also makes on this same provider.
+        model_result = json.loads(next(message["content"] for message in self.provider.messages[-2]
                                       if message.get("role") == "tool" and message.get("tool_call_id") == "chart-call"))
         self.assertEqual(chart_id, model_result["chart_id"])
         self.assertIn("spec", model_result)

@@ -64,6 +64,11 @@ def rank_search_results(query, items):
                    if len(word) == 2 and any(ord(char) > 127 for char in word)]
     acronyms = {search_text(word) for word in re.findall(r"(?<!\w)[A-ZÇĞİÖŞÜ]{2,8}(?!\w)", query)
                 if search_text(word) not in stop | generic_names | {"tl", "try", "usd", "eur", "html", "xml", "json"}}
+    # An acronym is often itself an identity word (e.g. "BBVA" in "Garanti
+    # BBVA"). Only demand it literally appear when it is the sole identity
+    # signal in the query; a registry's legal name may predate a rebrand and
+    # drop a co-branded acronym even though the rest of the name matches.
+    non_acronym_identity_words = identity_words - acronyms
     protected_phrases = [search_text(phrase) for phrase in re.findall(r'"([^"\d]+)"', query)
                          if len(phrase.split()) >= 2]
     # Keep short proper names attached to their neighbour. Matching "İş" and
@@ -99,8 +104,10 @@ def rank_search_results(query, items):
         if name_groups:
             identity_match = all(all(re.search(r"(?<![a-z])" + re.escape(word) + r"(?![a-z])", label)
                                      for word in names) for names in name_groups)
-        entity_match = identity_match and all(re.search(r"(?<![a-z])" + re.escape(word) + r"(?![a-z])", label)
-                                             for word in acronyms) and (not short_names or all(
+        identity_confirmed_without_acronym = bool(set(matched) & non_acronym_identity_words)
+        entity_match = identity_match and (identity_confirmed_without_acronym or all(
+            re.search(r"(?<![a-z])" + re.escape(word) + r"(?![a-z])", label)
+            for word in acronyms)) and (not short_names or all(
             re.search(r"(?<![a-z])" + re.escape(word) + r"(?![a-z])", label) for word in short_names)) and all(
                 phrase in " ".join(label.split()) for phrase in protected_phrases)
         # Search abstracts can omit the issuer entirely. A dated report is a
@@ -126,6 +133,7 @@ def rank_search_results(query, items):
         kept.append({**item, "discovery_only": discovery,
                      "entity_verification_required": not entity_match,
                      "relevance": "navigation_lead" if discovery else "query_match",
+                     "is_document": is_document,
                      "is_bulletin": bool(re.search(r"\bbulten|\bgelisme|\brapor", label))})
     kept.sort(key=lambda item: (item["discovery_only"], item["entity_verification_required"],
                                not item["is_bulletin"],
@@ -345,7 +353,7 @@ def read_bounded_response(response, *, max_bytes, deadline):
     return b"".join(blocks)
 
 
-def configured_search(base_url, query, *, timeout=15, with_diagnostics=False):
+def configured_search(base_url, query, *, timeout=15, engines=None, with_diagnostics=False):
     if not isinstance(base_url, str) or not 1 <= len(base_url) <= 4096 or any(ord(char) < 32 for char in base_url):
         raise ValueError("Invalid configured SearXNG URL.")
     endpoint = parse.urlsplit(base_url)
@@ -354,7 +362,20 @@ def configured_search(base_url, query, *, timeout=15, with_diagnostics=False):
         raise ValueError("SearXNG configuration must be an HTTP(S) base URL without credentials, query or fragment.")
     if endpoint.port is not None and not 1 <= endpoint.port <= 65535:
         raise ValueError("Invalid configured SearXNG port.")
-    url = base_url.rstrip("/") + "/search?" + parse.urlencode({"q": query, "format": "json"})
+    params = {"q": query, "format": "json"}
+    if engines is not None:
+        if not isinstance(engines, (list, tuple)) or not engines:
+            raise ValueError("Configured search engines must be a non-empty list.")
+        normalized_engines = []
+        for engine in engines:
+            if not isinstance(engine, str) or not re.fullmatch(r"[a-z0-9_-]{1,80}", engine):
+                raise ValueError("Configured search engine name is invalid.")
+            normalized_engines.append(engine)
+        # SearXNG accepts a comma-separated engine selection.  Pinning a
+        # reliable engine avoids waiting for unrelated public engines that may
+        # be rate-limited or challenged during an official-source lookup.
+        params["engines"] = ",".join(dict.fromkeys(normalized_engines))
+    url = base_url.rstrip("/") + "/search?" + parse.urlencode(params)
     opener = request.build_opener(request.ProxyHandler({}), NoRedirect())
     query_request = request.Request(url, headers={"User-Agent": "AgenticMinds-SourceReader/1", "Accept": "application/json", "Accept-Encoding": "identity"})
     deadline = time.monotonic() + timeout

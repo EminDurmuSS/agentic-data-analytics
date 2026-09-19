@@ -64,6 +64,12 @@ def validate_voice_script(value: object, brief: VoiceBriefInput | None = None) -
     text = _TURKISH_LIRA.sub(_expand_turkish_lira, text)
     if not 1 <= len(text) <= MAX_SCRIPT_CHARS or _URL.search(text):
         raise VoiceScriptError("Ses metni biçimi veya uzunluğu geçersiz.")
+    if not text.endswith((".", "!", "?", "…")):
+        # A token-budget cutoff (or any other truncation) ends mid-sentence.
+        # Speaking half a sentence is worse than falling back to the
+        # deterministic local script, so reject it the same way as any other
+        # malformed script.
+        raise VoiceScriptError("Ses metni yarım cümleyle bitiyor.")
     if not re.search(r"[a-zçğıöşü]", text, re.IGNORECASE):
         raise VoiceScriptError("Ses metni Türkçe okunabilirlik koşulunu karşılamıyor.")
     if brief is not None:
@@ -88,13 +94,17 @@ class VoiceScriptService:
         try:
             if self.client is None or not callable(getattr(self.client, "chat", None)):
                 raise VoiceScriptError("Ses metni modeli kullanılamıyor.")
-            response = self.client.chat(prompt, temperature=0, max_tokens=220,
+            response = self.client.chat(prompt, temperature=0, max_tokens=420,
                                         tool_choice="none", enable_thinking=False)
             if not isinstance(response, dict):
                 raise VoiceScriptError("Ses metni modeli geçersiz yanıt verdi.")
             tool_calls = response.get("tool_calls") or []
             if tool_calls:
                 raise VoiceScriptError("Ses metni modeli araç çağrısı yapmamalı.")
+            if response.get("finish_reason") == "length":
+                # A response cut off by the token budget is a half sentence,
+                # not a shorter valid script. Fall back rather than speak it.
+                raise VoiceScriptError("Ses metni belirlenen sınırda tamamlanamadı.")
             usage = response.get("usage") if isinstance(response.get("usage"), dict) else {}
             return {"transcript": validate_voice_script(response.get("content"), brief),
                     "prompt": prompt,

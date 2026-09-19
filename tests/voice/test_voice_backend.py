@@ -70,6 +70,20 @@ class VoiceBackendTests(unittest.TestCase):
         self.assertEqual(job["result"]["status"], "completed")
         return self.app.state.context.run_store.get(job["run"]["run_id"])
 
+    def test_run_completion_pre_warms_the_voice_job_without_a_client_request(self):
+        # The panel should not sit idle generating speech only after the user
+        # opens it: a completed run must already have queued its voice job.
+        from app.context import voice_job_id
+        run = self._completed_run()
+        context = self.app.state.context
+        job_id = voice_job_id(run["workspace_id"], run["run_id"])
+        self.assertIn(job_id, context.voice_futures)
+        context.voice_futures[job_id].result(timeout=10)
+        job = context.voice_job(job_id)
+        self.assertEqual(job["workspace_id"], run["workspace_id"])
+        self.assertEqual(job["run_id"], run["run_id"])
+        self.assertIn(job["status"], {"completed", "failed"})
+
     def test_context_accepts_completed_analysis_and_redacts_urls(self):
         run = self._completed_run()
         run["result"]["display_message"] = "Kredi arttı. https://gizli.example/yer-almaz"
@@ -100,6 +114,14 @@ class VoiceBackendTests(unittest.TestCase):
         invalid_number = VoiceScriptService(Provider([{"content": "Kredi bakiyesi 999 arttı."}])).generate_record(brief)
         self.assertTrue(invalid_markdown["fallback"])
         self.assertTrue(invalid_number["fallback"])
+        # A response cut off by the token budget is half a sentence, not a
+        # shorter valid one; it must fall back rather than be spoken as-is.
+        cut_off_by_budget = VoiceScriptService(Provider([
+            {"content": "Kredi bakiyesi incelenen dönemde 150", "finish_reason": "length"}])).generate_record(brief)
+        self.assertTrue(cut_off_by_budget["fallback"])
+        truncated_without_signal = VoiceScriptService(Provider([
+            {"content": "Kredi bakiyesi incelenen dönemde art"}])).generate_record(brief)
+        self.assertTrue(truncated_without_signal["fallback"])
 
         class UnavailableProvider:
             def chat(self, *_args, **_kwargs):

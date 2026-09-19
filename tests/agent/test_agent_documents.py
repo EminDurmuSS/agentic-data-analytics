@@ -16,6 +16,7 @@ import duckdb
 from agentic_analytics.agent.tools.documents import (
     DocumentError,
     DocumentTools,
+    _ascii_safe_url,
     _article_metadata,
     _official_registry,
     _public_destination,
@@ -543,6 +544,33 @@ class AgentDocumentTests(unittest.TestCase):
         with patch("agentic_analytics.agent.tools.documents.socket.getaddrinfo", return_value=addresses), patch("agentic_analytics.agent.tools.documents.socket.create_connection", return_value=FakeSocket(b"123456")):
             with self.assertRaisesRegex(DocumentError, "size limit"):
                 fetch_public_url("http://public.test/data.csv", max_bytes=3)
+
+    def test_raw_non_ascii_url_is_percent_encoded_before_the_request_line(self):
+        # Search providers and discovered links can hand back an unescaped
+        # Turkish path (e.g. a Wikipedia URL). http.client would otherwise
+        # raise UnicodeEncodeError trying to send the request line as ASCII.
+        self.assertEqual(_ascii_safe_url("https://tr.wikipedia.org/wiki/İhlas_Finans"),
+                          "https://tr.wikipedia.org/wiki/%C4%B0hlas_Finans")
+        self.assertEqual(_ascii_safe_url("https://example.com/already%20encoded?x=1&y=2"),
+                          "https://example.com/already%20encoded?x=1&y=2")
+
+        class FakeSocket:
+            def __init__(self):
+                self.sent = b""
+            def makefile(self, *args):
+                return io.BytesIO(b"HTTP/1.1 200 OK\r\nContent-Type: text/html\r\nContent-Length: 2\r\n\r\nok")
+            def sendall(self, data):
+                self.sent += data
+            def close(self):
+                pass
+        addresses = [(socket.AF_INET, socket.SOCK_STREAM, 6, "", ("93.184.216.34", 80))]
+        sock = FakeSocket()
+        with patch("agentic_analytics.agent.tools.documents.socket.getaddrinfo", return_value=addresses), \
+                patch("agentic_analytics.agent.tools.documents.socket.create_connection", return_value=sock):
+            body, _, final_url = fetch_public_url("http://public.test/wiki/İhlas_Finans")
+        self.assertEqual(body, b"ok")
+        self.assertIn(b"GET /wiki/%C4%B0hlas_Finans HTTP", sock.sent)
+        self.assertEqual(final_url, "http://public.test/wiki/%C4%B0hlas_Finans")
 
     def test_monetary_alias_publication_canonicalizes_metadata_without_changing_values(self):
         import pandas as pd
