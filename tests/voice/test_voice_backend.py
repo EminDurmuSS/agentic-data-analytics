@@ -99,9 +99,9 @@ class VoiceBackendTests(unittest.TestCase):
     def test_voice_script_expands_tl_for_clear_turkish_pronunciation(self):
         run = self._completed_run()
         brief = build_voice_brief(self.app.state.context.store, run)
-        service = VoiceScriptService(Provider([{"content": "Kredi bakiyesi 120 TL oldu; 100 TL'den yükseldi."}]))
+        service = VoiceScriptService(Provider([{"content": "Kredi bakiyesi 150 TL oldu; 100 TL'den yükseldi."}]))
 
-        self.assertEqual(service.generate(brief), "Kredi bakiyesi 120 Türk lirası oldu; 100 Türk lirasından yükseldi.")
+        self.assertEqual(service.generate(brief), "Kredi bakiyesi 150 Türk lirası oldu; 100 Türk lirasından yükseldi.")
         self.assertIn("'Türk lirası'", service.client.requests[0]["messages"][0]["content"])
 
     def _ema_model(self):
@@ -128,7 +128,7 @@ class VoiceBackendTests(unittest.TestCase):
                 audio.writeframes(b"\0\0" * 32)
             return type("Completed", (), {"returncode": 0})()
 
-        self.assertEqual(EmaTTS(model, runner=runner).synthesize("Yerel ses özeti.", output), output)
+        self.assertEqual(EmaTTS(model, runner=runner).synthesize("Yerel ses özeti.", output), output.resolve())
         self.assertTrue(output.is_file())
         with self.assertRaises(VoiceTTSError):
             EmaTTS(Path(self.temp.name) / "missing", runner=runner).synthesize("Metin", output)

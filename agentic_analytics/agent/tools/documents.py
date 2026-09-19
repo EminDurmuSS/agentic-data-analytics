@@ -431,11 +431,11 @@ class DocumentTools:
 
         # SearXNG ve güvenilir iç ağ yapılandırması
         if searxng_url is None:
-            searxng_url = os.environ.get("SEARXNG_URL", "http://searxng:8080")
+            searxng_url = os.environ.get("SEARXNG_URL")
         self.searxng_url = searxng_url
 
         if trusted_internal_urls is None:
-            raw_trusted = os.environ.get("TRUSTED_INTERNAL_URLS", "http://searxng:8080")
+            raw_trusted = os.environ.get("TRUSTED_INTERNAL_URLS", "")
             trusted_internal_urls = [u.strip() for u in raw_trusted.split(",") if u.strip()]
 
         self._trusted_prefixes = tuple(
