@@ -283,7 +283,10 @@ class _HTMLArticle(HTMLParser):
         self._title_text, self._script_text, self._script_type = [], [], None
 
     def handle_starttag(self, tag, attrs):
-        values = dict(attrs)
+        # A valueless attribute (<link rel> with no "=..."; valid HTML) parses
+        # as None, not "". dict.get(key, default) only falls back to default
+        # when the key is absent, so a bare attribute still yields None here.
+        values = {key: value if value is not None else "" for key, value in attrs}
         if tag == "title":
             self._title_text = []
         elif tag == "meta":
@@ -326,7 +329,9 @@ class _HTMLReadable(HTMLParser):
         self.svg_depth = 0
 
     def handle_starttag(self, tag, attrs):
-        attrs = dict(attrs)
+        # See _HTMLArticle.handle_starttag: a bare attribute (<img alt>) parses
+        # as None, not "", so normalize before any .strip()/.split() below.
+        attrs = {key: value if value is not None else "" for key, value in attrs}
         if tag in {"script", "style", "noscript", "nav", "footer", "defs", "symbol"}:
             self.hidden.append(tag)
         if tag == "svg":

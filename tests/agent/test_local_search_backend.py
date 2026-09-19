@@ -7,7 +7,18 @@ from urllib.parse import parse_qs, urlsplit
 import pytest
 
 from agentic_analytics.agent.tools.documents import DocumentError, _public_destination
-from agentic_analytics.agent.tools.search_backend import configured_search
+from agentic_analytics.agent.tools.search_backend import configured_search, public_search_fallback
+
+
+def test_lite_search_html_survives_valueless_attributes():
+    # A bare attribute (<td class>, valid HTML) parses as None via
+    # html.parser; an unguarded attrs.get("class", "").split() crashes.
+    html = ('<html><body><table>'
+            '<tr><td class><a class="result-link" href="https://example.com">Title</a></td></tr>'
+            '<tr><td class="result-snippet">Snippet</td></tr>'
+            '</table></body></html>')
+    items = public_search_fallback("q", lambda url, **kw: (html.encode(), "text/html", url))
+    assert items == [{"url": "https://example.com", "title": "Title", "content": "Snippet"}]
 
 
 def test_local_search_uses_only_configured_endpoint_and_does_not_follow_redirects():

@@ -411,6 +411,16 @@ class AgentDocumentTests(unittest.TestCase):
         self.assertEqual(result['sources'][0]['url'], owners)
         self.assertIn('Örnek Bankası', result['sources'][0]['content'])
 
+    def test_article_metadata_survives_valueless_html_attributes(self):
+        # A bare attribute (<img alt>, <a href>, <link rel>, <script type>) is
+        # valid HTML and html.parser hands it back as None, not "". Any
+        # unguarded attrs.get(name, "").strip()/.split() crashes with an
+        # AttributeError on real-world pages using this shorthand.
+        html = (b'<html><head><title>T</title><link rel><script type>{}</script></head>'
+                b'<body><a href><img src="x" alt></a><svg><path aria-label></path></svg></body></html>')
+        article = _article_metadata(html, "text/html", "https://example.org/page")
+        self.assertEqual(article["title"], "T")
+
     def test_research_web_reads_json_ld_article_content_and_skips_unreadable_results(self):
         html = b'''<html><head><title>Fallback title</title>
         <script type="application/ld+json">{"@type":"NewsArticle","headline":"Official report",

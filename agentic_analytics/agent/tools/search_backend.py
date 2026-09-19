@@ -150,7 +150,9 @@ class _LiteSearchHTML(HTMLParser):
         self.capture = None
 
     def handle_starttag(self, tag, attrs):
-        attrs = dict(attrs)
+        # A bare attribute (<a class>, valid HTML) parses as None, not "";
+        # normalize before any .split()/urljoin() below.
+        attrs = {key: value if value is not None else "" for key, value in attrs}
         if tag == "a" and "result-link" in attrs.get("class", "").split() and len(self.items) < 30:
             link = parse.urlsplit(parse.urljoin("https://lite.duckduckgo.com", attrs.get("href", "")))
             # Decode only the known redirect wrapper. Never visit a tracking URL.
