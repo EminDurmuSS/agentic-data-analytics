@@ -433,6 +433,19 @@ class AgentDocumentTests(unittest.TestCase):
         self.assertEqual(result.get("sources"), [])
         self.assertEqual(result["sources"], [])
 
+    def test_research_web_routes_bist_and_kap_queries_to_their_official_domains(self):
+        cases = (
+            ("2010 IMKB 100 kapanış verisi", "borsaistanbul.com"),
+            ("KAP 2025 finansal rapor toplam aktif", "kap.org.tr"),
+        )
+        for query, domain in cases:
+            with self.subTest(query=query):
+                self.docs.web_search = MagicMock(return_value={"status": "ok", "results": []})
+                with patch.object(self.docs, "inspect_source", side_effect=DocumentError("unavailable", "FETCH_FAILED")):
+                    result = self.docs.research_web(query, limit=1)
+                self.assertEqual(result["sources"], [])
+                self.assertTrue(self.docs.web_search.call_args.args[0].startswith("site:" + domain + " "))
+
     def test_search_publication_date_never_becomes_fetched_document_date(self):
         from agentic_analytics.agent.context import _model_tool_result
         url = 'https://example.org/financial-report'

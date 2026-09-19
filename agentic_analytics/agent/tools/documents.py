@@ -60,6 +60,14 @@ OFFICIAL_SOURCE_REGISTRY = {
         "institution": "TÜİK",
         "search_variants": ("{query}", "{query} bülten", "{query} raporu", "{query} gelişmeleri", "{query} haber bülteni"),
     },
+    "borsaistanbul.com": {
+        "institution": "Borsa İstanbul",
+        "search_variants": ("{query}", "{query} endeks", "{query} endeks verisi", "{query} metodoloji"),
+    },
+    "kap.org.tr": {
+        "institution": "Kamuyu Aydınlatma Platformu",
+        "search_variants": ("{query}", "{query} finansal rapor", "{query} finansal tablo", "{query} duyuru"),
+    },
 }
 
 
@@ -908,6 +916,12 @@ class DocumentTools:
             "bddk": ["bddk.org.tr"],
             "tüik": ["tuik.gov.tr"],
             "tuik": ["tuik.gov.tr"],
+            "borsa istanbul": ["borsaistanbul.com"],
+            "bist": ["borsaistanbul.com"],
+            "imkb": ["borsaistanbul.com"],
+            "ise": ["borsaistanbul.com"],
+            "kap": ["kap.org.tr"],
+            "kamuyu aydinlatma platformu": ["kap.org.tr"],
         }
         from agentic_analytics.agent.tools.search_backend import search_domains
         preferred = domains or search_domains(query) or next((values for key, values in inferred_domains.items()
