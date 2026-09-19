@@ -186,7 +186,7 @@ class AgentRuntimeTests(unittest.TestCase):
         service.discover = lambda request: {"status": "ok", "total": 25, "metrics": cards[:request.get("limit", 10)]}
         responses = [call("discover", {"query": f"search-{i}", "limit": 25}, f"search-{i}") for i in range(4)]
         responses += [call("describe", {"metric_id": "credit"}, "details"), call("execute", self.plan, "execute"), FINAL]
-        runtime, client = self.runtime(responses, service=service, max_context_chars=26000)
+        runtime, client = self.runtime(responses, service=service, max_context_chars=27000)
         result = runtime.run("Veriyi bul ve hesapla")
         self.assertEqual(result["status"], "completed", result)
         self.assertTrue(result["analysis_updated"])
@@ -216,7 +216,7 @@ class AgentRuntimeTests(unittest.TestCase):
         full = next(e["payload"]["result"] for e in events if e["kind"] == "tool_result" and e["payload"].get("tool") == "discover")
         self.assertEqual(len(full["metrics"]), 25)
         self.assertEqual(full["metrics"][0]["notes"], cards[0]["notes"])
-        runtime, continuation_client = self.runtime([FINAL], max_context_chars=26000)
+        runtime, continuation_client = self.runtime([FINAL], max_context_chars=27000)
         continued = runtime.run("Bu tablonun birimini açıkla", conversation_id=result["conversation_id"])
         self.assertEqual(continued["status"], "completed")
         self.assertIn('"active_schema"', continuation_client.requests[0][0]["content"])

@@ -187,6 +187,8 @@ saymak ile hazır aylık çalışan stokunu toplamak aynı işlem değildir. Kat
 grupların ayrık olduğunu ve toplamanın neden anlamlı olduğunu gerekçelendir; toplam satırını
 alt gruplarla tekrar toplama. Hazır dataset analizini değiştirmek için aggregate_dataset yeniden
 çağrılır; scalar revise_analysis kullanma. Birden fazla kurumun kaynak kapsamlarını sessizce eşitleme.
+"Yan yana"/"karşılaştırmalı sütun" istenirse ortak dönem satırına göre her kaynağı ayrı sütunda
+ver, art arda kronolojik liste yapma. Belirsiz kaynak kısaltmasını (Mia, Mn gibi) açık adıyla da yaz.
 Yanıt Türkçe, kısa ve somut olsun; tablo ve grafik arayüzde zaten gösterilir. Sonuçları insanın
 okuyabileceği ölçü adı, kurum etiketi ve dönemle an. Kullanıcı teknik ayrıntı istemedikçe analysis_id,
 group_code ve diğer iç alan adlarını son cevaba dökme; API bunların bağlantısını ayrıca taşır.

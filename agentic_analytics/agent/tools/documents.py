@@ -671,7 +671,16 @@ class DocumentTools:
                 rows.append(row)
                 if len(rows) > self.max_rows + 1:
                     raise DocumentError("CSV exceeds its row limit.", "TABLE_TOO_LARGE")
-            tables.append(self._table(rows))
+            try:
+                table = self._table(rows)
+                if table:
+                    tables.append(table)
+            except DocumentError as exc:
+                # A footnote row, a trailing blank line or an extra column is
+                # common in real-world exports. Losing the whole source over
+                # one ragged table is worse than reporting it as a warning and
+                # still returning the readable text.
+                warnings.append({"code": exc.code, "message": str(exc)})
         elif suffix == ".xlsx" or mime == "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet":
             from openpyxl import load_workbook
             with zipfile.ZipFile(io.BytesIO(data)) as archive:
@@ -700,13 +709,20 @@ class DocumentTools:
                                     missing.append(cell.coordinate)
                             row.append(value)
                         rows.append(row)
-                    table = self._table(rows, sheet=sheet.title)
+                    try:
+                        table = self._table(rows, sheet=sheet.title)
+                    except DocumentError as exc:
+                        # A ragged sheet (merged header row, trailing notes)
+                        # must not discard every other sheet's table and text.
+                        warnings.append({"code": exc.code, "sheet": sheet.title, "message": str(exc)})
+                        table = None
                     if table and formulas:
                         table.update(formula_cells=formulas, missing_formula_cache=missing)
                         warnings.append({"code": "FORMULA_VALUES_REVIEW_REQUIRED" if missing else "CACHED_FORMULA_VALUES",
                                          "sheet": sheet.title, "formula_cells": len(formulas), "missing_cells": missing,
                                          "message": "Formula code was not executed. Cached values are the values saved in the source workbook; their freshness is not independently verified."})
-                    tables.append(table)
+                    if table:
+                        tables.append(table)
                     text += "\n" + "\n".join(" | ".join(str(value or "") for value in row) for row in rows)
             finally:
                 workbook.close()

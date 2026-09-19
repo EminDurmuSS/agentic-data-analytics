@@ -76,6 +76,17 @@ class AgentDocumentTests(unittest.TestCase):
         self.assertEqual(self.store.workspace("workspace_docs")["version"], 1)
         self.assertEqual(result["row_count"], 2)
 
+    def test_ragged_csv_downgrades_to_a_warning_instead_of_losing_the_source(self):
+        # A trailing footnote line (common in official exports) makes the CSV
+        # inconsistent-width. That single ragged table must not discard the
+        # whole source; the text stays readable and the issue is a warning.
+        content = "month,value\n2026-01,100\n2026-02,120\nNot: kaynak dipnotu\n"
+        inspected = self.upload("ragged.csv", content)
+        self.assertEqual(inspected["status"], "ok")
+        self.assertEqual(inspected["tables"], [])
+        self.assertIn("AMBIGUOUS_TABLE", [w["code"] for w in inspected["warnings"]])
+        self.assertIn("2026-01", inspected["text"])
+
     def test_unit_quote_and_numeric_format_are_gates(self):
         inspected = self.upload("profit.csv", 'month,value (million TL)\n2026-01,"1,25"\n2026-02,120\n')
         arguments = {"source_id": inspected["source_id"], "table_id": "table_001", "contract": self.contract,
