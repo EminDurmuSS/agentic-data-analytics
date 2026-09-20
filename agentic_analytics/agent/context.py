@@ -270,6 +270,8 @@ def workspace_context(store, workspace_id, state, *, max_decisions, charts_enabl
     context = {"workspace_id": workspace_id, "snapshot_id": workspace["snapshot_id"],
                "workspace_version": workspace["version"], "active_analysis_id": workspace.get("analysis_head"),
                "datasets": workspace.get("datasets", []), "remaining_decisions": max_decisions - state["decisions"]}
+    if workspace.get("shared_release_id"):
+        context["shared_release_id"] = workspace["shared_release_id"]
     if workspace.get("analysis_head"):
         _, manifest = store.load_analysis(workspace["analysis_head"])
         context["active_plan"] = manifest["plan"]

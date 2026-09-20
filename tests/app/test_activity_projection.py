@@ -35,6 +35,22 @@ def test_reference_catalogue_has_a_human_readable_record():
     assert "kataloğu" in item(journey, "sources")["detail"]
 
 
+def test_shared_lakehouse_promotion_has_readable_success_and_failure_records():
+    success = activity_journey(attempt("promote_dataset_to_shared_lakehouse", {
+        "status": "ok", "dataset_id": "private", "shared_release_id": "private",
+        "publication_performed": True,
+    }), "completed")
+    assert item(success, "data")["label"] == "Ortak lakehouse"
+    assert "kalıcı ortak" in item(success, "data")["detail"]
+
+    failure = activity_journey(attempt("promote_dataset_to_shared_lakehouse", {
+        "status": "blocked", "errors": [{"code": "SHARED_PROMOTION_NOT_AUTHORIZED"}],
+    }), "blocked")
+    assert item(failure, "data")["status"] == "attention"
+    assert "eklenemedi" in item(failure, "data")["detail"]
+    assert "private" not in str(success) + str(failure)
+
+
 def test_observed_document_journey_is_bounded_and_preserves_the_technical_ledger():
     events = [{"kind": "model_request", "payload": {"content": "PRIVATE MODEL TEXT"}}]
     for pages in [[1, 2], [2, 3]]:

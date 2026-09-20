@@ -65,6 +65,63 @@ def _fact_text(value):
     return str(value or "").casefold().replace("ı", "i").replace("i\u0307", "i")
 
 
+def _shared_promotion_authorized(message):
+    """Require an explicit persistent shared-target write request in this turn."""
+    text = _fact_text(message)
+    target_pattern = (
+        r"\b(?:kalici|ortak|shared|global|ana|main|persistent)\b.{0,60}\b(?:data\s+)?lakehouse\b|"
+        r"\b(?:data\s+)?lakehouse\b.{0,60}\b(?:kalici|ortak|shared|global|ana|main|persistent)\b|"
+        r"\b(?:kalici|persistent)\b.{0,60}\b(?:ortak\s+)?(?:veri|data)\s+(?:katman\w*|layer)\b|"
+        r"\b(?:ortak|shared)\s+(?:veri\s+katman\w*|data\s+layer)\b"
+    )
+    if not re.search(target_pattern, text):
+        return False
+
+    # A capability question or a negative instruction must never unlock a
+    # global write merely because it contains the target and an action stem.
+    if re.search(
+            r"\b(?:ekleme|eklemeyin|eklemeyelim|eklenmesin|aktarma|aktarmayin|aktarilmasin|"
+            r"yayinlama|yayinlamayin|yayinlanmasin|kaydetme|kaydetmeyin|kaydedilmesin|"
+            r"kalicilastirma|kalicilastirmayin|alma|almayin|alinmasin)\b|"
+            r"\b(?:do\s+not|don't|dont|never)\b.{0,80}\b(?:add|save|publish|promote|ingest|persist)\b",
+            text,
+    ):
+        return False
+
+    turkish_request = re.search(
+        r"\b(?:ekle|ekleyin|ekleyiniz|ekleyelim|aktar|aktarin|aktariniz|aktaralim|"
+        r"yayinla|yayinlayin|yayinlayiniz|yayinlayalim|kaydet|kaydedin|kaydediniz|kaydedelim|"
+        r"kalicilastir|kalicilaştir|kalicilastirin|kalicilaştirin)\b|"
+        r"\b(?:ekler|aktarir|yayinlar|kaydeder|kalicilastirir|kalicilaştirir|"
+        r"ekleyebilir|aktarabilir|yayinlayabilir|kaydedebilir|kalicilastirabilir|kalicilaştirabilir)\s+"
+        r"m[ieuü]sin(?:iz)?\b|"
+        r"\b(?:eklemeni|eklemenizi|aktarmani|aktarmanizi|yayinlamani|yayinlamanizi|"
+        r"kaydetmeni|kaydetmenizi|kalicilastirmani|kalicilaştirmani)\s+(?:istiyorum|isterim)\b|"
+        r"\b(?:eklenmesini|aktarilmasini|yayinlanmasini|kaydedilmesini|kalicilastirilmasini)\s+"
+        r"(?:istiyorum|isterim)\b",
+        text,
+    )
+    take_into_target = re.search(
+        r"\b(?:lakehouse(?:['’]?[ae])?|(?:veri|data)\s+(?:katman\w*|layer)(?:['’]?[ae])?)\s+"
+        r"(?:kalici\s+olarak\s+)?(?:al|alin)\b",
+        text,
+    )
+    english_request = re.search(
+        r"(?:^|[.!?]\s*|\b(?:please|now)\s+)(?:add|save|publish|promote|ingest|persist)\b|"
+        r"\b(?:can|could|would|will)\s+you\s+(?:please\s+)?(?:add|save|publish|promote|ingest|persist)\b|"
+        r"\bi\s+(?:want|need)\s+you\s+to\s+(?:add|save|publish|promote|ingest|persist)\b",
+        text,
+    )
+    return bool(turkish_request or take_into_target or english_request)
+
+
+def _current_request_message(state):
+    if isinstance(state.get("request_message"), str):
+        return state["request_message"]
+    return next((str(message.get("content") or "") for message in reversed(state.get("messages", []))
+                 if message.get("role") == "user"), "")
+
+
 def _ownership_subject(message):
     # Only explicit possessive names/acronyms are reliable here. Ambiguous
     # references remain for the model to resolve, rather than guessing an entity.
@@ -798,6 +855,9 @@ class AgentRuntime:
             hidden.add("research_web")
         if state.get("institutional_delivery_repair"):
             hidden.update(set(self.tools) - _INSTITUTIONAL_REPAIR_TOOLS)
+        if ("promote_dataset_to_shared_lakehouse" in self.tools
+                and not _shared_promotion_authorized(_current_request_message(state))):
+            hidden.add("promote_dataset_to_shared_lakehouse")
         return [definition["schema"] for name, definition in self.tools.items() if name not in hidden]
 
     def _search_recovery(self, state):
@@ -2243,6 +2303,14 @@ class AgentRuntime:
                 # executable meaning to the same abstract plan as omission.
                 args = {key: value for key, value in args.items() if key != "summary"}
             jsonschema.Draft202012Validator(definition["schema"]["function"]["parameters"]).validate(args)
+            if (name == "promote_dataset_to_shared_lakehouse"
+                    and not _shared_promotion_authorized(_current_request_message(state))):
+                result = _blocked(
+                    "SHARED_PROMOTION_NOT_AUTHORIZED",
+                    "A persistent shared-lakehouse write requires an explicit request in the current user turn.",
+                )
+                self.run_store.event(run_id, "tool_result", {"tool": name, "call_id": call["id"], "result": result})
+                return result
             if state.get("institutional_delivery_repair") and name not in _INSTITUTIONAL_REPAIR_TOOLS:
                 raise PlanError("This institutional answer repair permits source reading only. Explain the verified role/name list and requested analysis suggestions; do not change the analysis or request permission to repeat the same research.", code="INSTITUTIONAL_REPAIR_READ_ONLY")
             if name == "analyze_relationship":

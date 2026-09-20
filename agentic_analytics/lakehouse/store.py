@@ -268,16 +268,31 @@ class LakehouseStore:
     def _revision(manifest):
         return {**manifest, "revision_id": "revision_" + _digest(_canonical(manifest))}
 
-    def create_workspace(self, snapshot_id, workspace_id=None) -> dict:
+    def create_workspace(self, snapshot_id, workspace_id=None, *, initial_dataset_ids=None,
+                         shared_release_id=None) -> dict:
         self.snapshot_path(snapshot_id)
         workspace_id = _identifier(workspace_id or "workspace_" + uuid.uuid4().hex)
+        if not isinstance(initial_dataset_ids, (list, tuple, type(None))):
+            raise StoreError("Initial workspace datasets must be a bounded unique list.")
+        datasets = list(initial_dataset_ids or [])
+        if len(datasets) != len(set(datasets)) or len(datasets) > 1000:
+            raise StoreError("Initial workspace datasets must be a bounded unique list.")
+        for dataset_id in datasets:
+            self.dataset_manifest(dataset_id)
+            self.raw_source_path(dataset_id)
+            self.overlay_path(dataset_id)
+        if shared_release_id is not None:
+            _identifier(shared_release_id, "release")
         with self._lock(workspace_id):
             destination = self._path("workspaces", workspace_id)
             if destination.exists():
                 raise StoreError("Workspace already exists.")
-            manifest = self._revision({"format_version": 1, "workspace_id": workspace_id,
-                                       "version": 0, "snapshot_id": snapshot_id, "datasets": [],
-                                       "analysis_head": None, "parent_revision_id": None})
+            content = {"format_version": 1, "workspace_id": workspace_id,
+                       "version": 0, "snapshot_id": snapshot_id, "datasets": datasets,
+                       "analysis_head": None, "parent_revision_id": None}
+            if shared_release_id is not None:
+                content["shared_release_id"] = shared_release_id
+            manifest = self._revision(content)
             with self._stage() as stage:
                 (stage / "revisions").mkdir()
                 _write_json(stage / "revisions" / (manifest["revision_id"] + ".json"), manifest)

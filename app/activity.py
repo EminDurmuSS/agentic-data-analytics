@@ -19,6 +19,7 @@ TOOL_DESCRIPTIONS = {
     "inspect_source": "Yeni kaynak inceleniyor",
     "ingest_source_table": "Finansal tablo kaynak hücrelerinden doğrulanıp ekleniyor",
     "publish_selected_table": "Doğrulanan tablo ekleniyor",
+    "promote_dataset_to_shared_lakehouse": "Doğrulanan veri ortak lakehouse sürümüne ekleniyor",
     "web_search": "Web kaynakları araştırılıyor",
     "research_web": "Resmi web kaynakları araştırılıyor",
     "ask_user": "Kullanıcıya kısa bir soru soruluyor",
@@ -139,6 +140,7 @@ _JOURNEY_TOOLS = {
     "combine_source_tables": ("data", "preparation", "Tablo düzeni", "Devam eden tablolar birleştiriliyor"),
     "ingest_source_table": ("data", "publication", "Verinin eklenmesi", "Seçili kaynak verisi hazırlanıyor"),
     "publish_selected_table": ("data", "publication", "Verinin eklenmesi", "Seçili kaynak verisi ekleniyor"),
+    "promote_dataset_to_shared_lakehouse": ("data", "shared_publication", "Ortak lakehouse", "Doğrulanan veri kalıcı ortak sürüme ekleniyor"),
     "execute": ("calculation", "analysis", "Analiz tablosu", "Veri sorgulanıyor ve hesaplanıyor"),
     "revise_analysis": ("calculation", "analysis", "Analiz tablosu", "Analiz tablosu güncelleniyor"),
     "query_grouped": ("calculation", "analysis", "Analiz tablosu", "Gruplar karşılaştırılıyor"),
@@ -187,7 +189,9 @@ def _integer(value):
 
 def _attempt_scope(attempt, parents):
     args, result = attempt["args"], attempt["result"]
-    action = "publication" if attempt["tool"] in {"ingest_source_table", "publish_selected_table"} else attempt["tool"]
+    action = "publication" if attempt["tool"] in {
+        "ingest_source_table", "publish_selected_table", "promote_dataset_to_shared_lakehouse",
+    } else attempt["tool"]
     source = args.get("source_id") or result.get("source_id")
     table = args.get("table_id") or result.get("table_id")
     seen = set()
@@ -223,6 +227,8 @@ def _attempt_outcome(attempt):
     if tool in {"ingest_source_table", "publish_selected_table"}:
         if not result.get("dataset_id") or result.get("publication_performed") is False:
             return "attention"
+    if tool == "promote_dataset_to_shared_lakehouse" and not result.get("shared_release_id"):
+        return "attention"
     if tool in {"execute", "revise_analysis", "query_grouped", "aggregate_dataset"} and not result.get("analysis_id"):
         return "attention"
     if tool == "select_analysis_rows" and not result.get("selection_id"):
@@ -302,6 +308,7 @@ def _attempt_action(attempt, run_status):
                      "research_web": "Gerekli web kaynağı okunamadı.",
                      "ingest_source_table": "Kaynak verisi çalışma alanına eklenemedi.",
                      "publish_selected_table": "Kaynak verisi çalışma alanına eklenemedi.",
+                     "promote_dataset_to_shared_lakehouse": "Veri ortak lakehouse sürümüne eklenemedi.",
                      "explain_value": "Bu değerin kaynak bağlantısı tamamlanamadı.",
                      "create_chart": "Grafik tamamlanamadı.",
                      "validate_plan": "Hesap planı kontrollerden geçemedi."}.get(tool,
@@ -345,6 +352,10 @@ def _attempt_action(attempt, run_status):
     elif tool in {"ingest_source_table", "publish_selected_table"}:
         count = result.get("row_count")
         label = f"{count} satır kaynak verisi çalışma alanına eklendi." if _integer(count) else "Kaynak verisi çalışma alanına eklendi."
+    elif tool == "promote_dataset_to_shared_lakehouse":
+        label = ("Doğrulanmış veri kalıcı ortak lakehouse sürümüne eklendi."
+                 if result.get("publication_performed") is not False else
+                 "Doğrulanmış veri zaten aktif ortak lakehouse sürümünde.")
     elif tool == "prepare_source_table":
         count = result.get("row_count")
         label = f"{count} satırlık kaynak tablosu analize uygun biçimde düzenlendi." if _integer(count) else "Kaynak tablosunun düzeni hazırlandı."
@@ -393,6 +404,10 @@ def _journey_detail(key, attempts):
         datasets = {result["dataset_id"]: result for result in results}
         count = sum(result.get("row_count", 0) for result in datasets.values() if _integer(result.get("row_count")))
         return (f"{len(datasets)} veri kümesi, {count} satır eklendi." if count else f"{len(datasets)} veri kümesi eklendi.") if datasets else "Kaynak henüz analiz verisine eklenmedi."
+    if key == "shared_publication":
+        releases = {result.get("shared_release_id") for result in results if result.get("shared_release_id")}
+        return (f"{len(releases)} kalıcı ortak lakehouse sürümü doğrulandı." if releases
+                else "Veri henüz kalıcı ortak lakehouse sürümüne eklenmedi.")
     if key == "analysis":
         last = results[-1] if results else {}
         count = last.get("row_count")
@@ -431,6 +446,9 @@ def _stage_summary(stage, stage_status, attempts):
         return f"{len(pages)} seçili sayfa ve ilgili kaynak bilgileri incelendi." if pages else "İlgili kaynaklar ve kapsam bilgileri incelendi."
     if stage == "data":
         published = [attempt for attempt in good if _JOURNEY_TOOLS[attempt["tool"]][1] == "publication"]
+        shared = [attempt for attempt in good if _JOURNEY_TOOLS[attempt["tool"]][1] == "shared_publication"]
+        if shared:
+            return _journey_detail("shared_publication", shared)
         return _journey_detail("publication", published) if published else "Seçili kaynak tablosunun düzeni hazırlandı."
     if stage == "calculation":
         analysis = [attempt for attempt in good if _JOURNEY_TOOLS[attempt["tool"]][1] == "analysis"]
@@ -507,7 +525,9 @@ def activity_journey(events, run_status=None):
             if active:
                 detail = _JOURNEY_TOOLS[active[-1]["tool"]][3] + ("." if status == "running" else "; bu adım sonuçlanmadan çalışma durdu.")
             if failures and key != "question":
-                note = ("Bu tablo düzeni için ek hazırlık gerekiyor." if any(a["result"].get("import_status") == "unsupported_layout" for a in failures)
+                note = ("Veri kalıcı ortak lakehouse sürümüne eklenemedi."
+                        if key == "shared_publication" else
+                        "Bu tablo düzeni için ek hazırlık gerekiyor." if any(a["result"].get("import_status") == "unsupported_layout" for a in failures)
                         else f"{len(failures)} deneme sonuç vermedi; bu denemelerin tamamlandığı doğrulanmadı.")
                 detail = (detail + " " + note).strip()
             if resolved:

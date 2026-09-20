@@ -13,7 +13,7 @@ const assert = require('node:assert/strict');
     const columns = ['bank_million', 'sector_million', 'ratio_percent'];
     const labels = { bank_million: 'Banka: Toplam aktif', sector_million: 'Sektör: Toplam aktif', ratio_percent: 'Büyüklük oranı' };
     const sourceUrl = 'https://www.bddk.org.tr/BultenAylik';
-    const scopeMessage = 'Farklı raporlama kapsamları karşılaştırılıyor; resmi sektör/pazar payı değildir.';
+    const scopeMessage = 'Oran, seçilen pay ve paydanın sayısal karşılaştırmasıdır. Kaynak kapsamlarını inceleyin; resmî sektör veya pazar payı olduğu varsayılmaz.';
     const zeroMessage = 'Paydası sıfır olan oran veya değişim hesaplanmadı.';
     const fixture = {
       status: 'ok', complete: true, analysis_id: 'analysis_readability', chart_id: 'chart_readability',
@@ -113,7 +113,7 @@ const assert = require('node:assert/strict');
       return rows;
     };
     let warningText = await visibleWarnings();
-    assert.equal(warningText.filter(text => /resmi.*(?:sektör|pazar).*payı değildir/.test(text)).length, 1, 'Scope must be disclosed once across the two warning areas');
+    assert.equal(warningText.filter(text => /resmî sektör veya pazar payı olduğu varsayılmaz/.test(text)).length, 1, 'Scope must be disclosed once across the two warning areas');
     assert.equal(warningText.filter(text => /sıfır/.test(text)).length, 1, 'A zero-denominator warning must remain visible exactly once');
 
     const downloadPromise = page.waitForEvent('download');
@@ -134,7 +134,7 @@ const assert = require('node:assert/strict');
       }
       return parts.join(' ').replace(/\s+/g, ' ').trim();
     }, svg);
-    assert.match(exportedText, /resmi sektör\/pazar payı değildir/, 'The shared SVG must retain the scope caveat, including when it wraps across text nodes');
+    assert.match(exportedText, /resmî sektör veya pazar payı olduğu varsayılmaz/, 'The shared SVG must retain the scope caveat, including when it wraps across text nodes');
 
     await page.locator('#chart-settings-toggle').click();
     await page.locator('#chart-orientation').selectOption('horizontal');
