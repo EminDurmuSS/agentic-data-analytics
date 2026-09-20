@@ -27,7 +27,7 @@ const assert = require('node:assert/strict');
       ], rejected_results: [{ url: 'https://irrelevant.test/', reason: 'No topical match' }],
     } });
     const workspace = { workspace_id: 'workspace_fixture', name: 'Synthetic presentation test', profile: 'finance', version: 1,
-      analysis_head: 'analysis_fixture', runs: [{ message: 'Synthetic source comparison', result }] };
+      analysis_head: 'analysis_fixture', runs: [{ run_id: 'run_partial_fixture', status: 'partial', message: 'Synthetic source comparison', result: { ...result, status: 'partial' } }] };
     const analysis = { analysis_id: 'analysis_fixture', row_count: 1, columns: ['period', 'alias_raw', 'alias_scaled', 'share_pct'],
       rows: [{ period: '2026-03', alias_raw: 1000, alias_scaled: 1, share_pct: 10 }],
       presentation: { columns: ['period', 'alias_scaled', 'share_pct'], labels: { period: 'Dönem', alias_raw: 'Kaynak tutarı', alias_scaled: 'Kaynak tutarı', share_pct: 'Büyüklük oranı' } },
@@ -61,6 +61,8 @@ const assert = require('node:assert/strict');
     });
     await page.goto('http://presentation.test/?workspace=workspace_fixture');
     await page.waitForSelector('#table-container tbody tr');
+    assert.equal(await page.locator('#voice-open').isHidden(), false,
+      'A persisted analysis from a partial run remains available for voice summary');
     await page.waitForFunction(() => document.querySelector('#chart-kpis').children.length === 2);
     assert.equal(await page.locator('#table-container th').count(), 3);
     assert.deepEqual(await page.locator('#table-container tbody td').allTextContents(), ['Mart 2026', '1', '10']);
