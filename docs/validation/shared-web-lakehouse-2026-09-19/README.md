@@ -23,9 +23,13 @@ Bu kayıt, resmî web kaynağından yayımlanmış bir workspace dataset'inin ka
 Repo kökünde aşağıdaki komut çalıştırıldı:
 
 ```sh
-.venv/bin/pytest -q
+PLAYWRIGHT_MODULE=/tmp/agentic-playwright-20260920/node_modules/playwright \
+PLAYWRIGHT_BROWSERS_PATH=/tmp/agentic-playwright-20260920/browsers \
+.venv/bin/python -m pytest -q
 ```
 
-20 Eylül 2026 tarihli son tam koşu sonucu: **1.202 test geçti, 346 alt test geçti, 5 test atlandı**. Süre 296,84 saniyeydi. Atlanan testler başarılı sayılmadı. Koşuda iki bağımlılık deprecation uyarısı ve iki mevcut pandas `PeriodDtype[B]` gelecek sürüm uyarısı görüldü; yeni shared lakehouse akışına ait hata veya uyarı oluşmadı.
+20 Eylül 2026 tarihli son tam koşu sonucu: **1.208 test geçti, 346 alt test geçti, test atlanmadı**. Süre 298,94 saniyeydi. Playwright ve geçici Chromium kurulumu repo dışında tutuldu; activity journey, grafik okunabilirliği, bağlamsal takip soruları ve ürün sunumu kapsamındaki beş gerçek tarayıcı testi de çalıştı. İlk tarayıcı koşusunda güncel kapsam uyarısı metnini eski metinle karşılaştıran iki beklenti ve reload senaryosunda artık sunulmayan fixture kopyasını değiştiren bir test düzeneği bulundu; ürün sözleşmesini gevşetmeden test kayıtları güncel davranışa bağlandı ve beş test birlikte yeniden geçti.
 
-Bu koşu yerel ve scripted entegrasyonları kapsar. Canlı model sağlayıcısı veya gerçek dış ağ kaynağı çağrısı yapılmadı.
+Koşuda iki bağımlılık deprecation uyarısı ve iki mevcut pandas `PeriodDtype[B]` gelecek sürüm uyarısı görüldü; yeni shared lakehouse akışına ait hata veya uyarı oluşmadı.
+
+Bu test koşusu yerel ve scripted entegrasyonları kapsar. Canlı model sağlayıcısı veya gerçek dış ağ kaynağı çağrısı yapılmadı.
