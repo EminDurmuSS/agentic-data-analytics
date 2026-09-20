@@ -14,6 +14,7 @@ BDDK, TCMB EVDS, TÜİK ve TBB kaynaklarıyla finans analizi yapılabilir. Boş 
 - Uzun PDF içinde ilgili sayfayı arar; dönem sütunlarını kaynak hücrelerini koruyarak satırlara çevirir. Statik ve olay kayıtlarını açık grup/takvim sözleşmesiyle analiz eder.
 - Dönem toplamlarını ve karşılaştırmaları kayıtlı tablodan hesaplar; sayısal cevabı doğrulanmış sonuçlardan oluşturur. Eksik görev adımlarını tamamlanmış gibi göstermez.
 - Kaynak hücresine kadar açıklama, web kaynak araştırması, anomali taraması, değişim tespiti ve ilişki incelemesi sağlar.
+- Resmî web kaynağından doğrulanıp workspace dataset'i olarak yayımlanan bir tabloyu, yalnız açık kullanıcı talebiyle içerik adresli ortak lakehouse sürümüne alır. Yeni finans çalışma alanları bu sürümü otomatik görür; mevcut ve generic çalışma alanları değişmez.
 
 ## Başlatma
 
@@ -78,6 +79,8 @@ python -m app --prompt-key --port 8870
 Sayısal hesapların doğrulanması, doğal dildeki bütün yorumların doğru olduğunu garanti etmez. Önceki [canlı tutarlılık başlangıç ölçümü](docs/validation/agent-consistency-2026-09-10/README.md), doğru tablo üretimi ile tam görev başarısını ayrı değerlendirir. [Grafik doğrulaması](docs/validation/interactive-charts-2026-09-10/README.md) ise grafik akışını ölçer. Tarihli sonuçlar genel başarı oranı olarak yorumlanmamalıdır.
 
 Arama sonucu kaynak doğrulaması değildir; ilgili belge ayrıca açılmalıdır. Kaynak referanslarının bulunması ile ham dosyaların ayrıca doğrulanması farklı kontrollerdir. Korelasyon, Granger testi ve dağılım grafikleri nedensel etki kanıtı üretmez. Eksik veya anlamı incelenmemiş veriler için uygulanabilecek işlemler sınırlıdır.
+
+Web araştırması ortak lakehouse'u kendiliğinden değiştirmez. Kalıcı paylaşım için kullanıcı açıkça ortak veya ana lakehouse'a ekleme istemeli, kaynak resmî alan adı politikasını ve bütün kaynak/dataset hash kontrollerini geçmelidir. Ayrıntılı akış [mimari rehberinde](docs/ARCHITECTURE.md#web-verisini-ortak-lakehousea-alma) açıklanır.
 
 Kurulum, test ve CLI için [geliştirme rehberi](docs/DEVELOPMENT.md); kodun sorumlulukları için [mimari](docs/ARCHITECTURE.md); kaynak kapsamı için [veri rehberi](docs/DATA.md).
 

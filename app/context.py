@@ -15,6 +15,7 @@ from fastapi import HTTPException
 from app.activity import activity_feed, activity_journey
 from app.presentation import present_run
 from agentic_analytics.lakehouse.service import PlanError, error_envelope
+from agentic_analytics.lakehouse.shared import SharedLakehouse
 from agentic_analytics.lakehouse.store import LakehouseStore, StoreError, file_sha256
 from app.diagnostics import log_job_failure
 from app.models import RunBody
@@ -40,6 +41,7 @@ class AppContext:
 
         self.root = Path(root).resolve()
         self.store = LakehouseStore(self.root / "lakehouse")
+        self.shared_lakehouse = SharedLakehouse(self.store)
         self.run_store = AgentRunStore(self.root / "runs")
         self.client = client
         self.source_db = Path(source_db).resolve() if source_db else None
@@ -149,7 +151,12 @@ class AppContext:
             return release["snapshot_id"]
 
     def create_workspace(self, name, profile):
-        workspace = self.store.create_workspace(self.snapshot(profile))
+        release = self.shared_lakehouse.current_release() if profile == "finance" else None
+        workspace = self.store.create_workspace(
+            self.snapshot(profile),
+            initial_dataset_ids=release["dataset_ids"] if release else None,
+            shared_release_id=release["release_id"] if release else None,
+        )
         metadata = {"name": name, "profile": profile, "created_at": datetime.now(timezone.utc).isoformat()}
         write_json(self._metadata / "workspaces" / (workspace["workspace_id"] + ".json"), metadata)
         return {**workspace, **metadata}
@@ -268,6 +275,7 @@ class AppContext:
         from agentic_analytics.agent.tools.source_index import SourceIndexTools
         from agentic_analytics.agent.tools.financial_import import FinancialImportTools
         from agentic_analytics.agent.tools.reference_catalogues import ReferenceCatalogueTools
+        from agentic_analytics.agent.tools.shared_lakehouse import SharedLakehouseTools
         documents = self.documents(workspace_id)
         references = ReferenceCatalogueTools(self.store, workspace_id, self.reference_catalogues())
         tools = FinancialImportTools(documents).extra_tools()
@@ -280,6 +288,7 @@ class AppContext:
         tools.update(DatasetTools(self.store, workspace_id).extra_tools())
         tools.update(SourceIndexTools(self.store, workspace_id).extra_tools())
         tools.update(references.extra_tools())
+        tools.update(SharedLakehouseTools(self.store, workspace_id, shared=self.shared_lakehouse).extra_tools())
         # Generous bounds so multi-step analyses reach execution; the finite cap still stops a looping model.
         # The context budget stays well under the model's proven window (~72k tokens accepted; 150k chars ~= 49k)
         # so context-heavy multi-source or explain-driven analyses are not cut off before they can finish.

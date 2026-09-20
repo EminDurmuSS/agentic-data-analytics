@@ -14,8 +14,10 @@ flowchart TD
     RUN --> TOOLS["Agent araçları: lakehouse, belge, istatistik, grafik"]
     TOOLS --> SERVICE["LakehouseService: plan ve hesap kuralları"]
     TOOLS --> STORE["LakehouseStore: snapshot ve sonuç kayıtları"]
+    TOOLS --> SHARED["SharedLakehouse: doğrulanmış web verisi sürümleri"]
     SERVICE --> STORE
     STORE --> DB["DuckDB snapshot ve Parquet analizleri"]
+    SHARED --> STORE
     INGEST["tools ve data_pipeline: toplama ve build"] --> DB
     INGEST --> CONTRACT["Ortak registry ve semantics"]
     SERVICE --> CONTRACT
@@ -42,9 +44,11 @@ Grafik, istatistik ve belge araçları ihtiyaçlarına göre kayıt deposunu kul
 | [agent/tools/financial_import.py](../agentic_analytics/agent/tools/financial_import.py) | Finansal tablo için iş düzeyindeki satır/dönem seçimini kaynak kanıtlı yayımlama sözleşmesine ve doğrudan çalıştırılabilir analiz isteğine dönüştürme |
 | [agent/tools/summary.py](../agentic_analytics/agent/tools/summary.py), [datasets.py](../agentic_analytics/agent/tools/datasets.py) | Kayıtlı analizde dönem toplamı/karşılaştırma; statik ve olay verisinde açık gruplama, takvim ve toplama |
 | [agent/tools/source_index.py](../agentic_analytics/agent/tools/source_index.py), [document_tables.py](../agentic_analytics/agent/tools/document_tables.py) | Uzun PDF'de kaynak sayfası bulma; birleşik HTML başlıkları ve hücre kökeni |
+| [agent/tools/shared_lakehouse.py](../agentic_analytics/agent/tools/shared_lakehouse.py) | Kullanıcının açık kalıcı/ortak lakehouse talebini, geri alınabilir ve tekrar güvenli tek bir global yazma aracına dönüştürme |
 | [lakehouse/discovery.py](../agentic_analytics/lakehouse/discovery.py), [financial_semantics.py](../agentic_analytics/lakehouse/financial_semantics.py) | Uzun istekten metrik araması, açıklanabilir aday anlamı, birikimli veri ve fiyat esası kontrolleri |
 | [lakehouse/service.py](../agentic_analytics/lakehouse/service.py) | Keşif, plan doğrulama, hesap, revizyon ve kaynak hücresi açıklaması |
 | [lakehouse/store.py](../agentic_analytics/lakehouse/store.py) | Değişmez snapshot/dataset/analysis dosyaları, hash kontrolü ve çalışma alanı sürümleri |
+| [lakehouse/shared.py](../agentic_analytics/lakehouse/shared.py) | Resmî web kaynağı kanıtını paketleme, içerik adresli ortak release ve atomik `CURRENT.json` yönetimi |
 | [lakehouse/analysis.py](../agentic_analytics/lakehouse/analysis.py) | Sabit etkileri artıklaştıran deterministik analiz yardımcısı |
 | [lakehouse/registry.py](../agentic_analytics/lakehouse/registry.py), [semantics.py](../agentic_analytics/lakehouse/semantics.py) | Build ile sorgu katmanının paylaştığı metrik sözleşmeleri, birim, frekans ve kaynak kapsamı politikaları |
 | [lakehouse/quality.py](../agentic_analytics/lakehouse/quality.py), [cli.py](../agentic_analytics/lakehouse/cli.py) | Veritabanı kalite kontrolleri ve modelsiz komut satırı kullanımı |
@@ -78,6 +82,8 @@ Modelin araç arayüzü serbest SQL, dosya sistemi yolu veya çalıştırılabil
 | Kaynak ham dosyası | Orijinal değer ve kaynak hashleri korunur; türetme ayrı alanlarda açıklanır |
 | Snapshot | Çalışma alanı belirli bir doğrulanmış veritabanı sürümüne bağlanır |
 | Dataset | Kullanıcının seçtiği dış tablo, açık veri sözleşmesiyle yayımlanır |
+| Promotion | Resmî web kaynağının ham dosyası, inspection/review kanıtı ve dataset dosyaları tek içerik adresli pakette korunur |
+| Shared release | Promotion kimliklerinin sıralı ve değişmez kümesi; yalnız yeni finance çalışma alanları aktif release'e bağlanır |
 | Analysis | Tam sonuç tablosu, plan, şema ve kaynak zinciri birlikte saklanır |
 | Çalışma alanı | Aktif analiz ve veri sürümü ilerler; önceki analizler korunur |
 | Grafik / istatistik kaydı | İlgili analiz kimliğine ve değerlerine bağlı ayrı çıktı olarak saklanır |
@@ -87,6 +93,16 @@ Modelin araç arayüzü serbest SQL, dosya sistemi yolu veya çalıştırılabil
 Varsayılan uygulama kayıt kökü `.lakehouse-runtime/app/` dizinidir. Büyük ham veri yayınları ve çalışma kayıtları Git'e taşınmaz. Dosya yolları ve veri kapsamı için [veri rehberine](DATA.md), ayrı kayıt diziniyle çalıştırma için [geliştirme rehberine](DEVELOPMENT.md) bakın.
 
 Yeni bir veri yayını yeni çalışma alanlarında kullanılabilir; mevcut çalışma alanlarının snapshot'ı sessizce değiştirilmez. Kaynak bağlantıları bulunan bir hücre, ayrıca ham dosyadan doğrulanmış sayılmaz: açıklama API'sindeki kaynak referansı tamlığı ve dosya doğrulaması alanları farklı anlam taşır.
+
+## Web verisini ortak lakehouse'a alma
+
+Web araştırması tek başına ortak veriyi değiştirmez. Önce belge gerçekten açılır, seçilen tablo açık tarih, birim, kapsam, anahtar ve stok/akım/oran sözleşmesiyle workspace dataset'i olarak yayımlanır. Kullanıcı aynı turda kalıcı ortak lakehouse yazmasını açıkça isterse `promote_dataset_to_shared_lakehouse` aracı devreye girebilir.
+
+Terfi kapısı yalnız HTTP(S) üzerinden anonim okunmuş ve yapılandırılmış resmî alan adı kaydında bulunan kaynakları kabul eder. Dataset'in mevcut workspace'e ait olması, kaynak URL'si, kaynak ve tablo kimliği, ham dosya SHA-256 değeri, inspection kaydı, dataset CSV/Parquet hashleri ve sayısal sütun semantiği yeniden doğrulanır. Upload, arama özeti, tanınmayan alan adı veya `kind=unknown` sayısal sütun ortak katmana geçemez. OCR, formül önbelleği ya da karmaşık yerleşim inceleme gerektiriyorsa ilgili kullanıcı inceleme kaydı da pakete girer.
+
+Başarılı terfi `lakehouse/shared/promotions/` altında kendi kendine yeterli, içerik adresli bir kanıt paketi üretir. `lakehouse/shared/releases/` promotion kümesini değişmez bir release olarak tutar; `CURRENT.json` yalnız atomik olarak doğrulanmış release'e çevrilir. Yeniden deneme aynı kimlikleri döndürür. Kesinti promotion paketinden sonra olmuşsa recovery mevcut paketi doğrulayıp release işaretçisini tamamlar. Bozuk paket veya hash uyuşmazlığı mevcut aktif release'i değiştirmez.
+
+Yeni finance workspace oluşturulurken aktif shared release'in dataset kimlikleri başlangıç revision'ına sabitlenir. Mevcut workspace'ler ve generic workspace'ler değişmez. Sorgu motoru bu dataset'leri zaten kullandığı overlay kayıt yolu üzerinden `discover`, `describe`, `execute` ve `explain_value` araçlarına açar. Bu akış ana `analytics.duckdb` dosyasını her web keşfinde yeniden üretmez; toplu ve küratörlü kalıcı kaynak build'i ayrı pipeline sorumluluğu olarak kalır.
 
 ## Tamamlanma ile doğruluk
 
