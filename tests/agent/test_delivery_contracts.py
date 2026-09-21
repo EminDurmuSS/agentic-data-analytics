@@ -22,6 +22,7 @@ from agentic_analytics.agent.tools.financial_import import FinancialImportTools
 from agentic_analytics.agent.tools.datasets import DatasetTools
 from agentic_analytics.agent.tools.summary import SummaryTools
 from agentic_analytics.lakehouse.store import LakehouseStore
+from agentic_analytics.providers.mia import MiaError
 
 
 def call(name, arguments, identifier=None):
@@ -361,6 +362,148 @@ def test_empty_workspace_search_failure_does_not_claim_preserved_analysis(env):
     assert result["status"] == "blocked"
     assert "Henüz analiz tablosu veya grafik oluşturulmadı" in result["message"]
     assert "korundu" not in result["message"]
+
+
+def _statement_recovery_fixture(env, *, amount="321,456,789", unit="BİN TÜRK LİRASI"):
+    store, wid, _, _, _ = env
+    docs = DocumentTools(store, wid)
+    raw = f"""<html><h1>Konsolide Finansal Rapor</h1><h2>Konsolide Bilanço</h2><p>{unit}</p>
+    <table><tr><th>Kalem</th><th>c1</th><th>c2</th><th>c3</th><th>p1</th><th>p2</th><th>p3</th></tr>
+    <tr><td></td><td></td><td>30 Haziran 2027</td><td></td><td>31</td><td>Aralık 2026</td><td></td></tr>
+    <tr><td></td><td>TP</td><td>YP</td><td>Toplam</td><td>TP</td><td>YP</td><td>Toplam</td></tr>
+    <tr><td>VARLIKLAR TOPLAMI</td><td>200,000,000</td><td>121,456,789</td><td>{amount}</td>
+    <td>150,000,000</td><td>100,000,000</td><td>250,000,000</td></tr></table></html>""".encode()
+    source = docs._register(raw, "consolidated-financial-report.html", "text/html", "https://reports.example.org/statement")
+    inspected = docs.inspect_source(source_id=source["source_id"])
+    args = {"source_id": source["source_id"], "table_id": inspected["tables"][0]["table_id"],
+            "row_start": 1, "row_limit": 20}
+    extras = {**docs.extra_tools(), **FinancialImportTools(docs).extra_tools(), **DatasetTools(store, wid).extra_tools()}
+    return docs, args, extras
+
+
+def _provider_outage(_messages):
+    raise MiaError("PROVIDER_UNAVAILABLE", "MIA bağlantısı tamamlanamadı.", retryable=True, attempts=3)
+
+
+def test_provider_outage_delivers_verified_statement_value_and_chart_without_llm(env):
+    store, wid, journal, _, build = env
+    docs, args, extras = _statement_recovery_fixture(env)
+    runtime, client = build([call("read_source_table", args), _provider_outage], more=extras)
+    result = runtime.run("30 Haziran 2027 tarihli konsolide raporda toplam aktifleri göster.", source_ids=[args["source_id"]])
+    assert result["status"] == "partial", result
+    assert result["analysis_updated"] and result["chart_updated"], result
+    assert result["errors"][0]["code"] == "PROVIDER_UNAVAILABLE"
+    assert len(client.requests) == 2  # recovery makes no provider call
+    frame, manifest = store.load_analysis(result["analysis_id"])
+    assert frame["period"].tolist() == ["2027-06-30"]
+    assert frame["reported_amount"].tolist() == [321456789]
+    assert "321.456.789" in result["message"]
+    assert "250.000.000" not in result["message"]
+    chart = ChartTools(store, wid).load_artifact(result["chart_id"])
+    assert chart["analysis_id"] == result["analysis_id"]
+    assert chart["series"][0]["values"] == [321456789]
+    automatic = [item["tool"] for item in result["tool_results"] if item.get("automatic")]
+    assert automatic == ["ingest_source_table", "aggregate_dataset", "create_chart"]
+    imported = next(item["result"] for item in result["tool_results"] if item["tool"] == "ingest_source_table")
+    assert imported["published_columns"]["amount"]["scale"] == 1000
+    assert imported["provenance"]["cell_origins"][0]["amount"] == {"candidate_row": 3, "candidate_column": "c3"}
+    assert any(e["kind"] == "delivery_repair" and e["payload"].get("reason") == "provider_outage_source_delivery"
+               for e in journal.events(result["run_id"]))
+    before = store.workspace(wid)
+    assert runtime.resume(result["run_id"]) == result
+    assert store.workspace(wid) == before
+
+
+@pytest.mark.parametrize("case", ["no_date", "different_period", "wrong_scope", "unread_row", "ambiguous_number", "missing_unit", "preview_only"])
+def test_provider_outage_never_invents_statement_chart_when_evidence_is_insufficient(env, case):
+    store, wid, journal, _, build = env
+    docs, args, extras = _statement_recovery_fixture(env,
+        amount="321,456" if case == "ambiguous_number" else "321,456,789",
+        unit="" if case == "missing_unit" else "BİN TÜRK LİRASI")
+    prompt = "30 Haziran 2027 tarihli konsolide raporda toplam aktifleri göster."
+    if case == "no_date":
+        prompt = "Konsolide raporda toplam aktifleri göster."
+    elif case == "different_period":
+        prompt = prompt.replace("2027", "2028")
+    elif case == "wrong_scope":
+        prompt = prompt.replace("konsolide", "konsolide olmayan")
+    elif case == "unread_row":
+        args["row_limit"] = 2
+    action = call("inspect_source", {"source_id": args["source_id"]}) if case == "preview_only" else call("read_source_table", args)
+    runtime, client = build([action, _provider_outage], more=extras)
+    result = runtime.run(prompt, source_ids=[args["source_id"]])
+    assert not result["analysis_updated"] and not result["chart_updated"], result
+    assert store.workspace(wid)["version"] == 0
+    assert result["errors"][0]["code"] == "PROVIDER_UNAVAILABLE"
+    assert len(client.requests) == 2
+
+
+def test_provider_outage_recovery_preserves_previous_analysis(env):
+    store, wid, _, plan, build = env
+    docs, args, extras = _statement_recovery_fixture(env)
+    initial, _ = build([call("execute", plan), final()])
+    previous = initial.run("Kredi tablosunu göster")
+    before = store.workspace(wid)
+    runtime, _ = build([call("read_source_table", args), _provider_outage], more=extras)
+    result = runtime.run("30 Haziran 2027 tarihli konsolide raporda toplam aktifleri göster.", source_ids=[args["source_id"]])
+    assert not result["analysis_updated"] and not result["chart_updated"]
+    assert store.workspace(wid) == before
+    assert result["active_analysis_id"] == previous["analysis_id"]
+    assert not any(item.get("automatic") for item in result["tool_results"])
+
+
+def test_explicit_resume_of_saved_source_only_outage_recovers_without_provider(env):
+    store, wid, journal, _, build = env
+    docs, args, extras = _statement_recovery_fixture(env)
+    old_tools = {k:v for k,v in extras.items() if k != "aggregate_dataset"}
+    old, _ = build([call("read_source_table", args), _provider_outage], more=old_tools)
+    saved = old.run("30 Haziran 2027 tarihli konsolide raporda toplam aktifleri göster.", source_ids=[args["source_id"]])
+    assert not saved["analysis_updated"]
+    runtime, client = build([], more=extras)
+    result = runtime.resume(saved["run_id"], retry_terminal=True)
+    assert result["run_id"] == saved["run_id"]
+    assert result["status"] == "partial" and result["errors"] == saved["errors"]
+    assert result["analysis_updated"] and result["chart_updated"]
+    assert not client.requests
+    assert store.load_analysis(result["analysis_id"])[0]["reported_amount"].tolist() == [321456789]
+
+
+def test_provider_outage_after_statement_import_reuses_the_same_dataset(env):
+    store, wid, _, _, build = env
+    _, args, extras = _statement_recovery_fixture(env)
+    ingest = {"source_id": args["source_id"], "table_id": args["table_id"],
+              "row_labels": ["VARLIKLAR TOPLAMI"], "periods": ["2027-06-30"],
+              "value_header": "Toplam", "measure_kind": "stock", "expected_version": 0}
+    runtime, client = build([call("read_source_table", args),
+                             call("ingest_source_table", ingest), _provider_outage], more=extras)
+    result = runtime.run("30 Haziran 2027 tarihli konsolide raporda toplam aktifleri göster.")
+    assert result["status"] == "partial" and result["chart_updated"], result
+    imports = [item["result"] for item in result["tool_results"] if item["tool"] == "ingest_source_table"]
+    assert len(imports) == 2
+    assert imports[0]["dataset_id"] == imports[1]["dataset_id"]
+    assert store.load_analysis(result["analysis_id"])[0]["reported_amount"].tolist() == [321456789]
+    assert len(client.requests) == 3
+
+
+@pytest.mark.parametrize("problem", ["review_required", "hash_mismatch", "altered_cell"])
+def test_provider_outage_recovery_does_not_bypass_source_identity_or_review(env, problem):
+    from agentic_analytics.agent.source_recovery import statement_recovery_request
+    store, wid, _, _, _ = env
+    docs, args, _ = _statement_recovery_fixture(env)
+    result = docs.read_source_table(**args)
+    candidate = docs.review_candidate(args["source_id"], args["table_id"])
+    if problem == "review_required":
+        candidate["layout_review_required"] = True
+    elif problem == "hash_mismatch":
+        result["raw_sha256"] = "0" * 64
+    else:
+        result["rows"][-1]["values"]["c3"] = "999,999,999"
+    with patch.object(DocumentTools, "review_candidate", return_value=candidate):
+        recovered = statement_recovery_request(store, wid,
+            "30 Haziran 2027 tarihli konsolide raporda toplam aktifleri göster.",
+            [{"tool": "read_source_table", "result": result}])
+    assert recovered is None
+    assert store.workspace(wid)["version"] == 0
 
 
 def test_source_navigation_reuses_cached_inspection_and_tracks_exact_selection(env):

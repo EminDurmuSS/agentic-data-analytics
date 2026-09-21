@@ -1430,7 +1430,18 @@ class AgentRuntime:
             if record["workspace_id"] != self.workspace_id:
                 raise ValueError("Run belongs to another workspace")
             if retry_terminal and record["result"] is not None:
+                previous = record["result"]
                 record = self.run_store.reopen_retryable(run_id)
+                # Older saved outages may already contain all source cells.
+                # Recover those locally before asking the provider to reread
+                # them. Preserve the original partial/error status honestly.
+                if not previous.get("analysis_updated"):
+                    self._recover_source_analysis(record, record["state"])
+                    if record["state"].get("analysis_updated"):
+                        return self._finish(record, record["state"], "partial",
+                            "Kaynakta doğrulanan değerler kayıtlı analize aktarıldı. "
+                            "Önceki model bağlantı hatası teknik kayıtlarda korunuyor.",
+                            errors=previous.get("errors", []))
             return self._run(record)
 
     def _institutional_intent(self, record, state):
@@ -1776,6 +1787,9 @@ class AgentRuntime:
             error = {"code": exc.code, "message": str(exc), "retryable": exc.retryable,
                      "attempts": exc.attempts, "usage_unknown": True}
             self.run_store.event(run_id, "provider_error", {key: error[key] for key in ("code", "retryable", "attempts")})
+            # A failed prose/model call must not discard a source-owned,
+            # unambiguous statement value already read by tools this turn.
+            self._recover_source_analysis(record, state)
             source_receipt = _verified_source_table_confirmation(state)
             selection_receipt = _selection_confirmation(self.store, self.workspace_id, state)
             bundle_receipt = _bundle_confirmation(self.store, self.workspace_id, state)
@@ -1795,6 +1809,76 @@ class AgentRuntime:
         except (ValueError, OSError, duckdb.Error) as exc:
             error = error_envelope(exc)
             return self._finish(record, state, "blocked", "Çalışma alanı veya plan doğrulaması tamamlanamadı.", errors=error["errors"])
+
+    def _recover_source_analysis(self, record, state):
+        """Bounded provider-free delivery through the normal audited tools.
+
+        Never replace an existing analysis, publish to the shared lakehouse,
+        infer a date, or bypass compiler review to make a chart appear.
+        """
+        required = {"ingest_source_table", "aggregate_dataset", "create_chart"}
+        if (not required <= self.tools.keys() or state.get("source_recovery_attempted")
+                or state.get("analysis_updated") or self.store.workspace(self.workspace_id).get("analysis_head")):
+            return
+        state["source_recovery_attempted"] = True
+        try:
+            from agentic_analytics.agent.source_recovery import statement_recovery_request
+            args = statement_recovery_request(self.store, self.workspace_id, record["message"], state["tool_results"])
+            if args is None:
+                return
+            self.run_store.event(record["run_id"], "delivery_repair", {
+                "reason": "provider_outage_source_delivery", "source_id": args["source_id"],
+                "table_id": args["table_id"], "row_numbers": args.get("row_numbers"),
+                "row_labels": args.get("row_labels"), "periods": args.get("periods")})
+            imported = self._source_recovery_tool(record, state, "ingest_source_table", args)
+            if imported.get("status") != "ok" or not imported.get("publication_performed"):
+                return
+            request = imported.get("analysis_request") or {}
+            if request.get("tool") != "aggregate_dataset":
+                return
+            analysis = self._source_recovery_tool(record, state, "aggregate_dataset", request["arguments"])
+            if analysis.get("status") != "ok" or not analysis.get("analysis_id"):
+                return
+            self._source_recovery_tool(record, state, "create_chart", {"analysis_id": analysis["analysis_id"]})
+        except (ValueError, OSError, duckdb.Error) as exc:
+            # Keep the provider error and readable source evidence. Validation
+            # failures are not permission to manufacture a numerical result.
+            self.run_store.event(record["run_id"], "delivery_repair_skipped", {
+                "reason": "provider_outage_source_delivery", "errors": error_envelope(exc)["errors"]})
+        finally:
+            self.run_store.checkpoint(record["run_id"], state)
+
+    def _source_recovery_tool(self, record, state, name, args):
+        call = {"id": "runtime_source_" + fingerprint({"name": name, "args": args})[:20],
+                "type": "function", "function": {"name": name, "arguments": canonical(args)}}
+        self._close_pending(state)
+        state["messages"].append({"role": "assistant", "content": None, "tool_calls": [call]})
+        state["pending"] = [call]
+        self.run_store.checkpoint(record["run_id"], state)
+        result = self._dispatch(record["run_id"], state, call)
+        state["messages"].append({"role": "tool", "tool_call_id": call["id"],
+                                  "content": canonical(_model_tool_result(name, result))})
+        state["tool_results"].append({"tool": name, "call_id": call["id"], "automatic": True,
+                                      "reason": "provider_outage_source_delivery", "result": _compact(result)})
+        state["pending"] = []
+        if result.get("status") == "ok":
+            if result.get("publication_performed") is not False:
+                state.setdefault("successful_writes", {})[fingerprint({"name": name, "args": args})] = result
+            if name == "aggregate_dataset" and result.get("analysis_id"):
+                state.update(analysis_id=result["analysis_id"], analysis_updated=True)
+            if name == "create_chart" and result.get("chart_id"):
+                state.update(chart_id=result["chart_id"], chart_updated=True,
+                             chart_analysis_id=result["analysis_id"], chart_columns=result.get("spec", {}).get("columns", []),
+                             recommendations=result.get("recommendations", [])[:3])
+            for key in ("source_id", "artifact_ref", "artifact_id"):
+                if result.get(key):
+                    item = {"kind": key, "id": result[key]}
+                    if item not in state["artifacts"]:
+                        state["artifacts"].append(item)
+        else:
+            state.setdefault("unresolved_errors", {})[name] = result.get("errors", [])
+        self.run_store.checkpoint(record["run_id"], state)
+        return result
 
     def _complete(self, record, state, content, *, followup=False, warnings=None, terminal_status="completed"):
         """One delivery boundary for prose and clarification-after-result exits.
