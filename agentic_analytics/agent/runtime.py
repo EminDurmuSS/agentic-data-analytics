@@ -230,9 +230,15 @@ def _institutional_fact_kind(message):
         return None
     asking = re.search(r"\b(?:hangi\w*|kim\w*|who|which|listele\w*|anlat\w*|list|describe)\b", text)
     relationship = re.search(r"\b(?:kurucu\w*|kuruluş\w*|kurul\w*|üye\w*|founders?|founded|established|members?|partners?)\b", text)
-    working = re.search(r"çaliş\w*|başla\w*|iş\s*birli\w*|work\w*\s+with|start\w*\s+with", text)
-    institutions = re.search(r"\b(?:banka\w*|kurum\w*|şirket\w*|kimlerle|banks?|institutions?|companies|who)\b", text)
-    return "relationship" if asking and (relationship or working and institutions) else None
+    # "Çalışma alanı", "aşmaya çalışma" and a later "hangi tablo" are
+    # operational instructions, not a request for an institution's partners.
+    # Require the work/partnership question to actually ask about counterparties
+    # in the same clause. Keep explicit founding/member/ownership guards.
+    working_question = re.search(
+        r"\b(?:hangi\s+(?:banka|kurum|şirket)\w*|kimlerle|"
+        r"which\s+(?:banks?|institutions?|companies)|who)\b"
+        r"[^.!?;\n]{0,120}(?:çaliş\w*|başla\w*|iş\s*birli\w*|work\w*\s+with|start\w*\s+with)", text)
+    return "relationship" if (asking and relationship) or working_question else None
 
 
 def _institutional_followup_kind(message):

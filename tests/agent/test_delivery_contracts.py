@@ -1616,10 +1616,25 @@ def test_source_row_reader_projection_preserves_stable_row_addresses():
     ('Example üyeleri hangi şirketler?', 'relationship'),
     ("Example'nin ortakları kim?", 'ownership'),
     ('Üyelik nedir?', None), ('Kredi kartı tablosunu göster', None),
+    ('BIST Banka Endeksi aylık kapanışlarını çalışma alanında ara. Hangi tablo gerektiğini bildir.', None),
+    ('Banka endeksini getir. Erişim kontrolünü aşmaya çalışma; hangi kaynağa erişilemediğini bildir.', None),
+    ('Çalışma alanındaki banka verileri için hangi aylarda gözlem var?', None),
+    ('Find bank index closings in this workspace; explain which source supplies them.', None),
 ])
 def test_institutional_question_keeps_relationship_intent(question, kind):
     from agentic_analytics.agent.runtime import _institutional_fact_kind
     assert _institutional_fact_kind(question) == kind
+
+
+def test_workspace_and_access_instructions_do_not_add_ownership_delivery_obligations(env):
+    store, wid, journal, plan, build = env
+    runtime, _ = build([call('execute', plan), final('Analiz kaydedildi.')])
+    result = runtime.run('Banka verilerini çalışma alanında ara ve analiz et. '
+                         'Erişim kontrolünü aşmaya çalışma; hangi kaynağa erişilemediğini bildir.')
+    state = journal.get(result['run_id'])['state']
+    assert not state['external_facts_required']
+    assert state['institutional_fact_kind'] is None
+    assert 'EXTERNAL_FACTS_UNVERIFIED' not in {error['code'] for error in result.get('errors', [])}
 
 
 @pytest.mark.parametrize('bad_query', ['Example kredi kartı bankalarla çalışmaya başladı', 'Example üye bankalar 2025'])
