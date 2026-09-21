@@ -263,8 +263,8 @@ class AgentRuntimeTests(unittest.TestCase):
         tool_message = next(message for message in last_request if message.get("role") == "tool")
         self.assertIn("PROVIDER_UNAVAILABLE", tool_message["content"])
 
-    def test_explicit_anonymous_access_fallback_stops_at_official_data_shell(self):
-        tools = self.source_tools(inspect=lambda _args: {
+    def test_anonymous_access_shell_allows_another_public_source(self):
+        shell = {
             "status": "ok",
             "source_id": "source_" + "d" * 64,
             "source_url": "https://datastore.borsaistanbul.com/",
@@ -274,20 +274,30 @@ class AgentRuntimeTests(unittest.TestCase):
             "article": {"title": "Borsa İstanbul DataStore", "readable_text": "Borsa İstanbul DataStore"},
             "tables": [],
             "pages": [],
+        }
+        public_url = "https://www.borsaistanbul.com/official-report"
+        tools = self.source_tools(inspect=lambda args: shell if "datastore" in args.get("url", "") else {
+            "status": "ok", "source_id": "source_" + "e" * 64, "source_url": public_url,
+            "text": "Public official report. Historical closing values are published in the attached table.",
+            "tables": [], "pages": [],
         })
         runtime, client = self.runtime([
-            call("inspect_source", {"url": "https://datastore.borsaistanbul.com/"}),
+            call("inspect_source", {"url": "https://datastore.borsaistanbul.com/"}, "shell"),
+            call("inspect_source", {"url": public_url}, "public"),
+            {**FINAL, "content": "Ayrı bir açık resmî kaynak okundu; giriş ekranından sayı türetilmedi."},
         ], extra_tools=tools)
 
         result = runtime.run(
             "Resmî kaynağı anonim olarak oku; tarihsel değerler erişilemiyorsa erişim kontrolünü aşma ve veri üretme."
         )
 
-        self.assertEqual(result["status"], "partial")
-        self.assertEqual(result["errors"][0]["code"], "SOURCE_ACCESS_LIMITED")
-        self.assertIn("Doğrulanmamış sayı üretilmedi", result["message"])
-        self.assertIn("datastore.borsaistanbul.com", result["message"])
-        self.assertEqual(len(client.requests), 1)
+        self.assertEqual(result["status"], "completed", result)
+        self.assertEqual(len(client.requests), 3)
+        reads = [item["result"] for item in result["tool_results"] if item["tool"] == "inspect_source"]
+        self.assertEqual(reads[0]["warnings"][0]["code"], "SOURCE_ACCESS_LIMITED")
+        self.assertTrue(reads[0]["recovery"]["navigation_only"])
+        self.assertIn("Do not log in", reads[0]["recovery"]["next_step"])
+        self.assertEqual(reads[1]["source_url"], public_url)
 
     def test_provider_failure_after_direct_table_read_returns_exact_partial_receipt(self):
         source_id = "source_" + "a" * 64
@@ -652,6 +662,30 @@ class AgentRuntimeTests(unittest.TestCase):
         self.assertTrue(state["search_progress"]["research_web_paused"])
         self.assertEqual(second["warnings"][0]["code"], "RESEARCH_RESULTS_REPEATED")
         self.assertNotIn("research_web", {tool["function"]["name"] for tool in runtime._model_tool_schemas(state)})
+
+    def test_source_semantics_accepts_requested_alternative_without_weakening_strict_requirement(self):
+        runtime, _ = self.runtime([])
+        state = {"messages": [{"role": "user", "content": "TÜFE 2025: haber bülteni veya metodoloji sayfasıyla doğrula"}],
+                 "tool_results": [{"tool": "research_web", "result": {"status": "ok", "sources": [{
+                     "source_id": "bulletin", "title": "Tüketici Fiyat Endeksi, Aralık 2025",
+                     "document_type": "statistical_bulletin", "content": "TÜFE 2025 haber bülteni okundu."}]}}]}
+        self.assertEqual(runtime._source_semantic_errors(state, "Kaynak okundu."), [])
+        state["messages"][0]["content"] = "TÜFE 2025: yalnız metodoloji sayfasıyla doğrula"
+        errors = runtime._source_semantic_errors(state, "Kaynak okundu.")
+        self.assertEqual(errors[0]["code"], "SOURCE_DOCUMENT_TYPE_MISMATCH")
+        self.assertEqual(errors[0]["accepted_document_types"], ["index_methodology"])
+
+    def test_research_stall_retains_rejected_document_addresses_for_targeted_recovery(self):
+        runtime, _ = self.runtime([], extra_tools=self.source_tools())
+        state = {"search_progress": {"urls": [], "stale_calls": 0}, "tool_results": []}
+        for _ in range(2):
+            result = {"status": "unavailable", "sources": [], "failures": [{
+                "url": "https://example.org/report", "code": "DOCUMENT_TYPE_MISMATCH",
+                "source_id": "report", "suggested_inspection": {"source_id": "report"}}]}
+            runtime._track_search_progress(state, "research_web", result)
+        self.assertTrue(state["search_progress"]["research_web_paused"])
+        self.assertEqual(result["recovery"]["candidate_urls"], ["https://example.org/report"])
+        self.assertEqual(result["recovery"]["source_failures"][-1]["suggested_inspection"], {"source_id": "report"})
 
     def test_ignored_search_stall_is_bounded_and_explains_preserved_analysis(self):
         initial, _ = self.runtime([call("execute", self.plan), FINAL])

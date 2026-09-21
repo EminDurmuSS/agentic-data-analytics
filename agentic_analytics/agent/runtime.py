@@ -25,7 +25,7 @@ from agentic_analytics.agent.delivery import (
 )
 from agentic_analytics.agent.run_store import AgentRunStore, canonical, fingerprint
 from agentic_analytics.agent.schemas import COLUMN_NAME, obj
-from agentic_analytics.agent.tools.documents import _consolidation_scope, _document_type, _requested_document_type
+from agentic_analytics.agent.tools.documents import _consolidation_scope, _document_type, _requested_document_types
 from agentic_analytics.agent.tools.lakehouse import lakehouse_tools
 from agentic_analytics.lakehouse.discovery import initial_query
 from agentic_analytics.lakehouse.service import LakehouseService, PlanError, error_envelope
@@ -748,16 +748,6 @@ def _web_research_failure_message(result):
     return result.get("message") or "Web araştırması güvenilir bir kaynak okuyamadı."
 
 
-def _explicit_safe_source_fallback(message):
-    """Recognize requests that explicitly prefer a sourced limitation to guessing."""
-    text = _fact_text(message)
-    return bool(re.search(
-        r"\b(?:anonim|anonymous|oturum\s+ac|sign\s*in|login|ucret|paywall|erisim\s+kontrol|"
-        r"erisilem|ulasilam|veri\s+uretme|uydurma|fabricat|bypass|asma)\w*\b",
-        text,
-    ))
-
-
 def _anonymous_source_boundary(result):
     """Return true only for a directly read official access shell, not search snippets."""
     if not isinstance(result, dict) or result.get("status") != "ok" or result.get("tables") or result.get("pages"):
@@ -778,34 +768,6 @@ def _anonymous_source_boundary(result):
     # rows. Do not probe guessed private APIs or turn that shell into values.
     datastore_shell = host == "datastore.borsaistanbul.com" and len(compact) < 500
     return bool(access_words or datastore_shell)
-
-
-def _source_access_receipt(state, _boundary):
-    sources, seen = [], set()
-    for item in reversed(state.get("tool_results", [])):
-        if item.get("tool") != "inspect_source":
-            continue
-        result = item.get("result", {})
-        if result.get("status") != "ok":
-            continue
-        url = result.get("source_url") or result.get("url")
-        if not url or (key := _search_url(url)) in seen:
-            continue
-        seen.add(key)
-        title = result.get("title") or (result.get("article") or {}).get("title") or (urlsplit(url).hostname or "Resmî kaynak")
-        sources.append((str(title).strip()[:180], url))
-        if len(sources) == 3:
-            break
-    sources.reverse()
-    links = "\n".join(f"- [{_display_label(title)}]({quote(url, safe=':/?#&=%+@')})" for title, url in sources)
-    return (
-        "Resmî kaynak yolu doğrulandı; ancak istenen tarihsel değerler anonim kaynak okumasında "
-        "tablo veya indirilebilir veri alanı olarak sunulmadı. Doğrulanmamış sayı üretilmedi."
-        + ("\n\nOkunan resmî sayfalar:\n" + links if links else "")
-        + "\n\nAnaliz için en az dönem/tarih, seri kodu, kapanış değeri ve frekans alanları gerekir. "
-        "Güvenli yeniden deneme yolu, resmî veri ekranındaki anonim dışa aktarımı kullanmak veya "
-        "kurumdan indirilen özgün dosyayı çalışma alanına eklemektir; oturum açma, ücret veya erişim kontrolü aşılmaz."
-    )
 
 
 class AgentRuntime:
@@ -928,6 +890,7 @@ class AgentRuntime:
                                     if name in self.tools and not (
                                         name == "research_web" and progress.get("research_web_paused"))],
                 "candidate_urls": progress.get("urls", [])[-8:],
+                "source_failures": progress.get("source_failures", [])[-8:],
                 "next_step": "Read a relevant official result and follow its discovered report links, or use research_web with the institution's domain. Do not guess URLs, dates, values or treat snippets as evidence. If no source is readable, explain what is missing and retain the existing analysis."}
 
     def _track_search_progress(self, state, name, result):
@@ -949,6 +912,15 @@ class AgentRuntime:
                         "message": "Successive searches produced no new source URLs. Raw search is paused until a source is read."})
                 result["recovery"] = self._search_recovery(state)
         elif name == "research_web" and not _source_read(result):
+            failures = [item for item in result.get("failures", []) if isinstance(item, dict)]
+            for item in failures:
+                url = _search_url(item.get("url"))
+                if url and url not in progress["urls"]:
+                    progress["urls"].append(url)
+            progress["urls"] = progress["urls"][-300:]
+            progress["source_failures"] = [*progress.get("source_failures", []), *[
+                {key: item[key] for key in ("url", "source_id", "code", "document_type", "suggested_inspection")
+                 if key in item} for item in failures]][-20:]
             # A query rewrite that yields no readable source is not progress.
             # Keep one retry for a materially different official route, then
             # force the model to use the already-read evidence or close out.
@@ -1526,27 +1498,6 @@ class AgentRuntime:
                     failed = result.get("status") in {"blocked", "error", "failed", "unavailable"}
                     unresolved = state.setdefault("unresolved_errors", {})
                     tool_name = call["function"]["name"]
-                    if (tool_name == "inspect_source"
-                            and _explicit_safe_source_fallback(record["message"])
-                            and _anonymous_source_boundary(result)):
-                        # The user explicitly selected a safe, sourced fallback
-                        # when anonymous official data cannot be read. Stop at
-                        # the observed access boundary instead of guessing API
-                        # routes or spending the remaining decisions on shells.
-                        self.run_store.checkpoint(run_id, state)
-                        error = {
-                            "code": "SOURCE_ACCESS_LIMITED",
-                            "message": "The official source route was read, but anonymous access did not expose the requested historical value fields.",
-                            "source_id": result.get("source_id"),
-                            "source_url": result.get("source_url"),
-                        }
-                        return self._finish(
-                            record,
-                            state,
-                            "partial",
-                            _source_access_receipt(state, result),
-                            errors=[error],
-                        )
                     if failed:
                         retained = [error for error in unresolved.get(tool_name, [])
                                     if error.get("code") in {"SOURCE_READ_REQUIRED", "SOURCE_READ_REPEATED"}
@@ -2208,9 +2159,9 @@ class AgentRuntime:
         """Keep document type, financial scope and policy instrument attached to source facts."""
         request = next((str(message.get("content") or "") for message in reversed(state.get("messages", []))
                         if message.get("role") == "user"), "")
-        expected_type = _requested_document_type(request)
-        requested_scope = _consolidation_scope(request) if expected_type == "financial_report" else None
-        if not expected_type and not requested_scope:
+        expected_types = _requested_document_types(request)
+        requested_scope = _consolidation_scope(request) if expected_types == ("financial_report",) else None
+        if not expected_types and not requested_scope:
             return []
 
         identities = {}
@@ -2227,7 +2178,8 @@ class AgentRuntime:
                             "reporting_period", "consolidation_scope", "unit_caption", "publisher"):
                     if source.get(key) and not current.get(key):
                         current[key] = source[key]
-            readable = _source_read({"status": "ok", **source})
+            readable = (_source_read({"status": "ok", **source})
+                        or tool == "research_web" and bool(source.get("content")))
             if readable:
                 documents.append((tool, source))
 
@@ -2256,12 +2208,13 @@ class AgentRuntime:
         if not merged:
             return []
 
-        matching = [value for _, value in merged if value.get("document_type") == expected_type]
+        matching = [value for _, value in merged if value.get("document_type") in expected_types]
         observed_types = sorted({value.get("document_type") for _, value in merged if value.get("document_type")})
-        if expected_type and not matching:
+        if expected_types and not matching:
             return [{"code": "SOURCE_DOCUMENT_TYPE_MISMATCH" if observed_types else "SOURCE_DOCUMENT_TYPE_UNVERIFIED",
                      "message": "The directly read source does not establish the requested document type.",
-                     "expected_document_type": expected_type, "observed_document_types": observed_types}]
+                     "expected_document_type": expected_types[0], "accepted_document_types": list(expected_types),
+                     "observed_document_types": observed_types}]
 
         if requested_scope:
             observed_scopes = sorted({value.get("consolidation_scope") for value in matching
@@ -2271,7 +2224,7 @@ class AgentRuntime:
                          "message": "The directly read financial report does not establish the requested consolidation scope.",
                          "expected_scope": requested_scope, "observed_scopes": observed_scopes}]
 
-        if expected_type == "policy_decision" and _material_numeric_literals(content):
+        if expected_types == ("policy_decision",) and _material_numeric_literals(content):
             answer = _fact_text(content)
             if re.search(r"ticari\s+kredi|konut\s+kred|ihtiyac\s+kred|commercial\s+loan|mortgage\s+rate|consumer\s+loan", answer):
                 return [{"code": "POLICY_RATE_INSTRUMENT_MISMATCH", "message":
@@ -2281,7 +2234,7 @@ class AgentRuntime:
                          "Name the policy-rate instrument as the one-week repo auction rate when reporting this decision."}]
 
         request_text = _fact_text(request)
-        if expected_type == "financial_report" and re.search(r"toplam\s+aktif|total\s+assets?", request_text):
+        if expected_types == ("financial_report",) and re.search(r"toplam\s+aktif|total\s+assets?", request_text):
             valid_proof = False
             for result in row_reads:
                 identity = identities.get(result.get("source_id"), {})
@@ -2522,6 +2475,20 @@ class AgentRuntime:
             else:
                 result = definition["handler"](args)
             result = _normalize_result(result)
+            if name == "inspect_source" and _anonymous_source_boundary(result):
+                # One inaccessible page is not proof that every official route
+                # is inaccessible. Retain its access boundary and let the agent
+                # try another public source within the existing loop budgets.
+                result.setdefault("warnings", []).append({
+                    "code": "SOURCE_ACCESS_LIMITED",
+                    "source_id": result.get("source_id"),
+                    "source_url": result.get("source_url"),
+                    "message": "This page exposes an access shell, not verified historical values. Do not bypass access controls or infer data from it.",
+                })
+                result["recovery"] = {
+                    "navigation_only": True,
+                    "next_step": "Try another relevant publicly accessible official source or a discovered download link. Do not log in, pay, guess private API routes or invent values. If no public route succeeds, report a sourced partial result and keep any existing analysis.",
+                }
             if name in {"web_search", "research_web", "inspect_source", "read_source_table", "find_source_table_rows"}:
                 self._track_search_progress(state, name, result)
             self._track_source_pages(state, name, args, result, step_id)
