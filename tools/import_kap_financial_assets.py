@@ -1,4 +1,4 @@
-"""Operator-only YFMEN 2025 consolidated total-assets import from KAP.
+"""Operator-only verified 2025 consolidated total-assets imports from KAP.
 
 The FR notification supplies identity/publication metadata and the exact PDF
 attachment link, never the numeric answer. The original PDF supplies the row,
@@ -30,12 +30,55 @@ from agentic_analytics.agent.tools.documents import DocumentTools, OFFICIAL_SOUR
 from agentic_analytics.lakehouse.shared import SharedLakehouse
 from agentic_analytics.lakehouse.store import LakehouseStore, _write_json
 
-NOTIFICATION_URL = "https://www.kap.org.tr/tr/Bildirim/1566753"
-PDF_URL = "https://www.kap.org.tr/tr/api/file/download/4028328c9c81f417019cbf1bed6c4e4f"
-PDF_FILENAME = "31.12.2025 SPK Rapor_Final.pdf"
-ISSUER = "YATIRIM FİNANSMAN MENKUL DEĞERLER A.Ş."
-PARSER_VERSION = "kap-yfmen-2025-consolidated-assets-v1"
-PDF_PAGE = 8  # 1-based physical page; the printed financial-statement page is 1.
+PROFILES = {
+    "YFMEN": {
+        "notification_url": "https://www.kap.org.tr/tr/Bildirim/1566753",
+        "pdf_url": "https://www.kap.org.tr/tr/api/file/download/4028328c9c81f417019cbf1bed6c4e4f",
+        "pdf_filename": "31.12.2025 SPK Rapor_Final.pdf",
+        "issuer": "YATIRIM FİNANSMAN MENKUL DEĞERLER A.Ş.",
+        "issuer_code": "YFMEN",
+        "parser_version": "kap-yfmen-2025-consolidated-assets-v1",
+        "pdf_page": 8,
+        "page_count": 72,
+        "published_at": datetime(2026, 3, 5, 21, 39, 59),
+        "issuer_heading": "YATIRIM FİNANSMAN MENKUL DEĞERLER A.Ş. VE BAĞLI ORTAKLIĞI",
+        "statement_heading": "31 Aralık 2025 tarihi itibarıyla konsolide finansal durum tablosu",
+        "unit_caption": "(Tutarlar aksi belirtilmedikçe Türk Lirası'nın (“TL”) 31 Aralık 2025 tarihi itibarıyla satın alma gücü esasına göre TL olarak ifade edilmiştir.)",
+        "scale": 1,
+        "row_mode": "current_noncurrent",
+        "total_label": "TOPLAM VARLIKLAR",
+        "coordinate_label": "TOPLAM",
+        "purchasing_power_date": "2025-12-31",
+        "notification_unit_phrase": "sunum para birimi tl finansal tablo niteligi",
+    },
+    "ULUFA": {
+        "notification_url": "https://www.kap.org.tr/tr/Bildirim/1550705",
+        "pdf_url": "https://www.kap.org.tr/tr/api/file/download/4028328d9b827483019c0fc4d062447f",
+        "pdf_filename": "Ulusal Faktoring A.Ş. Konsolide 31.12.2025.pdf",
+        "issuer": "ULUSAL FAKTORİNG A.Ş.",
+        "issuer_code": "ULUFA",
+        "parser_version": "kap-ulufa-2025-consolidated-assets-v1",
+        "pdf_page": 7,
+        "page_count": 56,
+        "published_at": datetime(2026, 1, 30, 20, 17, 37),
+        "issuer_heading": "Ulusal Faktoring A.Ş.",
+        "statement_heading": "31 Aralık 2025 tarihi itibarıyla konsolide finansal durum tablosu (Bilanço)",
+        "unit_caption": "(Tutarlar aksi belirtilmedikçe Bin Türk Lirası (“TL”) olarak ifade edilmiştir.)",
+        "scale": 1000,
+        "row_mode": "tp_yp_total",
+        "total_label": "AKTİF TOPLAMI",
+        "coordinate_label": "TOPLAMI",
+        "purchasing_power_date": None,
+        "notification_unit_phrase": None,
+    },
+}
+DEFAULT_PROFILE = PROFILES["YFMEN"]
+NOTIFICATION_URL = DEFAULT_PROFILE["notification_url"]
+PDF_URL = DEFAULT_PROFILE["pdf_url"]
+PDF_FILENAME = DEFAULT_PROFILE["pdf_filename"]
+ISSUER = DEFAULT_PROFILE["issuer"]
+PARSER_VERSION = DEFAULT_PROFILE["parser_version"]
+PDF_PAGE = DEFAULT_PROFILE["pdf_page"]  # 1-based physical page; printed page is 1.
 MAX_DOWNLOAD = 16 * 1024**2
 TABLE_ID = "table_p000008_001"
 JAVA_BYTE_ARRAY_PREFIX = bytes.fromhex("aced0005757200025b42acf317f8060854e00200007870")
@@ -50,11 +93,11 @@ def _sha(raw: bytes) -> str:
     return hashlib.sha256(raw).hexdigest()
 
 
-def download() -> tuple[bytes, bytes]:
+def download(profile: dict = DEFAULT_PROFILE) -> tuple[bytes, bytes]:
     """Fetch only the two pinned anonymous HTTPS URLs, without redirects."""
     downloads = []
     with httpx.Client(timeout=60, follow_redirects=False) as client:
-        for url in (NOTIFICATION_URL, PDF_URL):
+        for url in (profile["notification_url"], profile["pdf_url"]):
             with client.stream("GET", url) as response:
                 response.raise_for_status()
                 data = bytearray()
@@ -66,8 +109,8 @@ def download() -> tuple[bytes, bytes]:
     return tuple(downloads)
 
 
-def _notification(raw: bytes, notification_url: str, pdf_url: str) -> dict:
-    if notification_url != NOTIFICATION_URL or pdf_url != PDF_URL:
+def _notification(raw: bytes, notification_url: str, pdf_url: str, profile: dict) -> dict:
+    if notification_url != profile["notification_url"] or pdf_url != profile["pdf_url"]:
         raise ValueError("Unexpected official notification/PDF source URL")
     if not raw or len(raw) > MAX_DOWNLOAD:
         raise ValueError("Invalid notification size")
@@ -79,33 +122,36 @@ def _notification(raw: bytes, notification_url: str, pdf_url: str) -> dict:
     text = soup.get_text(" ", strip=True)
     folded = _fold(text)
     checks = {
-        "issuer": _fold(ISSUER) in folded and re.search(r"\byfmen\b", folded),
+        "issuer": (_fold(profile["issuer"]) in folded
+                   and re.search(rf"\b{re.escape(profile['issuer_code'].casefold())}\b", folded)),
         "FR annual period": "bildirim tipi fr yil 2025 periyot yillik" in folded,
         "consolidated scope": ("finansal tablo niteligi konsolide" in folded
                                and "finansal tablo niteligi konsolide olmayan" not in folded),
-        "original TRY unit": "sunum para birimi tl finansal tablo niteligi" in folded,
     }
+    if profile["notification_unit_phrase"]:
+        checks["original TRY unit"] = profile["notification_unit_phrase"] in folded
     for label, valid in checks.items():
         if not valid:
             raise ValueError(f"Notification {label} does not match")
     links = [a for a in soup.find_all("a", href=pdf_url)
-             if a.get_text(" ", strip=True) == PDF_FILENAME]
+             if a.get_text(" ", strip=True) == profile["pdf_filename"]]
     if not links:
         raise ValueError("Notification does not link the exact financial-report PDF attachment")
     dates = re.findall(r"G[oö]nderim Tarihi\s+(\d{2}\.\d{2}\.\d{4}\s+\d{2}:\d{2}:\d{2})", text)
     if len(set(dates)) != 1:
         raise ValueError("Missing or ambiguous notification publication date")
     published = datetime.strptime(dates[0], "%d.%m.%Y %H:%M:%S")
-    if published != datetime(2026, 3, 5, 21, 39, 59):
+    if published != profile["published_at"]:
         raise ValueError("Unexpected notification publication date")
     return {"source_url": notification_url, "raw_sha256": _sha(raw), "size_bytes": len(raw),
-            "issuer": ISSUER, "issuer_code": "YFMEN", "notification_type": "FR",
+            "issuer": profile["issuer"], "issuer_code": profile["issuer_code"], "notification_type": "FR",
             "period": "2025", "period_type": "Yıllık", "scope": "consolidated",
             "published_at": published.isoformat() + "+03:00", "timezone": "Europe/Istanbul",
-            "pdf_url": pdf_url, "attachment_filename": PDF_FILENAME,
+            "pdf_url": pdf_url, "attachment_filename": profile["pdf_filename"],
             "metadata_evidence": ["Gönderim Tarihi " + dates[0],
                                   "Bildirim Tipi FR Yıl 2025 Periyot Yıllık",
-                                  "Sunum Para Birimi TL Finansal Tablo Niteliği Konsolide"]}
+                                  "Finansal Tablo Niteliği Konsolide"]
+                                 + (["Sunum Para Birimi TL"] if profile["notification_unit_phrase"] else [])}
 
 
 def _horizontal_chars(page) -> list[dict]:
@@ -123,10 +169,12 @@ def _horizontal_chars(page) -> list[dict]:
     return chars
 
 
-def parse_sources(notification_raw: bytes, pdf_raw: bytes, *,
-                  notification_url: str = NOTIFICATION_URL, pdf_url: str = PDF_URL) -> dict:
+def parse_sources(notification_raw: bytes, pdf_raw: bytes, *, profile: dict = DEFAULT_PROFILE,
+                  notification_url: str | None = None, pdf_url: str | None = None) -> dict:
     """Fail closed on changed source identity, layout, scope, units or periods."""
-    notification = _notification(notification_raw, notification_url, pdf_url)
+    notification_url = notification_url or profile["notification_url"]
+    pdf_url = pdf_url or profile["pdf_url"]
+    notification = _notification(notification_raw, notification_url, pdf_url, profile)
     if not pdf_raw or len(pdf_raw) > MAX_DOWNLOAD:
         raise ValueError("Expected a bounded real PDF, not HTML or an error page")
     # This KAP endpoint currently wraps the PDF in a Java-serialized byte[].
@@ -144,9 +192,9 @@ def parse_sources(notification_raw: bytes, pdf_raw: bytes, *,
         raise ValueError("Expected a real PDF or the exact KAP byte-array envelope")
     try:
         with pdfplumber.open(io.BytesIO(document)) as pdf:
-            if len(pdf.pages) != 72:
+            if len(pdf.pages) != profile["page_count"]:
                 raise ValueError("Unexpected financial-report PDF page count")
-            page = pdf.pages[PDF_PAGE - 1]
+            page = pdf.pages[profile["pdf_page"] - 1]
             chars = _horizontal_chars(page)
             text = extract_text(chars, x_tolerance=2, y_tolerance=3)
             words = extract_words(chars, x_tolerance=2, y_tolerance=3)
@@ -157,20 +205,25 @@ def parse_sources(notification_raw: bytes, pdf_raw: bytes, *,
         raise ValueError("Malformed or unreadable financial-report PDF") from exc
     lines = text.splitlines()
     folded_lines = [_fold(line) for line in lines]
-    expected_issuer = _fold(ISSUER + " VE BAĞLI ORTAKLIĞI")
+    expected_issuer = _fold(profile["issuer_heading"])
     if not lines or folded_lines[0] != expected_issuer:
         raise ValueError("PDF page issuer/consolidated group does not match")
-    expected_title = "31 aralik 2025 tarihi itibariyla konsolide finansal durum tablosu"
+    expected_title = _fold(profile["statement_heading"])
     if len(lines) < 5 or folded_lines[1] != expected_title:
         raise ValueError("PDF balance-sheet period/scope heading does not match")
-    caption = " ".join(lines[2:4])
-    expected_caption = ("(Tutarlar aksi belirtilmedikçe Türk Lirası'nın (“TL”) 31 Aralık 2025 tarihi "
-                        "itibarıyla satın alma gücü esasına göre TL olarak ifade edilmiştir.)")
+    caption_lines = []
+    for line in lines[2:6]:
+        caption_lines.append(line)
+        if "ifade edilmistir" in _fold(line):
+            break
+    caption = " ".join(caption_lines)
+    expected_caption = profile["unit_caption"]
     # Quotes can differ between font encodings; words/scale/currency may not.
     clean = lambda value: _fold(value).translate(str.maketrans("", "", "()“”‘’\"'"))
     if clean(caption) != clean(expected_caption):
         raise ValueError("PDF original TRY unit/purchasing-power caption does not match")
-    if not any("cari donem onceki donem" in line for line in folded_lines):
+    period_header = " ".join(folded_lines[3:7])
+    if not all(token in period_header for token in ("cari", "donem", "onceki")) or period_header.index("cari") > period_header.index("onceki"):
         raise ValueError("PDF current/prior period columns are missing or reversed")
     if not any("31 aralik 2025 31 aralik 2024" in line for line in folded_lines[4:]):
         raise ValueError("PDF current/prior column dates do not match")
@@ -178,21 +231,39 @@ def parse_sources(notification_raw: bytes, pdf_raw: bytes, *,
         raise ValueError("PDF printed page label changed")
     number = r"(?:[1-9]\d{0,2}(?:\.\d{3})+|[1-9]\d*)"
     rows = {}
-    for label in ("Toplam Dönen Varlıklar", "Toplam Duran Varlıklar", "TOPLAM VARLIKLAR"):
-        pattern = re.compile(re.escape(_fold(label)) + rf" ({number}) ({number})")
+    if profile["row_mode"] == "current_noncurrent":
+        for label in ("Toplam Dönen Varlıklar", "Toplam Duran Varlıklar", profile["total_label"]):
+            pattern = re.compile(re.escape(_fold(label)) + rf" ({number}) ({number})")
+            matches = [(index, pattern.fullmatch(line)) for index, line in enumerate(folded_lines)]
+            matches = [(index, match) for index, match in matches if match]
+            if len(matches) != 1:
+                raise ValueError(f"Missing, malformed or ambiguous PDF row: {label}")
+            index, match = matches[0]
+            rows[label] = {"line": lines[index], "current": int(match[1].replace(".", "")),
+                           "prior": int(match[2].replace(".", "")),
+                           "current_text": match[1], "prior_text": match[2]}
+        for column in ("current", "prior"):
+            if (rows["Toplam Dönen Varlıklar"][column] + rows["Toplam Duran Varlıklar"][column]
+                    != rows[profile["total_label"]][column]):
+                raise ValueError("PDF total assets do not reconcile to current + noncurrent assets")
+    elif profile["row_mode"] == "tp_yp_total":
+        label = profile["total_label"]
+        pattern = re.compile(re.escape(_fold(label)) + "".join(rf" ({number})" for _ in range(6)))
         matches = [(index, pattern.fullmatch(line)) for index, line in enumerate(folded_lines)]
         matches = [(index, match) for index, match in matches if match]
         if len(matches) != 1:
             raise ValueError(f"Missing, malformed or ambiguous PDF row: {label}")
         index, match = matches[0]
-        rows[label] = {"line": lines[index], "current": int(match[1].replace(".", "")),
-                       "prior": int(match[2].replace(".", "")),
-                       "current_text": match[1], "prior_text": match[2]}
-    for column in ("current", "prior"):
-        if rows["Toplam Dönen Varlıklar"][column] + rows["Toplam Duran Varlıklar"][column] != rows["TOPLAM VARLIKLAR"][column]:
-            raise ValueError("PDF total assets do not reconcile to current + noncurrent assets")
-    total = rows["TOPLAM VARLIKLAR"]
-    labels = [word for word in words if word["text"] == "TOPLAM"]
+        values = [int(match[position].replace(".", "")) for position in range(1, 7)]
+        if values[0] + values[1] != values[2] or values[3] + values[4] != values[5]:
+            raise ValueError("PDF total-assets TP, YP and total cells do not reconcile")
+        rows[label] = {"line": lines[index], "current_tp": values[0], "current_yp": values[1],
+                       "current": values[2], "prior_tp": values[3], "prior_yp": values[4],
+                       "prior": values[5], "current_text": match[3], "prior_text": match[6]}
+    else:
+        raise ValueError("Unsupported KAP financial-report row profile")
+    total = rows[profile["total_label"]]
+    labels = [word for word in words if word["text"] == profile["coordinate_label"]]
     if len(labels) != 1:
         raise ValueError("Ambiguous total-assets row coordinates")
     label = labels[0]
@@ -202,31 +273,37 @@ def parse_sources(notification_raw: bytes, pdf_raw: bytes, *,
         if len(matches) != 1:
             raise ValueError("PDF numeric cell is not on the total-assets row")
         word = matches[0]
-        cells.append({"source_url": pdf_url, "page": PDF_PAGE, "page_index": PDF_PAGE - 1,
-                      "printed_page": 1, "row_label": "TOPLAM VARLIKLAR", "column": column,
+        cells.append({"source_url": pdf_url, "page": profile["pdf_page"], "page_index": profile["pdf_page"] - 1,
+                      "printed_page": 1, "row_label": profile["total_label"], "column": column,
                       "column_header": "31 Aralık 2025" if column == "current" else "31 Aralık 2024",
                       "source_text": token, "bbox": [round(word[key], 4) for key in ("x0", "top", "x1", "bottom")]})
     if cells[0]["bbox"][0] <= label["x1"] or cells[0]["bbox"][2] >= cells[1]["bbox"][0]:
         raise ValueError("PDF total-assets column order is inconsistent")
-    observation = {"year": "2025", "statement_date": "2025-12-31", "issuer_code": "YFMEN",
-                   "issuer_name": ISSUER, "scope": "consolidated", "currency": "TRY",
-                   "purchasing_power_date": "2025-12-31", "total_assets": total["current"]}
-    return {"parser": PARSER_VERSION, "source_url": pdf_url, "raw_sha256": _sha(pdf_raw),
+    observation = {"year": "2025", "statement_date": "2025-12-31",
+                   "issuer_code": profile["issuer_code"], "issuer_name": profile["issuer"],
+                   "scope": "consolidated", "currency": "TRY", "total_assets": total["current"]}
+    if profile["purchasing_power_date"]:
+        observation["purchasing_power_date"] = profile["purchasing_power_date"]
+    return {"parser": profile["parser_version"], "source_url": pdf_url, "raw_sha256": _sha(pdf_raw),
             "inner_pdf_sha256": _sha(document), "inner_pdf_size_bytes": len(document), "transport_envelope": envelope,
-            "size_bytes": len(pdf_raw), "notification": notification, "total_pages": 72,
-            "page": PDF_PAGE, "page_index": PDF_PAGE - 1, "printed_page": 1,
+            "size_bytes": len(pdf_raw), "notification": notification, "total_pages": profile["page_count"],
+            "page": profile["pdf_page"], "page_index": profile["pdf_page"] - 1, "printed_page": 1,
             "page_size": [width, height], "page_text": text, "unit_evidence": caption,
-            "currency": "TRY", "scale": 1, "kind": "stock", "frequency": "annual",
+            "currency": "TRY", "scale": profile["scale"], "kind": "stock", "frequency": "annual",
             "row_checks": rows, "cell_origins": cells, "observations": [observation]}
 
 
 def publish(store: LakehouseStore, workspace_id: str, notification_raw: bytes, pdf_raw: bytes, *,
-            notification_url: str = NOTIFICATION_URL, pdf_url: str = PDF_URL) -> dict:
+            profile: dict = DEFAULT_PROFILE, notification_url: str | None = None,
+            pdf_url: str | None = None) -> dict:
     """Validate all evidence first, ingest an explicit stock contract, promote."""
-    parsed = parse_sources(notification_raw, pdf_raw, notification_url=notification_url, pdf_url=pdf_url)
+    notification_url = notification_url or profile["notification_url"]
+    pdf_url = pdf_url or profile["pdf_url"]
+    parsed = parse_sources(notification_raw, pdf_raw, profile=profile,
+                           notification_url=notification_url, pdf_url=pdf_url)
     workspace = store.workspace(workspace_id)
     shared = SharedLakehouse(store)
-    import_key = f"{PARSER_VERSION}:{parsed['raw_sha256']}"
+    import_key = f"{profile['parser_version']}:{parsed['raw_sha256']}"
     current = shared.current_release()
     # HTML contains dynamic site state; identical validated PDFs must not create
     # duplicate metrics merely because the notification bytes changed on fetch.
@@ -241,7 +318,7 @@ def publish(store: LakehouseStore, workspace_id: str, notification_raw: bytes, p
             if recovered:
                 return recovered
     documents = DocumentTools(store, workspace_id, searxng_url=False)
-    source = documents._register(pdf_raw, PDF_FILENAME, "application/pdf", pdf_url)
+    source = documents._register(pdf_raw, profile["pdf_filename"], "application/pdf", pdf_url)
     observation = parsed["observations"][0]
     columns = list(observation)
     origins = {"total_assets": parsed["cell_origins"][0]}
@@ -249,54 +326,55 @@ def publish(store: LakehouseStore, workspace_id: str, notification_raw: bytes, p
                              "raw_encoding": "gzip+base64",
                              "raw_data": base64.b64encode(gzip.compress(notification_raw, mtime=0)).decode("ascii")}
     inspection = {
-        "source_id": source["source_id"], "parser": PARSER_VERSION, "text": parsed["page_text"],
-        "text_truncated": False, "total_pages": 72, "processed_pages": [PDF_PAGE],
-        "processed_extractions": [f"{PDF_PAGE}:lines"],
-        "pages": [{"page": PDF_PAGE, "printed_page": 1, "text": parsed["page_text"]}],
+        "source_id": source["source_id"], "parser": profile["parser_version"], "text": parsed["page_text"],
+        "text_truncated": False, "total_pages": profile["page_count"], "processed_pages": [profile["pdf_page"]],
+        "processed_extractions": [f"{profile['pdf_page']}:lines"],
+        "pages": [{"page": profile["pdf_page"], "printed_page": 1, "text": parsed["page_text"]}],
         "warnings": ["Only the 2025 current-period total-assets stock is imported; comparative 2024 cells are reconciliation evidence, not a second observation."],
         "notification_evidence": notification_evidence,
         "document_metadata": parsed["notification"], "row_checks": parsed["row_checks"],
         "transport_envelope": parsed["transport_envelope"], "inner_pdf_sha256": parsed["inner_pdf_sha256"],
         "inner_pdf_size_bytes": parsed["inner_pdf_size_bytes"],
-        "tables": [{"table_id": TABLE_ID, "origin": "parsed", "page": PDF_PAGE,
-                    "printed_page": 1, "columns": columns, "original_columns": {**dict(zip(columns, columns)), "total_assets": "TOPLAM VARLIKLAR / Cari dönem 31 Aralık 2025"},
+        "tables": [{"table_id": f"table_p{profile['pdf_page']:06d}_001", "origin": "parsed", "page": profile["pdf_page"],
+                    "printed_page": 1, "columns": columns, "original_columns": {**dict(zip(columns, columns)), "total_assets": f"{profile['total_label']} / Cari dönem 31 Aralık 2025"},
                     "rows": [[observation[key] for key in columns]], "row_count": 1,
                     "unit_caption": parsed["unit_evidence"], "context_text": parsed["page_text"],
-                    "row_origins": [{"page": PDF_PAGE, "printed_page": 1, "row_label": "TOPLAM VARLIKLAR"}],
+                    "row_origins": [{"page": profile["pdf_page"], "printed_page": 1, "row_label": profile["total_label"]}],
                     "cell_origins": [origins]}],
     }
     _write_json(documents._directory(source["source_id"]) / "inspection.json", inspection)
     dimension = {"dtype": "string", "unit": "label", "kind": "dimension", "nullable": False}
     contract = {
-        "name": "KAP YFMEN Yatırım Finansman Menkul Değerler 2025 konsolide toplam varlıklar (TL)",
+        "name": f"KAP {profile['issuer_code']} {profile['issuer']} 2025 konsolide toplam aktif / toplam varlıklar",
         "frequency": "annual", "date_column": "year", "key": ["year"], "grain": ["year"],
         "expected_rows": 1, "expected_periods": ["2025"], "source_namespace": source["source_namespace"],
         "columns": {"year": {"dtype": "date", "unit": "calendar", "kind": "dimension", "nullable": False},
                     **{key: {**dimension, **({"unit": "calendar"} if key.endswith("_date") else {})}
                        for key in columns if key not in {"year", "total_assets"}},
-                    "total_assets": {"dtype": "integer", "unit": "TRY", "currency": "TRY", "scale": 1,
+                    "total_assets": {"dtype": "integer", "unit": "TRY", "currency": "TRY", "scale": profile["scale"],
                                      "kind": "stock", "aggregation": "last", "additive_over_time": False,
-                                     "price_basis": "2025-12-31", "measurement_basis": "TFRS consolidated; source-reported 2025-12-31 purchasing power",
-                                     "source_semantics": "Annual financial-report year-end balance-sheet stock; not a period flow or thousands of TRY",
+                                     "price_basis": profile["purchasing_power_date"],
+                                     "measurement_basis": "TFRS consolidated; source-reported year-end balance",
+                                     "source_semantics": f"Annual financial-report year-end balance-sheet stock; one stored unit represents {profile['scale']} TRY",
                                      "nullable": False}},
         "document_provenance": {
-            "source_id": source["source_id"], "table_id": TABLE_ID, "source_url": pdf_url,
-            "raw_sha256": parsed["raw_sha256"], "page": PDF_PAGE, "page_index": PDF_PAGE - 1,
+            "source_id": source["source_id"], "table_id": f"table_p{profile['pdf_page']:06d}_001", "source_url": pdf_url,
+            "raw_sha256": parsed["raw_sha256"], "page": profile["pdf_page"], "page_index": profile["pdf_page"] - 1,
             "inner_pdf_sha256": parsed["inner_pdf_sha256"], "inner_pdf_size_bytes": parsed["inner_pdf_size_bytes"],
             "transport_envelope": parsed["transport_envelope"],
-            "printed_page": 1, "import_key": import_key, "parser": PARSER_VERSION,
+            "printed_page": 1, "import_key": import_key, "parser": profile["parser_version"],
             "notification": parsed["notification"], "notification_evidence_location": "source/inspection.json#/notification_evidence",
             "numeric_verification": "original_pdf_text_cells_with_coordinates_and_subtotal_reconciliation",
             "cell_origins": [origins], "unit_evidence": {"total_assets": parsed["unit_evidence"]},
-            "scope": "consolidated", "issuer": ISSUER, "issuer_code": "YFMEN",
-            "statement_date": "2025-12-31", "purchasing_power_date": "2025-12-31",
+            "scope": "consolidated", "issuer": profile["issuer"], "issuer_code": profile["issuer_code"],
+            "statement_date": "2025-12-31", "purchasing_power_date": profile["purchasing_power_date"],
             "row_checks": parsed["row_checks"],
             "date_normalization": {"operation": "annual_label_of_source_year_end_statement", "aggregation_performed": False,
                                    "original_date_column": "statement_date", "date_column": "year",
                                    "rows": [{"original": "2025-12-31", "normalized": "2025"}]},
         },
     }
-    with tempfile.TemporaryDirectory(prefix="kap-yfmen-assets-") as temporary:
+    with tempfile.TemporaryDirectory(prefix=f"kap-{profile['issuer_code'].casefold()}-assets-") as temporary:
         csv_path = Path(temporary) / "assets.csv"
         with csv_path.open("w", encoding="utf-8", newline="") as handle:
             writer = csv.DictWriter(handle, fieldnames=list(contract["columns"]))
@@ -307,22 +385,24 @@ def publish(store: LakehouseStore, workspace_id: str, notification_raw: bytes, p
     if len(added) != 1:
         raise ValueError("Expected exactly one new verified KAP dataset")
     result = shared.promote(workspace_id, added.pop(), official_sources=OFFICIAL_SOURCE_REGISTRY,
-                            reason="User-requested official KAP YFMEN 2025 consolidated total-assets stock; original PDF row and units verified")
+                            reason=f"User-requested official KAP {profile['issuer_code']} 2025 consolidated total-assets stock; original PDF row and units verified")
     return {**result, "row_count": 1, "observations": parsed["observations"], "notification": parsed["notification"],
-            "page": PDF_PAGE, "printed_page": 1}
+            "page": profile["pdf_page"], "printed_page": 1}
 
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--publish", action="store_true", help="Explicitly publish (default: download and inspect only)")
+    parser.add_argument("--issuer-code", choices=sorted(PROFILES), default="YFMEN")
     parser.add_argument("--store", type=Path)
     parser.add_argument("--workspace-id", help="Existing operator import workspace")
     args = parser.parse_args()
     if args.publish and (args.store is None or not args.workspace_id):
         parser.error("--publish requires --store and --workspace-id")
-    notification_raw, pdf_raw = download()
-    result = (publish(LakehouseStore(args.store), args.workspace_id, notification_raw, pdf_raw)
-              if args.publish else parse_sources(notification_raw, pdf_raw))
+    profile = PROFILES[args.issuer_code]
+    notification_raw, pdf_raw = download(profile)
+    result = (publish(LakehouseStore(args.store), args.workspace_id, notification_raw, pdf_raw, profile=profile)
+              if args.publish else parse_sources(notification_raw, pdf_raw, profile=profile))
     print(json.dumps(result, ensure_ascii=False, indent=2))
 
 

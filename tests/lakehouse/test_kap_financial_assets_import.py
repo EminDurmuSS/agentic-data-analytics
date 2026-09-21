@@ -13,7 +13,7 @@ from agentic_analytics.lakehouse.service import LakehouseService
 from agentic_analytics.lakehouse.shared import SharedLakehouse
 from agentic_analytics.lakehouse.store import LakehouseStore
 from tools.import_kap_financial_assets import (
-    ISSUER, JAVA_BYTE_ARRAY_PREFIX, NOTIFICATION_URL, PDF_FILENAME, PDF_URL,
+    ISSUER, JAVA_BYTE_ARRAY_PREFIX, NOTIFICATION_URL, PDF_FILENAME, PDF_URL, PROFILES,
     parse_sources, publish,
 )
 from tools import import_kap_financial_assets as importer
@@ -39,12 +39,12 @@ TOPLAM VARLIKLAR                                1.001.000         2.002.000
 1'''
 
 
-def pdf_source(text=PAGE_TEXT, count=72):
+def pdf_source(text=PAGE_TEXT, count=72, page=8):
     # Minimal real text-layer PDF, no optional reportlab/font dependency. ASCII
     # transliteration of Turkish tests normalized matching; values are synthetic.
     pages = ["Synthetic test page"] * count
-    if count >= 8:
-        pages[7] = text
+    if count >= page:
+        pages[page - 1] = text
     kids = " ".join(f"{4 + 2 * index} 0 R" for index in range(count))
     objects = [b"<< /Type /Catalog /Pages 2 0 R >>",
                f"<< /Type /Pages /Kids [{kids}] /Count {count} >>".encode(),
@@ -76,6 +76,87 @@ def test_reads_pdf_cells_not_notification_title_or_known_answer():
     assert parsed["notification"]["published_at"] == "2026-03-05T21:39:59+03:00"
     assert parsed["cell_origins"][0]["source_text"] == "1.001.000"
     assert parsed["cell_origins"][0]["bbox"][0] < parsed["cell_origins"][1]["bbox"][0]
+
+
+ULUFA_PAGE_TEXT = '''ULUSAL FAKTORING A.S.
+31 ARALIK 2025 TARIHI ITIBARIYLA KONSOLIDE FINANSAL DURUM TABLOSU (BILANCO)
+(Tutarlar aksi belirtilmedikce Bin Turk Lirasi ("TL") olarak ifade edilmistir.)
+Bagimsiz denetimden gecmis cari Bagimsiz denetimden gecmis
+donem onceki donem
+AKTIF KALEMLER
+31 Aralik 2025 31 Aralik 2024
+Dipnot TP YP Toplam TP YP Toplam
+ARA TOPLAM 16.732.481 1.816 16.734.297 11.544.796 35 11.544.831
+AKTIF TOPLAMI 16.732.481 1.816 16.734.297 11.544.796 35 11.544.831
+1'''
+
+
+def ulufa_notification():
+    profile = PROFILES["ULUFA"]
+    return f'''<html><body><h1>{profile["issuer"]}</h1><p>ULUFA</p>
+    <div>Gönderim Tarihi <span>30.01.2026</span> <span>20:17:37</span></div>
+    <div>Bildirim Tipi FR Yıl 2025 Periyot Yıllık</div>
+    <div>Sunum Para Birimi TL Finansal Tablo Niteliği Konsolide</div>
+    <a href="{profile["pdf_url"]}">{profile["pdf_filename"]}</a></body></html>'''.encode()
+
+
+def test_ulufa_profile_reads_exact_total_column_and_thousand_try_scale():
+    profile = PROFILES["ULUFA"]
+    document = pdf_source(ULUFA_PAGE_TEXT, count=56, page=7)
+    raw = JAVA_BYTE_ARRAY_PREFIX + len(document).to_bytes(4, "big") + document
+    parsed = parse_sources(ulufa_notification(), raw, profile=profile)
+    assert parsed["observations"] == [{
+        "year": "2025", "statement_date": "2025-12-31", "issuer_code": "ULUFA",
+        "issuer_name": "ULUSAL FAKTORİNG A.Ş.", "scope": "consolidated",
+        "currency": "TRY", "total_assets": 16_734_297,
+    }]
+    assert parsed["scale"] == 1000
+    assert parsed["page"] == 7 and parsed["printed_page"] == 1
+    assert parsed["cell_origins"][0]["row_label"] == "AKTİF TOPLAMI"
+    assert parsed["cell_origins"][0]["column_header"] == "31 Aralık 2025"
+    assert parsed["row_checks"]["AKTİF TOPLAMI"]["current_tp"] == 16_732_481
+    assert parsed["row_checks"]["AKTİF TOPLAMI"]["current_yp"] == 1_816
+
+
+def test_ulufa_profile_rejects_non_reconciling_total_cell():
+    profile = PROFILES["ULUFA"]
+    document = pdf_source(ULUFA_PAGE_TEXT.replace(
+        "AKTIF TOPLAMI 16.732.481 1.816 16.734.297",
+        "AKTIF TOPLAMI 16.732.481 1.816 16.734.298",
+    ), count=56, page=7)
+    with pytest.raises(ValueError, match="do not reconcile"):
+        parse_sources(ulufa_notification(), document, profile=profile)
+
+
+def test_ulufa_profile_publishes_queryable_thousand_try_stock(tmp_path):
+    database = tmp_path / "seed.duckdb"
+    with duckdb.connect(str(database)) as connection:
+        connection.execute("CREATE TABLE seed(value INTEGER)")
+    store = LakehouseStore(tmp_path / "lakehouse")
+    snapshot = store.publish_snapshot(database)["snapshot_id"]
+    store.create_workspace(snapshot, "workspace_import")
+    profile = PROFILES["ULUFA"]
+    document = pdf_source(ULUFA_PAGE_TEXT, count=56, page=7)
+    raw = JAVA_BYTE_ARRAY_PREFIX + len(document).to_bytes(4, "big") + document
+    result = publish(store, "workspace_import", ulufa_notification(), raw, profile=profile)
+    metric_id = result["metric_ids"][0]
+    service = LakehouseService(store, "workspace_import")
+    found = service.discover({"query": "KAP ULUFA toplam aktif", "limit": 5})["metrics"]
+    assert [metric["metric_id"] for metric in found] == [metric_id]
+    assert found[0]["scale"] == 1000 and found[0]["kind"] == "stock"
+    analysis = service.execute({
+        "start": "2025", "end": "2025", "frequency": "annual",
+        "columns": [{"name": "total_assets", "metric_id": metric_id, "dimensions": {}}],
+    })
+    assert analysis["preview"] == [{"period": "2025", "total_assets": 16_734_297}]
+    proof = service.explain_value({
+        "analysis_id": analysis["analysis_id"], "column": "total_assets", "period": "2025",
+    })
+    provenance = proof["lineage"]["document_provenance"]
+    assert provenance["notification"]["source_url"] == profile["notification_url"]
+    assert provenance["source_url"] == profile["pdf_url"]
+    assert provenance["page"] == 7 and provenance["scope"] == "consolidated"
+    assert provenance["cell_origins"][0]["total_assets"]["source_text"] == "16.734.297"
 
 
 def test_handles_only_exact_kap_java_byte_array_envelope():
