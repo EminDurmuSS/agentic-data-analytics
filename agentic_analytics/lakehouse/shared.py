@@ -323,6 +323,98 @@ class SharedLakehouse:
             raise SharedLakehouseError("File is not part of the promotion package.", "SHARED_RELEASE_INTEGRITY_FAILED")
         return self._path("promotions", promotion_id, *PurePosixPath(relative).parts)
 
+    def materialize_workspace_source(self, workspace_id: str, source_id: str, *,
+                                     max_source_bytes: int | None = None) -> Path | None:
+        """Copy authorized pinned evidence into a consumer's private document cache.
+
+        Source IDs remain stable so existing dataset lineage still resolves. The
+        copied manifest names the consuming workspace and explicitly retains its
+        original owner and immutable package identity. No package is edited and
+        CURRENT is never consulted: an old or generic workspace gains no access
+        to newer releases merely by guessing a source ID.
+        """
+        _identifier(workspace_id)
+        _identifier(source_id, "source")
+        limit = min(max_source_bytes or self.store.limits["max_source_bytes"],
+                    self.store.limits["max_source_bytes"])
+        with self.store._lock(workspace_id):
+            workspace = self.store.workspace(workspace_id)
+            release_id = workspace.get("shared_release_id")
+            if not release_id:
+                return None
+            release = self._release(release_id)
+            members = set(workspace.get("datasets", []))
+            candidates = [self._promotion(identifier) for identifier in release["promotion_ids"]]
+            candidates = [item for item in candidates
+                          if item["source_id"] == source_id and item["dataset_id"] in members]
+            if not candidates:
+                return None
+            # A source may back several datasets. Identical packaged evidence is
+            # safe to reuse; differing inspection/review versions must not be
+            # selected arbitrarily and silently hide a requested table.
+            inventories = [{item["path"]: item["sha256"] for item in candidate["files"]
+                            if item["path"].startswith("source/")} for candidate in candidates]
+            if any(inventory != inventories[0] for inventory in inventories[1:]):
+                raise SharedLakehouseError("Pinned source has conflicting evidence versions.", "SHARED_SOURCE_AMBIGUOUS")
+            promotion = candidates[0]
+            root = self.store._path("document_sources", workspace_id)
+            root.mkdir(parents=True, exist_ok=True)
+            destination = self.store._path("document_sources", workspace_id, source_id)
+            if destination.exists():
+                if not destination.is_dir() or not (destination / "manifest.json").is_file():
+                    raise SharedLakehouseError("Existing source cache is incomplete.", "SHARED_SOURCE_INTEGRITY_FAILED")
+                return destination  # A concurrent reader already installed it.
+            source_root = self._path("promotions", promotion["promotion_id"], "source")
+            original = self._read_json(source_root / "manifest.json", "Packaged source manifest is invalid.")
+            if original.get("size_bytes", limit + 1) > limit:
+                raise SharedLakehouseError("Shared source exceeds the consumer byte limit.", "SOURCE_TOO_LARGE")
+            with self.store._stage() as stage:
+                staged_source = stage / "source"
+                staged_source.mkdir()
+                staged_extractions = stage / "extractions"
+                for item in promotion["files"]:
+                    relative = PurePosixPath(item["path"])
+                    if relative.parts[0] != "source":
+                        continue
+                    parts = relative.parts[1:]
+                    if len(parts) == 1 and parts[0] in {"raw.bin", "manifest.json", "inspection.json"}:
+                        target = staged_source / parts[0]
+                    elif (len(parts) == 2 and parts[0] == "reviews"
+                          and re.fullmatch(r"table_(?:\d{3}|p\d{6}(?:_text)?_\d{3}|c[a-f0-9]{20})_review\.json", parts[1])):
+                        target = staged_source / parts[1]
+                    elif (len(parts) == 2 and parts[0] == "extractions"
+                          and re.fullmatch(r"extraction_[0-9a-f]{64}\.json", parts[1])):
+                        target = staged_extractions / parts[1]
+                    else:
+                        raise SharedLakehouseError("Unknown packaged source evidence path.", "SHARED_SOURCE_INTEGRITY_FAILED")
+                    self._copy_verified(source_root.joinpath(*parts), target,
+                                        expected_sha256=item["sha256"], limit=limit)
+                # Keep the unmodified origin manifest alongside the normalized
+                # local manifest. The stable ID refers to that original source.
+                os.rename(staged_source / "manifest.json", staged_source / "shared-origin-manifest.json")
+                _write_json(staged_source / "manifest.json", {
+                    **original, "workspace_id": workspace_id,
+                    "shared_origin": {"workspace_id": original["workspace_id"],
+                                      "source_id": source_id, "shared_release_id": release_id,
+                                      "promotion_id": promotion["promotion_id"],
+                                      "manifest_sha256": inventories[0]["source/manifest.json"]},
+                })
+                self._fsync_tree(stage)
+                if staged_extractions.exists():
+                    extraction_root = self.store._path("document_sources", workspace_id, "extractions")
+                    extraction_root.mkdir(exist_ok=True)
+                    for path in staged_extractions.iterdir():
+                        target = self.store._path("document_sources", workspace_id, "extractions", path.name)
+                        if target.exists():
+                            if not target.is_file() or file_sha256(target) != file_sha256(path):
+                                raise SharedLakehouseError("Existing extraction evidence differs.", "SHARED_SOURCE_INTEGRITY_FAILED")
+                        else:
+                            os.rename(path, target)
+                    _fsync_directory(extraction_root)
+                os.rename(staged_source, destination)
+                _fsync_directory(root)
+            return destination
+
     def _build_release(self, promotion_ids: list[str]) -> dict:
         promotion_ids = sorted(set(promotion_ids))
         promotions = [self._promotion(promotion_id) for promotion_id in promotion_ids]

@@ -719,6 +719,14 @@ class DocumentTools:
 
     def source(self, source_id):
         directory = self._directory(source_id)
+        if not (directory / "manifest.json").exists():
+            from agentic_analytics.lakehouse.shared import SharedLakehouse, SharedLakehouseError
+            try:
+                SharedLakehouse(self.store).materialize_workspace_source(
+                    self.workspace_id, source_id, max_source_bytes=self.max_source_bytes,
+                )
+            except SharedLakehouseError as exc:
+                raise DocumentError(str(exc), exc.code) from exc
         manifest = json.loads((directory / "manifest.json").read_text())
         if hashlib.sha256((directory / "raw.bin").read_bytes()).hexdigest() != manifest["raw_sha256"]:
             raise DocumentError("Raw source hash mismatch.", "SOURCE_HASH_MISMATCH")
