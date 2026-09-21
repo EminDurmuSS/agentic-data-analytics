@@ -748,6 +748,66 @@ def _web_research_failure_message(result):
     return result.get("message") or "Web araştırması güvenilir bir kaynak okuyamadı."
 
 
+def _explicit_safe_source_fallback(message):
+    """Recognize requests that explicitly prefer a sourced limitation to guessing."""
+    text = _fact_text(message)
+    return bool(re.search(
+        r"\b(?:anonim|anonymous|oturum\s+ac|sign\s*in|login|ucret|paywall|erisim\s+kontrol|"
+        r"erisilem|ulasilam|veri\s+uretme|uydurma|fabricat|bypass|asma)\w*\b",
+        text,
+    ))
+
+
+def _anonymous_source_boundary(result):
+    """Return true only for a directly read official access shell, not search snippets."""
+    if not isinstance(result, dict) or result.get("status") != "ok" or result.get("tables") or result.get("pages"):
+        return False
+    url = result.get("source_url") or result.get("url") or ""
+    try:
+        host = (urlsplit(url).hostname or "").casefold()
+    except ValueError:
+        return False
+    article = result.get("article") if isinstance(result.get("article"), dict) else {}
+    body = " ".join(str(value or "") for value in (
+        article.get("readable_text"), article.get("article_body"), result.get("text"), result.get("title")))
+    compact = " ".join(body.split())
+    access_words = re.search(r"\b(?:oturum\s+ac|giris\s+yap|uye\s+ol|sign\s*in|log\s*in|subscribe|subscription|paywall)\b",
+                             _fact_text(compact))
+    # Borsa İstanbul's DataStore returns an application shell to anonymous
+    # document fetching. It proves the official route but contains no history
+    # rows. Do not probe guessed private APIs or turn that shell into values.
+    datastore_shell = host == "datastore.borsaistanbul.com" and len(compact) < 500
+    return bool(access_words or datastore_shell)
+
+
+def _source_access_receipt(state, _boundary):
+    sources, seen = [], set()
+    for item in reversed(state.get("tool_results", [])):
+        if item.get("tool") != "inspect_source":
+            continue
+        result = item.get("result", {})
+        if result.get("status") != "ok":
+            continue
+        url = result.get("source_url") or result.get("url")
+        if not url or (key := _search_url(url)) in seen:
+            continue
+        seen.add(key)
+        title = result.get("title") or (result.get("article") or {}).get("title") or (urlsplit(url).hostname or "Resmî kaynak")
+        sources.append((str(title).strip()[:180], url))
+        if len(sources) == 3:
+            break
+    sources.reverse()
+    links = "\n".join(f"- [{_display_label(title)}]({quote(url, safe=':/?#&=%+@')})" for title, url in sources)
+    return (
+        "Resmî kaynak yolu doğrulandı; ancak istenen tarihsel değerler anonim kaynak okumasında "
+        "tablo veya indirilebilir veri alanı olarak sunulmadı. Doğrulanmamış sayı üretilmedi."
+        + ("\n\nOkunan resmî sayfalar:\n" + links if links else "")
+        + "\n\nAnaliz için en az dönem/tarih, seri kodu, kapanış değeri ve frekans alanları gerekir. "
+        "Güvenli yeniden deneme yolu, resmî veri ekranındaki anonim dışa aktarımı kullanmak veya "
+        "kurumdan indirilen özgün dosyayı çalışma alanına eklemektir; oturum açma, ücret veya erişim kontrolü aşılmaz."
+    )
+
+
 class AgentRuntime:
     def __init__(self, store, workspace_id, client, run_store: AgentRunStore,
                  extra_tools=None, *, max_decisions=10, max_repairs=2,
@@ -1466,6 +1526,27 @@ class AgentRuntime:
                     failed = result.get("status") in {"blocked", "error", "failed", "unavailable"}
                     unresolved = state.setdefault("unresolved_errors", {})
                     tool_name = call["function"]["name"]
+                    if (tool_name == "inspect_source"
+                            and _explicit_safe_source_fallback(record["message"])
+                            and _anonymous_source_boundary(result)):
+                        # The user explicitly selected a safe, sourced fallback
+                        # when anonymous official data cannot be read. Stop at
+                        # the observed access boundary instead of guessing API
+                        # routes or spending the remaining decisions on shells.
+                        self.run_store.checkpoint(run_id, state)
+                        error = {
+                            "code": "SOURCE_ACCESS_LIMITED",
+                            "message": "The official source route was read, but anonymous access did not expose the requested historical value fields.",
+                            "source_id": result.get("source_id"),
+                            "source_url": result.get("source_url"),
+                        }
+                        return self._finish(
+                            record,
+                            state,
+                            "partial",
+                            _source_access_receipt(state, result),
+                            errors=[error],
+                        )
                     if failed:
                         retained = [error for error in unresolved.get(tool_name, [])
                                     if error.get("code") in {"SOURCE_READ_REQUIRED", "SOURCE_READ_REPEATED"}
@@ -2453,6 +2534,30 @@ class AgentRuntime:
             result = _schema_validation_error(exc, definition["schema"]["function"]["parameters"])
         except json.JSONDecodeError:
             result = _blocked("INVALID_TOOL_ARGUMENTS", "Tool arguments are incomplete or invalid JSON. No tool was executed; submit one complete JSON object.")
+        except MiaError as exc:
+            # A provider-backed tool (for example research_web extraction) may
+            # fail even though the main agent provider and previously retained
+            # evidence are still usable. Keep that failure at the tool boundary
+            # so the model can finish from verified evidence or state the
+            # limitation instead of aborting the entire turn.
+            error = {
+                "code": exc.code,
+                "message": str(exc),
+                "retryable": bool(exc.retryable),
+                "usage_unknown": True,
+            }
+            if exc.status_code is not None:
+                error["status_code"] = exc.status_code
+            if exc.attempts is not None:
+                error["attempts"] = exc.attempts
+            result = {
+                "status": "unavailable",
+                "code": exc.code,
+                "message": str(exc),
+                "errors": [error],
+            }
+            if name in {"web_search", "research_web", "inspect_source", "read_source_table", "find_source_table_rows"}:
+                self._track_search_progress(state, name, result)
         except (ValueError, OSError, duckdb.Error) as exc:
             result = error_envelope(exc)
         # Only a persisted intent gets a persisted result. Invalid calls still

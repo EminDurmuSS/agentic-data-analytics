@@ -223,6 +223,72 @@ class AgentRuntimeTests(unittest.TestCase):
         self.assertEqual(sum(item["tool"] == "execute" for item in resumed["tool_results"]), 1)
         self.assertEqual(len(client.requests), 1)
 
+    def test_provider_failure_inside_tool_is_returned_to_model_without_aborting_turn(self):
+        def unavailable(_args):
+            raise MiaError(
+                "PROVIDER_UNAVAILABLE",
+                "MIA bağlantısı tamamlanamadı.",
+                retryable=True,
+                attempts=3,
+            )
+
+        tools = {
+            "provider_lookup": {
+                "schema": {
+                    "type": "function",
+                    "function": {
+                        "name": "provider_lookup",
+                        "parameters": obj({"query": {"type": "string"}}),
+                    },
+                },
+                "handler": unavailable,
+            },
+        }
+        final = {**FINAL, "content": "Sağlayıcı geçici olarak kullanılamadı; doğrulanmamış değer üretilmedi."}
+        runtime, client = self.runtime([
+            call("provider_lookup", {"query": "resmi tarihsel veri"}),
+            final,
+        ], extra_tools=tools)
+
+        result = runtime.run("Uzak sağlayıcıdan doğrulanmış veriyi dene")
+
+        self.assertEqual(len(client.requests), 2)
+        self.assertNotEqual(result["status"], "failed")
+        tool_result = result["tool_results"][0]["result"]
+        self.assertEqual(tool_result["status"], "unavailable")
+        self.assertEqual(tool_result["code"], "PROVIDER_UNAVAILABLE")
+        self.assertEqual(tool_result["errors"][0]["attempts"], 3)
+        self.assertTrue(tool_result["errors"][0]["retryable"])
+        last_request = client.requests[-1]
+        tool_message = next(message for message in last_request if message.get("role") == "tool")
+        self.assertIn("PROVIDER_UNAVAILABLE", tool_message["content"])
+
+    def test_explicit_anonymous_access_fallback_stops_at_official_data_shell(self):
+        tools = self.source_tools(inspect=lambda _args: {
+            "status": "ok",
+            "source_id": "source_" + "d" * 64,
+            "source_url": "https://datastore.borsaistanbul.com/",
+            "title": "Borsa İstanbul DataStore",
+            "publisher": "Borsa İstanbul",
+            "text": "Borsa İstanbul DataStore",
+            "article": {"title": "Borsa İstanbul DataStore", "readable_text": "Borsa İstanbul DataStore"},
+            "tables": [],
+            "pages": [],
+        })
+        runtime, client = self.runtime([
+            call("inspect_source", {"url": "https://datastore.borsaistanbul.com/"}),
+        ], extra_tools=tools)
+
+        result = runtime.run(
+            "Resmî kaynağı anonim olarak oku; tarihsel değerler erişilemiyorsa erişim kontrolünü aşma ve veri üretme."
+        )
+
+        self.assertEqual(result["status"], "partial")
+        self.assertEqual(result["errors"][0]["code"], "SOURCE_ACCESS_LIMITED")
+        self.assertIn("Doğrulanmamış sayı üretilmedi", result["message"])
+        self.assertIn("datastore.borsaistanbul.com", result["message"])
+        self.assertEqual(len(client.requests), 1)
+
     def test_provider_failure_after_direct_table_read_returns_exact_partial_receipt(self):
         source_id = "source_" + "a" * 64
         source_url = "https://example.org/official-table"
