@@ -8,7 +8,7 @@ from decimal import Decimal, ROUND_HALF_UP
 from agentic_analytics.voice.context import VoiceBriefInput
 
 MAX_SCRIPT_CHARS = 900
-VOICE_SCRIPT_VERSION = 2
+VOICE_SCRIPT_VERSION = 3
 _URL = re.compile(r"https?://|```|[#*_`]")
 _NUMBER = re.compile(r"\d[\d.,%]*")
 _TURKISH_LIRA = re.compile(r"\bTL(?:(?:['’])(ye|ya|yi|yı|nin|nın|den|dan))?\b", re.IGNORECASE)
@@ -17,9 +17,9 @@ _TURKISH_LIRA = re.compile(r"\bTL(?:(?:['’])(ye|ya|yi|yı|nin|nın|den|dan))?\
 # digits (such as ``598.085.487``) intentionally does not match.
 _LONG_DECIMAL = re.compile(r"(?<![\d.,])(\d+)([.,])(\d{5,})(%?)(?![\d.,])")
 _OPERATIONAL_FAILURE = re.compile(
-    r"sonuç\s+(?:alınamadı|elde\s+edilemedi)|tamamlanamadı|başarısız|"
-    r"doğrulanamadı|doğrulanamayan|bulunamadı|ulaşılamadı|erişilemedi|erişilemiyor|"
-    r"üretilemedi|üretilmedi|bağlantı\s+hatası|erişim\s+sınırı|"
+    r"\b(?:elde\s+edileme|alınama|tamamlanama|başarısız|doğrulanama|bulunama|"
+    r"ulaşılama|erişileme|erişilemi|üretileme|üretilme|hesaplanama|yapılama|oluşturulama)\w*|"
+    r"oluşturulma(?:dı|mış)\w*|bağlantı\s+hatası|erişim\s+sınırı|"
     r"\b(?:MIA|PROVIDER_UNAVAILABLE|NO_READABLE_SOURCES)\b",
     re.IGNORECASE,
 )

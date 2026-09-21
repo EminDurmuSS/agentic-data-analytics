@@ -137,7 +137,10 @@ class VoiceBackendTests(unittest.TestCase):
         run = self._completed_run()
         brief = build_voice_brief(self.app.state.context.store, run)
         for text in ("Sonuç alınamadı.", "Analiz tamamlanamadı.", "MIA bağlantısı tamamlanamadı.",
-                     "İstenen veri bulunamadı.", "Kapanış değerleri doğrulanamadı."):
+                     "İstenen veri bulunamadı.", "Kapanış değerleri doğrulanamadı.",
+                     "Somut sayısal değerler elde edilememiştir.",
+                     "Grafik oluşturulmamış ve istatistiksel analiz yapılamamıştır.",
+                     "Veriler doğrulanamamıştır.", "Kaynağa erişilemiyor."):
             with self.subTest(text=text):
                 record = VoiceScriptService(Provider([{"content": text}])).generate_record(brief)
                 self.assertTrue(record["fallback"])
