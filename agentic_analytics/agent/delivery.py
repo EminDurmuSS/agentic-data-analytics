@@ -12,6 +12,7 @@ from urllib.parse import quote, urlsplit
 import pandas as pd
 
 from agentic_analytics.lakehouse.presentation import analysis_presentation
+from agentic_analytics.agent.tools.documents import _source_dates
 
 
 def _published_source_ids(state):
@@ -256,6 +257,9 @@ def _verified_policy_decision_confirmation(state):
             sources.extend(source for source in result.get("sources", []) if isinstance(source, dict))
         elif item.get("tool") == "inspect_source":
             sources.append(result)
+    latest_user_message = next((item.get("content", "") for item in reversed(state.get("messages", []))
+                                if item.get("role") == "user" and isinstance(item.get("content"), str)), "")
+    requested_dates = _source_dates(latest_user_message)
 
     rate = r"\d{1,3}(?:[.,]\d+)?"
     turkish = re.compile(
@@ -283,6 +287,12 @@ def _verified_policy_decision_confirmation(state):
             source.get("text"), source.get("content"), article.get("article_body"),
             *(page.get("text") for page in source.get("pages", []) if isinstance(page, dict)),
         ) if isinstance(value, str) and value.strip())
+        source_identity_dates = _source_dates(" ".join(str(value) for value in (
+            source.get("reporting_period"), source.get("date_published"), article.get("date_published"),
+        ) if value))
+        source_dates = source_identity_dates or _source_dates(text)
+        if requested_dates and not requested_dates.intersection(source_dates):
+            continue
         match = turkish.search(text) or english.search(text)
         if not match:
             continue

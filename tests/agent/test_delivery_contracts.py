@@ -1209,6 +1209,21 @@ def test_policy_decision_receipt_rejects_snippets_and_wrong_document_types():
     assert _verified_policy_decision_confirmation(wrong_type) == ""
 
 
+def test_policy_decision_receipt_rejects_a_verified_decision_from_the_wrong_requested_date():
+    state = {
+        "messages": [{"role": "user", "content": "8 Nisan 2027 politika kararını kısa tabloda göster."}],
+        "tool_results": [{"tool": "research_web", "result": {"status": "ok", "sources": [{
+            "source_id": "wrong-date-decision",
+            "source_url": "https://centralbank.example.org/decision-2026-04-08",
+            "document_type": "policy_decision",
+            "reporting_period": "2026-04-08",
+            "content": ("8 April 2026. The one-week repo auction rate was reduced "
+                        "from 38 to 35.5 percent."),
+        }]}}],
+    }
+    assert _verified_policy_decision_confirmation(state) == ""
+
+
 def test_policy_receipt_replaces_unsupported_model_draft_before_delivery_grading(env):
     *_, build = env
     source = {"status": "ok", "sources": [{
