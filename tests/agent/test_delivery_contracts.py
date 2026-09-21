@@ -366,12 +366,13 @@ def test_empty_workspace_search_failure_does_not_claim_preserved_analysis(env):
     assert "korundu" not in result["message"]
 
 
-def _statement_recovery_fixture(env, *, amount="321,456,789", unit="BİN TÜRK LİRASI"):
+def _statement_recovery_fixture(env, *, amount="321,456,789", unit="BİN TÜRK LİRASI",
+                                current_date="30 Haziran 2027"):
     store, wid, _, _, _ = env
     docs = DocumentTools(store, wid)
     raw = f"""<html><h1>Konsolide Finansal Rapor</h1><h2>Konsolide Bilanço</h2><p>{unit}</p>
     <table><tr><th>Kalem</th><th>c1</th><th>c2</th><th>c3</th><th>p1</th><th>p2</th><th>p3</th></tr>
-    <tr><td></td><td></td><td>30 Haziran 2027</td><td></td><td>31</td><td>Aralık 2026</td><td></td></tr>
+    <tr><td></td><td></td><td>{current_date}</td><td></td><td>31</td><td>Aralık 2026</td><td></td></tr>
     <tr><td></td><td>TP</td><td>YP</td><td>Toplam</td><td>TP</td><td>YP</td><td>Toplam</td></tr>
     <tr><td>VARLIKLAR TOPLAMI</td><td>200,000,000</td><td>121,456,789</td><td>{amount}</td>
     <td>150,000,000</td><td>100,000,000</td><td>250,000,000</td></tr></table></html>""".encode()
@@ -570,6 +571,46 @@ def test_statement_recovery_uses_matching_research_identity_metadata(env):
         ])
     assert recovered is not None
     assert recovered["periods"] == ["2027-06-30"]
+
+
+def test_statement_recovery_resolves_a_unique_source_owned_year_end_period(env):
+    from agentic_analytics.agent.source_recovery import statement_recovery_request
+    store, wid, _, _, _ = env
+    docs, args, _ = _statement_recovery_fixture(env, current_date="31 Aralık 2027")
+    row_read = docs.read_source_table(**args)
+    recovered = statement_recovery_request(
+        store, wid, "2027 yıl sonu konsolide finansal raporundaki toplam aktifleri göster.",
+        [{"tool": "read_source_table", "result": row_read}],
+    )
+    assert recovered is not None
+    assert recovered["periods"] == ["2027-12-31"]
+
+
+def test_decision_budget_preserves_verified_statement_as_analysis_and_chart(env):
+    store, wid, _, _, build = env
+    _, args, extras = _statement_recovery_fixture(env)
+    runtime, client = build([call("read_source_table", args)], more=extras, max_decisions=1)
+    result = runtime.run("30 Haziran 2027 tarihli konsolide raporda toplam aktifleri göster.")
+    assert result["status"] == "partial", result
+    assert result["analysis_updated"] and result["chart_updated"]
+    assert len(client.requests) == 1
+    assert store.load_analysis(result["analysis_id"])[0]["reported_amount"].tolist() == [321456789]
+    assert "321.456.789" in result["message"]
+
+
+def test_verified_statement_hides_further_search_tools_and_directs_delivery(env):
+    *_, build = env
+    _, args, extras = _statement_recovery_fixture(env)
+    runtime, client = build([
+        call("read_source_table", args),
+        final("Kaynak satırı doğrulandı."),
+    ], more=extras, max_decisions=2)
+    result = runtime.run("30 Haziran 2027 tarihli konsolide raporda toplam aktifleri göster.")
+    assert result["analysis_updated"] and result["chart_updated"], result
+    second_tools = {tool["function"]["name"] for tool in client.options[1]["tools"]}
+    assert "web_search" not in second_tools and "research_web" not in second_tools
+    assert "ingest_source_table" in second_tools
+    assert "verified_source_delivery" in client.requests[1][0]["content"]
 
 
 def test_source_navigation_reuses_cached_inspection_and_tracks_exact_selection(env):

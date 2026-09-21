@@ -909,6 +909,21 @@ class AgentRuntime:
         }
         return definitions
 
+    def _source_delivery_request(self, state):
+        """Return one compiler-safe statement import, without writing anything."""
+        if state.get("analysis_updated") or self.store.workspace(self.workspace_id).get("analysis_head"):
+            return None
+        try:
+            from agentic_analytics.agent.source_recovery import statement_recovery_request
+            return statement_recovery_request(
+                self.store,
+                self.workspace_id,
+                state.get("request_message") or _current_request_message(state),
+                state.get("tool_results", []),
+            )
+        except (ValueError, OSError, duckdb.Error):
+            return None
+
     def _context(self, state):
         context = workspace_context(self.store, self.workspace_id, state,
                                     max_decisions=self.max_decisions,
@@ -945,6 +960,16 @@ class AgentRuntime:
             context["source_page_recovery"] = navigation[:6]
         if any(progress.get("candidate_pages") or progress.get("read_pages") for progress in state.get("source_page_progress", {}).values()):
             context["source_reading_requirement"] = SOURCE_READING_PROMPT
+        source_delivery = self._source_delivery_request(state)
+        if source_delivery:
+            context["verified_source_delivery"] = {
+                key: source_delivery[key] for key in ("source_id", "table_id", "row_numbers", "periods")
+                if key in source_delivery
+            }
+            context["verified_source_delivery"]["next_step"] = (
+                "The requested source row, period, scope and unit are sufficient for deterministic ingestion. "
+                "Do not search the web again. Use ingest_source_table, then the returned analysis request and create_chart."
+            )
         return context
 
     def _model_tool_schemas(self, state):
@@ -959,6 +984,8 @@ class AgentRuntime:
             hidden.add("web_search")
         if progress.get("research_web_paused"):
             hidden.add("research_web")
+        if self._source_delivery_request(state):
+            hidden.update({"web_search", "research_web"})
         if state.get("institutional_delivery_repair"):
             hidden.update(set(self.tools) - _INSTITUTIONAL_REPAIR_TOOLS)
         if ("promote_dataset_to_shared_lakehouse" in self.tools
@@ -1698,6 +1725,11 @@ class AgentRuntime:
                         state["repairs"] += 1
                         self.run_store.checkpoint(run_id, state)
                         if state["repairs"] > self.max_repairs or any(e.get("code") in {"UNKNOWN_MUTATION_OUTCOME", "NO_PROGRESS"} for e in result.get("errors", [])):
+                            delivered = self._terminal_source_delivery(
+                                record, state, reason="tool_failure_source_delivery",
+                                warning_code="TOOL_FAILURE_AFTER_VERIFIED_SOURCE")
+                            if delivered:
+                                return delivered
                             source_stall = next((error.get("source_id") for error in result.get("errors", [])
                                 if error.get("code") == "NO_PROGRESS" and error.get("source_id")), None)
                             evidence = self._source_final_evidence(state, stalled_source=source_stall) if source_stall else []
@@ -1719,6 +1751,11 @@ class AgentRuntime:
                 messages = self._messages(state)
                 elapsed = time.monotonic() - invocation_started
                 if elapsed >= self.max_elapsed_seconds:
+                    delivered = self._terminal_source_delivery(
+                        record, state, reason="time_budget_source_delivery",
+                        warning_code="TIME_BUDGET_AFTER_VERIFIED_SOURCE")
+                    if delivered:
+                        return delivered
                     return self._finish(record, state, "blocked", "Bu çalışmanın süre sınırına ulaşıldı; istenen adımların tamamı bitirilemedi.", errors=[{"code": "TIME_BUDGET_EXCEEDED", "message": "No further provider request was started after this active invocation's deadline; the total decision budget remains durable."}])
                 # Persist the budget debit before network I/O, so a crash cannot
                 # reset provider-call limits or pretend a request was free.
@@ -1749,6 +1786,11 @@ class AgentRuntime:
                     state["messages"].append({"role": "assistant", "content": "Önceki model çıktısı kesildi; hiçbir araç çalıştırılmadı."})
                     self.run_store.checkpoint(run_id, state)
                     if state["repairs"] > self.max_repairs:
+                        delivered = self._terminal_source_delivery(
+                            record, state, reason="truncated_response_source_delivery",
+                            warning_code="TRUNCATED_RESPONSE_AFTER_VERIFIED_SOURCE")
+                        if delivered:
+                            return delivered
                         return self._finish(record, state, "blocked", "Model çıktısı izin verilen uzunlukta tamamlanamadı.", errors=[{"code": "TRUNCATED_MODEL_OUTPUT", "message": "No truncated tool call was executed."}])
                     continue
                 if calls:
@@ -1797,10 +1839,20 @@ class AgentRuntime:
                 state["messages"].append({"role": "assistant", "content": "Model boş yanıt verdi; geçerli bir araç çağrısı veya son cevap gerekiyor."})
                 self.run_store.checkpoint(run_id, state)
                 if state["repairs"] > self.max_repairs:
+                    delivered = self._terminal_source_delivery(
+                        record, state, reason="empty_response_source_delivery",
+                        warning_code="EMPTY_RESPONSE_AFTER_VERIFIED_SOURCE")
+                    if delivered:
+                        return delivered
                     return self._finish(record, state, "blocked", "Model geçerli bir cevap üretmedi.", errors=[{"code": "EMPTY_MODEL_RESPONSE", "message": "No content or tool calls."}])
             # The last permitted call may itself finish a required source read.
             # Recheck its evidence after pending results have been processed;
             # no additional provider decision or source read is made here.
+            delivered = self._terminal_source_delivery(
+                record, state, reason="decision_budget_source_delivery",
+                warning_code="FINAL_RESPONSE_BUDGET_EXCEEDED")
+            if delivered:
+                return delivered
             evidence = self._source_final_evidence(state)
             if evidence:
                 errors = [error for failures in state.get("unresolved_errors", {}).values() for error in failures]
@@ -1885,6 +1937,25 @@ class AgentRuntime:
                 "reason": reason, "errors": error_envelope(exc)["errors"]})
         finally:
             self.run_store.checkpoint(record["run_id"], state)
+
+    def _terminal_source_delivery(self, record, state, *, reason, warning_code):
+        """Preserve a verified row at any terminal boundary without another model call."""
+        delivery_request = self._source_delivery_request(state)
+        receipt = _verified_source_table_confirmation(state, targeted_only=True)
+        if not (delivery_request or receipt):
+            return None
+        self._recover_source_analysis(record, state, reason=reason)
+        receipt = _verified_source_table_confirmation(state, targeted_only=True)
+        if not (state.get("analysis_updated") or state.get("chart_updated") or receipt):
+            return None
+        return self._complete(
+            record,
+            state,
+            "Doğrulanmış kaynak kanıtı kaydedildi.",
+            terminal_status="partial",
+            warnings=[{"code": warning_code,
+                       "message": "The run reached a terminal boundary after verified source evidence was read; deterministic delivery preserved it without another provider call."}],
+        )
 
     def _source_recovery_tool(self, record, state, name, args, *, reason="provider_outage_source_delivery"):
         call = {"id": "runtime_source_" + fingerprint({"name": name, "args": args})[:20],

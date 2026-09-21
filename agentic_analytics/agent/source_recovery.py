@@ -25,10 +25,13 @@ def statement_recovery_request(store, workspace_id, request, tool_results):
     amount, period, currency, or column position is never hard-coded.
     """
     dates = _source_dates(request)
-    if len(dates) != 1:
-        return None
-    period = date(*next(iter(dates))).isoformat()
     normalized = _search_text(request)
+    years = {int(value) for value in re.findall(r"\b(?:19|20)\d{2}\b", normalized)}
+    annual_request = bool(re.search(r"\byil\s*sonu\b|\byillik\b|\byear[ -]end\b|\bannual\b", normalized))
+    if len(dates) > 1 or not dates and not (len(years) == 1 and annual_request):
+        return None
+    requested_period = date(*next(iter(dates))).isoformat() if dates else None
+    requested_year = next(iter(years)) if len(years) == 1 else None
     # Do not infer arithmetic, a compound selection, or a prohibited write.
     if re.search(r"\b(?:ekleme|kaydetme|yayinlama|grafik\s+(?:istemi\w*|olusturma)|"
                  r"oran\w*|buyume\w*|karsilastir\w*|fark\w*|ratio|growth|compare)\b", normalized):
@@ -102,9 +105,12 @@ def statement_recovery_request(store, workspace_id, request, tool_results):
                    for value in row if _label_key(value or "") in {"toplam", "total"}}
         header = next(iter(headers)) if len(headers) == 1 else None
         values, source_dates, _, _ = compiler._dates(table, selected, numeric, header, None)
-        values = [column for column in values if source_dates[column] == period]
+        values = [column for column in values if (
+            source_dates[column] == requested_period if requested_period else
+            source_dates[column] == f"{requested_year:04d}-12-31")]
         if len(values) != 1:
             continue
+        period = source_dates[values[0]]
         semantics, _ = compiler._semantics(table, values, "stock")
         if semantics.get("kind") != "stock" or semantics.get("status") == "review_required":
             continue
