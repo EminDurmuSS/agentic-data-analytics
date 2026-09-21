@@ -20,6 +20,8 @@ from agentic_analytics.agent.tools.documents import (
     _article_metadata,
     _direct_document_url,
     _document_type,
+    _requested_document_types,
+    _research_years,
     _official_registry,
     _public_destination,
     fetch_public_url,
@@ -1148,6 +1150,80 @@ class AgentDocumentTests(unittest.TestCase):
         self.assertEqual("policy_decision", _document_type(decision))
         self.assertEqual("meeting_summary", _document_type(summary))
         self.assertEqual("financial_report", _document_type("Example Bank financial report"))
+
+    def test_research_accepts_explicit_bulletin_or_methodology_alternatives(self):
+        url = "https://example.org/cpi-2025"
+        self.docs.web_search = lambda *args, **kwargs: {"status": "ok", "results": [{
+            "title": "Tüketici Fiyat Endeksi, Aralık 2025", "url": url}]}
+        self.docs.inspect_source = lambda **kwargs: {"status": "ok", "source_id": "bulletin", "source_url": url,
+            "raw_sha256": "a" * 64, "text": "2025 TÜFE endeksi yıllık değişimi resmî haber bülteni. Metodoloji bağlantısı.",
+            "article": {"title": "Tüketici Fiyat Endeksi, Aralık 2025"}}
+        query = "2025 TÜFE yıllık değişimini haber bülteni veya metodoloji sayfasından doğrula"
+        result = self.docs.research_web(query, limit=1, domains=["example.org"])
+        self.assertEqual(result["status"], "ok", result)
+        self.assertEqual(result["sources"][0]["document_type"], "statistical_bulletin")
+        strict = self.docs.research_web("2025 TÜFE yalnız metodoloji", limit=1, domains=["example.org"])
+        self.assertEqual(strict["sources"], [])
+        self.assertIn("DOCUMENT_TYPE_MISMATCH", [failure["code"] for failure in strict["failures"]])
+        self.assertEqual(_requested_document_types("resmî metodoloji veya endeks tanımı"),
+                         ("index_methodology", "index_definition"))
+        self.assertEqual(_requested_document_types(
+            "Resmî arşiv bul; yalnız ad değişmiş diye farklı endeks metodolojilerini otomatik olarak aynı seri sayma."), ())
+        self.assertIsNone(_document_type("Index Names In Turkish Base Value of Index"))
+
+    def test_research_retries_another_query_when_first_search_hit_fails_reading(self):
+        searches, reads = [], []
+        wrong, right = "https://example.org/wrong", "https://example.org/report-2025"
+        def search(query, **kwargs):
+            searches.append(query)
+            return {"status": "ok", "query": query, "results": [{
+                "title": "2025 housing report", "url": wrong if len(searches) == 1 else right}]}
+        def inspect(url=None, **kwargs):
+            reads.append(url)
+            if url == wrong:
+                raise DocumentError("No readable source", "EMPTY_SOURCE")
+            return {"status": "ok", "source_id": "report", "source_url": url,
+                    "text": "2025 housing report with official observations.",
+                    "article": {"title": "2025 housing report"}}
+        self.docs.web_search, self.docs.inspect_source = search, inspect
+        with patch("agentic_analytics.agent.tools.documents._official_registry", return_value={
+                "institution": "Example", "entrypoints": (),
+                "search_variants": ("{query}", "{query} bulletin", "{query} data")}):
+            result = self.docs.research_web("2025 housing report", limit=1, domains=["example.org"])
+        self.assertEqual(result["status"], "ok", result)
+        self.assertEqual(result["sources"][0]["url"], right)
+        self.assertEqual(reads, [wrong, right])
+        self.assertEqual(len(searches), 2)
+        self.assertEqual(len(result["searches"]), 2)
+
+    def test_research_tries_second_allowed_domain_after_unreadable_first_domain(self):
+        searches = []
+        def search(query, **kwargs):
+            searches.append(query)
+            domain = "example.org" if "site:example.org" in query else "example.net"
+            return {"status": "ok", "results": [{"title": "2025 housing report",
+                                                     "url": "https://" + domain + "/report-2025"}]}
+        def inspect(url=None, **kwargs):
+            if "example.org" in url:
+                raise DocumentError("unavailable", "FETCH_FAILED")
+            return {"status": "ok", "source_id": "report", "source_url": url,
+                    "text": "2025 housing report verified observations.", "article": {"title": "2025 housing report"}}
+        self.docs.web_search, self.docs.inspect_source = search, inspect
+        result = self.docs.research_web("2025 housing report", limit=1, domains=["example.org", "example.net"])
+        self.assertEqual(result["status"], "ok", result)
+        self.assertEqual(result["sources"][0]["domain"], "example.net")
+        self.assertEqual(len(searches), 2)
+
+    def test_research_year_range_includes_intermediate_name_change_year(self):
+        self.assertIn("2013", _research_years("2010–2014 ile 2014–2018"))
+        url = "https://example.org/index-name-change-2013"
+        self.docs.web_search = lambda *args, **kwargs: {"status": "ok", "results": [{
+            "title": "Index name change 2013", "url": url}]}
+        self.docs.inspect_source = lambda **kwargs: {"status": "ok", "source_id": "names", "source_url": url,
+            "text": "Index name change published in 2013.", "article": {"title": "Index name change 2013"}}
+        result = self.docs.research_web("2010–2018 index name change", limit=1, domains=["example.org"])
+        self.assertEqual(result["status"], "ok", result)
+        self.assertEqual(result["sources"][0]["url"], url)
 
     def test_url_underscore_date_establishes_exact_financial_reporting_period(self):
         url = "https://example.org/31_March_2026_Consolidated_Financial_Report.pdf"

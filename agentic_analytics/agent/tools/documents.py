@@ -201,10 +201,15 @@ def _document_type(value):
         ):
             return "meeting_summary"
         return "policy_decision"
-    if re.search(r"genelmektup\s*4030|endeks\s+adlari|index\s+names?|name\s+change", text):
+    if re.search(r"genelmektup\s*4030|endeks\s+adlari|index\s+names?\s+chang|name\s+change", text):
         return "index_name_change"
     if re.search(r"metodoloji|methodolog|temel\s+kurallari|index\s+(?:rules|method)", text):
         return "index_methodology"
+    if re.search(r"haber\s+bulteni|statistical\s+bulletin|statistical\s+release|"
+                 r"tuketici\s+fiyat\s+endeksi\s*,|consumer\s+price\s+index\s*,|konut\s+satis\s+istatistikleri\s*,", text):
+        return "statistical_bulletin"
+    if re.search(r"endeks\s+tanimi|endeksin\s+tanimi|index\s+definition", text):
+        return "index_definition"
     if re.search(r"earnings\s+presentation|financial\s+results|results\s+presentation|"
                  r"finansal\s+sonuc|sonuc\s+sunum|yatirimci\s+sunum", text):
         return "financial_results"
@@ -220,7 +225,7 @@ def _requested_document_type(query):
         return "meeting_summary"
     if re.search(r"ad\s+degisik|isim\s+degisik|index\s+name|genel\s+mektup", text):
         return "index_name_change"
-    if re.search(r"metodoloji|methodolog|temel\s+kurallar", text):
+    if re.search(r"\bmetodoloji(?:si|sini|sinden)?\b|\bmethodology\b|temel\s+kurallar", text):
         return "index_methodology"
     if re.search(r"sunum|presentation|earnings|finansal\s+sonuc|financial\s+results", text):
         return "financial_results"
@@ -230,6 +235,32 @@ def _requested_document_type(query):
                  r"(?:karar|decision).{0,80}(?:para\s+politikasi|policy|faiz|interest)", text):
         return "policy_decision"
     return None
+
+
+def _requested_document_types(query):
+    """Preserve explicit alternatives; a preferred source is not an exclusive gate."""
+    text = " ".join(_search_text(query).split())
+    alternatives = []
+    for part in re.split(r"\b(?:veya|yahut|ya da|or)\b", text):
+        kind = _requested_document_type(part)
+        if kind:
+            alternatives.append(kind)
+        if re.search(r"haber\s+bulteni|statistical\s+(?:bulletin|release)", part):
+            alternatives.append("statistical_bulletin")
+        if re.search(r"endeks\s+tanimi|index\s+definition", part):
+            alternatives.append("index_definition")
+    if re.search(r"\b(?:veya|yahut|ya da|or)\b", text) and len(set(alternatives)) > 1:
+        return tuple(dict.fromkeys(alternatives))
+    kind = _requested_document_type(query)
+    return (kind,) if kind else tuple(dict.fromkeys(alternatives))
+
+
+def _research_years(query):
+    years = set(re.findall(r"\b(?:19|20)\d{2}\b", query))
+    for start, end in re.findall(r"\b((?:19|20)\d{2})\s*[–—-]\s*((?:19|20)\d{2})\b", query):
+        if 0 <= int(end) - int(start) <= 30:
+            years.update(str(year) for year in range(int(start), int(end) + 1))
+    return years
 
 
 def _consolidation_scope(value):
@@ -1186,9 +1217,9 @@ class DocumentTools:
         read_deadline = time.monotonic() + 300
         search_deadline = min(read_deadline, time.monotonic() + 180)
         lowered = _search_text(query)
-        requested_years = set(re.findall(r"\b(?:19|20)\d{2}\b", lowered))
+        requested_years = _research_years(lowered)
         requested_dates = _source_dates(query)
-        expected_document_type = _requested_document_type(query)
+        expected_document_types = _requested_document_types(query)
         from agentic_analytics.agent.tools.search_backend import search_domains
         preferred = domains or search_domains(query) or next(
             (values for pattern, values in _OFFICIAL_QUERY_DOMAINS if re.search(pattern, lowered)), None)
@@ -1218,9 +1249,13 @@ class DocumentTools:
         topic_terms.extend(value for key, value in month_pairs.items() if key in lowered and value not in topic_terms)
         variants = registry["search_variants"] if registry else ("{query}",)
         variant_queries = [variant.format(query=query) for variant in variants]
-        search_queries = ["site:" + preferred[0] + " " + variant for variant in variant_queries] if preferred and not search_domains(query) else variant_queries
+        # Search every explicitly allowed institution before expanding wording
+        # on the first one. All retries share the original deadline.
+        search_queries = (["site:" + domain + " " + variant for variant in variant_queries for domain in preferred]
+                          if preferred and not search_domains(query) else variant_queries)
+        pending_queries = iter(search_queries[:max(3, len(preferred or []))])
         searches = []
-        for search_query in search_queries[:3]:
+        for search_query in pending_queries:
             if time.monotonic() >= search_deadline:
                 break
             search = self.web_search(search_query, limit=min(10, max(5, limit * 2)), _deadline=search_deadline)
@@ -1328,23 +1363,42 @@ class DocumentTools:
             return (4 * topical + 6 * sum(year in label for year in requested_years) * bool(topical or item.get("topic_context"))
                     + 24 * bool(item.get("topic_context") and str(item.get("title", "")).strip() in requested_years)
                     + 40 * bool(requested_dates.intersection(_source_dates(label)))
-                    + 30 * bool(expected_document_type and _document_type(label) == expected_document_type)
+                    + 30 * bool(expected_document_types and _document_type(label) in expected_document_types)
                     + 2 * bool(item.get("in_main_content")) - 2 * bool(item.get("in_navigation"))
                     + 3 * sum(term in label for term in specialized_terms)
                     + sum(bool(re.search(r"\b" + number + r"\b", item.get("title", ""))) for number in day_numbers))
         results.sort(key=relevance, reverse=True)
         sources, deferred_sources, failures, attempts, seen_hashes = [], [], [], 0, set()
-        while results:
+        while True:
             if len(sources) >= limit:
                 break
             if attempts >= 18 or time.monotonic() >= read_deadline:
                 break
+            if not results:
+                if sources or time.monotonic() >= search_deadline:
+                    break
+                search_query = next(pending_queries, None)
+                if search_query is None:
+                    break
+                # A plausible snippet is only a candidate. If its actual page
+                # fails verification, try the next discovery route instead of
+                # returning failure while untried queries remain.
+                search = self.web_search(search_query, limit=min(10, max(5, limit * 2)), _deadline=search_deadline)
+                search_diagnostics.append({key: search.get(key) for key in
+                    ("query", "status", "code", "source_backend", "provider_attempts", "budget_exhausted", "warnings")})
+                for item in search.get("results", []) if search.get("status") == "ok" else []:
+                    url = item.get("url", "").split("#", 1)[0]
+                    if url and url not in seen_urls and allowed(url):
+                        seen_urls.add(url)
+                        results.append({**item, "url": url})
+                continue
             results.sort(key=lambda item: relevance(item) - 2 * item.get("discovery_depth", 0), reverse=True)
             result = results.pop(0)
             if different_year(result):
                 failures.append({"url": result.get("url"), "code": "OUT_OF_DATE_LINK", "message": "Link explicitly names a different year; no fetch attempted."})
                 continue
             attempts += 1
+            inspected = None
             try:
                 inspected = self.inspect_source(url=result["url"], _deadline=read_deadline)
                 text = inspected.get("text", "").strip()
@@ -1397,11 +1451,12 @@ class DocumentTools:
                 source_title = verified_title or result.get("title", "")
                 title_text = _search_text(source_title)
                 searchable = _search_text(" ".join([verified_title, article.get("description", ""), content]))
-                document_type = _document_type(" ".join([source_title, source_url, content[:4000]]))
-                if expected_document_type and document_type != expected_document_type:
+                document_type = (_document_type(verified_title)
+                                 or _document_type(" ".join([source_title, source_url, content[:4000]])))
+                if expected_document_types and document_type not in expected_document_types:
                     raise DocumentError(
                         f"Source document type {document_type or 'unclassified'} does not satisfy requested "
-                        f"{expected_document_type} evidence.",
+                        f"{' or '.join(expected_document_types)} evidence.",
                         "DOCUMENT_TYPE_MISMATCH",
                     )
                 from agentic_analytics.agent.tools.search_backend import rank_search_results
@@ -1489,11 +1544,19 @@ class DocumentTools:
                 else:
                     sources.append(card)
             except (DocumentError, OSError, ValueError, KeyError) as exc:
-                failures.append({"url": result.get("url"), "code": getattr(exc, "code", "SOURCE_READ_FAILED"), "message": str(exc)})
+                failure = {"url": result.get("url"), "code": getattr(exc, "code", "SOURCE_READ_FAILED"), "message": str(exc)}
+                if inspected and inspected.get("source_id"):
+                    # Preserve a navigation address for an actually fetched
+                    # document even if it fails this query's evidence checks.
+                    # It remains a rejected candidate, never answer evidence.
+                    failure.update(source_id=inspected["source_id"],
+                                   document_type=inspected.get("document_type"),
+                                   suggested_inspection={"source_id": inspected["source_id"]})
+                failures.append(failure)
         sources.extend(deferred_sources[:max(0, limit - len(sources))])
         if not sources:
             return {"status": "unavailable", "research_status": "unavailable", "code": "NO_READABLE_SOURCES",
-                    "message": "Search results were found, but no result had readable public content.",
+                    "message": "No inspected source satisfied the requested topic, period and document requirements; see individual failures for access versus evidence limitations.",
                     "query": query, "sources": [], "failures": failures, "searches": search_diagnostics,
                     "budget_exhausted": time.monotonic() >= read_deadline}
         return {"status": "ok", "research_status": "completed", "query": query,
