@@ -115,6 +115,33 @@ class DatasetAnalyticsTests(unittest.TestCase):
         proof = self.service.explain_value({'analysis_id':result['analysis_id'],'period':'Tüm kayıtlar','column':'staff','dimensions':{'department':'Finance'}})
         self.assertEqual(proof['value'],7)
 
+    def test_source_value_preserves_reference_labels_dates_and_numeric_values(self):
+        contract = {'name': 'Index reference', 'frequency': 'static', 'key': ['code'], 'grain': ['code'],
+                    'columns': {
+                        'code': {'dtype': 'string', 'kind': 'dimension', 'unit': 'label', 'nullable': False},
+                        'name': {'dtype': 'string', 'kind': 'dimension', 'unit': 'label', 'nullable': True},
+                        'start': {'dtype': 'date', 'kind': 'dimension', 'unit': 'calendar', 'nullable': False},
+                        'base': {'dtype': 'integer', 'kind': 'index', 'unit': 'index', 'nullable': False}}}
+        dataset = self.ingest('code,name,start,base\nA,Example index,2000-01-03,100\nB,,2001-02-05,200\n', contract)
+        measures = [{'name': c, 'column': c, 'op': 'source_value'} for c in ('name', 'start', 'base')]
+        result = self.tools.aggregate_dataset(dataset, measures, group_by='code')
+        self.assertEqual(result['preview'][0]['name'], 'Example index')
+        self.assertEqual(result['preview'][0]['start'], '2000-01-03')
+        self.assertEqual(result['preview'][0]['base'], 100)
+        self.assertIsNone(result['preview'][1]['name'])
+        frame, manifest = self.store.load_analysis(result['analysis_id'])
+        self.assertEqual(frame.start.tolist(), ['2000-01-03', '2001-02-05'])
+        self.assertEqual(manifest['schema']['name']['kind'], 'dimension')
+        proof = self.service.explain_value({'analysis_id': result['analysis_id'], 'period': 'Tüm kayıtlar',
+                                          'column': 'name', 'dimensions': {'code': 'A'}})
+        self.assertEqual(proof['value'], 'Example index')
+        self.assertEqual(proof['lineage']['source_rows'], [1])
+        for operation in ('sum', 'mean', 'min', 'max'):
+            with self.subTest(operation=operation), self.assertRaises(PlanError):
+                self.tools.aggregate_dataset(dataset, [{'name': 'invalid', 'column': 'name', 'op': operation}], group_by='code')
+        with self.assertRaises(PlanError):
+            self.tools.aggregate_dataset(dataset, measures)
+
     def test_nulls_cannot_disappear_from_population_sum(self):
         dataset = self.ingest('date,id,value\n2026-01-03,A,10\n2026-01-04,B,\n',self.contract())
         args = {'dataset_id':dataset,'measures':[{'name':'amount','op':'sum','column':'value'}],'time_bucket':{'frequency':'monthly'}}

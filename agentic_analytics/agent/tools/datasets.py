@@ -156,7 +156,7 @@ class DatasetTools:
                     meta, _ = normalize_column(columns[column])
                 except ValueError as exc:
                     raise PlanError(str(exc), code='SEMANTICS_REVIEW_REQUIRED') from exc
-                if meta['dtype'] not in {'integer', 'float'} or meta['kind'] == 'dimension':
+                if operation != 'source_value' and (meta['dtype'] not in {'integer', 'float'} or meta['kind'] == 'dimension'):
                     raise PlanError('Numeric aggregation needs a reviewed numeric measure', code='SEMANTICS_REVIEW_REQUIRED')
                 from agentic_analytics.lakehouse.financial_semantics import cumulative_evidence
                 cumulative = cumulative_evidence(meta)
@@ -265,7 +265,9 @@ class DatasetTools:
                             if any(w < 0 for _, w in pairs) or total_weight <= 0:
                                 raise PlanError('Weights must be nonnegative with a positive total')
                             value = sum((v*w for v,w in pairs), Decimal(0)) / total_weight
-                if value is not None:
+                if operation == 'source_value' and definitions[name]['dtype'] not in {'integer', 'float'}:
+                    value = _json(value)
+                elif value is not None:
                     value = Decimal(str(value))
                     if not value.is_finite():
                         raise PlanError('Aggregate is not finite')
@@ -285,6 +287,9 @@ class DatasetTools:
         result = pd.DataFrame(output, dtype=object)
         for name in names:
             values = [row[name] for row in output]
+            if definitions[name].get('dtype') in {'string', 'date', 'boolean'}:
+                result[name] = pd.Series(values, dtype=object)
+                continue
             observed = [value for value in values if value is not None]
             if all(isinstance(value, int) for value in observed):
                 if any(not -(2**63) <= value < 2**63 for value in observed):
@@ -320,5 +325,5 @@ class DatasetTools:
             'time_bucket': obj({'frequency': {'enum': ['daily','weekly','monthly','quarterly','annual']}}),
             'aggregation_scope': {'enum': ['within_series','explicit_population']}, 'scope_reason': STRING}, ['dataset_id','measures'])
         return {'aggregate_dataset': {'schema': {'type': 'function', 'function': {'name': 'aggregate_dataset',
-            'description': 'Analyze an imported event/static/calendar table with explicit filters, category group and numeric measures. source_value copies exactly one original numeric record per output key, preserving native dates and semantic uncertainty; use it to display reported facts without aggregation or invented stock/flow assumptions. For line-item observations, group_by is the actual line-item column; the date axis comes from the source contract. Event rows require time_bucket={frequency:daily} to retain their individual dates. Static tables need no invented date or time_bucket. count without column counts source records. Cross-entity sums need explicit_population and a factual scope_reason; never sum stocks across dates. Output is a saved analysis usable by charts and summaries, with source-row lineage.',
+            'description': 'Analyze an imported event/static/calendar table with explicit filters, category group and numeric measures. source_value copies exactly one original value per output key, including text labels and dates alongside numbers, preserving native dates and semantic uncertainty; use it to display reported facts without aggregation or invented stock/flow assumptions. Text/date facts remain nonnumeric and cannot be summed or charted as measures. For line-item observations, group_by is the actual line-item column; the date axis comes from the source contract. Event rows require time_bucket={frequency:daily} to retain their individual dates. Static tables need no invented date or time_bucket. count without column counts source records. Cross-entity sums need explicit_population and a factual scope_reason; never sum stocks across dates. Output is a saved analysis usable by charts and summaries, with source-row lineage.',
             'parameters': params}}, 'handler': run, 'mutating': True, 'recover': self.recover}}
