@@ -531,11 +531,14 @@ class _HTMLReadable(HTMLParser):
         self.link_positions = {}
         self.anchor = None
         self.svg_depth = 0
+        self.block_contexts = []
 
     def handle_starttag(self, tag, attrs):
         # See _HTMLArticle.handle_starttag: a bare attribute (<img alt>) parses
         # as None, not "", so normalize before any .strip()/.split() below.
         attrs = {key: value if value is not None else "" for key, value in attrs}
+        if tag in {"div", "li", "tr", "article", "section"}:
+            self.block_contexts.append({"tag": tag, "text": [], "text_length": 0, "links": []})
         if tag in {"script", "style", "noscript", "nav", "footer", "defs", "symbol"}:
             self.hidden.append(tag)
         if tag == "svg":
@@ -573,6 +576,10 @@ class _HTMLReadable(HTMLParser):
         self.text.append(value)
         if self.focus:
             self.focus_text.append(value)
+        for context in self.block_contexts:
+            if context["text_length"] < 1200:
+                context["text"].append(value)
+                context["text_length"] += len(value)
 
     def handle_endtag(self, tag):
         if tag == "svg":
@@ -593,7 +600,23 @@ class _HTMLReadable(HTMLParser):
             elif len(self.links) < 2000:
                 self.link_positions[key] = len(self.links)
                 self.links.append(link)
+                position = len(self.links) - 1
+            if position is not None:
+                for context in self.block_contexts:
+                    if position not in context["links"]:
+                        context["links"].append(position)
             self.anchor = None
+        if self.block_contexts and tag == self.block_contexts[-1]["tag"]:
+            context = self.block_contexts.pop()
+            value = " ".join("".join(context["text"]).split())[:1000]
+            for position in context["links"]:
+                link = self.links[position]
+                # Prefer the nearest bounded block that contributes visible
+                # information beyond the anchor itself.  This preserves dates
+                # rendered beside an archive link without assigning the text
+                # of an entire page or guessing a destination URL.
+                if value and value != link["title"] and not link.get("context"):
+                    link["context"] = value
 
 
 def _article_metadata(data, mime_type, final_url):
@@ -622,11 +645,13 @@ def _article_metadata(data, mime_type, final_url):
         "author": item.get("author", {}).get("name") if isinstance(item.get("author"), dict) else item.get("author"),
         "article_body": str(item.get("articleBody", ""))[:20000],
         "readable_text": "\n".join(line.strip() for line in "".join(readable.focus_text if "".join(readable.focus_text).strip() else readable.text).splitlines() if line.strip())[:40000],
-        "document_links": [{"url": parse.urljoin(final_url, link["href"]), "title": link["title"]}
+        "document_links": [{"url": parse.urljoin(final_url, link["href"]), "title": link["title"],
+                            **({"context": link["context"]} if link.get("context") else {})}
                            for link in readable.links
                            if re.search(r"\.(?:pdf|xlsx?|csv)(?:$|[?#])", link["href"], re.I)][:50],
         "source_links": [{"url": parse.urljoin(final_url, link["href"]), "title": link["title"],
-                          "in_main_content": link["in_main_content"], "in_navigation": link["in_navigation"]}
+                          "in_main_content": link["in_main_content"], "in_navigation": link["in_navigation"],
+                          **({"context": link["context"]} if link.get("context") else {})}
                          for link in sorted(readable.links, key=lambda link: (not link["in_main_content"], link["in_navigation"]))
                          if link["href"] and not link["href"].startswith(("#", "javascript:", "mailto:", "tel:"))][:500],
         "link_count": len(readable.links),
@@ -1362,7 +1387,23 @@ class DocumentTools:
             # Ancestor URL segments repeat the entire navigation hierarchy on
             # some sites. Rank the actual link label and leaf, not that menu.
             path = parse.unquote(parse.urlsplit(item.get("url", "")).path).rstrip("/")
-            return _search_text(item.get("title", "") + " " + path.rsplit("/", 1)[-1])
+            return _search_text(item.get("title", "") + " " + item.get("context", "") + " " + path.rsplit("/", 1)[-1])
+        def link_dates(item):
+            dates = _source_dates(identity(item))
+            # Archive cards commonly print a local day-first date beside the
+            # link while the destination title contains no date.  Use that
+            # bounded neighboring context for discovery only.  The fetched
+            # document must still establish the exact requested date below,
+            # so an ambiguous numeric label can never validate final evidence.
+            for day, month, year in re.findall(
+                    r"(?<!\d)(0?[1-9]|[12]\d|3[01])[./-](0?[1-9]|1[0-2])[./-]((?:19|20)\d{2})(?!\d)",
+                    _search_text(item.get("context", ""))):
+                try:
+                    datetime(int(year), int(month), int(day))
+                except ValueError:
+                    continue
+                dates.add((int(year), int(month), int(day)))
+            return dates
         def different_year(item):
             years = set(re.findall(r"(?<!\d)(?:19|20)\d{2}(?!\d)", identity(item)))
             return bool(requested_years and years and not requested_years.intersection(years))
@@ -1371,7 +1412,7 @@ class DocumentTools:
             topical = topic_matches(label)
             return (4 * topical + 6 * sum(year in label for year in requested_years) * bool(topical or item.get("topic_context"))
                     + 24 * bool(item.get("topic_context") and str(item.get("title", "")).strip() in requested_years)
-                    + 40 * bool(requested_dates.intersection(_source_dates(label)))
+                    + 40 * bool(requested_dates.intersection(link_dates(item)))
                     + 30 * bool(expected_document_types and _document_type(label) in expected_document_types)
                     + 2 * bool(item.get("in_main_content")) - 2 * bool(item.get("in_navigation"))
                     + 3 * sum(term in label for term in specialized_terms)
@@ -1431,7 +1472,7 @@ class DocumentTools:
                     link = {**link, "topic_context": bool(topic_matches(identity(result)) or result.get("topic_context"))}
                     target = link.get("url", "").split("#", 1)[0]
                     label = identity(link)
-                    precise_date = bool(requested_dates.intersection(_source_dates(label)))
+                    precise_date = bool(requested_dates.intersection(link_dates(link)))
                     report_navigation = (not financial_navigation or precise_date or bool(re.search(
                         r"financ|finans|rapor|report|statement|earnings|investor|yatirimci|publications|mali.tablo", label))
                         or str(link.get("title", "")).strip() in requested_years and link.get("topic_context"))
@@ -1450,7 +1491,7 @@ class DocumentTools:
                 ranked_links = sorted(candidates.values(), key=lambda link: relevance(link) + sum(
                     term in identity(link) for term in archive_terms)
                     + 3 * sum(term in identity(link) for term in specialized_terms), reverse=True)
-                exact_links = [link for link in ranked_links if requested_dates.intersection(_source_dates(identity(link)))][:3]
+                exact_links = [link for link in ranked_links if requested_dates.intersection(link_dates(link))][:3]
                 other_links = [link for link in ranked_links if link not in exact_links][:3]
                 for link in [*exact_links, *other_links]:
                     seen_urls.add(link["url"])

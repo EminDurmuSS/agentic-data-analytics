@@ -1046,6 +1046,53 @@ class AgentDocumentTests(unittest.TestCase):
         self.assertEqual(result["sources"][0]["url"], target)
         self.assertEqual(visited, [root, archive, target])
 
+    def test_dated_research_uses_nearest_archive_card_text_without_guessing_a_url(self):
+        archive = "https://example.org/decisions/2027"
+        target = "https://example.org/decisions/eighth"
+        cards = []
+        for day, slug in enumerate(("first", "second", "third", "fourth", "fifth", "sixth", "seventh", "eighth"), 1):
+            date = "08/04/2027" if slug == "eighth" else f"{day:02d}/03/2027"
+            cards.append(
+                '<div class="archive-card">'
+                f'<a href="/decisions/{slug}">Interest Rate Decision</a>'
+                f'<div class="publication-date">{date}</div>'
+                '</div>'
+            )
+        archive_article = _article_metadata(
+            ("<html><head><title>2027 policy decisions</title></head><body>" + "".join(cards) + "</body></html>").encode(),
+            "text/html",
+            archive,
+        )
+        target_link = next(link for link in archive_article["source_links"] if link["url"] == target)
+        self.assertIn("08/04/2027", target_link["context"])
+
+        self.docs.web_search = lambda *args, **kwargs: {"status": "ok", "results": [{
+            "title": "2027 policy decisions", "url": archive,
+        }]}
+        visited = []
+
+        def inspect(url=None, **kwargs):
+            visited.append(url)
+            if url == archive:
+                return {"status": "ok", "source_id": "archive", "source_url": url,
+                        "text": archive_article["readable_text"], "article": archive_article}
+            if url == target:
+                return {"status": "ok", "source_id": "decision", "source_url": url,
+                        "text": ("8 April 2027. The monetary policy committee reduced the one-week repo "
+                                 "auction rate from 38 percent to 35.5 percent."),
+                        "article": {"title": "Interest Rate Decision"}}
+            raise DocumentError("An undated archive decoy was fetched.", "WRONG_CANDIDATE")
+
+        self.docs.inspect_source = inspect
+        result = self.docs.research_web(
+            "Monetary policy committee interest rate decision 8 April 2027",
+            limit=1,
+            domains=["example.org"],
+        )
+        self.assertEqual(result["status"], "ok", result)
+        self.assertEqual(result["sources"][0]["url"], target)
+        self.assertEqual(visited, [archive, target])
+
     def test_official_financial_report_archive_is_seeded_even_when_search_returns_a_presentation(self):
         presentation = "https://www.garantibbvainvestorrelations.com/en/images/pdf/1Q26_Financial_Results.pdf"
         archive = "https://www.garantibbvainvestorrelations.com/en/library/brsa-consolidated-financials-pdf/PDF/1268/0/0"
