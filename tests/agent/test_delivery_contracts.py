@@ -1209,6 +1209,29 @@ def test_policy_decision_receipt_rejects_snippets_and_wrong_document_types():
     assert _verified_policy_decision_confirmation(wrong_type) == ""
 
 
+def test_policy_receipt_replaces_unsupported_model_draft_before_delivery_grading(env):
+    *_, build = env
+    source = {"status": "ok", "sources": [{
+        "source_id": "decision", "source_url": "https://centralbank.example.org/decision-27",
+        "document_type": "policy_decision", "reporting_period": "2027-04-08",
+        "content": "Bir hafta vadeli repo ihale faiz oranının yüzde 38'den yüzde 35,5'e indirilmesine karar verilmiştir.",
+    }]}
+    bad_draft = ("Bir hafta vadeli repo ihale faiz oranı yüzde 38'den yüzde 35,5'e indirildi; "
+                 "2,5 puan düştü ve konut kredisi faizi yüzde 35,5 oldu.")
+    runtime, client = build([
+        call("research_web", {"query": "official policy decision"}), final(bad_draft),
+    ], more=web_tool(lambda args: source))
+    result = runtime.run(
+        "8 Nisan 2027 politika kararını resmî kaynaktan bul; önceki ve yeni oranı kısa tabloda göster."
+    )
+    assert result["status"] == "completed", result
+    assert len(client.requests) == 2
+    assert "%38" in result["message"] and "%35,5" in result["message"]
+    assert "2,5 puan" not in result["message"]
+    assert "konut kredisi faizi yüzde 35,5" not in result["message"]
+    assert not result.get("errors")
+
+
 def test_consolidated_total_assets_requires_scoped_page_table_and_unit_proof(env):
     *_, build = env
     runtime, _ = build([])

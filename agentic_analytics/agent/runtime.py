@@ -1767,8 +1767,12 @@ class AgentRuntime:
                     # Prefer a deterministic source-cell compilation over a
                     # second provider attempt with the same ambiguous import.
                     self._recover_source_analysis(record, state, reason="verified_source_delivery")
-                    missing_outputs = (self._task_delivery_errors(state) + self._numeric_evidence_errors(state, content)
-                                       + self._source_semantic_errors(state, content) + self._external_fact_errors(state, content))
+                    policy_receipt = _verified_policy_decision_confirmation(state)
+                    validated_content = policy_receipt or content
+                    missing_outputs = (self._task_delivery_errors(state)
+                                       + self._numeric_evidence_errors(state, validated_content)
+                                       + self._source_semantic_errors(state, validated_content)
+                                       + self._external_fact_errors(state, validated_content))
                     corrective_errors = self._corrective_delivery_errors(state)
                     if ((missing_outputs or corrective_errors)
                             and not self._sourced_limitation(state, content, missing_outputs + corrective_errors)
@@ -1941,11 +1945,15 @@ class AgentRuntime:
         self.run_store.checkpoint(record["run_id"], state)
         self._default_summary(record, state)
         warnings = [*(warnings or []), *state.get("delivery_warnings", [])]
+        policy_receipt = _verified_policy_decision_confirmation(state)
+        # Validate the deterministic receipt that will replace model prose;
+        # unsupported draft-only fields must neither leak nor poison delivery.
+        validated_content = policy_receipt or content
         errors = [error for failures in state.get("unresolved_errors", {}).values() for error in failures]
         errors.extend(self._task_delivery_errors(state))
-        errors.extend(self._numeric_evidence_errors(state, content))
-        errors.extend(self._source_semantic_errors(state, content))
-        errors.extend(self._external_fact_errors(state, content))
+        errors.extend(self._numeric_evidence_errors(state, validated_content))
+        errors.extend(self._source_semantic_errors(state, validated_content))
+        errors.extend(self._external_fact_errors(state, validated_content))
         if state.get("search_progress", {}).get("paused"):
             errors.append({"code": "SEARCH_STRATEGY_EXHAUSTED", "message": "Repeated search results remain unresolved; a relevant source has not been read."})
         if "create_chart" in self.tools and _requests_chart(record["message"]) and not state.get("chart_updated"):
@@ -1954,7 +1962,6 @@ class AgentRuntime:
             item.get("result", {}).get("status") == "ok" and (
                 item["result"].get("tables") or any(source.get("tables") for source in item["result"].get("sources", [])))
             for item in state.get("tool_results", []))
-        policy_receipt = _verified_policy_decision_confirmation(state)
         if (_requests_table(record["message"]) and not state.get("analysis_updated") and not source_table
                 and not policy_receipt
                 and not _successful_selection(state) and not _successful_bundle(state)):
