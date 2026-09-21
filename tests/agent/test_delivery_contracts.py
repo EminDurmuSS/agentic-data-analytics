@@ -414,6 +414,51 @@ def test_provider_outage_delivers_verified_statement_value_and_chart_without_llm
     assert store.workspace(wid) == before
 
 
+def test_bad_model_number_is_replaced_by_verified_statement_analysis_without_second_guess(env):
+    store, wid, journal, _, build = env
+    _, args, extras = _statement_recovery_fixture(env)
+    runtime, client = build([
+        call("read_source_table", args),
+        final("Toplam aktifler 999.999.999 bin Türk lirasıdır."),
+    ], more=extras)
+    result = runtime.run(
+        "30 Haziran 2027 tarihli konsolide raporda toplam aktifleri göster.",
+        source_ids=[args["source_id"]],
+    )
+    assert result["status"] == "completed", result
+    assert result["analysis_updated"] and result["chart_updated"]
+    assert len(client.requests) == 2
+    assert "321.456.789" in result["message"]
+    assert "999.999.999" not in result["message"]
+    frame, _ = store.load_analysis(result["analysis_id"])
+    assert frame["reported_amount"].tolist() == [321456789]
+    assert any(e["kind"] == "delivery_repair" and e["payload"].get("reason") == "verified_source_delivery"
+               for e in journal.events(result["run_id"]))
+
+
+def test_verified_statement_recovery_supersedes_failed_guess_based_import(env):
+    store, wid, _, _, build = env
+    _, args, extras = _statement_recovery_fixture(env)
+    guessed = {"source_id": args["source_id"], "table_id": args["table_id"],
+               "row_labels": ["VARLIKLAR TOPLAMI"], "periods": ["2027-06-30"],
+               "value_columns": ["c1", "c2", "c3"], "measure_kind": "stock", "expected_version": 0}
+    runtime, client = build([
+        call("read_source_table", args),
+        call("ingest_source_table", guessed),
+        final("Toplam aktifler 999.999.999 bin Türk lirasıdır."),
+    ], more=extras)
+    result = runtime.run(
+        "30 Haziran 2027 tarihli konsolide raporda toplam aktifleri göster.",
+        source_ids=[args["source_id"]],
+    )
+    assert result["status"] == "completed", result
+    assert result["analysis_updated"] and result["chart_updated"]
+    assert len(client.requests) == 3
+    assert "321.456.789" in result["message"] and "999.999.999" not in result["message"]
+    assert not result.get("errors")
+    assert store.load_analysis(result["analysis_id"])[0]["reported_amount"].tolist() == [321456789]
+
+
 @pytest.mark.parametrize("case", ["no_date", "different_period", "wrong_scope", "unread_row", "ambiguous_number", "missing_unit", "preview_only"])
 def test_provider_outage_never_invents_statement_chart_when_evidence_is_insufficient(env, case):
     store, wid, journal, _, build = env
@@ -1148,6 +1193,20 @@ def test_consolidated_total_assets_requires_scoped_page_table_and_unit_proof(env
     del valid["tool_results"][0]["result"]["unit_caption"]
     errors = runtime._source_semantic_errors(valid, "Toplam aktifler 4.783.750.292 bin TL'dir.")
     assert errors[0]["code"] == "FINANCIAL_REPORT_CELL_PROOF_INCOMPLETE"
+
+
+def test_consolidated_total_assets_accepts_adjacent_split_label_cells(env):
+    *_, build = env
+    runtime, _ = build([])
+    state = {"messages": [{"role": "user", "content":
+        "Örnek Banka 30 Haziran 2027 konsolide finansal raporundaki toplam aktifleri doğrula"}],
+        "tool_results": [{"tool": "find_source_table_rows", "result": {
+            "status": "ok", "source_id": "source", "source_url": "https://example.org/report.pdf",
+            "raw_sha256": "b" * 64, "document_type": "financial_report", "reporting_period": "2027-06-30",
+            "consolidation_scope": "consolidated", "page": 9, "table_id": "table_9",
+            "unit_caption": "BİN TÜRK LİRASI", "rows": [{"candidate_row": 41, "values": {
+                "label_1": "VARLIKLA", "label_2": "R TOPLAMI", "Toplam": "321456789"}}]}}]}
+    assert runtime._source_semantic_errors(state, "Toplam aktifler 321.456.789 bin TL'dir.") == []
 
 
 def test_educational_numeric_example_is_labeled_and_not_mistaken_for_source_data(env):

@@ -1,4 +1,4 @@
-"""Conservative, source-owned statement delivery after a provider outage.
+"""Conservative, source-owned statement delivery when prose/tool repair stalls.
 
 No web request or model decision is made here. Recovery is limited to one
 explicitly requested balance-sheet line/date in a table read in this turn.

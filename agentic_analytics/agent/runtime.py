@@ -1756,6 +1756,9 @@ class AgentRuntime:
                         if state["repairs"] > self.max_repairs:
                             return self._finish(record, state, "blocked", "Model okunabilir bir Türkçe cevap üretemedi.", errors=[{"code": "UNREADABLE_MODEL_OUTPUT", "message": "Final answer failed the charset/language readability check."}])
                         continue
+                    # Prefer a deterministic source-cell compilation over a
+                    # second provider attempt with the same ambiguous import.
+                    self._recover_source_analysis(record, state, reason="verified_source_delivery")
                     missing_outputs = (self._task_delivery_errors(state) + self._numeric_evidence_errors(state, content)
                                        + self._source_semantic_errors(state, content) + self._external_fact_errors(state, content))
                     corrective_errors = self._corrective_delivery_errors(state)
@@ -1832,11 +1835,12 @@ class AgentRuntime:
             error = error_envelope(exc)
             return self._finish(record, state, "blocked", "Çalışma alanı veya plan doğrulaması tamamlanamadı.", errors=error["errors"])
 
-    def _recover_source_analysis(self, record, state):
+    def _recover_source_analysis(self, record, state, *, reason="provider_outage_source_delivery"):
         """Bounded provider-free delivery through the normal audited tools.
 
         Never replace an existing analysis, publish to the shared lakehouse,
-        infer a date, or bypass compiler review to make a chart appear.
+        infer a date, or bypass compiler review to make a chart appear. It can
+        run after an outage or replace a failed model-directed import repair.
         """
         required = {"ingest_source_table", "aggregate_dataset", "create_chart"}
         if (not required <= self.tools.keys() or state.get("source_recovery_attempted")
@@ -1849,28 +1853,28 @@ class AgentRuntime:
             if args is None:
                 return
             self.run_store.event(record["run_id"], "delivery_repair", {
-                "reason": "provider_outage_source_delivery", "source_id": args["source_id"],
+                "reason": reason, "source_id": args["source_id"],
                 "table_id": args["table_id"], "row_numbers": args.get("row_numbers"),
                 "row_labels": args.get("row_labels"), "periods": args.get("periods")})
-            imported = self._source_recovery_tool(record, state, "ingest_source_table", args)
+            imported = self._source_recovery_tool(record, state, "ingest_source_table", args, reason=reason)
             if imported.get("status") != "ok" or not imported.get("publication_performed"):
                 return
             request = imported.get("analysis_request") or {}
             if request.get("tool") != "aggregate_dataset":
                 return
-            analysis = self._source_recovery_tool(record, state, "aggregate_dataset", request["arguments"])
+            analysis = self._source_recovery_tool(record, state, "aggregate_dataset", request["arguments"], reason=reason)
             if analysis.get("status") != "ok" or not analysis.get("analysis_id"):
                 return
-            self._source_recovery_tool(record, state, "create_chart", {"analysis_id": analysis["analysis_id"]})
+            self._source_recovery_tool(record, state, "create_chart", {"analysis_id": analysis["analysis_id"]}, reason=reason)
         except (ValueError, OSError, duckdb.Error) as exc:
             # Keep the provider error and readable source evidence. Validation
             # failures are not permission to manufacture a numerical result.
             self.run_store.event(record["run_id"], "delivery_repair_skipped", {
-                "reason": "provider_outage_source_delivery", "errors": error_envelope(exc)["errors"]})
+                "reason": reason, "errors": error_envelope(exc)["errors"]})
         finally:
             self.run_store.checkpoint(record["run_id"], state)
 
-    def _source_recovery_tool(self, record, state, name, args):
+    def _source_recovery_tool(self, record, state, name, args, *, reason="provider_outage_source_delivery"):
         call = {"id": "runtime_source_" + fingerprint({"name": name, "args": args})[:20],
                 "type": "function", "function": {"name": name, "arguments": canonical(args)}}
         self._close_pending(state)
@@ -1881,9 +1885,12 @@ class AgentRuntime:
         state["messages"].append({"role": "tool", "tool_call_id": call["id"],
                                   "content": canonical(_model_tool_result(name, result))})
         state["tool_results"].append({"tool": name, "call_id": call["id"], "automatic": True,
-                                      "reason": "provider_outage_source_delivery", "result": _compact(result)})
+                                      "reason": reason, "result": _compact(result)})
         state["pending"] = []
         if result.get("status") == "ok":
+            # A successful deterministic replay supersedes an earlier failed
+            # attempt of this same stage in this single-fact recovery path.
+            state.setdefault("unresolved_errors", {}).pop(name, None)
             if result.get("publication_performed") is not False:
                 state.setdefault("successful_writes", {})[fingerprint({"name": name, "args": args})] = result
             if name == "aggregate_dataset" and result.get("analysis_id"):
@@ -1910,6 +1917,10 @@ class AgentRuntime:
         user or becomes context for the next turn.
         """
         self._close_pending(state)
+        # If a directly read statement row already proves one requested fact,
+        # compile it before grading model prose. This preserves strict numeric
+        # validation while avoiding another guess-based provider repair.
+        self._recover_source_analysis(record, state, reason="verified_source_delivery")
         if not state.get("analysis_id") and not state.get("tool_results") and re.search(r"\d", content):
             active_analysis = self.store.workspace(self.workspace_id).get("analysis_head")
             if active_analysis:
@@ -2402,9 +2413,15 @@ class AgentRuntime:
             for result in row_reads:
                 identity = identities.get(result.get("source_id"), {})
                 proof = {**identity, **result}
-                values = " ".join(str(value) for row in result.get("rows", []) if isinstance(row, dict)
-                                  for value in (row.get("values") or {}).values() if value is not None)
-                if (re.search(r"toplam\s+aktif|total\s+assets?", _fact_text(values))
+                rows = [[str(value) for value in (row.get("values") or {}).values() if value is not None]
+                        for row in result.get("rows", []) if isinstance(row, dict)]
+                # PDF extractors may split one label across adjacent cells
+                # (for example "VARLIKLA" + "R TOPLAMI"). Check both literal
+                # spacing and contiguous cell fragments without changing cells.
+                label_proved = any(re.search(r"toplam\s+aktif|total\s+assets?|varliklar\s*toplami",
+                                             _fact_text(joined))
+                                   for values in rows for joined in (" ".join(values), "".join(values)))
+                if (label_proved
                         and isinstance(proof.get("page"), int) and proof.get("table_id")
                         and proof.get("raw_sha256") and proof.get("unit_caption") and proof.get("reporting_period")):
                     valid_proof = True
