@@ -1,0 +1,14 @@
+flowchart TB
+    UI["Tarayıcı arayüzü"] -->|İstek / durum sorgusu| API["FastAPI / AppContext"]
+    API -->|Arka plan işi| RUN["AgentRuntime"]
+    RUN <-->|Araç seçimi / gözlem| MODEL["MIA / Qwen"]
+    RUN -->|Checkpoint / olay| LOG["Kalıcı işlem günlüğü"]
+    RUN -->|Doğrulanmış çağrı| TOOLS["Belge / veri / grafik araçları"]
+    TOOLS <-->|Arama / belge okuma| WEB["SearXNG / web / yüklenen dosya"]
+    TOOLS -->|Plan / hesap / kayıt| DATA["LakehouseService / Store"]
+    BUILD["data_pipeline / katalog / build"] -->|Veri yayını| DB["DuckDB / Parquet / snapshot"]
+    DATA <--> DB
+    DATA -->|Kayıtlı sonuç| OUT["Tablo / grafik / kaynak izi"]
+    OUT -->|Sunum| API
+    OUT -->|Sonuç bağlamı| VOICE["Sesli özet / EMA-TTS"]
+    VOICE -->|Ses kaydı| API

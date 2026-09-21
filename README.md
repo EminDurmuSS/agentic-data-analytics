@@ -119,24 +119,7 @@ Uygulama, araç çağrıları yapan tek bir agent döngüsü etrafında kuruludu
 
 ![Agentic Data Analytics genel mimarisi](docs/diagrams/system-architecture.svg)
 
-[PlantUML kaynağı](docs/diagrams/system-architecture.puml) · [SVG](docs/diagrams/system-architecture.svg) · [Üretim talimatı](docs/diagrams/README.md). Aynı bileşenler ve bağlantılar GitHub'ın doğrudan gösterebildiği Mermaid biçiminde de verilmiştir:
-
-```mermaid
-flowchart TB
-    UI["Tarayıcı arayüzü"] -->|İstek / durum sorgusu| API["FastAPI / AppContext"]
-    API -->|Arka plan işi| RUN["AgentRuntime"]
-    RUN <-->|Araç seçimi / gözlem| MODEL["MIA / Qwen"]
-    RUN -->|Checkpoint / olay| LOG["Kalıcı işlem günlüğü"]
-    RUN -->|Doğrulanmış çağrı| TOOLS["Belge / veri / grafik araçları"]
-    TOOLS <-->|Arama / belge okuma| WEB["SearXNG / web / yüklenen dosya"]
-    TOOLS -->|Plan / hesap / kayıt| DATA["LakehouseService / Store"]
-    BUILD["data_pipeline / katalog / build"] -->|Veri yayını| DB["DuckDB / Parquet / snapshot"]
-    DATA <--> DB
-    DATA -->|Kayıtlı sonuç| OUT["Tablo / grafik / kaynak izi"]
-    OUT -->|Sunum| API
-    OUT -->|Sonuç bağlamı| VOICE["Sesli özet / EMA-TTS"]
-    VOICE -->|Ses kaydı| API
-```
+[PlantUML kaynağı](docs/diagrams/system-architecture.puml) · [Mermaid kaynağı](docs/diagrams/system-architecture.mmd) · [SVG](docs/diagrams/system-architecture.svg) · [Üretim talimatı](docs/diagrams/README.md).
 
 ### Bronze / Silver / Gold veri akışı
 
@@ -168,17 +151,9 @@ Belge araçlarını ana agent seçer. CSV, XLSX, PDF, görsel, HTML ve metin dos
 
 Her istek çalışma alanı ve konuşma bağlamıyla başlar. Model mevcut metrikleri, kaynakları ve önceki analizi görerek araç çağrısı seçer; çok adımlı görevlerde `plan_task` teslim beklentilerini kaydeder. Runtime araç argümanlarını ve hesap koşullarını doğrular, aracı çalıştırır ve gözlemi modele geri verir. Modelin serbest SQL veya kod yürütme aracı yoktur.
 
-```mermaid
-flowchart TD
-    Q["Soru ve konuşma bağlamı"] --> C["Metrik / kaynak keşfi ve görev planı"]
-    C --> M["Model bir sonraki adımı seçer"]
-    M --> T["Araç çağrısını doğrula ve çalıştır"]
-    T --> J["Sonucu ve checkpoint'i kaydet"]
-    J --> D{"Görev teslimleri karşılandı mı?"}
-    D -->|Evet| R["Kayıtlı kanıttan yanıt / tablo / grafik"]
-    D -->|Eksik; bütçe uygun| M
-    D -->|Belirsizlik / sınır / hata| P["Açıklama iste veya kısmi / engellenmiş sonucu göster"]
-```
+![Agent karar döngüsü ve görev işleme](docs/diagrams/agent-decision-flow.svg)
+
+[PlantUML kaynağı](docs/diagrams/agent-decision-flow.puml) · [Mermaid kaynağı](docs/diagrams/agent-decision-flow.mmd) · [SVG](docs/diagrams/agent-decision-flow.svg).
 
 Karar, süre ve onarım bütçeleri sonsuz tekrarları sınırlar. Birim/frekans uyumsuzluğu, kaynak eksikliği veya belirsiz işlem sonucu kaydedilir; uygun hatalarda sınırlı onarım uygulanır. İstek kimliği ve checkpoint'ler kesilmiş işleri sürdürmeyi sağlar. Teknik işlem kayıtları gerçekleşen çağrıları, yöntem notları hesap koşullarını ve kaynak sınırlamalarını görünür kılar.
 

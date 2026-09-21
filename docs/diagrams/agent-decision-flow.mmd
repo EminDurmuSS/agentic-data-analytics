@@ -1,0 +1,9 @@
+flowchart TD
+    Q["Soru ve konuşma bağlamı"] --> C["Metrik / kaynak keşfi ve görev planı"]
+    C --> M["Model bir sonraki adımı seçer"]
+    M --> T["Araç çağrısını doğrula ve çalıştır"]
+    T --> J["Sonucu ve checkpoint'i kaydet"]
+    J --> D{"Görev teslimleri karşılandı mı?"}
+    D -->|Evet| R["Kayıtlı kanıttan yanıt / tablo / grafik"]
+    D -->|Eksik; bütçe uygun| M
+    D -->|Belirsizlik / sınır / hata| P["Açıklama iste veya kısmi / engellenmiş sonucu göster"]

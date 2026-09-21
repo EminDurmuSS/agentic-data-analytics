@@ -1,0 +1,25 @@
+@startuml
+title Agent Karar Döngüsü ve Görev İşleme
+skinparam backgroundColor #F8FAFC
+skinparam shadowing false
+skinparam defaultFontName DejaVu Sans
+skinparam defaultFontSize 14
+skinparam ArrowColor #466179
+skinparam activityBackgroundColor #EEF4FA
+skinparam activityBorderColor #466179
+start
+:Soru ve konuşma bağlamı;
+:Metrik / kaynak keşfi ve görev planı;
+repeat
+  :Model bir sonraki adımı seçer;
+  :Araç çağrısını doğrula ve çalıştır;
+  :Sonucu ve checkpoint'i kaydet;
+  if (Görev teslimleri karşılandı mı?) then (Evet)
+    :Kayıtlı kanıttan yanıt / tablo / grafik;
+    stop
+  endif
+repeat while (Eksik adımlar için bütçe ve ilerleme uygun mu?) is (Evet)
+-> Hayır;
+:Açıklama iste veya kısmi / engellenmiş sonucu göster;
+stop
+@enduml
