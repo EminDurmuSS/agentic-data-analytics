@@ -1700,6 +1700,7 @@ class DocumentTools:
             raise DocumentError("A period header must be bounded source text.", "INVALID_UNPIVOT")
         patterns = {
             "english_dmy": r"(?<!\d)\d{1,2}\s+(?:January|February|March|April|May|June|July|August|September|October|November|December|Jan|Feb|Mar|Apr|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s+\d{4}(?!\d)",
+            "turkish_dmy": r"(?<!\d)\d{1,2}\s+(?:Ocak|Şubat|Subat|Mart|Nisan|Mayıs|Mayis|Haziran|Temmuz|Ağustos|Agustos|Eylül|Eylul|Ekim|Kasım|Kasim|Aralık|Aralik)\s+\d{4}(?!\d)",
             "dmy": r"(?<!\d)\d{1,2}/\d{1,2}/\d{4}(?!\d)",
             "parenthesized_dmy": r"\(\d{1,2}/\d{1,2}/\d{4}\)",
             "year_month_slash": r"(?<!\d)\d{4}/\d{1,2}(?!\d)",
@@ -1717,7 +1718,7 @@ class DocumentTools:
         header_rows = sorted(row for row in header_rows if type(row) is int and 1 <= row <= len(table["rows"]))[:4]
         value_columns = sorted(unpivot["columns"], key=table["columns"].index)
         source_format = unpivot.get("period_format", "source_header")
-        formats = [source_format] if source_format != "source_header" else ["english_dmy", "dmy", "parenthesized_dmy"]
+        formats = [source_format] if source_format != "source_header" else ["english_dmy", "turkish_dmy", "dmy", "parenthesized_dmy"]
         candidates, row_cells, signatures = [], [], set()
         for number in header_rows:
             row = table["rows"][number - 1]
@@ -1803,6 +1804,12 @@ class DocumentTools:
                     return datetime.strptime(value.strip(), "%d %B %Y").date().isoformat()
                 except ValueError:
                     return datetime.strptime(value.strip(), "%d %b %Y").date().isoformat()
+            if source_format == "turkish_dmy":
+                day, month, year = _search_text(value).split()
+                month_number = _MONTH_NUMBERS.get(month)
+                if month_number is None:
+                    raise ValueError
+                return date(int(year), month_number, int(day)).isoformat()
             if source_format == "year_quarter_space" and re.fullmatch(r"\d{4} Q[1-4]", value.strip()):
                 return value.strip().replace(" ", "-")
         except (ValueError, TypeError) as exc:
@@ -2431,8 +2438,8 @@ class DocumentTools:
                  "unpivot": {"type": "object", "properties": {"columns": {"type": "array", "items": {"type": "string"}, "minItems": 1, "uniqueItems": True},
                               "period_column": {"type": "string"}, "value_column": {"type": "string"},
                               "header_row": {"type": "integer", "minimum": 1, "description": "Optional actual candidate row containing period labels when the extracted first header row was a report title. Must be outside selected_rows."},
-                              "period_format": {"type": "string", "enum": ["source_header", "dmy", "parenthesized_dmy", "english_dmy", "year_month_slash", "year_quarter_space"], "default": "source_header",
-                                                "description": "Explicit date-label parsing: dmy=30/06/2026, parenthesized_dmy=(30/06/2026), english_dmy=31 March 2026, year_month_slash=2026/6, year_quarter_space=2026 Q2. Output ISO day/month/quarter labels; numerical values are untouched."},
+                              "period_format": {"type": "string", "enum": ["source_header", "dmy", "parenthesized_dmy", "english_dmy", "turkish_dmy", "year_month_slash", "year_quarter_space"], "default": "source_header",
+                                                "description": "Explicit date-label parsing: dmy=30/06/2026, parenthesized_dmy=(30/06/2026), english_dmy=31 March 2026, turkish_dmy=31 Mart 2026, year_month_slash=2026/6, year_quarter_space=2026 Q2. Output ISO day/month/quarter labels; numerical values are untouched."},
                               "period_sources": {"type": "object", "maxProperties": self.max_columns,
                                   "description": "When merged period headings are in different cells from numeric Total columns, map each value column to actual header cells. Date cells need not appear in selected_columns. If both dates share split cells, concatenate their actual source parts and use date_index=0 or 1 with period_format to select the actual first/second complete date. Never provide a literal date. Example amount_current -> {row:10,columns:[header_left,header_right],separator:' ',date_index:0}.",
                                   "additionalProperties": {"type": "object", "properties": {"row": {"type": "integer", "minimum": 1},

@@ -44,6 +44,34 @@ class FinancialImportTests(unittest.TestCase):
         return self.source([[None, "31 December 2025", "31 March 2026"], ["Total assets", "1,234,567", "2,345,678"],
                             ["Cash", "123456", "234567"]], **kwargs)
 
+    def test_turkish_split_period_headers_keep_currency_groups_and_source_cells(self):
+        args = self.source([
+            [None, None, "30 Haziran 2027", None, "31", "Aralık 2026", None],
+            [None, "TP", "YP", "Toplam", "TP", "YP", "Toplam"],
+            ["VARLIKLAR TOPLAMI", "200,000,000", "121,456,789", "321,456,789", "150,000,000", "100,000,000", "250,000,000"],
+        ], columns=["Kalem", "c1", "c2", "c3", "p1", "p2", "p3"],
+            caption="BİN TÜRK LİRASI", title="Konsolide Bilanço (Finansal Durum Tablosu)")
+        result = self.handler({**args, "row_labels": ["VARLIKLAR TOPLAMI"],
+                               "periods": ["2027-06-30"], "value_header": "Toplam", "measure_kind": "stock"})
+        self.assertEqual(result["status"], "ok", result)
+        frame = pd.read_parquet(self.store.overlay_path(result["dataset_id"]))
+        self.assertEqual(frame["amount"].tolist(), [321456789])
+        self.assertEqual(frame["period"].tolist(), ["2027-06-30"])
+        self.assertEqual(result["published_columns"]["amount"]["scale"], 1000)
+        evidence = result["provenance"]["cell_origins"][0]
+        self.assertEqual(evidence["amount"], {"candidate_row": 3, "candidate_column": "c3"})
+        self.assertIn("30 Haziran 2027", json.dumps(evidence, ensure_ascii=False))
+
+    def test_turkish_dates_are_calendar_checked_and_preserve_literal_spelling(self):
+        for literal, expected in [("29 ŞUBAT 2024", "2024-02-29"), ("31 Aralık 2026", "2026-12-31"),
+                                  ("1 Ağustos 2025", "2025-08-01"), ("30 Haziran 2027", "2027-06-30")]:
+            with self.subTest(literal=literal):
+                self.assertEqual(self.docs._source_date_occurrences(literal, "turkish_dmy"), [literal])
+                self.assertEqual(self.docs._source_period_label(literal, "turkish_dmy"), expected)
+        for invalid in ("29 Şubat 2025", "31 Nisan 2026", "31 Unknown 2026"):
+            with self.subTest(invalid=invalid), self.assertRaises(ValueError):
+                self.docs._source_period_label(invalid, "turkish_dmy")
+
     def test_static_date_value_reference_table_unlocks_source_addressed_split_path(self):
         from openpyxl import Workbook
 

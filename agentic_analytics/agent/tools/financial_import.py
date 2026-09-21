@@ -354,7 +354,7 @@ class FinancialImportTools:
             return None
         dates, evidence = set(), []
         for line_number, line in enumerate(lines, 1):
-            for fmt in ("english_dmy", "dmy"):
+            for fmt in ("english_dmy", "turkish_dmy", "dmy"):
                 for literal in self.documents._source_date_occurrences(line, fmt):
                     normalized = self.documents._source_period_label(literal, fmt)
                     dates.add(normalized)
@@ -675,7 +675,7 @@ class FinancialImportTools:
         manifest = self.documents.source(source_id)
         is_csv = manifest.get("filename", "").casefold().endswith(".csv") or manifest.get("mime_type", "").split(";")[0] == "text/csv"
         embedded_dates = any(len(self.documents._source_date_occurrences(" ".join(str(value or "") for value in row)[:2000], fmt)) >= 1
-                             for row in table["rows"][:30] for fmt in ("english_dmy", "dmy"))
+                             for row in table["rows"][:30] for fmt in ("english_dmy", "turkish_dmy", "dmy"))
         long_dates = any(_label_key(table["original_columns"].get(column, column)) in {"date", "month", "period", "tarih", "ay", "donem", "year"}
                          and all(isinstance(row[index], str) and re.fullmatch(r"\d{4}(?:-(?:\d{2}(?:-\d{2})?|Q[1-4]))?", row[index]) for row in table["rows"])
                          for index, column in enumerate(table["columns"]))
