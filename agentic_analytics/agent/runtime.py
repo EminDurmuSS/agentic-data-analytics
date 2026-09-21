@@ -25,7 +25,9 @@ from agentic_analytics.agent.delivery import (
 )
 from agentic_analytics.agent.run_store import AgentRunStore, canonical, fingerprint
 from agentic_analytics.agent.schemas import COLUMN_NAME, obj
-from agentic_analytics.agent.tools.documents import _consolidation_scope, _document_type, _requested_document_types
+from agentic_analytics.agent.tools.documents import (
+    OFFICIAL_SOURCE_REGISTRY, _consolidation_scope, _document_type, _requested_document_types,
+)
 from agentic_analytics.agent.tools.lakehouse import lakehouse_tools
 from agentic_analytics.lakehouse.discovery import initial_query
 from agentic_analytics.lakehouse.service import LakehouseService, PlanError, error_envelope
@@ -515,6 +517,55 @@ def _search_url(value):
         return urlunsplit((parsed.scheme.lower(), parsed.netloc.lower(), parsed.path.rstrip("/"), parsed.query, ""))
     except (TypeError, ValueError):
         return None
+
+
+def _source_url_discovery_error(state, name, args):
+    """Once discovery exists, follow actual links instead of synthesizing paths."""
+    if name != "inspect_source" or not args.get("url"):
+        return None
+    history = state.get("tool_results", [])
+    if not any(item.get("tool") in {"web_search", "research_web"} for item in history):
+        return None
+    target = _search_url(args["url"])
+    if not target:
+        return None  # The network boundary reports malformed/unsafe URLs.
+    known = set()
+    def collect(value):
+        if isinstance(value, dict):
+            for key, child in value.items():
+                if key in {"url", "source_url", "canonical_url"} and isinstance(child, str):
+                    normalized = _search_url(child)
+                    if normalized:
+                        known.add(normalized)
+                elif key not in {"query", "arguments", "recovery"}:
+                    collect(child)
+        elif isinstance(value, list):
+            for child in value:
+                collect(child)
+    for item in history:
+        result = item.get("result", {})
+        if result.get("status") == "ok" or item.get("tool") == "research_web":
+            collect(result)
+    for message in state.get("messages", []):
+        if message.get("role") == "user":
+            known.update(filter(None, (_search_url(url.rstrip(".,;")) for url in
+                re.findall(r"https?://[^\s<>\])]+", str(message.get("content") or "")))))
+    for domain, registry in OFFICIAL_SOURCE_REGISTRY.items():
+        known.update(filter(None, (_search_url(url) for url in [
+            "https://" + domain + "/", "https://www." + domain + "/",
+            *registry.get("entrypoints", ()),
+            *(url for urls in registry.get("entrypoints_by_year", {}).values() for url in urls),
+        ])))
+    if target in known:
+        return None
+    host = urlsplit(target).hostname
+    return {"status": "blocked", "errors": [{"code": "SOURCE_URL_NOT_DISCOVERED",
+        "message": "This path was not provided by the user or discovered in search/read sources. Do not construct an address from an assumed series code. Search the requested natural-language name, verify its code, then follow an actual source link.",
+        "url": args["url"]}], "recovery": {
+            "navigation_only": True,
+            "candidate_urls": sorted(url for url in known if urlsplit(url).hostname == host)[:16],
+            "next_step": "Use an observed source URL or research_web with the original indicator name. A guessed URL or failed query does not establish that the requested data is absent.",
+        }}
 
 
 def _schema_validation_error(error, tool_schema):
@@ -2410,7 +2461,8 @@ class AgentRuntime:
                     self.run_store.event(run_id, "tool_recovered", {"tool": name, "call_id": call["id"], "result": recovered})
                     return recovered
             else:
-                navigation_error = self._source_read_required(state, name, args)
+                navigation_error = (self._source_read_required(state, name, args)
+                                    or _source_url_discovery_error(state, name, args))
                 if navigation_error:
                     self.run_store.event(run_id, "tool_result", {"tool": name, "call_id": call["id"], "result": navigation_error})
                     return navigation_error

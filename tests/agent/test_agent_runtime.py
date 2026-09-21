@@ -10,7 +10,7 @@ import duckdb
 import pandas as pd
 
 from agentic_analytics.agent.run_store import AgentRunStore
-from agentic_analytics.agent.runtime import AgentRuntime
+from agentic_analytics.agent.runtime import AgentRuntime, _source_url_discovery_error
 from agentic_analytics.agent.schemas import obj
 from agentic_analytics.agent.tools.selection import AnalysisSelectionTools
 from agentic_analytics.agent.tools.statistics import StatisticsTools
@@ -298,6 +298,25 @@ class AgentRuntimeTests(unittest.TestCase):
         self.assertTrue(reads[0]["recovery"]["navigation_only"])
         self.assertIn("Do not log in", reads[0]["recovery"]["next_step"])
         self.assertEqual(reads[1]["source_url"], public_url)
+
+    def test_source_navigation_rejects_invented_path_and_preserves_discovered_links(self):
+        root = "https://example.org/indices"
+        actual = "https://example.org/indices/verified-code"
+        guessed = "https://example.org/indices/guessed-code"
+        state = {"messages": [{"role": "user", "content": "Banka endeksini resmî kaynaktan bul."}],
+                 "tool_results": [
+                     {"tool": "web_search", "result": {"status": "ok", "query": guessed,
+                      "results": [{"url": root, "snippet": guessed}]}},
+                     {"tool": "inspect_source", "result": {"status": "ok", "source_url": root,
+                      "article": {"source_links": [{"url": actual}]}}},
+                 ]}
+        rejected = _source_url_discovery_error(state, "inspect_source", {"url": guessed})
+        self.assertEqual(rejected["errors"][0]["code"], "SOURCE_URL_NOT_DISCOVERED")
+        self.assertIn(actual, rejected["recovery"]["candidate_urls"])
+        self.assertIsNone(_source_url_discovery_error(state, "inspect_source", {"url": actual}))
+        self.assertIsNone(_source_url_discovery_error(state, "inspect_source", {"source_id": "source_known"}))
+        state["messages"].append({"role": "user", "content": "Bu adresi incele: " + guessed})
+        self.assertIsNone(_source_url_discovery_error(state, "inspect_source", {"url": guessed}))
 
     def test_provider_failure_after_direct_table_read_returns_exact_partial_receipt(self):
         source_id = "source_" + "a" * 64
