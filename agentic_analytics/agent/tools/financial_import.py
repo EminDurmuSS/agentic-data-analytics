@@ -653,7 +653,7 @@ class FinancialImportTools:
                 if recovery.get("suggested_ingest_arguments"):
                     exc.args = (str(exc) + " A source-verified high-level retry is available in recovery.suggested_ingest_arguments; use it before manual preparation.",)
             raise
-        if result.get("import_status") == "unsupported_layout":
+        if result.get("import_status") == "unsupported_layout" and result.get("layout_kind") != "symbolic_rules":
             table = self._candidate(args["source_id"], args["table_id"])
             recovery = self._alternative_recovery(table, args)
             if recovery.get("alternative_candidates") or recovery.get("next_request"):
@@ -673,6 +673,21 @@ class FinancialImportTools:
                 message += f" A separate same-page parsed candidate {alternative} contains the requested labels. Retry the exact suggested_ingest_arguments; do not retry or publish the rejected candidate."
             raise DocumentError(message, "TABLE_REVIEW_REQUIRED", recovery=recovery)
         manifest = self.documents.source(source_id)
+        # A rule such as "VALUE x 70%" is not an observed amount. Do not
+        # cycle through extraction candidates trying to infer dates/units for
+        # it, and never silently evaluate it as a financial statement cell.
+        rule_cells = []
+        for row_number, row in enumerate(table['rows'][:5000], 1):
+            for column, value in zip(table['columns'], row):
+                if isinstance(value, str) and re.fullmatch(
+                        r'\s*[^\W\d_][\w\s]*?\s+[x×*]\s*\d+(?:[.,]\d+)?\s*%\s*', value):
+                    rule_cells.append({'candidate_row': row_number, 'candidate_column': column, 'text': value})
+        if len(rule_cells) >= 2:
+            return {'status': 'ok', 'import_status': 'unsupported_layout', 'layout_kind': 'symbolic_rules',
+                    'publication_performed': False, 'source_id': source_id, 'table_id': table_id,
+                    'source_rule_cells': rule_cells[:20],
+                    'message': 'This table contains symbolic percentage rules, not observed financial amounts. No expression was evaluated or published.',
+                    'next_step': 'Read this table and its source page to establish the actual rule scope, header ownership and thresholds. Preserve formulas as text in a static reference table using prepare_source_table and publish_selected_table only when headers and row ownership are verified. Do not invent dates, reinterpret rules as balances, or copy row/column addresses from another extraction. Derived amounts require an audited calculation path; if unavailable, deliver only the verified source rules and state that limitation.'}
         is_csv = manifest.get("filename", "").casefold().endswith(".csv") or manifest.get("mime_type", "").split(";")[0] == "text/csv"
         embedded_dates = any(len(self.documents._source_date_occurrences(" ".join(str(value or "") for value in row)[:2000], fmt)) >= 1
                              for row in table["rows"][:30] for fmt in ("english_dmy", "turkish_dmy", "dmy"))

@@ -44,6 +44,22 @@ class FinancialImportTests(unittest.TestCase):
         return self.source([[None, "31 December 2025", "31 March 2026"], ["Total assets", "1,234,567", "2,345,678"],
                             ["Cash", "123456", "234567"]], **kwargs)
 
+    def test_symbolic_rule_table_is_not_retried_as_numeric_statement(self):
+        args = self.source([
+            ['KONUT DEĞERİ', 'A', 'B'],
+            ['DEĞER <= 2 MİLYON TL', 'DEĞER x 90%', 'DEĞER x 85%'],
+            ['2 MİLYON TL < DEĞER <= 5 MİLYON TL', 'DEĞER x 70%', 'DEĞER x 65%'],
+        ], columns=['Band', 'Class A', 'Class B'], caption='Historical lending rules', title='Rule table')
+        before = self.store.workspace('financial_import')
+        result = self.handler({**args, 'row_numbers': [2, 3], 'measure_kind': 'unknown'})
+        self.assertEqual(result['status'], 'ok', result)
+        self.assertEqual(result['import_status'], 'unsupported_layout')
+        self.assertEqual(result['layout_kind'], 'symbolic_rules')
+        self.assertFalse(result['publication_performed'])
+        self.assertNotIn('recovery', result)
+        self.assertIn('DEĞER x 90%', str(result['source_rule_cells']))
+        self.assertEqual(self.store.workspace('financial_import'), before)
+
     def test_turkish_split_period_headers_keep_currency_groups_and_source_cells(self):
         args = self.source([
             [None, None, "30 Haziran 2027", None, "31", "Aralık 2026", None],
