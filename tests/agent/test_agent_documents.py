@@ -27,6 +27,7 @@ from agentic_analytics.agent.tools.documents import (
     fetch_public_url,
 )
 from agentic_analytics.lakehouse.store import LakehouseStore
+from agentic_analytics.providers.mia import MiaError
 
 
 def _text_pdf():
@@ -1213,6 +1214,25 @@ class AgentDocumentTests(unittest.TestCase):
         self.assertEqual(result["status"], "ok", result)
         self.assertEqual(result["sources"][0]["domain"], "example.net")
         self.assertEqual(len(searches), 2)
+
+    def test_research_preserves_read_sources_when_one_candidate_ocr_provider_fails(self):
+        urls = ["https://example.org/housing-2025", "https://example.org/scanned-2025",
+                "https://example.org/bulletin-2025"]
+        self.docs.web_search = lambda *args, **kwargs: {"status": "ok", "results": [
+            {"title": "2025 housing report", "url": url} for url in urls]}
+        def inspect(url=None, **kwargs):
+            if url == urls[1]:
+                raise MiaError("PROVIDER_UNAVAILABLE", "MIA bağlantısı tamamlanamadı.", retryable=True, attempts=3)
+            return {"status": "ok", "source_id": "report" + str(urls.index(url)), "source_url": url,
+                    "text": "2025 housing report with official observations.",
+                    "article": {"title": "2025 housing report"}}
+        self.docs.inspect_source = inspect
+        result = self.docs.research_web("2025 housing report", limit=3, domains=["example.org"])
+        self.assertEqual(result["status"], "ok", result)
+        self.assertEqual([source["url"] for source in result["sources"]], [urls[0], urls[2]])
+        self.assertEqual(result["failures"][0]["url"], urls[1])
+        self.assertEqual(result["failures"][0]["code"], "PROVIDER_UNAVAILABLE")
+        self.assertTrue(result["failures"][0]["retryable"])
 
     def test_research_year_range_includes_intermediate_name_change_year(self):
         self.assertIn("2013", _research_years("2010–2014 ile 2014–2018"))

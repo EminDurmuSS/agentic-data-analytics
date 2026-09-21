@@ -35,6 +35,7 @@ from agentic_analytics.lakehouse.store import StoreError
 from agentic_analytics.lakehouse.units import KINDS, normalize_column, unit_quote_matches, unit_header_conflict
 from agentic_analytics.lakehouse.financial_semantics import cumulative_evidence
 from agentic_analytics.agent.tools.document_tables import HTMLTableExtractor
+from agentic_analytics.providers.mia import MiaError
 
 
 _DNS_WORKERS = ThreadPoolExecutor(max_workers=4, thread_name_prefix="document-dns")
@@ -1543,8 +1544,13 @@ class DocumentTools:
                     deferred_sources.append(card)
                 else:
                     sources.append(card)
-            except (DocumentError, OSError, ValueError, KeyError) as exc:
+            except (DocumentError, MiaError, OSError, ValueError, KeyError) as exc:
                 failure = {"url": result.get("url"), "code": getattr(exc, "code", "SOURCE_READ_FAILED"), "message": str(exc)}
+                if isinstance(exc, MiaError):
+                    # OCR is optional for one candidate, not a transaction over
+                    # the whole search. Keep prior sources when its provider is
+                    # down, and continue public text/table candidates in budget.
+                    failure["retryable"] = bool(exc.retryable)
                 if inspected and inspected.get("source_id"):
                     # Preserve a navigation address for an actually fetched
                     # document even if it fails this query's evidence checks.
