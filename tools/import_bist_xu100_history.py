@@ -87,6 +87,29 @@ SUPPORTING_DOCUMENTS = {
                       "finding": "The July 27 two-zero change covers TL price/return indexes; publicly shared historical data was updated."}],
     },
 }
+EXTENDED_SUPPORTING_DOCUMENTS = {
+    "annual_2018": {
+        "url": "https://www.borsaistanbul.com/files/borsa-istanbul-2018-entegre-faaliyet-raporu.pdf",
+        "sha256": "7ea74bb15b24ad680c6f2db61509de73c6f86db5bbc2cfa45f7b38c735b0c67b",
+        "evidence": [{"page": 46, "printed_page": "42", "locator": "Pay Piyasasi, first bullet below revenue chart",
+                      "finding": "BIST 100 completed 2018 at 91270.48 original-scale index points."}],
+    },
+}
+
+
+def _reviewed_range(year: int, start_year: int | None, end_year: int | None) -> tuple[int, int]:
+    if type(year) is not int or year != 2010 or (start_year is not None and
+            (type(start_year) is not int or start_year != 2010)):
+        raise ValueError("Reviewed import must start in 2010")
+    final_year = year if end_year is None else end_year
+    if type(final_year) is not int or final_year not in {2010, 2018}:
+        raise ValueError("Reviewed ranges are 2010 only or 2010-2018 inclusive")
+    return year, final_year
+
+
+def supporting_document_specs(end_year: int = 2010) -> dict:
+    _reviewed_range(2010, None, end_year)
+    return {**SUPPORTING_DOCUMENTS, **(EXTENDED_SUPPORTING_DOCUMENTS if end_year == 2018 else {})}
 
 
 def _download(url: str) -> bytes:
@@ -106,21 +129,22 @@ def download() -> bytes:
     return _download(SOURCE_URL)
 
 
-def download_supporting_documents() -> dict[str, bytes]:
-    raw = {key: _download(spec["url"]) for key, spec in SUPPORTING_DOCUMENTS.items()}
-    _supporting_evidence(raw)
+def download_supporting_documents(end_year: int = 2010) -> dict[str, bytes]:
+    raw = {key: _download(spec["url"]) for key, spec in supporting_document_specs(end_year).items()}
+    _supporting_evidence(raw, end_year)
     return raw
 
 
-def _supporting_evidence(raw: dict[str, bytes]) -> list[dict]:
-    if not isinstance(raw, dict) or set(raw) != set(SUPPORTING_DOCUMENTS):
+def _supporting_evidence(raw: dict[str, bytes], end_year: int = 2010) -> list[dict]:
+    specs = supporting_document_specs(end_year)
+    if not isinstance(raw, dict) or set(raw) != set(specs):
         raise ValueError("All reviewed supporting PDFs are required, with no extra documents")
     if any(not isinstance(value, bytes) for value in raw.values()):
         raise ValueError("Supporting documents must be immutable bytes")
     if sum(map(len, raw.values())) > MAX_SUPPORT_TOTAL:
         raise ValueError("Supporting PDFs exceed total size limit")
     evidence = []
-    for key, spec in SUPPORTING_DOCUMENTS.items():
+    for key, spec in specs.items():
         content = raw[key]
         if (not content.startswith(b"%PDF-") or len(content) > MAX_DOWNLOAD
                 or hashlib.sha256(content).hexdigest() != spec["sha256"]):
@@ -134,9 +158,9 @@ def _supporting_evidence(raw: dict[str, bytes]) -> list[dict]:
     return evidence
 
 
-def parse_archive(raw: bytes, year: int = 2010) -> dict:
-    if type(year) is not int or year != 2010:
-        raise ValueError("This reviewed import supports the 2010 calendar year only")
+def parse_archive(raw: bytes, year: int = 2010, *, start_year: int | None = None,
+                  end_year: int | None = None) -> dict:
+    first_year, final_year = _reviewed_range(year, start_year, end_year)
     if not raw or len(raw) > MAX_DOWNLOAD:
         raise ValueError("Invalid archive size")
     try:
@@ -173,7 +197,7 @@ def parse_archive(raw: bytes, year: int = 2010) -> dict:
                 continue
             if not isinstance(observed, (date, datetime)):
                 raise ValueError("XU100 observation has an invalid or formula date")
-            if observed.year != year:
+            if not first_year <= observed.year <= final_year:
                 continue
             if name != "BIST 100" or currency != "TL":
                 raise ValueError("XU100 identity/currency does not match the TL price index")
@@ -197,31 +221,40 @@ def parse_archive(raw: bytes, year: int = 2010) -> dict:
     finally:
         workbook.close()
     observations.sort(key=lambda row: row["month"])
-    expected = [f"{year}-{month:02d}" for month in range(1, 13)]
+    expected = [f"{period_year}-{month:02d}" for period_year in range(first_year, final_year + 1)
+                for month in range(1, 13)]
     if [row["month"] for row in observations] != expected:
-        raise ValueError("Expected exactly one original source observation for each of the 12 months")
+        raise ValueError(f"Expected exactly one original source observation for each of the {len(expected)} months")
     # A separate contemporary official report supplies the review anchor. This
     # is validation only: imported values remain the workbook's original cells.
-    annual_value = Decimal("66004.48")
-    comparable = (annual_value / 100).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
-    if observations[-1]["closing_date"] != "2010-12-31" or Decimal(observations[-1]["closing"]) != comparable:
-        raise ValueError("2010 year-end conflicts with independently reviewed annual-report/scale evidence")
+    anchors = [(2010, "66004.48", 18)] + ([(2018, "91270.48", 46)] if final_year == 2018 else [])
+    cross_checks = []
+    for anchor_year, original_value, page in anchors:
+        annual_value = Decimal(original_value)
+        comparable = (annual_value / 100).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
+        year_end = observations[(anchor_year - first_year) * 12 + 11]
+        if year_end["closing_date"] != f"{anchor_year}-12-31" or Decimal(year_end["closing"]) != comparable:
+            raise ValueError(f"{anchor_year} year-end conflicts with independently reviewed annual-report/scale evidence")
+        cross_checks.append({"date": f"{anchor_year}-12-31", "document_key": f"annual_{anchor_year}", "page": page,
+                             "original_scale_value": str(annual_value), "comparison_divisor": 100,
+                             "rounded_comparable_value": str(comparable), "match": True, "changes_imported_values": False})
     return {"parser": PARSER_VERSION, "year": year, "source_url": SOURCE_URL,
             "landing_url": LANDING_URL, "series_url": SERIES_URL,
             "archive_sha256": hashlib.sha256(raw).hexdigest(), "member": MEMBER,
             "workbook_sha256": hashlib.sha256(workbook_bytes).hexdigest(), "sheet": SHEET,
             "observations": observations, "semantics": SEMANTICS,
-            "cross_checks": [{"date": "2010-12-31", "document_key": "annual_2010", "page": 18,
-                              "original_scale_value": str(annual_value), "comparison_divisor": 100,
-                              "rounded_comparable_value": str(comparable), "match": True,
-                              "changes_imported_values": False}]}
+            **({"start_year": first_year, "end_year": final_year} if final_year != year else {}),
+            "cross_checks": cross_checks}
 
 
 def publish(store: LakehouseStore, workspace_id: str, raw: bytes, year: int = 2010,
-            *, supporting_raw: dict[str, bytes]) -> dict:
+            *, supporting_raw: dict[str, bytes], start_year: int | None = None,
+            end_year: int | None = None) -> dict:
     """Validate all evidence first, then ingest/promote without touching EVDS."""
-    parsed = parse_archive(raw, year)
-    supporting = _supporting_evidence(supporting_raw)
+    first_year, final_year = _reviewed_range(year, start_year, end_year)
+    parsed = parse_archive(raw, year, start_year=start_year, end_year=end_year)
+    supporting = _supporting_evidence(supporting_raw, final_year)
+    period_label = str(year) if final_year == year else f"{first_year}-{final_year}"
     # Preserve complete original PDFs without exceeding the store's 8-MiB
     # metadata-file limit. SharedLakehouse already verifies/copies content-
     # addressed extraction artifacts; no new shared-package mechanism is needed.
@@ -237,7 +270,7 @@ def publish(store: LakehouseStore, workspace_id: str, raw: bytes, year: int = 20
     workspace = store.workspace(workspace_id)
     evidence_hash = hashlib.sha256(json.dumps(
         supporting, ensure_ascii=False, sort_keys=True, separators=(",", ":")).encode()).hexdigest()
-    import_key = f"{PARSER_VERSION}:{year}:{parsed['archive_sha256']}:{evidence_hash}"
+    import_key = f"{PARSER_VERSION}:{period_label}:{parsed['archive_sha256']}:{evidence_hash}"
     for dataset_id in workspace["datasets"]:
         provenance = store.dataset_manifest(dataset_id)["contract"].get("document_provenance", {})
         if provenance.get("import_key") == import_key:
@@ -255,22 +288,37 @@ def publish(store: LakehouseStore, workspace_id: str, raw: bytes, year: int = 20
         origins.append({**cells, "month": {**cells["closing_date"], "transform": "calendar_month_label"},
                         "historical_index_name": {**cells["index_name"], "transform": "dated_name_alias",
                                                   "supporting_document": "name_change_2013"}})
+    conflicts = [{"other_source": "EVDS TP.MK.F.BILESIK, existing local 2010-12 record",
+                  "month": "2010-12", "other_value": "670.26", "official_workbook_value": "660.04",
+                  "resolution": "unresolved; separate official series; no overwrite or merge"}]
+    if final_year == 2018:
+        august_2013 = next(row for row in observations if row["month"] == "2013-08")
+        conflicts.append({"other_source": "EVDS TP.MK.F.BILESIK, existing local 2013-08 last-valid candidate",
+                          "month": "2013-08", "other_value": "663.06", "official_workbook_value": august_2013["closing"],
+                          "resolution": "unresolved; original Borsa monthly source retained; no EVDS replacement"})
     inspection = {
         "source_id": source["source_id"], "parser": PARSER_VERSION, "pages": [], "processed_pages": [],
         "text_truncated": False, "text": SEMANTICS + "\n" + SHEET + "\n" + " | ".join(HEADERS) + "\n" +
         "\n".join(" | ".join(row[column] for column in SOURCE_COLUMNS) for row in observations),
         "warnings": ["Native monthly XU100/TL closes only; not daily data or a merged EVDS series.",
-                     "2010-12: source 660.04 conflicts with existing EVDS 670.26; EVDS is unchanged."],
+                     "2010-12: source 660.04 conflicts with existing EVDS 670.26; EVDS is unchanged."] +
+                    ([f"2013-08: official source {august_2013['closing']} vs EVDS candidate 663.06; no automatic merge.",
+                      "The official name-change date is 2013-04-05, not 2014; same-source XU100 monthly series only."]
+                     if final_year == 2018 else []),
         "archive_member": MEMBER, "workbook_sha256": parsed["workbook_sha256"],
         "supporting_documents": inspection_support, "cross_checks": parsed["cross_checks"],
         "tables": [{"table_id": "table_001", "origin": "parsed", "sheet": SHEET, "page": None,
                     "columns": list(SOURCE_COLUMNS), "original_columns": dict(zip(SOURCE_COLUMNS, HEADERS)),
                     "rows": [[row[column] for column in SOURCE_COLUMNS] for row in observations],
-                    "row_count": len(observations), "selection": {"index_code": "XU100", "year": year, "currency": "TL"},
+                    "row_count": len(observations), "selection": {"index_code": "XU100", "currency": "TL",
+                        **({"year": year} if final_year == year else {"start_year": first_year, "end_year": final_year})},
                     "row_origins": [{"sheet": SHEET, "source_row": row["source_row"]} for row in observations],
                     "cell_origins": [{key: item[key] for key in SOURCE_COLUMNS} for item in origins]}],
     }
-    _canonical(inspection)
+    inspection_bytes = _canonical(inspection) + b"\n"
+    inspection_path = documents._directory(source["source_id"]) / "inspection.json"
+    if inspection_path.exists() and (inspection_path.is_symlink() or inspection_path.read_bytes() != inspection_bytes):
+        raise ValueError("Different source selection already inspected; use a new operator workspace for this range")
     evidence_directory = store._path("document_sources", workspace_id, "extractions")
     evidence_directory.mkdir(exist_ok=True)
     extraction_path = evidence_directory / (extraction_ref + ".json")
@@ -279,12 +327,13 @@ def publish(store: LakehouseStore, workspace_id: str, raw: bytes, year: int = 20
             raise ValueError("Existing supporting evidence artifact differs")
     else:
         _write_json(extraction_path, annual_artifact)
-    _write_json(documents._directory(source["source_id"]) / "inspection.json", inspection)
+    if not inspection_path.exists():
+        _write_json(inspection_path, inspection)
     dimension = {"dtype": "string", "unit": "label", "kind": "dimension", "nullable": False}
     evidence_refs = [{key: value for key, value in item.items() if key not in {"raw_gzip_base64", "encoding"}}
                      for item in supporting]
     contract = {
-        "name": f"İMKB 100 / BIST 100 XU100 {year} aylık kapanış (TL fiyat endeksi, güncel ölçek)",
+        "name": f"İMKB 100 / BIST 100 XU100 {period_label} aylık kapanış (TL fiyat endeksi, güncel ölçek)",
         "frequency": "monthly", "date_column": "month", "key": ["month"], "grain": ["month"],
         "expected_rows": len(observations), "expected_periods": [row["month"] for row in observations],
         "source_namespace": source["source_namespace"],
@@ -312,9 +361,7 @@ def publish(store: LakehouseStore, workspace_id: str, raw: bytes, year: int = 20
                               "source_values": "historical_values_already_republished_on_post_2020_scale",
                               "import_conversion_applied": False, "import_multiplier": 1,
                               "comparison_only_old_to_new_divisor": 100},
-            "known_conflicts": [{"other_source": "EVDS TP.MK.F.BILESIK, existing local 2010-12 record",
-                                 "month": "2010-12", "other_value": "670.26", "official_workbook_value": "660.04",
-                                 "resolution": "unresolved; separate official series; no overwrite or merge"}],
+            "known_conflicts": conflicts,
             "date_normalization": {"operation": "calendar_month_label_of_source_monthly_snapshot",
                                    "aggregation_performed": False, "interpolation_performed": False,
                                    "synthetic_dates_created": False, "original_date_column": "closing_date", "date_column": "month",
@@ -333,7 +380,7 @@ def publish(store: LakehouseStore, workspace_id: str, raw: bytes, year: int = 20
         raise ValueError("Expected exactly one new verified dataset")
     result = SharedLakehouse(store).promote(
         workspace_id, added.pop(), official_sources=OFFICIAL_SOURCE_REGISTRY,
-        reason=f"User-requested official XU100 {year} monthly history; original cells and source-scale evidence reviewed")
+        reason=f"User-requested official XU100 {period_label} monthly history; original cells and source-scale evidence reviewed")
     return {**result, "row_count": len(observations), "workbook_sha256": parsed["workbook_sha256"],
             "observations": observations, "cross_checks": parsed["cross_checks"]}
 
@@ -341,16 +388,23 @@ def publish(store: LakehouseStore, workspace_id: str, raw: bytes, year: int = 20
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--year", type=int, default=2010)
+    parser.add_argument("--start-year", type=int, help="Reviewed extended range begins in 2010")
+    parser.add_argument("--end-year", type=int, help="2010 for W011 or 2018 for the full W012 range")
     parser.add_argument("--publish", action="store_true", help="Explicitly publish (default: inspect only)")
     parser.add_argument("--store", type=Path, help="Runtime store, not the base DuckDB")
     parser.add_argument("--workspace-id", help="Existing operator import workspace")
     args = parser.parse_args()
     if args.publish and (args.store is None or not args.workspace_id):
         parser.error("--publish requires --store and --workspace-id")
+    try:
+        _, final_year = _reviewed_range(args.year, args.start_year, args.end_year)
+    except ValueError as exc:
+        parser.error(str(exc))
     raw = download()
     result = (publish(LakehouseStore(args.store), args.workspace_id, raw, args.year,
-                      supporting_raw=download_supporting_documents())
-              if args.publish else parse_archive(raw, args.year))
+                      supporting_raw=download_supporting_documents(final_year),
+                      start_year=args.start_year, end_year=args.end_year)
+              if args.publish else parse_archive(raw, args.year, start_year=args.start_year, end_year=args.end_year))
     print(json.dumps(result, ensure_ascii=False, indent=2))
 
 
