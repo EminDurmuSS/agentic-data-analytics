@@ -330,6 +330,8 @@ function clearResult() {
   $("#result-empty").hidden = false;
   $("#csv-download").hidden = true;
   $("#extra-result").hidden = true;
+  $("#result-content .tabs").hidden = false;
+  showTab("table");
   $("#result-title").textContent = "Hesabın tamamı, tek yerde.";
   showResultStatus();
 }
@@ -377,11 +379,40 @@ function setVoiceRun(run) {
   };
 }
 function showResultStatus(result, journey) {
-  if (state.analysis) return;
   const holder = $("#result-empty");
   const running = result?.status === "running";
   const incomplete = result && ["blocked", "failed", "partial", "interrupted"].includes(result.status);
   const waiting = result?.status === "needs_input";
+  if (state.analysis) {
+    // A follow-up can finish with a source-only verification or a provider
+    // error while the previous analysis remains the active table. Keep that
+    // useful table visible, but bind voice and disclosures to the new result.
+    if (result && !running) {
+      $("#result-content").hidden = false;
+      holder.hidden = true;
+      $("#voice-open").hidden = !state.voice;
+      renderWarnings($("#warnings"), [...(result.warnings || []), ...(result.errors || [])]);
+    }
+    return;
+  }
+  if (result && !running) {
+    $("#result-content").hidden = false;
+    holder.hidden = true;
+    $("#result-content .tabs").hidden = true;
+    for (const panel of document.querySelectorAll("#result-content .tab-panel")) panel.hidden = true;
+    $("#row-count").textContent = incomplete ? "Kaynaklı kısmi sonuç"
+      : waiting ? "Kullanıcı yanıtı bekleniyor" : "Çalışma sonucu";
+    $("#analysis-version").textContent = result.tool_results?.length
+      ? result.tool_results.length + " teknik işlem kaydı" : "Kayıtlı yanıt";
+    $("#csv-download").hidden = true;
+    $("#voice-open").hidden = !state.voice;
+    $("#preserved").hidden = true;
+    renderWarnings($("#warnings"), [...(result.warnings || []), ...(result.errors || [])]);
+    $("#result-title").textContent = incomplete ? "Çalışmanın kısmi çıktıları"
+      : waiting ? "Yanıtınız gerekiyor" : "Çalışmanın çıktıları";
+    return;
+  }
+  $("#result-content").hidden = true;
   const records = result?.tool_results || [];
   const imported = records.some((step) => ["ingest_source_table", "publish_selected_table"].includes(step.tool)
     && step.result?.status === "ok" && step.result?.dataset_id);
@@ -470,14 +501,12 @@ async function selectWorkspace(id) {
     $("#message-list").append(welcome);
     examples();
   }
-  // A provider can fail after an analysis has been durably published.  The
-  // analysis head, rather than a successful final prose response, determines
-  // whether its persisted evidence can be offered to the voice workflow.
-  const analysisRun = [...runs].reverse().find((run) =>
-    ["completed", "partial", "failed"].includes(run.status || run.result?.status)
-      && run.result?.analysis_id === workspace.analysis_head,
+  // Always narrate the newest terminal result.  A later source-only or failed
+  // run must not silently fall back to an older successful analysis.
+  const voiceRun = [...runs].reverse().find((run) =>
+    run.result && ["completed", "partial", "blocked", "failed"].includes(run.status || run.result.status),
   );
-  if (analysisRun) setVoiceRun(analysisRun);
+  if (voiceRun) setVoiceRun(voiceRun);
   if (workspace.analysis_head) await loadAnalysis(workspace.analysis_head);
   if (request !== state.workspaceRequest) return;
   const recent = runs.at(-1);
@@ -613,8 +642,8 @@ async function submitQuestion(event) {
     );
     state.conversation =
       result.conversation_id || job.run?.conversation_id || state.conversation;
+    setVoiceRun(job.run || { run_id: result.run_id, result });
     if (result.analysis_id) {
-      setVoiceRun(job.run || { run_id: result.run_id, result });
       await loadAnalysis(result.analysis_id, result);
     }
     else if (state.analysis) await window.AnalysisCharts.load(base(), state.analysis.analysis_id, Boolean(result.chart_updated || result.chart_id));
@@ -907,6 +936,8 @@ async function loadAnalysis(id, result = {}) {
   state.fullColumns = false;
   $("#result-content").hidden = false;
   $("#result-empty").hidden = true;
+  $("#result-content .tabs").hidden = false;
+  showTab("table");
   $("#result-title").textContent = state.analysis.parent_analysis_id
     ? "Analiz güncellendi"
     : "Analiz tablonuz";

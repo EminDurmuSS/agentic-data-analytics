@@ -23,7 +23,7 @@ class VoiceScriptError(ValueError):
 
 def _prompt(brief: VoiceBriefInput) -> list[dict[str, str]]:
     return [
-        {"role": "system", "content": "Sen kaynaklı finansal analiz sonucunu seslendirmek için kısa Türkçe metin yazarsın. Grafik bilgisi kanıt kapsülünde varsa metne tam olarak 'Grafik incelendiğinde,' diye başla; grafik yoksa bu ifadeyi kullanma. Ardından grafikteki ve analizdeki gerçek değerleri açıkla. Son cümlede, yalnız kanıt kapsülündeki değerlere dayanarak ve nedensellik iddia etmeden '... görülebilir.' biçiminde kısa bir içgörü sun. Yalnız verilen kanıt kapsülündeki gerçekleri kullan. Yeni hesap, sayı, tarih, kaynak, nedensellik veya öneri üretme. Sayı sözcüğüyle yazma. Beş veya daha fazla ondalık basamaklı makine hassasiyetindeki değerleri en fazla iki ondalığa yuvarla ve 'yaklaşık' diye belirt; diğer sayıları kapsüldeki biçimiyle yaz. Para birimi için 'TL' kısaltmasını yazma; her zaman 'Türk lirası' yaz. Gösterge adındaki parantez içi yer veya kod ifadesinden sonra bir nokta koy; sonraki sayısal değere yeni cümleyle geç. Bu yazılı cümle sonu seslendirmedeki kısa duraklamayı da oluşturur. Eksik veri ve kapsam uyarısını varsa söyle. Başlık, Markdown, URL ve kaynakça yazma."},
+        {"role": "system", "content": "Sen kaynaklı finansal analiz sonucunu seslendirmek için kısa Türkçe metin yazarsın. Grafik bilgisi kanıt kapsülünde varsa metne tam olarak 'Grafik incelendiğinde,' diye başla; grafik yoksa bu ifadeyi kullanma. Grafikte veya analizde gerçek değerler varsa açıkla; yalnız kaynak incelemesi ya da güvenli sınırlama varsa sonucu ve eksikliği sade biçimde özetle. Son cümlede, yalnız kanıt kapsülündeki değerlere dayanarak ve nedensellik iddia etmeden '... görülebilir.' biçiminde kısa bir içgörü sun. Yalnız verilen kanıt kapsülündeki gerçekleri kullan. Yeni hesap, sayı, tarih, kaynak, nedensellik veya öneri üretme. Sayı sözcüğüyle yazma. Beş veya daha fazla ondalık basamaklı makine hassasiyetindeki değerleri en fazla iki ondalığa yuvarla ve 'yaklaşık' diye belirt; diğer sayıları kapsüldeki biçimiyle yaz. Para birimi için 'TL' kısaltmasını yazma; her zaman 'Türk lirası' yaz. Gösterge adındaki parantez içi yer veya kod ifadesinden sonra bir nokta koy; sonraki sayısal değere yeni cümleyle geç. Bu yazılı cümle sonu seslendirmedeki kısa duraklamayı da oluşturur. Eksik veri ve kapsam uyarısını varsa söyle. Başlık, Markdown, URL ve kaynakça yazma."},
         {"role": "user", "content": "45 saniyeyi aşmayacak sade bir ses metni üret. Kanıt kapsülü:\n" + json.dumps(brief.public_dict(), ensure_ascii=False, allow_nan=False, separators=(",", ":"))},
     ]
 
@@ -64,6 +64,12 @@ def _normalise_spoken_decimals(value: str) -> str:
 
 def _local_fallback_script(brief: VoiceBriefInput) -> str:
     """Describe only persisted metadata when the text model is unavailable."""
+    if brief.analysis_id is None:
+        return validate_voice_script(
+            "Kaynak incelemesi tamamlandı. İstenen analiz için doğrulanamayan değerler üretilmedi. "
+            "Erişim sınırı ve güvenli devam yolu yazılı sonuçta korunuyor.",
+            brief,
+        )
     period = brief.analysis.get("period") if isinstance(brief.analysis, dict) else None
     start = period.get("start") if isinstance(period, dict) else None
     end = period.get("end") if isinstance(period, dict) else None

@@ -2,6 +2,8 @@
 from __future__ import annotations
 
 from dataclasses import asdict, dataclass
+import hashlib
+import json
 import re
 from typing import Any
 
@@ -28,7 +30,7 @@ class VoiceBriefInput:
 
     workspace_id: str
     run_id: str
-    analysis_id: str
+    analysis_id: str | None
     data_sha256: str
     snapshot_id: str | None
     question: str
@@ -47,6 +49,7 @@ class VoiceBriefInput:
 def _short_text(value: object, limit: int) -> str:
     if not isinstance(value, str):
         return ""
+    value = re.sub(r"\[([^\]]+)\]\([^)]*\)", r"\1", value)
     value = _URL.sub("", value)
     return " ".join(value.replace("\x00", " ").split())[:limit]
 
@@ -55,12 +58,40 @@ def _run_result(run: dict[str, Any]) -> tuple[dict[str, Any], dict[str, Any]]:
     result, state = run.get("result"), run.get("state")
     if not isinstance(state, dict):
         raise VoiceContextError("Çalışma sonucu sesli özet için hazır değil.")
-    if not isinstance(state.get("analysis_id"), str):
-        raise VoiceContextError("Sesli özet için kaydedilmiş bir analiz sonucu gerekli.")
     # A provider outage can happen after execute/create_chart persisted valid
     # artifacts. Those bytes are still safe to summarize; the eventual run
     # status and its raw error text must not discard a usable result.
     return result if isinstance(result, dict) else {}, state
+
+
+def _run_sources(state: dict[str, Any]) -> list[dict[str, Any]]:
+    """Project only persisted source identity metadata for a source-only run."""
+    found: list[dict[str, Any]] = []
+    seen: set[str] = set()
+    for item in state.get("tool_results", []):
+        if not isinstance(item, dict) or item.get("tool") not in {
+                "research_web", "inspect_source", "read_source_table", "find_source_table_rows"}:
+            continue
+        result = item.get("result") if isinstance(item.get("result"), dict) else {}
+        if result.get("status") != "ok":
+            continue
+        for source in result.get("sources", []) if item.get("tool") == "research_web" else [result]:
+            if not isinstance(source, dict):
+                continue
+            source_id = source.get("source_id") or source.get("raw_sha256")
+            if not isinstance(source_id, str) or source_id in seen:
+                continue
+            seen.add(source_id)
+            found.append({
+                "title": _short_text(source.get("title") or (source.get("article") or {}).get("title")
+                                     or source.get("filename"), 180),
+                "publisher": _short_text(source.get("publisher"), 100),
+                "document": _short_text(source.get("filename"), 180),
+                "page": source.get("page") if isinstance(source.get("page"), int) else None,
+            })
+            if len(found) == 8:
+                return found
+    return found
 
 
 def _artifact_ids(state: dict[str, Any], tool: str, key: str) -> list[str]:
@@ -135,8 +166,47 @@ def _statistic_capsule(payload: dict[str, Any]) -> dict[str, Any]:
 def build_voice_brief(store, run: dict[str, Any], *, answer: str | None = None) -> VoiceBriefInput:
     """Return bounded evidence only when every included artifact matches one analysis."""
     result, state = _run_result(run)
-    workspace_id, run_id, analysis_id = run.get("workspace_id"), run.get("run_id"), state["analysis_id"]
-    if not all(isinstance(value, str) and _ID.fullmatch(value) for value in (workspace_id, run_id, analysis_id)):
+    workspace_id, run_id, analysis_id = run.get("workspace_id"), run.get("run_id"), state.get("analysis_id")
+    if not all(isinstance(value, str) and _ID.fullmatch(value) for value in (workspace_id, run_id)):
+        raise VoiceContextError("Sesli özet kimlikleri geçersiz.")
+    if not isinstance(analysis_id, str):
+        candidate = answer if answer is not None else result.get("display_message") or result.get("message")
+        message = _short_text(candidate, MAX_MESSAGE_CHARS)
+        if not message:
+            raise VoiceContextError("Çalışma sonucu sesli özet için hazır değil.")
+        sources = _run_sources(state)
+        warning_values = [
+            _short_text(value.get("message") if isinstance(value, dict) else value, 260)
+            for value in [*(result.get("warnings") or []), *(result.get("errors") or [])]
+        ]
+        warnings = list(dict.fromkeys(value for value in warning_values if value))[:MAX_WARNINGS]
+        evidence = {
+            "workspace_id": workspace_id,
+            "run_id": run_id,
+            "question": _short_text(run.get("message"), 800),
+            "answer": message,
+            "sources": sources,
+            "warnings": warnings,
+        }
+        digest = hashlib.sha256(json.dumps(evidence, ensure_ascii=False, sort_keys=True,
+                                            separators=(",", ":")).encode()).hexdigest()
+        workspace = store.workspace(workspace_id)
+        return VoiceBriefInput(
+            workspace_id=workspace_id,
+            run_id=run_id,
+            analysis_id=None,
+            data_sha256=digest,
+            snapshot_id=workspace.get("snapshot_id"),
+            question=evidence["question"],
+            answer=message,
+            analysis={"row_count": 0, "period": None, "columns": [], "plan": {"mode": "source_only"}},
+            facts=[],
+            statistics=[],
+            chart=None,
+            sources=sources,
+            warnings=warnings,
+        )
+    if not _ID.fullmatch(analysis_id):
         raise VoiceContextError("Sesli özet kimlikleri geçersiz.")
     frame, manifest = store.load_analysis(analysis_id)
     if manifest.get("workspace_id") != workspace_id or not isinstance(manifest.get("data_sha256"), str):

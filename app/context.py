@@ -340,12 +340,12 @@ class AppContext:
                         self.followups.start(workspace_id, result["run_id"])
                     except Exception:
                         pass  # Optional scheduling never changes a finished job.
-                if result.get("status") == "completed" and result.get("run_id"):
+                if result.get("status") in {"completed", "partial", "blocked", "failed"} and result.get("run_id"):
                     try:
                         # Pre-warm the voice summary so opening the panel is
-                        # instant. submit_voice is idempotent per run and a
-                        # run without a persisted analysis simply fails this
-                        # background job without affecting the finished run.
+                        # instant. Source-only limitations are also durable
+                        # run results and can be spoken without inventing an
+                        # analysis table.
                         self.submit_voice(workspace_id, result["run_id"])
                     except Exception:
                         pass  # Optional pre-warm never changes a finished job.
@@ -397,6 +397,11 @@ class AppContext:
                 if result.get("status") == "completed" and self.followups.client is not None:
                     try:
                         self.followups.start(values["workspace_id"], result["run_id"])
+                    except Exception:
+                        pass
+                if result.get("status") in {"completed", "partial", "blocked", "failed"} and result.get("run_id"):
+                    try:
+                        self.submit_voice(values["workspace_id"], result["run_id"])
                     except Exception:
                         pass
 

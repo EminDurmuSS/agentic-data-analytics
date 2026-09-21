@@ -102,6 +102,35 @@ class VoiceBackendTests(unittest.TestCase):
         self.assertEqual(brief.answer, "")
         self.assertEqual(brief.analysis_id, run["state"]["analysis_id"])
 
+    def test_context_accepts_source_only_terminal_result_without_inventing_analysis(self):
+        run = self._completed_run()
+        run["state"]["analysis_id"] = None
+        run["state"]["analysis_updated"] = False
+        run["state"]["tool_results"] = [{
+            "tool": "inspect_source",
+            "result": {
+                "status": "ok",
+                "source_id": "source_" + "a" * 64,
+                "raw_sha256": "b" * 64,
+                "title": "Resmî veri ekranı",
+                "publisher": "Resmî kurum",
+            },
+        }]
+        run["result"] = {
+            "status": "partial",
+            "message": "Resmî kaynak okundu; istenen değer anonim erişimde doğrulanamadı.",
+            "errors": [{"code": "SOURCE_ACCESS_LIMITED", "message": "Anonim veri alanı bulunamadı."}],
+        }
+
+        brief = build_voice_brief(self.app.state.context.store, run)
+
+        self.assertIsNone(brief.analysis_id)
+        self.assertEqual(brief.analysis["row_count"], 0)
+        self.assertEqual(brief.sources[0]["title"], "Resmî veri ekranı")
+        self.assertIn("anonim erişimde", brief.answer)
+        fallback = VoiceScriptService(None).generate(brief)
+        self.assertIn("doğrulanamayan değerler üretilmedi", fallback)
+
     def test_script_has_no_tools_and_falls_back_when_provider_is_unavailable(self):
         run = self._completed_run()
         brief = build_voice_brief(self.app.state.context.store, run)
