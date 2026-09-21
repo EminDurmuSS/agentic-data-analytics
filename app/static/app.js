@@ -69,6 +69,12 @@ async function fetchJob(jobId) {
   }
   throw lastError;
 }
+// The backend permits an analysis to run for up to 15 minutes.  Keep the UI
+// poller alive slightly longer than that budget; the previous ~5.5 minute
+// limit could stop one poll before a valid terminal result was persisted and
+// leave the page saying "Çalışma sürüyor" until a manual refresh.
+const JOB_POLL_INTERVAL_MS = 700;
+const MAX_JOB_POLL_ATTEMPTS = 1400;
 function notice(message) {
   $("#notice").textContent = message || "";
   $("#notice").hidden = !message;
@@ -613,14 +619,14 @@ async function submitQuestion(event) {
     state.selectedSources = [];
     renderSelectedSources();
     let job;
-    for (let i = 0; i < 480; i++) {
+    for (let i = 0; i < MAX_JOB_POLL_ATTEMPTS; i++) {
       job = await fetchJob(state.job);
       latestJob = job;
       showEvents(job.activity, job.journey);
       showPendingActivity(pending, job.activity, job.journey);
       showResultStatus({ status: "running" }, job.journey);
       if (["finished", "failed", "interrupted"].includes(job.status)) break;
-      await new Promise((resolve) => setTimeout(resolve, 700));
+      await new Promise((resolve) => setTimeout(resolve, JOB_POLL_INTERVAL_MS));
     }
     if (job?.status === "interrupted") {
       showResume(state.job);
@@ -701,7 +707,7 @@ async function pollExisting(jobId) {
   window.AnalysisCharts.updateBusy();
   $("#send").disabled = true;
   try {
-    for (let i = 0; i < 480; i++) {
+    for (let i = 0; i < MAX_JOB_POLL_ATTEMPTS; i++) {
       const job = await fetchJob(jobId);
       showEvents(job.activity, job.journey);
       showResultStatus(job.result || { status: job.status === "interrupted" ? "interrupted" : "running" }, job.journey);
@@ -710,7 +716,7 @@ async function pollExisting(jobId) {
         return;
       }
       if (job.status === "interrupted") break;
-      await new Promise((resolve) => setTimeout(resolve, 700));
+      await new Promise((resolve) => setTimeout(resolve, JOB_POLL_INTERVAL_MS));
     }
     notice("Çalışma kaydı korunuyor. Devam etmek için yeniden deneyin.");
   } finally {
