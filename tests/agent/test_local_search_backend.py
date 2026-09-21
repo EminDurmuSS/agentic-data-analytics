@@ -124,6 +124,45 @@ def test_public_financial_registry_keeps_the_source_owned_ticker_as_identity_evi
     assert not kept[0]['entity_verification_required']
 
 
+@pytest.mark.parametrize('query', [
+    'KAP Ulusal Faktoring ULUFA 2025 yıllık finansal raporu',
+    'KAP’ta Ulusal Faktoring A.Ş. tarafından yayımlanan 2025 yıllık finansal raporu bul.',
+])
+def test_public_financial_registry_resolves_exact_ticker_or_full_official_title(query):
+    from agentic_analytics.agent.tools.search_backend import kap_financial_search
+    issuer_id, asset_id = '1' * 32, '2' * 32
+    root = 'https://www.kap.org.tr'
+
+    def fetch(url, **kwargs):
+        if url.endswith('/sirketler/ALL'):
+            content = [
+                {'kapMemberTitle': name, 'mkkMemberOid': f'{index:032x}', 'stockCode': code}
+                for index, (name, code) in enumerate([
+                    ('YAPI KREDİ FAKTORİNG A.Ş.', 'YKFKT'),
+                    ('VAKIF FAKTORİNG A.Ş.', 'VAKFA'),
+                    ('ULUSAL FAKTORİNG A.Ş.', 'ULUFA'),
+                    ('ULUSAL BAĞIMSIZ DENETİM VE YEMİNLİ MALİ MÜŞAVİRLİK A.Ş.', None),
+                    ('GARANTİ FAKTORİNG A.Ş.', 'GARFA'),
+                ], 10)
+            ]
+            content[2]['mkkMemberOid'] = issuer_id
+        elif 'bildirim-sorgu-sonuc?' in url:
+            assert parse_qs(urlsplit(url).query)['member'] == [issuer_id]
+            content = [{'disclosureBasic': {'disclosureIndex': 1550705,
+                        'companyTitle': 'ULUSAL FAKTORİNG A.Ş.', 'year': 2025, 'donem': 'Yıllık',
+                        'disclosureClass': 'FR', 'title': 'Finansal Rapor'}}]
+        elif url.endswith('/Bildirim/1550705'):
+            content = {'attachments': [{'objId': asset_id,
+                        'fileName': 'Ulusal Faktoring A.Ş. Konsolide 31.12.2025.pdf'}]}
+        else:
+            raise AssertionError('Unexpected source URL: ' + url)
+        return _server_payload(content), 'text/html', url
+
+    results = kap_financial_search(query, fetch)
+    assert [item['url'] for item in results] == [root + '/tr/api/file/download/' + asset_id]
+    assert results[0]['registry_evidence']['issuer_id'] == issuer_id
+
+
 def test_financial_registry_does_not_guess_ambiguous_issuers_or_widen_sites():
     from agentic_analytics.agent.tools.search_backend import kap_financial_search, kap_search_applicable
     calls = []

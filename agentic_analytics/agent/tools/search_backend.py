@@ -227,6 +227,85 @@ def kap_search_applicable(query):
             and kap_only)
 
 
+_KAP_LEGAL_WORDS = {
+    "a", "as", "anonim", "sti", "sirket", "sirketi", "limited", "ltd", "inc", "corp", "corporation",
+}
+_KAP_LEADING_WORDS = {"turkiye", "turk", "t", "t.c", "tc"}
+_KAP_SECTOR_WORDS = {
+    "bank", "bankasi", "bankacilik", "faktoring", "finans", "finansal", "holding", "holdings",
+    "menkul", "degerler", "yatirim", "yatirimlar", "sanayi", "ticaret",
+}
+_KAP_NON_TICKERS = {"KAP", "PDF", "FR", "SPK", "TFRS", "IFRS", "TL", "TRY", "USD", "EUR"}
+
+
+def _kap_words(value):
+    return re.findall(r"[a-z0-9]+", search_text(value))
+
+
+def _contains_words(haystack, needle):
+    if not needle or len(needle) > len(haystack):
+        return False
+    return any(haystack[index:index + len(needle)] == needle
+               for index in range(len(haystack) - len(needle) + 1))
+
+
+def _kap_company(query, values):
+    """Resolve exactly one KAP member from source-owned ticker/title identity.
+
+    Generic search relevance is intentionally not used here. A sector word
+    such as ``faktoring`` can match dozens of registry members and must never
+    cause the first member to be selected.
+    """
+    companies = {}
+    for value in values:
+        if not isinstance(value, dict):
+            continue
+        title, oid = value.get("kapMemberTitle"), value.get("mkkMemberOid")
+        if not isinstance(title, str) or not isinstance(oid, str) or not re.fullmatch(r"[a-fA-F0-9]{24,40}", oid):
+            continue
+        codes = [code.upper() for code in re.findall(r"[A-Za-z0-9]+", str(value.get("stockCode") or ""))]
+        companies[oid] = {"title": title, "stock_codes": str(value.get("stockCode") or ""), "codes": codes}
+    if not companies:
+        return None
+
+    query_words = _kap_words(query)
+    query_tokens = {word.upper() for word in query_words}
+    ticker_matches = [(oid, company) for oid, company in companies.items()
+                      if any(code not in _KAP_NON_TICKERS and code in query_tokens for code in company["codes"])]
+    if len(ticker_matches) == 1:
+        return ticker_matches[0]
+    if ticker_matches:
+        return None
+
+    full_matches = []
+    core_matches = []
+    for oid, company in companies.items():
+        title_words = _kap_words(company["title"])
+        while title_words and title_words[-1] in _KAP_LEGAL_WORDS:
+            title_words.pop()
+        aliases = [title_words]
+        without_leading = list(title_words)
+        while without_leading and without_leading[0] in _KAP_LEADING_WORDS:
+            without_leading.pop(0)
+        if without_leading != title_words:
+            aliases.append(without_leading)
+        if any(_contains_words(query_words, alias) for alias in aliases if alias):
+            full_matches.append((oid, company, max(len(alias) for alias in aliases if alias)))
+            continue
+        core = [word for word in without_leading if word not in _KAP_SECTOR_WORDS and word not in _KAP_LEGAL_WORDS]
+        # One source-owned brand word is sufficient only when it resolves to
+        # one registry member. Shared brands (ACME Bank / ACME Holding) remain
+        # ambiguous and are rejected below.
+        if core and _contains_words(query_words, core):
+            core_matches.append((oid, company, len(core)))
+    matches = full_matches or core_matches
+    if not matches:
+        return None
+    longest = max(score for _, _, score in matches)
+    matches = [(oid, company) for oid, company, score in matches if score == longest]
+    return matches[0] if len(matches) == 1 else None
+
+
 def kap_financial_search(query, fetch):
     """Resolve issuer and reporting period against KAP's public source registry.
 
@@ -266,19 +345,10 @@ def kap_financial_search(query, fetch):
     raw, _, final = fetch(registry_url, max_bytes=4 * 1024**2, timeout=20)
     if (parse.urlsplit(final).hostname or "").removeprefix("www.") != "kap.org.tr":
         raise ValueError("The KAP registry redirected outside its official domain.")
-    companies = {}
-    for value in _flight_objects(raw):
-        title, oid = value.get("kapMemberTitle"), value.get("mkkMemberOid")
-        if not isinstance(title, str) or not isinstance(oid, str) or not re.fullmatch(r"[a-fA-F0-9]{24,40}", oid):
-            continue
-        stock_codes = str(value.get("stockCode", ""))
-        candidate = {"title": title, "url": registry_url, "snippet": stock_codes}
-        matches, _, _ = rank_search_results(query, [candidate])
-        if matches and not matches[0]["entity_verification_required"]:
-            companies[oid] = {"title": title, "stock_codes": stock_codes}
-    if len(companies) != 1:
+    company_match = _kap_company(query, _flight_objects(raw))
+    if company_match is None:
         return []  # No unique issuer identity; never pick the first similar bank.
-    oid, company = next(iter(companies.items()))
+    oid, company = company_match
     issuer, issuer_codes = company["title"], company["stock_codes"]
     disclosures_url = root + "/tr/bildirim-sorgu-sonuc?" + parse.urlencode({"member": oid, "disclosureClass": "FR"})
     raw, _, final = fetch(disclosures_url, max_bytes=4 * 1024**2, timeout=20)
