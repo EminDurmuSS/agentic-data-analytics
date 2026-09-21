@@ -13,6 +13,7 @@ import unicodedata
 from contextlib import contextmanager
 from datetime import date, datetime
 from typing import Any, Iterator
+from urllib.parse import urlsplit
 
 import duckdb
 import numpy as np
@@ -181,13 +182,13 @@ def _query_terms(value: str) -> tuple[list[str], set[str]]:
 
 
 _SOURCE_ALIASES = {
-    "bddk": {"source_system": ("bddk_",), "organization": ("bddk",)},
+    "bddk": {"source_system": ("bddk_",), "organization": ("bddk",), "domains": ("bddk.org.tr",)},
     "finturk": {"source_system": ("bddk_finturk",), "organization": ("finturk",)},
-    "tcmb": {"source_system": ("tcmb_evds", "tcmb_evds_derived"), "organization": ("tcmb",)},
-    "evds": {"source_system": ("tcmb_evds", "tcmb_evds_derived"), "organization": ("evds",)},
-    "tuik": {"source_system": ("tuik_data_portal",), "organization": ("tuik",)},
-    "tbb": {"source_system": ("tbb_",), "organization": ("turkiye bankalar birligi",)},
-    "bist": {"source_system": (), "organization": ("borsa istanbul", "bist")},
+    "tcmb": {"source_system": ("tcmb_evds", "tcmb_evds_derived"), "organization": ("tcmb",), "domains": ("tcmb.gov.tr",)},
+    "evds": {"source_system": ("tcmb_evds", "tcmb_evds_derived"), "organization": ("evds",), "domains": ("evds2.tcmb.gov.tr", "evds3.tcmb.gov.tr")},
+    "tuik": {"source_system": ("tuik_data_portal",), "organization": ("tuik",), "domains": ("tuik.gov.tr",)},
+    "tbb": {"source_system": ("tbb_",), "organization": ("turkiye bankalar birligi",), "domains": ("tbb.org.tr",)},
+    "bist": {"source_system": (), "organization": ("borsa istanbul", "bist"), "domains": ("borsaistanbul.com",)},
 }
 
 
@@ -217,15 +218,34 @@ def _source_match(binding: dict, requested: list[str]) -> dict | None:
         return None
     system = _fold(binding.get("source_system") or "")
     organization = _fold(binding.get("source_organization") or "")
+    # Official web overlays keep SESSION_DATASET identity. Route them by the
+    # persisted origin URL, never by a user-controlled title that mentions an
+    # institution. Routing does not certify the values or change their scope.
+    source_host = ""
+    if system == "session_dataset":
+        try:
+            source_url = binding.get("source_url") or ""
+            if not isinstance(source_url, str):
+                source_url = ""
+            parsed = urlsplit(source_url)
+            if (parsed.scheme in {"http", "https"} and parsed.hostname
+                    and parsed.username is None and parsed.password is None
+                    and parsed.port in {None, 80, 443}
+                    and not any(ord(character) < 32 for character in source_url)):
+                source_host = parsed.hostname.lower().rstrip(".")
+        except (ValueError, TypeError):
+            pass
     matches = []
     for alias in requested:
         spec = _SOURCE_ALIASES[alias]
         direct = any(system == token or system.startswith(token) for token in spec["source_system"])
         indirect = any(re.search(r"(?<![a-z0-9])" + re.escape(token) + r"(?![a-z0-9])", organization)
                        for token in spec["organization"])
-        if direct or indirect:
+        origin = any(source_host == domain or source_host.endswith("." + domain)
+                     for domain in spec.get("domains", ()))
+        if direct or indirect or origin:
             matches.append({"requested_source": alias,
-                            "basis": "source_system" if direct else "source_organization",
+                            "basis": "source_system" if direct else "source_organization" if indirect else "source_url_domain",
                             "strength": 3 if direct else 1})
     if not matches:
         return None
@@ -378,6 +398,7 @@ class LakehouseService:
             for dataset_id in workspace.get("datasets", []):
                 manifest = self.store.dataset_manifest(dataset_id)
                 contract = manifest["contract"]
+                provenance = contract.get("document_provenance")
                 table = "overlay_" + re.sub(r"[^A-Za-z0-9_]", "_", dataset_id)
                 connection.register(table, pd.read_parquet(self.store.overlay_path(dataset_id)))
                 for column, definition in contract["columns"].items():
@@ -427,6 +448,7 @@ class LakehouseService:
                         "scope_namespace": dataset_id,
                         "source_namespace": contract.get("source_namespace"),
                         "document_provenance": copy.deepcopy(contract.get("document_provenance")),
+                        "source_url": provenance.get("source_url") if isinstance(provenance, dict) else None,
                         "index_role": definition.get("index_role"),
                         "deflator_currency": definition.get("deflator_currency"),
                         "price_scope": definition.get("price_scope"),

@@ -110,6 +110,10 @@ def test_publication_is_reusable_pinned_idempotent_and_has_cell_lineage(tmp_path
     service = LakehouseService(store, "workspace_after")
     metric = published["metric_ids"][0]
     assert metric in [item["metric_id"] for item in service.discover({"query": "XBANK", "limit": 5})["metrics"]]
+    matched = service.discover({"query": "BIST Banka Endeksi aylık kapanış", "limit": 5})["metrics"]
+    assert [item["metric_id"] for item in matched] == [metric]
+    assert matched[0]["source_match"]["basis"] == "source_url_domain"
+    assert matched[0]["source_system"] == "SESSION_DATASET"
     descriptor = service.describe({"metric_id": metric})["metric"]
     assert descriptor["native_frequency"] == "monthly"
     assert descriptor["kind"] == "index"
