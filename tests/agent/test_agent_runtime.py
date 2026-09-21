@@ -172,13 +172,18 @@ class AgentRuntimeTests(unittest.TestCase):
 
     def test_explicit_resume_reopens_retryable_provider_failure_and_keeps_decision_debits(self):
         def unavailable(_messages):
-            raise MiaError("PROVIDER_UNAVAILABLE", "MIA bağlantısı tamamlanamadı.", retryable=True, attempts=3)
+            raise MiaError("PROVIDER_UNAVAILABLE", "MIA bağlantısı tamamlanamadı.", retryable=True, attempts=3,
+                           failure_kind="timeout", elapsed_ms=180003)
 
         runtime, client = self.runtime([unavailable])
         failed = runtime.run("Kısa bir açıklama ver", request_id="retry-provider")
         self.assertEqual(failed["status"], "failed")
         self.assertEqual(failed["decisions"], 1)
         self.assertTrue(failed["errors"][0]["retryable"])
+        self.assertEqual(failed["errors"][0]["failure_kind"], "timeout")
+        event = next(event for event in self.journal.events(failed['run_id']) if event['kind'] == 'provider_error')
+        self.assertEqual(event['payload']['failure_kind'], 'timeout')
+        self.assertEqual(event['payload']['elapsed_ms'], 180003)
         self.assertEqual(runtime.resume(failed["run_id"]), failed)
 
         runtime, resumed_client = self.runtime([FINAL])

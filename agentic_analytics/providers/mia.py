@@ -4,6 +4,8 @@ from __future__ import annotations
 import base64
 import json
 import math
+import socket
+import ssl
 import time
 import urllib.error
 import urllib.request
@@ -17,10 +19,12 @@ class _NoRedirect(urllib.request.HTTPRedirectHandler):
 
 
 class MiaError(RuntimeError):
-    def __init__(self, code, message, *, retryable=False, status_code=None, attempts=None):
+    def __init__(self, code, message, *, retryable=False, status_code=None, attempts=None,
+                 failure_kind=None, elapsed_ms=None):
         super().__init__(message)
         self.code, self.retryable, self.status_code = code, retryable, status_code
         self.attempts = attempts
+        self.failure_kind, self.elapsed_ms = failure_kind, elapsed_ms
 
 
 class MiaClient:
@@ -78,13 +82,22 @@ class MiaClient:
                 error = MiaError(code, f"MIA isteği HTTP {status} ile tamamlanamadı.", retryable=retryable, status_code=status)
                 retry_after = exc.headers.get("Retry-After", "") if exc.headers else ""
                 delay = min(float(retry_after), 10) if retry_after.replace(".", "", 1).isdigit() else min(2 ** attempt, 8)
-            except (urllib.error.URLError, TimeoutError, ConnectionError, OSError):
-                error = MiaError("PROVIDER_UNAVAILABLE", "MIA bağlantısı tamamlanamadı.", retryable=True)
+            except (urllib.error.URLError, TimeoutError, ConnectionError, OSError) as exc:
+                # Exception messages may contain URLs, credentials or payloads.
+                # Persist only a closed set of diagnostic categories.
+                cause = exc.reason if isinstance(exc, urllib.error.URLError) else exc
+                kind = ("timeout" if isinstance(cause, TimeoutError) else
+                        "dns" if isinstance(cause, socket.gaierror) else
+                        "tls" if isinstance(cause, ssl.SSLError) else
+                        "connection" if isinstance(cause, ConnectionError) else "network")
+                error = MiaError("PROVIDER_UNAVAILABLE", "MIA bağlantısı tamamlanamadı.",
+                                 retryable=True, failure_kind=kind)
                 delay = min(2 ** attempt, 8)
             except (json.JSONDecodeError, UnicodeDecodeError):
                 raise MiaError("INVALID_PROVIDER_RESPONSE", "Model yanıtı geçerli JSON değil.") from None
             if not error.retryable or attempt == self.max_retries:
                 error.attempts = attempt + 1
+                error.elapsed_ms = round((time.monotonic() - started) * 1000, 3)
                 raise error from None
             self._sleep(delay)
 

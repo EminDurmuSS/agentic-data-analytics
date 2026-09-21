@@ -1,5 +1,7 @@
 import io
 import json
+import socket
+import ssl
 import unittest
 import urllib.error
 
@@ -14,6 +16,29 @@ def response(content="Merhaba", calls=None, finish="stop"):
 
 
 class MiaClientTests(unittest.TestCase):
+    def test_connection_failures_keep_safe_diagnostics_and_retry_budget(self):
+        failures = [(TimeoutError('secret-value'), 'timeout'),
+                    (urllib.error.URLError(socket.gaierror('secret-value')), 'dns'),
+                    (urllib.error.URLError(ssl.SSLError('secret-value')), 'tls'),
+                    (ConnectionResetError('secret-value'), 'connection'),
+                    (urllib.error.URLError('secret-value'), 'network')]
+        for failure, expected in failures:
+            with self.subTest(expected=expected):
+                attempts, waits = [], []
+                def transport(*_):
+                    attempts.append(1)
+                    raise failure
+                client = MiaClient('secret-value', transport=transport, sleeper=waits.append)
+                with self.assertRaises(MiaError) as raised:
+                    client.chat([{'role': 'user', 'content': 'test'}])
+                error = raised.exception
+                self.assertEqual(error.code, 'PROVIDER_UNAVAILABLE')
+                self.assertEqual(error.failure_kind, expected)
+                self.assertEqual(error.attempts, 3)
+                self.assertEqual(waits, [1, 2])
+                self.assertGreaterEqual(error.elapsed_ms, 0)
+                self.assertNotIn('secret-value', str(error) + repr(vars(error)))
+
     def test_native_tool_call_with_stop_and_null_content_is_preserved(self):
         calls = [{"id": "call-1", "type": "function", "function": {"name": "describe", "arguments": '{"metric_id":"x"}'}}]
         client = MiaClient("secret-value", transport=lambda *_: response(None, calls))

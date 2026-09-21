@@ -1805,7 +1805,10 @@ class AgentRuntime:
         except MiaError as exc:
             error = {"code": exc.code, "message": str(exc), "retryable": exc.retryable,
                      "attempts": exc.attempts, "usage_unknown": True}
-            self.run_store.event(run_id, "provider_error", {key: error[key] for key in ("code", "retryable", "attempts")})
+            error.update({key: getattr(exc, key) for key in ("status_code", "failure_kind", "elapsed_ms")
+                          if getattr(exc, key) is not None})
+            self.run_store.event(run_id, "provider_error", {key: value for key, value in error.items()
+                                                          if key not in {"message", "usage_unknown"}})
             # A failed prose/model call must not discard a source-owned,
             # unambiguous statement value already read by tools this turn.
             self._recover_source_analysis(record, state)
@@ -2678,6 +2681,9 @@ class AgentRuntime:
                 error["status_code"] = exc.status_code
             if exc.attempts is not None:
                 error["attempts"] = exc.attempts
+            for key in ("failure_kind", "elapsed_ms"):
+                if getattr(exc, key) is not None:
+                    error[key] = getattr(exc, key)
             result = {
                 "status": "unavailable",
                 "code": exc.code,
