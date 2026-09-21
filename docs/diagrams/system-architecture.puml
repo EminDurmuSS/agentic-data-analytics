@@ -1,0 +1,37 @@
+@startuml
+title Agentic Data Analytics — Genel Mimari
+top to bottom direction
+skinparam backgroundColor #F8FAFC
+skinparam shadowing false
+skinparam defaultFontName DejaVu Sans
+skinparam defaultFontSize 14
+skinparam roundcorner 12
+skinparam ArrowColor #466179
+skinparam rectangleBackgroundColor #EEF4FA
+skinparam rectangleBorderColor #466179
+rectangle "Tarayıcı arayüzü" as UI
+rectangle "FastAPI / AppContext" as API
+rectangle "AgentRuntime" as RUN
+rectangle "MIA / Qwen" as MODEL
+rectangle "Kalıcı işlem günlüğü" as LOG
+rectangle "Belge / veri / grafik araçları" as TOOLS
+rectangle "SearXNG / web / yüklenen dosya" as WEB
+rectangle "LakehouseService / Store" as DATA
+rectangle "data_pipeline / katalog / build" as BUILD
+database "DuckDB / Parquet / snapshot" as DB
+rectangle "Tablo / grafik / kaynak izi" as OUT
+rectangle "Sesli özet / EMA-TTS" as VOICE
+UI --> API : İstek / durum sorgusu
+API --> RUN : Arka plan işi
+RUN <--> MODEL : Araç seçimi / gözlem
+RUN --> LOG : Checkpoint / olay
+RUN --> TOOLS : Doğrulanmış çağrı
+TOOLS <--> WEB : Arama / belge okuma
+TOOLS --> DATA : Plan / hesap / kayıt
+BUILD --> DB : Veri yayını
+DATA <--> DB
+DATA --> OUT : Kayıtlı sonuç
+OUT --> API : Sunum
+OUT --> VOICE : Sonuç bağlamı
+VOICE --> API : Ses kaydı
+@enduml

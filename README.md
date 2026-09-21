@@ -59,18 +59,132 @@ python -m app --prompt-key --port 8870
 
 Örnek başlangıç sorusu: “Bankacılık sektörünün 2026 ilk üç aydaki aylık net kârını milyon TL olarak göster.” Sonucu **Tablo**, **Grafik**, **Kaynaklar** ve **Hesap adımları** görünümlerinde inceleyebilirsiniz.
 
-## Proje düzeni
+## Modüler kod yapısı
 
-| Dizin | Sorumluluk |
-| --- | --- |
-| [app/](app/) | HTTP API, uygulama kurulumu ve tarayıcı arayüzü |
-| [agentic_analytics/](agentic_analytics/) | Agent, deterministik lakehouse servisleri ve sağlayıcı adaptörü |
-| [data_pipeline/](data_pipeline/) | Kaynak veriler, dönüşümler, katalog ve veritabanı üretimi |
-| [tools/](tools/) | Kaynak indirme, toplama, yayın ve doğrulama betikleri |
-| [evals/](evals/) | Canlı tutarlılık ölçümü, bağımsız puanlama ve sorgu benchmarkı |
-| [tests/](tests/) | Agent, API, lakehouse, veri alımı ve değerlendirme testleri |
-| [notebooks/](notebooks/) | Veri keşfi ve doğrulama notebookları |
-| [docs/](docs/README.md) | Kullanım, mimari, veri kapsamı ve tarihli kanıtlar |
+Önemli dosyaların sorumlulukları aşağıdadır; ağaç tüm dosyaları listelemez. HTTP katmanı işleri başlatır, agent araç seçer, veri servisleri hesapları yürütür. Kaynak toplama betikleri uygulamanın çalışma zamanı bağımlılığı değildir; build ve sorgu katmanı ortak metrik/semantik kurallarını paylaşır.
+
+```text
+agentic-data-analytics/
+├── app/                                # API ve kullanıcı arayüzü
+│   ├── server.py                       # FastAPI kurulumu, route ve hata sözleşmeleri
+│   ├── context.py                      # Çalışma alanları, arka plan işleri ve runtime kurulumu
+│   ├── models.py                       # HTTP isteklerinin doğrulama modelleri
+│   ├── routes/                         # Çalışma alanı, analiz ve kaynak endpoint'leri
+│   ├── activity.py                     # İşlem günlüğünü kullanıcıya görünen aşamalara dönüştürür
+│   └── static/                         # Konuşma, tablo, grafik ve sesli özet arayüzü
+├── agentic_analytics/
+│   ├── agent/
+│   │   ├── runtime.py                  # Karar döngüsü, araç yürütme, bütçe ve hata onarımı
+│   │   ├── prompts.py                  # Model talimatları ve görev davranışları
+│   │   ├── schemas.py                  # Yapılandırılmış araç/hesap planı sözleşmeleri
+│   │   ├── context.py                  # Model için çalışma alanı ve araç bağlamı
+│   │   ├── run_store.py                # Konuşma, olay günlüğü ve devam noktaları
+│   │   ├── delivery.py                 # Kayıtlı kanıtlardan sonuç metni ve teslim kontrolleri
+│   │   └── tools/
+│   │       ├── documents.py            # Web/dosya kaynağını alma, inceleme ve tablo okuma
+│   │       ├── source_index.py         # Uzun belgede ilgili sayfa ve bölüm keşfi
+│   │       ├── document_tables.py      # Tablo yapısı ve kaynak hücre kökeni
+│   │       ├── financial_import.py     # Finansal satır/dönem seçimini veri sözleşmesine derler
+│   │       ├── datasets.py             # Dış veri için gruplama ve takvim işlemleri
+│   │       ├── summary.py              # Kayıtlı analizden dönem özetleri ve karşılaştırmalar
+│   │       ├── charts.py               # Kayıtlı analizden grafik görünümü üretir
+│   │       └── shared_lakehouse.py     # Açık talep üzerine doğrulanmış ortak veri yayını
+│   ├── lakehouse/
+│   │   ├── service.py                  # Keşif, plan doğrulama, hesap ve kaynak açıklaması
+│   │   ├── store.py                    # Snapshot, dataset ve değişmez analiz kayıtları
+│   │   ├── registry.py                 # Ortak metrik tanımları ve bağlamaları
+│   │   ├── semantics.py                # Birim, frekans ve stok/akım işlem kuralları
+│   │   ├── financial_semantics.py      # Kaynakta belirtilen kümülatif veri işaretleri
+│   │   └── shared.py                   # Ortak veri paketleri ve sürüm yönetimi
+│   ├── providers/mia.py                # Model sağlayıcısı iletişimi ve sınırlı tekrarlar
+│   └── voice/                         # Sonuç bağlamı, ses metni ve yerel EMA-TTS üretimi
+├── data_pipeline/                     # Ham kaynaklardan doğrulanmış veri üretimi
+│   ├── bddk/                          # BDDK aylık/haftalık/FinTürk dönüşümleri
+│   ├── evds/                          # TCMB serileri ve kaynak metadata'sı
+│   ├── tuik/                          # TÜİK verileri ve tarihli yayın sürümleri
+│   ├── catalog/build_unified_catalog.py # Birleşik kaynak ve metrik kataloğu
+│   └── lakehouse/build_lakehouse.py    # DuckDB veritabanı üretimi
+├── tools/                             # İndirme, veri toplama ve doğrulama betikleri
+├── evals/                             # Canlı deneme, bağımsız puanlama ve benchmark
+├── tests/                             # Agent, API, veri işleme ve arayüz testleri
+├── notebooks/                         # Veri keşfi ve doğrulama çalışmaları
+└── docs/                              # Mimari, kullanım, kaynak ve doğrulama rehberleri
+```
+
+Ayrıntılı sorumluluklar ve bağımlılık sınırları: [Mimari rehberi](docs/ARCHITECTURE.md#kodun-sorumlulukları).
+
+## Genel mimari
+
+Uygulama, araç çağrıları yapan tek bir agent döngüsü etrafında kuruludur. Qwen, MIA adaptörü üzerinden hangi aracın hangi parametrelerle çağrılacağını seçer. Plan doğrulama, hesaplama ve kayıt işlemleri Python servislerinde yürütülür. Tarayıcı, API üzerinden iş durumunu ve kalıcı sonuçları okur; grafik ve sesli özet bu sonuçlara bağlıdır.
+
+![Agentic Data Analytics genel mimarisi](docs/diagrams/system-architecture.svg)
+
+[PlantUML kaynağı](docs/diagrams/system-architecture.puml) · [SVG](docs/diagrams/system-architecture.svg) · [Üretim talimatı](docs/diagrams/README.md). Aynı bileşenler ve bağlantılar GitHub'ın doğrudan gösterebildiği Mermaid biçiminde de verilmiştir:
+
+```mermaid
+flowchart TB
+    UI["Tarayıcı arayüzü"] -->|İstek / durum sorgusu| API["FastAPI / AppContext"]
+    API -->|Arka plan işi| RUN["AgentRuntime"]
+    RUN <-->|Araç seçimi / gözlem| MODEL["MIA / Qwen"]
+    RUN -->|Checkpoint / olay| LOG["Kalıcı işlem günlüğü"]
+    RUN -->|Doğrulanmış çağrı| TOOLS["Belge / veri / grafik araçları"]
+    TOOLS <-->|Arama / belge okuma| WEB["SearXNG / web / yüklenen dosya"]
+    TOOLS -->|Plan / hesap / kayıt| DATA["LakehouseService / Store"]
+    BUILD["data_pipeline / katalog / build"] -->|Veri yayını| DB["DuckDB / Parquet / snapshot"]
+    DATA <--> DB
+    DATA -->|Kayıtlı sonuç| OUT["Tablo / grafik / kaynak izi"]
+    OUT -->|Sunum| API
+    OUT -->|Sonuç bağlamı| VOICE["Sesli özet / EMA-TTS"]
+    VOICE -->|Ses kaydı| API
+```
+
+### Bronze / Silver / Gold veri akışı
+
+[Databricks'in Medallion Architecture açıklamasında](https://www.databricks.com/blog/what-is-medallion-architecture) Bronze ham kaynakları, Silver temizlenmiş ve uyumlandırılmış veriyi, Gold ise iş amaçlı kullanıma hazır çıktıları ifade eder. Burada bu adlar mevcut veri hattını açıklayan **kavramsal eşlemedir**; depolama Python, DuckDB ve Parquet ile sağlanır. Repoda fiziksel `bronze/`, `silver/`, `gold/` dizinleri veya Databricks/Delta Lake kurulumu varsayılmaz.
+
+![Projede Bronze, Silver ve Gold sorumlulukları](docs/diagrams/medallion-flow.svg)
+
+- **Bronze — ham kanıt:** Kaynak paketlerindeki ham yanıtlar/dosyalar ve çalışma alanına alınan belgeler; URL, indirme zamanı ve hash gibi mevcut kaynak kayıtlarıyla korunur. Yeniden işleme özgün kaynaktan yapılabilir.
+- **Silver — doğrulanmış veri:** Kaynaklara özgü `processed` çıktıları, normalize gözlemler, metrik kataloğu ve sözleşmesi doğrulanmış dış dataset'ler. Tarih, birim, ölçek, kurum kapsamı ve stok/akım anlamı açıklanır. BDDK kümülatif kâr/zarar verisinden aylık akım yalnız aynı yılın önceki takvim ayı ve uyumlu tanım mevcutsa türetilir; ham değer ayrıca korunur.
+- **Gold — analize hazır çıktı:** Sorgulanabilir DuckDB görünümleri/paneller ile çalışma alanında kaydedilen analizler ve özetler. Grafikler bu kayıtlardan üretilir. Veri anlamına uygun toplama yapılır; stoklar zaman boyunca toplanmaz ve eksik gözlemler tahminle doldurulmaz.
+
+DuckDB hem doğrulanmış gözlemleri hem analitik görünümleri barındırabilir; katman ayrımı dosya uzantısına değil sorumluluğa dayanır. Web'den okunan bir belge ortak veriyi otomatik güncellemez; çalışma alanında veri olarak yayımlama ve açık talebe bağlı ortak yayın ayrı adımlardır.
+
+[PlantUML kaynağı](docs/diagrams/medallion-flow.puml) · [Veri üretim sırası](data_pipeline/README.md#üretim-sırası) · [Veri rehberi](docs/DATA.md) · [Ortak yayın akışı](docs/ARCHITECTURE.md#web-verisini-ortak-lakehousea-alma).
+
+## Doküman işleme yaklaşımı
+
+Belge araçlarını ana agent seçer. CSV, XLSX, PDF, görsel, HTML ve metin dosyaları kaynak olarak kaydedilir; belgeyi okumak ile onu hesaplanabilir dataset olarak yayımlamak ayrı aşamalardır.
+
+1. **Kaynağı bul ve kaydet:** Kullanıcı dosya yükler veya agent web araştırmasıyla belgeyi açar. Arama özeti tek başına sayısal kanıt sayılmaz; ham belge ve kaynak kimliği korunur.
+2. **İlgili bölümü oku:** `find_source_pages` uzun PDF içinde sayfa/bölüm bulur; `inspect_source`, `read_source_table` ve `find_source_table_rows` ilgili hücreleri açar. Belgenin tamamı saklanırken modele sınırlı içerik görünümü verilir.
+3. **Yapıyı ve anlamı doğrula:** Metin ve tablo çıkarımı kullanılır; OCR veya belirsiz yerleşim inceleme gerektirebilir. Sayfa, tablo, satır/sütun, dönem, para birimi ve kapsam bilgisi kaynak hücreleriyle ilişkilendirilir.
+4. **Hesaba aç:** Finansal tablolarda `ingest_source_table`, seçilen satır ve dönemleri deterministik olarak derler. Başlıklar, sayı biçimi, ölçek ve dönem eşlemesi doğrulanınca dataset ve çalıştırılabilir analiz isteği oluşur. Desteklenmeyen düzenlerde kontrollü hazırlama araçları kullanılabilir; belirsiz semantik tahminle tamamlanmaz.
+5. **Sonucu üret:** Kayıtlı veri üzerinden analiz/grafik oluşturulur ve kaynak izi gösterilir. Kümülatif veya dönem aralığı belirsiz yeni belgeler özgün değerleriyle gösterilebilir; aylık akıma dönüşüm ya da zaman toplamı için ek kanıt gerekir.
+
+İlgili kod: [documents.py](agentic_analytics/agent/tools/documents.py), [source_index.py](agentic_analytics/agent/tools/source_index.py), [financial_import.py](agentic_analytics/agent/tools/financial_import.py). Ayrıntılar: [mimari ve belge teslimi](docs/ARCHITECTURE.md#tamamlanma-ile-doğruluk), [kaynak dosya kayıtları](docs/SOURCE_IMPORTS.md).
+
+## Agent karar döngüsü ve görev işleme
+
+Her istek çalışma alanı ve konuşma bağlamıyla başlar. Model mevcut metrikleri, kaynakları ve önceki analizi görerek araç çağrısı seçer; çok adımlı görevlerde `plan_task` teslim beklentilerini kaydeder. Runtime araç argümanlarını ve hesap koşullarını doğrular, aracı çalıştırır ve gözlemi modele geri verir. Modelin serbest SQL veya kod yürütme aracı yoktur.
+
+```mermaid
+flowchart TD
+    Q["Soru ve konuşma bağlamı"] --> C["Metrik / kaynak keşfi ve görev planı"]
+    C --> M["Model bir sonraki adımı seçer"]
+    M --> T["Araç çağrısını doğrula ve çalıştır"]
+    T --> J["Sonucu ve checkpoint'i kaydet"]
+    J --> D{"Görev teslimleri karşılandı mı?"}
+    D -->|Evet| R["Kayıtlı kanıttan yanıt / tablo / grafik"]
+    D -->|Eksik; bütçe uygun| M
+    D -->|Belirsizlik / sınır / hata| P["Açıklama iste veya kısmi / engellenmiş sonucu göster"]
+```
+
+Karar, süre ve onarım bütçeleri sonsuz tekrarları sınırlar. Birim/frekans uyumsuzluğu, kaynak eksikliği veya belirsiz işlem sonucu kaydedilir; uygun hatalarda sınırlı onarım uygulanır. İstek kimliği ve checkpoint'ler kesilmiş işleri sürdürmeyi sağlar. Teknik işlem kayıtları gerçekleşen çağrıları, yöntem notları hesap koşullarını ve kaynak sınırlamalarını görünür kılar.
+
+Teslim katmanı istenen çıktıları denetler; `completed`, `partial`, `blocked`, `needs_input` ve `failed` durumlarını ayırır. Sayısal analiz anlatımı kayıtlı sonuçlara bağlanır. Tamamlanma etiketi tek başına doğru metrik seçimi veya bütün doğal dil yorumlarının doğruluğu anlamına gelmez; bunlar bağımsız eval ile ölçülür.
+
+İlgili kod: [runtime.py](agentic_analytics/agent/runtime.py), [run_store.py](agentic_analytics/agent/run_store.py), [delivery.py](agentic_analytics/agent/delivery.py). Ayrıntılar: [isteğin yürütülmesi](docs/ARCHITECTURE.md#bir-isteğin-yürütülmesi), [geliştirme ve test rehberi](docs/DEVELOPMENT.md).
 
 ## Kapsam ve doğrulama
 

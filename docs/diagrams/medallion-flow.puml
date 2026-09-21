@@ -1,0 +1,24 @@
+@startuml
+title Veri Kalitesi Akışı — Kavramsal Medallion Eşlemesi
+left to right direction
+skinparam backgroundColor #F8FAFC
+skinparam shadowing false
+skinparam defaultFontName DejaVu Sans
+skinparam defaultFontSize 15
+skinparam roundcorner 14
+skinparam ArrowColor #466179
+rectangle "BRONZE\nHam kanıt\n\nKaynak dosyaları ve yanıtlar\nURL / tarih / hash kayıtları" as B #F5E2CF
+rectangle "SILVER\nDoğrulanmış veri\n\nNormalize gözlemler ve katalog\nBirim / dönem / kapsam\nStok / akım kontrolleri" as S #E9EDF2
+rectangle "GOLD\nAnalize hazır çıktı\n\nSorgulanabilir görünümler\nKayıtlı analizler ve özetler\nGrafiklerin veri temeli" as G #FFF0BB
+B --> S : Ayrıştırma ve\ndoğrulama
+S --> G : Doğrulanmış plan\nve hesaplama
+note bottom of S
+Kaynak izi dönüşümler boyunca korunur.
+Belirsiz değerler inceleme gerektirir.
+end note
+legend bottom
+Mevcut Python / DuckDB / Parquet hattının kavramsal eşlemesi.
+Fiziksel bronze/silver/gold dizinleri veya Databricks kurulumu değildir.
+Referans: Databricks — What is Medallion Architecture?
+endlegend
+@enduml
