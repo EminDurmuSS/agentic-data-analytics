@@ -239,6 +239,82 @@ def _verified_source_table_confirmation(state, *, targeted_only=False, provider_
             + "\n\n".join(blocks))
 
 
+def _verified_policy_decision_confirmation(state):
+    """Render source-owned policy-decision fields as a presentation table.
+
+    A short user-facing table is not an analytical dataset. This receipt is
+    deliberately narrow: it requires a directly read policy-decision document
+    and one sentence that binds the one-week repo instrument to both literal
+    rates. Search snippets, arithmetic and model-written values are ignored.
+    """
+    sources = []
+    for item in state.get("tool_results", []):
+        result = item.get("result") or {}
+        if result.get("status") != "ok":
+            continue
+        if item.get("tool") == "research_web":
+            sources.extend(source for source in result.get("sources", []) if isinstance(source, dict))
+        elif item.get("tool") == "inspect_source":
+            sources.append(result)
+
+    rate = r"\d{1,3}(?:[.,]\d+)?"
+    turkish = re.compile(
+        rf"bir\s+hafta\s+vadeli\s+repo(?:\s+ihale)?\s+faiz\s+oran\w*"
+        rf".{{0,120}}?(?:y[uü]zde\s*|%\s*)?({rate})\s*[’']?(?:ten|tan|den|dan)"
+        rf"\s+(?:y[uü]zde\s*|%\s*)?({rate})\s*[’']?(?:e|a)\b",
+        re.I | re.S,
+    )
+    english = re.compile(
+        rf"one[- ]week\s+repo(?:\s+auction)?\s+rate.{{0,120}}?from\s+(?:percent\s*|%\s*)?({rate})"
+        rf"\s+to\s+(?:percent\s*|%\s*)?({rate})\b",
+        re.I | re.S,
+    )
+    date_pattern = re.compile(
+        r"\b(?:[0-3]?\d)\s+(?:Ocak|Şubat|Subat|Mart|Nisan|Mayıs|Mayis|Haziran|Temmuz|"
+        r"Ağustos|Agustos|Eylül|Eylul|Ekim|Kasım|Kasim|Aralık|Aralik)\s+(?:19|20)\d{2}\b",
+        re.I,
+    )
+
+    for source in reversed(sources):
+        if source.get("source_role") == "discovery_index" or source.get("document_type") != "policy_decision":
+            continue
+        article = source.get("article") if isinstance(source.get("article"), dict) else {}
+        text = "\n".join(str(value) for value in (
+            source.get("text"), source.get("content"), article.get("article_body"),
+            *(page.get("text") for page in source.get("pages", []) if isinstance(page, dict)),
+        ) if isinstance(value, str) and value.strip())
+        match = turkish.search(text) or english.search(text)
+        if not match:
+            continue
+        previous, current = (value.replace(".", ",") for value in match.groups())
+        decision_date = source.get("reporting_period") or source.get("date_published")
+        if not decision_date:
+            found_date = date_pattern.search(text)
+            decision_date = found_date.group(0) if found_date else None
+        rows = []
+        if decision_date:
+            rows.append(("Karar tarihi", decision_date))
+        rows.extend([
+            ("Politika aracı", "Bir hafta vadeli repo ihale faiz oranı"),
+            ("Önceki oran", "%" + previous),
+            ("Yeni oran", "%" + current),
+        ])
+        table = ["| Öğe | Değer |", "| --- | --- |", *[
+            f"| {_display_label(label)} | {_display_label(value)} |" for label, value in rows
+        ]]
+        url = source.get("source_url") or source.get("url")
+        try:
+            safe_url = isinstance(url, str) and urlsplit(url).scheme in {"http", "https"} and bool(urlsplit(url).hostname)
+        except ValueError:
+            safe_url = False
+        citation = (f"\n\n[Resmî politika kararı]({quote(url, safe=':/?&=#%._~-')})"
+                    if safe_url else "")
+        return ("Doğrudan okunan resmî karar metninden doğrulanan alanlar:\n\n"
+                + "\n".join(table) + citation
+                + "\n\nBu oran politika faizidir; ticari, konut veya ihtiyaç kredisi faizi değildir.")
+    return ""
+
+
 def _requests_table(message):
     """Recognize explicit table production without blocking questions about tables.
 

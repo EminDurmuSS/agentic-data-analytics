@@ -21,7 +21,7 @@ from agentic_analytics.agent.delivery import (
     _analysis_confirmation, _cell_confirmation, _chart_confirmation, _requests_chart, _requests_table,
     _scope_confirmation, _source_scope_confirmation, _statistics_confirmation, _selection_confirmation,
     _bundle_confirmation, _display_label, _source_confirmation, _published_source_ids, _successful_bundle,
-    _verified_source_table_confirmation,
+    _verified_policy_decision_confirmation, _verified_source_table_confirmation,
 )
 from agentic_analytics.agent.run_store import AgentRunStore, canonical, fingerprint
 from agentic_analytics.agent.schemas import COLUMN_NAME, obj
@@ -76,11 +76,19 @@ def _policy_rate_has_loan_claim(answer):
     loan = r"ticari\s+kredi\w*|konut\s+kred\w*|ihtiya[çc]\s+kred\w*|commercial\s+loan|mortgage\s+rate|consumer\s+loan"
     for match in re.finditer(loan, answer):
         tail = answer[match.end():]
-        if re.match(r"\s+(?:(?:faiz(?:i)?\s+)?orani|faizi)\s+de[ğg]il(?:dir)?\b", tail):
+        if re.match(
+                r"\s+(?:(?:faiz\w*\s+)?oran\w*|faiz\w*)\s+"
+                r"(?:de[ğg]il(?:dir)?|olarak\s+yorumlanmamal\w*|(?:ile|olarak)\s+kar[ıi]şt[ıi]r[ıi]lmamal\w*)\b",
+                tail):
+            continue
+        if re.match(r"\s+faiz\w*\s+kar[ıi]şt[ıi]r[ıi]lmamal\w*\b", tail):
             continue
         # English disclaimer must directly introduce this instrument.
         if match.group() in {'commercial loan', 'mortgage rate', 'consumer loan'} and re.search(
                 r"\b(?:is|are)\s+not\s+(?:a\s+|the\s+)?$", answer[:match.start()]):
+            continue
+        if match.group() in {'commercial loan', 'mortgage rate', 'consumer loan'} and re.match(
+                r"\s+(?:is|are)\s+not\b", tail):
             continue
         return True
     return False
@@ -1946,7 +1954,9 @@ class AgentRuntime:
             item.get("result", {}).get("status") == "ok" and (
                 item["result"].get("tables") or any(source.get("tables") for source in item["result"].get("sources", [])))
             for item in state.get("tool_results", []))
+        policy_receipt = _verified_policy_decision_confirmation(state)
         if (_requests_table(record["message"]) and not state.get("analysis_updated") and not source_table
+                and not policy_receipt
                 and not _successful_selection(state) and not _successful_bundle(state)):
             # A chart-only edit can legitimately retain the existing table.
             if not state.get("chart_updated"):
@@ -1961,7 +1971,8 @@ class AgentRuntime:
         source_cells = _verified_source_table_confirmation(state, targeted_only=True, provider_outage=False)
         bundle = _bundle_confirmation(self.store, self.workspace_id, state)
         grounded = "\n\n".join(part for part in (
-            selection or chart or quantitative, statistics, cells, scope, source_scope, source_cells, bundle) if part)
+            selection or chart or quantitative, statistics, cells, scope, source_scope,
+            source_cells, policy_receipt, bundle) if part)
         web_sources, seen_urls = [], set()
         for item in state.get("tool_results", []):
             result = item.get("result", {})

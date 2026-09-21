@@ -13,7 +13,9 @@ import pytest
 
 from agentic_analytics.agent.run_store import AgentRunStore
 from agentic_analytics.agent.context import _model_tool_result
-from agentic_analytics.agent.delivery import _requests_table, _source_scope_confirmation
+from agentic_analytics.agent.delivery import (
+    _requests_table, _source_scope_confirmation, _verified_policy_decision_confirmation,
+)
 from agentic_analytics.agent.runtime import AgentRuntime, _explicit_year_window, _requests_shared_scale
 from agentic_analytics.agent.schemas import obj
 from agentic_analytics.agent.tools.charts import ChartTools
@@ -1160,7 +1162,10 @@ def test_policy_rate_answer_must_name_the_one_week_repo_instrument(env):
     'Bu konut kredisi faizi değildir.',
     'Bu ticari kredi faiz oranı değildir.',
     'Bu ihtiyaç kredisi oranı değil, politika faizidir.',
+    'Bu oran konut kredisi faizleriyle karıştırılmamalıdır.',
+    'Bu oran ticari kredi faiz oranı olarak yorumlanmamalıdır.',
     'This is not a mortgage rate.',
+    'A mortgage rate is not the policy-rate instrument.',
 ])
 def test_policy_rate_explicit_loan_disclaimer_is_not_a_mismatch(env, explanation):
     *_, build = env
@@ -1174,6 +1179,34 @@ def test_policy_rate_explicit_loan_disclaimer_is_not_a_mismatch(env, explanation
     # A correct disclaimer cannot hide a separate incorrect affirmative claim.
     errors = runtime._source_semantic_errors(state, answer + ' Konut kredisi faizi yüzde 42,5 oldu.')
     assert errors[0]['code'] == 'POLICY_RATE_INSTRUMENT_MISMATCH'
+
+
+@pytest.mark.parametrize("text, previous, current", [
+    ("Bir hafta vadeli repo ihale faiz oranının yüzde 38'den yüzde 35,5'e indirilmesine karar verilmiştir.",
+     "%38", "%35,5"),
+    ("The one-week repo auction rate was reduced from 6.25 to 5.75 percent.", "%6,25", "%5,75"),
+])
+def test_policy_decision_receipt_builds_a_grounded_presentation_table(text, previous, current):
+    state = {"tool_results": [{"tool": "research_web", "result": {"status": "ok", "sources": [{
+        "source_id": "decision", "source_url": "https://centralbank.example.org/decision-27",
+        "document_type": "policy_decision", "reporting_period": "2027-04-08", "content": text,
+    }]}}]}
+    receipt = _verified_policy_decision_confirmation(state)
+    assert "| Öğe | Değer |" in receipt
+    assert previous in receipt and current in receipt
+    assert "2027-04-08" in receipt
+    assert "https://centralbank.example.org/decision-27" in receipt
+
+
+def test_policy_decision_receipt_rejects_snippets_and_wrong_document_types():
+    snippet = {"tool_results": [{"tool": "web_search", "result": {"status": "ok", "results": [{
+        "url": "https://example.org/search", "snippet": "one-week repo rate from 9 to 8"
+    }]}}]}
+    assert _verified_policy_decision_confirmation(snippet) == ""
+    wrong_type = {"tool_results": [{"tool": "inspect_source", "result": {"status": "ok",
+        "source_url": "https://example.org/news", "document_type": "news",
+        "text": "The one-week repo rate moved from 9 to 8."}}]}
+    assert _verified_policy_decision_confirmation(wrong_type) == ""
 
 
 def test_consolidated_total_assets_requires_scoped_page_table_and_unit_proof(env):
