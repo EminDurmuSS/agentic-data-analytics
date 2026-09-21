@@ -1111,6 +1111,26 @@ def test_policy_rate_answer_must_name_the_one_week_repo_instrument(env):
         state, "Politika faizi olan bir hafta vadeli repo ihale faizi yüzde 45'ten yüzde 42,5'e indirildi.") == []
 
 
+@pytest.mark.parametrize('explanation', [
+    'Bu konut kredisi faizi değildir.',
+    'Bu ticari kredi faiz oranı değildir.',
+    'Bu ihtiyaç kredisi oranı değil, politika faizidir.',
+    'This is not a mortgage rate.',
+])
+def test_policy_rate_explicit_loan_disclaimer_is_not_a_mismatch(env, explanation):
+    *_, build = env
+    runtime, _ = build([])
+    state = {'messages': [{'role': 'user', 'content': 'TCMB Para Politikası Kurulu faiz kararını göster'}],
+             'tool_results': [{'tool': 'inspect_source', 'result': {
+                 'status': 'ok', 'source_id': 'decision', 'document_type': 'policy_decision',
+                 'text': 'Bir hafta vadeli repo ihale faiz oranı yüzde 45’ten yüzde 42,5’e indirildi.'}}]}
+    answer = 'Bir hafta vadeli repo ihale faiz oranı yüzde 42,5 oldu. ' + explanation
+    assert runtime._source_semantic_errors(state, answer) == []
+    # A correct disclaimer cannot hide a separate incorrect affirmative claim.
+    errors = runtime._source_semantic_errors(state, answer + ' Konut kredisi faizi yüzde 42,5 oldu.')
+    assert errors[0]['code'] == 'POLICY_RATE_INSTRUMENT_MISMATCH'
+
+
 def test_consolidated_total_assets_requires_scoped_page_table_and_unit_proof(env):
     *_, build = env
     runtime, _ = build([])

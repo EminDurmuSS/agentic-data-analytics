@@ -67,6 +67,25 @@ def _fact_text(value):
     return str(value or "").casefold().replace("ı", "i").replace("i\u0307", "i")
 
 
+def _policy_rate_has_loan_claim(answer):
+    """Exclude explicit instrument disclaimers, not entire negated sentences.
+
+    Each loan mention is checked independently so an unrelated disclaimer
+    cannot mask a separate affirmative loan-rate attribution.
+    """
+    loan = r"ticari\s+kredi\w*|konut\s+kred\w*|ihtiya[çc]\s+kred\w*|commercial\s+loan|mortgage\s+rate|consumer\s+loan"
+    for match in re.finditer(loan, answer):
+        tail = answer[match.end():]
+        if re.match(r"\s+(?:(?:faiz(?:i)?\s+)?orani|faizi)\s+de[ğg]il(?:dir)?\b", tail):
+            continue
+        # English disclaimer must directly introduce this instrument.
+        if match.group() in {'commercial loan', 'mortgage rate', 'consumer loan'} and re.search(
+                r"\b(?:is|are)\s+not\s+(?:a\s+|the\s+)?$", answer[:match.start()]):
+            continue
+        return True
+    return False
+
+
 def _shared_promotion_authorized(message):
     """Require an explicit persistent shared-target write request in this turn."""
     text = _fact_text(message)
@@ -2367,7 +2386,7 @@ class AgentRuntime:
 
         if expected_types == ("policy_decision",) and _material_numeric_literals(content):
             answer = _fact_text(content)
-            if re.search(r"ticari\s+kredi|konut\s+kred|ihtiyac\s+kred|commercial\s+loan|mortgage\s+rate|consumer\s+loan", answer):
+            if _policy_rate_has_loan_claim(answer):
                 return [{"code": "POLICY_RATE_INSTRUMENT_MISMATCH", "message":
                          "The policy decision concerns the one-week repo auction rate, not a commercial or consumer loan rate."}]
             if not re.search(r"bir\s+hafta\s+vadeli\s+repo|one[ -]week\s+repo", answer):
