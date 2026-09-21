@@ -914,8 +914,29 @@ class DocumentTools:
                                     missing.append(cell.coordinate)
                             row.append(value)
                         rows.append(row)
+                    # Official workbooks commonly place a sparse report title
+                    # above the real column headers and retain formatting in an
+                    # otherwise empty trailing column.  Detect that structural
+                    # shape without relying on an institution or filename.
+                    while rows and all(value is None or not str(value).strip() for value in rows[-1]):
+                        rows.pop()
+                    width = max((index + 1 for row in rows for index, value in enumerate(row)
+                                 if value is not None and str(value).strip()), default=0)
+                    rows = [row[:width] for row in rows]
+                    header_offset = 0
+                    for index in range(1, min(6, len(rows) - 1)):
+                        before = rows[:index]
+                        current = sum(value is not None and bool(str(value).strip()) for value in rows[index])
+                        following = sum(value is not None and bool(str(value).strip()) for value in rows[index + 1])
+                        if (current >= 2 and following >= 2
+                                and all(sum(value is not None and bool(str(value).strip()) for value in row) <= 1
+                                        for row in before)):
+                            header_offset = index
+                            break
                     try:
-                        table = self._table(rows, sheet=sheet.title)
+                        table = self._table(rows[header_offset:], sheet=sheet.title)
+                        if table and header_offset:
+                            table["preamble_rows"] = rows[:header_offset]
                     except DocumentError as exc:
                         # A ragged sheet (merged header row, trailing notes)
                         # must not discard every other sheet's table and text.
@@ -1719,7 +1740,8 @@ class DocumentTools:
             raise DocumentError("Period header does not match the declared source format.", "INVALID_SOURCE_DATE_FORMAT") from exc
         raise DocumentError("Unsupported source period header format.", "INVALID_SOURCE_DATE_FORMAT")
 
-    def prepare_source_table(self, source_id, table_id, selected_rows=None, selected_columns=None, unpivot=None, join_columns=None):
+    def prepare_source_table(self, source_id, table_id, selected_rows=None, selected_columns=None, unpivot=None,
+                             join_columns=None, split_columns=None):
         """Select source cells and optionally turn period columns into rows.
 
         No model-supplied numerical values or expressions are accepted. Period
@@ -1821,6 +1843,7 @@ class DocumentTools:
             rows = [[table["rows"][number - 1][indexes[column]] for column in columns] for number in selected_rows]
             origins = [{column: {"candidate_row": number, "candidate_column": column} for column in columns} for number in selected_rows]
         dimension_only = [column for column in table.get("dimension_only_columns", []) if column in columns]
+        split_sources = {}
         if unpivot and any(column in table.get("dimension_only_columns", []) for column in unpivot["columns"]):
             dimension_only.append(unpivot["value_column"])
         if join_columns is not None:
@@ -1845,10 +1868,52 @@ class DocumentTools:
             original_columns = {column: original_columns[column] for column in retained}
             original_columns[output] = "joined source label"
             dimension_only = [column for column in dimension_only if column in retained] + [output]
+        if split_columns is not None:
+            if (not isinstance(split_columns, list) or not 1 <= len(split_columns) <= 4
+                    or any(not isinstance(spec, dict) or set(spec) != {"column", "separator", "outputs"}
+                           for spec in split_columns)):
+                raise DocumentError("Split 1 to 4 source columns with an exact separator and two output identifiers.",
+                                    "INVALID_COLUMN_SPLIT")
+            used_sources, used_outputs = set(), set(columns)
+            for spec in split_columns:
+                source, separator, outputs = spec["column"], spec["separator"], spec["outputs"]
+                if (source not in columns or source in used_sources or not isinstance(separator, str)
+                        or not 1 <= len(separator) <= 10 or not isinstance(outputs, list) or len(outputs) != 2
+                        or len(set(outputs)) != 2 or any(not isinstance(output, str)
+                        or not re.fullmatch(r"[A-Za-z_][A-Za-z0-9_]{0,100}", output) for output in outputs)
+                        or any(output in used_outputs for output in outputs)):
+                    raise DocumentError("Split columns must name distinct existing sources and two new output identifiers.",
+                                        "INVALID_COLUMN_SPLIT")
+                used_sources.add(source)
+                used_outputs.update(outputs)
+                source_index = columns.index(source)
+                updated_rows, updated_origins = [], []
+                for row, origin in zip(rows, origins):
+                    value = row[source_index]
+                    if not isinstance(value, str) or value.count(separator) != 1:
+                        raise DocumentError("Every selected source cell must contain the exact separator once.",
+                                            "INVALID_COLUMN_SPLIT")
+                    parts = [part.strip() for part in value.split(separator, 1)]
+                    if any(not part for part in parts):
+                        raise DocumentError("Split source cells must have nonempty text on both sides.",
+                                            "INVALID_COLUMN_SPLIT")
+                    updated_rows.append([*row[:source_index], *parts, *row[source_index + 1:]])
+                    source_origin = origin[source]
+                    updated_origins.append({**{column: origin[column] for column in columns if column != source},
+                                            outputs[0]: {"source": source_origin, "separator": separator, "part": 0},
+                                            outputs[1]: {"source": source_origin, "separator": separator, "part": 1}})
+                columns = [*columns[:source_index], *outputs, *columns[source_index + 1:]]
+                rows, origins = updated_rows, updated_origins
+                header = original_columns.pop(source)
+                original_columns.update({outputs[0]: header + " (left of " + separator + ")",
+                                         outputs[1]: header + " (right of " + separator + ")"})
+                split_sources.update({outputs[0]: source, outputs[1]: source})
+                dimension_only = [column for column in dimension_only if column != source]
         if len(rows) > self.max_rows or len(columns) > self.max_columns:
             raise DocumentError("Prepared table exceeds row or column bounds.", "TABLE_TOO_LARGE")
         recipe = {"source_table_id": table_id, "selected_rows": selected_rows, "selected_columns": selected_columns,
-                  "unpivot": unpivot, "join_columns": join_columns, "numeric_values_changed": False, "raw_sha256": manifest["raw_sha256"]}
+                  "unpivot": unpivot, "join_columns": join_columns, "split_columns": split_columns,
+                  "numeric_values_changed": False, "raw_sha256": manifest["raw_sha256"]}
         if table.get("review"):
             def reviewed_origin(value):
                 if isinstance(value, list):
@@ -1863,17 +1928,20 @@ class DocumentTools:
             origins = reviewed_origin(origins)
         prepared_id = "table_c" + hashlib.sha256(_canonical(recipe)).hexdigest()[:20]
         prepared = {**table, "table_id": prepared_id, "columns": columns, "original_columns": original_columns,
-                    "source_header_quotes": {column: table.get("source_header_quotes", {}).get(column, original_columns[column]) for column in columns},
+                    "source_header_quotes": {column: table.get("source_header_quotes", {}).get(
+                        split_sources.get(column, column), original_columns[column]) for column in columns},
                     "rows": rows, "row_count": len(rows), "preparation": recipe,
                     "dimension_only_columns": dimension_only,
                     "cell_origins": origins, "context_text": (table.get("context_text", "") + "\n" + inspection["text"])[:200000]}
         prepared["unit_caption"] = table.get("unit_caption", "") + "\n" + _unit_caption(table.get("context_text", ""))
         contexts = table.get("unit_contexts", {column: [header] for column, header in table["original_columns"].items()})
-        prepared["unit_contexts"] = {column: contexts.get(column, []) for column in columns}
+        prepared["unit_contexts"] = {column: contexts.get(split_sources.get(column, column), []) for column in columns}
         if unpivot:
             prepared["unit_contexts"][unpivot["value_column"]] = [context for column in unpivot["columns"] for context in contexts.get(column, [])]
         reviewed_units = {**table.get("verified_unit_evidence", {}), **table.get("review", {}).get("unit_evidence", {})}
-        verified_units = {column: quote for column, quote in reviewed_units.items() if column in columns}
+        verified_units = {column: reviewed_units[source] for column, source in split_sources.items()
+                          if source in reviewed_units}
+        verified_units.update({column: quote for column, quote in reviewed_units.items() if column in columns})
         if unpivot:
             quotes = [reviewed_units.get(column) for column in unpivot["columns"]]
             if quotes and quotes[0] and all(quote == quotes[0] for quote in quotes):
@@ -2287,7 +2355,7 @@ class DocumentTools:
             "combine_source_tables": (self.combine_source_tables, "Create a new candidate from explicitly selected continuation tables on consecutive PDF pages. Original candidates remain unchanged. Headers must match exactly; verify the same population, period and units from page context, then explain the common scope. This does not publish a dataset or aggregate numbers.",
                 {"source_id": {"type": "string"}, "table_ids": {"type": "array", "items": {"type": "string"}, "minItems": 2, "maxItems": 10, "uniqueItems": True},
                  "reason": {"type": "string", "minLength": 10, "maxLength": 1000}}, ["source_id", "table_ids", "reason"]),
-            "prepare_source_table": (self.prepare_source_table, "Prepare an inspected table by selecting actual 1-based data rows/columns and optionally unpivoting period columns into a long table. For a report with metrics as rows and years as columns, select the relevant metric rows and unpivot year columns. Values are copied exactly from source cells, period labels from original headers; no numeric inputs or expressions allowed. Publish the new candidate with explicit units and grain after preparation.",
+            "prepare_source_table": (self.prepare_source_table, "Prepare an inspected table by selecting actual 1-based data rows/columns, optionally unpivoting period columns, joining label fragments, or splitting a source field at one literal separator. For a report with metrics as rows and years as columns, select the relevant metric rows and unpivot year columns. Values are copied exactly from source cells; no numeric inputs or expressions allowed. Publish the new candidate with explicit units and grain after preparation.",
                 {"source_id": {"type": "string"}, "table_id": {"type": "string"},
                  "selected_rows": {"type": "array", "items": {"type": "integer", "minimum": 1}, "minItems": 1, "maxItems": self.max_rows, "uniqueItems": True},
                  "selected_columns": {"type": "array", "items": {"type": "string"}, "minItems": 1, "maxItems": self.max_columns, "uniqueItems": True},
@@ -2307,7 +2375,13 @@ class DocumentTools:
                  "join_columns": {"type": "object", "properties": {"columns": {"type": "array", "items": {"type": "string"}, "minItems": 2, "maxItems": 10, "uniqueItems": True},
                                   "output": {"type": "string"}, "separator": {"type": "string", "enum": ["", " ", " / "]}},
                                   "required": ["columns", "output", "separator"], "additionalProperties": False,
-                                  "description": "Optional reconstruction of fragmented source label columns after unpivot. Joined output is forced to remain a string dimension, never a new number."}}, ["source_id", "table_id"]),
+                                  "description": "Optional reconstruction of fragmented source label columns after unpivot. Joined output is forced to remain a string dimension, never a new number."},
+                 "split_columns": {"type": "array", "minItems": 1, "maxItems": 4,
+                     "description": "Split an existing source string at one literal delimiter while retaining the same source-cell address for both outputs. Use only when every selected cell visibly contains that delimiter exactly once, for example 01.01.1986=0,01 -> source_date and base_value.",
+                     "items": {"type": "object", "properties": {
+                         "column": {"type": "string"}, "separator": {"type": "string", "minLength": 1, "maxLength": 10},
+                         "outputs": {"type": "array", "items": {"type": "string"}, "minItems": 2, "maxItems": 2, "uniqueItems": True}},
+                         "required": ["column", "separator", "outputs"], "additionalProperties": False}}}, ["source_id", "table_id"]),
             "read_source_table": (self.read_source_table, "Read actual candidate rows with stable 1-based row numbers before selecting financial report lines or a period header row. Supports bounded pagination beyond the initial eight-row preview.",
                 {"source_id": {"type": "string"}, "table_id": {"type": "string"}, "row_start": {"type": "integer", "minimum": 1},
                  "row_limit": {"type": "integer", "minimum": 1, "maximum": 100}}, ["source_id", "table_id"]),

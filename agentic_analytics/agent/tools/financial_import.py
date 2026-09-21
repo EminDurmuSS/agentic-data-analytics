@@ -679,6 +679,35 @@ class FinancialImportTools:
         long_dates = any(_label_key(table["original_columns"].get(column, column)) in {"date", "month", "period", "tarih", "ay", "donem", "year"}
                          and all(isinstance(row[index], str) and re.fullmatch(r"\d{4}(?:-(?:\d{2}(?:-\d{2})?|Q[1-4]))?", row[index]) for row in table["rows"])
                          for index, column in enumerate(table["columns"]))
+        # Static reference workbooks sometimes encode a source date and base
+        # value in one literal cell (for example 01.01.1986=0,01).  That is a
+        # record-oriented code list, not a financial statement with period
+        # amount columns.  Hand it to the audited generic preparation path and
+        # provide a source-addressed split recipe instead of repeatedly trying
+        # to infer statement row labels.
+        split_candidate = None
+        for index, column in enumerate(table["columns"]):
+            populated = [row[index].strip() for row in table["rows"]
+                         if isinstance(row[index], str) and row[index].strip()]
+            matching = [value for value in populated if re.fullmatch(
+                r"\d{1,2}[./]\d{1,2}[./]\d{4}\s*=\s*[+-]?[\d.,]+", value)]
+            if len(matching) >= 2 and len(matching) * 5 >= len(populated) * 4:
+                split_candidate = column
+                break
+        if split_candidate:
+            result = {"status": "ok", "import_status": "unsupported_layout", "publication_performed": False,
+                      "source_id": source_id, "table_id": table_id,
+                      "message": "This is a record-oriented reference table whose source date and numeric base value share one literal cell; it is not a financial statement layout.",
+                      "next_step": "Use the source-derived prepare_source_table request to split the literal field, then publish the selected records as a static dataset with an index-valued numeric column."}
+            if args.get("row_numbers"):
+                selected_columns = [column for index, column in enumerate(table["columns"])
+                                    if any(row[index] is not None and str(row[index]).strip() for row in table["rows"])]
+                result["next_request"] = {"tool": "prepare_source_table", "arguments": {
+                    "source_id": source_id, "table_id": table_id, "selected_rows": args["row_numbers"],
+                    "selected_columns": selected_columns,
+                    "split_columns": [{"column": split_candidate, "separator": "=",
+                                       "outputs": ["source_date", "base_value"]}]}}
+            return result
         if long_dates or is_csv and not embedded_dates:
             return {"status": "ok", "import_status": "unsupported_layout", "publication_performed": False,
                     "source_id": source_id, "table_id": table_id,

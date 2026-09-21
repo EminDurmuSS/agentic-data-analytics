@@ -125,6 +125,11 @@ prepare_source_table ve publish_selected_table ileri düzey yedek araçlardır: 
 sunuluyorsa yalnız aynı source_id/table_id için status=ok, import_status=unsupported_layout
 döndüğünde bu yola geç; çalışma zamanı diğer tablolar için bu araçları kapalı tutar. Bu sonuç
 verinin yayımlandığı anlamına gelmez; mevcut sözleşme ve kaynak doğrulamalarını koruyarak tamamla.
+Kod listesi, endeks başlangıç değeri veya başka bir statik referans tablosu finansal tablo satırı
+değildir. ingest_source_table böyle bir kaynak için unsupported_layout ve next_request döndürürse
+next_request içindeki gerçek satır/sütun seçimini ve split_columns tarifini kullan; ardından yalnız
+kaynaktaki alanlarla frequency=static sözleşmesi yayımla. Birleşik tarih=değer hücresini elle yeniden
+yazma veya model içinde parçalama; prepare_source_table kaynak hücre adresini iki çıktıda da korur.
 Belirsizlik, inceleme gereksinimi veya anlamsal ret, unsupported_layout değildir; bu retleri düşük
 seviyeli araçlarla aşmaya çalışma. Yedek yolda da gerçek kaynak hücrelerini kullan, sayıları yeniden
 yazma ve metaveri uydurma. Desteklenen genel CSV, olay ve kategori veri araçları kullanılabilir.

@@ -205,6 +205,56 @@ class AgentDocumentTests(unittest.TestCase):
         self.assertIn("12345 million TL", pdf["pages"][0]["text"])
         self.assertEqual(pdf["pages"][0]["page"], 1)
 
+    def test_xlsx_sparse_title_promotes_real_header_and_literal_split_preserves_evidence(self):
+        from openpyxl import Workbook
+
+        workbook = Workbook()
+        sheet = workbook.active
+        sheet.append(["Endeks Başlangıç Değerleri (Base Values of Indices)", None, None, None])
+        sheet.append(["Endeks Kodu / Index Code", "Endeksler / Index Names In Turkish",
+                      "Endeksin Başlangıç Değeri / Base Value of Index", None])
+        sheet.append(["XU100", "BIST 100", "01.01.1986=0,01", None])
+        sheet.append(["XBANK", "BIST BANKA", "28.12.1990=100", None])
+        sheet.append(["XUMAL", "BIST MALİ", "28.12.1990=0,33", None])
+        buffer = io.BytesIO()
+        workbook.save(buffer)
+
+        inspected = self.upload("index-base-values.xlsx", buffer.getvalue())
+        table = inspected["tables"][0]
+        self.assertEqual(list(table["original_columns"].values()), [
+            "Endeks Kodu / Index Code", "Endeksler / Index Names In Turkish",
+            "Endeksin Başlangıç Değeri / Base Value of Index",
+        ])
+        self.assertEqual(table["row_count"], 3)
+        self.assertEqual(table["preamble_rows"][0][0], "Endeks Başlangıç Değerleri (Base Values of Indices)")
+        columns = table["columns"]
+        prepared = self.docs.prepare_source_table(
+            inspected["source_id"], table["table_id"], selected_rows=[1, 2, 3], selected_columns=columns,
+            split_columns=[{"column": columns[2], "separator": "=", "outputs": ["source_date", "base_value"]}],
+        )
+        self.assertEqual([row["source_date"] for row in prepared["preview"]],
+                         ["01.01.1986", "28.12.1990", "28.12.1990"])
+        self.assertEqual([row["base_value"] for row in prepared["preview"]], ["0,01", "100", "0,33"])
+        self.assertEqual(prepared["source_header_quotes"]["base_value"],
+                         "Endeksin Başlangıç Değeri / Base Value of Index")
+
+        contract = {"name": "index_base_values", "frequency": "static", "date_column": None,
+                    "key": ["code"], "grain": ["code"], "expected_rows": 3,
+                    "number_format": "decimal_comma", "columns": {
+                        "code": {"dtype": "string", "unit": "label", "kind": "dimension", "nullable": False},
+                        "name": {"dtype": "string", "unit": "label", "kind": "dimension", "nullable": False},
+                        "source_date": {"dtype": "string", "unit": "calendar", "kind": "dimension", "nullable": False},
+                        "base_value": {"dtype": "float", "unit": "index", "kind": "index", "nullable": False},
+                    }}
+        published = self.docs.publish_selected_table(
+            inspected["source_id"], prepared["table_id"], contract, expected_version=0,
+            column_mapping={columns[0]: "code", columns[1]: "name", "source_date": "source_date",
+                            "base_value": "base_value"},
+            unit_evidence={"base_value": "Endeksin Başlangıç Değeri / Base Value of Index"},
+        )
+        self.assertEqual(published["status"], "ok", published)
+        self.assertEqual(published["row_count"], 3)
+
     def test_utf8_text_and_full_review_candidate_preserve_source_content(self):
         text = self.upload("notes.txt", "Kaynak notu: İstanbul, milyon TL.\n")
         self.assertEqual(text["tables"], [])

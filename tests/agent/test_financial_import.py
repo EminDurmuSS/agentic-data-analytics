@@ -44,6 +44,34 @@ class FinancialImportTests(unittest.TestCase):
         return self.source([[None, "31 December 2025", "31 March 2026"], ["Total assets", "1,234,567", "2,345,678"],
                             ["Cash", "123456", "234567"]], **kwargs)
 
+    def test_static_date_value_reference_table_unlocks_source_addressed_split_path(self):
+        from openpyxl import Workbook
+
+        workbook = Workbook()
+        sheet = workbook.active
+        sheet.append(["Index base values", None, None])
+        sheet.append(["Index code", "Index name", "Base value of index"])
+        sheet.append(["XU100", "BIST 100", "01.01.1986=0,01"])
+        sheet.append(["XBANK", "BIST BANK", "28.12.1990=100"])
+        sheet.append(["XUMAL", "BIST FINANCIALS", "28.12.1990=0,33"])
+        buffer = io.BytesIO()
+        workbook.save(buffer)
+        source = self.docs._register(buffer.getvalue(), "index-base-values.xlsx",
+                                     "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+        inspected = self.docs.inspect_source(source_id=source["source_id"])
+        table = inspected["tables"][0]
+
+        result = self.handler({"source_id": source["source_id"], "table_id": table["table_id"],
+                               "expected_version": 0, "row_numbers": [1, 2, 3]})
+        self.assertEqual(result["status"], "ok", result)
+        self.assertEqual(result["import_status"], "unsupported_layout")
+        self.assertFalse(result["publication_performed"])
+        request = result["next_request"]
+        self.assertEqual(request["tool"], "prepare_source_table")
+        self.assertEqual(request["arguments"]["selected_rows"], [1, 2, 3])
+        self.assertEqual(request["arguments"]["split_columns"][0]["separator"], "=")
+        self.assertEqual(self.store.workspace("financial_import")["version"], 0)
+
     def pdf_note(self, heading=None, current_header="Current Period", date_rows=None, section_titles=None, note_titles=None, footnotes=None):
         from pypdf import PdfWriter
         from pypdf.generic import DictionaryObject, NameObject, DecodedStreamObject
