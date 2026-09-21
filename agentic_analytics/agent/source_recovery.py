@@ -39,17 +39,38 @@ def statement_recovery_request(store, workspace_id, request, tool_results):
     documents = DocumentTools(store, workspace_id)
     compiler = FinancialImportTools(documents)
     candidates = {}
+    identities = {}
+
+    def remember(source):
+        if not isinstance(source, dict) or not source.get("source_id"):
+            return
+        current = identities.setdefault(source["source_id"], {})
+        for key in ("document_type", "reporting_period", "consolidation_scope", "unit_caption"):
+            if source.get(key) and not current.get(key):
+                current[key] = source[key]
+
+    for item in tool_results:
+        result = item.get("result") or {}
+        if result.get("status") != "ok":
+            continue
+        if item.get("tool") == "research_web":
+            for source in result.get("sources", []):
+                remember(source)
+        elif item.get("tool") in {"inspect_source", "read_source_table", "find_source_table_rows"}:
+            remember(result)
     # Read complete candidates locally, but only select rows actually returned
     # by a direct read in this turn. Search snippets/previews are not authority.
     for item in tool_results:
         result = item.get("result") or {}
+        identity = identities.get(result.get("source_id"), {})
         if (item.get("tool") not in {"read_source_table", "find_source_table_rows"}
                 or result.get("status") != "ok" or not result.get("rows")
-                or result.get("document_type") != "financial_report"
+                or (result.get("document_type") or identity.get("document_type")) != "financial_report"
                 or not result.get("source_id") or not result.get("table_id")
                 or not result.get("raw_sha256")):
             continue
-        if requested_scope and result.get("consolidation_scope") != requested_scope:
+        if requested_scope and (result.get("consolidation_scope")
+                                or identity.get("consolidation_scope")) != requested_scope:
             continue
         table = compiler._candidate(result["source_id"], result["table_id"])
         if (table.get("raw_sha256") != result["raw_sha256"] or table.get("origin") != "parsed"

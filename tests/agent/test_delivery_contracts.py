@@ -553,6 +553,25 @@ def test_provider_outage_recovery_does_not_bypass_source_identity_or_review(env,
     assert store.workspace(wid)["version"] == 0
 
 
+def test_statement_recovery_uses_matching_research_identity_metadata(env):
+    from agentic_analytics.agent.source_recovery import statement_recovery_request
+    store, wid, _, _, _ = env
+    docs, args, _ = _statement_recovery_fixture(env)
+    row_read = docs.read_source_table(**args)
+    for key in ("document_type", "reporting_period", "consolidation_scope"):
+        row_read.pop(key, None)
+    identity = {"status": "ok", "source_id": args["source_id"],
+                "document_type": "financial_report", "reporting_period": "2027-06-30",
+                "consolidation_scope": "consolidated", "unit_caption": "BİN TÜRK LİRASI"}
+    recovered = statement_recovery_request(store, wid,
+        "30 Haziran 2027 tarihli konsolide raporda toplam aktifleri göster.", [
+            {"tool": "research_web", "result": {"status": "ok", "sources": [identity]}},
+            {"tool": "read_source_table", "result": row_read},
+        ])
+    assert recovered is not None
+    assert recovered["periods"] == ["2027-06-30"]
+
+
 def test_source_navigation_reuses_cached_inspection_and_tracks_exact_selection(env):
     from agentic_analytics.agent.source_context import registered_sources
     store, wid, _, _, _ = env

@@ -396,7 +396,7 @@ def _ascii_safe_url(url):
     return parse.urlunsplit((parsed.scheme, parsed.netloc, path, query, ""))
 
 
-def fetch_public_url(url, *, max_bytes=16 * 1024**2, timeout=45, max_redirects=3):
+def fetch_public_url(url, *, max_bytes=16 * 1024**2, timeout=45, max_redirects=3, response_metadata=False):
     """Revalidate each hop and pin the validated IP for the actual connection."""
     deadline = time.monotonic() + timeout
     current = _ascii_safe_url(url)
@@ -474,6 +474,13 @@ def fetch_public_url(url, *, max_bytes=16 * 1024**2, timeout=45, max_redirects=3
                 raise DocumentError("Download time budget exceeded.", "FETCH_TIMEOUT") from exc
             except ValueError as exc:
                 raise DocumentError("Source exceeds the download size limit.", "SOURCE_TOO_LARGE") from exc
+            if response_metadata:
+                filename = response.headers.get_filename()
+                if isinstance(filename, str):
+                    filename = Path(parse.unquote(filename).replace("\\", "/")).name[:200]
+                    if not filename or any(ord(char) < 32 for char in filename):
+                        filename = None
+                return data, response.headers.get_content_type(), current, {"filename": filename}
             return data, response.headers.get_content_type(), current
     raise DocumentError("Too many redirects.", "FETCH_FAILED")
 
@@ -1131,8 +1138,14 @@ class DocumentTools:
             timeout = min(45, _deadline - time.monotonic()) if _deadline is not None else 45
             if timeout <= 0:
                 raise DocumentError("Source research time budget exceeded.", "FETCH_TIMEOUT")
-            data, mime, final_url = fetch_public_url(url, max_bytes=self.max_source_bytes, timeout=timeout)
-            name = Path(parse.unquote(parse.urlsplit(final_url).path)).name or "source"
+            fetched = fetch_public_url(url, max_bytes=self.max_source_bytes, timeout=timeout, response_metadata=True)
+            if len(fetched) == 4:
+                data, mime, final_url, response_metadata = fetched
+            else:  # Compatibility for bounded test/custom fetch adapters.
+                data, mime, final_url = fetched
+                response_metadata = {}
+            name = (response_metadata.get("filename")
+                    or Path(parse.unquote(parse.urlsplit(final_url).path)).name or "source")
             article = _article_metadata(data, mime, final_url)
             barrier = _access_barrier(article)
             if barrier:
@@ -1462,6 +1475,19 @@ class DocumentTools:
                 source_url = inspected.get("source_url") or result["url"]
                 if not allowed(source_url):
                     raise DocumentError("The fetched source redirected outside the requested source domains.", "OFFICIAL_SOURCE_REDIRECT")
+                registry_evidence = result.get("registry_evidence") if isinstance(result.get("registry_evidence"), dict) else {}
+                registry_attachment = registry_evidence.get("attachment_id")
+                registry_url = registry_evidence.get("registry_url")
+                registry_disclosure = registry_evidence.get("disclosure_url")
+                registry_valid = (
+                    (parse.urlsplit(source_url).hostname or "").removeprefix("www.") == "kap.org.tr"
+                    and isinstance(registry_attachment, str)
+                    and parse.urlsplit(source_url).path.rstrip("/").endswith("/" + registry_attachment)
+                    and all((parse.urlsplit(value).hostname or "").removeprefix("www.") == "kap.org.tr"
+                            for value in (registry_url, registry_disclosure) if isinstance(value, str))
+                )
+                if not registry_valid:
+                    registry_evidence = {}
                 # A report landing page can be the path to the actual data.
                 # Follow only bounded same-host links in addition to search hits.
                 linked = [link for link in article.get("document_links", []) if allowed(link.get("url", ""))
@@ -1498,10 +1524,12 @@ class DocumentTools:
                     results.append({**link, "discovered_from": source_url, "discovery_depth": depth + 1})
                 path_text = parse.urlsplit(source_url).path.casefold()
                 verified_title = pdf_navigation.get("title") or article.get("title") or ""
-                source_title = verified_title or result.get("title", "")
+                source_title = (verified_title or registry_evidence.get("attachment_filename")
+                                or result.get("title", ""))
                 title_text = _search_text(source_title)
                 searchable = _search_text(" ".join([verified_title, article.get("description", ""), content]))
-                document_type = (_document_type(verified_title)
+                document_type = (registry_evidence.get("disclosure_type")
+                                 or _document_type(verified_title)
                                  or _document_type(" ".join([source_title, source_url, content[:4000]])))
                 if expected_document_types and document_type not in expected_document_types:
                     raise DocumentError(
@@ -1526,7 +1554,11 @@ class DocumentTools:
                 source_years = set(re.findall(r"\b(?:19|20)\d{2}\b", title_text + " " + path_text))
                 if requested_years and source_years and not requested_years.intersection(source_years) and not any(year in content for year in requested_years):
                     raise DocumentError("Source is outside the requested year.", "OUT_OF_DATE_SOURCE")
-                identified_period = title_text + " " + path_text + " " + str(article.get("date_published", "")) + " " + content[:1500]
+                identified_period = " ".join([
+                    title_text, path_text, str(article.get("date_published", "")), content[:1500],
+                    str(registry_evidence.get("reporting_period_start") or ""),
+                    str(registry_evidence.get("reporting_period_end") or ""),
+                ])
                 if requested_years and not any(year in identified_period for year in requested_years):
                     raise DocumentError("The requested year is not established by the source title, address, publication date or opening content.", "SOURCE_PERIOD_UNVERIFIED")
                 source_date_matches = _source_dates(identified_period + " " + content)
@@ -1551,7 +1583,9 @@ class DocumentTools:
                 if raw_sha256:
                     seen_hashes.add(raw_sha256)
                 period_matches = requested_dates.intersection(source_date_matches) or source_date_matches
-                reporting_period = ("%04d-%02d-%02d" % min(period_matches)) if len(period_matches) == 1 else None
+                reporting_period = (registry_evidence.get("reporting_period_end")
+                                    or (("%04d-%02d-%02d" % min(period_matches))
+                                        if len(period_matches) == 1 else None))
                 card = {
                     "title": source_title,
                     "url": source_url,
@@ -1559,10 +1593,11 @@ class DocumentTools:
                     "publisher": registry.get("institution") if registry else None,
                     "document_type": document_type,
                     "reporting_period": reporting_period,
-                    "consolidation_scope": _consolidation_scope(" ".join([source_title, source_url, content[:4000]])),
+                    "consolidation_scope": (registry_evidence.get("consolidation_scope")
+                                            or _consolidation_scope(" ".join([source_title, source_url, content[:4000]]))),
                     "unit_caption": _unit_caption(content),
                     "snippet": article.get("description") or result.get("snippet", ""),
-                    "date_published": article.get("date_published"),
+                    "date_published": registry_evidence.get("published_at") or article.get("date_published"),
                     **({"search_published_at": result["published_at"][:100],
                         "search_publication_date_basis": "search_metadata_unverified"}
                        if isinstance(result.get("published_at"), str) and result["published_at"].strip() else {}),
@@ -1574,6 +1609,9 @@ class DocumentTools:
                     "document_links": linked[:5],
                     "discovery_links": ranked_links[:5],
                     "discovered_from": result.get("discovered_from"),
+                    **({"registry_evidence": registry_evidence,
+                        "attachment_filename": registry_evidence.get("attachment_filename")}
+                       if registry_evidence else {}),
                     "discovery_depth": depth,
                     "raw_sha256": raw_sha256,
                     "inspection_complete": inspected.get("inspection_complete", True),

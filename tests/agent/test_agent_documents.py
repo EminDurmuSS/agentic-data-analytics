@@ -653,11 +653,15 @@ class AgentDocumentTests(unittest.TestCase):
 
     def test_actual_http_connection_uses_pinned_public_ip_and_download_size_cap(self):
         class FakeSocket:
-            def __init__(self, body, content_length=None):
+            def __init__(self, body, content_length=None, content_disposition=None):
                 self.body = body
                 self.content_length = content_length or str(len(body)).encode()
+                self.content_disposition = content_disposition
             def makefile(self, *args):
-                return io.BytesIO(b"HTTP/1.1 200 OK\r\nContent-Type: text/csv\r\nContent-Length: " + self.content_length + b"\r\n\r\n" + self.body)
+                disposition = ((b"Content-Disposition: " + self.content_disposition + b"\r\n")
+                               if self.content_disposition else b"")
+                return io.BytesIO(b"HTTP/1.1 200 OK\r\nContent-Type: text/csv\r\n" + disposition
+                                  + b"Content-Length: " + self.content_length + b"\r\n\r\n" + self.body)
             def sendall(self, data):
                 pass
             def close(self):
@@ -674,6 +678,12 @@ class AgentDocumentTests(unittest.TestCase):
             body, mime, _ = fetch_public_url("http://public.test/data.csv")
             self.assertEqual(body, b"x\n1\n")
             self.assertEqual(mime, "text/csv")
+        with patch("agentic_analytics.agent.tools.documents.socket.getaddrinfo", return_value=addresses), patch(
+                "agentic_analytics.agent.tools.documents.socket.create_connection",
+                return_value=FakeSocket(b"x\n1\n", content_disposition=
+                    b"inline; filename*=UTF-8''Ulusal%20Faktoring%2031.12.2025.pdf")):
+            *_, metadata = fetch_public_url("http://public.test/download/hash", response_metadata=True)
+            self.assertEqual(metadata["filename"], "Ulusal Faktoring 31.12.2025.pdf")
         with patch("agentic_analytics.agent.tools.documents.socket.getaddrinfo", return_value=addresses), patch("agentic_analytics.agent.tools.documents.socket.create_connection", return_value=FakeSocket(b"123456")):
             with self.assertRaisesRegex(DocumentError, "size limit"):
                 fetch_public_url("http://public.test/data.csv", max_bytes=3)
@@ -1302,6 +1312,40 @@ class AgentDocumentTests(unittest.TestCase):
                                         domains=["example.org"])
         self.assertEqual(result["status"], "ok", result)
         self.assertEqual(result["sources"][0]["reporting_period"], "2026-03-31")
+
+    def test_kap_registry_metadata_survives_research_and_pdf_inspection(self):
+        attachment = "a" * 32
+        url = "https://www.kap.org.tr/tr/api/file/download/" + attachment
+        disclosure = "https://www.kap.org.tr/tr/Bildirim/1550705"
+        registry = "https://www.kap.org.tr/tr/sirketler/ALL"
+        evidence = {"registry_url": registry, "issuer_id": "b" * 32,
+                    "issuer_title": "ULUSAL FAKTORİNG A.Ş.", "issuer_codes": "ULUFA",
+                    "disclosure_url": disclosure, "disclosure_index": 1550705,
+                    "disclosure_type": "financial_report", "disclosure_title": "Finansal Rapor",
+                    "published_at": "30.01.2026 20:17:37", "reporting_year": 2025,
+                    "reporting_period": "Yıllık", "reporting_period_start": "2025-01-01",
+                    "reporting_period_end": "2025-12-31", "attachment_id": attachment,
+                    "attachment_filename": "Ulusal Faktoring A.Ş. Konsolide 31.12.2025.pdf",
+                    "consolidation_scope": "consolidated"}
+        self.docs.web_search = lambda *args, **kwargs: {"status": "ok", "results": [{
+            "title": "ULUSAL FAKTORİNG A.Ş. | 2025 raporu", "url": url,
+            "discovered_from": disclosure, "registry_evidence": evidence}]}
+        self.docs.inspect_source = lambda **kwargs: {"status": "ok", "source_id": "kap-report",
+            "source_url": url, "raw_sha256": "c" * 64,
+            "text": "Konsolide finansal durum tablosu. AKTİF TOPLAMI. Bin TL.",
+            "article": {"title": "Ulusal Faktoring 2025 Finansal Raporu"},
+            "tables": [{"table_id": "table_7", "page": 7,
+                        "preview": [{"Kalem": "AKTİF TOPLAMI", "31.12.2025": "16.734.297"}]}]}
+        result = self.docs.research_web(
+            "Ulusal Faktoring ULUFA 31 Aralık 2025 konsolide finansal raporu", limit=1,
+            domains=["kap.org.tr"])
+        self.assertEqual(result["status"], "ok", result)
+        source = result["sources"][0]
+        self.assertEqual(source["reporting_period"], "2025-12-31")
+        self.assertEqual(source["consolidation_scope"], "consolidated")
+        self.assertEqual(source["date_published"], "30.01.2026 20:17:37")
+        self.assertEqual(source["attachment_filename"], evidence["attachment_filename"])
+        self.assertEqual(source["registry_evidence"]["disclosure_index"], 1550705)
 
     def test_research_deduplicates_identical_document_bytes_across_urls(self):
         urls = ["https://example.org/report", "https://example.org/report-copy"]

@@ -80,7 +80,8 @@ def test_public_financial_registry_resolves_identifiers_and_preserves_scope_from
             assert kwargs == {'max_bytes': 4 * 1024**2, 'timeout': 20}
             assert parse_qs(urlsplit(url).query) == {'member': [issuer_id], 'disclosureClass': ['FR']}
             content = [{'disclosureBasic': {'disclosureIndex': index, 'companyTitle': 'ACME BANK A.Ş.',
-                        'year': year, 'donem': period, 'disclosureClass': 'FR', 'title': 'Finansal Rapor'}}
+                        'year': year, 'donem': period, 'disclosureClass': 'FR', 'title': 'Finansal Rapor',
+                        'publishDate': '30.04.2026 18:20:00'}}
                        for index, year, period in [(900, 2026, '3 Aylık'), (901, 2026, '6 Aylık'), (800, 2025, 'Yıllık')]]
         elif url.endswith('/Bildirim/900'):
             assert kwargs == {'max_bytes': 8 * 1024**2, 'timeout': 45}
@@ -96,6 +97,11 @@ def test_public_financial_registry_resolves_identifiers_and_preserves_scope_from
     assert results[0]['registry_evidence']['issuer_id'] == issuer_id
     assert results[0]['registry_evidence']['issuer_codes'] == 'ACME'
     assert results[0]['registry_evidence']['reporting_period'] == '3 Aylık'
+    assert results[0]['registry_evidence']['reporting_period_start'] == '2026-01-01'
+    assert results[0]['registry_evidence']['reporting_period_end'] == '2026-03-31'
+    assert results[0]['registry_evidence']['published_at'] == '30.04.2026 18:20:00'
+    assert results[0]['registry_evidence']['attachment_filename'] == 'Acme_2026_Consolidated.pdf'
+    assert results[0]['registry_evidence']['consolidation_scope'] == 'consolidated'
 
 
 def test_public_financial_registry_keeps_the_source_owned_ticker_as_identity_evidence():

@@ -3,6 +3,7 @@
 The endpoint is application configuration, never a model tool argument.
 Public result URLs still use the source reader's DNS and redirect controls.
 """
+import calendar
 import json
 from html.parser import HTMLParser
 import re
@@ -306,6 +307,15 @@ def _kap_company(query, values):
     return matches[0] if len(matches) == 1 else None
 
 
+def _kap_period_bounds(year, period):
+    normalized = search_text(period)
+    month = 12 if normalized in {"yillik", "annual"} else (
+        int(match.group(1)) if (match := re.match(r"(3|6|9|12)\s", normalized)) else None)
+    if month is None:
+        return None, None
+    return f"{year:04d}-01-01", f"{year:04d}-{month:02d}-{calendar.monthrange(year, month)[1]:02d}"
+
+
 def kap_financial_search(query, fetch):
     """Resolve issuer and reporting period against KAP's public source registry.
 
@@ -398,13 +408,21 @@ def kap_financial_search(query, fetch):
                 consolidated = bool(re.search(r"konsolid|consolid|cons[_.-]", label)) and not unconsolidated
                 if wants_consolidated and not consolidated or wants_unconsolidated and not unconsolidated:
                     continue
+                period_start, period_end = _kap_period_bounds(year, disclosures[index].get("donem", ""))
+                scope = "solo" if unconsolidated else "consolidated" if consolidated else None
                 results.append({"title": issuer + " | " + name, "url": root + "/tr/api/file/download/" + file_id,
                                 "content": f"{issuer_codes}. {issuer}. {year}, {disclosures[index].get('donem', '')}. {name}",
                                 "discovered_from": detail_url,
                                 "registry_evidence": {"registry_url": registry_url, "issuer_id": oid,
-                                    "issuer_codes": issuer_codes,
+                                    "issuer_title": issuer, "issuer_codes": issuer_codes,
                                     "disclosures_url": disclosures_url, "disclosure_index": index,
-                                    "reporting_year": year, "reporting_period": disclosures[index].get("donem")}})
+                                    "disclosure_url": detail_url, "disclosure_type": "financial_report",
+                                    "disclosure_title": disclosures[index].get("title"),
+                                    "published_at": disclosures[index].get("publishDate"),
+                                    "reporting_year": year, "reporting_period": disclosures[index].get("donem"),
+                                    "reporting_period_start": period_start, "reporting_period_end": period_end,
+                                    "attachment_id": file_id, "attachment_filename": name,
+                                    "consolidation_scope": scope}})
         if results:
             break
     return list({item["url"]: item for item in results}.values())[:4]
