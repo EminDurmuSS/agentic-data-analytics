@@ -5,6 +5,7 @@ import json
 from pathlib import Path
 import tempfile
 import unittest
+from unittest.mock import patch
 import wave
 
 import duckdb
@@ -129,7 +130,28 @@ class VoiceBackendTests(unittest.TestCase):
         self.assertEqual(brief.sources[0]["title"], "Resmî veri ekranı")
         self.assertIn("anonim erişimde", brief.answer)
         fallback = VoiceScriptService(None).generate(brief)
-        self.assertIn("doğrulanamayan değerler üretilmedi", fallback)
+        self.assertEqual(fallback, "İncelemenin ayrıntılarını yazılı bölümden takip edebilirsiniz.")
+        self.assertNotIn("tamamlandı", fallback)
+
+    def test_voice_rejects_operational_failure_narration_without_hiding_written_errors(self):
+        run = self._completed_run()
+        brief = build_voice_brief(self.app.state.context.store, run)
+        for text in ("Sonuç alınamadı.", "Analiz tamamlanamadı.", "MIA bağlantısı tamamlanamadı.",
+                     "İstenen veri bulunamadı.", "Kapanış değerleri doğrulanamadı."):
+            with self.subTest(text=text):
+                record = VoiceScriptService(Provider([{"content": text}])).generate_record(brief)
+                self.assertTrue(record["fallback"])
+                self.assertIn("mevcut gözlemleri kapsar", record["transcript"])
+                self.assertNotIn(text, record["transcript"])
+        # Negative financial findings are not technical failures and remain speakable.
+        self.assertEqual(validate_voice_script("Kredi bakiyesi geriledi."), "Kredi bakiyesi geriledi.")
+
+    def test_voice_job_cache_is_versioned_when_wording_policy_changes(self):
+        from app.context import voice_job_id
+        current = voice_job_id("workspace_test", "run_test")
+        self.assertEqual(current, voice_job_id("workspace_test", "run_test"))
+        with patch("agentic_analytics.voice.script.VOICE_SCRIPT_VERSION", 999):
+            self.assertNotEqual(current, voice_job_id("workspace_test", "run_test"))
 
     def test_script_has_no_tools_and_falls_back_when_provider_is_unavailable(self):
         run = self._completed_run()

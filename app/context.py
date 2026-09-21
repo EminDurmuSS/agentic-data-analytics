@@ -30,9 +30,11 @@ def _safe_id(value: str):
 
 
 def voice_job_id(workspace_id: str, run_id: str) -> str:
-    """One deterministic job id per (workspace, run): the pre-warm on completion
+    """One deterministic job id per (workspace, run, wording policy): pre-warm
     and an explicit later request must land on the same idempotent job."""
-    return "voice_job_" + hashlib.sha256((workspace_id + ":" + run_id).encode()).hexdigest()[:32]
+    from agentic_analytics.voice.script import VOICE_SCRIPT_VERSION
+    return "voice_job_" + hashlib.sha256(
+        f"{workspace_id}:{run_id}:{VOICE_SCRIPT_VERSION}".encode()).hexdigest()[:32]
 
 
 class AppContext:

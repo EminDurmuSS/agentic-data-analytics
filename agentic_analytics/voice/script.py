@@ -8,6 +8,7 @@ from decimal import Decimal, ROUND_HALF_UP
 from agentic_analytics.voice.context import VoiceBriefInput
 
 MAX_SCRIPT_CHARS = 900
+VOICE_SCRIPT_VERSION = 2
 _URL = re.compile(r"https?://|```|[#*_`]")
 _NUMBER = re.compile(r"\d[\d.,%]*")
 _TURKISH_LIRA = re.compile(r"\bTL(?:(?:['’])(ye|ya|yi|yı|nin|nın|den|dan))?\b", re.IGNORECASE)
@@ -15,6 +16,13 @@ _TURKISH_LIRA = re.compile(r"\bTL(?:(?:['’])(ye|ya|yi|yı|nin|nın|den|dan))?\
 # e.g. ``88.57829117``.  A number with another separator following its decimal
 # digits (such as ``598.085.487``) intentionally does not match.
 _LONG_DECIMAL = re.compile(r"(?<![\d.,])(\d+)([.,])(\d{5,})(%?)(?![\d.,])")
+_OPERATIONAL_FAILURE = re.compile(
+    r"sonuç\s+(?:alınamadı|elde\s+edilemedi)|tamamlanamadı|başarısız|"
+    r"doğrulanamadı|doğrulanamayan|bulunamadı|ulaşılamadı|erişilemedi|erişilemiyor|"
+    r"üretilemedi|üretilmedi|bağlantı\s+hatası|erişim\s+sınırı|"
+    r"\b(?:MIA|PROVIDER_UNAVAILABLE|NO_READABLE_SOURCES)\b",
+    re.IGNORECASE,
+)
 
 
 class VoiceScriptError(ValueError):
@@ -23,7 +31,7 @@ class VoiceScriptError(ValueError):
 
 def _prompt(brief: VoiceBriefInput) -> list[dict[str, str]]:
     return [
-        {"role": "system", "content": "Sen kaynaklı finansal analiz sonucunu seslendirmek için kısa Türkçe metin yazarsın. Grafik bilgisi kanıt kapsülünde varsa metne tam olarak 'Grafik incelendiğinde,' diye başla; grafik yoksa bu ifadeyi kullanma. Grafikte veya analizde gerçek değerler varsa açıkla; yalnız kaynak incelemesi ya da güvenli sınırlama varsa sonucu ve eksikliği sade biçimde özetle. Son cümlede, yalnız kanıt kapsülündeki değerlere dayanarak ve nedensellik iddia etmeden '... görülebilir.' biçiminde kısa bir içgörü sun. Yalnız verilen kanıt kapsülündeki gerçekleri kullan. Yeni hesap, sayı, tarih, kaynak, nedensellik veya öneri üretme. Sayı sözcüğüyle yazma. Beş veya daha fazla ondalık basamaklı makine hassasiyetindeki değerleri en fazla iki ondalığa yuvarla ve 'yaklaşık' diye belirt; diğer sayıları kapsüldeki biçimiyle yaz. Para birimi için 'TL' kısaltmasını yazma; her zaman 'Türk lirası' yaz. Gösterge adındaki parantez içi yer veya kod ifadesinden sonra bir nokta koy; sonraki sayısal değere yeni cümleyle geç. Bu yazılı cümle sonu seslendirmedeki kısa duraklamayı da oluşturur. Eksik veri ve kapsam uyarısını varsa söyle. Başlık, Markdown, URL ve kaynakça yazma."},
+        {"role": "system", "content": "Sen kaynaklı finansal analiz sonucunu seslendirmek için kısa Türkçe metin yazarsın. Grafik bilgisi kanıt kapsülünde varsa metne tam olarak 'Grafik incelendiğinde,' diye başla; grafik yoksa bu ifadeyi kullanma. Grafikte veya analizde gerçek değerler varsa açıkla; yalnız kaynak bilgisi varsa doğrulanmış kaynak ve kapsam bilgisini anlat. Ses metni bir işlem veya hata raporu değildir. 'Sonuç alınamadı', 'analiz tamamlanamadı', 'veri bulunamadı', bağlantı hatası, erişim sınırı, MIA veya teknik hata kodları gibi ifadeleri seslendirme; bunlar yazılı sonuç ve teknik işlem kayıtlarında kalır. Somut bulgu yoksa yalnız incelemenin ayrıntılarının yazılı bölümden takip edilebileceğini söyle; başarı, tamamlanma, veri veya içgörü uydurma. Son cümlede yalnız kanıt kapsülündeki değerler destekliyorsa ve nedensellik iddia etmeden '... görülebilir.' biçiminde kısa bir içgörü sun. Yalnız verilen kanıt kapsülündeki gerçekleri kullan. Yeni hesap, sayı, tarih, kaynak, nedensellik veya öneri üretme. Sayı sözcüğüyle yazma. Beş veya daha fazla ondalık basamaklı makine hassasiyetindeki değerleri en fazla iki ondalığa yuvarla ve 'yaklaşık' diye belirt; diğer sayıları kapsüldeki biçimiyle yaz. Para birimi için 'TL' kısaltmasını yazma; her zaman 'Türk lirası' yaz. Gösterge adındaki parantez içi yer veya kod ifadesinden sonra bir nokta koy; sonraki sayısal değere yeni cümleyle geç. Bu yazılı cümle sonu seslendirmedeki kısa duraklamayı da oluşturur. Veriyi tüm dönemi temsil ediyormuş gibi sunma; yorumu yalnız mevcut gözlemlerle sınırla. Başlık, Markdown, URL ve kaynakça yazma."},
         {"role": "user", "content": "45 saniyeyi aşmayacak sade bir ses metni üret. Kanıt kapsülü:\n" + json.dumps(brief.public_dict(), ensure_ascii=False, allow_nan=False, separators=(",", ":"))},
     ]
 
@@ -66,8 +74,7 @@ def _local_fallback_script(brief: VoiceBriefInput) -> str:
     """Describe only persisted metadata when the text model is unavailable."""
     if brief.analysis_id is None:
         return validate_voice_script(
-            "Kaynak incelemesi tamamlandı. İstenen analiz için doğrulanamayan değerler üretilmedi. "
-            "Erişim sınırı ve güvenli devam yolu yazılı sonuçta korunuyor.",
+            "İncelemenin ayrıntılarını yazılı bölümden takip edebilirsiniz.",
             brief,
         )
     period = brief.analysis.get("period") if isinstance(brief.analysis, dict) else None
@@ -79,8 +86,7 @@ def _local_fallback_script(brief: VoiceBriefInput) -> str:
     prefix = "Grafik incelendiğinde," if brief.chart else "Kaydedilmiş analiz incelendiğinde,"
     range_text = f" {start} ile {end} arasındaki" if start and end else ""
     row_text = f" {rows} kayıt" if isinstance(rows, int) else " kayıtlı veri"
-    warning = (" Bazı veri veya kapsam uyarıları bulunduğu için sonuçlar dikkatle değerlendirilmelidir."
-               if brief.warnings else " Kaynaklı verilerdeki eğilim incelenebilir.")
+    warning = " Bu özet yalnız ekranda gösterilen mevcut gözlemleri kapsar."
     return validate_voice_script(f"{prefix} {subject} için{range_text}{row_text} görüntülenmektedir.{warning}", brief)
 
 
@@ -92,6 +98,10 @@ def validate_voice_script(value: object, brief: VoiceBriefInput | None = None) -
     text = _normalise_spoken_decimals(text)
     if not 1 <= len(text) <= MAX_SCRIPT_CHARS or _URL.search(text):
         raise VoiceScriptError("Ses metni biçimi veya uzunluğu geçersiz.")
+    if _OPERATIONAL_FAILURE.search(text):
+        # Reject the complete script rather than deleting clauses that might
+        # reverse its meaning. The fallback never claims a failed run succeeded.
+        raise VoiceScriptError("Teknik işlem durumu seslendirme metnine dahil edilmez.")
     if not text.endswith((".", "!", "?", "…")):
         # A token-budget cutoff (or any other truncation) ends mid-sentence.
         # Speaking half a sentence is worse than falling back to the
