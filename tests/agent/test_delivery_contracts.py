@@ -1576,6 +1576,51 @@ def test_terminal_budget_does_not_treat_search_snippet_as_a_read_source(env):
     assert "123.45" not in result["message"]
 
 
+def test_research_timeout_preserves_an_earlier_direct_source_read(env):
+    *_, build = env
+    tools = web_tool(lambda args: {
+        "status": "unavailable",
+        "code": "SEARCH_BUDGET_EXHAUSTED",
+        "message": "Search deadline reached",
+    })
+    tools["inspect_source"] = {"schema": {"type": "function", "function": {
+        "name": "inspect_source", "parameters": obj({"url": {"type": "string"}})}},
+        "handler": lambda args: {
+            "status": "ok",
+            "source_id": "official-index",
+            "source_url": args["url"],
+            "title": "Official Index Archive",
+            "text": "Official index archive instructions.",
+        }}
+    runtime, _ = build([
+        call("inspect_source", {"url": "https://official.example.org/archive"}),
+        call("research_web", {"query": "daily close row"}),
+    ], more=tools, max_repairs=0)
+    result = runtime.run(
+        "https://official.example.org/archive kaynağını incele; kesin günlük satırı "
+        "doğrulayamazsan denenen kaynağı ve eksik kanıtı göster."
+    )
+    assert result["status"] == "partial", result
+    assert "Official Index Archive" in result["message"]
+    assert "SEARCH_BUDGET_EXHAUSTED" in {error["code"] for error in result["errors"]}
+    assert "SOURCE_DATA_NOT_VERIFIED" in {error["code"] for error in result["errors"]}
+
+
+def test_research_with_only_already_read_sources_is_paused(env):
+    *_, build = env
+    runtime, _ = build([])
+    source = {"url": "https://official.example.org/report", "content": "Official report."}
+    state = {"search_progress": {"urls": [], "stale_calls": 0}, "tool_results": []}
+    first = {"status": "ok", "sources": [source]}
+    second = {"status": "ok", "sources": [source]}
+    runtime._track_search_progress(state, "research_web", first)
+    runtime._track_search_progress(state, "research_web", second)
+    assert first["progress"]["new_read_sources"] == 1
+    assert second["progress"]["new_read_sources"] == 0
+    assert state["search_progress"]["research_web_paused"]
+    assert second["warnings"][0]["code"] == "RESEARCH_RESULTS_REPEATED"
+
+
 def test_web_source_cannot_erase_failed_calculation(env):
     _, _, _, plan, build = env
     invalid = {**plan, "operations": [{"op": "deflate", "column": "credit", "index": "credit", "base_period": "2026-01", "output": "real"}]}

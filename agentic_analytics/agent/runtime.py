@@ -1110,6 +1110,28 @@ class AgentRuntime:
                     "message": "Successive web research calls produced no readable source. Further web research is paused until an existing source is read."})
                 result["recovery"] = self._search_recovery(state)
         elif name in {"research_web", "inspect_source", "read_source_table", "find_source_table_rows"} and _source_read(result):
+            if name == "research_web":
+                source_keys = []
+                for source in result.get("sources", []):
+                    if not isinstance(source, dict) or source.get("source_role") == "discovery_index":
+                        continue
+                    url = _search_url(source.get("url") or source.get("source_url"))
+                    if url:
+                        source_keys.append(fingerprint({"url": url, "raw_sha256": source.get("raw_sha256")}))
+                seen_sources = set(progress.get("read_source_keys", []))
+                fresh_sources = [key for key in source_keys if key not in seen_sources]
+                progress["read_source_keys"] = [*progress.get("read_source_keys", []), *fresh_sources][-300:]
+                result["progress"] = {**result.get("progress", {}), "new_read_sources": len(fresh_sources)}
+                if source_keys and not fresh_sources:
+                    progress["stale_research_calls"] = progress.get("stale_research_calls", 0) + 1
+                    progress["research_web_paused"] = True
+                    progress["paused"] = True
+                    result.setdefault("warnings", []).append({
+                        "code": "RESEARCH_RESULTS_REPEATED",
+                        "message": "Web research returned only sources already read in this run. Further web research is paused; finish with retained evidence.",
+                    })
+                    result["recovery"] = self._search_recovery(state)
+                    return
             # Only a successful source read reopens discovery. A duplicate read
             # cannot reset the stall repeatedly or erase unrelated tool errors.
             read_key = fingerprint({key: result.get(key) for key in ("source_id", "source_url", "text", "pages", "tables", "rows", "sources")})

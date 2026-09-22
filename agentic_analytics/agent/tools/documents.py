@@ -1258,11 +1258,20 @@ class DocumentTools:
                 or not 1 <= limit <= 3 or domains is not None and (not isinstance(domains, list)
                 or len(domains) > 5 or any(not isinstance(domain, str) or not domain.strip() for domain in domains))):
             raise DocumentError("Research query and limit exceed their bounds.")
-        # Search providers and official source sites can both be slow.  Keep
-        # general, finite request budgets so one prompt can complete discovery
-        # and document inspection without giving any source an unlimited wait.
-        read_deadline = time.monotonic() + 300
-        search_deadline = min(read_deadline, time.monotonic() + 180)
+        # Search providers and official source sites can both be slow. Keep one
+        # bounded, configurable budget per call so a stalled site cannot consume
+        # most of an interactive run. Values are clamped to safe demo/runtime
+        # bounds; callers cannot turn this into an unlimited request.
+        try:
+            read_budget = float(os.getenv("WEB_RESEARCH_READ_BUDGET_SECONDS", "120"))
+            search_budget = float(os.getenv("WEB_RESEARCH_SEARCH_BUDGET_SECONDS", "60"))
+        except ValueError:
+            read_budget, search_budget = 120.0, 60.0
+        read_budget = min(300.0, max(30.0, read_budget))
+        search_budget = min(read_budget, min(180.0, max(15.0, search_budget)))
+        started = time.monotonic()
+        read_deadline = started + read_budget
+        search_deadline = started + search_budget
         lowered = _search_text(query)
         requested_years = _research_years(lowered)
         requested_dates = _source_dates(query)
