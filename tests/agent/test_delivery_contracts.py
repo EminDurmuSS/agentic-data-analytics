@@ -1311,6 +1311,9 @@ def test_policy_rate_explicit_loan_disclaimer_is_not_a_mismatch(env, explanation
     ("Bir hafta vadeli repo ihale faiz oranının yüzde 38'den yüzde 35,5'e indirilmesine karar verilmiştir.",
      "%38", "%35,5"),
     ("The one-week repo auction rate was reduced from 6.25 to 5.75 percent.", "%6,25", "%5,75"),
+    ("Bir hafta vadeli repo ihale faiz oranının yüzde 50’de sabit tutulmasına karar verilmiştir.",
+     "%50", "%50"),
+    ("The one-week repo auction rate was kept unchanged at 50 percent.", "%50", "%50"),
 ])
 def test_policy_decision_receipt_builds_a_grounded_presentation_table(text, previous, current):
     state = {"tool_results": [{"tool": "research_web", "result": {"status": "ok", "sources": [{

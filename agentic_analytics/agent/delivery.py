@@ -273,6 +273,17 @@ def _verified_policy_decision_confirmation(state):
         rf"\s+to\s+(?:percent\s*|%\s*)?({rate})\b",
         re.I | re.S,
     )
+    unchanged_turkish = re.compile(
+        rf"bir\s+hafta\s+vadeli\s+repo(?:\s+ihale)?\s+faiz\s+oran\w*"
+        rf".{{0,120}}?(?:y[uü]zde\s*|%\s*)({rate})\s*[’']?(?:de|da|te|ta)?"
+        rf"\s+sabit\s+tutul",
+        re.I | re.S,
+    )
+    unchanged_english = re.compile(
+        rf"one[- ]week\s+repo(?:\s+auction)?\s+rate.{{0,120}}?"
+        rf"(?:kept|held|maintained)\s+(?:unchanged\s+)?at\s+(?:percent\s*|%\s*)?({rate})\b",
+        re.I | re.S,
+    )
     date_pattern = re.compile(
         r"\b(?:[0-3]?\d)\s+(?:Ocak|Şubat|Subat|Mart|Nisan|Mayıs|Mayis|Haziran|Temmuz|"
         r"Ağustos|Agustos|Eylül|Eylul|Ekim|Kasım|Kasim|Aralık|Aralik)\s+(?:19|20)\d{2}\b",
@@ -293,10 +304,14 @@ def _verified_policy_decision_confirmation(state):
         source_dates = source_identity_dates or _source_dates(text)
         if requested_dates and not requested_dates.intersection(source_dates):
             continue
-        match = turkish.search(text) or english.search(text)
-        if not match:
+        changed = turkish.search(text) or english.search(text)
+        unchanged = unchanged_turkish.search(text) or unchanged_english.search(text)
+        if not (changed or unchanged):
             continue
-        previous, current = (value.replace(".", ",") for value in match.groups())
+        if changed:
+            previous, current = (value.replace(".", ",") for value in changed.groups())
+        else:
+            previous = current = unchanged.group(1).replace(".", ",")
         decision_date = source.get("reporting_period") or source.get("date_published")
         if not decision_date:
             found_date = date_pattern.search(text)
