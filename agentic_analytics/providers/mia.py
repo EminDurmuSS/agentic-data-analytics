@@ -4,6 +4,7 @@ from __future__ import annotations
 import base64
 import json
 import math
+import os
 import socket
 import ssl
 import time
@@ -29,7 +30,7 @@ class MiaError(RuntimeError):
 
 class MiaClient:
     def __init__(self, api_key, base_url="https://mia.csp.kloudeks.com/v1", *,
-                 chat_model="kkbhackathon2026/Qwen3.8-27B",
+                 chat_model="deepseek-ai/DeepSeek-V4.1-Flash",
                  embedding_model="kkbhackathon2026/Qwen3-Embedding-8B",
                  ocr_model="kkbhackathon2026/Unlimited-OCR", timeout=60,
                  max_retries=2, transport=None, sleeper=time.sleep):
@@ -41,7 +42,12 @@ class MiaClient:
         if not 0 < timeout <= 180 or type(max_retries) is not int or not 0 <= max_retries <= 3:
             raise ValueError("Invalid provider timeout/retry budget")
         self._key, self.base_url = api_key, base_url.rstrip("/")
-        self.chat_model, self.embedding_model, self.ocr_model = chat_model, embedding_model, ocr_model
+        configured_env_model = os.environ.get("MIA_CHAT_MODEL")
+        if configured_env_model and chat_model == "deepseek-ai/DeepSeek-V4.1-Flash":
+            self.chat_model = configured_env_model
+        else:
+            self.chat_model = chat_model
+        self.embedding_model, self.ocr_model = embedding_model, ocr_model
         self.timeout, self.max_retries = timeout, max_retries
         self._transport, self._sleep = transport, sleeper
 

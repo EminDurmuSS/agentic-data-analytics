@@ -6,6 +6,13 @@
 !app/**
 !agentic_analytics/
 !agentic_analytics/**
+!tools/
+!tools/**
+!data_pipeline/
+!data_pipeline/evds/
+!data_pipeline/evds/acquisition.py
+!data_pipeline/catalog/
+!data_pipeline/catalog/evds_series_catalog.parquet
 
 # These stay excluded even inside an allowed source directory.
 **/__pycache__/

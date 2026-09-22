@@ -66,7 +66,10 @@ def _name(value: Any) -> str:
 
 def _identifier(value: str) -> str:
     # Registry identifiers are trusted application configuration, still quote them.
-    if not isinstance(value, str) or not re.fullmatch(r"[A-Za-z_][A-Za-z0-9_]*(\.[A-Za-z_][A-Za-z0-9_]*)?", value):
+    # Up to 3 parts: a plain column/schema.table, or database.schema.table for an
+    # attached database (the on-demand EVDS overlay is addressed this way; see
+    # agentic_analytics/lakehouse/registry.py ON_DEMAND_DB_PATH).
+    if not isinstance(value, str) or not re.fullmatch(r"[A-Za-z_][A-Za-z0-9_]*(\.[A-Za-z_][A-Za-z0-9_]*){0,2}", value):
         raise PlanError("Invalid identifier in metric binding")
     return ".".join('"' + part + '"' for part in value.split("."))
 
@@ -631,7 +634,9 @@ class LakehouseService:
         if not isinstance(dimension, str) or dimension not in binding.get("dimensions", {}):
             raise PlanError("Unknown dimension", code="DIMENSION_NOT_FOUND")
         if not binding.get("table"):
-            raise PlanError("Metric has no observation data", code="METADATA_ONLY")
+            hint = (f" For a TCMB_EVDS series, call acquire_evds_series with series_codes=['{binding['source_code']}']"
+                    " to fetch it, then retry." if binding.get("source_system") == "TCMB_EVDS" else "")
+            raise PlanError("Metric has no observation data." + hint, code="METADATA_ONLY")
         column = binding["dimensions"][dimension]
         label_column = binding.get("dimension_label_columns", {}).get(dimension)
         selected = _identifier(column) + " AS value"
@@ -715,7 +720,10 @@ class LakehouseService:
                 raise PlanError(f"Unknown metric_id {metric_id!r}", code="METRIC_NOT_FOUND")
             binding = bindings[metric_id]
             if binding["status"] in {"metadata_only", "no_numeric"}:
-                raise PlanError(f"{metric_id}: {binding['status']}; observations must be acquired first", code="METADATA_ONLY" if binding["status"] == "metadata_only" else "NO_NUMERIC_VALUES")
+                hint = (f" For a TCMB_EVDS series, call acquire_evds_series with series_codes=['{binding['source_code']}'] "
+                        "and a suitable start_date/end_date, then retry this exact plan." if binding.get("source_system") == "TCMB_EVDS" else "")
+                raise PlanError(f"{metric_id}: {binding['status']}; observations must be acquired first." + hint,
+                                 code="METADATA_ONLY" if binding["status"] == "metadata_only" else "NO_NUMERIC_VALUES")
             if binding.get("binding_available") is False or not binding.get("table") or not binding.get("time_column") or not binding.get("value_column"):
                 raise PlanError(f"{metric_id}: no executable physical binding", code="NO_PHYSICAL_BINDING")
             dimensions = selection.get("dimensions", {})

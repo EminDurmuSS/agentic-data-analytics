@@ -126,6 +126,43 @@ def normalized_unit(source_unit: str) -> tuple[str, float, str | None]:
     return source_unit or "unknown", 1., None
 
 
+KNOWN_UNITS = {"TRY", "USD", "count", "person", "percent", "index", "day",
+               "TRY/m2", "TRY/gram", "TRY/kg", "TRY/person", "TRY/branch", "person/branch"}
+
+
+def infer_evds_semantics(metric: dict[str, Any], code: str) -> tuple[str, float, str | None, str]:
+    """Derive (unit, scale, currency, kind) for an unreviewed EVDS series.
+
+    Series in evds.full_catalog carry a per-series unit (unlike coarser
+    group-level labels elsewhere), so a small set of high-precision, false
+    positive-averse rules can safely resolve many of them without a manual
+    review entry. Anything that doesn't match a rule stays kind="unknown"
+    (blocked_reason applies, status remains review_required) rather than
+    guessing — a wrong fallback is worse than staying blocked.
+    """
+    unit, scale, currency = normalized_unit(metric.get("unit") or "")
+    title = str(metric.get("metric_name_tr") or "")
+    name = f"{title} {metric.get('group_name') or ''}".casefold()
+    if unit == "percent":
+        return "percent", 1., None, "rate"
+    if unit == "index":
+        return "index", 1., None, "index"
+    if unit not in KNOWN_UNITS:
+        # normalized_unit() did not recognize the raw source label (it fell
+        # through to returning that label unchanged, e.g. an EVDS catalog
+        # "unit" field that actually names an aggregation method such as
+        # "Ağırlıklı ortalama" rather than a physical unit). Name/title
+        # tokens are then the only high-precision signal available.
+        if "%" in title or any(token in name for token in ("faiz", "oran")):
+            return "percent", 1., None, "rate"
+        if "endeks" in name or "index" in name:
+            return "index", 1., None, "index"
+        return unit, scale, currency, "unknown"
+    if unit in {"TRY", "USD"} and any(token in name for token in ("stok", "bakiye", "toplam varlık")):
+        return unit, scale, currency, "stock"
+    return unit, scale, currency, "unknown"
+
+
 def kind_for(semantics: str, unit: str) -> str:
     semantics = semantics.casefold()
     if "flow" in semantics or semantics == "monthly_event_count":

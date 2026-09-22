@@ -278,6 +278,7 @@ class AppContext:
         from agentic_analytics.agent.tools.financial_import import FinancialImportTools
         from agentic_analytics.agent.tools.reference_catalogues import ReferenceCatalogueTools
         from agentic_analytics.agent.tools.shared_lakehouse import SharedLakehouseTools
+        from agentic_analytics.agent.tools.evds_acquisition import evds_acquisition_tools
         documents = self.documents(workspace_id)
         references = ReferenceCatalogueTools(self.store, workspace_id, self.reference_catalogues())
         tools = FinancialImportTools(documents).extra_tools()
@@ -291,6 +292,7 @@ class AppContext:
         tools.update(SourceIndexTools(self.store, workspace_id).extra_tools())
         tools.update(references.extra_tools())
         tools.update(SharedLakehouseTools(self.store, workspace_id, shared=self.shared_lakehouse).extra_tools())
+        tools.update(evds_acquisition_tools())
         # Generous bounds so multi-step analyses reach execution; the finite cap still stops a looping model.
         # The context budget stays well under the model's proven window (~72k tokens accepted; 150k chars ~= 49k)
         # so context-heavy multi-source or explain-driven analyses are not cut off before they can finish.

@@ -35,3 +35,9 @@ class ReviewBody(StrictBody):
     table_id: str = Field(min_length=1, max_length=160)
     reviewed_rows: list = Field(min_length=1, max_length=50000)
     unit_evidence: dict[str, str]
+
+
+class EvdsAcquireBody(StrictBody):
+    series_codes: list[Annotated[str, Field(min_length=1, max_length=64)]] = Field(min_length=1, max_length=20)
+    start_date: str = Field(pattern=r"^\d{4}-\d{2}-\d{2}$")
+    end_date: str = Field(pattern=r"^\d{4}-\d{2}-\d{2}$")

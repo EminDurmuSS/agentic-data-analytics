@@ -1074,5 +1074,25 @@
     "output_scale": 0.001,
     "interpretation": "Outstanding nominal stock. Difference is net stock change, not new lending. Not BDDK bulletin.",
     "unresolved": "Housing-line-specific NPL and accrued-interest treatment not conclusively verified."
+  },
+  {
+    "series_code": "TP.BKR.TRY.17",
+    "raw_column": "TP_BKR_TRY_17",
+    "name_tr": "Taşıt Kredisi (TL, Stok, %)",
+    "group_code": "bie_kt210a",
+    "catalog_frequency": "AYLIK",
+    "raw_file": "evds_tp_bkr_try_17.json",
+    "request_file": "evds_tp_bkr_try_17_request.json",
+    "output_column": "evds_tp_bkr_try_17_value",
+    "native_unit": "percent",
+    "measurement": "rate",
+    "native_frequency": "monthly",
+    "observed_vintage": "2026-09-22",
+    "raw_sha256": "dea56e5b59e71af0b7a1e954248bbc21d1856161bfed308715007008a4d814ff",
+    "observation_count": 78,
+    "first_observation": "2020-01",
+    "last_observation": "2026-06",
+    "source": "TCMB EVDS",
+    "ingestion_note": "Added by evds_on_demand.py — verify output_column and measurement before adding to build_dataset.py"
   }
 ]

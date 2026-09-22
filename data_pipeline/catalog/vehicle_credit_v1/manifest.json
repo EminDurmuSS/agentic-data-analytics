@@ -1,0 +1,42 @@
+{
+  "dataset": "vehicle_credit_v1",
+  "description": "BDDK Aylık Bülten Taşıt Kredisi stok + TCMB EVDS faiz oranı panel veri seti",
+  "period": "2026-01 to 2026-06",
+  "frequency": "monthly",
+  "built_at": "2026-09-22T14:07:36.819013+00:00",
+  "sources": [
+    {
+      "name": "BDDK Aylık Bülten",
+      "series": "Tüketici Kredileri - Taşıt [Toplam] (Sektör)",
+      "unit": "milyon TL (stok, dönem sonu)",
+      "scope": "Yurt içi yerleşik müşteriler; Birleşik Fon Bankası, Adabank, Türk Ticaret Bankası hariç olabilir",
+      "columns": [
+        "tasit_kredi_bddk_stok_milyon_tl"
+      ],
+      "note": "Bilanço toplamıyla kapsam aynı değildir."
+    },
+    {
+      "name": "TCMB EVDS",
+      "series_code": "TP.BKR.TRY.17",
+      "series_name": "Taşıt Kredisi (TL, Stok, %)",
+      "group_code": "bie_kt210a",
+      "unit": "% (ağırlıklı ortalama, stok)",
+      "columns": [
+        "tasit_kredi_faiz_stok_pct"
+      ],
+      "raw_file": "data_pipeline/raw/evds_tp_bkr_try_17.json",
+      "raw_sha256": "dea56e5b59e71af0b7a1e954248bbc21d1856161bfed308715007008a4d814ff",
+      "observation_count": 78
+    }
+  ],
+  "columns": {
+    "ay_tr": "Ay (Türkçe, örn. Ocak 2026)",
+    "ay": "Dönem (YYYY-MM formatı)",
+    "tasit_kredi_bddk_stok_milyon_tl": "BDDK Taşıt Kredisi Stok (milyon TL)",
+    "tasit_kredi_bddk_stok_degisim_milyon_tl": "Bir önceki aya göre değişim (milyon TL, türetilmiş)",
+    "tasit_kredi_bddk_stok_mom_pct": "Aylık değişim oranı (%, türetilmiş)",
+    "tasit_kredi_faiz_stok_pct": "EVDS Taşıt Kredisi Faiz Oranı - Stok (%, aylık ağırlıklı ort.)"
+  },
+  "rows": 6,
+  "missing_rate_months": 0
+}
