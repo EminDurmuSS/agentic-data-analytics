@@ -38,6 +38,14 @@ def _blocked(code, message):
     return {"status": "blocked", "errors": [{"code": code, "message": message}]}
 
 
+def _has_message_body(message):
+    """True if the terminal message carries content beyond blank lines and bare
+    "header:" labels. A delivered answer must never be empty or a lone header,
+    so a run never dead-ends without telling the user something useful."""
+    lines = [line.strip() for line in str(message or "").strip().split("\n") if line.strip()]
+    return bool(lines) and not all(line.endswith(":") for line in lines)
+
+
 def _successful_selection(state):
     return any(item.get("tool") == "select_analysis_rows"
                and item.get("result", {}).get("status") == "ok"
@@ -2917,6 +2925,11 @@ class AgentRuntime:
         self._close_pending(state)
         state.pop("delivery_pending", None)
         state.pop("automatic_summary_call_id", None)
+        # A terminal result must never dead-end: if the assembled message is
+        # empty or only a bare "header:", fall back to a useful, honest summary
+        # of what happened and what to do next. This never fabricates a value.
+        if not _has_message_body(message):
+            message = self._failure_message(state, extra.get("errors", []))
         if not state["messages"] or state["messages"][-1].get("role") != "assistant" or state["messages"][-1].get("content") != message:
             state["messages"].append({"role": "assistant", "content": message})
         workspace = self.store.workspace(self.workspace_id)

@@ -441,8 +441,12 @@ def _analysis_confirmation(store, workspace_id, state):
         return None
     presentation = analysis_presentation(frame, manifest)
     schema = manifest.get("schema") or {}
-    columns = [name for name in presentation["columns"] if name != "period" and pd.api.types.is_numeric_dtype(frame[name])
-               and schema.get(name, {}).get("kind") not in {"dimension", "rank"} and name != "rank"]
+    value_columns = [name for name in presentation["columns"] if name not in {"period", "rank"}
+                     and schema.get(name, {}).get("kind") not in {"dimension", "rank"}]
+    # Prefer numeric summaries; fall back to source values kept verbatim as
+    # strings (e.g. a rate stored as "%39.67") so the receipt renders those
+    # values instead of an empty period-range header.
+    columns = [name for name in value_columns if pd.api.types.is_numeric_dtype(frame[name])] or value_columns
     lines = []
     summaries, seen = [], set()
     for item in state.get("tool_results", []):
@@ -462,7 +466,7 @@ def _analysis_confirmation(store, workspace_id, state):
             summaries.append(_summary_confirmation(payload, manifest, presentation["labels"]))
     if summaries:
         lines.extend(summaries)
-    elif "period" in frame and not frame["period"].duplicated().any() and len(frame):
+    elif columns and "period" in frame and not frame["period"].duplicated().any() and len(frame):
         ordered = frame.sort_values("period", kind="stable")
         if len(ordered) == 1:
             lines.append(f"{_display_period(ordered.iloc[0]['period'])} için:")
