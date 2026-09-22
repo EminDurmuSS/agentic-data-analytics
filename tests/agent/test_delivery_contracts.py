@@ -388,6 +388,72 @@ def _provider_outage(_messages):
     raise MiaError("PROVIDER_UNAVAILABLE", "MIA bağlantısı tamamlanamadı.", retryable=True, attempts=3)
 
 
+def _catalogue_recovery_fixture(env):
+    store, wid, _, _, _ = env
+    docs = DocumentTools(store, wid)
+    source = docs._register(
+        b"<html><h1>Example consolidated report</h1><p>TOTAL ASSETS 123456</p></html>",
+        "example-2027-report.html", "text/html", "https://reports.example.org/2027-report")
+    csv_path = store.root / "verified-total-assets.csv"
+    csv_path.write_text("year,total_assets\n2027,123456\n", encoding="utf-8")
+    contract = {
+        "name": "Example 2027 consolidated total assets",
+        "frequency": "annual", "date_column": "year", "key": ["year"], "grain": ["year"],
+        "expected_rows": 1, "expected_periods": ["2027"],
+        "columns": {
+            "year": {"dtype": "date", "kind": "dimension", "unit": "calendar", "nullable": False},
+            "total_assets": {"dtype": "integer", "kind": "stock", "unit": "TRY", "scale": 1000,
+                             "currency": "TRY", "aggregation": "last", "nullable": False},
+        },
+        "document_provenance": {
+            "source_id": source["source_id"], "source_url": source["source_url"],
+            "raw_sha256": source["raw_sha256"], "statement_date": "2027-12-31",
+            "scope": "consolidated",
+            "cell_origins": [{"total_assets": {"row_label": "VARLIKLAR TOPLAMI",
+                                                  "column_header": "31 Aralık 2027",
+                                                  "source_text": "123.456"}}],
+        },
+    }
+    store.ingest_csv(wid, csv_path, contract, expected_version=0)
+    return docs, source
+
+
+def test_provider_outage_uses_one_exact_source_bound_catalogue_fact(env):
+    store, wid, journal, _, build = env
+    docs, source = _catalogue_recovery_fixture(env)
+    runtime, client = build([
+        call("inspect_source", {"source_id": source["source_id"]}),
+        _provider_outage,
+    ], more=docs.extra_tools())
+    result = runtime.run("2027 yıllık raporunda toplam aktifleri göster; konsolide veya solo kapsamını belirt.",
+                         source_ids=[source["source_id"]])
+    assert result["status"] == "partial", result
+    assert result["analysis_updated"] and result["chart_updated"], result
+    assert len(client.requests) == 2
+    frame, _ = store.load_analysis(result["analysis_id"])
+    assert frame.to_dict("records") == [{"period": "2027", "total_assets": 123456}]
+    automatic = [item["tool"] for item in result["tool_results"] if item.get("automatic")]
+    assert automatic == ["execute", "create_chart"]
+    events = journal.events(result["run_id"])
+    assert any(event["kind"] == "delivery_repair"
+               and event["payload"].get("reason") == "provider_outage_catalogue_delivery"
+               for event in events)
+
+
+def test_catalogue_recovery_rejects_a_different_read_source_hash(env):
+    from agentic_analytics.agent.source_recovery import catalogue_recovery_request
+    store, wid, _, _, _ = env
+    docs, _ = _catalogue_recovery_fixture(env)
+    other = docs._register(b"different bytes", "other.txt", "text/plain",
+                           "https://reports.example.org/2027-report")
+    inspected = docs.inspect_source(source_id=other["source_id"])
+    assert catalogue_recovery_request(
+        store, wid, "2027 yıllık konsolide raporunda toplam aktifleri göster.",
+        [{"tool": "inspect_source", "result": inspected}],
+    ) is None
+    assert store.workspace(wid)["analysis_head"] is None
+
+
 def test_provider_outage_delivers_verified_statement_value_and_chart_without_llm(env):
     store, wid, journal, _, build = env
     docs, args, extras = _statement_recovery_fixture(env)

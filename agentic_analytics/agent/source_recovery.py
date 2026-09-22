@@ -13,8 +13,114 @@ from agentic_analytics.agent.tools.documents import (
 from agentic_analytics.agent.tools.financial_import import FinancialImportTools, _label_key
 
 
-_ASSET_LABELS = {"toplamaktif", "toplamaktifler", "aktiflertoplami",
+_ASSET_LABELS = {"toplamaktif", "toplamaktifler", "aktiftoplami", "aktiflertoplami",
                  "toplamvarliklar", "varliklartoplami", "totalassets"}
+
+
+def _requested_measure(request, column, provenance):
+    """Match one stored source row to the request without fuzzy metric search."""
+    request_key = _label_key(request)
+    labels = []
+    for origin in provenance.get("cell_origins", []):
+        if not isinstance(origin, dict) or not isinstance(origin.get(column), dict):
+            continue
+        label = origin[column].get("row_label")
+        if isinstance(label, str) and label.strip():
+            labels.append(label)
+    candidates = [column, *labels]
+    wants_assets = any(label in request_key for label in _ASSET_LABELS)
+    for candidate in candidates:
+        key = _label_key(candidate)
+        if not key:
+            continue
+        if wants_assets and key in _ASSET_LABELS:
+            return True
+        if len(key) >= 8 and (key in request_key or request_key in key):
+            return True
+        words = {word for word in _search_text(candidate).split() if len(word) >= 3}
+        request_words = set(_search_text(request).split())
+        if len(words) >= 2 and words <= request_words:
+            return True
+    return False
+
+
+def catalogue_recovery_request(store, workspace_id, request, tool_results):
+    """Return one plan backed by an exact read-source/dataset identity match.
+
+    This is a source-independent fallback for already published, reviewed
+    datasets.  It never accepts a review-required PDF table, searches by a
+    similar title, or chooses among multiple datasets/measures/periods.
+    """
+    normalized = _search_text(request)
+    if re.search(r"\b(?:oran\w*|buyume\w*|karsilastir\w*|fark\w*|ratio|growth|compare)\b", normalized):
+        return None
+    years = {int(value) for value in re.findall(r"\b(?:19|20)\d{2}\b", normalized)}
+    dates = _source_dates(request)
+    if len(years) != 1 or len(dates) > 1:
+        return None
+    requested_year = next(iter(years))
+    requested_date = date(*next(iter(dates))).isoformat() if dates else None
+    solo_mentioned = bool(re.search(r"\bkonsolide\s+olmayan\b|\bsolo\b|\bunconsolidated\b|\bstandalone\b", normalized))
+    consolidated_text = re.sub(r"\bkonsolide\s+olmayan\b", " ", normalized)
+    consolidated_mentioned = bool(re.search(r"\bkonsolide\b|\bconsolidated\b", consolidated_text))
+    # "Konsolide veya solo kapsamını belirt" asks for source metadata; it does
+    # not select either scope. Enforce scope only when exactly one is requested.
+    requested_scope = (_consolidation_scope(request)
+                       if consolidated_mentioned != solo_mentioned else None)
+
+    # Search results are navigation. Only a successfully inspected/read source
+    # can establish the immutable URL/hash identity used below.
+    read_identities = set()
+    for item in tool_results:
+        result = item.get("result") or {}
+        if (item.get("tool") not in {"inspect_source", "read_source_table", "find_source_table_rows"}
+                or result.get("status") != "ok"):
+            continue
+        url, raw_sha256 = result.get("source_url"), result.get("raw_sha256")
+        if isinstance(url, str) and url and isinstance(raw_sha256, str) and re.fullmatch(r"[0-9a-f]{64}", raw_sha256):
+            read_identities.add((url, raw_sha256))
+    if not read_identities:
+        return None
+
+    workspace = store.workspace(workspace_id)
+    matches = []
+    for dataset_id in workspace.get("datasets", []):
+        manifest = store.dataset_manifest(dataset_id)
+        contract = manifest.get("contract") or {}
+        provenance = contract.get("document_provenance") or {}
+        identity = (provenance.get("source_url"), provenance.get("raw_sha256"))
+        if identity not in read_identities:
+            continue
+        scope = provenance.get("scope") or (provenance.get("notification") or {}).get("scope")
+        if requested_scope and scope != requested_scope:
+            continue
+        statement_date = provenance.get("statement_date")
+        if requested_date and statement_date != requested_date:
+            continue
+        periods = contract.get("expected_periods")
+        frequency = contract.get("frequency")
+        if not isinstance(periods, list) or len(periods) != 1 or frequency == "static":
+            continue
+        period = periods[0]
+        if not isinstance(period, str) or not period.startswith(f"{requested_year:04d}"):
+            continue
+        columns = contract.get("columns") or {}
+        measures = [(name, spec) for name, spec in columns.items()
+                    if isinstance(spec, dict) and spec.get("dtype") in {"integer", "float"}
+                    and spec.get("kind") not in {None, "dimension", "unknown"}]
+        measures = [(name, spec) for name, spec in measures if _requested_measure(request, name, provenance)]
+        if len(measures) != 1:
+            continue
+        name, _ = measures[0]
+        matches.append({"start": period, "end": period, "frequency": frequency,
+                        "columns": [{"name": name,
+                                     "metric_id": f"overlay:{dataset_id}:{name}",
+                                     "dimensions": {}, "alignment": "native"}]})
+    if len(matches) != 1:
+        return None
+    # The normal planner remains the final authority over the stored contract.
+    from agentic_analytics.lakehouse.service import LakehouseService
+    return matches[0] if LakehouseService(store, workspace_id).validate_plan(matches[0]).get("status") == "valid" else None
 
 
 def statement_recovery_request(store, workspace_id, request, tool_results):

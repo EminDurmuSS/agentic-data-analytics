@@ -924,6 +924,21 @@ class AgentRuntime:
         except (ValueError, OSError, duckdb.Error):
             return None
 
+    def _catalogue_delivery_request(self, state):
+        """Return one exact source-bound catalogue plan, without writing."""
+        if state.get("analysis_updated") or self.store.workspace(self.workspace_id).get("analysis_head"):
+            return None
+        try:
+            from agentic_analytics.agent.source_recovery import catalogue_recovery_request
+            return catalogue_recovery_request(
+                self.store,
+                self.workspace_id,
+                state.get("request_message") or _current_request_message(state),
+                state.get("tool_results", []),
+            )
+        except (ValueError, OSError, duckdb.Error):
+            return None
+
     def _context(self, state):
         context = workspace_context(self.store, self.workspace_id, state,
                                     max_decisions=self.max_decisions,
@@ -970,6 +985,15 @@ class AgentRuntime:
                 "The requested source row, period, scope and unit are sufficient for deterministic ingestion. "
                 "Do not search the web again. Use ingest_source_table, then the returned analysis request and create_chart."
             )
+        catalogue_delivery = self._catalogue_delivery_request(state)
+        if catalogue_delivery:
+            context["verified_catalogue_delivery"] = {
+                "plan": catalogue_delivery,
+                "next_step": (
+                    "The source read in this turn exactly matches one reviewed dataset by URL and SHA-256. "
+                    "Do not search the web again. Use execute with this plan, then create_chart."
+                ),
+            }
         return context
 
     def _model_tool_schemas(self, state):
@@ -984,7 +1008,7 @@ class AgentRuntime:
             hidden.add("web_search")
         if progress.get("research_web_paused"):
             hidden.add("research_web")
-        if self._source_delivery_request(state):
+        if self._source_delivery_request(state) or self._catalogue_delivery_request(state):
             hidden.update({"web_search", "research_web"})
         if state.get("institutional_delivery_repair"):
             hidden.update(set(self.tools) - _INSTITUTIONAL_REPAIR_TOOLS)
@@ -1490,7 +1514,7 @@ class AgentRuntime:
                 # Recover those locally before asking the provider to reread
                 # them. Preserve the original partial/error status honestly.
                 if not previous.get("analysis_updated"):
-                    self._recover_source_analysis(record, record["state"])
+                    self._recover_verified_analysis(record, record["state"])
                     if record["state"].get("analysis_updated"):
                         return self._finish(record, record["state"], "partial",
                             "Kaynakta doğrulanan değerler kayıtlı analize aktarıldı. "
@@ -1808,7 +1832,7 @@ class AgentRuntime:
                         continue
                     # Prefer a deterministic source-cell compilation over a
                     # second provider attempt with the same ambiguous import.
-                    self._recover_source_analysis(record, state, reason="verified_source_delivery")
+                    self._recover_verified_analysis(record, state, reason="verified_source_delivery")
                     policy_receipt = _verified_policy_decision_confirmation(state)
                     validated_content = policy_receipt or content
                     missing_outputs = (self._task_delivery_errors(state)
@@ -1878,7 +1902,7 @@ class AgentRuntime:
                                                           if key not in {"message", "usage_unknown"}})
             # A failed prose/model call must not discard a source-owned,
             # unambiguous statement value already read by tools this turn.
-            self._recover_source_analysis(record, state)
+            self._recover_verified_analysis(record, state)
             source_receipt = _verified_source_table_confirmation(state)
             selection_receipt = _selection_confirmation(self.store, self.workspace_id, state)
             bundle_receipt = _bundle_confirmation(self.store, self.workspace_id, state)
@@ -1938,13 +1962,50 @@ class AgentRuntime:
         finally:
             self.run_store.checkpoint(record["run_id"], state)
 
+    def _recover_catalogue_analysis(self, record, state, *, reason="provider_outage_catalogue_delivery"):
+        """Deliver one source-identical reviewed dataset through normal tools."""
+        required = {"execute", "create_chart"}
+        if (not required <= self.tools.keys() or state.get("catalogue_recovery_attempted")
+                or state.get("analysis_updated") or self.store.workspace(self.workspace_id).get("analysis_head")):
+            return
+        state["catalogue_recovery_attempted"] = True
+        try:
+            from agentic_analytics.agent.source_recovery import catalogue_recovery_request
+            plan = catalogue_recovery_request(
+                self.store, self.workspace_id, record["message"], state["tool_results"])
+            if plan is None:
+                return
+            self.run_store.event(record["run_id"], "delivery_repair", {
+                "reason": reason,
+                "dataset_metric_ids": [column["metric_id"] for column in plan["columns"]],
+                "start": plan["start"], "end": plan["end"],
+            })
+            analysis = self._source_recovery_tool(record, state, "execute", plan, reason=reason)
+            if analysis.get("status") != "ok" or not analysis.get("analysis_id"):
+                return
+            self._source_recovery_tool(
+                record, state, "create_chart", {"analysis_id": analysis["analysis_id"]}, reason=reason)
+        except (ValueError, OSError, duckdb.Error) as exc:
+            self.run_store.event(record["run_id"], "delivery_repair_skipped", {
+                "reason": reason, "errors": error_envelope(exc)["errors"]})
+        finally:
+            self.run_store.checkpoint(record["run_id"], state)
+
+    def _recover_verified_analysis(self, record, state, *, reason="provider_outage_source_delivery"):
+        """Prefer directly read cells, then one exact stored-source fallback."""
+        self._recover_source_analysis(record, state, reason=reason)
+        if not state.get("analysis_updated"):
+            catalogue_reason = reason.replace("source_delivery", "catalogue_delivery")
+            self._recover_catalogue_analysis(record, state, reason=catalogue_reason)
+
     def _terminal_source_delivery(self, record, state, *, reason, warning_code):
         """Preserve a verified row at any terminal boundary without another model call."""
         delivery_request = self._source_delivery_request(state)
+        catalogue_request = self._catalogue_delivery_request(state)
         receipt = _verified_source_table_confirmation(state, targeted_only=True)
-        if not (delivery_request or receipt):
+        if not (delivery_request or catalogue_request or receipt):
             return None
-        self._recover_source_analysis(record, state, reason=reason)
+        self._recover_verified_analysis(record, state, reason=reason)
         receipt = _verified_source_table_confirmation(state, targeted_only=True)
         if not (state.get("analysis_updated") or state.get("chart_updated") or receipt):
             return None
@@ -1976,7 +2037,7 @@ class AgentRuntime:
             state.setdefault("unresolved_errors", {}).pop(name, None)
             if result.get("publication_performed") is not False:
                 state.setdefault("successful_writes", {})[fingerprint({"name": name, "args": args})] = result
-            if name == "aggregate_dataset" and result.get("analysis_id"):
+            if name in {"aggregate_dataset", "execute", "query_grouped"} and result.get("analysis_id"):
                 state.update(analysis_id=result["analysis_id"], analysis_updated=True)
             if name == "create_chart" and result.get("chart_id"):
                 state.update(chart_id=result["chart_id"], chart_updated=True,
@@ -2003,7 +2064,7 @@ class AgentRuntime:
         # If a directly read statement row already proves one requested fact,
         # compile it before grading model prose. This preserves strict numeric
         # validation while avoiding another guess-based provider repair.
-        self._recover_source_analysis(record, state, reason="verified_source_delivery")
+        self._recover_verified_analysis(record, state, reason="verified_source_delivery")
         if not state.get("analysis_id") and not state.get("tool_results") and re.search(r"\d", content):
             active_analysis = self.store.workspace(self.workspace_id).get("analysis_head")
             if active_analysis:
