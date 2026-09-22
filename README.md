@@ -135,6 +135,86 @@ DuckDB hem doğrulanmış gözlemleri hem analitik görünümleri barındırabil
 
 [PlantUML kaynağı](docs/diagrams/medallion-flow.puml) · [Veri üretim sırası](data_pipeline/README.md#üretim-sırası) · [Veri rehberi](docs/DATA.md) · [Ortak yayın akışı](docs/ARCHITECTURE.md#web-verisini-ortak-lakehousea-alma).
 
+### Lakehouse veritabanı yapısı
+
+`data_pipeline/lakehouse/analytics.duckdb`, kaynak Parquet dosyalarının doğrulanmış ve kendi kendine yeterli DuckDB kopyasıdır. Mevcut doğrulanmış build, 10 şemada 72 tablo veya view içerir. Diyagram bütün kolonları değil; katalog sözleşmelerini, kaynak ailelerini ve analitik çıktıların ana veri soyunu gösterir.
+
+```mermaid
+flowchart TB
+    subgraph CATALOG["catalog - envanter ve çalıştırma sözleşmeleri (5 tablo)"]
+        ASSETS["data_assets<br/>asset_id · dataset_id · kaynak · kapsam"]
+        METRICS["metrics<br/>metric_id · dataset_id · birim · frekans · semantik"]
+        BINDINGS["metric_bindings<br/>metric_id · status · binding_json"]
+        MANIFEST["table_manifest<br/>şema · tablo · satır sayısı · kaynak yolu"]
+        VALIDATION["build_validation<br/>kalite kontrollerinin JSON sonucu"]
+        ASSETS -->|dataset_id| METRICS
+        METRICS -->|metric_id| BINDINGS
+    end
+
+    subgraph SOURCES["Doğrulanmış kaynak ve panel şemaları"]
+        ROUTE["Sözleşmeyle seçilen<br/>fiziksel tablo ve kolon"]
+        EVDS["evds<br/>32 tablo<br/>seri kataloğu · gözlem · aylık/çeyreklik panel"]
+        BDDK["bddk<br/>13 tablo + 1 view<br/>aylık · haftalık · FinTürk"]
+        TBB["tbb<br/>4 tablo<br/>ürün metrikleri · raporlayan bankalar"]
+        RISK["risk_center<br/>1 tablo + 4 view<br/>yayın vintageları · son sürüm"]
+        TUIK["tuik<br/>5 tablo<br/>il konut satışları · revizyonlar"]
+        REGIONAL["regional<br/>3 tablo<br/>il boyutu · il-çeyrek paneli"]
+        ROUTE --> EVDS
+        ROUTE --> BDDK
+        ROUTE --> TBB
+        ROUTE --> RISK
+        ROUTE --> TUIK
+        ROUTE --> REGIONAL
+    end
+
+    subgraph OUTPUTS["Kanıt, kalite ve analize hazır çıktılar"]
+        EVIDENCE["evidence.context_events<br/>resmî olay ve karar açıklamaları"]
+        QUALITY["quality.housing_credit_stock_reconciliation<br/>kaynaklar arası uzlaştırma"]
+        MONTHLY["analysis.housing_credit_monthly<br/>aylık birleşik analiz"]
+        QUARTERLY["analysis.housing_credit_quarterly<br/>çeyreklik birleşik analiz"]
+    end
+
+    BINDINGS -.->|tablo · değer sütunu · filtre · boyut| ROUTE
+    MANIFEST -.->|fiziksel build envanteri| ROUTE
+    VALIDATION -.->|yayın kapısı| MONTHLY
+    VALIDATION -.->|yayın kapısı| QUARTERLY
+    VALIDATION -.->|yayın kapısı| QUALITY
+
+    BDDK --> MONTHLY
+    EVDS --> MONTHLY
+    RISK --> MONTHLY
+    EVIDENCE --> MONTHLY
+    BDDK --> QUARTERLY
+    EVDS --> QUARTERLY
+    TBB --> QUARTERLY
+    BDDK --> QUALITY
+    EVDS --> QUALITY
+    TBB --> QUALITY
+    EVDS --> REGIONAL
+    BDDK --> REGIONAL
+    TUIK --> REGIONAL
+
+    DB["analytics.duckdb<br/>değiştirilebilir build çıktısı"] -->|SHA-256 doğrulama ve sabitleme| SNAPSHOT["snapshots/&lt;id&gt;/data.duckdb<br/>çalışma alanına bağlı değişmez kopya"]
+    OVERLAY["datasets/&lt;id&gt;/data.parquet<br/>yüklenen veya doğrulanıp yayımlanan ek veri"] --> WORKSPACE["workspace sürümü"]
+    SNAPSHOT --> WORKSPACE
+    WORKSPACE --> RESULT["analyses/&lt;id&gt;<br/>değişmez sonuç · kaynak izi · grafik temeli"]
+
+    classDef catalogue fill:#E8F0FA,stroke:#1F5A94,color:#082B5C;
+    classDef source fill:#EEF3F8,stroke:#60758A,color:#172033;
+    classDef output fill:#FFF1D6,stroke:#D06A16,color:#172033;
+    classDef runtime fill:#EAF6EE,stroke:#2E7D50,color:#172033;
+    class ASSETS,METRICS,BINDINGS,MANIFEST,VALIDATION catalogue;
+    class ROUTE,EVDS,BDDK,TBB,RISK,TUIK,REGIONAL source;
+    class EVIDENCE,QUALITY,MONTHLY,QUARTERLY output;
+    class DB,SNAPSHOT,OVERLAY,WORKSPACE,RESULT runtime;
+```
+
+`catalog.data_assets → catalog.metrics → catalog.metric_bindings` zinciri, kullanıcının keşfettiği metrik kimliğini fiziksel tablo, değer sütunu, filtreler ve izinli boyutlarla eşler. Bu oklar mantıksal veri sözleşmeleridir; DuckDB içinde foreign key kısıtı olarak tanımlanmış değildir. `catalog.table_manifest` fiziksel build envanterini, `catalog.build_validation` ise yayın kapısının sonucunu tutar.
+
+`analysis` ve `quality` şemaları doğrulanmış kaynakların birleşimidir. Agent doğrudan serbest SQL çalıştırmaz; `metric_bindings` üzerinden çözülen sözleşmeyi doğruladıktan sonra sorgu planını yürütür. Uygulama çalışma zamanında ana veritabanı dosyasını değiştirmek yerine SHA-256 ile doğrulanmış bir snapshot'a bağlanır; kullanıcı dataset'leri ve analiz sonuçları ayrı, içerik adresli nesneler olarak saklanır.
+
+Tam şema açıklaması ve örnek SQL: [Yerel DuckDB lakehouse rehberi](data_pipeline/lakehouse/README.md). Build'in gerçek nesne envanteri `catalog.table_manifest`, kalite sonucu `catalog.build_validation` ve [validation.json](data_pipeline/lakehouse/validation.json) üzerinden doğrulanabilir.
+
 ## Doküman işleme yaklaşımı
 
 Belge araçlarını ana agent seçer. CSV, XLSX, PDF, görsel, HTML ve metin dosyaları kaynak olarak kaydedilir; belgeyi okumak ile onu hesaplanabilir dataset olarak yayımlamak ayrı aşamalardır.
