@@ -17,7 +17,7 @@ from agentic_analytics.lakehouse.service import PlanError, error_envelope
 from agentic_analytics.lakehouse.store import StoreError
 from agentic_analytics.paths import REPO_ROOT
 from app.context import AppContext
-from app.routes import analyses, sources, workspaces
+from app.routes import analyses, evds, sources, workspaces
 
 STATIC = Path(__file__).resolve().parent / "static"
 DEFAULT_DB = REPO_ROOT / "data_pipeline/lakehouse/analytics.duckdb"
@@ -60,6 +60,12 @@ def create_app(*, runtime_root=None, source_db=DEFAULT_DB, client=None, validate
     from agentic_analytics.agent.tools.charts import ChartError
     app.add_exception_handler(ChartError, contract_error)
 
+    from data_pipeline.evds.acquisition import AcquisitionError
+
+    @app.exception_handler(AcquisitionError)
+    async def acquisition_error(request, error):
+        return JSONResponse({"status": "blocked", "errors": [{"code": error.code, "message": str(error)}]}, status_code=400)
+
     from agentic_analytics.providers.mia import MiaError
 
     @app.exception_handler(MiaError)
@@ -73,6 +79,7 @@ def create_app(*, runtime_root=None, source_db=DEFAULT_DB, client=None, validate
     app.include_router(workspaces.create_router(context))
     app.include_router(analyses.create_router(context))
     app.include_router(sources.create_router(context))
+    app.include_router(evds.create_router())
 
     @app.get("/")
     def index():

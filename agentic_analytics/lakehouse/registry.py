@@ -10,15 +10,65 @@ import hashlib
 import json
 import re
 from collections import Counter
+from pathlib import Path
 from typing import Any
 
 import duckdb
 import pandas as pd
 
 from agentic_analytics.lakehouse.semantics import (
-    CONTRACT_VERSION, FREQUENCIES, apply_semantic_policy, kind_for, normalized_unit,
+    CONTRACT_VERSION, FREQUENCIES, KNOWN_UNITS, apply_semantic_policy, infer_evds_semantics, kind_for, normalized_unit,
 )
 from agentic_analytics.lakehouse.source_profiles import apply_source_profile
+
+# On-demand EVDS observations acquired outside a full lakehouse rebuild live in
+# a separate, independently-written DuckDB file (see data_pipeline/evds/acquisition.py).
+# It is attached read-only so a live, read-only snapshot connection can serve
+# newly-acquired series without ever opening the immutable snapshot for writing
+# or requiring a rebuild. Its absence (fresh checkout, nothing acquired yet) is
+# not an error.
+#
+# It deliberately does NOT live under data_pipeline/lakehouse/: in the shipped
+# container (docker-compose.yml) that directory is bind-mounted read_only and
+# the root filesystem itself is read-only. ".lakehouse-runtime" is the one
+# location the app process can already write to (the agent-runtime volume;
+# AppContext already keeps per-workspace state under its "app" subdirectory),
+# so the overlay is a sibling of that: a second, global, non-workspace-scoped
+# root under the same writable volume.
+from agentic_analytics.paths import REPO_ROOT
+
+ON_DEMAND_DB_PATH = REPO_ROOT / ".lakehouse-runtime" / "on_demand.duckdb"
+
+
+def attach_on_demand_overlay(connection: duckdb.DuckDBPyConnection, path: Path = ON_DEMAND_DB_PATH) -> bool:
+    """Attach the on-demand overlay database read-only, if present. Idempotent."""
+    already = any(row[1] == "on_demand" for row in connection.execute("PRAGMA database_list").fetchall())
+    if already:
+        return True
+    if not path.exists():
+        return False
+    connection.execute(f"ATTACH {quoted_literal(str(path))} AS on_demand (READ_ONLY)")
+    return True
+
+
+def quoted_literal(value: str) -> str:
+    return "'" + value.replace("'", "''") + "'"
+
+
+def on_demand_coverage(connection: duckdb.DuckDBPyConnection) -> dict[str, dict[str, int]]:
+    """Per-series observation/missing counts in the on-demand overlay, if attached."""
+    present = any(row[1] == "on_demand" for row in connection.execute("PRAGMA database_list").fetchall())
+    if not present:
+        return {}
+    table_exists = connection.execute(
+        "SELECT count(*) FROM information_schema.tables WHERE table_catalog='on_demand' AND table_schema='evds' AND table_name='on_demand_observations'"
+    ).fetchone()[0]
+    if not table_exists:
+        return {}
+    return {row[0]: {"observation_count": row[1], "missing_observation_count": row[2]} for row in connection.execute(
+        "SELECT series_code, count(*), sum(CASE WHEN is_missing THEN 1 ELSE 0 END) "
+        "FROM on_demand.evds.on_demand_observations GROUP BY series_code").fetchall()}
+
 
 def quoted(name: str) -> str:
     if not re.fullmatch(r"[A-Za-z_][A-Za-z0-9_]*", name):
@@ -167,11 +217,18 @@ def build_bindings(connection: duckdb.DuckDBPyConnection) -> dict[str, dict[str,
                 "TP.KKM.K2":("USD",1e9,"USD","stock"),
                 "TP.KKM.K4":("USD",1e9,"USD","stock"),
             }
-            if code in explicit and metric["dataset_id"] != "evds.full_catalog":
+            if code in explicit:
                 binding["unit"],binding["scale"],binding["currency"],binding["kind"] = explicit[code]
                 binding["unit_evidence"] = "Reviewed source-series meaning; group-level unit is not authoritative."
+            elif metric["dataset_id"] == "evds.full_catalog":
+                inferred_unit, inferred_scale, inferred_currency, inferred_kind = infer_evds_semantics(metric, code)
+                if inferred_kind != "unknown":
+                    binding["unit"], binding["scale"], binding["currency"], binding["kind"] = inferred_unit, inferred_scale, inferred_currency, inferred_kind
+                    binding["unit_evidence"] = ("Derived from EVDS series-level metadata (unit code and name pattern); "
+                        "not individually hand-reviewed like the explicit list above.")
             method = metric["default_aggregation"]
-            binding["aggregation"] = ("review_required" if metric["dataset_id"] == "evds.full_catalog"
+            still_unreviewed = metric["dataset_id"] == "evds.full_catalog" and binding["kind"] == "unknown"
+            binding["aggregation"] = ("review_required" if still_unreviewed
                                       else method if method in {"sum","last","mean"} else "last")
             if code == "TP.KTF12":
                 binding["notes"] += " Monthly mean is the unweighted mean of published weekly rates, not a loan-volume-weighted monthly rate."
@@ -246,7 +303,7 @@ def build_bindings(connection: duckdb.DuckDBPyConnection) -> dict[str, dict[str,
             binding["dimension_types"] = {key:available[col] for key,col in binding["dimensions"].items()}
             if not numeric:
                 binding["blocked_reason"] = "Categorical field: numerical operations are not available."
-            known_unit = binding["unit"] in {"TRY","USD","count","person","percent","index","day","TRY/m2","TRY/gram","TRY/kg","TRY/person","TRY/branch","person/branch"}
+            known_unit = binding["unit"] in KNOWN_UNITS
             if numeric and known_unit and binding["kind"] != "unknown" and not binding.get("blocked_reason"):
                 binding["status"] = "ready"
             if metric["observation_count"] <= metric["missing_observation_count"]:
@@ -280,7 +337,15 @@ def install_bindings(connection: duckdb.DuckDBPyConnection) -> dict[str, Any]:
 
 
 def get_bindings(connection: duckdb.DuckDBPyConnection) -> dict[str, dict[str, Any]]:
-    """Read persisted contracts, keeping queries on the same pinned snapshot."""
+    """Read persisted contracts, keeping queries on the same pinned snapshot.
+
+    Also attaches the on-demand EVDS overlay (if present) and promotes any
+    metadata_only TCMB_EVDS metric it covers to a live physical binding. This
+    runs on every call, so a series acquired by acquire_evds_series becomes
+    queryable on the very next request, with no lakehouse rebuild and no
+    write against the pinned immutable snapshot.
+    """
+    attach_on_demand_overlay(connection)
     exists = connection.execute("SELECT count(*) FROM information_schema.tables WHERE table_schema='catalog' AND table_name='metric_bindings'").fetchone()[0]
     if not exists:
         catalog_exists = connection.execute("SELECT count(*) FROM information_schema.tables WHERE table_schema='catalog' AND table_name='metrics'").fetchone()[0]
@@ -313,6 +378,7 @@ def get_bindings(connection: duckdb.DuckDBPyConnection) -> dict[str, dict[str, A
         return result
     # Metadata-only series have no physical binding. Reuse the existing catalog
     # instead of persisting another 52k copies of their descriptions and units.
+    overlay_coverage = on_demand_coverage(connection)
     for metric in rows(connection, """SELECT m.* FROM catalog.metrics m JOIN catalog.metric_bindings b
             USING(metric_id) WHERE b.binding_json IS NULL"""):
         unit,scale,currency = normalized_unit(metric["unit"] or "")
@@ -339,4 +405,45 @@ def get_bindings(connection: duckdb.DuckDBPyConnection) -> dict[str, dict[str, A
             "coverage_start":metric["coverage_start"],"coverage_end":metric["coverage_end"],
             "observation_count":metric["observation_count"],"source_asset":metric["source_asset"],
             "binding_available":False,"blocked_reason":"Observation data not ingested."}
+        if metric["source_system"] == "TCMB_EVDS" and overlay_coverage:
+            _promote_from_on_demand_overlay(result[metric["metric_id"]], metric, overlay_coverage)
     return result
+
+
+def _promote_from_on_demand_overlay(binding: dict[str, Any], metric: dict[str, Any], coverage: dict[str, dict[str, int]]) -> None:
+    """Upgrade a metadata_only TCMB_EVDS binding when the on-demand overlay has it.
+
+    Mirrors the TCMB_EVDS branch of build_bindings closely enough to be safe
+    (same unit/kind inference, same readiness gate), but never touches the
+    persisted catalog.metric_bindings table: it only mutates the in-memory
+    dict this request already built, so it costs nothing when the overlay is
+    empty or irrelevant and requires no rebuild when it isn't.
+    """
+    code = metric["source_metric_code"]
+    counts = coverage.get(code)
+    if not counts or counts["observation_count"] <= 0:
+        return
+    inferred_unit, inferred_scale, inferred_currency, inferred_kind = infer_evds_semantics(metric, code)
+    method = metric["default_aggregation"]
+    binding.update(
+        table="on_demand.evds.on_demand_observations", time_column="period", value_column="value",
+        filters={"series_code": code}, dimensions={}, binding_available=True,
+        provenance_columns=["source_manifest_sha256", "source_response_sha256", "fetched_at", "series_code", "period"],
+        unit=inferred_unit, scale=inferred_scale, currency=inferred_currency, kind=inferred_kind,
+        aggregation=method if method in {"sum", "last", "mean"} else "last",
+        observation_count=counts["observation_count"], missing_observation_count=counts["missing_observation_count"],
+        unit_evidence=("On-demand acquired observation (overlay database, not the reviewed evds.full_catalog bulk "
+            "publication): unit/kind derived automatically from series metadata, not individually hand-reviewed."),
+        notes=(metric["notes"] or "") + (" Acquired on demand outside the audited bulk EVDS publication; no "
+            "cross-vintage conflict verification has been run against it."),
+    )
+    known_unit = inferred_unit in KNOWN_UNITS
+    if counts["observation_count"] <= counts["missing_observation_count"]:
+        binding["status"] = "no_numeric"
+        binding["blocked_reason"] = "On-demand series has no non-missing observations."
+    elif known_unit and inferred_kind != "unknown":
+        binding["status"] = "ready"
+        binding["blocked_reason"] = None
+    else:
+        binding["status"] = "review_required"
+        binding["blocked_reason"] = "On-demand series unit or kind could not be confidently inferred."

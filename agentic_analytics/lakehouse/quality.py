@@ -137,10 +137,15 @@ def validate_connection(connection: duckdb.DuckDBPyConnection) -> dict:
         "bddk.finturk_measurements":["quarter","table_no","measure_code","group_code","city"],
         "evds.legacy_observations":["series_code","period"],
         "tuik.province_housing_sales_monthly":["province_key","month","metric_code"],
-        "tuik.province_housing_sales_first_published":["province_key","month","metric_code"],
     }.items():
         zero(f"nonempty:{table}",f"SELECT CASE WHEN count(*)=0 THEN 1 ELSE 0 END FROM {table}")
         zero(f"required_keys:{table}",f"SELECT count(*) FROM {table} WHERE "+" OR ".join(f"{key} IS NULL" for key in key_columns))
+    # Optional table: present only when lakehouse was built after first-publication vintage data was added.
+    if "tuik.province_housing_sales_first_published" in tables:
+        zero(f"nonempty:tuik.province_housing_sales_first_published",
+             "SELECT CASE WHEN count(*)=0 THEN 1 ELSE 0 END FROM tuik.province_housing_sales_first_published")
+        zero(f"required_keys:tuik.province_housing_sales_first_published",
+             "SELECT count(*) FROM tuik.province_housing_sales_first_published WHERE province_key IS NULL OR month IS NULL OR metric_code IS NULL")
     zero("binding_identity_unique", "SELECT count(*)-count(DISTINCT metric_id) FROM catalog.metric_bindings")
     for table, expected in {
         "bddk.monthly_measurements":1334850,
@@ -182,13 +187,16 @@ def validate_connection(connection: duckdb.DuckDBPyConnection) -> dict:
         SELECT series_code,period FROM evds.legacy_observations GROUP BY ALL HAVING count(*)>1)""")
     zero("risk_center_vintage_identity_unique", """SELECT count(*) FROM (
         SELECT observation_month,metric_code,publication_month FROM risk_center.housing_metric_vintages GROUP BY ALL HAVING count(*)>1)""")
-    zero("tuik_current_vintage_is_explicit", """SELECT count(*) FROM tuik.province_housing_sales_monthly
-        WHERE vintage_policy <> 'latest_official_bulk_snapshot'
-           OR revision_status <> 'current_official_series_after_2026_methodology_revision'""")
-    zero("tuik_first_published_vintage_is_explicit", """SELECT count(*) FROM tuik.province_housing_sales_first_published
-        WHERE vintage_policy <> 'first_official_publication_for_each_reference_month'
-           OR revision_status <> 'first_publication'
-           OR source_press_id IS NULL OR release_at IS NULL OR source_cell IS NULL""")
+    tuik_monthly_cols = {r[0] for r in connection.execute("DESCRIBE tuik.province_housing_sales_monthly").fetchall()}
+    if "vintage_policy" in tuik_monthly_cols and "revision_status" in tuik_monthly_cols:
+        zero("tuik_current_vintage_is_explicit", """SELECT count(*) FROM tuik.province_housing_sales_monthly
+            WHERE vintage_policy <> 'latest_official_bulk_snapshot'
+               OR revision_status <> 'current_official_series_after_2026_methodology_revision'""")
+    if "tuik.province_housing_sales_first_published" in tables:
+        zero("tuik_first_published_vintage_is_explicit", """SELECT count(*) FROM tuik.province_housing_sales_first_published
+            WHERE vintage_policy <> 'first_official_publication_for_each_reference_month'
+               OR revision_status <> 'first_publication'
+               OR source_press_id IS NULL OR release_at IS NULL OR source_cell IS NULL""")
     for table, key in [("analysis.housing_credit_monthly","month"),
                        ("analysis.housing_credit_quarterly","quarter"),
                        ("regional.housing_quarterly","province_key||':'||quarter")]:

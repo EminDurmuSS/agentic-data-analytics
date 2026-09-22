@@ -32,6 +32,9 @@ node_modules/
 /runtime-backup*/
 data_pipeline/lakehouse/analytics.duckdb
 data_pipeline/lakehouse/analytics.duckdb.wal
+data_pipeline/lakehouse/on_demand.duckdb
+data_pipeline/lakehouse/on_demand.duckdb.wal
+data_pipeline/evds/on_demand/
 
 # Reproducible full EVDS publications and their retained raw vintages.
 # The collector ledger and release manifests document local acquisition.

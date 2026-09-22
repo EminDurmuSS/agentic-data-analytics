@@ -20,6 +20,15 @@ RUN groupadd --gid 10001 agent \
 
 COPY agentic_analytics ./agentic_analytics
 COPY app ./app
+# Code and reference data needed for on-demand EVDS acquisition
+# (agentic_analytics/agent/tools/evds_acquisition.py, app/routes/evds.py):
+# the audited EVDS download tools and the (small, static) series catalog they
+# validate codes against. Observation data itself is never baked into the
+# image; it is written at runtime under .lakehouse-runtime (see
+# data_pipeline/evds/acquisition.py).
+COPY tools ./tools
+COPY data_pipeline/evds/acquisition.py ./data_pipeline/evds/acquisition.py
+COPY data_pipeline/catalog/evds_series_catalog.parquet ./data_pipeline/catalog/evds_series_catalog.parquet
 
 USER 10001:10001
 EXPOSE 8870
