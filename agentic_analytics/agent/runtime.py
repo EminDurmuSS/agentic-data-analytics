@@ -823,6 +823,49 @@ def _web_research_message(result, content=""):
     return "Okunan kaynaklar: " + " · ".join(links[:8]) + "." if links else ""
 
 
+def _directly_read_source_trace(state):
+    """Return safe identities for pages actually read during this run.
+
+    Search-result snippets and navigation indexes are deliberately excluded.
+    The trace proves only that a source was read; it never promotes page prose
+    into a verified numerical claim.
+    """
+    sources, seen = [], set()
+    for item in state.get("tool_results", []):
+        result = item.get("result", {})
+        if result.get("status") != "ok" or item.get("tool") not in {
+                "research_web", "inspect_source", "read_source_table", "find_source_table_rows"}:
+            continue
+        candidates = result.get("sources", []) if item.get("tool") == "research_web" else [result]
+        for source in candidates:
+            if (not isinstance(source, dict) or source.get("source_role") == "discovery_index"
+                    or not (_source_read({"status": "ok", **source}) or source.get("content"))):
+                continue
+            url = source.get("url") or source.get("source_url")
+            normalized = _search_url(url)
+            if not normalized or normalized in seen:
+                continue
+            seen.add(normalized)
+            sources.append({
+                "url": url,
+                "title": source.get("title") or source.get("filename") or urlsplit(url).hostname,
+            })
+    return sources[:8]
+
+
+def _source_trace_receipt(sources):
+    links = "\n".join(
+        f"- [{_display_label(source['title'])}]({quote(source['url'], safe=':/?#&=%+@')})"
+        for source in sources
+    )
+    return (
+        "İstenen sonucun tamamı doğrulanamadı; ancak doğrudan okunan kaynakların izi korundu:\n\n"
+        + links
+        + "\n\nEksik kanıt: İstenen kesin değer, satır veya alan teslim sözleşmesi kapsamında "
+          "doğrulanamadı. Bu nedenle doğrulanmamış bir sayı üretilmedi."
+    )
+
+
 def _web_research_failure_message(result):
     code = result.get("code")
     if code == "OFFICIAL_SOURCE_NOT_FOUND":
@@ -1999,23 +2042,43 @@ class AgentRuntime:
             self._recover_catalogue_analysis(record, state, reason=catalogue_reason)
 
     def _terminal_source_delivery(self, record, state, *, reason, warning_code):
-        """Preserve a verified row at any terminal boundary without another model call."""
+        """Preserve verified rows or a safe read trace at a terminal boundary."""
         delivery_request = self._source_delivery_request(state)
         catalogue_request = self._catalogue_delivery_request(state)
         receipt = _verified_source_table_confirmation(state, targeted_only=True)
-        if not (delivery_request or catalogue_request or receipt):
+        if delivery_request or catalogue_request or receipt:
+            self._recover_verified_analysis(record, state, reason=reason)
+            receipt = _verified_source_table_confirmation(state, targeted_only=True)
+            if state.get("analysis_updated") or state.get("chart_updated") or receipt:
+                return self._complete(
+                    record,
+                    state,
+                    "Doğrulanmış kaynak kanıtı kaydedildi.",
+                    terminal_status="partial",
+                    warnings=[{"code": warning_code,
+                               "message": "The run reached a terminal boundary after verified source evidence was read; deterministic delivery preserved it without another provider call."}],
+                )
+
+        # A directly read page is useful terminal evidence even when it did not
+        # establish the exact requested cell. Preserve only its identity and a
+        # precise limitation; never copy numbers or search snippets here.
+        sources = _directly_read_source_trace(state)
+        if not sources:
             return None
-        self._recover_verified_analysis(record, state, reason=reason)
-        receipt = _verified_source_table_confirmation(state, targeted_only=True)
-        if not (state.get("analysis_updated") or state.get("chart_updated") or receipt):
-            return None
-        return self._complete(
+        errors = [error for failures in state.get("unresolved_errors", {}).values() for error in failures]
+        errors.extend(self._task_delivery_errors(state))
+        errors.append({
+            "code": "SOURCE_DATA_NOT_VERIFIED",
+            "message": "Directly read sources were retained, but the exact requested value or field was not verified for deterministic delivery.",
+        })
+        return self._finish(
             record,
             state,
-            "Doğrulanmış kaynak kanıtı kaydedildi.",
-            terminal_status="partial",
+            "partial",
+            _source_trace_receipt(sources),
+            errors=errors,
             warnings=[{"code": warning_code,
-                       "message": "The run reached a terminal boundary after verified source evidence was read; deterministic delivery preserved it without another provider call."}],
+                       "message": "The run reached a terminal boundary after a source was read; its trace and explicit evidence gap were preserved without another provider call."}],
         )
 
     def _source_recovery_tool(self, record, state, name, args, *, reason="provider_outage_source_delivery"):

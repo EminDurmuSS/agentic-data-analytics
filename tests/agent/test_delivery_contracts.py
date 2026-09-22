@@ -1534,6 +1534,48 @@ def test_web_failure_can_recover_and_success_does_not_disable_tools(env):
     assert all(option["tools"] for option in client.options)
 
 
+def test_terminal_budget_preserves_directly_read_source_trace_without_claiming_values(env):
+    *_, build = env
+    source = {
+        "url": "https://official.example.org/index-data",
+        "title": "Official Index Data",
+        "content": "The official index-data archive and download instructions are described here.",
+    }
+    runtime, _ = build(
+        [call("research_web", {"query": "official daily index close"})],
+        more=web_tool(lambda args: {"status": "ok", "sources": [source]}),
+        max_decisions=1,
+    )
+    result = runtime.run(
+        "3 Ocak 2005 tarihli günlük kapanışı resmî kaynaktan doğrula; "
+        "doğrulayamazsan denenen kaynakları ve eksik kanıtı açıkla."
+    )
+    assert result["status"] == "partial", result
+    assert "Official Index Data" in result["message"]
+    assert source["url"] in result["message"]
+    assert "doğrulanmamış bir sayı üretilmedi" in result["message"]
+    assert "SOURCE_DATA_NOT_VERIFIED" in {error["code"] for error in result["errors"]}
+
+
+def test_terminal_budget_does_not_treat_search_snippet_as_a_read_source(env):
+    *_, build = env
+    tools = {"web_search": {"schema": {"type": "function", "function": {
+        "name": "web_search", "parameters": obj({"query": {"type": "string"}})}},
+        "handler": lambda args: {"status": "ok", "results": [{
+            "url": "https://official.example.org/index-data",
+            "title": "Official Index Data",
+            "snippet": "The daily close was 123.45.",
+        }]}}}
+    runtime, _ = build(
+        [call("web_search", {"query": "official daily index close"})],
+        more=tools,
+        max_decisions=1,
+    )
+    result = runtime.run("3 Ocak 2005 tarihli günlük kapanışı resmî kaynaktan doğrula.")
+    assert result["status"] == "blocked", result
+    assert "123.45" not in result["message"]
+
+
 def test_web_source_cannot_erase_failed_calculation(env):
     _, _, _, plan, build = env
     invalid = {**plan, "operations": [{"op": "deflate", "column": "credit", "index": "credit", "base_period": "2026-01", "output": "real"}]}
