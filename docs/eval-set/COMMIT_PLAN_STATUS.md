@@ -49,7 +49,7 @@ AGENT_PORT=8871 LAKEHOUSE_DIR="/home/neo/Desktop/GITHUB MYZ21/agentic-data-analy
 | 6 | `docs(eval): rerun benchmark 1-4 checkpoint` | ✅ TAMAMLANDI | Tüm 4 senaryonun sayısal bağımlılıkları `ready`; `docs/eval-set/benchmark-1-4-readiness-checkpoint.md` |
 | 7 | `feat(runtime): replace global on-demand overlay with workspace-scoped versioned acquisition store` | ✅ TAMAMLANDI | `tools/EVDS_Talep_Uzerine_Indirme_Araci.py` artık `--workspace` zorunlu, çıktı `on_demand/<workspace>/<hash>/`, fcntl kilidi; yeni `tools/promote_on_demand_series.py` terfi yolu |
 | 8 | `fix(lakehouse): add executable aliases for BDDK financial metrics` | ✅ TAMAMLANDI | `_TERM_ALIASES` (`service.py`) genişletildi + `tests/lakehouse/test_bddk_alias_coverage.py` gerçek katalog karşı doğrulama |
-| 9 | `feat(lakehouse): classify ready/acquirable/near_match_available/web_required/unavailable` | ⬜ Başlamadı | |
+| 9 | `feat(lakehouse): classify ready/acquirable/near_match_available/web_required/unavailable` | ✅ TAMAMLANDI | Yeni `agentic_analytics/lakehouse/readiness.py::classify_query_readiness()` + `tests/lakehouse/test_readiness_classification.py` (XBANK→unavailable doğrulandı) |
 | 10 | `fix(discover): cap lexical reformulation retries and resolve from already-ranked near-matches` | ⬜ Başlamadı | |
 | 11 | `feat(sources): persist verified source-row contracts` | ⬜ Başlamadı | |
 | 12 | `fix(runtime): enforce source-row contract gate before analysis/chart delivery` | ⬜ Başlamadı | |
@@ -302,6 +302,37 @@ verme) bu commit'in değil, commit 10'un konusu; commit 8 yalnızca lexical eşl
 
 **Test sonucu:** `pytest tests/lakehouse/test_bddk_alias_coverage.py -q` → 6 passed, 9 subtests passed.
 Tam paket (`pytest tests/lakehouse tests/ingestion -q`) → bkz. commit mesajı.
+
+## Commit 9 — sonuç (tamamlandı)
+
+Yeni `agentic_analytics/lakehouse/readiness.py::classify_query_readiness(service, query)` — tek bir
+`discover()` çağrısından 5 durumlu deterministik sınıflandırma üretir:
+- **ready**: tam eşleşen `status=ready` metrik var.
+- **acquirable**: tam eşleşen ama yalnız `status=metadata_only` (bilinen EVDS serisi, henüz indirilmemiş —
+  commit 7'nin `tools/EVDS_Talep_Uzerine_Indirme_Araci.py` + `tools/promote_on_demand_series.py` yoluna
+  yönlendiriyor).
+- **near_match_available** (BÖLÜM 4'te yoktu, bu commit'te eklenen yeni durum): tam eşleşme yok ama
+  `discover`'ın `no_confident_match` ile döndürdüğü semantik near-match adayları var, YA DA tam eşleşen
+  adaylar var ama hepsi `review_required`/`no_numeric` (gerçek kanıt var, henüz teslim edilebilir değil).
+- **web_required**: 0 tam + 0 near eşleşme, VE terim `KNOWN_EXTERNAL_TOPICS`'te (DİBS, KAP, MKK, SPK, ODMD,
+  Protestolu Senet, KGF, LCR — `COMMIT_PLAN_STATUS.md`'nin "Kapsam sınırı" bölümünden ve BÖLÜM 4'ün kendi
+  "bilinçli web" etiketli satırlarından alınan, gerçek/doğrulanmış bir dış kaynak listesi).
+- **unavailable**: 0 tam + 0 near eşleşme VE bilinen dış kaynak listesinde değil — **tek bir `discover`
+  çağrısıyla, hiçbir dahili tekrar olmadan** döner. Kabul kriteri: BÖLÜM 4'ün "bilinen risk" olarak
+  işaretlediği XBANK sorgusu (bu oturumda gerçek bir `DECISION_BUDGET_EXCEEDED` çökmesine yol açtığı
+  görülen sorgu) artık deterministik olarak `unavailable` döner, tekrar tekrar aranmaz.
+
+**Önemli bulgu:** BÖLÜM 4 yazıldığından beri commit 1/3/4'ün eklediği veriler (M1/M2/M3 para arzı,
+Karşılıksız Çek TP.BTO3/4, Dış Ticaret Dengesi, rezervler) artık gerçekten `ready` — BÖLÜM 4'te "0 eşleşme"
+olarak işaretli bu satırlar artık `classify_query_readiness` ile test edilince `ready` çıkıyor. Bu,
+sınıflandırıcının donmuş bir BÖLÜM 4 kopyası değil, GERÇEK katalog karşısında çalışan canlı bir fonksiyon
+olduğunun kanıtı — testler donmuş beklentiler yerine güncel duruma göre yazıldı.
+
+**Test:** `tests/lakehouse/test_readiness_classification.py` — sahte `discover()` ile durum makinesi testleri
+(8 test, DB gerektirmez) + gerçek `analytics.duckdb` karşısında BÖLÜM 4'ün bir alt kümesini yeniden üreten
+11 test (Senaryo 1/3/6/7/19 → ready, Senaryo 10 XBANK → unavailable, Senaryo 12/18/24/28/32 → web_required).
+19/19 geçti. Tam paket (`pytest tests/lakehouse tests/ingestion -q`) → 600 passed, yalnız aynı 2 bilinen
+ilgisiz hata.
 
 ## Kalan commit'ler için orijinal plan detayları
 
