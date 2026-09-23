@@ -17,6 +17,16 @@ AGENT_PORT=8871 LAKEHOUSE_DIR="/home/neo/Desktop/GITHUB MYZ21/agentic-data-analy
 > başka bir ajan/oturumun kaldığı yerden devam edebilmesi için gereken tüm bağlamı içerir.
 > Kaynak tartışma: bu conversation'da `ASIL SORUN.md` + 32 eval JSON export'unun analizinden çıktı.
 
+## ⚠️ ACİL: origin/main ayrı ilerlemiş, çakışma riski var
+
+`main-test-updates` ile ortak atası `fec327e8`. O noktadan sonra **origin/main 16 commit ilerlemiş** (biz 8 commit attık), ve main'deki commit'ler Faz 2 (7-12) ile büyük örtüşme gösteriyor:
+- `d7900bd2 fix: resolve METADATA_ONLY errors with on-demand EVDS acquisition and runtime DuckDB overlay` + `7b59ad67`, `6d38c64d` → **Commit 7'nin (overlay)** main'de zaten bir versiyonu var.
+- `7dfa2b0f fix(discovery): find BDDK [Tp] and [Yp] series from one query`, `6450ab7b fix(discovery): rank catalog rates labelled "Ağırlıklı ortalama" as rates` → **Commit 8/10 (discovery/alias)** ile örtüşüyor.
+- `012e05d6 fix(sources)`, `49dc964b/e3bc30ea/b3b6fa22/08b368ab/e34f4fe0 fix(delivery)` → **Commit 11/12 (source contract/delivery gate)** ile örtüşüyor.
+- `3697212a/ffa53226 fix(statistics)`, `8ae964ba fix(lakehouse)` → plan dışı ama ilgili.
+
+**Sonraki oturum/ajan için:** Commit 9-13'e devam etmeden önce `git log fec327e8..origin/main --oneline` ile main'deki bu 16 commit'i incele; muhtemelen doğru sıra artık "yeniden implement etme, `origin/main`'i `main-test-updates`'e merge/rebase et, sonra hangi Faz 2 maddelerinin hâlâ eksik olduğuna göre kalan işi daralt." Henüz bu merge yapılmadı — kararı vermedim, sıradaki oturuma bırakıyorum.
+
 ## Repo / branch bilgisi
 
 - Repo: `https://github.com/EminDurmuSS/agentic-data-analytics`
