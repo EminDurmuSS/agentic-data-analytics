@@ -1,0 +1,10 @@
+{
+  "dataset_id": "demo_core_rates_v1",
+  "description": "Tasit kredisi, ticari kredi ve kisa vadeli TL mevduat faiz oranlarini ay ve ceyrek sonu analiz panellerine hizalama kurallari.",
+  "quarterly_to_monthly": "quarter_end_only",
+  "role_policies": {
+    "vehicle_loan_rate": {"temporal_semantics": "rate", "subperiod_aggregation": "mean"},
+    "short_term_deposit_rate": {"temporal_semantics": "rate", "subperiod_aggregation": "mean"},
+    "commercial_loan_rate": {"temporal_semantics": "rate", "subperiod_aggregation": "mean"}
+  }
+}

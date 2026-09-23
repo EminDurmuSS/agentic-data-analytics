@@ -1,0 +1,35 @@
+{
+  "endpoint": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "dataset_id": "demo_core_rates_v1",
+  "manifest_file": "demo_core_rates_v1.json",
+  "manifest_sha256": "bcaac6f3cf20eb2fa2eee221b80142e01e7817bdce46363f6bd65d661dea6d52",
+  "catalog_file": "evds_series_catalog.parquet",
+  "catalog_sha256": "ccdd130fb752defb99a295857b56e61b088f8c49708722f9b6e303f454e576da",
+  "start_date": "2020-01-01",
+  "end_date": "2026-06-30",
+  "series_count": 3,
+  "series_codes": [
+    "TP.BKR.TRY.17",
+    "TP.TRY.MT02",
+    "TP.BKR.TRY.1"
+  ],
+  "series_ranges": [
+    {
+      "series_code": "TP.BKR.TRY.17",
+      "start_date": "2020-01-01",
+      "end_date": "2026-06-30"
+    },
+    {
+      "series_code": "TP.TRY.MT02",
+      "start_date": "2020-01-01",
+      "end_date": "2026-06-30"
+    },
+    {
+      "series_code": "TP.BKR.TRY.1",
+      "start_date": "2020-01-01",
+      "end_date": "2026-06-30"
+    }
+  ],
+  "transport": "curl",
+  "tls_verification": true
+}

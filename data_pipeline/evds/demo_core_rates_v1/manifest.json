@@ -1,0 +1,290 @@
+[
+  {
+    "status": "validated",
+    "series_code": "TP.BKR.TRY.17",
+    "frequency": "AYLIK",
+    "aggregation": "avg",
+    "chunk_start": "2020-01-01",
+    "chunk_end": "2026-06-30",
+    "request_file": "raw/TP_BKR_TRY_17_2020-01-01_2026-06-30_request.json",
+    "request_sha256": "5c5c32ca255e82ea085f7b0d8cb35f204434ce306aabf9baf971734b1769b65b",
+    "response_file": "raw/TP_BKR_TRY_17_2020-01-01_2026-06-30_response.json.gz",
+    "response_sha256": "dea56e5b59e71af0b7a1e954248bbc21d1856161bfed308715007008a4d814ff",
+    "served_from_cache": false,
+    "http_status": 200,
+    "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+    "content_type": "application/json;charset=UTF-8",
+    "url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+    "started_at_utc": "2026-09-23T14:42:21.315499+00:00",
+    "completed_at_utc": "2026-09-23T14:42:21.726111+00:00",
+    "bytes": 11983,
+    "sha256": "dea56e5b59e71af0b7a1e954248bbc21d1856161bfed308715007008a4d814ff",
+    "transport": "curl",
+    "tls_verification": true,
+    "response_total_count": 78,
+    "retained_rows": 78,
+    "outside_requested_range_rows": 0,
+    "series_names": {
+      "TP_BKR_TRY_17": "Taşıt Kredisi (TL, Stok, %)"
+    },
+    "frequency_conversion": {
+      "TP.BKR.TRY.17": true
+    }
+  },
+  {
+    "status": "validated",
+    "series_code": "TP.TRY.MT02",
+    "frequency": "HAFTALIK(CUMA)",
+    "aggregation": "avg",
+    "chunk_start": "2020-01-01",
+    "chunk_end": "2020-12-31",
+    "request_file": "raw/TP_TRY_MT02_2020-01-01_2020-12-31_request.json",
+    "request_sha256": "4cd6b2fd4342ac7abc5d86633cfea774580e7ca27d3d981e9b9e5559b39170b2",
+    "response_file": "raw/TP_TRY_MT02_2020-01-01_2020-12-31_response.json.gz",
+    "response_sha256": "04a5fac6b6990853e9ba0c986cc5cdf6217508c76dde36ca14ac63f31d98e728",
+    "served_from_cache": false,
+    "http_status": 200,
+    "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+    "content_type": "application/json;charset=UTF-8",
+    "url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+    "started_at_utc": "2026-09-23T14:42:21.983863+00:00",
+    "completed_at_utc": "2026-09-23T14:42:22.286750+00:00",
+    "bytes": 9840,
+    "sha256": "04a5fac6b6990853e9ba0c986cc5cdf6217508c76dde36ca14ac63f31d98e728",
+    "transport": "curl",
+    "tls_verification": true,
+    "response_total_count": 53,
+    "retained_rows": 52,
+    "outside_requested_range_rows": 1,
+    "series_names": {
+      "TP_TRY_MT02": "3 Aya Kadar Vadeli (TL Mevduat, Akım, %)"
+    },
+    "frequency_conversion": {
+      "TP.TRY.MT02": true
+    }
+  },
+  {
+    "status": "validated",
+    "series_code": "TP.TRY.MT02",
+    "frequency": "HAFTALIK(CUMA)",
+    "aggregation": "avg",
+    "chunk_start": "2021-01-01",
+    "chunk_end": "2021-12-31",
+    "request_file": "raw/TP_TRY_MT02_2021-01-01_2021-12-31_request.json",
+    "request_sha256": "6a7029ac64b22a02cdc52f3c9fa77747a06daec9344bdc906d629080d483b027",
+    "response_file": "raw/TP_TRY_MT02_2021-01-01_2021-12-31_response.json.gz",
+    "response_sha256": "762afb41470558a68000dcbe9ce1b2468a1746258a8926c8d69fcae55a2c3903",
+    "served_from_cache": false,
+    "http_status": 200,
+    "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+    "content_type": "application/json;charset=UTF-8",
+    "url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+    "started_at_utc": "2026-09-23T14:42:22.542685+00:00",
+    "completed_at_utc": "2026-09-23T14:42:22.834478+00:00",
+    "bytes": 9885,
+    "sha256": "762afb41470558a68000dcbe9ce1b2468a1746258a8926c8d69fcae55a2c3903",
+    "transport": "curl",
+    "tls_verification": true,
+    "response_total_count": 53,
+    "retained_rows": 53,
+    "outside_requested_range_rows": 0,
+    "series_names": {
+      "TP_TRY_MT02": "3 Aya Kadar Vadeli (TL Mevduat, Akım, %)"
+    },
+    "frequency_conversion": {
+      "TP.TRY.MT02": true
+    }
+  },
+  {
+    "status": "validated",
+    "series_code": "TP.TRY.MT02",
+    "frequency": "HAFTALIK(CUMA)",
+    "aggregation": "avg",
+    "chunk_start": "2022-01-01",
+    "chunk_end": "2022-12-31",
+    "request_file": "raw/TP_TRY_MT02_2022-01-01_2022-12-31_request.json",
+    "request_sha256": "fb1ec29e434b792e1f0beb79fd069a33cd15bdfa95f8f5ac735bb5339bfb72f1",
+    "response_file": "raw/TP_TRY_MT02_2022-01-01_2022-12-31_response.json.gz",
+    "response_sha256": "05b380f2a6e34063c4eaf0a747babc2a9159ef9fd0b4d044a834afb05373e391",
+    "served_from_cache": false,
+    "http_status": 200,
+    "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+    "content_type": "application/json;charset=UTF-8",
+    "url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+    "started_at_utc": "2026-09-23T14:42:23.087126+00:00",
+    "completed_at_utc": "2026-09-23T14:42:23.394763+00:00",
+    "bytes": 9884,
+    "sha256": "05b380f2a6e34063c4eaf0a747babc2a9159ef9fd0b4d044a834afb05373e391",
+    "transport": "curl",
+    "tls_verification": true,
+    "response_total_count": 53,
+    "retained_rows": 52,
+    "outside_requested_range_rows": 1,
+    "series_names": {
+      "TP_TRY_MT02": "3 Aya Kadar Vadeli (TL Mevduat, Akım, %)"
+    },
+    "frequency_conversion": {
+      "TP.TRY.MT02": true
+    }
+  },
+  {
+    "status": "validated",
+    "series_code": "TP.TRY.MT02",
+    "frequency": "HAFTALIK(CUMA)",
+    "aggregation": "avg",
+    "chunk_start": "2023-01-01",
+    "chunk_end": "2023-12-31",
+    "request_file": "raw/TP_TRY_MT02_2023-01-01_2023-12-31_request.json",
+    "request_sha256": "9dd299076f42fe15c98af46d8b33da3f27c92f1c5b44514882b3761577b62ba7",
+    "response_file": "raw/TP_TRY_MT02_2023-01-01_2023-12-31_response.json.gz",
+    "response_sha256": "3484bd9cfdb0cd3d41f457918af883da82351bac5cf1b23a15d6b2b75c4dfae7",
+    "served_from_cache": false,
+    "http_status": 200,
+    "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+    "content_type": "application/json;charset=UTF-8",
+    "url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+    "started_at_utc": "2026-09-23T14:42:23.647241+00:00",
+    "completed_at_utc": "2026-09-23T14:42:23.969348+00:00",
+    "bytes": 9884,
+    "sha256": "3484bd9cfdb0cd3d41f457918af883da82351bac5cf1b23a15d6b2b75c4dfae7",
+    "transport": "curl",
+    "tls_verification": true,
+    "response_total_count": 53,
+    "retained_rows": 52,
+    "outside_requested_range_rows": 1,
+    "series_names": {
+      "TP_TRY_MT02": "3 Aya Kadar Vadeli (TL Mevduat, Akım, %)"
+    },
+    "frequency_conversion": {
+      "TP.TRY.MT02": true
+    }
+  },
+  {
+    "status": "validated",
+    "series_code": "TP.TRY.MT02",
+    "frequency": "HAFTALIK(CUMA)",
+    "aggregation": "avg",
+    "chunk_start": "2024-01-01",
+    "chunk_end": "2024-12-31",
+    "request_file": "raw/TP_TRY_MT02_2024-01-01_2024-12-31_request.json",
+    "request_sha256": "bab963c83baed0bc517f57fb8f3851f5c940e18ea6c8ecc3e0b7fc083b5fc373",
+    "response_file": "raw/TP_TRY_MT02_2024-01-01_2024-12-31_response.json.gz",
+    "response_sha256": "15e27d6a645170b9375345bcbb9285002940e4d188456c4d35fdb6bbb013bbb8",
+    "served_from_cache": false,
+    "http_status": 200,
+    "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+    "content_type": "application/json;charset=UTF-8",
+    "url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+    "started_at_utc": "2026-09-23T14:42:24.226112+00:00",
+    "completed_at_utc": "2026-09-23T14:42:24.533325+00:00",
+    "bytes": 9884,
+    "sha256": "15e27d6a645170b9375345bcbb9285002940e4d188456c4d35fdb6bbb013bbb8",
+    "transport": "curl",
+    "tls_verification": true,
+    "response_total_count": 53,
+    "retained_rows": 52,
+    "outside_requested_range_rows": 1,
+    "series_names": {
+      "TP_TRY_MT02": "3 Aya Kadar Vadeli (TL Mevduat, Akım, %)"
+    },
+    "frequency_conversion": {
+      "TP.TRY.MT02": true
+    }
+  },
+  {
+    "status": "validated",
+    "series_code": "TP.TRY.MT02",
+    "frequency": "HAFTALIK(CUMA)",
+    "aggregation": "avg",
+    "chunk_start": "2025-01-01",
+    "chunk_end": "2025-12-31",
+    "request_file": "raw/TP_TRY_MT02_2025-01-01_2025-12-31_request.json",
+    "request_sha256": "298d58e221bc3e41b1c15b3ae02c99e71cf4541bf52b62856dea37b5799f4d41",
+    "response_file": "raw/TP_TRY_MT02_2025-01-01_2025-12-31_response.json.gz",
+    "response_sha256": "1416fbd15c1c71971c23083496da1ecc127b5410a42562c9d4c8da479fbc4868",
+    "served_from_cache": false,
+    "http_status": 200,
+    "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+    "content_type": "application/json;charset=UTF-8",
+    "url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+    "started_at_utc": "2026-09-23T14:42:24.785889+00:00",
+    "completed_at_utc": "2026-09-23T14:42:25.095353+00:00",
+    "bytes": 9884,
+    "sha256": "1416fbd15c1c71971c23083496da1ecc127b5410a42562c9d4c8da479fbc4868",
+    "transport": "curl",
+    "tls_verification": true,
+    "response_total_count": 53,
+    "retained_rows": 52,
+    "outside_requested_range_rows": 1,
+    "series_names": {
+      "TP_TRY_MT02": "3 Aya Kadar Vadeli (TL Mevduat, Akım, %)"
+    },
+    "frequency_conversion": {
+      "TP.TRY.MT02": true
+    }
+  },
+  {
+    "status": "validated",
+    "series_code": "TP.TRY.MT02",
+    "frequency": "HAFTALIK(CUMA)",
+    "aggregation": "avg",
+    "chunk_start": "2026-01-01",
+    "chunk_end": "2026-06-30",
+    "request_file": "raw/TP_TRY_MT02_2026-01-01_2026-06-30_request.json",
+    "request_sha256": "169ae7734ba1015313741800350ac98d019b0955fc6d497ae2932eb473997c6d",
+    "response_file": "raw/TP_TRY_MT02_2026-01-01_2026-06-30_response.json.gz",
+    "response_sha256": "906a35896741cdc3a06964000b3520bedfa8af6930b0dba1893d7571e4b5f5eb",
+    "served_from_cache": false,
+    "http_status": 200,
+    "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+    "content_type": "application/json;charset=UTF-8",
+    "url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+    "started_at_utc": "2026-09-23T14:42:25.347298+00:00",
+    "completed_at_utc": "2026-09-23T14:42:25.616504+00:00",
+    "bytes": 5179,
+    "sha256": "906a35896741cdc3a06964000b3520bedfa8af6930b0dba1893d7571e4b5f5eb",
+    "transport": "curl",
+    "tls_verification": true,
+    "response_total_count": 27,
+    "retained_rows": 26,
+    "outside_requested_range_rows": 1,
+    "series_names": {
+      "TP_TRY_MT02": "3 Aya Kadar Vadeli (TL Mevduat, Akım, %)"
+    },
+    "frequency_conversion": {
+      "TP.TRY.MT02": true
+    }
+  },
+  {
+    "status": "validated",
+    "series_code": "TP.BKR.TRY.1",
+    "frequency": "AYLIK",
+    "aggregation": "avg",
+    "chunk_start": "2020-01-01",
+    "chunk_end": "2026-06-30",
+    "request_file": "raw/TP_BKR_TRY_1_2020-01-01_2026-06-30_request.json",
+    "request_sha256": "0e996dd5939b98e883914ca77e4e973f7a8e3e981d44528557374dff0bb7c806",
+    "response_file": "raw/TP_BKR_TRY_1_2020-01-01_2026-06-30_response.json.gz",
+    "response_sha256": "ac4473c03028ec45100a7f4c70a11703587421e768ea4acb8b8bf2f2c3f54b89",
+    "served_from_cache": false,
+    "http_status": 200,
+    "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+    "content_type": "application/json;charset=UTF-8",
+    "url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+    "started_at_utc": "2026-09-23T14:42:25.870446+00:00",
+    "completed_at_utc": "2026-09-23T14:42:26.253389+00:00",
+    "bytes": 11902,
+    "sha256": "ac4473c03028ec45100a7f4c70a11703587421e768ea4acb8b8bf2f2c3f54b89",
+    "transport": "curl",
+    "tls_verification": true,
+    "response_total_count": 78,
+    "retained_rows": 78,
+    "outside_requested_range_rows": 0,
+    "series_names": {
+      "TP_BKR_TRY_1": "Ticari Krediler (TL, Stok, %)"
+    },
+    "frequency_conversion": {
+      "TP.BKR.TRY.1": true
+    }
+  }
+]

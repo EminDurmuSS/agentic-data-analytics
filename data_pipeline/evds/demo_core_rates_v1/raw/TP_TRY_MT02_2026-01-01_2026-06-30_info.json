@@ -1,0 +1,32 @@
+{
+  "status": "validated",
+  "series_code": "TP.TRY.MT02",
+  "frequency": "HAFTALIK(CUMA)",
+  "aggregation": "avg",
+  "chunk_start": "2026-01-01",
+  "chunk_end": "2026-06-30",
+  "request_file": "raw/TP_TRY_MT02_2026-01-01_2026-06-30_request.json",
+  "request_sha256": "169ae7734ba1015313741800350ac98d019b0955fc6d497ae2932eb473997c6d",
+  "response_file": "raw/TP_TRY_MT02_2026-01-01_2026-06-30_response.json.gz",
+  "response_sha256": "906a35896741cdc3a06964000b3520bedfa8af6930b0dba1893d7571e4b5f5eb",
+  "served_from_cache": false,
+  "http_status": 200,
+  "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "content_type": "application/json;charset=UTF-8",
+  "url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "started_at_utc": "2026-09-23T14:42:25.347298+00:00",
+  "completed_at_utc": "2026-09-23T14:42:25.616504+00:00",
+  "bytes": 5179,
+  "sha256": "906a35896741cdc3a06964000b3520bedfa8af6930b0dba1893d7571e4b5f5eb",
+  "transport": "curl",
+  "tls_verification": true,
+  "response_total_count": 27,
+  "retained_rows": 26,
+  "outside_requested_range_rows": 1,
+  "series_names": {
+    "TP_TRY_MT02": "3 Aya Kadar Vadeli (TL Mevduat, Akım, %)"
+  },
+  "frequency_conversion": {
+    "TP.TRY.MT02": true
+  }
+}

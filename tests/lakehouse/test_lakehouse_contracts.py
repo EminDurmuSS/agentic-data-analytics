@@ -28,8 +28,8 @@ class PublishedContractTests(unittest.TestCase):
         self.assertEqual(52696, len(evds))
         physical = [b for b in evds if b.get("binding_available")]
         seed = [b for b in physical if b.get("dataset_id") != "evds.full_catalog"]
-        self.assertEqual(599, len(seed))
-        self.assertEqual(587, len([b for b in seed if b["status"] != "no_numeric"]))
+        self.assertEqual(602, len(seed))
+        self.assertEqual(590, len([b for b in seed if b["status"] != "no_numeric"]))
         for binding in physical:
             if binding.get("dataset_id") == "evds.full_catalog":
                 self.assertEqual("evds.full_catalog_observations", binding["table"])
