@@ -46959,7 +46959,7 @@
   "catalog/vehicle_credit_v1/vehicle_credit_panel.csv": "fda550d448a01a1f08cd464c03c79865ebfcbdd918e3f5c00b3a327f77e64db8",
   "catalog/vehicle_credit_v1/vehicle_credit_panel.parquet": "79ac783b86127e53f059e411f570eaeb342d6d3bd22ffe5e0b69d1b928f1e507",
   "column_dictionary.csv": "e7fe162e65cade427bc6657af49e9cfbaf55a529e6fcf7ef86ab120865ef1af8",
-  "evds/acquisition.py": "71e2bd79f244cb4b7d4274151199c492bb2388f14b672e5ed87ccf05304418c6",
+  "evds/acquisition.py": "024d1e749e094be8408beb2cd5938e092b8e4129da86cd94af14b6df23f13b33",
   "evds/build_aligned_panels.py": "336e86250ddcf97a2e79691f0a7d95e3308f33130530824ef5da72767b6632e6",
   "evds/build_regional_housing_manifest.py": "6995b3e494ff5f57277071475a90860781f95f9bbfed21a766c4bc802e95ef11",
   "evds/demo_core_rates_v1/alignment_validation.json": "a45235ad9dbda7bdcdb2460ea5f1f8d47eb9cc6af2234f49c5eb525acc340ba7",

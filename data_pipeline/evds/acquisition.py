@@ -105,22 +105,23 @@ def acquire_evds_series(
         raise AcquisitionError(str(exc), code="CATALOG_VALIDATION_FAILED") from exc
     manifest_path = output_dir / "generated_manifest.json"
     import json
-    manifest_path.write_text(json.dumps(manifest, ensure_ascii=False, indent=2), encoding="utf-8")
-
-    exit_code = run_manifest_download(SimpleNamespace(
-        manifest=manifest_path, catalog=catalog_path, output=output_dir,
-        timeout=timeout, retries=retries, delay=delay, transport="curl" if _has_curl() else "urllib",
-        update_existing=True,
-    ))
-    if exit_code != 0:
-        raise AcquisitionError("EVDS manifest download did not complete successfully", code="DOWNLOAD_FAILED")
-
-    observations_path = output_dir / "observations_long.parquet"
-    if not observations_path.exists():
-        raise AcquisitionError("Download completed but produced no observations file", code="DOWNLOAD_FAILED")
-    observations = pd.read_parquet(observations_path)
-
-    manifest_sha256 = _sha256_file(manifest_path)
+    # The same series and window share this directory, and the downloader rewrites
+    # observations_long.parquet in place: never read it while another run writes it.
+    with open(output_dir / ".acquire.lock", "w") as lock:
+        fcntl.flock(lock, fcntl.LOCK_EX)
+        manifest_path.write_text(json.dumps(manifest, ensure_ascii=False, indent=2), encoding="utf-8")
+        exit_code = run_manifest_download(SimpleNamespace(
+            manifest=manifest_path, catalog=catalog_path, output=output_dir,
+            timeout=timeout, retries=retries, delay=delay, transport="curl" if _has_curl() else "urllib",
+            update_existing=True,
+        ))
+        if exit_code != 0:
+            raise AcquisitionError("EVDS manifest download did not complete successfully", code="DOWNLOAD_FAILED")
+        observations_path = output_dir / "observations_long.parquet"
+        if not observations_path.exists():
+            raise AcquisitionError("Download completed but produced no observations file", code="DOWNLOAD_FAILED")
+        observations = pd.read_parquet(observations_path)
+        manifest_sha256 = _sha256_file(manifest_path)
     merged = _prepare_overlay_frame(observations, dataset_id, manifest_sha256)
     publish_summary = publish_overlay(merged, overlay_path=overlay_path)
 

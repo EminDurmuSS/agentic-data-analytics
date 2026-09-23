@@ -1,4 +1,6 @@
 """On-demand EVDS overlay: an explicitly acquired series becomes executable; nothing else leaks."""
+from pathlib import Path
+
 import duckdb
 import pandas as pd
 import pytest
@@ -187,3 +189,27 @@ def test_acquired_tcmb_usd_rate_gets_reviewed_price_semantics(tmp_path, overlay)
     publish_overlay(acquired(code, [32.1] * 6), overlay_path=overlay)
     binding = bindings(database)["evds:" + code]
     assert (binding["status"], binding["kind"], binding["unit"], binding["currency"]) == ("ready", "price", "TRY/USD", "TRY")
+
+
+def test_concurrent_acquisitions_of_one_dataset_do_not_interleave_downloads(tmp_path, overlay, monkeypatch):
+    import threading
+    import time as clock
+    from data_pipeline.evds import acquisition
+    events = []
+
+    def slow_download(args):
+        events.append("start")
+        clock.sleep(0.3)  # the real downloader rewrites observations_long.parquet non-atomically
+        acquired(CODE, RATES).drop(columns=["dataset_id", "fetched_at", "source_manifest_sha256"]).to_parquet(
+            Path(args.output) / "observations_long.parquet", index=False)
+        events.append("end")
+        return 0
+
+    monkeypatch.setattr(acquisition, "run_manifest_download", slow_download)
+    runs = [threading.Thread(target=acquisition.acquire_evds_series, args=([CODE], "2026-01-01", "2026-06-30"),
+                             kwargs={"output_root": tmp_path / "downloads", "overlay_path": overlay}) for _ in range(2)]
+    for run in runs:
+        run.start()
+    for run in runs:
+        run.join()
+    assert events == ["start", "end", "start", "end"]
