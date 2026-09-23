@@ -51,7 +51,7 @@ AGENT_PORT=8871 LAKEHOUSE_DIR="/home/neo/Desktop/GITHUB MYZ21/agentic-data-analy
 | 8 | `fix(lakehouse): add executable aliases for BDDK financial metrics` | ✅ TAMAMLANDI | `_TERM_ALIASES` (`service.py`) genişletildi + `tests/lakehouse/test_bddk_alias_coverage.py` gerçek katalog karşı doğrulama |
 | 9 | `feat(lakehouse): classify ready/acquirable/near_match_available/web_required/unavailable` | ✅ TAMAMLANDI | Yeni `agentic_analytics/lakehouse/readiness.py::classify_query_readiness()` + `tests/lakehouse/test_readiness_classification.py` (XBANK→unavailable doğrulandı) |
 | 10 | `fix(discover): cap lexical reformulation retries and resolve from already-ranked near-matches` | ✅ TAMAMLANDI | `agentic_analytics/agent/runtime.py`: `_discover_target_key`/`_discover_retry_cap`/`_record_discover_evidence`, 2 çağrı/hedef sınırı |
-| 11 | `feat(sources): persist verified source-row contracts` | ⬜ Başlamadı | |
+| 11 | `feat(sources): persist verified source-row contracts` | ✅ TAMAMLANDI | Yeni `agentic_analytics/lakehouse/source_contract.py` (`build_source_row_contract`, `SourceRowContractLedger`) |
 | 12 | `fix(runtime): enforce source-row contract gate before analysis/chart delivery` | ⬜ Başlamadı | |
 | 13 | `test(eval): convert scenario exports into automated regression harness` | ⬜ Başlamadı | |
 | 14 | `docs(eval): full rerun of 25+10 set, before/after report` | ⬜ Başlamadı | |
@@ -385,6 +385,47 @@ biriktirilip capped sonuca aktarılıyor.
 **Kapsam dışı bırakılan:** `test_delivery_contracts.py`'deki 11 önceden var olan hatanın kök nedeni
 araştırılmadı — bu commit'in konusu değil, muhtemelen `origin/main`'in 16 commit'lik ayrışmasıyla (yukarıdaki
 ACİL bölümü) ilişkili; ayrı bir takip konusu olarak bırakıldı.
+
+## Commit 11 — sonuç (tamamlandı)
+
+**Bulgu:** Kodda literal `technical_ledger`/`source_records` isimli bir şey yok — görev talimatındaki bu
+terimler, bu oturumda görülen eval JSON export'larının kendi anlatım diliydi. Gerçek karşılığı:
+`agentic_analytics/lakehouse/registry.py`'nin her binding için tuttuğu `provenance_columns` listesi
+(kaynağa göre TAMAMEN FARKLI alan adları: EVDS `source_response_file/source_response_sha256/source_row_index`,
+BDDK_MONTHLY `source_file/source_sha256/source_row_index/value_dimension/group_code`, TUIK
+`source_csv_file/source_sheet/source_cell/source_press_url`, PDF `agentic_analytics/agent/tools/documents.py`'nin
+`source_id/raw_sha256/table_id/row`) + `LakehouseService.explain_value()`'ün zaten ürettiği `source_cells`
+listesi (her biri bu heterojen alan adlarını taşıyan ham satırlar).
+
+**Yapılan:** Yeni `agentic_analytics/lakehouse/source_contract.py`:
+- `build_source_row_contract(binding, cell, *, column, period, value) -> dict` — herhangi bir kaynak
+  türünün ham `cell` sözlüğünü (yukarıdaki 4 gerçek şekilden biri) tek bir şemaya normalize eder:
+  `{source_id, hash, url, page_or_sheet, table, row, column, period, unit, scope, value, complete,
+  missing_fields}`. `source_id` içerik-adresli (`source_row_` + kimlik alanlarının sha256'sının ilk 32
+  hex karakteri) — `store.py`'nin zaten kullandığı "içerik hash'i = kimlik" felsefesiyle tutarlı.
+  `page_or_sheet` hiçbir zaman "complete" için zorunlu değil (EVDS/BDDK/TUIK sayısal zaman serisi
+  hücrelerinin doğal olarak sayfa/sheet'i yok); diğer tüm alanlar eksikse `complete: false` +
+  `missing_fields` ile açıkça raporlanıyor, sessizce atlanmıyor.
+- `validate_source_row_contract(contract)` — commit 12'nin teslimat kapısının güvenebileceği yapısal
+  doğrulama (tam alan kümesi, `source_id` biçimi, tip kontrolleri, `complete`/`missing_fields` tutarlılığı).
+- `SourceRowContractLedger` — `store.py`'nin atomic-write deseniyle (temp dosya + `os.replace`, fsync)
+  aynı disiplinde, `source_id`'ye göre içerik-adresli, ekleme-yalnızca (append-only) bir JSON dosya deposu;
+  aynı `source_id` altında farklı içerikli bir yeniden yazma reddediliyor (doğrulanmış bir satırın sessizce
+  değiştirilmesini engelliyor).
+
+**Test:** `tests/lakehouse/test_source_row_contract.py` (19 test) — EVDS, BDDK, TUIK (web bülteni), PDF
+belge hücresi için GERÇEKÇİ (registry.py/documents.py'deki gerçek alan adlarını kullanan) fixture'larla her
+4 kaynak türünün de eksiksiz bir contract ürettiği; hash eksikse `complete: false` olduğu; `source_id`'nin
+teslim edilen değere değil satır kimliğine bağlı olduğu (değer değişince id değişmiyor, satır değişince
+değişiyor); `validate_source_row_contract`'ın bozuk şekilleri reddettiği; `SourceRowContractLedger`'ın
+round-trip, idempotent yeniden yazma, çakışan yeniden yazmayı reddetme davranışları doğrulandı.
+
+**Kapsam dışı bırakılan (bilinçli, commit 12'nin konusu):** Bu commit yalnız şemayı + oluşturucu/doğrulayıcı/
+depoyu tanımlıyor; `LakehouseService.explain_value()`/PDF `inspect_source` gibi gerçek üretim çağrı
+noktalarının bu contract'ı otomatik oluşturup teslimat öncesi zorunlu kılması commit 12'de yapılacak.
+
+**Test sonucu:** `pytest tests/lakehouse/test_source_row_contract.py -q` → 19/19 geçti. Tam paket
+(`pytest tests/lakehouse tests/ingestion -q`) → bkz. commit mesajı.
 
 ## Kalan commit'ler için orijinal plan detayları
 

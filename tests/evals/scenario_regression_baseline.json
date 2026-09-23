@@ -1,0 +1,1039 @@
+{
+  "ebrar branch/(2 başarılı 1 başarısız) ebrar branch senaryo 1__conversation_7b815e6036144361ae1a70f337b9e585__3-prompt Hazırladığın bu birleşik tabloda faiz oranlarının arttı__kkb-finans-verileri.json": {
+    "runs": [
+      {
+        "active_analysis_id": "analysis_535ad0fcc975cac259d7cff1c9c6d98229f2dc3f2a62a580c022a63109591e53",
+        "chart_id": null,
+        "error_codes": [],
+        "prompt": "BDDK Aylık Bülten verilerini kullanarak Tüketici Kredileri - Taşıt kredilerinin 2026 yılı ilk 6 ay verisi ile bir veri seti oluştur.",
+        "prompt_index": 0,
+        "run_id": "run_ea839f7209904db4b9553cc48c4673f0",
+        "status": "completed"
+      },
+      {
+        "active_analysis_id": "analysis_c763d8ebc86e1884dd06b9fb609441e1a4f93ddfbd4add51b85ba63e1e2b20ee",
+        "chart_id": null,
+        "error_codes": [],
+        "prompt": "Taşıt kredisi tutarlarına faiz oranlarını ekle. Veri setine aynı aylara denk gelecek şekilde EVDS, Taşıt Kredisi (TL,Stok,%) verisini ekle.",
+        "prompt_index": 1,
+        "run_id": "run_b738e653138e4cccab03b41a108d8bce",
+        "status": "completed"
+      },
+      {
+        "active_analysis_id": "analysis_c763d8ebc86e1884dd06b9fb609441e1a4f93ddfbd4add51b85ba63e1e2b20ee",
+        "chart_id": null,
+        "error_codes": [
+          "NO_READABLE_SOURCES",
+          "TABLE_NOT_CREATED"
+        ],
+        "prompt": "Hazırladığın bu birleşik tabloda faiz oranlarının arttığı halde taşıt kredisi stok oranında düşüş yaşanmadığı anomali aylarını tespit et. BDDK'nın https://www.bddk.org.tr adresindeki taşıt kredileri matrah ve taksit kısıtlaması kararlarını web'de taratıp bu anomaliyle ilişkisini raporla",
+        "prompt_index": 2,
+        "run_id": "run_360e9ee7ab8248a594e33e0d8987b79a",
+        "status": "blocked"
+      }
+    ],
+    "session_id": "conversation_7b815e6036144361ae1a70f337b9e585",
+    "session_name": "ebrar branch senaryo 1"
+  },
+  "ebrar branch/(2 başarılı 1 başarısız)ebrar branch senaryo 2__conversation_f70bc17bb3444aadbf6cacebc4df850a__3-prompt Faiz oranlarındaki değişimler ile TL ve döviz mevduat h__kkb-finans-verileri.json": {
+    "runs": [
+      {
+        "active_analysis_id": "analysis_5e79dd5099cc320137d5d5ba29af784b43fd96d18fa72c1c270aace7999e0d74",
+        "chart_id": null,
+        "error_codes": [
+          "DIMENSION_NOT_FOUND"
+        ],
+        "prompt": "BDDK Aylık Bülten verilerini kullanarak 202101–202512 döneminde Türk parası (TP) ve yabancı para (YP) mevduatların gelişimini ve vade yapısını incelemek üzere aylık bir veri seti oluştur. Oluşturulacak veri seti sadece o aydaki mevduat verisini göstermeli stok veri olmamalı",
+        "prompt_index": 0,
+        "run_id": "run_bee44f96e6d8407fb7ae4532b8b9ea70",
+        "status": "partial"
+      },
+      {
+        "active_analysis_id": "analysis_a1399fdffd4f1d78afba5224f1327ad7225f6e8ca1de9bebd27c5a75b5c16e66",
+        "chart_id": "chart_605e39dcda87ad1c59eda28cfd31d2f04551aedf1757aa8f8271d886ddb1a0b7",
+        "error_codes": [],
+        "prompt": "Bu akım veri setine EVDS'ten 1-3 Ay Vadeli TP Mevduat Faiz Oranları ile TCMB Dolar Alış Kuru aylık ortalamasını yan sütunlar olarak iliştir. YP mevduattaki net azalışların TP mevduata kayıp kaymadığını hesapla.",
+        "prompt_index": 1,
+        "run_id": "run_a442367fbdf84be49598c3b4cdfbc3ce",
+        "status": "completed"
+      },
+      {
+        "active_analysis_id": "analysis_a1399fdffd4f1d78afba5224f1327ad7225f6e8ca1de9bebd27c5a75b5c16e66",
+        "chart_id": null,
+        "error_codes": [
+          "UNREQUESTED_STATISTICAL_METHOD"
+        ],
+        "prompt": "Faiz oranlarındaki değişimler ile TL ve döviz mevduat hareketleri arasındaki ilişkiyi açıkla: Hangisi diğerini tetikliyor? KKM'nin (Kur Korumalı Mevduat) başladığı ve bittiği dönemlerdeki sert kırılmaları da gösteren bir grafik üzerinde bu etkiyi özetle.",
+        "prompt_index": 2,
+        "run_id": "run_6f4e4a75c9694bddacdbb0d46cf88fe4",
+        "status": "blocked"
+      }
+    ],
+    "session_id": "conversation_f70bc17bb3444aadbf6cacebc4df850a",
+    "session_name": "ebrar branch senaryo 2"
+  },
+  "ebrar branch/(3 başarılı) ebrar branch senaryo 3__conversation_d77fb2be31e14adeb3ad6d1ea42c291c__3-prompt Bu tabloyu hiç bozmadan yeni bir sütun olarak konut fiy__kkb-finans-verileri.json": {
+    "runs": [
+      {
+        "active_analysis_id": "analysis_9b25bdfcd1b3ed26e5911d80e7960568d71845bfb52fb2233b45739878496c99",
+        "chart_id": "chart_25e28c144fae1bea29101f6b3bc90b26f70e98f288d1ba9e9da5d728db78551d",
+        "error_codes": [],
+        "prompt": "2021-2025 yılları arasındaki 60 aylık veriden Türkiye'de kullanılan toplam konut kredilerinin dağılımını aylık olarak gösteriniz. Buna ek olarak konut kredisi faiz oranlarını da gösteriniz. Burada Faiz oranlarının düştüğü dönemlerde kredi miktarı nasıl değişim göstermiş, faiz oranı düştüğü halde kredi miktarının yükselmediği dönemler olmuş mu",
+        "prompt_index": 0,
+        "run_id": "run_acfb1a22d6844c5ca0f2d75da5e3f4a8",
+        "status": "completed"
+      },
+      {
+        "active_analysis_id": "analysis_4a7bb3998180244d0b1bd36f0ba126ae855841284208ee16d115273717a002c5",
+        "chart_id": "chart_0fe578bb8ef5cdddaf729221feeb3640309de183654fd39da5d41acee89d0f65",
+        "error_codes": [],
+        "prompt": "Konut kredisi ve faiz oranları tablosunu bozmadan sadece konut kredisi tutarlarını enflasyondan arındırır mısın?",
+        "prompt_index": 1,
+        "run_id": "run_3786fd570193462b84093e5092404fd7",
+        "status": "completed"
+      },
+      {
+        "active_analysis_id": "analysis_4978fcd21c4cd86428cabcca0df0ccbe007d37be3d39c3f0ee4151c966206f4c",
+        "chart_id": "chart_acbc16106bed9db08066b007d6409a3a7f63aac7d9a982fc3ad1604d9cbb2370",
+        "error_codes": [],
+        "prompt": "Bu tabloyu hiç bozmadan yeni bir sütun olarak konut fiyat endeksini getirebilir misin? Faiz oranlarının düştüğü halde kredilerin artmamasının sebebi fiyat artışı olabilir mi?",
+        "prompt_index": 2,
+        "run_id": "run_23baf9aa51bf41afb82328b79348e011",
+        "status": "completed"
+      }
+    ],
+    "session_id": "conversation_d77fb2be31e14adeb3ad6d1ea42c291c",
+    "session_name": "ebrar branch senaryo 3"
+  },
+  "ebrar branch/(başarısız) ebrar branch pdf import soru 5__conversation_9630b04b68314cf9a99dd0b42a80327b__2020 46 sayılı bu duyuruya göre BIST 30 ve BIST 100 geçmiş seris__kendi-veriniz__s005-bist-2020-46.pdf.json": {
+    "runs": [
+      {
+        "active_analysis_id": null,
+        "chart_id": null,
+        "error_codes": [
+          "EXTERNAL_NUMERIC_CLAIM_UNVERIFIED"
+        ],
+        "prompt": "2020/46 sayılı bu duyuruya göre BIST 30 ve BIST 100 geçmiş serisini 27 Temmuz 2020 çevresinde karşılaştırırken iki sıfır atılmasını nasıl ele almalıyım; bu yüzde 99 ekonomik kayıp anlamına gelir mi? Onay ve geçiş tarihlerini, 24 Temmuz VİOP akşam seansının durumunu, iptal edilecek emir türlerini ve iptal seansını belirt. Kıymetli Madenler ve Elmas Piyasasının ara verme/yeniden açılma saatlerini de ver. Hesaplama yorumunu duyurunun doğrudan söylediği olaylardan ayır; sayfa belirt.",
+        "prompt_index": 0,
+        "run_id": "run_6ffdfdf6f5e740049a65672ec3651d00",
+        "status": "blocked"
+      }
+    ],
+    "session_id": "conversation_9630b04b68314cf9a99dd0b42a80327b",
+    "session_name": "ebrar branch pdf import soru 5"
+  },
+  "ebrar branch/(ilk iki başarılı üçüncü başarısız) ebrar branch senaryo 2 25li__conversation_cdf0052360cf432cac56e6cea9a799ba__3-prompt NPL oranında son 5 yılda yaşanan ani sıçrama (outlier a__kkb-finans-verileri.json": {
+    "runs": [
+      {
+        "active_analysis_id": "analysis_b80bc5b5c3da920e347b1bc3691ffed5f108f9b7da106f3dade8450a578fad8d",
+        "chart_id": null,
+        "error_codes": [],
+        "prompt": "BDDK Aylık Bülten verilerinden Bireysel Kredi Kartı ve İhtiyaç Kredileri toplam bakiye (Nakdi, Stok, TL) gelişimini 202101–202606 dönemi için aylık döküm haline getir; iki kredi türünü ayrı sütunlarda tut",
+        "prompt_index": 0,
+        "run_id": "run_e517c07315254cedb7ae23220ef98d00",
+        "status": "completed"
+      },
+      {
+        "active_analysis_id": "analysis_ff61731798b53e38c8a76edce21d3ee1074d1771c9b2f4f5a8ce4a78068ef754",
+        "chart_id": null,
+        "error_codes": [],
+        "prompt": "Mevcut tabloyu bozmadan, Takipteki Alacaklar (NPL) tutarını (TL) ve NPL oranını (%) yanına zerk et. Kümülatif bakiyelerden yararlanarak aylık net NPL değişim miktarını (akım, NPL_t - NPL_t-1) ayrı bir sütunda türet.",
+        "prompt_index": 1,
+        "run_id": "run_55c8b713222b466a95e604756e668f8f",
+        "status": "completed"
+      },
+      {
+        "active_analysis_id": "analysis_ff61731798b53e38c8a76edce21d3ee1074d1771c9b2f4f5a8ce4a78068ef754",
+        "chart_id": null,
+        "error_codes": [
+          "NO_READABLE_SOURCES",
+          "SEARCH_STRATEGY_EXHAUSTED",
+          "TASK_DELIVERABLE_MISSING"
+        ],
+        "prompt": "NPL oranında son 5 yılda yaşanan ani sıçrama (outlier/anomali) aylarını istatistiksel olarak saptayarak işaretle. Bu tarihlerde BDDK'nın (https://www.bddk.org.tr) kredi kartı yapılandırma veya taksit kısıtlaması kararlarını web'de aratıp anomaliyle örtüşüp örtüşmediğini raporla.",
+        "prompt_index": 2,
+        "run_id": "run_a7ab683dbb7e493a8bcc314094e6b964",
+        "status": "blocked"
+      }
+    ],
+    "session_id": "conversation_cdf0052360cf432cac56e6cea9a799ba",
+    "session_name": "ebrar branch senaryo 2 25li"
+  },
+  "ebrar branch/(ilk iki başarısız üçüncü başarılı)ebrar branch senaryo 4__conversation_4f4b9273274a4f1dbf83df161c15d607__3-prompt Altın işlem hacimleri ile BIST100 endeksi getirisi aras__kkb-finans-verileri.json": {
+    "runs": [
+      {
+        "active_analysis_id": null,
+        "chart_id": null,
+        "error_codes": [
+          "SEARCH_NO_RESULTS",
+          "SOURCE_URL_NOT_DISCOVERED"
+        ],
+        "prompt": "https://www.borsaistanbul.com/veriler/kiymetli-madenler-ve-kiymetli-taslar-piyasasi/piyasa-verileri adresindeki Kıymetli Madenler Piyasası Verileri altında yer alan Altın İşlemleri PDF dosyasını incele. 2023-2025 yılları arasındaki aylık altın işlem hacmi ve miktar değerlerini tablo halinde çıkar.",
+        "prompt_index": 0,
+        "run_id": "run_19c7a698b88d4a598c149d75caec28ff",
+        "status": "partial"
+      },
+      {
+        "active_analysis_id": null,
+        "chart_id": null,
+        "error_codes": [
+          "EXTERNAL_NUMERIC_CLAIM_UNVERIFIED"
+        ],
+        "prompt": "Çıkardığın altın işlem hacmi tablosunu bozmadan yanına https://www.borsaistanbul.com/endeks/xtumy adresinden veya veritabanından BIST100 endeksi aylık kapanış verilerini ekle.",
+        "prompt_index": 1,
+        "run_id": "run_1a69988b0e2a4dc8ac82a6f0133b5016",
+        "status": "partial"
+      },
+      {
+        "active_analysis_id": "analysis_e33ae6a58fa826971d11126b81f1326814ef4838aa27318a2013123bfcf2e6e9",
+        "chart_id": null,
+        "error_codes": [
+          "SEMANTICS_REVIEW_REQUIRED"
+        ],
+        "prompt": "Altın işlem hacimleri ile BIST100 endeksi getirisi arasındaki korelasyonu incele. Borsa düştüğünde altın işlemlerinde belirgin bir hacim artışı (güvenli liman etkisi) yaşanmış mı?",
+        "prompt_index": 2,
+        "run_id": "run_8832b4160aae4d21af06508a6bbdfa43",
+        "status": "partial"
+      }
+    ],
+    "session_id": "conversation_4f4b9273274a4f1dbf83df161c15d607",
+    "session_name": "ebrar branch senaryo 4"
+  },
+  "ebrar branch/(ilk kısmen, ikinci başarısız, üçüncü başarılı) ebrar branch senaryo 3 25li__conversation_e9117278b1f04d08ab341fa7ecba9c24__3-prompt KKM çözülme hızı ile TL mevduat faiz oranları arasında__kkb-finans-verileri.json": {
+    "runs": [
+      {
+        "active_analysis_id": null,
+        "chart_id": null,
+        "error_codes": [],
+        "prompt": "202308–202512 dönemi için BDDK Aylık Bülten verilerinden KKM (Kur Korumalı Mevduat) toplam stok bakiyesi ile Standart Vadeli TL Mevduat stok bakiyesini (ikisi de TL, Stok) yan yana aylık bir seri halinde getir.",
+        "prompt_index": 0,
+        "run_id": "run_5e3f3c9071e34cc8bcac76cbd043ffec",
+        "status": "needs_input"
+      },
+      {
+        "active_analysis_id": null,
+        "chart_id": null,
+        "error_codes": [
+          "TRUNCATED_MODEL_OUTPUT"
+        ],
+        "prompt": "KKM bakiyesindeki aylık net çözülme (azalış) miktarını (KKM_t-1 - KKM_t) hesaplayıp tablonun yanına yeni bir sütun olarak ekle. Aynı döneme ait EVDS 1-3 Ay Vadeli TL Mevduat Ortalama Faizini (%) bozmadan iliştir.",
+        "prompt_index": 1,
+        "run_id": "run_4367cd5462eb4cef9fc073ff1df513cb",
+        "status": "blocked"
+      },
+      {
+        "active_analysis_id": "analysis_30d878efd283c45241d3d671fac92aa72df36c11bdbf047167e0d87ceb738e5d",
+        "chart_id": null,
+        "error_codes": [
+          "INSUFFICIENT_SAMPLE"
+        ],
+        "prompt": "KKM çözülme hızı ile TL mevduat faiz oranları arasında Granger Nedensellik testi koştur. KKM'den çıkışın faiz oranlarındaki artışa ne kadar duyarlı olduğunu ve bunun bir mevduat ikamesi (KKM'den TL mevduata kayış) nedenselliği olup olmadığını raporla.",
+        "prompt_index": 2,
+        "run_id": "run_3a58e09c91574c68871f05f83adde4c3",
+        "status": "partial"
+      }
+    ],
+    "session_id": "conversation_e9117278b1f04d08ab341fa7ecba9c24",
+    "session_name": "ebrar branch senaryo 3 25li"
+  },
+  "ebrar branch/(ilki başarılı, ikinci başarısız, üçüncü başarılı) ebrar branch senaryo 1 25li__conversation_94975ea2e1e84fa6a0a436ce2684db82__3-prompt Ticari kredi büyümesi (aylık % değişim) ile Sanayi Üret__kkb-finans-verileri.json": {
+    "runs": [
+      {
+        "active_analysis_id": "analysis_eaa71978a3a58fa392b2fb1cc28a423557ef60a595ce2fc7abf531456fbf36e5",
+        "chart_id": null,
+        "error_codes": [],
+        "prompt": "BDDK Aylık Bülten verilerinden KOBİ ve Ticari Krediler (Nakdi, TL+YP toplam, Stok) kaleminin 202201–202512 dönemi aylık tutarlarını çekip temiz, tek sütunlu bir zaman serisi tablosu oluştur.",
+        "prompt_index": 0,
+        "run_id": "run_d125379f8a5c44b6a7d9a1f4efa5ab89",
+        "status": "completed"
+      },
+      {
+        "active_analysis_id": "analysis_eaa71978a3a58fa392b2fb1cc28a423557ef60a595ce2fc7abf531456fbf36e5",
+        "chart_id": null,
+        "error_codes": [
+          "NO_PROGRESS"
+        ],
+        "prompt": "Oluşturduğun bu ticari kredi tablosuna hiç dokunmadan, EVDS'ten Sanayi Üretim Endeksi (SÜE, Toplam Sanayi, Takvim Etkisinden Arındırılmış, 2021=100) serisini aynı aylara denk gelecek şekilde yan sütun olarak iliştir.",
+        "prompt_index": 1,
+        "run_id": "run_605e87e61edf40e9af69e91ca067023a",
+        "status": "blocked"
+      },
+      {
+        "active_analysis_id": "analysis_0e19ab274235e63d7efbe56d0b1bccf6b91b98b5bcbab3201a1dac5c804a9d88",
+        "chart_id": null,
+        "error_codes": [],
+        "prompt": "Ticari kredi büyümesi (aylık % değişim) ile Sanayi Üretim Endeksi büyümesi arasındaki 1, 2 ve 3 aylık gecikmeli (lagged) korelasyon katsayılarını hesapla. Kredi genişlemesinin üretime yansımasında birkaç aylık bir zaman kayması var mı, yoksa ilişki eş zamanlı mı?\"",
+        "prompt_index": 2,
+        "run_id": "run_7c5d5210605841038d62003dd63e0c18",
+        "status": "completed"
+      }
+    ],
+    "session_id": "conversation_94975ea2e1e84fa6a0a436ce2684db82",
+    "session_name": "ebrar branch senaryo 5"
+  },
+  "ebrar branch/ebrar branch pdf import soru 3__conversation_4cfa31a744664f14a91b036a31b78e42__Yüklediğim Excel dosyasından XU100, XBANK ve XUMAL endekslerinin__kendi-veriniz__s003-bist-baslangic.xlsx.json": {
+    "runs": [
+      {
+        "active_analysis_id": "analysis_bf6ba2b719cff6fe51bdf5dc1f5c214603536fadfb7dd4547b950d576de0bfbe",
+        "chart_id": "chart_2cfe67268da27e9ce4579b7ef6da112cdd7b9d968b487020833362e3f0e9792a",
+        "error_codes": [],
+        "prompt": "Yüklediğim Excel dosyasından XU100, XBANK ve XUMAL endekslerinin Türkçe adını, başlangıç tarihini ve başlangıç değerini çıkarıp üç satırlı tablo yap. Her satırın sayfa ve hücre aralığını belirt. Bu değerlerden endekslerin yatırım getirilerini karşılaştırmanın mümkün olup olmadığını açıkla; başlangıç değerini güncel kapanış sanma.",
+        "prompt_index": 0,
+        "run_id": "run_858827868d604348919e934a08d36596",
+        "status": "completed"
+      }
+    ],
+    "session_id": "conversation_4cfa31a744664f14a91b036a31b78e42",
+    "session_name": "ebrar branch pdf import soru 3 "
+  },
+  "ebrar branch/senaryo25_hespi_başarılı_ama_2.sorguda_istediğim_sütunu_eklemedi_-.json": {
+    "runs": [
+      {
+        "active_analysis_id": "analysis_d115a2217235cb940321cdb69f2708eff21e6cbb66daf3f0ff523c83d15ccea4",
+        "chart_id": null,
+        "error_codes": [],
+        "prompt": "BDDK Bireysel Kredi Kartı Toplam Limit ve Toplam Borç bakiyesini (TL, Stok) 202101–202606 dönemi için aylık getir.",
+        "prompt_index": 0,
+        "run_id": "run_9825e141f5a64b5cb0d85378eeec9d73",
+        "status": "completed"
+      },
+      {
+        "active_analysis_id": "analysis_3b39c55b57fce1d5fd12b63ba8ff8d6bf6ff2d9a895cdeb069ba62a4f01bfbeb",
+        "chart_id": "chart_61ed2788f59d489acf0c09ec4a164966d94b3d99968ccc6586c5dc45e0ea4a28",
+        "error_codes": [
+          "AMBIGUOUS_IMPORT_LABELS",
+          "TASK_DELIVERABLE_MISSING"
+        ],
+        "prompt": "Limit Kullanım Oranını (Borç / Limit, %) hesapla. Yanına Asgari Ücret tutarını (net, TL - Resmi Gazete'de yayımlanan Asgari Ücret Tespit Komisyonu kararlarına dayanarak web'den bulunacak) ve EVDS TÜFE Endeksini bozmadan zerk et. Limiti ve borcu TÜFE ile reelize et.",
+        "prompt_index": 1,
+        "run_id": "run_e4f3b130e8e74c3fb86437c59669bec1",
+        "status": "partial"
+      },
+      {
+        "active_analysis_id": "analysis_3b39c55b57fce1d5fd12b63ba8ff8d6bf6ff2d9a895cdeb069ba62a4f01bfbeb",
+        "chart_id": null,
+        "error_codes": [],
+        "prompt": "Asgari ücret zam dönemlerinde (Ocak/Temmuz) limit kullanım oranında yaşanan sıçramaları change-point detection ile saptayıp, zam öncesi ve sonrası ortalama kullanım oranlarını karşılaştırarak raporla.",
+        "prompt_index": 2,
+        "run_id": "run_4a3252d98c7341789bd1f1200b548a53",
+        "status": "completed"
+      }
+    ],
+    "session_id": "conversation_ab8468eecf2a46c6b5b7cd0f560a0635",
+    "session_name": "senaryo25"
+  },
+  "ebrar branch/senaryo26_başarılı.json": {
+    "runs": [
+      {
+        "active_analysis_id": "analysis_c0a601ba2ae20a215c761cd1a6292e3b000aada3ff4bdea27926d3c5ca3e4944",
+        "chart_id": null,
+        "error_codes": [],
+        "prompt": "TBB Risk Merkezi verilerinden finansal sisteme ilk kez konut kredisiyle giren kişi sayısını (bin kişi) ile konut kredisi kalan ana para bakiyesini (milyar TL) 202101–202606 dönemi için aylık getir.",
+        "prompt_index": 0,
+        "run_id": "run_52cc5e869d3e4b27a44c6af5dc9f5cb5",
+        "status": "completed"
+      },
+      {
+        "active_analysis_id": "analysis_64a11d1872dcc5dab66d40689b9b9409a805edb8319769fd2ef16ef3b3c46b93",
+        "chart_id": null,
+        "error_codes": [],
+        "prompt": "Bu tabloyu bozmadan, TBB Risk Merkezi'nin Tasfiye Olunacak Konut Kredileri Oranını (NPL, %) yanına yeni bir sütun olarak ekle.",
+        "prompt_index": 1,
+        "run_id": "run_444b66b3abab4d8ab6dc9a0ecae5d9dc",
+        "status": "completed"
+      },
+      {
+        "active_analysis_id": "analysis_64a11d1872dcc5dab66d40689b9b9409a805edb8319769fd2ef16ef3b3c46b93",
+        "chart_id": null,
+        "error_codes": [],
+        "prompt": "İlk kez kredi kullanan kişi sayısındaki artışın NPL oranına 3-6 aylık gecikmeli bir etkisi var mı, korelasyonla değerlendir; yeni kullanıcı akışı arttıktan bir süre sonra tahsilat riski de yükseliyor mu?",
+        "prompt_index": 2,
+        "run_id": "run_f0574c5c1848408191cef97bb5b10c7f",
+        "status": "completed"
+      }
+    ],
+    "session_id": "conversation_c351613d57ef4ca1942a7d80f2f8886b",
+    "session_name": "senaryo26"
+  },
+  "ebrar branch/senaryo27_başarısız_kaynak_bualamadı_url_verdim_okuyamadı.json": {
+    "runs": [
+      {
+        "active_analysis_id": null,
+        "chart_id": null,
+        "error_codes": [
+          "EXTERNAL_NUMERIC_CLAIM_UNVERIFIED",
+          "NO_READABLE_SOURCES",
+          "SOURCE_DOCUMENT_TYPE_UNVERIFIED"
+        ],
+        "prompt": "TÜİK'in resmî Tüketici Fiyat Endeksi (TÜFE) haber bülteninden 'Konut, Su, Elektrik, Gaz ve Diğer Yakıtlar' alt kaleminin 202301–202512 dönemi yıllık % değişim oranlarını web'den bul; bültenin yayım tarihini ve bağlantısını da not et.",
+        "prompt_index": 0,
+        "run_id": "run_dd08a081174545f3b4ba8023f129adf6",
+        "status": "partial"
+      },
+      {
+        "active_analysis_id": null,
+        "chart_id": null,
+        "error_codes": [
+          "FETCH_FAILED",
+          "NUMERICAL_EVIDENCE_MISSING"
+        ],
+        "prompt": "https://veriportali.tuik.gov.tr/tr/search?q=T%C3%9CFE%20Konut%2C%20Su%2C%20Elektrik%2C%20Gaz%20ve%20Di%C4%9Fer%20Yak%C4%B1tlar  bu uld den bukabilirsin gerekli bilgileri",
+        "prompt_index": 1,
+        "run_id": "run_ed919d36a08447f7899ac5aa782f2756",
+        "status": "partial"
+      }
+    ],
+    "session_id": "conversation_dc6216ce526c447f97fdb6b2b2b0d4db",
+    "session_name": "senaryo27"
+  },
+  "ebrar branch/senaryo28_başarısız_kaynağı_buldu_ama_okuyamadı.json": {
+    "runs": [
+      {
+        "active_analysis_id": null,
+        "chart_id": null,
+        "error_codes": [
+          "EXTERNAL_NUMERIC_CLAIM_UNVERIFIED",
+          "SOURCE_DOCUMENT_TYPE_UNVERIFIED"
+        ],
+        "prompt": "KAP'ta (kap.org.tr) halka açık bir bankanın (örneğin Garanti BBVA veya Akbank) 2025 yıl sonu konsolide finansal raporundan toplam kredi portföyü tutarını (TL) bul; dönemini, birimini ve toplam kredi satırını kaynak belge sayfası/tablo iziyle doğrula, arama özetinden sayı üretme.",
+        "prompt_index": 0,
+        "run_id": "run_e93312f948994ead9070ffe5bf5b304c",
+        "status": "partial"
+      }
+    ],
+    "session_id": "conversation_b78467ede7224cee82ca120e83f7d0a3",
+    "session_name": "senaryo28"
+  },
+  "ebrar branch/senaryo5_1.başarılı_2ve3başarısız.json": {
+    "runs": [
+      {
+        "active_analysis_id": "analysis_3765730a9b76991c43671153a9334baf4794162909046ae0c194cb3d13ce3bb9",
+        "chart_id": null,
+        "error_codes": [],
+        "prompt": "EVDS'ten 202101–202606 dönemi TCMB Bir Hafta Vadeli Repo (Politika) Faizini (%) ile Bankalarca Açılan Ticari Kredi Faiz Oranlarını (TL, Ağırlıklı Ortalama, %) aylık ortalamalarla çek.",
+        "prompt_index": 0,
+        "run_id": "run_7dd4f54799514f0eb3f4faa5fa04b69c",
+        "status": "completed"
+      },
+      {
+        "active_analysis_id": "analysis_3765730a9b76991c43671153a9334baf4794162909046ae0c194cb3d13ce3bb9",
+        "chart_id": null,
+        "error_codes": [
+          "NO_PROGRESS"
+        ],
+        "prompt": "Tabloya BDDK Ticari Kredi Stok tutarını (TL) bozmadan ekle. Kredi faizi ile Politika faizi arasındaki marjı (Marj = Ticari Kredi Faizi - Politika Faizi, puan) hesaplayarak sütun aç.",
+        "prompt_index": 1,
+        "run_id": "run_b30cb7ba2daf4f13bf5acea434221fa2",
+        "status": "blocked"
+      }
+    ],
+    "session_id": "conversation_78cad2ca144d439f8b5686c30cd29f21",
+    "session_name": "senaryo5"
+  },
+  "ebrar branch/senaryo6__1.başarılı_2ve3başarısız.json": {
+    "runs": [
+      {
+        "active_analysis_id": "analysis_cb17b588734da2cb3f79b330adf2a69843c54ff59e9878448ca450d080d1c34b",
+        "chart_id": null,
+        "error_codes": [],
+        "prompt": "EVDS'ten Tüketici Güven Endeksi (TÜGE, Mevsimsellikten Arındırılmış) aylık verilerini 202201–202512 dönemi için listele.",
+        "prompt_index": 0,
+        "run_id": "run_55cf85dab7fa44519741737fd7c34567",
+        "status": "completed"
+      },
+      {
+        "active_analysis_id": "analysis_cb17b588734da2cb3f79b330adf2a69843c54ff59e9878448ca450d080d1c34b",
+        "chart_id": null,
+        "error_codes": [
+          "NO_PROGRESS"
+        ],
+        "prompt": "Tabloyu bozmadan yanına BDDK Bireysel Kredi Kartı aylık harcama tutarlarını (TL, Nakit Kullanım Hariç) zerk et. Harcama tutarlarını TÜFE endeksiyle arındırıp sabit fiyatlarla (reel) tutara dönüştür.",
+        "prompt_index": 1,
+        "run_id": "run_5aca91b696d14d88814886b7aebe1f22",
+        "status": "blocked"
+      },
+      {
+        "active_analysis_id": "analysis_cb17b588734da2cb3f79b330adf2a69843c54ff59e9878448ca450d080d1c34b",
+        "chart_id": null,
+        "error_codes": [],
+        "prompt": "Tüketici güvenindeki düşüşler ile reel kredi kartı harcamaları arasındaki korelasyon katsayısını hesapla. Güven düştüğünde harcamalar da geriliyor mu, yoksa tam tersi bir ilişki mi var?",
+        "prompt_index": 2,
+        "run_id": "run_95fe4e10b965424d87ebe8e7390468d0",
+        "status": "completed"
+      }
+    ],
+    "session_id": "conversation_c0105b1efbe64329991cdda60064a97e",
+    "session_name": "senaryo6"
+  },
+  "ebrar branch/senaryo7_ilk2_başarılı_sonuncu_kısmen.json": {
+    "runs": [
+      {
+        "active_analysis_id": "analysis_c42fc31997f6af729772c40c0be61e489e63daf93e1b39eaa21a35d06cc93b03",
+        "chart_id": null,
+        "error_codes": [],
+        "prompt": "BDDK Sektörel Kredi (FinTürk) verilerinden İmalat Sanayii, İnşaat ve Ticaret sektörlerinin 202101–202512 dönemi nakdi kredi stok tutarlarını (TL) ayrı sütunlar halinde çek.",
+        "prompt_index": 0,
+        "run_id": "run_7752531441d54b7e9e60dca488455a89",
+        "status": "completed"
+      },
+      {
+        "active_analysis_id": "analysis_8ae661d6c1e3616114bcc01fe8292b6ca4c9ef0a88f7a9f0068040b6b70a3c55",
+        "chart_id": null,
+        "error_codes": [],
+        "prompt": "İmalat sanayii kredilerinin bu üç sektörün toplamı içindeki payını (%) hesaplayıp mevcut tabloyu bozmadan yeni bir sütun olarak iliştir.",
+        "prompt_index": 1,
+        "run_id": "run_90031d113cf047aab61b88a05d7e75b1",
+        "status": "completed"
+      },
+      {
+        "active_analysis_id": "analysis_8ae661d6c1e3616114bcc01fe8292b6ca4c9ef0a88f7a9f0068040b6b70a3c55",
+        "chart_id": null,
+        "error_codes": [],
+        "prompt": "İmalat sanayii kredi payının en çok gerilediği 3 dönemi kırılma noktası (change point) olarak tespit et; bu dönemlerde inşaat veya ticaret sektörlerine bir kayma olup olmadığını yorumla.",
+        "prompt_index": 2,
+        "run_id": "run_b435c0a8e9034e13852e7f9a4007158f",
+        "status": "needs_input"
+      },
+      {
+        "active_analysis_id": "analysis_8ae661d6c1e3616114bcc01fe8292b6ca4c9ef0a88f7a9f0068040b6b70a3c55",
+        "chart_id": null,
+        "error_codes": [
+          "INVALID_PLAN"
+        ],
+        "prompt": "c seçeneği",
+        "prompt_index": 3,
+        "run_id": "run_bd8f6b3989414f9cbd3ed6b9159961a3",
+        "status": "partial"
+      }
+    ],
+    "session_id": "conversation_24839bbf0c31472fb58fe681b724e112",
+    "session_name": "senaryo7"
+  },
+  "ebrar branch/senaryo8_veri_bulamadı.json": {
+    "runs": [
+      {
+        "active_analysis_id": null,
+        "chart_id": null,
+        "error_codes": [],
+        "prompt": "EVDS'ten Türkiye Dış Ticaret Açığı (İthalat - İhracat, USD, Mevsimsellikten Arındırılmamış) aylık verisini 202101–202606 dönemi için getir.",
+        "prompt_index": 0,
+        "run_id": "run_d5e3dcd840f14e8bb25d6be7c68ea532",
+        "status": "completed"
+      }
+    ],
+    "session_id": "conversation_79871acfe22449cca60064894bd077a3",
+    "session_name": "senaryo8"
+  },
+  "main branch/(1 başarılı 1 başarısız) senaryo 1 kkb gerçek demo__conversation_a1bee1742a0c4242926d008755285d6d__2-prompt Taşıt kredisi tutarlarına faiz oranlarını ekle. Veri se__kkb-finans-verileri.json": {
+    "runs": [
+      {
+        "active_analysis_id": "analysis_fed87e8cb47da580cfac621a059bc18330c8ebb5d7322948c9b537dd29608960",
+        "chart_id": null,
+        "error_codes": [],
+        "prompt": "BDDK Aylık Bülten verilerini kullanarak Tüketici Kredileri - Taşıt kredilerinin 2026 yılı ilk 6 ay verisi ile bir veri seti oluştur.",
+        "prompt_index": 0,
+        "run_id": "run_4f87b6b69bc34d77a0f656906f58a25e",
+        "status": "completed"
+      },
+      {
+        "active_analysis_id": "analysis_fed87e8cb47da580cfac621a059bc18330c8ebb5d7322948c9b537dd29608960",
+        "chart_id": null,
+        "error_codes": [
+          "METADATA_ONLY",
+          "TASK_DELIVERABLE_MISSING"
+        ],
+        "prompt": "Taşıt kredisi tutarlarına faiz oranlarını ekle. Veri setine aynı aylara denk gelecek şekilde EVDS, Taşıt Kredisi (TL,Stok,%) verisini ekle.",
+        "prompt_index": 1,
+        "run_id": "run_758df9762df0406c89d0d18f70160d32",
+        "status": "blocked"
+      }
+    ],
+    "session_id": "conversation_a1bee1742a0c4242926d008755285d6d",
+    "session_name": "senaryo 1 kkb gerçek demo"
+  },
+  "main branch/(1 başarılı, 2 başarısz, 3 kısmen) main branch senaryo 6 25li__conversation_7326e48b9e0b4b2d8a5821d28786c9c7__3-prompt Tüketici güvenindeki düşüşler ile reel kredi kartı harc__kkb-finans-verileri.json": {
+    "runs": [
+      {
+        "active_analysis_id": "analysis_3e34d29c12fe5f111eed7bdc80a49b78954f7d762f84e1bf2f1eda8054a009f9",
+        "chart_id": null,
+        "error_codes": [],
+        "prompt": "EVDS'ten Tüketici Güven Endeksi (TÜGE, Mevsimsellikten Arındırılmış) aylık verilerini 202201–202512 dönemi için listele.",
+        "prompt_index": 0,
+        "run_id": "run_83324907d458446190706bdefebdaf05",
+        "status": "completed"
+      },
+      {
+        "active_analysis_id": "analysis_3e34d29c12fe5f111eed7bdc80a49b78954f7d762f84e1bf2f1eda8054a009f9",
+        "chart_id": null,
+        "error_codes": [
+          "NO_PROGRESS"
+        ],
+        "prompt": "Tabloyu bozmadan yanına BDDK Bireysel Kredi Kartı aylık harcama tutarlarını (TL, Nakit Kullanım Hariç) zerk et. Harcama tutarlarını TÜFE endeksiyle arındırıp sabit fiyatlarla (reel) tutara dönüştür.",
+        "prompt_index": 1,
+        "run_id": "run_55363cca9d76450cabed9118391a1d47",
+        "status": "blocked"
+      },
+      {
+        "active_analysis_id": "analysis_3e34d29c12fe5f111eed7bdc80a49b78954f7d762f84e1bf2f1eda8054a009f9",
+        "chart_id": null,
+        "error_codes": [],
+        "prompt": "Tüketici güvenindeki düşüşler ile reel kredi kartı harcamaları arasındaki korelasyon katsayısını hesapla. Güven düştüğünde harcamalar da geriliyor mu, yoksa tam tersi bir ilişki mi var",
+        "prompt_index": 2,
+        "run_id": "run_8558e3b620644e7eac80d08d6d260c8f",
+        "status": "completed"
+      }
+    ],
+    "session_id": "conversation_7326e48b9e0b4b2d8a5821d28786c9c7",
+    "session_name": "main branch senaryo 6 25li"
+  },
+  "main branch/(1 başarılı, 2 kısmen (soru sordu), 3 kısmen) main branch senaryo 7 25li__conversation_f9bb212084e44e1bb4a6556a7b30ea45__4-prompt webden ara, yoksa boşver. sonra bunu da cevapla İmalat__kkb-finans-verileri.json": {
+    "runs": [
+      {
+        "active_analysis_id": "analysis_5ec9974d5bc02c0212771eb53dbc959b4fd3f52b7d697a7d6b1608549d57ef6d",
+        "chart_id": null,
+        "error_codes": [],
+        "prompt": "BDDK Sektörel Kredi (FinTürk) verilerinden İmalat Sanayii, İnşaat ve Ticaret sektörlerinin 202101–202512 dönemi nakdi kredi stok tutarlarını (TL) ayrı sütunlar halinde çek.",
+        "prompt_index": 0,
+        "run_id": "run_a6d8f8300d6b40b0ac9648af26661c49",
+        "status": "completed"
+      },
+      {
+        "active_analysis_id": "analysis_5ec9974d5bc02c0212771eb53dbc959b4fd3f52b7d697a7d6b1608549d57ef6d",
+        "chart_id": null,
+        "error_codes": [],
+        "prompt": "İmalat sanayii kredilerinin bu üç sektörün toplamı içindeki payını (%) hesaplayıp mevcut tabloyu bozmadan yeni bir sütun olarak iliştir.\"",
+        "prompt_index": 1,
+        "run_id": "run_117db96eb4824e379a30cce1305233a5",
+        "status": "needs_input"
+      },
+      {
+        "active_analysis_id": "analysis_5ec9974d5bc02c0212771eb53dbc959b4fd3f52b7d697a7d6b1608549d57ef6d",
+        "chart_id": null,
+        "error_codes": [],
+        "prompt": "a",
+        "prompt_index": 2,
+        "run_id": "run_fce84d7d81bb4dc9a33f3af251d3cdfb",
+        "status": "completed"
+      },
+      {
+        "active_analysis_id": "analysis_5ec9974d5bc02c0212771eb53dbc959b4fd3f52b7d697a7d6b1608549d57ef6d",
+        "chart_id": null,
+        "error_codes": [
+          "NO_READABLE_SOURCES"
+        ],
+        "prompt": "webden ara, yoksa boşver.\n\nsonra bunu da cevapla:\n\nİmalat sanayii kredi payının en çok gerilediği 3 dönemi kırılma noktası (change point) olarak tespit et; bu dönemlerde inşaat veya ticaret sektörlerine bir kayma olup olmadığını yorumla.\"",
+        "prompt_index": 3,
+        "run_id": "run_691b65b60b90484bbd1ff0c2c5bb2dc4",
+        "status": "blocked"
+      }
+    ],
+    "session_id": "conversation_f9bb212084e44e1bb4a6556a7b30ea45",
+    "session_name": "main branch senaryo 7 25li"
+  },
+  "main branch/(1 başarılı, 2başarılı, 3başarılı) main branch senaryo 26 websearch 25l__conversation_43ff7bbea4324b628a36ede409649e73__3-prompt İlk kez kredi kullanan kişi sayısındaki artışın NPL ora__kkb-finans-verileri.json": {
+    "runs": [
+      {
+        "active_analysis_id": "analysis_c6af22ed2201558245afd6de8911d590b77ed287dcd2f860d0353aef371e63db",
+        "chart_id": null,
+        "error_codes": [],
+        "prompt": "TBB Risk Merkezi verilerinden finansal sisteme ilk kez konut kredisiyle giren kişi sayısını (bin kişi) ile konut kredisi kalan ana para bakiyesini (milyar TL) 202101–202606 dönemi için aylık getir.",
+        "prompt_index": 0,
+        "run_id": "run_8cc12ddadb874a0cb67515dece463c9a",
+        "status": "completed"
+      },
+      {
+        "active_analysis_id": "analysis_334245f1a469c3a476a811ddb4c299782794841a025c31602512372492c7b3e9",
+        "chart_id": null,
+        "error_codes": [],
+        "prompt": "Bu tabloyu bozmadan, TBB Risk Merkezi'nin Tasfiye Olunacak Konut Kredileri Oranını (NPL, %) yanına yeni bir sütun olarak ekle. lakehousedan bılamazsan webden ara",
+        "prompt_index": 1,
+        "run_id": "run_507608d8735940e487a5268b98eabbca",
+        "status": "completed"
+      },
+      {
+        "active_analysis_id": "analysis_334245f1a469c3a476a811ddb4c299782794841a025c31602512372492c7b3e9",
+        "chart_id": null,
+        "error_codes": [],
+        "prompt": "İlk kez kredi kullanan kişi sayısındaki artışın NPL oranına 3-6 aylık gecikmeli bir etkisi var mı, korelasyonla değerlendir; yeni kullanıcı akışı arttıktan bir süre sonra tahsilat riski de yükseliyor mu?\"",
+        "prompt_index": 2,
+        "run_id": "run_0f7e3a087ca944c483bbfb04e6d5874c",
+        "status": "completed"
+      }
+    ],
+    "session_id": "conversation_43ff7bbea4324b628a36ede409649e73",
+    "session_name": "main branch senaryo 26 websearch 25li"
+  },
+  "main branch/(1 başarısz, 2 başarısız, 3başarısız) main branch senaryo 8 25li__conversation_50ff0556c5d14c67935bb30113afde29__4-prompt a yı yap__kkb-finans-verileri.json": {
+    "runs": [
+      {
+        "active_analysis_id": null,
+        "chart_id": null,
+        "error_codes": [
+          "NO_PROGRESS"
+        ],
+        "prompt": "EVDS'ten Türkiye Dış Ticaret Açığı (İthalat - İhracat, USD, Mevsimsellikten Arındırılmamış) aylık verisini 202101–202606 dönemi için getir. yoksa webden ara",
+        "prompt_index": 0,
+        "run_id": "run_63b0c751adf94eea8910d25de387aba5",
+        "status": "blocked"
+      },
+      {
+        "active_analysis_id": null,
+        "chart_id": null,
+        "error_codes": [
+          "DECISION_BUDGET_EXCEEDED"
+        ],
+        "prompt": "Tabloya bozmadan BDDK İhracat Kredileri stok tutarını (TL) ve TCMB USD/TRY Alış Kuru aylık ortalamasını ekle. İhracat kredilerini kur üzerinden USD cinsine dönüştürerek ayrı bir sütunda göster.",
+        "prompt_index": 1,
+        "run_id": "run_5207c1a51f194b02959aadf012977cb8",
+        "status": "blocked"
+      },
+      {
+        "active_analysis_id": null,
+        "chart_id": null,
+        "error_codes": [],
+        "prompt": "USD bazlı ihracat kredilerindeki artışın dış ticaret açığını daraltmadaki nedensellik etkisini incele; kredi artışı açığı kapatmadan önce mi geliyor, sonra mı?\"",
+        "prompt_index": 2,
+        "run_id": "run_9167bbac411e43c2a874d144128606d5",
+        "status": "needs_input"
+      },
+      {
+        "active_analysis_id": null,
+        "chart_id": null,
+        "error_codes": [
+          "EXTERNAL_NUMERIC_CLAIM_UNVERIFIED",
+          "TASK_DELIVERABLE_MISSING"
+        ],
+        "prompt": "a yı yap",
+        "prompt_index": 3,
+        "run_id": "run_84cf86566aab4808ac932eebe1f265fe",
+        "status": "partial"
+      }
+    ],
+    "session_id": "conversation_50ff0556c5d14c67935bb30113afde29",
+    "session_name": "main branch senaryo 8 25li"
+  },
+  "main branch/(1 başarısız, 2 ve 3 başarısz) main branch senaryo 27 websearch 25l__conversation_39e1d59ab793430fb0b089529127e4c8__3-prompt Elbette. TÜİK’in resmî bağlantıları şunlar TÜFE – Ocak__kkb-finans-verileri.json": {
+    "runs": [
+      {
+        "active_analysis_id": null,
+        "chart_id": null,
+        "error_codes": [
+          "NO_READABLE_SOURCES",
+          "NUMERICAL_EVIDENCE_MISSING"
+        ],
+        "prompt": "TÜİK'in resmî Tüketici Fiyat Endeksi (TÜFE) haber bülteninden 'Konut, Su, Elektrik, Gaz ve Diğer Yakıtlar' alt kaleminin 202301–202512 dönemi yıllık % değişim oranlarını web'den bul; bültenin yayım tarihini ve bağlantısını da not et.\"",
+        "prompt_index": 0,
+        "run_id": "run_31cfa4deeb1b41cabe34b8e1a3e60001",
+        "status": "blocked"
+      },
+      {
+        "active_analysis_id": null,
+        "chart_id": null,
+        "error_codes": [],
+        "prompt": "Bu seriye, veritabanındaki İstanbul ili toplam konut satış sayılarını (adet) bozmadan aynı ay eksenine göre yan sütun olarak ekle.",
+        "prompt_index": 1,
+        "run_id": "run_85507fe3bcf249828d244e4df2849ead",
+        "status": "completed"
+      },
+      {
+        "active_analysis_id": null,
+        "chart_id": null,
+        "error_codes": [
+          "EXTERNAL_NUMERIC_CLAIM_UNVERIFIED",
+          "TASK_DELIVERABLE_MISSING"
+        ],
+        "prompt": "Elbette. TÜİK’in resmî bağlantıları şunlar:\n\n\n\nTÜFE – Ocak 2023: Yayım tarihi 3 Şubat 2023, 10:00, bülten no 49655. (Veri Portalı)\nTÜİK – Tüketici Fiyat Endeksi, Ocak 2023\n\nTÜFE – Aralık 2025: Yayım tarihi 5 Ocak 2026, 10:00, bülten no 58294. Bu, istediğiniz 202301–202512 döneminin son ayına ait resmî bülten. (Veri Portalı)\nTÜİK – Tüketici Fiyat Endeksi, Aralık 2025\n\nTÜİK TÜFE arama/arşiv sayfası: Buradan ara aylardaki TÜFE haber bültenlerine de ulaşılabiliyor. (Veri Portalı)\nTÜİK Veri Portalı – TÜFE bültenleri\n\n\n\n\n\n\n\nbir de:\n\n\nKonut kalemi enflasyonunun sıçradığı dönemlerde konut satış adetlerinde bir yavaşlama yaşanmış mı karşılaştır; fiyat artışı satışları caydırmış gibi görünüyor mu?\"*",
+        "prompt_index": 2,
+        "run_id": "run_fd4ff210dd744b27a350ab0fca4b65f2",
+        "status": "partial"
+      }
+    ],
+    "session_id": "conversation_39e1d59ab793430fb0b089529127e4c8",
+    "session_name": "main branch senaryo 27 websearch 25li"
+  },
+  "main branch/(1 kısmen, iki başarısız, üç kısmen) main branch senaryo 5 25li__conversation_17a1c721bd10405eb6e0788dfd5cc272__4-prompt 1 webden ara 2 snırla 3 bddk okey__kkb-finans-verileri.json": {
+    "runs": [
+      {
+        "active_analysis_id": null,
+        "chart_id": null,
+        "error_codes": [],
+        "prompt": "EVDS'ten 202101–202606 dönemi TCMB Bir Hafta Vadeli Repo (Politika) Faizini (%) ile Bankalarca Açılan Ticari Kredi Faiz Oranlarını (TL, Ağırlıklı Ortalama, %) aylık ortalamalarla çek.",
+        "prompt_index": 0,
+        "run_id": "run_5a0494a98ac548eeb309cefbd3d1965a",
+        "status": "needs_input"
+      },
+      {
+        "active_analysis_id": null,
+        "chart_id": null,
+        "error_codes": [
+          "EXTERNAL_NUMERIC_CLAIM_UNVERIFIED",
+          "TASK_DELIVERABLE_MISSING"
+        ],
+        "prompt": "1aylık, 2webden ara ya  \n\nTabloya BDDK Ticari Kredi Stok tutarını (TL) bozmadan ekle. Kredi faizi ile Politika faizi arasındaki marjı (Marj = Ticari Kredi Faizi - Politika Faizi, puan) hesaplayarak sütun aç.",
+        "prompt_index": 1,
+        "run_id": "run_b72133200d3447579b07db54ade39c65",
+        "status": "partial"
+      },
+      {
+        "active_analysis_id": null,
+        "chart_id": null,
+        "error_codes": [],
+        "prompt": "Kredi faiz marjının eksiye düştüğü (negatif spread / faiz tavanı dönemi) anomali ayları saptayarak, bu dönemlerde ticari kredi hacmindeki büyümenin normal dönemlere göre farklılaşıp farklılaşmadığını değerlendir",
+        "prompt_index": 2,
+        "run_id": "run_183ad6d0debd4bc09aa3a7deb683d758",
+        "status": "needs_input"
+      },
+      {
+        "active_analysis_id": "analysis_23b4d7ab87a9ffb851448941460f4c6583693ba24f86deaf4f369287e39d6394",
+        "chart_id": "chart_3c775f84ed2898afaf7c26b3f758531032b9d41fd15af95d3335417af734c574",
+        "error_codes": [
+          "SEARCH_NO_RESULTS"
+        ],
+        "prompt": "1 webden ara 2 snırla 3 bddk okey",
+        "prompt_index": 3,
+        "run_id": "run_b8b2fab636c641fda68ea1f8c699588b",
+        "status": "partial"
+      }
+    ],
+    "session_id": "conversation_17a1c721bd10405eb6e0788dfd5cc272",
+    "session_name": "main branch senaryo 5 25li"
+  },
+  "main branch/(1kısmen, 2başarısız, 3kısmen) main branch senaryo 28 websearch 25l__conversation_84616d0cdb33448f8877ae0561502d19__3-prompt Bu payın son 3 yıldaki (2023-2025) değişimini grafikle__kkb-finans-verileri.json": {
+    "runs": [
+      {
+        "active_analysis_id": null,
+        "chart_id": null,
+        "error_codes": [
+          "AMBIGUOUS_IMPORT_PERIODS",
+          "TASK_DELIVERABLE_MISSING"
+        ],
+        "prompt": "KAP'ta (kap.org.tr) halka açık bir bankanın (örneğin Garanti BBVA veya Akbank) 2025 yıl sonu konsolide finansal raporundan toplam kredi portföyü tutarını (TL) bul; dönemini, birimini ve toplam kredi satırını kaynak belge sayfası/tablo iziyle doğrula, arama özetinden sayı üretme.",
+        "prompt_index": 0,
+        "run_id": "run_d1c71bc4c16a4a28a90ce9b4a9fb5162",
+        "status": "partial"
+      },
+      {
+        "active_analysis_id": null,
+        "chart_id": null,
+        "error_codes": [
+          "AMBIGUOUS_IMPORT_PERIODS",
+          "EXTERNAL_NUMERIC_CLAIM_UNVERIFIED",
+          "TASK_DELIVERABLE_MISSING"
+        ],
+        "prompt": "Bu tutarı, veritabanındaki BDDK toplam sektör nakdi kredi stokuyla aynı döneme göre bozmadan yan yana getir; bankanın sektördeki payını (%) hesaplayarak yeni bir sütun aç.",
+        "prompt_index": 1,
+        "run_id": "run_872f003de421407faffda11f97806f5f",
+        "status": "partial"
+      },
+      {
+        "active_analysis_id": null,
+        "chart_id": null,
+        "error_codes": [
+          "AMBIGUOUS_IMPORT_PERIODS",
+          "CHART_NOT_CREATED",
+          "EXTERNAL_NUMERIC_CLAIM_UNVERIFIED",
+          "TASK_DELIVERABLE_MISSING"
+        ],
+        "prompt": "Bu payın son 3 yıldaki (2023-2025) değişimini grafikle göster; artışın hangi kredi türünden (konut/ticari/ihtiyaç) kaynaklandığını KAP raporundaki kırılımdan açıkla.",
+        "prompt_index": 2,
+        "run_id": "run_9102a1ae77fa45628910f54698cc57f5",
+        "status": "partial"
+      }
+    ],
+    "session_id": "conversation_84616d0cdb33448f8877ae0561502d19",
+    "session_name": "main branch senaryo 28 websearch 25li"
+  },
+  "main branch/(3 başarılı) main branch senaryo 3__conversation_e670f0ea67a24730b46c3b89fbffc94d__3-prompt Bu tabloyu hiç bozmadan yeni bir sütun olarak konut fiy__kkb-finans-verileri.json": {
+    "runs": [
+      {
+        "active_analysis_id": "analysis_1bc6ae7eddc9363ed883c7a4d4ffc66a5c83fff0aded1b55dca738f4e2cbbf1b",
+        "chart_id": "chart_8319de7eacf42d6a61921bf66f19848a6ac8b6b14e1b52c7328a4b3348fa4f47",
+        "error_codes": [
+          "TASK_DELIVERABLE_MISSING"
+        ],
+        "prompt": "2021-2025 yılları arasındaki 60 aylık veriden Türkiye'de kullanılan toplam konut kredilerinin dağılımını aylık olarak gösteriniz. Buna ek olarak konut kredisi faiz oranlarını da gösteriniz. Burada Faiz oranlarının düştüğü dönemlerde kredi miktarı nasıl değişim göstermiş, faiz oranı düştüğü halde kredi miktarının yükselmediği dönemler olmuş mu?",
+        "prompt_index": 0,
+        "run_id": "run_415df51705244624a73239f1424e5ebf",
+        "status": "partial"
+      },
+      {
+        "active_analysis_id": "analysis_3690acf45cdfc8648d60e6bd5c731cd26be35931c55fbbe7e6488d10c353b7e1",
+        "chart_id": "chart_1d4291761cf2d58fa143d608a4dffd243c2d6a1f921583524ce15e1e3a9ba19b",
+        "error_codes": [],
+        "prompt": "Konut kredisi ve faiz oranları tablosunu bozmadan sadece konut kredisi tutarlarını enflasyondan arındırır mısın?",
+        "prompt_index": 1,
+        "run_id": "run_c4cc91974cc74ff794da5a7e5ec362c2",
+        "status": "completed"
+      },
+      {
+        "active_analysis_id": "analysis_3958c01d0aa3bc52771e67487ee21c1293f3c2732b4367299659d4e4ce33aa07",
+        "chart_id": "chart_efb8076fed7f67df028c7e3ba1ecf39e8e4c66c5a47102604cf0a3cf3dc50ebd",
+        "error_codes": [],
+        "prompt": "Bu tabloyu hiç bozmadan yeni bir sütun olarak konut fiyat endeksini getirebilir misin? Faiz oranlarının düştüğü halde kredilerin artmamasının sebebi fiyat artışı olabilir mi?",
+        "prompt_index": 2,
+        "run_id": "run_d82016a3e6954a3384880de9106efd29",
+        "status": "completed"
+      }
+    ],
+    "session_id": "conversation_e670f0ea67a24730b46c3b89fbffc94d",
+    "session_name": "main branch senaryo 3"
+  },
+  "main branch/(3 başarılı, 25li ) main branch senaryo 1__conversation_f8af57eab6894548884a8aa8ccdfc2e0__3-prompt Ticari kredi büyümesi (aylık % değişim) ile Sanayi Üret__kkb-finans-verileri.json": {
+    "runs": [
+      {
+        "active_analysis_id": "analysis_e95801b36d2d4700493392f1d0c4041d2bf12666992c721944861ef97fe869c2",
+        "chart_id": null,
+        "error_codes": [],
+        "prompt": "BDDK Aylık Bülten verilerinden KOBİ ve Ticari Krediler (Nakdi, TL+YP toplam, Stok) kaleminin 202201–202512 dönemi aylık tutarlarını çekip temiz, tek sütunlu bir zaman serisi tablosu oluştur.",
+        "prompt_index": 0,
+        "run_id": "run_b997254e929c41bf885f1acc2e42011f",
+        "status": "completed"
+      },
+      {
+        "active_analysis_id": "analysis_8f8ea9bfea02ad568630611b72d0a9b702dec1fb24c46c8aed305097f7088078",
+        "chart_id": null,
+        "error_codes": [],
+        "prompt": "\"Oluşturduğun bu ticari kredi tablosuna hiç dokunmadan, EVDS'ten Sanayi Üretim Endeksi (SÜE, Toplam Sanayi, Takvim Etkisinden Arındırılmış, 2021=100) serisini aynı aylara denk gelecek şekilde yan sütun olarak iliştir.",
+        "prompt_index": 1,
+        "run_id": "run_acca331a2bd24a0d8f90fee3734ccacc",
+        "status": "completed"
+      },
+      {
+        "active_analysis_id": "analysis_8f7b8b8714d2b4bfd174158a585765379148be20c6b153defaf6906c25422a7e",
+        "chart_id": null,
+        "error_codes": [],
+        "prompt": "Ticari kredi büyümesi (aylık % değişim) ile Sanayi Üretim Endeksi büyümesi arasındaki 1, 2 ve 3 aylık gecikmeli (lagged) korelasyon katsayılarını hesapla. Kredi genişlemesinin üretime yansımasında birkaç aylık bir zaman kayması var mı, yoksa ilişki eş zamanlı mı?\"",
+        "prompt_index": 2,
+        "run_id": "run_f171d180420244a3b3f06f9a0caa03e5",
+        "status": "completed"
+      }
+    ],
+    "session_id": "conversation_f8af57eab6894548884a8aa8ccdfc2e0",
+    "session_name": "main branch senaryo 5"
+  },
+  "main branch/(3 başarısız) main branch senaryo 4__conversation_e3f352500c17471e9ebf149dc3790a70__3-prompt Altın işlem hacimleri ile BIST100 endeksi getirisi aras__kkb-finans-verileri.json": {
+    "runs": [
+      {
+        "active_analysis_id": null,
+        "chart_id": null,
+        "error_codes": [
+          "CONTEXT_BUDGET_EXCEEDED"
+        ],
+        "prompt": "https://www.borsaistanbul.com/veriler/kiymetli-madenler-ve-kiymetli-taslar-piyasasi/piyasa-verileri adresindeki Kıymetli Madenler Piyasası Verileri altında yer alan Altın İşlemleri PDF dosyasını incele. 2023-2025 yılları arasındaki aylık altın işlem hacmi ve miktar değerlerini tablo halinde çıkar.",
+        "prompt_index": 0,
+        "run_id": "run_32efa86e2ae5470a885d5ae9f7304b51",
+        "status": "blocked"
+      },
+      {
+        "active_analysis_id": null,
+        "chart_id": null,
+        "error_codes": [],
+        "prompt": "Çıkardığın altın işlem hacmi tablosunu bozmadan yanına https://www.borsaistanbul.com/endeks/xtumy adresinden veya veritabanından BIST100 endeksi aylık kapanış verilerini ekle.",
+        "prompt_index": 1,
+        "run_id": "run_59f8a7a193414a6993574e5572407bb2",
+        "status": "needs_input"
+      },
+      {
+        "active_analysis_id": null,
+        "chart_id": null,
+        "error_codes": [
+          "AMBIGUOUS_IMPORT_PERIODS",
+          "EXTERNAL_NUMERIC_CLAIM_UNVERIFIED",
+          "TASK_DELIVERABLE_MISSING"
+        ],
+        "prompt": "Altın işlem hacimleri ile BIST100 endeksi getirisi arasındaki korelasyonu incele. Borsa düştüğünde altın işlemlerinde belirgin bir hacim artışı (güvenli liman etkisi) yaşanmış mı?",
+        "prompt_index": 2,
+        "run_id": "run_96c93fd10d664ef7be7268af3304572c",
+        "status": "partial"
+      }
+    ],
+    "session_id": "conversation_e3f352500c17471e9ebf149dc3790a70",
+    "session_name": "main branch senaryo 4"
+  },
+  "main branch/(başarısz) pdf import soru 5__conversation_3a7280c9472445e9b466694a0f57ad90__2020 46 sayılı bu duyuruya göre BIST 30 ve BIST 100 geçmiş seris__kendi-veriniz__s005-bist-2020-46.pdf.json": {
+    "runs": [
+      {
+        "active_analysis_id": null,
+        "chart_id": null,
+        "error_codes": [
+          "EXTERNAL_NUMERIC_CLAIM_UNVERIFIED"
+        ],
+        "prompt": "2020/46 sayılı bu duyuruya göre BIST 30 ve BIST 100 geçmiş serisini 27 Temmuz 2020 çevresinde karşılaştırırken iki sıfır atılmasını nasıl ele almalıyım; bu yüzde 99 ekonomik kayıp anlamına gelir mi? Onay ve geçiş tarihlerini, 24 Temmuz VİOP akşam seansının durumunu, iptal edilecek emir türlerini ve iptal seansını belirt. Kıymetli Madenler ve Elmas Piyasasının ara verme/yeniden açılma saatlerini de ver. Hesaplama yorumunu duyurunun doğrudan söylediği olaylardan ayır; sayfa belirt.",
+        "prompt_index": 0,
+        "run_id": "run_f0987c8439774d6b82cccabfc352a5ec",
+        "status": "blocked"
+      }
+    ],
+    "session_id": "conversation_3a7280c9472445e9b466694a0f57ad90",
+    "session_name": "pdf import soru 5"
+  },
+  "main branch/(başarısız) pdf import soru 3__conversation_7d04cb6fda3b4176b9da698ab8ceec31__Yüklediğim Excel dosyasından XU100, XBANK ve XUMAL endekslerinin__kendi-veriniz__s003-bist-baslangic.xlsx.json": {
+    "runs": [
+      {
+        "active_analysis_id": null,
+        "chart_id": null,
+        "error_codes": [
+          "EXTERNAL_NUMERIC_CLAIM_UNVERIFIED",
+          "TABLE_NOT_CREATED"
+        ],
+        "prompt": "Yüklediğim Excel dosyasından XU100, XBANK ve XUMAL endekslerinin Türkçe adını, başlangıç tarihini ve başlangıç değerini çıkarıp üç satırlı tablo yap. Her satırın sayfa ve hücre aralığını belirt. Bu değerlerden endekslerin yatırım getirilerini karşılaştırmanın mümkün olup olmadığını açıkla; başlangıç değerini güncel kapanış sanma.",
+        "prompt_index": 0,
+        "run_id": "run_e8ab92efa2464d23b82ec00f0ebcaf68",
+        "status": "blocked"
+      }
+    ],
+    "session_id": "conversation_7d04cb6fda3b4176b9da698ab8ceec31",
+    "session_name": "pdf import soru 3"
+  },
+  "main branch/(başarısız) senaryo 2 kkb gerçek demo__conversation_624e8394f25543b99c6f406ab131511b__BDDK Aylık Bülten verilerini kullanarak 202101–202512 döneminde__kkb-finans-verileri.json": {
+    "runs": [
+      {
+        "active_analysis_id": null,
+        "chart_id": null,
+        "error_codes": [],
+        "prompt": "BDDK Aylık Bülten verilerini kullanarak 202101–202512 döneminde Türk parası (TP) ve yabancı para (YP) mevduatların gelişimini ve vade yapısını incelemek üzere aylık bir veri seti oluştur. Oluşturlacak veri seti sadece o aydaki mevduat verisini göstermeli stok veri olmamalı.",
+        "prompt_index": 0,
+        "run_id": "run_ac8d250df7884ee79ccb12c3ba72e612",
+        "status": "needs_input"
+      }
+    ],
+    "session_id": "conversation_624e8394f25543b99c6f406ab131511b",
+    "session_name": "senaryo 2 kkb gerçek demo"
+  },
+  "main branch/(ilk iki başarılı üçüncü başarısızı) main branch senaryo 2 25li__conversation_0786c0540ae94cbd87a77bb9cae7567d__3-prompt NPL oranında son 5 yılda yaşanan ani sıçrama (outlier a__kkb-finans-verileri.json": {
+    "runs": [
+      {
+        "active_analysis_id": "analysis_9a6c293f845ee95adce52750bda5f1c88f5c17d7197a96e13dda46e919a8d703",
+        "chart_id": null,
+        "error_codes": [],
+        "prompt": "BDDK Aylık Bülten verilerinden Bireysel Kredi Kartı ve İhtiyaç Kredileri toplam bakiye (Nakdi, Stok, TL) gelişimini 202101–202606 dönemi için aylık döküm haline getir; iki kredi türünü ayrı sütunlarda tut",
+        "prompt_index": 0,
+        "run_id": "run_8e5233ae505d452daea2630d50d064ec",
+        "status": "completed"
+      },
+      {
+        "active_analysis_id": "analysis_6a03c78b51444e5bbeb4e8f10cfda329bc4e338b832c47625b754ff8884ddec9",
+        "chart_id": null,
+        "error_codes": [],
+        "prompt": "Mevcut tabloyu bozmadan, Takipteki Alacaklar (NPL) tutarını (TL) ve NPL oranını (%) yanına zerk et. Kümülatif bakiyelerden yararlanarak aylık net NPL değişim miktarını (akım, NPL_t - NPL_t-1) ayrı bir sütunda türet.",
+        "prompt_index": 1,
+        "run_id": "run_62ad14014f4244e3b9e3abe3c2720e13",
+        "status": "completed"
+      },
+      {
+        "active_analysis_id": "analysis_6a03c78b51444e5bbeb4e8f10cfda329bc4e338b832c47625b754ff8884ddec9",
+        "chart_id": null,
+        "error_codes": [
+          "NO_READABLE_SOURCES",
+          "SEARCH_STRATEGY_EXHAUSTED"
+        ],
+        "prompt": "NPL oranında son 5 yılda yaşanan ani sıçrama (outlier/anomali) aylarını istatistiksel olarak saptayarak işaretle. Bu tarihlerde BDDK'nın (https://www.bddk.org.tr) kredi kartı yapılandırma veya taksit kısıtlaması kararlarını web'de aratıp anomaliyle örtüşüp örtüşmediğini raporla.",
+        "prompt_index": 2,
+        "run_id": "run_64de387b50824b50b893f998f1c6faeb",
+        "status": "blocked"
+      }
+    ],
+    "session_id": "conversation_0786c0540ae94cbd87a77bb9cae7567d",
+    "session_name": "main branch senaryo 2 25li"
+  }
+}
