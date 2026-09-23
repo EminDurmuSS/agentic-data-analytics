@@ -38,5 +38,10 @@ data_pipeline/lakehouse/analytics.duckdb.wal
 data_pipeline/evds/full_catalog/
 data_pipeline/evds/.full_catalog*/
 
+# Workspace-scoped on-demand EVDS acquisition scratch space (commit 7).
+# Nothing here is a permanent release; promote via tools/promote_on_demand_series.py
+# into data_pipeline/evds/manifests/ before it is reviewed/committed.
+data_pipeline/evds/on_demand/
+
 docs/meeting-notes
 docs/eval-set

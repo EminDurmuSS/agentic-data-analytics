@@ -37,7 +37,7 @@ AGENT_PORT=8871 LAKEHOUSE_DIR="/home/neo/Desktop/GITHUB MYZ21/agentic-data-analy
 | 4 | `data(borsa): import official precious-metals monthly panel` | ✅ TAMAMLANDI, commit atılacak | EVDS `TP.ALTINPIYASA.HACM02`/`MIKT02` — detay aşağıda |
 | 5 | `data(reference): add minimum wage decision lookup table` | ✅ TAMAMLANDI, commit atılacak | 8 karar dönemi (2021-2026), EVDS pattern'i bilinçli uygulanmadı — detay aşağıda |
 | 6 | `docs(eval): rerun benchmark 1-4 checkpoint` | ✅ TAMAMLANDI | Tüm 4 senaryonun sayısal bağımlılıkları `ready`; `docs/eval-set/benchmark-1-4-readiness-checkpoint.md` |
-| 7 | `feat(runtime): replace global on-demand overlay with workspace-scoped versioned acquisition store` | ⬜ Başlamadı | |
+| 7 | `feat(runtime): replace global on-demand overlay with workspace-scoped versioned acquisition store` | ✅ TAMAMLANDI | `tools/EVDS_Talep_Uzerine_Indirme_Araci.py` artık `--workspace` zorunlu, çıktı `on_demand/<workspace>/<hash>/`, fcntl kilidi; yeni `tools/promote_on_demand_series.py` terfi yolu |
 | 8 | `fix(lakehouse): add executable aliases for BDDK financial metrics` | ⬜ Başlamadı | |
 | 9 | `feat(lakehouse): classify ready/acquirable/near_match_available/web_required/unavailable` | ⬜ Başlamadı | |
 | 10 | `fix(discover): cap lexical reformulation retries and resolve from already-ranked near-matches` | ⬜ Başlamadı | |
@@ -221,6 +221,47 @@ dışında bırakıldı ve `minimum_wage_notes.md`'de takip işi olarak belgelen
 **Test sonucu:** `tests/ingestion/test_minimum_wage_reference.py` → 9/9 geçti.
 `pytest tests/lakehouse tests/ingestion -q` → bkz. commit mesajı (yalnız aynı 2 öncesinden var/ilgisiz
 hata, yeni regresyon yok — bu commit hiçbir mevcut dosyayı değiştirmedi, yalnızca ekledi).
+
+## Commit 7 — sonuç (tamamlandı)
+
+**Bulgu:** `agentic_analytics/agent/tools/` altında `EVDS_Talep_Uzerine_Indirme_Araci.py`'ye giden HİÇBİR
+tipli araç yoktu (grep doğrulandı) — canlı bir eval koşusunda bu script'in çalıştırılması, tipli
+`discover/describe/execute` sözleşmesinin dışında, agent'a genel bir kabuk/komut yeteneği üzerinden
+gerçekleşmiş olmalı. Script kendisi tamamen global paylaşımlıydı: çıktı her zaman
+`data_pipeline/evds/on_demand/<hash>/` altına yazılıyordu (workspace kavramı yok), kilitsiz (iki eşzamanlı
+çağrı aynı dizine yazabilirdi), ve doğrudan kalıcı `data_pipeline/evds/manifests/` desenine (commit 1)
+hiçbir yolla bağlanmıyordu.
+
+**Yapılan değişiklik (minimal, hedefli):**
+1. `tools/EVDS_Talep_Uzerine_Indirme_Araci.py`: `--workspace` argümanı eklendi (bir `--output` açıkça
+   verilmediği sürece zorunlu). Çıktı artık `DEFAULT_OUTPUT_ROOT/<workspace_id>/<dataset_hash>/` altında.
+   `validate_workspace_id()` path-traversal/geçersiz karakterlere karşı regex ile kısıtlıyor.
+   `workspace_acquisition_lock()` — `agentic_analytics/lakehouse/store.py::LakehouseStore._lock`'un aynı
+   `fcntl.flock` desenini tekrar kullanarak `(workspace_id, dataset_hash)` çiftine özel bir kilit dosyası
+   ediniyor; farklı workspace'ler veya farklı seri/tarih seçimleri birbirini bloklamıyor.
+2. Yeni `tools/promote_on_demand_series.py` — doğrulanmış bir on-demand acquisition'ı (generated_manifest.json
+   + observations_long.parquet + validation.json'un tam varlığı zorunlu) commit 1 şeklinde
+   (`{dataset_id, description, start_date, end_date, series:[{series_code, role, reason}]}`) kalıcı bir
+   manifest'e dönüştürüyor; her seri için gerçek (placeholder olmayan) role/reason zorunlu, `provenance`
+   alanında `review_required: true` ve hangi adımların (katalog/build_lakehouse/registry wiring) hâlâ manuel
+   olduğu açıkça belirtiliyor — commit 5'teki "yalnız yapısal terfi, sessizce wiring yapma" dürüstlük
+   deseniyle tutarlı. `--force` olmadan var olan bir terfi dosyasının üzerine yazmıyor.
+3. `.gitignore`'a `data_pipeline/evds/on_demand/` eklendi (analytics.duckdb gibi scratch/reproducible veri,
+   commit'e girmemeli).
+4. Yeni test dosyası `tests/ingestion/test_evds_on_demand_workspace_scoping.py` (18 test): workspace id
+   doğrulama, iki workspace'in ayrı depolama kökü alması, path-escape reddi, kilidin aynı
+   `(workspace, hash)` çiftini gerçekten serialize ettiği (thread ile kanıtlandı), farklı çiftlerin
+   birbirini bloklamadığı, terfi aracının eksik/kısmi acquisition'ı reddettiği, rol eksikse reddettiği,
+   on-demand kimliğini yeniden kullanmayı reddettiği, ve `--force` olmadan üzerine yazmadığı.
+
+**Kapsam dışı bırakılan (bilinçli):** Terfi sonrası katalog/`build_lakehouse.py`/`registry.py` wiring'i
+otomatikleştirilmedi — bu, commit 1-5'in kurduğu "her yeni seri insan gözden geçirmesiyle wiring'e girer"
+deseniyle kasıtlı olarak tutarlı; otomatik wiring, review adımını atlayarak doğrulanmamış on-demand veriyi
+sessizce kalıcı lakehouse'a sokma riski taşırdı.
+
+**Test sonucu:** `pytest tests/ingestion/test_evds_on_demand_workspace_scoping.py tests/ingestion/test_evds_on_demand.py -q`
+→ 31/31 geçti. Tam paket (`pytest tests/lakehouse tests/ingestion -q`) yalnızca aynı 2 bilinen ilgisiz
+hata dışında geçti (aşağıda commit mesajında detay).
 
 ## Kalan commit'ler için orijinal plan detayları
 

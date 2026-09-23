@@ -5,11 +5,29 @@ The full EVDS metadata catalog stays local, while observation values are
 downloaded only for series selected by the user or an agent. The generated
 manifest is then executed by the audited EVDS manifest downloader, so raw
 requests, raw responses, missing values and SHA-256 lineage are preserved.
+
+Acquisitions are workspace-scoped (commit 7): every on-demand download is
+written under ``DEFAULT_OUTPUT_ROOT/<workspace_id>/<dataset_hash>/`` instead
+of a single global directory shared by every caller. A ``--workspace``
+argument is required for any download (``--search``-only calls do not touch
+storage and do not need one). An advisory ``fcntl`` file lock, keyed by
+``(workspace_id, dataset_hash)``, serializes concurrent acquisitions of the
+same series set within the same workspace so two callers cannot interleave
+writes into the same acquisition directory (mirrors the per-workspace lock
+in ``agentic_analytics/lakehouse/store.py::LakehouseStore._lock``). This
+on-demand store is explicitly NOT the permanent manifest pattern used by
+``data_pipeline/evds/manifests/*.json`` (see commit 1/3/4 in
+``docs/eval-set/COMMIT_PLAN_STATUS.md``); a validated on-demand acquisition
+must be promoted with ``tools/promote_on_demand_series.py`` before it is
+wired into the catalog/lakehouse build for other workspaces or a permanent
+release.
 """
 
 from __future__ import annotations
 
 import argparse
+import contextlib
+import fcntl
 import hashlib
 import json
 import re
@@ -30,6 +48,54 @@ from tools.EVDS_Manifest_Indirme_Araci import run as run_manifest_download
 
 DEFAULT_CATALOG = PROJECT_ROOT / "data_pipeline" / "catalog" / "evds_series_catalog.parquet"
 DEFAULT_OUTPUT_ROOT = PROJECT_ROOT / "data_pipeline" / "evds" / "on_demand"
+WORKSPACE_ID_PATTERN = re.compile(r"[A-Za-z0-9][A-Za-z0-9_-]{0,127}")
+
+
+def validate_workspace_id(workspace_id: Any) -> str:
+    """Reject anything that is not a bounded, filesystem-safe identifier.
+
+    A caller-controlled workspace id ends up as a directory and lock-file
+    name; it must never be usable to escape the on-demand store root or to
+    collide with another workspace's storage.
+    """
+    if not isinstance(workspace_id, str) or not WORKSPACE_ID_PATTERN.fullmatch(workspace_id):
+        raise ValueError(
+            "Workspace id must be a non-empty, bounded alphanumeric/underscore/hyphen identifier."
+        )
+    return workspace_id
+
+
+def workspace_output_root(workspace_id: str, output_root: Path = DEFAULT_OUTPUT_ROOT) -> Path:
+    validate_workspace_id(workspace_id)
+    root = (output_root / workspace_id).resolve()
+    if not root.is_relative_to(output_root.resolve()):
+        raise ValueError("Workspace output root escapes the on-demand store root.")
+    return root
+
+
+@contextlib.contextmanager
+def workspace_acquisition_lock(workspace_id: str, dataset_hash: str, output_root: Path = DEFAULT_OUTPUT_ROOT):
+    """Serialize acquisitions of the same series set within one workspace.
+
+    Two independent processes racing to acquire the same
+    ``(workspace_id, dataset_hash)`` pair will block on this lock rather than
+    interleave writes into the same acquisition directory. Different
+    workspaces (or different series/date selections within the same
+    workspace) never contend on the same lock file, so this does not
+    serialize unrelated acquisitions.
+    """
+    validate_workspace_id(workspace_id)
+    if not isinstance(dataset_hash, str) or not re.fullmatch(r"[a-f0-9]{8,64}", dataset_hash):
+        raise ValueError("Dataset hash must be a lowercase hex digest fragment.")
+    lock_dir = output_root / ".locks"
+    lock_dir.mkdir(parents=True, exist_ok=True)
+    lock_path = lock_dir / f"{workspace_id}__{dataset_hash}.lock"
+    with lock_path.open("a+b") as handle:
+        fcntl.flock(handle, fcntl.LOCK_EX)
+        try:
+            yield lock_path
+        finally:
+            fcntl.flock(handle, fcntl.LOCK_UN)
 
 
 def normalize(value: Any) -> str:
@@ -149,6 +215,12 @@ def main() -> int:
     parser.add_argument("--start", default="2021-01-01")
     parser.add_argument("--end", default="2026-06-30")
     parser.add_argument("--dataset-id")
+    parser.add_argument(
+        "--workspace",
+        help="Bu acquisition'i izole eden workspace kimligi (--series ile zorunlu; "
+        "--search-only cagrilarda gerekmez). Cikti "
+        "DEFAULT_OUTPUT_ROOT/<workspace>/<hash> altina, workspace'e ozel kilitle yazilir.",
+    )
     parser.add_argument("--output", type=Path)
     parser.add_argument("--include-archive", action="store_true")
     parser.add_argument("--dry-run", action="store_true")
@@ -176,44 +248,54 @@ def main() -> int:
             return 0
     if not args.series:
         parser.error("--search veya --series parametrelerinden en az biri gerekli.")
+    if not args.output and not args.workspace:
+        parser.error(
+            "--workspace gerekli (ya da acik bir --output verin): on-demand "
+            "acquisition'lar artik global degil, workspace'e izole edilir."
+        )
 
     dataset_id = args.dataset_id or generated_dataset_id(
         args.series, args.start, args.end
     )
-    output = (
-        args.output.expanduser().resolve()
-        if args.output
-        else (DEFAULT_OUTPUT_ROOT / dataset_id.rsplit(".", 1)[-1]).resolve()
-    )
-    output.mkdir(parents=True, exist_ok=True)
-    manifest = build_manifest(
-        catalog,
-        args.series,
-        args.start,
-        args.end,
-        dataset_id,
-        allow_archive=args.include_archive,
-    )
-    manifest_path = output / "generated_manifest.json"
-    manifest_path.write_text(
-        json.dumps(manifest, ensure_ascii=False, indent=2), encoding="utf-8"
-    )
-    print(f"Manifest: {manifest_path}")
-    if args.dry_run:
-        print(json.dumps(manifest, ensure_ascii=False, indent=2))
-        return 0
+    dataset_hash = dataset_id.rsplit(".", 1)[-1]
+    lock_context = contextlib.nullcontext()
+    if args.output:
+        output = args.output.expanduser().resolve()
+    else:
+        workspace_id = validate_workspace_id(args.workspace)
+        output = workspace_output_root(workspace_id) / dataset_hash
+        lock_context = workspace_acquisition_lock(workspace_id, dataset_hash)
 
-    return run_manifest_download(
-        SimpleNamespace(
-            manifest=manifest_path,
-            catalog=catalog_path,
-            output=output,
-            timeout=args.timeout,
-            retries=args.retries,
-            delay=args.delay,
-            transport=args.transport,
+    with lock_context:
+        output.mkdir(parents=True, exist_ok=True)
+        manifest = build_manifest(
+            catalog,
+            args.series,
+            args.start,
+            args.end,
+            dataset_id,
+            allow_archive=args.include_archive,
         )
-    )
+        manifest_path = output / "generated_manifest.json"
+        manifest_path.write_text(
+            json.dumps(manifest, ensure_ascii=False, indent=2), encoding="utf-8"
+        )
+        print(f"Manifest: {manifest_path}")
+        if args.dry_run:
+            print(json.dumps(manifest, ensure_ascii=False, indent=2))
+            return 0
+
+        return run_manifest_download(
+            SimpleNamespace(
+                manifest=manifest_path,
+                catalog=catalog_path,
+                output=output,
+                timeout=args.timeout,
+                retries=args.retries,
+                delay=args.delay,
+                transport=args.transport,
+            )
+        )
 
 
 if __name__ == "__main__":
