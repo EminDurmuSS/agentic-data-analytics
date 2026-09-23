@@ -70,7 +70,7 @@ def _activity(event):
         detail = f"Karar {payload.get('decision', '?')} için bir sonraki fonksiyon seçiliyor."
     elif kind == "model_response":
         if names:
-            title = "Qwen fonksiyon seçti"
+            title = "Model fonksiyon seçti"
             detail = ", ".join(f"{name} — {_tool_description(name)}" for name in names)
         elif payload.get("finish_reason") == "length":
             title, detail = "Qwen yanıtı kesildi", "Çıktı uzunluk sınırına takıldı; fonksiyon çalıştırılmadı."
