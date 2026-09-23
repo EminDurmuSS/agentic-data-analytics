@@ -19,7 +19,7 @@ import re
 import unittest
 from pathlib import Path
 
-from agentic_analytics.lakehouse.service import LakehouseService, _TERM_ALIASES
+from agentic_analytics.lakehouse.service import LakehouseService, _TERM_ALIASES, _search_terms, _term_matches
 
 DATABASE = Path(__file__).resolve().parents[2] / "data_pipeline" / "lakehouse" / "analytics.duckdb"
 
@@ -59,8 +59,18 @@ class AliasSchemaTests(unittest.TestCase):
         # be distinct and the table must actually contain the terms this
         # commit's acceptance criteria name.
         for expected in ("tasit", "ticari", "ihracat", "kobi", "kart", "takip",
-                          "sektor", "vade", "doviz", "kurum", "kumulatif", "akim", "oran"):
+                          "sektor", "doviz", "kumulatif", "akim", "oran"):
             self.assertIn(expected, _TERM_ALIASES.values(), msg=f"no alias targets {expected!r}")
+
+    def test_no_alias_widens_a_query_into_an_opposite_or_unrelated_title(self):
+        # Titles are matched by substring, so an alias to a short stem would let
+        # a time-deposit query match demand deposits, "flows" match "bakım"
+        # (care/maintenance) and "institution" match "kurumsal" (corporate).
+        for query, title in (("vadeli mevduat", "Vadesiz Mevduat"), ("maturity", "Vadesiz Mevduat"),
+                             ("flows", "Yatılı Bakım Faaliyetleri"), ("institution", "Kurumsal Kredi Kartları")):
+            with self.subTest(query=query):
+                text = " ".join(_search_terms(title))
+                self.assertFalse(all(_term_matches(term, text) for term in _search_terms(query)))
 
 
 @unittest.skipUnless(DATABASE.is_file(), "Published lakehouse snapshot unavailable; run build_lakehouse.py first")

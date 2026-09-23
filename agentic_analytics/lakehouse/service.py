@@ -136,10 +136,11 @@ _TERM_ALIASES = {"unemployment": "issiz", "inflation": "enflasyon", "cpi": "tufe
            "sme": "kobi", "smes": "kobi", "kobinin": "kobi",
            "card": "kart", "cards": "kart", "karti": "kart", "kartlari": "kart", "kartlarindan": "kart",
            "cumulative": "kumulatif", "kumulatifin": "kumulatif",
-           "flow": "akim", "flows": "akim", "akimi": "akim", "akimin": "akim",
+           # Titles are matched by substring, so a short stem also matches unrelated
+           # words: vade~vadesiz (demand deposits), akim~bakim, kurum~kurumsal.
+           # flow/maturity/vadeli/institution therefore stay unaliased.
+           "akimi": "akim", "akimin": "akim",
            "rate": "oran", "rates": "oran",
-           "maturity": "vade", "maturities": "vade", "vadeli": "vade", "vadesi": "vade",
-           "institution": "kurum", "institutions": "kurum",
            "currency": "doviz", "currencies": "doviz",
            "sector": "sektor", "sectors": "sektor",
            "trade": "ticaret", "ticaretin": "ticaret",
