@@ -1671,7 +1671,7 @@ def test_failed_research_is_replaced_only_by_relevant_ownership_read(env, read_s
     response = "Example ortakları Alpha ve Beta. Karşılaştırmaya Alpha ile başlamayı öneriyorum."
     runtime, _ = build([call("research_web", {"query": "Example shareholders"}),
         call("inspect_source", {"url": "https://example.org/shareholders"}), final(response)], more=tools, max_decisions=3)
-    result = runtime.run("Example'nin ortakları kimler, hangisini ekleyelim?")
+    result = runtime.run("Example'nin ortakları kimler, hangisini ekleyelim? Kaynak: https://example.org/shareholders")
     errors = {error["code"] for error in result.get("errors", [])}
     if completes:
         assert result["status"] == "completed"
@@ -1695,7 +1695,7 @@ def test_research_replacement_read_does_not_clear_calculation_error(env):
             "status": "ok", "source_id": "source", "text": "Report read.", "source_url": args["url"]}}
     runtime, _ = build([call("execute", invalid), call("research_web", {"query": "report"}),
         call("inspect_source", {"url": "https://example.org/report"}), final()], more=tools)
-    result = runtime.run("Kaynağı bul ve analiz yap")
+    result = runtime.run("Kaynağı bul ve analiz yap: https://example.org/report")
     assert result["status"] == "partial"
     assert "UNIT_MISMATCH" in {error["code"] for error in result["errors"]}
     assert "NO_READABLE_SOURCES" not in {error["code"] for error in result["errors"]}
@@ -2245,7 +2245,7 @@ def test_provider_search_budget_failure_is_recovered_by_relevant_source_read(env
     response = 'Rapordaki ortaklar Alpha ve Beta.'
     runtime, _ = build([call('research_web', {'query': 'Example ortakları'}),
         call('inspect_source', {'url': 'https://example.org/owners'}), final(response)], more=tools)
-    result = runtime.run("Example'nin ortakları kim?")
+    result = runtime.run("Example'nin ortakları kim? Kaynak: https://example.org/owners")
     assert result['status'] == 'completed' and result['message'].startswith(response)
     assert result['tool_results'][0]['result']['errors'][0]['code'] == 'SEARCH_BUDGET_EXHAUSTED'
 

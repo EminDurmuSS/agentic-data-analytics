@@ -9,6 +9,7 @@ from unittest.mock import patch
 import duckdb
 import pandas as pd
 
+from agentic_analytics.agent.prompts import SYSTEM_PROMPT
 from agentic_analytics.agent.run_store import AgentRunStore
 from agentic_analytics.agent.runtime import AgentRuntime, _source_url_discovery_error
 from agentic_analytics.agent.schemas import obj
@@ -403,7 +404,10 @@ class AgentRuntimeTests(unittest.TestCase):
         service.discover = lambda request: {"status": "ok", "total": 25, "metrics": cards[:request.get("limit", 10)]}
         responses = [call("discover", {"query": f"search-{i}", "limit": 25}, f"search-{i}") for i in range(4)]
         responses += [call("describe", {"metric_id": "credit"}, "details"), call("execute", self.plan, "execute"), FINAL]
-        runtime, client = self.runtime(responses, service=service, max_context_chars=26000)
+        # Tight enough to force compaction, measured from the fixed prompt so unrelated
+        # prompt growth does not consume the headroom this test exercises.
+        budget = len(SYSTEM_PROMPT) + 5400
+        runtime, client = self.runtime(responses, service=service, max_context_chars=budget)
         result = runtime.run("Veriyi bul ve hesapla")
         self.assertEqual(result["status"], "completed", result)
         self.assertTrue(result["analysis_updated"])
@@ -433,7 +437,7 @@ class AgentRuntimeTests(unittest.TestCase):
         full = next(e["payload"]["result"] for e in events if e["kind"] == "tool_result" and e["payload"].get("tool") == "discover")
         self.assertEqual(len(full["metrics"]), 25)
         self.assertEqual(full["metrics"][0]["notes"], cards[0]["notes"])
-        runtime, continuation_client = self.runtime([FINAL], max_context_chars=26000)
+        runtime, continuation_client = self.runtime([FINAL], max_context_chars=budget)
         continued = runtime.run("Bu tablonun birimini açıkla", conversation_id=result["conversation_id"])
         self.assertEqual(continued["status"], "completed")
         self.assertIn('"active_schema"', continuation_client.requests[0][0]["content"])
