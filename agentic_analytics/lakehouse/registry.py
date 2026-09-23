@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
 import re
 from collections import Counter
 from pathlib import Path
@@ -40,8 +41,15 @@ from agentic_analytics.paths import REPO_ROOT
 ON_DEMAND_DB_PATH = REPO_ROOT / ".lakehouse-runtime" / "on_demand.duckdb"
 
 
-def attach_on_demand_overlay(connection: duckdb.DuckDBPyConnection, path: Path = ON_DEMAND_DB_PATH) -> bool:
+def on_demand_db_path() -> Path:
+    """Resolve the overlay when used; EVDS_ON_DEMAND_DB relocates it (tests, other deployments)."""
+    configured = os.environ.get("EVDS_ON_DEMAND_DB")
+    return Path(configured) if configured else ON_DEMAND_DB_PATH
+
+
+def attach_on_demand_overlay(connection: duckdb.DuckDBPyConnection, path: Path | None = None) -> bool:
     """Attach the on-demand overlay database read-only, if present. Idempotent."""
+    path = on_demand_db_path() if path is None else path
     already = any(row[1] == "on_demand" for row in connection.execute("PRAGMA database_list").fetchall())
     if already:
         return True
@@ -217,18 +225,11 @@ def build_bindings(connection: duckdb.DuckDBPyConnection) -> dict[str, dict[str,
                 "TP.KKM.K2":("USD",1e9,"USD","stock"),
                 "TP.KKM.K4":("USD",1e9,"USD","stock"),
             }
-            if code in explicit:
+            if code in explicit and metric["dataset_id"] != "evds.full_catalog":
                 binding["unit"],binding["scale"],binding["currency"],binding["kind"] = explicit[code]
                 binding["unit_evidence"] = "Reviewed source-series meaning; group-level unit is not authoritative."
-            elif metric["dataset_id"] == "evds.full_catalog":
-                inferred_unit, inferred_scale, inferred_currency, inferred_kind = infer_evds_semantics(metric, code)
-                if inferred_kind != "unknown":
-                    binding["unit"], binding["scale"], binding["currency"], binding["kind"] = inferred_unit, inferred_scale, inferred_currency, inferred_kind
-                    binding["unit_evidence"] = ("Derived from EVDS series-level metadata (unit code and name pattern); "
-                        "not individually hand-reviewed like the explicit list above.")
             method = metric["default_aggregation"]
-            still_unreviewed = metric["dataset_id"] == "evds.full_catalog" and binding["kind"] == "unknown"
-            binding["aggregation"] = ("review_required" if still_unreviewed
+            binding["aggregation"] = ("review_required" if metric["dataset_id"] == "evds.full_catalog"
                                       else method if method in {"sum","last","mean"} else "last")
             if code == "TP.KTF12":
                 binding["notes"] += " Monthly mean is the unweighted mean of published weekly rates, not a loan-volume-weighted monthly rate."

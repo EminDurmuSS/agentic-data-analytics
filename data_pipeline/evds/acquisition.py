@@ -1,7 +1,7 @@
 """Acquire EVDS observations for any catalogued series, on demand.
 
 This is the write side of the runtime on-demand overlay described in
-agentic_analytics/lakehouse/registry.py (ON_DEMAND_DB_PATH, get_bindings).
+agentic_analytics/lakehouse/registry.py (on_demand_db_path, get_bindings).
 It reuses the existing audited path — catalog-validated manifest, then the
 EVDS manifest downloader that preserves raw requests/responses and SHA-256
 lineage — and merges the resulting observations into a small, independently
@@ -39,17 +39,16 @@ if str(PROJECT_ROOT) not in sys.path:
 
 from tools.EVDS_Manifest_Indirme_Araci import run as run_manifest_download
 from tools.EVDS_Talep_Uzerine_Indirme_Araci import build_manifest, generated_dataset_id
-from agentic_analytics.lakehouse.registry import ON_DEMAND_DB_PATH
+from agentic_analytics.lakehouse.registry import on_demand_db_path
 
 DEFAULT_CATALOG = PROJECT_ROOT / "data_pipeline" / "catalog" / "evds_series_catalog.parquet"
 # The shipped container's root filesystem is read-only and data_pipeline/lakehouse
 # is bind-mounted read_only (see docker-compose.yml); ".lakehouse-runtime" is the
 # one writable, persistent location (the agent-runtime volume). Both the raw
 # download staging area and the overlay database itself must live there, not
-# under data_pipeline/. OVERLAY_DB_PATH is imported from registry.py, the single
-# source of truth for the path get_bindings() attaches at query time.
+# under data_pipeline/. The overlay location comes from registry.on_demand_db_path(),
+# the single source of truth for the path get_bindings() attaches at query time.
 DEFAULT_OUTPUT_ROOT = PROJECT_ROOT / ".lakehouse-runtime" / "evds_on_demand"
-OVERLAY_DB_PATH = ON_DEMAND_DB_PATH
 
 OVERLAY_COLUMNS = ["series_code", "period", "period_start", "period_end", "value",
                    "is_missing", "missing_kind", "native_frequency", "dataset_id",
@@ -77,7 +76,7 @@ def acquire_evds_series(
     *,
     catalog_path: Path = DEFAULT_CATALOG,
     output_root: Path = DEFAULT_OUTPUT_ROOT,
-    overlay_path: Path = OVERLAY_DB_PATH,
+    overlay_path: Path | None = None,
     timeout: int = 60,
     retries: int = 3,
     delay: float = 0.25,
@@ -88,6 +87,7 @@ def acquire_evds_series(
     downloader would otherwise reject (unknown code, archived series without
     review, empty selection, ...).
     """
+    overlay_path = on_demand_db_path() if overlay_path is None else overlay_path
     if not isinstance(series_codes, list) or not series_codes:
         raise AcquisitionError("series_codes must be a non-empty list", code="INVALID_INPUT")
     codes = [str(code).strip() for code in series_codes]
@@ -160,7 +160,7 @@ def _prepare_overlay_frame(observations: pd.DataFrame, dataset_id: str, manifest
     return frame[OVERLAY_COLUMNS]
 
 
-def publish_overlay(frame: pd.DataFrame, *, overlay_path: Path = OVERLAY_DB_PATH) -> dict[str, Any]:
+def publish_overlay(frame: pd.DataFrame, *, overlay_path: Path | None = None) -> dict[str, Any]:
     """Atomically merge new observations into the on-demand overlay database.
 
     The whole overlay is rewritten into a fresh scratch file (existing rows
@@ -170,6 +170,7 @@ def publish_overlay(frame: pd.DataFrame, *, overlay_path: Path = OVERLAY_DB_PATH
     process is expected to call this at a time (the acquisition tool serializes
     calls), and readers always see a complete file, old or new.
     """
+    overlay_path = on_demand_db_path() if overlay_path is None else overlay_path
     overlay_path.parent.mkdir(parents=True, exist_ok=True)
     fd, scratch_name = tempfile.mkstemp(prefix=".on_demand.", suffix=".duckdb", dir=str(overlay_path.parent))
     os.close(fd)

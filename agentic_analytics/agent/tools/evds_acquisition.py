@@ -25,13 +25,11 @@ from __future__ import annotations
 from agentic_analytics.agent.schemas import obj
 
 
-def evds_acquisition_tools() -> dict:
-    from data_pipeline.evds.acquisition import AcquisitionError, acquire_evds_series
-
+def evds_acquisition_tools(acquire_evds_series, acquisition_error) -> dict:
     def handler(args):
         try:
             return acquire_evds_series(args["series_codes"], args["start_date"], args["end_date"])
-        except AcquisitionError as exc:
+        except acquisition_error as exc:
             return {"status": "blocked", "code": exc.code, "message": str(exc)}
         except (OSError, ValueError) as exc:
             return {"status": "blocked", "code": "ACQUISITION_FAILED", "message": str(exc)}
