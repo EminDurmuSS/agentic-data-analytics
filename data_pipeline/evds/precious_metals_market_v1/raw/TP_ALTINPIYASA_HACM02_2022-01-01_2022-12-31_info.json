@@ -1,0 +1,32 @@
+{
+  "status": "validated",
+  "series_code": "TP.ALTINPIYASA.HACM02",
+  "frequency": "İŞ GÜNÜ",
+  "aggregation": "last",
+  "chunk_start": "2022-01-01",
+  "chunk_end": "2022-12-31",
+  "request_file": "raw/TP_ALTINPIYASA_HACM02_2022-01-01_2022-12-31_request.json",
+  "request_sha256": "d1ad54bc42bf89ded7e526cd6c5e73c496d2499b1283910aded5a85bda311b9b",
+  "response_file": "raw/TP_ALTINPIYASA_HACM02_2022-01-01_2022-12-31_response.json.gz",
+  "response_sha256": "f2e9db19a2c904e0efd1b4b74fabae261fcbaeb4589ae65b972a2626bc52512c",
+  "served_from_cache": false,
+  "http_status": 200,
+  "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "content_type": "application/json;charset=UTF-8",
+  "url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "started_at_utc": "2026-09-23T15:23:06.697091+00:00",
+  "completed_at_utc": "2026-09-23T15:23:07.234833+00:00",
+  "bytes": 47744,
+  "sha256": "f2e9db19a2c904e0efd1b4b74fabae261fcbaeb4589ae65b972a2626bc52512c",
+  "transport": "curl",
+  "tls_verification": true,
+  "response_total_count": 260,
+  "retained_rows": 260,
+  "outside_requested_range_rows": 0,
+  "series_names": {
+    "TP_ALTINPIYASA_HACM02": "Altın - İşlem Hacmi - TL/kg"
+  },
+  "frequency_conversion": {
+    "TP.ALTINPIYASA.HACM02": true
+  }
+}

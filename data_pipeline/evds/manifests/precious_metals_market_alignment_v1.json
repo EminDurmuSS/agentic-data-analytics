@@ -1,0 +1,9 @@
+{
+  "dataset_id": "precious_metals_market_v1",
+  "description": "BIST Altin Piyasasi is gunu islem hacmi ve miktarini aylik toplam olarak analiz panellerine hizalama kurallari.",
+  "quarterly_to_monthly": "quarter_end_only",
+  "role_policies": {
+    "gold_trading_volume_try": {"temporal_semantics": "flow", "subperiod_aggregation": "sum"},
+    "gold_trading_quantity_kg": {"temporal_semantics": "flow", "subperiod_aggregation": "sum"}
+  }
+}

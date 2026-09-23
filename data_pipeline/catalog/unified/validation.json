@@ -1,10 +1,10 @@
 {
   "status": "passed",
   "data_readiness_status": "local_snapshot_validated_evds_coverage_incomplete",
-  "asset_count": 83,
+  "asset_count": 87,
   "metric_count": 55506,
-  "queryable_metric_count": 3419,
-  "metadata_only_metric_count": 52087,
+  "queryable_metric_count": 3421,
+  "metadata_only_metric_count": 52085,
   "metrics_by_source_system": {
     "BDDK_FINTURK": 76,
     "BDDK_MONTHLY": 2108,
@@ -25,12 +25,12 @@
     "REGIONAL_HOUSING_ANALYSIS": 4,
     "TBB_REPORTS": 5,
     "TBB_RISK_CENTER": 4,
-    "TCMB_EVDS": 30,
+    "TCMB_EVDS": 34,
     "TUIK_DATA_PORTAL": 7
   },
-  "selected_evds_observation_series": 611,
+  "selected_evds_observation_series": 613,
   "evds_metadata_series": 52696,
-  "evds_numeric_series": 599,
+  "evds_numeric_series": 601,
   "evds_full_observation_coverage_complete": false,
   "evds_full_request_scope_complete": false,
   "evds_full_catalog": {

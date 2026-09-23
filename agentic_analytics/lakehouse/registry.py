@@ -165,6 +165,8 @@ def build_bindings(connection: duckdb.DuckDBPyConnection) -> dict[str, dict[str,
                 "TP.TRY.MT02":("percent",1.,None,"rate"),
                 "TP.ALTINPIYASA.KAP02":("TRY/kg",1.,"TRY","price"),
                 "TP.ALTINPIYASA.KAP05":("TRY/gram",1.,"TRY","price"),
+                "TP.ALTINPIYASA.HACM02":("TRY",1.,"TRY","flow"),
+                "TP.ALTINPIYASA.MIKT02":("kg",1.,None,"flow"),
                 "TP.KKM.K1":("TRY",1e9,"TRY","stock"),
                 "TP.KKM.K2":("USD",1e9,"USD","stock"),
                 "TP.KKM.K4":("USD",1e9,"USD","stock"),
@@ -252,7 +254,7 @@ def build_bindings(connection: duckdb.DuckDBPyConnection) -> dict[str, dict[str,
             binding["dimension_types"] = {key:available[col] for key,col in binding["dimensions"].items()}
             if not numeric:
                 binding["blocked_reason"] = "Categorical field: numerical operations are not available."
-            known_unit = binding["unit"] in {"TRY","USD","count","person","percent","index","day","TRY/m2","TRY/gram","TRY/kg","TRY/person","TRY/branch","person/branch"}
+            known_unit = binding["unit"] in {"TRY","USD","count","person","percent","index","day","kg","TRY/m2","TRY/gram","TRY/kg","TRY/person","TRY/branch","person/branch"}
             if numeric and known_unit and binding["kind"] != "unknown" and not binding.get("blocked_reason"):
                 binding["status"] = "ready"
             if metric["observation_count"] <= metric["missing_observation_count"]:

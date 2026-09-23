@@ -83,7 +83,7 @@ class LakehouseTests(unittest.TestCase):
             "count(*) FILTER (WHERE dataset_id = 'evds.full_catalog') "
             "FROM catalog.metrics WHERE source_system='TCMB_EVDS' AND observation_available"
         ).fetchone()
-        self.assertEqual(611, seed_available)
+        self.assertEqual(613, seed_available)
         self.assertEqual(seed_available + bulk_available, available)
         derived = self.connection.execute(
             "SELECT count(*) FROM catalog.metrics "

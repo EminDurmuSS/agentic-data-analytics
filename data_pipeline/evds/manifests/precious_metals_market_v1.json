@@ -1,0 +1,18 @@
+{
+  "dataset_id": "precious_metals_market_v1",
+  "description": "BIST Altin Piyasasi (Kiymetli Madenler ve Kiymetli Taslar Piyasasi) is gunu islem hacmi ve islem miktari serileri; gunlukten aylik panele agregasyon icin.",
+  "start_date": "2020-01-01",
+  "end_date": "2026-06-30",
+  "series": [
+    {
+      "series_code": "TP.ALTINPIYASA.HACM02",
+      "role": "gold_trading_volume_try",
+      "reason": "BIST Altin Piyasasi is gunu islem hacmini (TL/kg bazinda, TL) izlemek; Benchmark Senaryo 4 aylik altin islem hacmi tablosu icin ana seri."
+    },
+    {
+      "series_code": "TP.ALTINPIYASA.MIKT02",
+      "role": "gold_trading_quantity_kg",
+      "reason": "BIST Altin Piyasasi is gunu islem miktarini (kg) izlemek; hacim serisini tamamlayan miktar bileseni."
+    }
+  ]
+}

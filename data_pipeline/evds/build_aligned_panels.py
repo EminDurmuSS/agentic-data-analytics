@@ -61,6 +61,7 @@ def coverage_audit(
     target_end = target.end_time.normalize()
     non_null = observations.loc[observations["value"].notna()]
     expected: set[str] | None = None
+    high_frequency_sum_complete: bool | None = None
     if native_frequency == "AYLIK":
         expected = set(pd.period_range(target.start_time, target.end_time, freq="M").astype(str))
         actual = set(observations["period_end_date"].dt.to_period("M").astype(str))
@@ -71,8 +72,29 @@ def coverage_audit(
         valid = set(non_null["period_end_date"].dt.to_period("Q").astype(str))
     else:
         actual, valid = set(), set()
+        if (
+            native_frequency in HIGH_FREQUENCY
+            and method == "sum"
+            and "is_unresolved_missing" in observations.columns
+        ):
+            # No independent trading-calendar is supplied for high-frequency series,
+            # so completeness cannot be proven from an expected-period set. Instead,
+            # reuse the downloader's own per-row missingness classification: every
+            # null in the requested window is either "before_series_start" or
+            # "calendar_non_observation" (both structural, non-trading days) or an
+            # "unresolved" gap in real trading-day coverage. A sum is trustworthy
+            # only when the month has at least one observed value and zero
+            # unresolved (unexplained) missing rows.
+            unresolved_count = int(
+                observations["is_unresolved_missing"].fillna(False).astype(bool).sum()
+            )
+            high_frequency_sum_complete = bool(unresolved_count == 0 and not non_null.empty)
     missing = sorted(expected - valid) if expected is not None else None
-    complete = not missing if expected is not None else None
+    complete = (
+        not missing
+        if expected is not None
+        else high_frequency_sum_complete
+    )
     selected = None
     if not non_null.empty and method in {"identity", "first", "last"}:
         selected = non_null.iloc[0 if method in {"identity", "first"} else -1]
@@ -134,7 +156,18 @@ def align_series(
                 f"gelen={len(observations)}"
             )
         coverage = coverage_audit(observations, target_period, target_frequency, native_frequency, applied_method)
-        value = aggregate_value(observations["value"], applied_method)
+        if applied_method == "sum" and native_frequency in HIGH_FREQUENCY:
+            # High-frequency (e.g. business-day) source rows legitimately contain
+            # calendar nulls (weekends/holidays); aggregate_value's strict
+            # values.isna().any() guard would null the sum even when
+            # coverage_audit has already verified there is no unresolved gap
+            # (see coverage_audit's high_frequency_sum_complete branch). Sum only
+            # the observed values; completeness gating below decides whether the
+            # result is trusted.
+            non_null_values = observations["value"].dropna()
+            value = float(non_null_values.sum()) if not non_null_values.empty else None
+        else:
+            value = aggregate_value(observations["value"], applied_method)
         status = "available"
         if applied_method == "sum" and coverage["is_complete"] is not True:
             value = None
