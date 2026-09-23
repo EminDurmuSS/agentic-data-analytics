@@ -52,12 +52,17 @@ REQUIRED_FOR_COMPLETE = tuple(field for field in CONTRACT_FIELDS if field not in
 # BDDK monthly/weekly/FinTurk, TUIK web bulletin, TBB reports, and the PDF/web
 # document tool (agentic_analytics/agent/tools/documents.py).
 _HASH_KEYS = ("source_sha256", "source_response_sha256", "source_csv_sha256", "raw_sha256")
-_LOCATOR_KEYS = ("source_file", "source_response_file", "source_csv_file", "source_request_file")
+# ``dataset_id`` is an immutable workspace artifact locator for uploaded
+# PDF/Excel/web tables.  It is not an external filename, but it is the
+# verifiable source locator when an analysis was made through ``dataset_query``.
+_LOCATOR_KEYS = ("source_file", "source_response_file", "source_csv_file", "source_request_file", "dataset_id")
 _URL_KEYS = ("source_press_url", "source_download_url", "source_url",
             "official_series_url", "source_metadata_url", "methodology_source_url")
 _PAGE_OR_SHEET_KEYS = ("source_sheet", "page_number", "page_numbers", "sheet")
 _TABLE_KEYS = ("table_id", "table")
-_ROW_KEYS = ("source_row_index", "row")
+# PDF/HTML financial tables often preserve a stable human-readable row label
+# rather than a numeric row offset; either is an exact table-row locator.
+_ROW_KEYS = ("source_row_index", "row", "row_label")
 _COLUMN_KEYS = ("source_column_index", "value_dimension", "source_column", "column")
 _SCOPE_KEYS = ("institution_scope", "geography_scope", "population_scope", "source_currency_group")
 

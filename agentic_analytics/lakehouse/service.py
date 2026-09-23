@@ -1452,13 +1452,39 @@ class LakehouseService:
             self.store.raw_source_path(proof["dataset_id"])
             if dataset["source_sha256"] != proof["source_sha256"]:
                 raise PlanError("Dataset source hash changed", code="SOURCE_INTEGRITY_ERROR")
+            document_provenance = proof.get("document_provenance") or {}
+            preparation = document_provenance.get("preparation") or {}
+            source_cell = {
+                **cell,
+                "dataset_id": proof["dataset_id"],
+                "source_sha256": proof["source_sha256"],
+                "raw_sha256": document_provenance.get("raw_sha256"),
+                "source_url": document_provenance.get("source_url"),
+                "page_number": document_provenance.get("page"),
+                "table_id": preparation.get("source_table_id"),
+                "source_row_index": cell.get("source_row_index") or cell.get("source_rows", [None])[0],
+            }
+            source_binding = {
+                "source_system": "WORKSPACE_DATASET",
+                "unit": (manifest.get("schema", {}).get(column) or {}).get("unit"),
+                "table": preparation.get("source_table_id") or proof["dataset_id"],
+                "source_url": document_provenance.get("source_url"),
+                "institution_scope": document_provenance.get("scope"),
+            }
+            source_row_contract = build_source_row_contract(
+                source_binding, source_cell, column=column, period=request["period"],
+                value=selected.iloc[0][column],
+            )
             return _json({"status": "ok", "analysis_id": request["analysis_id"], "snapshot_id": manifest["snapshot_id"],
                           "column": column, "period": request["period"], "value": selected.iloc[0][column],
                           "schema": manifest["schema"].get(column), "lineage": {**cell, "dataset_id": proof["dataset_id"],
                           "source_sha256": proof["source_sha256"], "row_index_basis": proof["row_index_basis"],
                           "document_provenance": proof.get("document_provenance")},
                           "lineage_complete": True, "source_references_complete": True,
-                          "dataset_files_verified": True, "source_files_verified": False, "lineage_issues": []})
+                          "dataset_files_verified": True, "source_files_verified": False,
+                          "source_row_contracts": [source_row_contract],
+                          "source_row_contracts_complete": source_row_contract["complete"],
+                          "lineage_issues": []})
         inherited = lineage.get("preserved_columns", {}).get(column)
         if inherited and request["period"] in inherited.get("periods", [request["period"]]):
             inherited_request = {"analysis_id": inherited["analysis_id"], "column": inherited["column"], "period": request["period"]}
@@ -1536,14 +1562,38 @@ class LakehouseService:
             # locator fields exist before a later delivery gate relies on
             # them.  It deliberately does not reject an otherwise valid
             # analysis while legacy bindings are being migrated.
-            source_row_contracts = [
-                build_source_row_contract(
-                    binding, cell, column=name, period=_label(at),
+            document_provenance = binding.get("document_provenance") or {}
+            cell_origins = document_provenance.get("cell_origins") or []
+            origin = next(
+                (entry[name] for entry in cell_origins
+                 if isinstance(entry, dict) and isinstance(entry.get(name), dict)),
+                {},
+            )
+            contract_binding = {
+                **binding,
+                "source_url": document_provenance.get("source_url") or binding.get("source_url"),
+                "institution_scope": document_provenance.get("scope") or binding.get("institution_scope"),
+            }
+            source_row_contracts = []
+            for cell in source_cells:
+                if not isinstance(cell, dict):
+                    continue
+                # Imported document panels keep the physical row locator in
+                # document_provenance.cell_origins while the analysis cell
+                # only needs the numeric source value.  Merge that immutable
+                # origin here; it is not inferred from the result value.
+                document_cell = {
+                    **cell,
+                    **origin,
+                    "raw_sha256": origin.get("raw_sha256") or document_provenance.get("raw_sha256"),
+                    "source_url": origin.get("source_url") or document_provenance.get("source_url"),
+                    "page_number": origin.get("page") or document_provenance.get("page"),
+                    "table_id": origin.get("table_id") or document_provenance.get("table_id"),
+                }
+                source_row_contracts.append(build_source_row_contract(
+                    contract_binding, document_cell, column=name, period=_label(at),
                     value=cell.get("source_value", cell.get("value")),
-                )
-                for cell in source_cells
-                if isinstance(cell, dict)
-            ]
+                ))
             explanation = {"column": name, "period": _label(at), "metric_id": binding["metric_id"], "contract_version": binding.get("contract_version"), "unit": binding.get("unit"), "scale": binding.get("scale"), "source_base": binding.get("source_base"), "hash_basis": binding.get("hash_basis", "file_bytes"), "source_sha256": binding.get("source_sha256"), "dataset_id": binding.get("dataset_id"), "source_namespace": binding.get("source_namespace"), "document_provenance": copy.deepcopy(binding.get("document_provenance")), "dimensions": proof["dimensions"], "alignment": proof["alignment"], "source_cells": source_cells, "source_row_contracts": source_row_contracts}
             if binding.get("source_cell_locator_policy"):
                 explanation["source_cell_locator_policy"] = copy.deepcopy(binding["source_cell_locator_policy"])

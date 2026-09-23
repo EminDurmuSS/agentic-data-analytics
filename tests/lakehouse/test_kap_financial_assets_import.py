@@ -157,6 +157,12 @@ def test_ulufa_profile_publishes_queryable_thousand_try_stock(tmp_path):
     assert provenance["source_url"] == profile["pdf_url"]
     assert provenance["page"] == 7 and provenance["scope"] == "consolidated"
     assert provenance["cell_origins"][0]["total_assets"]["source_text"] == "16.734.297"
+    assert proof["source_row_contracts_complete"] is True
+    contract = proof["source_row_contracts"][0]
+    assert contract["value"] == 16_734_297
+    assert contract["period"] == "2025"
+    assert contract["page_or_sheet"] == 7
+    assert contract["url"] == profile["pdf_url"]
 
 
 def test_handles_only_exact_kap_java_byte_array_envelope():
