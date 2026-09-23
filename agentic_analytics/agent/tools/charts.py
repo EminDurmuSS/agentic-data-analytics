@@ -85,6 +85,7 @@ def _unit(schema):
         return {1: "TL", 1000: "bin TL", 1000000: "milyon TL", 1000000000: "milyar TL", 1000000000000: "trilyon TL"}.get(scale, f"{scale:g} TL")
     label = {"percent": "%", "%": "%", "index": "endeks", "count": "adet", "persons": "kişi",
              "visits": "ziyaret", "percentage_point": "yüzde puan", "TRY/person": "TL/kişi",
+             "TRY/USD": "TL/USD", "TRY/EUR": "TL/EUR",
              "ratio": "oran", "unknown": "birim incelenmeli"}.get(unit, _text(unit))
     prefix = {1: "", 1000: "bin ", 1000000: "milyon ", 1000000000: "milyar "}.get(scale, f"{scale:g} × ")
     return prefix + label

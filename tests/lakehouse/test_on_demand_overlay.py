@@ -132,3 +132,58 @@ def test_refetch_replaces_only_the_periods_it_carries(tmp_path, overlay):
         series = connection.execute("SELECT count(DISTINCT series_code) FROM evds.on_demand_observations").fetchone()[0]
     assert values == dict(zip(MONTHS, RATES[:5] + [40.5]))
     assert series == 2
+
+
+def test_concurrent_publishes_keep_every_series(overlay, monkeypatch):
+    import os
+    import threading
+    real_replace = os.replace
+    both_merged = threading.Barrier(2, timeout=1)
+
+    def replace_after_both_merged(source, target):
+        # Without serialization both writers merge the same old overlay here.
+        try:
+            both_merged.wait()
+        except threading.BrokenBarrierError:
+            pass
+        real_replace(source, target)
+
+    monkeypatch.setattr(os, "replace", replace_after_both_merged)
+    writers = [threading.Thread(target=publish_overlay, args=(acquired(code, RATES),), kwargs={"overlay_path": overlay})
+               for code in (CODE, "TP.TRY.MT02.S")]
+    for writer in writers:
+        writer.start()
+    for writer in writers:
+        writer.join()
+    with duckdb.connect(str(overlay), read_only=True) as connection:
+        series = connection.execute("SELECT count(DISTINCT series_code) FROM evds.on_demand_observations").fetchone()[0]
+    assert series == 2
+
+
+def test_publish_rejects_rows_that_would_corrupt_the_overlay(overlay):
+    publish_overlay(acquired(CODE, RATES), overlay_path=overlay)
+    before = overlay.read_bytes()
+    other = "TP.TRY.MT02.S"
+    duplicated = pd.concat([acquired(other, [1.0] * 6), acquired(other, [2.0] * 6)])
+    without_period = acquired(other, [1.0] * 6).assign(period=None)
+    for frame in (duplicated, without_period):
+        with pytest.raises(ValueError):
+            publish_overlay(frame, overlay_path=overlay)
+    assert overlay.read_bytes() == before
+
+
+def test_acquired_binding_reports_acquired_coverage_and_source_aggregation(tmp_path, overlay):
+    database = seed(tmp_path, metadata_only(CODE, "Taşıt Kredisi (TL, Stok, %)"))
+    publish_overlay(acquired(CODE, RATES), overlay_path=overlay)
+    binding = bindings(database)[METRIC]
+    assert (binding["coverage_start"], binding["coverage_end"]) == ("2026-01", "2026-06")
+    assert binding["aggregation"] == "mean"  # EVDS catalog aggregation "avg"
+
+
+def test_acquired_tcmb_usd_rate_gets_reviewed_price_semantics(tmp_path, overlay):
+    code = "TP.DK.USD.S.YTL"
+    database = seed(tmp_path, metadata_only(code, "(USD) ABD Doları (Döviz Satış)", unit="Türk lirası",
+                                            group="Döviz Kurları"))
+    publish_overlay(acquired(code, [32.1] * 6), overlay_path=overlay)
+    binding = bindings(database)["evds:" + code]
+    assert (binding["status"], binding["kind"], binding["unit"], binding["currency"]) == ("ready", "price", "TRY/USD", "TRY")

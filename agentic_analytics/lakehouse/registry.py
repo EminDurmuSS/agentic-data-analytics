@@ -73,8 +73,10 @@ def on_demand_coverage(connection: duckdb.DuckDBPyConnection) -> dict[str, dict[
     ).fetchone()[0]
     if not table_exists:
         return {}
-    return {row[0]: {"observation_count": row[1], "missing_observation_count": row[2]} for row in connection.execute(
-        "SELECT series_code, count(*), sum(CASE WHEN is_missing THEN 1 ELSE 0 END) "
+    return {row[0]: {"observation_count": row[1], "missing_observation_count": row[2],
+                     "coverage_start": row[3], "coverage_end": row[4]} for row in connection.execute(
+        "SELECT series_code, count(*), sum(CASE WHEN is_missing THEN 1 ELSE 0 END), "
+        "min(period) FILTER (WHERE NOT is_missing), max(period) FILTER (WHERE NOT is_missing) "
         "FROM on_demand.evds.on_demand_observations GROUP BY series_code").fetchall()}
 
 
@@ -411,6 +413,10 @@ def get_bindings(connection: duckdb.DuckDBPyConnection) -> dict[str, dict[str, A
     return result
 
 
+# EVDS catalog aggregation codes; max/min have no reviewed temporal equivalent.
+_EVDS_AGGREGATIONS = {"avg": "mean", "mean": "mean", "sum": "sum", "last": "last"}
+
+
 def _promote_from_on_demand_overlay(binding: dict[str, Any], metric: dict[str, Any], coverage: dict[str, dict[str, int]]) -> None:
     """Upgrade a metadata_only TCMB_EVDS binding when the on-demand overlay has it.
 
@@ -431,8 +437,9 @@ def _promote_from_on_demand_overlay(binding: dict[str, Any], metric: dict[str, A
         filters={"series_code": code}, dimensions={}, binding_available=True,
         provenance_columns=["source_manifest_sha256", "source_response_sha256", "fetched_at", "series_code", "period"],
         unit=inferred_unit, scale=inferred_scale, currency=inferred_currency, kind=inferred_kind,
-        aggregation=method if method in {"sum", "last", "mean"} else "last",
+        aggregation=_EVDS_AGGREGATIONS.get(method, "none"),
         observation_count=counts["observation_count"], missing_observation_count=counts["missing_observation_count"],
+        coverage_start=counts["coverage_start"] or "", coverage_end=counts["coverage_end"] or "",
         unit_evidence=("On-demand acquired observation (overlay database, not the reviewed evds.full_catalog bulk "
             "publication): unit/kind derived automatically from series metadata, not individually hand-reviewed."),
         notes=(metric["notes"] or "") + (" Acquired on demand outside the audited bulk EVDS publication; no "
@@ -448,3 +455,4 @@ def _promote_from_on_demand_overlay(binding: dict[str, Any], metric: dict[str, A
     else:
         binding["status"] = "review_required"
         binding["blocked_reason"] = "On-demand series unit or kind could not be confidently inferred."
+    apply_semantic_policy(binding)

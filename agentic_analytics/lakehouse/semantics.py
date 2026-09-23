@@ -5,7 +5,7 @@ import re
 from typing import Any
 
 CONTRACT_VERSION = "1.0.0"
-SEMANTIC_POLICY_VERSION = "1.2.0"
+SEMANTIC_POLICY_VERSION = "1.3.0"
 BDDK_WEEKLY_EXPLANATION_URL = "https://www.bddk.org.tr/BultenHaftalik/tr/Home/Aciklama"
 FREQUENCIES = {
     "AYLIK": "monthly", "ÜÇ AYLIK": "quarterly", "YILLIK": "yearly",
@@ -29,6 +29,13 @@ MONTHLY_BANK_GROUPS = {
 }
 
 
+# TCMB indicative exchange rates quote USD and EUR in Turkish lira per one unit
+# (https://www.tcmb.gov.tr/kurlar/today.xml lists Unit=1). JPY and several other
+# currencies are quoted per 100 units, so they are deliberately not listed.
+TCMB_INDICATIVE_RATES = {"TP.DK.USD.A.YTL": "USD", "TP.DK.USD.S.YTL": "USD",
+                         "TP.DK.EUR.A.YTL": "EUR", "TP.DK.EUR.S.YTL": "EUR"}
+
+
 def apply_semantic_policy(binding: dict[str, Any]) -> dict[str, Any]:
     """Apply reviewed source roles without guessing from an index's label.
 
@@ -48,6 +55,12 @@ def apply_semantic_policy(binding: dict[str, Any]) -> dict[str, Any]:
             "source": "data_pipeline/bddk/monthly_all_groups/request_config.json#groups",
             "source_url": "https://www.bddk.org.tr/BultenAylik/tr/",
             "verified_at": "2026-09-08", "namespace": "BDDK_MONTHLY"}}
+    quoted = TCMB_INDICATIVE_RATES.get(binding.get("source_code")) if binding.get("source_system") == "TCMB_EVDS" else None
+    if quoted and binding.get("status") in {"ready", "review_required"}:
+        binding.update(kind="price", unit="TRY/" + quoted, scale=1.0, currency="TRY", status="ready",
+                       blocked_reason=None,
+                       unit_evidence=f"TCMB indicative exchange rate: Turkish lira per one {quoted} "
+                                     "(https://www.tcmb.gov.tr/kurlar/today.xml, Unit=1).")
     if binding.get("source_system") == "TCMB_EVDS" and binding.get("source_code") == "TP.TUKFIY2025.GENEL":
         binding.update(index_role="price_deflator", deflator_currency="TRY",
                        price_scope="Turkey general consumer price basket",

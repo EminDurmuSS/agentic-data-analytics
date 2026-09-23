@@ -9,20 +9,20 @@ writable DuckDB file that the read-only application connection attaches
 without ever touching the immutable lakehouse snapshot.
 
 Design notes (see the architecture discussion this implements):
-- No file lock is taken. The overlay file is only ever replaced, never
-  edited in place: a full merge is built in a fresh scratch DuckDB file and
-  then atomically swapped into place with os.replace, exactly like
-  data_pipeline/lakehouse/build_lakehouse.py does for the main snapshot.
-  Any reader either sees the old, fully-written file or the new one, never
-  a partial write. A concurrent acquire() racing another acquire() can lose
-  an update (last writer wins) — acceptable for a fetch-and-cache layer that
-  is not the audited bulk publication of record; it is not acceptable for
-  the main snapshot, which this code never opens for writing.
+- The overlay file is only ever replaced, never edited in place: a full
+  merge is built in a fresh scratch DuckDB file and then atomically swapped
+  into place with os.replace, exactly like data_pipeline/lakehouse/build_lakehouse.py
+  does for the main snapshot. Any reader either sees the old, fully-written
+  file or the new one, never a partial write, so readers take no lock.
+  Writers hold an exclusive lock around merge-and-replace: concurrent runs
+  acquire at the same time, and last-writer-wins would drop series that a
+  run was just told are available.
 - No lakehouse rebuild is triggered or required. The overlay is picked up
   by the next agentic_analytics.lakehouse.registry.get_bindings() call.
 """
 from __future__ import annotations
 
+import fcntl
 import os
 import sys
 import tempfile
@@ -39,7 +39,7 @@ if str(PROJECT_ROOT) not in sys.path:
 
 from tools.EVDS_Manifest_Indirme_Araci import run as run_manifest_download
 from tools.EVDS_Talep_Uzerine_Indirme_Araci import build_manifest, generated_dataset_id
-from agentic_analytics.lakehouse.registry import on_demand_db_path
+from agentic_analytics.lakehouse.registry import on_demand_db_path, quoted_literal
 
 DEFAULT_CATALOG = PROJECT_ROOT / "data_pipeline" / "catalog" / "evds_series_catalog.parquet"
 # The shipped container's root filesystem is read-only and data_pipeline/lakehouse
@@ -166,12 +166,20 @@ def publish_overlay(frame: pd.DataFrame, *, overlay_path: Path | None = None) ->
     The whole overlay is rewritten into a fresh scratch file (existing rows
     for series_code/period pairs not present in `frame` are preserved; rows
     for pairs present in `frame` are replaced by the newer fetch) and then
-    swapped into place with os.replace. No lock is required: only one writer
-    process is expected to call this at a time (the acquisition tool serializes
-    calls), and readers always see a complete file, old or new.
+    swapped into place with os.replace under an exclusive writer lock.
+    Readers always see a complete file, old or new.
     """
     overlay_path = on_demand_db_path() if overlay_path is None else overlay_path
+    keys = frame[["series_code", "period"]]
+    if keys.isna().any().any() or keys.duplicated().any():
+        raise ValueError("On-demand observations need exactly one row per series_code and period.")
     overlay_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(overlay_path.with_name(overlay_path.name + ".lock"), "w") as lock:
+        fcntl.flock(lock, fcntl.LOCK_EX)
+        return _replace_overlay(frame, overlay_path)
+
+
+def _replace_overlay(frame: pd.DataFrame, overlay_path: Path) -> dict[str, Any]:
     fd, scratch_name = tempfile.mkstemp(prefix=".on_demand.", suffix=".duckdb", dir=str(overlay_path.parent))
     os.close(fd)
     scratch_path = Path(scratch_name)
@@ -182,11 +190,12 @@ def publish_overlay(frame: pd.DataFrame, *, overlay_path: Path | None = None) ->
             connection.execute("CREATE SCHEMA evds")
             connection.register("_new_observations", frame)
             if overlay_path.exists():
-                connection.execute(f"ATTACH '{overlay_path}' AS existing (READ_ONLY)")
+                connection.execute(f"ATTACH {quoted_literal(str(overlay_path))} AS existing (READ_ONLY)")
                 connection.execute("""
                     CREATE TABLE evds.on_demand_observations AS
-                    SELECT * FROM existing.evds.on_demand_observations
-                    WHERE (series_code, period) NOT IN (SELECT series_code, period FROM _new_observations)
+                    SELECT * FROM existing.evds.on_demand_observations kept
+                    WHERE NOT EXISTS (SELECT 1 FROM _new_observations fresh
+                                      WHERE fresh.series_code = kept.series_code AND fresh.period = kept.period)
                     UNION ALL
                     SELECT * FROM _new_observations
                 """)
