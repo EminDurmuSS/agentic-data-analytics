@@ -13,10 +13,10 @@
   "policy_file": "precious_metals_market_alignment_v1.json",
   "value_status_counts": {
     "monthly": {
-      "available": 156
+      "unavailable_incomplete_sum": 156
     },
     "quarterly": {
-      "available": 52
+      "unavailable_incomplete_sum": 52
     }
   },
   "quality_policy": [

@@ -42,33 +42,19 @@ class EvdsPreciousMetalsMarketTests(unittest.TestCase):
             self.assertEqual(1695, len(series))
             self.assertEqual("İŞ GÜNÜ", series["native_frequency"].iloc[0])
             missing = series.loc[series["value"].isna()]
-            # Every null observation is a documented calendar non-observation
-            # or a period before the series formally starts; none is an
-            # unresolved (unexplained) trading-day gap.
+            # The downloader labels every null of a business-day series as a
+            # calendar non-observation; it has no trading calendar, so a missing
+            # trading day (e.g. 2024-07-30) receives the same label.
             self.assertTrue(missing["is_structural_na"].all())
             self.assertFalse(missing["is_unresolved_missing"].any())
 
-    def test_monthly_panel_sums_are_fully_populated_2023_2025(self):
-        # This is the exact window Benchmark Senaryo 4 prompt 1 asks for.
-        window = self.monthly.loc[
-            (self.monthly["target_period"] >= "2023-01")
-            & (self.monthly["target_period"] <= "2025-12")
-        ]
-        self.assertEqual(36, len(window))
-        self.assertEqual(0, int(window["TP_ALTINPIYASA_HACM02"].isna().sum()))
-        self.assertEqual(0, int(window["TP_ALTINPIYASA_MIKT02"].isna().sum()))
-        # Real observed monthly totals (TRY volume, kg quantity) downloaded
-        # live from the public TCMB EVDS endpoint
-        # (https://evds3.tcmb.gov.tr/igmevdsms-dis/fe); trading volume in TRY
-        # is always strictly positive and quantity in kg is always strictly
-        # positive.
-        self.assertTrue((window["TP_ALTINPIYASA_HACM02"] > 0).all())
-        self.assertTrue((window["TP_ALTINPIYASA_MIKT02"] > 0).all())
-
-    def test_alignment_reports_no_incomplete_sums(self):
+    def test_monthly_sums_are_not_published_without_a_trading_calendar(self):
+        # Completeness of a business-day month cannot be proven without a
+        # reviewed trading calendar, so no monthly total is published.
         self.assertEqual(78, self.alignment_validation["monthly_period_count"])
         status_counts = self.alignment_validation["value_status_counts"]["monthly"]
-        self.assertEqual({"available": 156}, status_counts)
+        self.assertEqual({"unavailable_incomplete_sum": 156}, status_counts)
+        self.assertTrue(self.monthly[["TP_ALTINPIYASA_HACM02", "TP_ALTINPIYASA_MIKT02"]].isna().all().all())
 
     def test_analysis_catalog_declares_roles(self):
         roles = dict(zip(self.catalog["series_code"], self.catalog["role"]))
@@ -119,24 +105,17 @@ class EvdsPreciousMetalsMarketLakehouseBindingTests(unittest.TestCase):
                 "evds.precious_metals_market_observations", binding["table"], metric_id
             )
 
-    def test_monthly_query_matches_precomputed_panel(self):
-        rows = self.connection.execute(
+    def test_daily_observations_stay_queryable_while_the_panel_withholds_totals(self):
+        observed = self.connection.execute(
             """
-            SELECT strftime(CAST(period AS DATE), '%Y-%m') AS ym, SUM(value)
-            FROM evds.precious_metals_market_observations
+            SELECT count(value) FROM evds.precious_metals_market_observations
             WHERE series_code = 'TP.ALTINPIYASA.HACM02'
-              AND ym BETWEEN '2024-01' AND '2024-01'
-            GROUP BY ym
+              AND strftime(CAST(period AS DATE), '%Y-%m') = '2024-07'
             """
-        ).fetchall()
-        self.assertEqual(1, len(rows))
-        _, total = rows[0]
+        ).fetchone()[0]
+        self.assertGreater(observed, 0)
         monthly = pd.read_parquet(DATA / "monthly_panel.parquet")
-        panel_row = monthly.loc[monthly["target_period"] == "2024-01"]
-        self.assertEqual(1, len(panel_row))
-        self.assertAlmostEqual(
-            float(total), float(panel_row["TP_ALTINPIYASA_HACM02"].iloc[0]), places=2
-        )
+        self.assertTrue(monthly.loc[monthly["target_period"] == "2024-07", "TP_ALTINPIYASA_HACM02"].isna().all())
 
 
 if __name__ == "__main__":
