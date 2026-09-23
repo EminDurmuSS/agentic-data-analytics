@@ -591,6 +591,25 @@ def _statistics_confirmation(store, workspace_id, state):
     return "\n\n".join(lines) or None
 
 
+_SELECTION_OPERATORS = {"gt": ">", "gte": "≥", "lt": "<", "lte": "≤", "eq": "=", "ne": "≠"}
+
+
+def _selection_conditions(payload, labels):
+    """The filters that chose the rows, so a misread condition is visible to the user."""
+    def name(column):
+        return _display_label(labels.get(column, column.replace("_", " ")))
+    parts = []
+    for item in (payload.get("parameters") or {}).get("filters") or []:
+        if item.get("op") in {"is_null", "not_null"}:
+            parts.append(name(item["column"]) + (" boş" if item["op"] == "is_null" else " boş değil"))
+        elif item.get("op") in _SELECTION_OPERATORS:
+            value = item.get("value")
+            right = (name(item["other_column"]) if "other_column" in item else _display_number(value)
+                     if isinstance(value, numbers.Real) and not isinstance(value, bool) else _display_label(value))
+            parts.append(f"{name(item['column'])} {_SELECTION_OPERATORS[item['op']]} {right}")
+    return "Uygulanan koşullar: " + "; ".join(parts) + "." if parts else None
+
+
 def _selection_confirmation(store, workspace_id, state):
     """Render exact selected rows from hash-verified selection artifacts."""
     lines, seen = [], set()
@@ -614,12 +633,15 @@ def _selection_confirmation(store, workspace_id, state):
             and warning.get("code") == "NUMERIC_EQUALITY_ONLY_ACROSS_DISTINCT_SOURCE_CONTRACTS"
             for warning in payload.get("warnings", [])
         )
+        presentation = analysis_presentation(frame, manifest)
+        conditions = _selection_conditions(payload, presentation.get("labels", {}))
         if not rows:
             lines.append("Belirtilen koşulların tümünü karşılayan kayıt bulunmadı. Eksik değerler karşılaştırmada sıfır veya farklı değer sayılmadı.")
+            if conditions:
+                lines.append(conditions)
             if comparison_caveat:
                 lines.append("Sütunlar arasında yalnız kayıtlı sayısal eşitlik denetlendi; farklı kaynak kapsamları veya ölçüm temelleri eşdeğer sayılmadı.")
             continue
-        presentation = analysis_presentation(frame, manifest)
         columns = payload.get("columns", [])
         headers = []
         for column in columns:
@@ -628,6 +650,8 @@ def _selection_confirmation(store, workspace_id, state):
             unit = _display_unit(meta) if column != "period" and meta.get("unit") else ""
             headers.append(_display_label(label) + (f" ({unit})" if unit else ""))
         lines.append(f"Koşulları karşılayan kayıtlar ({total}):")
+        if conditions:
+            lines.append(conditions)
         lines.append("| " + " | ".join(headers) + " |")
         lines.append("| " + " | ".join("---" for _ in headers) + " |")
         for row in rows[:20]:

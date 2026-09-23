@@ -33,6 +33,8 @@ araçlarını belirt; özet bu özel istatistik yöntemlerinin yerine geçmez.
 Koşullu dönem, min/max, mutlak değişim veya uyuşmayan satır için selection ve select_analysis_rows
 kullan. Eksikleri not_null/is_null ile yönet; lt/lte/eq/ne/gte/gt ile karşılaştır, mutlak sıralamada
 absolute=true ve direction=desc kullan. Bunu ilişki analizine dönüştürme.
+Artış, düşüş veya "düşmediği" gibi dönemden döneme değişim koşullarını seviye kolonunda değil, önce
+revise_analysis ile ürettiğin difference (periods=1) kolonlarında filtrele; "faiz > 0" artış demek değildir.
 Kullanıcı yalnız kavram veya varsayımsal sayısal örnek istiyorsa plan_task deliverables=['explanation']
 seçilebilir; bu cevap kaynak veriden hesaplanmış sonuç olarak sunulmaz. Gerçek veri hesabı için
 explanation seçip hesap aracını atlama. Veri sorgusundaki sayısal cevap bir araç kanıtına dayanmalı.

@@ -1110,6 +1110,21 @@ class AgentRuntimeTests(unittest.TestCase):
         self.assertIn("Mart 2021", result["message"])
         self.assertNotIn("Korelasyon", result["message"])
 
+    def test_selected_rows_state_the_conditions_that_selected_them(self):
+        initial_runtime, _ = self.runtime([call("execute", self.plan), FINAL])
+        initial = initial_runtime.run("Kredi tablosunu getir")
+        tools = AnalysisSelectionTools(self.store, self.workspace_id).extra_tools()
+        for filters, rows_expected in (([{"column": "credit", "op": "gt", "value": 110},
+                                         {"column": "credit", "op": "not_null"}], True),
+                                       ([{"column": "credit", "op": "gt", "value": 1000}], False)):
+            runtime, _ = self.runtime([call("select_analysis_rows", {
+                "analysis_id": initial["analysis_id"], "filters": filters, "columns": ["period", "credit"]}), FINAL],
+                extra_tools=tools)
+            message = runtime.run("Kredi hangi aylarda yüksek?", conversation_id=initial["conversation_id"])["message"]
+            self.assertIn("Uygulanan koşullar: Credit > " + ("110" if rows_expected else "1.000"), message)
+            if rows_expected:
+                self.assertIn("Credit boş değil", message)
+
     def test_explicit_relationship_request_is_not_stopped_by_the_drift_guard(self):
         initial_runtime, _ = self.runtime([call("execute", {
             **self.plan,
