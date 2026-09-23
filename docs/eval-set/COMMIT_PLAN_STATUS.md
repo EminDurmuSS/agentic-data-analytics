@@ -50,7 +50,7 @@ AGENT_PORT=8871 LAKEHOUSE_DIR="/home/neo/Desktop/GITHUB MYZ21/agentic-data-analy
 | 7 | `feat(runtime): replace global on-demand overlay with workspace-scoped versioned acquisition store` | ✅ TAMAMLANDI | `tools/EVDS_Talep_Uzerine_Indirme_Araci.py` artık `--workspace` zorunlu, çıktı `on_demand/<workspace>/<hash>/`, fcntl kilidi; yeni `tools/promote_on_demand_series.py` terfi yolu |
 | 8 | `fix(lakehouse): add executable aliases for BDDK financial metrics` | ✅ TAMAMLANDI | `_TERM_ALIASES` (`service.py`) genişletildi + `tests/lakehouse/test_bddk_alias_coverage.py` gerçek katalog karşı doğrulama |
 | 9 | `feat(lakehouse): classify ready/acquirable/near_match_available/web_required/unavailable` | ✅ TAMAMLANDI | Yeni `agentic_analytics/lakehouse/readiness.py::classify_query_readiness()` + `tests/lakehouse/test_readiness_classification.py` (XBANK→unavailable doğrulandı) |
-| 10 | `fix(discover): cap lexical reformulation retries and resolve from already-ranked near-matches` | ✅ TAMAMLANDI | `agentic_analytics/agent/runtime.py`: `_discover_target_key`/`_discover_retry_cap`/`_record_discover_evidence`, 2 çağrı/hedef sınırı |
+| 10 | `fix(discover): cap lexical reformulation retries and resolve from already-ranked near-matches` | ↩️ GERİ ALINDI (PR #12 incelemesi) | Kod ve 3 test geri alındı; gerekçe aşağıdaki Commit 10 bölümünde |
 | 11 | `feat(sources): persist verified source-row contracts` | ✅ TAMAMLANDI | Yeni `agentic_analytics/lakehouse/source_contract.py` (`build_source_row_contract`, `SourceRowContractLedger`) |
 | 12 | `fix(runtime): enforce source-row contract gate before analysis/chart delivery` | ⬜ Başlamadı | |
 | 13 | `test(eval): convert scenario exports into automated regression harness` | ⬜ Başlamadı | |
@@ -334,57 +334,22 @@ olduğunun kanıtı — testler donmuş beklentiler yerine güncel duruma göre 
 19/19 geçti. Tam paket (`pytest tests/lakehouse tests/ingestion -q`) → 600 passed, yalnız aynı 2 bilinen
 ilgisiz hata.
 
-## Commit 10 — sonuç (tamamlandı)
+## Commit 10 — geri alındı (PR #12 incelemesi)
 
-**Kod inceleme bulgusu:** `agentic_analytics/agent/runtime.py::_dispatch()`'te zaten genel bir
-"aynı (name,args,revision) 2 kez görülürse NO_PROGRESS" korunması var (`state["seen"]`, fingerprint
-`{name,args,revision}` üzerinden). Ama bu yalnız BİREBİR AYNI argümanlar tekrarlanırsa tetikleniyor.
-`discover`'ın `query` metni her defasında yeniden ifade edilince (nakit/kullanım/hariç/harcama/çekim gibi
-kelime permütasyonları) fingerprint her seferinde FARKLI oluyor — bu yüzden genel koruma hiç devreye
-girmiyor ve model aynı hedefi 12-17 kez arayabiliyor, sonunda `NO_PROGRESS`/`DECISION_BUDGET_EXCEEDED` ile
-tüm toplanan near-match kanıtını atıyor (`ASIL SORUN.md`'de 4 ayrı eval transkriptinde doğrulanmış desen).
-
-**Yapılan değişiklik:** `AgentRuntime`'a 3 yeni metod eklendi (`_track_search_progress`'in hemen ardına,
-aynı state-tracking deseniyle):
-- `_discover_target_key(query)` — `agentic_analytics.lakehouse.discovery.query_intent()`'in zaten
-  `discover()`'ın kendi semantik sıralaması için kullandığı `families`/`qualifiers`/`meaning_terms`
-  çıkarımını yeniden kullanarak, farklı lexical ifadeleri (örn. "kredi kartı 1" / "kredi kartı 2") aynı
-  hedef anahtarına indirger.
-- `_discover_retry_cap(state, args)` — `_dispatch()`'in `discover` dalına, mevcut `paused`/`seen>=2`
-  kontrollerinin hemen öncesine eklendi. Aynı hedef için 3. çağrıdan itibaren `service.discover()`
-  ÇALIŞTIRILMIYOR; bunun yerine ilk iki çağrıdan biriken kanıttan deterministik çözülüyor: tek düşük
-  belirsizlikli aday varsa otomatik çözümlenmiş olarak döner (`no_confident_match: false`), birden fazla
-  aday varsa modele TEK bir netleştirme sorusu sorması gerektiğini söyleyen `ambiguous_candidates` listesiyle
-  döner, hiç aday yoksa kesin bir "bulunamadı" döner (hiçbiri tekrar aramayı önermez).
-- `_record_discover_evidence(state, args, result)` — her gerçek `discover()` çağrısından sonra
-  (`result = _normalize_result(result)`'ın hemen ardından) o hedefin kanıtını (`metrics`, `near_matches`,
-  `uncovered_terms`) `state["discover_targets"]` altında biriktirir; bu state zaten var olan
-  `self.run_store.checkpoint(run_id, state)` mekanizmasıyla kalıcılaşır.
-
-**Önemli düzeltme (test sırasında bulundu):** İlk taslak, capped sonuçta `uncovered_terms`'i taşımıyordu —
-bu, mevcut `test_barren_discovery_completes_as_grounded_refusal_not_budget_death` testini kırdı (mesaj
-"zephyr" terimini içermiyordu). Düzeltildi: `entry["uncovered_terms"]` ve `entry["near_matches"]` de
-biriktirilip capped sonuca aktarılıyor.
-
-**Regresyon kontrolü:** `agentic_analytics/agent/runtime.py`'nin dokunduğu her test dosyası hem
-`git stash` ile (değişiklik YOKKEN, temiz taban) hem de değişiklikle çalıştırılıp BİREBİR karşılaştırıldı:
-- `tests/agent/test_agent_runtime.py`: taban 55 geçti/2 hata (biri bu commit'in düzelttiği
-  `test_barren_discovery...`, diğeri `test_verbose_discovery_stays_small...` — bu ikincisi hem tabanda hem
-  değişiklikle AYNI şekilde başarısız, commit 10'dan tamamen bağımsız, önceden var olan bir hata); değişiklikle
-  59 geçti/1 hata (yalnız ilgisiz `test_verbose_discovery...`).
-- `tests/agent/test_delivery_contracts.py` + `test_never_dead_end.py`: taban 238 geçti/11 hata, değişiklikle
-  238 geçti/11 hata — BİREBİR AYNI 11 test adı, hiç yeni regresyon yok. (Bu 11 hata da bu commit'ten önce,
-  bu oturumun dokunmadığı kodda zaten var — muhtemelen origin/main ayrışmasıyla ilgili, ayrı takip gerektirir.)
-- Yeni `tests/agent/test_agent_runtime.py`'de 3 test eklendi: aynı hedefin 3. çağrısının gerçek
-  `service.discover()`'a hiç ulaşmadığını ve tek adaydan otomatik çözüldüğünü kanıtlayan test, birden fazla
-  adayda `ambiguous_candidates` döndüğünü kanıtlayan test, farklı hedeflerin birbirini capping etmediğini
-  kanıtlayan test.
-- `pytest tests/lakehouse tests/ingestion -q` → değişmedi (bu commit yalnızca `agentic_analytics/agent/`
-  dokunuyor), yalnız aynı 2 bilinen ilgisiz hata.
-
-**Kapsam dışı bırakılan:** `test_delivery_contracts.py`'deki 11 önceden var olan hatanın kök nedeni
-araştırılmadı — bu commit'in konusu değil, muhtemelen `origin/main`'in 16 commit'lik ayrışmasıyla (yukarıdaki
-ACİL bölümü) ilişkili; ayrı bir takip konusu olarak bırakıldı.
+`a5bfa7a8` (`_discover_target_key`/`_discover_retry_cap`/`_record_discover_evidence`) geri alındı:
+- Model cap sonucunu hiç görmüyordu: `agentic_analytics/agent/context.py::_model_tool_result` discover
+  anahtarlarını beyaz listeyle filtreliyor; `message`, `discover_retry_capped`, `ambiguous_candidates` düşüyordu.
+- Cap, `_dispatch()`'te `seen>=2` kontrolünden önce `status: ok` döndüğü için main'in NO_PROGRESS
+  tek-uyarı/durdurma mantığını devre dışı bırakıyordu: aynı sonuçsuz discover tekrarı main'de 4 model
+  çağrısında grounded refusal ile biterken cap ile 12/12 karar bütçesinin tamamı harcanıyordu.
+- Gerçek `discover()` `no_confident_match=true` iken her zaman `metrics=[]` döndürdüğü için "tek adaydan
+  çözüldü" ve `ambiguous_candidates` dalları üretimde erişilemezdi; erişilseydi `no_confident_match: false`
+  ile sessiz ikame olurdu (sistem istemi bunu yasaklıyor).
+- Hedef anahtarı `status` filtresini ve TL/TP/YP/toplam/rakamları yok sayıyordu: `status=ready` ve
+  `status=review_required` ile iki sonuçsuz aramadan sonra filtresiz 3. çağrı engelleniyor, gerçek
+  aramanın bulacağı 8 aday (edinilebilir `evds:TP.BKR.TRY.17` dahil) gizleniyordu.
+- Aynı birebir tekrar senaryosunu main'deki `2aa33f8f` zaten karşılıyor;
+  `test_barren_discovery_completes_as_grounded_refusal_not_budget_death` origin/main'de de geçiyor.
 
 ## Commit 11 — sonuç (tamamlandı)
 
