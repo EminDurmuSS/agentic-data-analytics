@@ -340,6 +340,28 @@ class AgentDocumentTests(unittest.TestCase):
                     fetch_public_url("https://public.test")
                 self.assertEqual(builder.return_value.open.call_count, 1)
 
+    def test_source_tls_completes_chains_that_official_servers_leave_incomplete(self):
+        import ssl
+        from agentic_analytics.agent.tools.documents import _source_tls_context
+        context = _source_tls_context()
+        # BDDK serves only its leaf certificate; its issuer must be known locally.
+        issuers = {dict(item[0] for item in cert["subject"]).get("commonName") for cert in context.get_ca_certs()}
+        self.assertIn("GlobalSign RSA OV SSL CA 2018", issuers)
+        self.assertEqual((context.verify_mode, context.check_hostname), (ssl.CERT_REQUIRED, True))
+
+    def test_certificate_failures_are_reported_as_such(self):
+        import ssl
+        def resolve(host, port, **kwargs):
+            return [(socket.AF_INET, socket.SOCK_STREAM, 6, "", ("93.184.216.34", port))]
+        rejected = error.URLError(ssl.SSLCertVerificationError("certificate verify failed: unable to get local issuer certificate"))
+        with patch("agentic_analytics.agent.tools.documents.socket.getaddrinfo", side_effect=resolve), \
+                patch("agentic_analytics.agent.tools.documents.request.build_opener") as builder:
+            builder.return_value.open.side_effect = rejected
+            with self.assertRaises(DocumentError) as caught:
+                fetch_public_url("https://public.test/report.pdf")
+        self.assertEqual(caught.exception.code, "FETCH_FAILED")
+        self.assertIn("certificate", str(caught.exception))
+
     def test_dns_resolution_has_a_time_budget(self):
         release = threading.Event()
         def delayed(*args, **kwargs):

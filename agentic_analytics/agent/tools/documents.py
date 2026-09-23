@@ -9,6 +9,7 @@ from __future__ import annotations
 import csv
 from concurrent.futures import ThreadPoolExecutor, TimeoutError as FutureTimeout
 import calendar
+import functools
 from datetime import date, datetime
 from decimal import Decimal, InvalidOperation
 import hashlib
@@ -396,6 +397,17 @@ def _ascii_safe_url(url):
     return parse.urlunsplit((parsed.scheme, parsed.netloc, path, query, ""))
 
 
+_SOURCE_INTERMEDIATES = Path(__file__).with_name("source_intermediates.pem")
+
+
+@functools.lru_cache(maxsize=1)
+def _source_tls_context():
+    """Default verification, plus issuers that some official servers omit from their chain."""
+    context = ssl.create_default_context()
+    context.load_verify_locations(cafile=str(_SOURCE_INTERMEDIATES))
+    return context
+
+
 def fetch_public_url(url, *, max_bytes=16 * 1024**2, timeout=45, max_redirects=3, response_metadata=False):
     """Revalidate each hop and pin the validated IP for the actual connection."""
     deadline = time.monotonic() + timeout
@@ -417,7 +429,7 @@ def fetch_public_url(url, *, max_bytes=16 * 1024**2, timeout=45, max_redirects=3
             def connect(self):
                 raw = socket.create_connection((address, port), timeout=min(remaining, 5))
                 try:
-                    self.sock = ssl.create_default_context().wrap_socket(raw, server_hostname=parsed.hostname)
+                    self.sock = _source_tls_context().wrap_socket(raw, server_hostname=parsed.hostname)
                 except Exception:
                     raw.close()
                     raise
@@ -458,6 +470,9 @@ def fetch_public_url(url, *, max_bytes=16 * 1024**2, timeout=45, max_redirects=3
             finally:
                 exc.close()
         except (OSError, error.URLError) as exc:
+            if isinstance(getattr(exc, "reason", exc), ssl.SSLCertVerificationError):
+                raise DocumentError("Source TLS certificate could not be verified; no insecure connection was attempted.",
+                                    "FETCH_FAILED") from exc
             raise DocumentError("Source download failed or timed out.", "FETCH_FAILED") from exc
         with response:
             declared = response.headers.get("Content-Length")
