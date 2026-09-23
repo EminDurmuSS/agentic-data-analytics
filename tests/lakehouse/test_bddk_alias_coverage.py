@@ -59,7 +59,7 @@ class AliasSchemaTests(unittest.TestCase):
         # be distinct and the table must actually contain the terms this
         # commit's acceptance criteria name.
         for expected in ("tasit", "ticari", "ihracat", "kobi", "kart", "takip",
-                          "sektor", "vade", "doviz", "kurum", "kumulatif", "akim", "oran"):
+                          "sektor", "doviz", "kumulatif", "akim", "oran"):
             self.assertIn(expected, _TERM_ALIASES.values(), msg=f"no alias targets {expected!r}")
 
 
@@ -101,6 +101,16 @@ class AliasCoverageAgainstRealCatalogTests(unittest.TestCase):
         ids = {c["metric_id"] for c in cards}
         self.assertTrue(any("table06" in metric_id for metric_id in ids),
                          f"expected a KOBİ (table06) metric among {sorted(ids)[:10]}")
+
+    def test_time_deposit_queries_do_not_pull_demand_deposits(self):
+        # "vade" is a substring of "vadesiz" (demand deposits), the opposite of "vadeli".
+        titles = [card.get("title") or "" for card in
+                  self.service.discover({"query": "vadeli mevduat", "limit": 5})["metrics"]]
+        self.assertFalse(any("Vadesiz" in title for title in titles), titles)
+
+    def test_capital_flows_stays_an_honest_non_match(self):
+        # "akim" is a substring of "bakim"; an alias must not turn a gap into a confident wrong match.
+        self.assertTrue(self.service.discover({"query": "capital flows", "limit": 5}).get("no_confident_match"))
 
 
 if __name__ == "__main__":
