@@ -38,8 +38,9 @@ mevcut branch'te #12 için üretim entegrasyonu da yok.
 - Repo: `https://github.com/EminDurmuSS/agentic-data-analytics`
 - Branch: `main-test-updates`
 - Bu worktree: `/home/neo/Desktop/GITHUB MYZ21/agentic-data-analytics-main-test`
-- Şu anki HEAD: `1b7a1a6d` — `fix(runtime): enforce source-row contract gate before analysis/chart delivery`
-- `origin/main-test-updates`: **`1b7a1a6d`** — çalışma ağacı temiz ve remote ile eşit.
+- Şu anki HEAD: `5f26b615` — `feat(sources): retain document row origins in contracts`
+- `origin/main-test-updates`: **`1b7a1a6d`** — üç yerel, henüz push edilmemiş commit var:
+  `69722713`, `5791b342`, `5f26b615`.
 
 ## Durum tablosu
 
@@ -56,7 +57,7 @@ mevcut branch'te #12 için üretim entegrasyonu da yok.
 | 9 | `feat(lakehouse): classify ready/acquirable/near_match_available/web_required/unavailable` | ✅ TAMAMLANDI | Yeni `agentic_analytics/lakehouse/readiness.py::classify_query_readiness()` + `tests/lakehouse/test_readiness_classification.py` (XBANK→unavailable doğrulandı) |
 | 10 | `fix(discover): cap lexical reformulation retries and resolve from already-ranked near-matches` | ✅ TAMAMLANDI | `agentic_analytics/agent/runtime.py`: `_discover_target_key`/`_discover_retry_cap`/`_record_discover_evidence`, 2 çağrı/hedef sınırı |
 | 11 | `feat(sources): persist verified source-row contracts` | ✅ TAMAMLANDI | `1b7a1a6d` içinde `source_contract.py` ve 19 unit test eklendi. |
-| 12 | `fix(runtime): enforce source-row contract gate before analysis/chart delivery` | ⛔ UYGULANMADI | `1b7a1a6d` commit mesajına rağmen `runtime.py`, `delivery.py` veya üretim ingestion çağrı noktası değişmedi; contract henüz hiç çağrılmıyor. |
+| 12 | `fix(runtime): enforce source-row contract gate before analysis/chart delivery` | ⚠️ GÖZLEMLEME AŞAMASI TAMAMLANDI | Global gate henüz uygulanmadı. `5791b342` normal lakehouse açıklamalarına, `5f26b615` de KAP/PDF/Excel belge kökenlerine contract ekledi; tamamlanma oranı artık ölçülebilir. |
 | 13 | `test(eval): convert scenario exports into automated regression harness` | ⚠️ KISMİ TAMAMLANDI | Aynı `1b7a1a6d` içine 32 dışa aktarım için snapshot tabanlı 39 test eklendi. Bu canlı agent regresyonu ya da contract-completeness testi değildir. |
 | 14 | `docs(eval): full rerun of 25+10 set, before/after report` | ⬜ Başlamadı | |
 
@@ -449,6 +450,24 @@ Bu tespit testle de doğrulandı:
 ready EVDS, BDDK, yüklenmiş Excel ve PDF yollarında tamamlanma oranı ölçülmeli. Bu ölçüm olmadan
 contract'ı global teslim kapısı yapmak, geçmiş bağların URL/scope/satır alanları eksik olabileceği
 için çalışan analiz ve grafiklerin gereksiz yere engellenmesi riskini taşır.
+
+### #12 gözlem entegrasyonu — 23 Eylül
+
+Bu önerilen güvenli başlangıç iki küçük, geri alınabilir commit ile uygulandı:
+
+- `5791b342` — `feat(sources): expose source-row contracts in explanations`:
+  Normal lakehouse analizlerinin `explain_value` yanıtına `source_row_contracts` ve
+  `source_row_contracts_complete` alanlarını ekler. Bu yalnız gözlemdir; eksik eski metadata
+  yüzünden analiz veya grafik bloke edilmez.
+- `5f26b615` — `feat(sources): retain document row origins in contracts`:
+  KAP/PDF/Excel'den içe alınan belge panelleri için `document_provenance.cell_origins` içindeki
+  fiziksel satır etiketi, sayfa, tablo, URL, kapsam ve hash bilgilerini aynı contract'a taşır.
+  ULUFA 2025 fixture'ında `AKTİF TOPLAMI`, PDF s. 7, `16.734.297` değeri ve KAP PDF URL'siyle
+  contract tam olarak doğrulandı.
+
+Bu noktada global delivery gate **bilinçli olarak kapalıdır**. Bir sonraki karar, gerçek EVDS/BDDK/
+Excel/PDF örneklerinde `source_row_contracts_complete` oranı ölçüldükten sonra verilecek; oranı
+bilmeden gate açmak, doğru çalışan mevcut analizleri engelleme riski taşır.
 
 **Test sonucu:** `pytest tests/lakehouse/test_source_row_contract.py -q` → 19/19 geçti. Tam paket
 (`pytest tests/lakehouse tests/ingestion -q`) → bkz. commit mesajı.
