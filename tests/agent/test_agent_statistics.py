@@ -104,6 +104,16 @@ class AgentStatisticsTests(unittest.TestCase):
         with self.assertRaisesRegex(StatisticsError, "contiguous complete"):
             self.stats.analyze_relationship(missing, "value", "response", lag=1, method="granger")
 
+    def test_granger_starts_after_an_undefined_first_change_and_reports_it(self):
+        # A monthly change saved in the analysis has no value for its first month.
+        rng = np.random.default_rng(17)
+        x = rng.normal(size=180)
+        y = np.r_[0, x[:-1]] + rng.normal(scale=0.2, size=180)
+        analysis = self.save(np.r_[np.nan, x[1:]], response=y)
+        result = self.stats.analyze_relationship(analysis, "value", "response", lag=1, method="granger")["results"]
+        self.assertEqual((result["sample_start_period"], result["edge_undefined_periods"]), ("2000-02", ["2000-01"]))
+        self.assertEqual(result["sample_size"], 179)
+
     def test_ownership_constant_series_and_parameter_gates(self):
         analysis = self.save([1.0] * 24, response=[2.0] * 24)
         result = self.stats.extra_tools()["analyze_relationship"]["handler"]({"analysis_id": analysis, "x": "value", "y": "response"})

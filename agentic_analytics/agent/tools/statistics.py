@@ -273,8 +273,17 @@ class StatisticsTools:
             from statsmodels.tsa.stattools import adfuller, grangercausalitytests
             if lag < 1:
                 raise StatisticsError("Granger lag must be at least one.")
+            # A series that starts or ends later than the other (e.g. a saved monthly
+            # change has no first value) shortens the sample; that edge is reported.
+            complete = np.flatnonzero(series[[x, y]].notna().all(axis=1).to_numpy())
+            edge_undefined_periods = []
+            if len(complete):
+                first, stop = complete[0], complete[-1] + 1
+                edge_undefined_periods = (series[time_column].iloc[:first].astype(str).tolist()
+                                          + series[time_column].iloc[stop:].astype(str).tolist())
+                series = series.iloc[first:stop].copy()
             if series.isna().any().any():
-                raise StatisticsError("Granger requires a contiguous complete sample; rows are never silently dropped.", "MISSING_OBSERVATIONS")
+                raise StatisticsError("Granger requires a contiguous complete sample; interior gaps are never filled or dropped.", "MISSING_OBSERVATIONS")
             if len(series) < max(min_samples, 30, 5 * lag + 5):
                 raise StatisticsError("Insufficient observations for the requested Granger lag.", "INSUFFICIENT_SAMPLE")
             if (series.nunique() < 3).any():
@@ -292,6 +301,7 @@ class StatisticsTools:
                       "sample_end_period": str(series.iloc[-1][time_column]),
                       "source_start_period": source_start, "source_end_period": source_end,
                       "transform_dropped_periods": transform_dropped_periods,
+                      "edge_undefined_periods": edge_undefined_periods,
                       "test": "ssr_ftest",
                       "null_hypothesis": f"past {x} values through lag {lag} do not add predictive information for {y}",
                       "direction": f"past {x} adds predictive information for {y}"}
