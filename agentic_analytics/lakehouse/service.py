@@ -862,6 +862,10 @@ class LakehouseService:
                     schema.update(kind="ratio", unit="percent", scale=1, currency=None)
                 elif source["kind"] in {"rate", "ratio"} and source["unit"] in {"percent", "%"}:
                     schema.update(kind="difference", unit="percentage_points", scale=1, currency=None)
+                elif source["kind"] in {"stock", "count_stock"} and periods == 1:
+                    # S(t) - S(t-1) is the net change during period t; overlapping
+                    # multi-period changes are not additive and stay as they were.
+                    schema.update(kind="flow" if source["kind"] == "stock" else "count_flow", additive_over_time=True)
             elif op == "deflate":
                 index = operation["index"]
                 if not isinstance(index, str) or index not in schemas or schemas[index]["kind"] != "index" or schemas[index]["status"] != "ready":

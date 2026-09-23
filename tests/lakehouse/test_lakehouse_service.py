@@ -125,6 +125,19 @@ class LakehouseServiceTests(unittest.TestCase):
         frame, _ = self.store.load_analysis(result["analysis_id"])
         self.assertEqual(10, frame.iloc[0].change)
 
+    def test_one_period_change_of_a_stock_is_a_summable_flow(self):
+        from agentic_analytics.agent.tools.summary import SummaryTools
+        result = self.service.execute({**self.plan(), "columns": [self.add("credit"), self.add("count")], "operations": [
+            {"op": "difference", "column": "credit", "output": "change", "periods": 1},
+            {"op": "difference", "column": "count", "output": "count_change", "periods": 1},
+            {"op": "difference", "column": "credit", "output": "yearly_change", "periods": 12}]})
+        _, manifest = self.store.load_analysis(result["analysis_id"])
+        kinds = {name: manifest["schema"][name]["kind"] for name in ("change", "count_change", "yearly_change")}
+        self.assertEqual(kinds, {"change": "flow", "count_change": "count_flow", "yearly_change": "stock"})
+        summary = SummaryTools(self.store, self.workspace["workspace_id"]).summarize_analysis(
+            result["analysis_id"], columns=["change"], statistics=["sum"])
+        self.assertEqual("ok", summary["status"])
+
     def test_revisions_preserve_other_columns_and_parent_bytes(self):
         first = self.service.execute(self.plan(operations=[{"op": "growth", "column": "credit", "output": "yoy", "periods": 12}]))
         original, _ = self.store.load_analysis(first["analysis_id"])
