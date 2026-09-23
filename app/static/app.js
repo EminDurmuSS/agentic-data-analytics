@@ -1404,7 +1404,18 @@ function showExtraResults(result) {
   }
   if (records.length || result.message) {
     const ledger = el("details", null, "technical-details tool-ledger");
-    ledger.append(el("summary", "Teknik işlem kayıtları (" + records.length + ")"));
+    const summary = el("summary", null, "tool-ledger-summary");
+    summary.append(el("span", "Teknik işlem kayıtları (" + records.length + ")"));
+    const terminal = ["completed", "partial", "blocked", "failed", "needs_input", "interrupted"].includes(result.status);
+    if (terminal && result.run_id) {
+      const download = el("a", "JSON indir ↓", "tool-ledger-download");
+      download.href = base() + "/runs/" + encodeURIComponent(result.run_id) + "/technical-records";
+      download.download = "";
+      download.setAttribute("aria-label", "Bu oturumun teknik işlem kayıtlarını JSON olarak indir");
+      download.addEventListener("click", (event) => event.stopPropagation());
+      summary.append(download);
+    }
+    ledger.append(summary);
     let built = false;
     ledger.addEventListener("toggle", () => {
       if (!ledger.open || built) return;

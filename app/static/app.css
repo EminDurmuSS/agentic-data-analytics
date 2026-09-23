@@ -1050,6 +1050,19 @@ tbody tr:hover {
 .technical-details summary:focus-visible { outline: 2px solid #5279a8; outline-offset: 3px; }
 .technical-details pre { max-height: 330px; overflow: auto; white-space: pre-wrap; }
 .tool-ledger > .technical-details { margin-left: 14px; }
+.tool-ledger-summary { align-items: center; gap: 10px; }
+.tool-ledger-summary::marker { color: var(--muted, #647079); }
+.tool-ledger-download {
+  display: inline-block;
+  margin-left: 8px;
+  color: #0b3f82;
+  font-size: 10px;
+  font-weight: 650;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.tool-ledger-download:hover { color: #e65f00; }
+.tool-ledger-download:focus-visible { outline: 2px solid #5279a8; outline-offset: 3px; }
 .source-summary p { margin: 5px 0; }
 .source-card {
   border-bottom: 1px solid var(--line);

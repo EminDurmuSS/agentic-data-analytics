@@ -26,7 +26,7 @@ class VoiceContextError(ValueError):
 
 @dataclass(frozen=True)
 class VoiceBriefInput:
-    """Only source-bound facts that Qwen may use in a spoken summary."""
+    """Only source-bound facts that Model may use in a spoken summary."""
 
     workspace_id: str
     run_id: str
