@@ -408,6 +408,17 @@ class AgentRuntimeTests(unittest.TestCase):
         result = runtime.run("Kredi verisini aylık getir; stok veri olmamalı, o aydaki değişimi göstersin")
         self.assertEqual(result["status"], "completed", result.get("errors"))
 
+    def test_an_english_sentence_is_rewritten_once_and_never_blocks_delivery(self):
+        english = {**FINAL, "content": "I need to be direct about the situation before doing anything else. Kredi tablosu hazır."}
+        turkish = {**FINAL, "content": "Kredi tablosu hazır."}
+        runtime, client = self.runtime([call("execute", self.plan, "table"), english, turkish])
+        result = runtime.run("Kredi tablosunu göster")
+        self.assertEqual(result["status"], "completed")
+        self.assertNotIn("I need to be direct", result["message"])
+        self.assertIn("Türkçe", client.requests[-1][-1]["content"])
+        runtime, _ = self.runtime([call("execute", self.plan, "again"), english, english])
+        self.assertEqual(runtime.run("Kredi tablosunu tekrar göster")["status"], "completed")
+
     def test_verbose_discovery_stays_small_then_executes_and_continues_with_schema(self):
         service = LakehouseService(self.store, self.workspace_id)
         cards = [{"metric_id": "credit" if i == 0 else f"catalog:metric:{i}",

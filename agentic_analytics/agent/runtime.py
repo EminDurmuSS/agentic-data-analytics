@@ -778,6 +778,29 @@ def _unreadable(content):
     return foreign_count > 3 and foreign_count / len(letters) > 0.10
 
 
+_ENGLISH_FUNCTION_WORDS = {"the", "and", "to", "of", "this", "that", "with", "for", "before", "about", "anything",
+                           "else", "there", "which", "what"}
+# A subject or finite verb separates English prose from an English source title.
+_ENGLISH_PROSE_WORDS = {"i", "we", "you", "is", "are", "was", "were", "been", "have", "has", "need", "should",
+                        "would", "let", "doing", "cannot"}
+
+
+def _english_sentences(content):
+    """English sentences in a Turkish answer, outside quotes, links, code and tables."""
+    text = re.sub(r"\[[^\]]*\]\([^)]*\)|“[^”]*”|\"[^\"]*\"|‘[^’]*’|`[^`]*`|https?://\S+", " ", content)
+    found = []
+    for line in text.splitlines():
+        if line.lstrip().startswith("|"):
+            continue
+        for sentence in re.findall(r"[^.!?]+[.!?]?", line):
+            words = re.findall(r"[A-Za-zçğıöşüÇĞİÖŞÜ']+", sentence)
+            folded = {word.lower() for word in words}
+            if (len(words) >= 6 and not re.search(r"[çğıöşüÇĞİÖŞÜ]", sentence) and folded & _ENGLISH_PROSE_WORDS
+                    and len(folded & (_ENGLISH_FUNCTION_WORDS | _ENGLISH_PROSE_WORDS)) >= 3):
+                found.append(sentence.strip())
+    return found
+
+
 def _grounded_refusal(barren):
     """A completed, grounded 'not found' answer built from the barren-discovery
     signal, so a genuinely absent concept ends as a stated refusal rather than a
@@ -1850,6 +1873,13 @@ class AgentRuntime:
                         self.run_store.checkpoint(run_id, state)
                         if state["repairs"] > self.max_repairs:
                             return self._finish(record, state, "blocked", "Model okunabilir bir Türkçe cevap üretemedi.", errors=[{"code": "UNREADABLE_MODEL_OUTPUT", "message": "Final answer failed the charset/language readability check."}])
+                        continue
+                    if (not state.get("language_repair") and state["decisions"] < self.max_decisions
+                            and _english_sentences(content)):
+                        # One rewrite for an English slip; a repeated slip is still delivered.
+                        state["language_repair"] = True
+                        state["messages"].append({"role": "assistant", "content": "Önceki yanıtta İngilizce cümle vardı; aynı son cevabı yalnızca Türkçe yaz."})
+                        self.run_store.checkpoint(run_id, state)
                         continue
                     # Prefer a deterministic source-cell compilation over a
                     # second provider attempt with the same ambiguous import.

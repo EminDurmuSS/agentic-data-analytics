@@ -1,7 +1,7 @@
 """Guards for the final-answer readability gate and domain search aliases."""
 import unittest
 
-from agentic_analytics.agent.runtime import _unreadable, _web_research_message
+from agentic_analytics.agent.runtime import _english_sentences, _unreadable, _web_research_message
 from agentic_analytics.lakehouse.service import _search_terms, _term_matches
 
 
@@ -87,3 +87,20 @@ class WebResearchMessageTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class EnglishSlipTests(unittest.TestCase):
+    def test_finds_an_english_sentence_in_a_turkish_answer(self):
+        answer = ("I need to be direct about the situation before doing anything else.\n\n"
+                  "**Önce netleştirmem gereken bir nokta var:** ortada eklenecek bir tablo yok.")
+        self.assertEqual(_english_sentences(answer),
+                         ["I need to be direct about the situation before doing anything else."])
+
+    def test_keeps_source_titles_quotes_links_and_tables(self):
+        answer = ("TCMB Vehicle Loans (TRY) (Stock, %) serisi 33,59'dan 40,12'ye yükseldi.\n"
+                  "Raporda “Total assets increased by 12 percent in the year to December” ifadesi geçiyor.\n"
+                  "[Annual report of the bank for the year 2025](https://example.org/report.pdf)\n"
+                  "Kaynak: Annual Report of the Bank for the Year 2025\n"
+                  "| Period | Total assets of the bank in the year |\n| --- | --- |")
+        self.assertEqual(_english_sentences(answer), [])
+
