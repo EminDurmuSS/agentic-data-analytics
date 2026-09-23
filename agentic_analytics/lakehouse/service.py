@@ -20,6 +20,7 @@ import numpy as np
 import pandas as pd
 
 from agentic_analytics.lakehouse.store import LakehouseStore, StoreError, VersionConflict
+from agentic_analytics.lakehouse.source_contract import build_source_row_contract
 
 
 class PlanError(ValueError):
@@ -1530,10 +1531,34 @@ class LakehouseService:
                     lineage_issues.add(f"{binding['metric_id']}: raw source hash and locator are not both bound")
                 if "previous_cumulative_source_cells" in cell and not cell["previous_cumulative_source_cells"]:
                     lineage_issues.add(f"{binding['metric_id']} at {_label(at)}: previous cumulative source cell is unavailable")
-            explanation = {"column": name, "period": _label(at), "metric_id": binding["metric_id"], "contract_version": binding.get("contract_version"), "unit": binding.get("unit"), "scale": binding.get("scale"), "source_base": binding.get("source_base"), "hash_basis": binding.get("hash_basis", "file_bytes"), "source_sha256": binding.get("source_sha256"), "dataset_id": binding.get("dataset_id"), "source_namespace": binding.get("source_namespace"), "document_provenance": copy.deepcopy(binding.get("document_provenance")), "dimensions": proof["dimensions"], "alignment": proof["alignment"], "source_cells": source_cells}
+            # Normalize the exact source cells used for this leaf.  This is an
+            # observation-only integration: callers can see whether all
+            # locator fields exist before a later delivery gate relies on
+            # them.  It deliberately does not reject an otherwise valid
+            # analysis while legacy bindings are being migrated.
+            source_row_contracts = [
+                build_source_row_contract(
+                    binding, cell, column=name, period=_label(at),
+                    value=cell.get("source_value", cell.get("value")),
+                )
+                for cell in source_cells
+                if isinstance(cell, dict)
+            ]
+            explanation = {"column": name, "period": _label(at), "metric_id": binding["metric_id"], "contract_version": binding.get("contract_version"), "unit": binding.get("unit"), "scale": binding.get("scale"), "source_base": binding.get("source_base"), "hash_basis": binding.get("hash_basis", "file_bytes"), "source_sha256": binding.get("source_sha256"), "dataset_id": binding.get("dataset_id"), "source_namespace": binding.get("source_namespace"), "document_provenance": copy.deepcopy(binding.get("document_provenance")), "dimensions": proof["dimensions"], "alignment": proof["alignment"], "source_cells": source_cells, "source_row_contracts": source_row_contracts}
             if binding.get("source_cell_locator_policy"):
                 explanation["source_cell_locator_policy"] = copy.deepcopy(binding["source_cell_locator_policy"])
             return explanation
 
         proof = explain(column, period, len(operations))
-        return _json({"status": "ok", "analysis_id": request["analysis_id"], "snapshot_id": manifest["snapshot_id"], "column": column, "period": request["period"], "value": selected.iloc[0][column], "schema": manifest.get("schema", {}).get(column), "lineage": proof, "lineage_complete": not lineage_issues, "source_references_complete": not lineage_issues, "source_files_verified": False, "lineage_issues": sorted(lineage_issues)})
+
+        def collect_contracts(node):
+            if not isinstance(node, dict):
+                return []
+            contracts = list(node.get("source_row_contracts") or [])
+            for child in node.get("inputs") or []:
+                contracts.extend(collect_contracts(child))
+            return contracts
+
+        contracts_by_id = {contract["source_id"]: contract for contract in collect_contracts(proof)}
+        source_row_contracts = list(contracts_by_id.values())
+        return _json({"status": "ok", "analysis_id": request["analysis_id"], "snapshot_id": manifest["snapshot_id"], "column": column, "period": request["period"], "value": selected.iloc[0][column], "schema": manifest.get("schema", {}).get(column), "lineage": proof, "lineage_complete": not lineage_issues, "source_references_complete": not lineage_issues, "source_files_verified": False, "source_row_contracts": source_row_contracts, "source_row_contracts_complete": bool(source_row_contracts) and all(contract["complete"] for contract in source_row_contracts), "lineage_issues": sorted(lineage_issues)})

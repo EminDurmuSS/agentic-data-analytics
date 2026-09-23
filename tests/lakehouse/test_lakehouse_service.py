@@ -41,6 +41,11 @@ class LakehouseServiceTests(unittest.TestCase):
             binding = {"metric_id": metric, "title": "KOBİ " + metric, "source_system": "FIXTURE", "table": "observations", "time_column": "month", "value_column": "value", "filters": {"metric": metric}, "dimensions": {"group_code": "group_code"}, "native_frequency": frequency, "kind": kind, "unit": unit, "scale": scale, "currency": currency, "aggregation": "last", "source_base": "fixtures", "provenance_columns": ["source_file", "source_sha256", "source_row_index"], "status": status, "notes": [], "contract_version": "test-1"}
             if metric == "cpi":
                 binding.update(index_role="price_deflator", deflator_currency="TRY", price_scope="Fixture consumer basket")
+            if metric == "credit":
+                binding.update(
+                    official_series_url="https://example.test/credit-series",
+                    institution_scope="fixture_reporting_population",
+                )
             if metric == "other_population":
                 binding["institution_scope"] = "A different set of reporting institutions"
                 binding["geography_scope"] = "A different geographic population"
@@ -99,6 +104,18 @@ class LakehouseServiceTests(unittest.TestCase):
         self.assertEqual("2020-01", previous["period"])
         self.assertEqual(100, previous["source_cells"][0]["source_value"])
         self.assertEqual("a" * 64, previous["source_cells"][0]["source_sha256"])
+
+    def test_explanation_exposes_complete_normalized_source_row_contracts(self):
+        result = self.service.execute(self.plan("credit"))
+        proof = self.service.explain_value({"analysis_id": result["analysis_id"], "column": "credit", "period": "2021-01"})
+        contracts = proof["source_row_contracts"]
+        self.assertTrue(proof["source_row_contracts_complete"])
+        self.assertEqual(1, len(contracts))
+        self.assertTrue(contracts[0]["complete"])
+        self.assertEqual("2021-01", contracts[0]["period"])
+        self.assertEqual("credit", contracts[0]["column"])
+        self.assertEqual("a" * 64, contracts[0]["hash"])
+        self.assertEqual("https://example.test/credit-series", contracts[0]["url"])
 
     def test_missing_calendar_month_is_not_previous_available_row(self):
         result = self.service.execute(self.plan("gap", operations=[{"op": "growth", "column": "gap", "output": "mom"}]))
