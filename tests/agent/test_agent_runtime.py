@@ -354,6 +354,45 @@ class AgentRuntimeTests(unittest.TestCase):
         self.assertEqual(result["decisions"], 1)
         self.assertEqual(len(client.requests), 1)
 
+    def tool_names(self, options):
+        return {tool["function"]["name"] for tool in options["tools"]}
+
+    def test_dataset_request_over_lakehouse_series_is_delivered_as_the_saved_analysis(self):
+        from agentic_analytics.agent.tools.datasets import DatasetTools
+        runtime, client = self.runtime([call("plan_task", {"deliverables": ["analysis", "dataset"]}, "plan"),
+                                        call("execute", self.plan, "execute"), FINAL],
+                                       extra_tools=DatasetTools(self.store, self.workspace_id).extra_tools())
+        result = runtime.run("Kredi verileriyle aylık bir veri seti oluştur")
+        self.assertEqual(result["status"], "completed", result.get("errors"))
+        self.assertNotIn("aggregate_dataset", self.tool_names(client.options[0]))
+
+    def test_dataset_deliverable_still_requires_an_import_when_another_path_was_used(self):
+        tools = {"read_fixture_source": {"schema": {"type": "function", "function": {
+            "name": "read_fixture_source", "description": "Fixture source reader", "parameters": obj({}, [])}},
+            "handler": lambda args: {"status": "ok", "rows": [["2021-01", 100]]}}}
+        runtime, _ = self.runtime([call("plan_task", {"deliverables": ["analysis", "dataset"]}, "plan"),
+                                   call("read_fixture_source", {}, "read"), call("execute", self.plan, "execute"),
+                                   FINAL, FINAL], extra_tools=tools, max_repairs=0)
+        result = runtime.run("Kaynaktaki tabloyu veri seti olarak içeri al")
+        self.assertEqual(result["status"], "partial")
+        self.assertIn("TASK_DELIVERABLE_MISSING", {error["code"] for error in result["errors"]})
+
+    def test_aggregate_dataset_is_offered_once_the_workspace_has_a_dataset(self):
+        from agentic_analytics.agent.tools.datasets import DatasetTools
+        path = self.root / (self.workspace_id + ".csv")
+        path.write_text("date,id,value\n2021-01-03,A,10\n")
+        contract = {"name": "events", "frequency": "event", "date_column": "date", "key": ["date", "id"],
+                    "grain": ["date", "id"], "columns": {
+                        "date": {"dtype": "date", "unit": "calendar", "kind": "dimension", "nullable": False},
+                        "id": {"dtype": "string", "unit": "label", "kind": "dimension", "nullable": False},
+                        "value": {"dtype": "integer", "unit": "TRY", "scale": 1, "currency": "TRY", "kind": "flow",
+                                  "nullable": True}}}
+        self.store.ingest_csv(self.workspace_id, path, contract,
+                              expected_version=self.store.workspace(self.workspace_id)["version"])
+        runtime, client = self.runtime([FINAL], extra_tools=DatasetTools(self.store, self.workspace_id).extra_tools())
+        runtime.run("Veri setini özetle")
+        self.assertIn("aggregate_dataset", self.tool_names(client.options[0]))
+
     def test_verbose_discovery_stays_small_then_executes_and_continues_with_schema(self):
         service = LakehouseService(self.store, self.workspace_id)
         cards = [{"metric_id": "credit" if i == 0 else f"catalog:metric:{i}",

@@ -69,6 +69,12 @@ _SEARCH_FAILURES = {"SEARCH_NO_PROGRESS", "SEARCH_STRATEGY_EXHAUSTED", "SEARCH_U
 _RECOVERABLE_SEARCH_ERRORS = _SEARCH_FAILURES | {"INVALID_TOOL_ARGUMENTS", "RESEARCH_QUERY_SCOPE_MISMATCH"}
 _INSTITUTIONAL_REPAIR_TOOLS = {"research_web", "web_search", "inspect_source", "find_source_pages",
                                "read_source_table", "find_source_table_rows", "describe"}
+# Tools that only read lakehouse series or work on the saved analysis. A turn limited to
+# these never imports a source, so a requested "veri seti" is the saved analysis itself.
+_LAKEHOUSE_TABLE_TOOLS = {"plan_task", "discover", "describe", "dimension_values", "validate_plan", "execute",
+                          "query_grouped", "revise_analysis", "explain_value", "acquire_evds_series",
+                          "summarize_analysis", "create_chart", "rolling_anomalies", "detect_changes",
+                          "analyze_relationship"}
 
 
 def _fact_text(value):
@@ -912,7 +918,7 @@ class AgentRuntime:
         }, ["deliverables"])
         definitions["plan_task"] = {
             "schema": {"type": "function", "function": {"name": "plan_task", "parameters": parameters,
-                "description": "Declare only user-requested outputs. For an explicit common unit/scale request, include normalization:{same_unit_scale:true}; source-known columns and a requested target_scale may be added later. Before an analysis is saved, summary details are rejected until actual saved columns/native periods exist. Same-row ratios are analysis outputs, not period summaries. Retain all previous requirements, never weaken constraints. Use explanation alone only for educational examples."}},
+                "description": "Declare only user-requested outputs. dataset means importing a source table/file into the workspace; a 'veri seti' built from lakehouse series is analysis. For an explicit common unit/scale request, include normalization:{same_unit_scale:true}; source-known columns and a requested target_scale may be added later. Before an analysis is saved, summary details are rejected until actual saved columns/native periods exist. Same-row ratios are analysis outputs, not period summaries. Retain all previous requirements, never weaken constraints. Use explanation alone only for educational examples."}},
             "handler": lambda args: {"status": "ok", "task_plan": copy.deepcopy(args)},
         }
         return definitions
@@ -1023,6 +1029,9 @@ class AgentRuntime:
         if ("promote_dataset_to_shared_lakehouse" in self.tools
                 and not _shared_promotion_authorized(_current_request_message(state))):
             hidden.add("promote_dataset_to_shared_lakehouse")
+        if "aggregate_dataset" in self.tools and not self.store.workspace(self.workspace_id).get("datasets"):
+            # Without an imported dataset the call can only fail with DATASET_NOT_FOUND.
+            hidden.add("aggregate_dataset")
         return [definition["schema"] for name, definition in self.tools.items() if name not in hidden]
 
     def _search_recovery(self, state):
@@ -2258,7 +2267,7 @@ class AgentRuntime:
             "selection": _successful_selection(state),
             "chart": bool(state.get("chart_updated")),
             "sources": analysis_sources or any(result.get("sources") or result.get("source_id") for result in results),
-            "dataset": any(result.get("dataset_id") for result in results),
+            "dataset": any(result.get("dataset_id") for result in results) or self._lakehouse_table_turn(state),
             "statistics": any(item["tool"] in {"rolling_anomalies", "detect_changes", "analyze_relationship", "summarize_analysis"}
                               and item["result"].get("analysis_id") == state.get("analysis_id") for item in successful),
             "summary": False,
@@ -2297,6 +2306,19 @@ class AgentRuntime:
         return [{"code": "TASK_DELIVERABLE_MISSING", "deliverable": name,
                  "message": f"The declared task requires {name}; no matching completed output was produced."}
                 for name in required if not evidence[name]] + chart_coverage_errors
+
+    def _lakehouse_table_turn(self, state):
+        """A turn that saved an analysis using only lakehouse and analysis tools.
+
+        Users ask for a "veri seti" built from lakehouse series; that output is the saved
+        analysis. Any other tool, a selected source or an imported dataset keeps the
+        dataset deliverable bound to a real import.
+        """
+        if not state.get("analysis_updated") or state.get("selected_source_ids"):
+            return False
+        if self.store.workspace(self.workspace_id).get("datasets"):
+            return False
+        return all(item.get("tool") in _LAKEHOUSE_TABLE_TOOLS for item in state.get("tool_results", []))
 
     def _analysis_request_scope_errors(self, state):
         """Prevent a saved analysis from silently replacing an explicit year range."""
