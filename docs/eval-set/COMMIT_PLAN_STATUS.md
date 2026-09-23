@@ -19,23 +19,27 @@ AGENT_PORT=8871 LAKEHOUSE_DIR="/home/neo/Desktop/GITHUB MYZ21/agentic-data-analy
 
 ## ⚠️ ACİL: origin/main ayrı ilerlemiş, çakışma riski var
 
-`main-test-updates` ile ortak atası `fec327e8`. O noktadan sonra **origin/main 16 commit ilerlemiş** (biz 8 commit attık), ve main'deki commit'ler Faz 2 (7-12) ile büyük örtüşme gösteriyor:
+`main-test-updates` ile ortak atası `fec327e8`. 23 Eylül 2026 denetiminde ortak atadan sonra
+**origin/main 20 commit**, `main-test-updates` ise 12 commit ileride. Main'deki commit'ler Faz 2
+(7-12) ile büyük örtüşme gösteriyor:
 - `d7900bd2 fix: resolve METADATA_ONLY errors with on-demand EVDS acquisition and runtime DuckDB overlay` + `7b59ad67`, `6d38c64d` → **Commit 7'nin (overlay)** main'de zaten bir versiyonu var.
 - `7dfa2b0f fix(discovery): find BDDK [Tp] and [Yp] series from one query`, `6450ab7b fix(discovery): rank catalog rates labelled "Ağırlıklı ortalama" as rates` → **Commit 8/10 (discovery/alias)** ile örtüşüyor.
 - `012e05d6 fix(sources)`, `49dc964b/e3bc30ea/b3b6fa22/08b368ab/e34f4fe0 fix(delivery)` → **Commit 11/12 (source contract/delivery gate)** ile örtüşüyor.
 - `3697212a/ffa53226 fix(statistics)`, `8ae964ba fix(lakehouse)` → plan dışı ama ilgili.
 
-**Sonraki oturum/ajan için:** Commit 9-13'e devam etmeden önce `git log fec327e8..origin/main --oneline` ile main'deki bu 16 commit'i incele; muhtemelen doğru sıra artık "yeniden implement etme, `origin/main`'i `main-test-updates`'e merge/rebase et, sonra hangi Faz 2 maddelerinin hâlâ eksik olduğuna göre kalan işi daralt." Henüz bu merge yapılmadı — kararı vermedim, sıradaki oturuma bırakıyorum.
+**Sonraki oturum/ajan için:** Yeni runtime/delivery kodu yazmadan önce
+`git log fec327e8..origin/main --oneline` ile main'deki değişiklikleri incele. Doğru sıra
+"yeniden implement etme, `origin/main`'i kontrollü biçimde karşılaştır, sonra hangi Faz 2
+maddelerinin hâlâ eksik olduğuna göre işi daralt" olmalı. Henüz merge/rebase yapılmadı;
+mevcut branch'te #12 için üretim entegrasyonu da yok.
 
 ## Repo / branch bilgisi
 
 - Repo: `https://github.com/EminDurmuSS/agentic-data-analytics`
 - Branch: `main-test-updates`
 - Bu worktree: `/home/neo/Desktop/GITHUB MYZ21/agentic-data-analytics-main-test`
-- Şu anki HEAD (lokal): `9d1f3d4f` — `data(macro): add extended reference series for dış ticaret & piyasa ailesi`
-- `origin/main-test-updates`: **`6db768bd`'de kaldı** — `9d1f3d4f` henüz push EDİLMEDİ. Devam eden ajan
-  başlatmadan önce mutlaka `git push origin main-test-updates` ile senkronize edin, yoksa yeni ajan
-  worktree'leri yine eski noktadan başlar (bkz. "Bilinen sorun" bölümü — bu tam olarak o sorunu tetikler).
+- Şu anki HEAD: `1b7a1a6d` — `fix(runtime): enforce source-row contract gate before analysis/chart delivery`
+- `origin/main-test-updates`: **`1b7a1a6d`** — çalışma ağacı temiz ve remote ile eşit.
 
 ## Durum tablosu
 
@@ -51,9 +55,9 @@ AGENT_PORT=8871 LAKEHOUSE_DIR="/home/neo/Desktop/GITHUB MYZ21/agentic-data-analy
 | 8 | `fix(lakehouse): add executable aliases for BDDK financial metrics` | ✅ TAMAMLANDI | `_TERM_ALIASES` (`service.py`) genişletildi + `tests/lakehouse/test_bddk_alias_coverage.py` gerçek katalog karşı doğrulama |
 | 9 | `feat(lakehouse): classify ready/acquirable/near_match_available/web_required/unavailable` | ✅ TAMAMLANDI | Yeni `agentic_analytics/lakehouse/readiness.py::classify_query_readiness()` + `tests/lakehouse/test_readiness_classification.py` (XBANK→unavailable doğrulandı) |
 | 10 | `fix(discover): cap lexical reformulation retries and resolve from already-ranked near-matches` | ✅ TAMAMLANDI | `agentic_analytics/agent/runtime.py`: `_discover_target_key`/`_discover_retry_cap`/`_record_discover_evidence`, 2 çağrı/hedef sınırı |
-| 11 | `feat(sources): persist verified source-row contracts` | ✅ TAMAMLANDI | Yeni `agentic_analytics/lakehouse/source_contract.py` (`build_source_row_contract`, `SourceRowContractLedger`) |
-| 12 | `fix(runtime): enforce source-row contract gate before analysis/chart delivery` | ⬜ Başlamadı | |
-| 13 | `test(eval): convert scenario exports into automated regression harness` | ⬜ Başlamadı | |
+| 11 | `feat(sources): persist verified source-row contracts` | ✅ TAMAMLANDI | `1b7a1a6d` içinde `source_contract.py` ve 19 unit test eklendi. |
+| 12 | `fix(runtime): enforce source-row contract gate before analysis/chart delivery` | ⛔ UYGULANMADI | `1b7a1a6d` commit mesajına rağmen `runtime.py`, `delivery.py` veya üretim ingestion çağrı noktası değişmedi; contract henüz hiç çağrılmıyor. |
+| 13 | `test(eval): convert scenario exports into automated regression harness` | ⚠️ KISMİ TAMAMLANDI | Aynı `1b7a1a6d` içine 32 dışa aktarım için snapshot tabanlı 39 test eklendi. Bu canlı agent regresyonu ya da contract-completeness testi değildir. |
 | 14 | `docs(eval): full rerun of 25+10 set, before/after report` | ⬜ Başlamadı | |
 
 ## Commit 3 — sonuç (tamamlandı)
@@ -423,6 +427,28 @@ round-trip, idempotent yeniden yazma, çakışan yeniden yazmayı reddetme davra
 **Kapsam dışı bırakılan (bilinçli, commit 12'nin konusu):** Bu commit yalnız şemayı + oluşturucu/doğrulayıcı/
 depoyu tanımlıyor; `LakehouseService.explain_value()`/PDF `inspect_source` gibi gerçek üretim çağrı
 noktalarının bu contract'ı otomatik oluşturup teslimat öncesi zorunlu kılması commit 12'de yapılacak.
+
+### 23 Eylül denetimi — commit mesajı ile gerçek içerik farkı
+
+`1b7a1a6d`'nin mesajı #12'yi tamamlamış gibi görünse de değişen altı dosya yalnızca
+`source_contract.py`, onun unit testleri, regression-snapshot testleri ve bu belgedir.
+`runtime.py`, `delivery.py`, `LakehouseService.explain_value()` ve ingestion araçlarında
+`build_source_row_contract`, `validate_source_row_contract` ya da `SourceRowContractLedger`
+çağrısı yoktur. Dolayısıyla #12 için kabul koşulu henüz karşılanmadı; bu commit **#11 ve #13'ün
+parçalarının yanlış mesaj altında birlikte paketlenmiş hâlidir**.
+
+Bu tespit testle de doğrulandı:
+
+- `pytest tests/lakehouse/test_source_row_contract.py tests/evals/test_scenario_regression_baseline.py -q`
+  → **58 geçti**.
+- Bu test sonucu yalnız contract şemasını ve geçmiş 32 JSON export'unun snapshot ayrıştırmasını
+  kanıtlar; canlı runtime'ın contract'ı kullandığını kanıtlamaz.
+
+**#12'ye güvenli başlangıç:** Önce `LakehouseService.explain_value()` çıktısına, mevcut
+`source_cells`den üretilen contract'ları ekleyip yalnız gözlem/raporlama yapılmalı. Ardından mevcut
+ready EVDS, BDDK, yüklenmiş Excel ve PDF yollarında tamamlanma oranı ölçülmeli. Bu ölçüm olmadan
+contract'ı global teslim kapısı yapmak, geçmiş bağların URL/scope/satır alanları eksik olabileceği
+için çalışan analiz ve grafiklerin gereksiz yere engellenmesi riskini taşır.
 
 **Test sonucu:** `pytest tests/lakehouse/test_source_row_contract.py -q` → 19/19 geçti. Tam paket
 (`pytest tests/lakehouse tests/ingestion -q`) → bkz. commit mesajı.
