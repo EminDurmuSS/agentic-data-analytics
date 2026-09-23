@@ -66,7 +66,7 @@ def _activity(event):
     if kind == "run_started":
         title, detail = "Agent çalışması başlatıldı", "Soru için kayıtlı analiz akışı açıldı."
     elif kind == "model_request":
-        title = "Qwen modeli çağrılıyor"
+        title = "Model çağrılıyor"
         detail = f"Karar {payload.get('decision', '?')} için bir sonraki fonksiyon seçiliyor."
     elif kind == "model_response":
         if names:

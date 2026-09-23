@@ -96,6 +96,40 @@ class AgentAppTests(unittest.TestCase):
         self.assertEqual(response.status_code, 200, response.text)
         return response.json()
 
+    def test_technical_export_contains_every_prompt_in_the_conversation(self):
+        workspace = self.workspace("generic")
+        wid = workspace["workspace_id"]
+        first = self.context.run_store.start(wid, "Birinci prompt")
+        first_state = first["state"]
+        first_state["messages"].append({"role": "assistant", "content": "Birinci cevap"})
+        first_result = {"run_id": first["run_id"], "conversation_id": first["conversation_id"],
+                        "request_id": first["request_id"], "workspace_id": wid,
+                        "status": "completed", "message": "Birinci cevap", "errors": [],
+                        "tool_results": [{"tool": "plan_task", "result": {"status": "ok", "turn": 1}}]}
+        self.context.run_store.finish(first["run_id"], first_state, first_result)
+
+        second = self.context.run_store.start(wid, "İkinci prompt", conversation_id=first["conversation_id"])
+        second_state = second["state"]
+        second_state["messages"].append({"role": "assistant", "content": "İkinci cevap"})
+        second_result = {"run_id": second["run_id"], "conversation_id": second["conversation_id"],
+                         "request_id": second["request_id"], "workspace_id": wid,
+                         "status": "partial", "message": "İkinci cevap", "errors": [],
+                         "tool_results": [{"tool": "inspect_source", "result": {"status": "ok", "turn": 2}}]}
+        self.context.run_store.finish(second["run_id"], second_state, second_result)
+
+        response = self.client.get(
+            f"/api/workspaces/{wid}/runs/{second['run_id']}/technical-records")
+        self.assertEqual(response.status_code, 200, response.text)
+        payload = response.json()
+        self.assertEqual(payload["prompt_count"], 2)
+        self.assertEqual(payload["prompts"], ["Birinci prompt", "İkinci prompt"])
+        self.assertEqual([item["status"] for item in payload["conversation_runs"]],
+                         ["completed", "partial"])
+        self.assertEqual(payload["conversation_runs"][0]["technical_records"][0]["tool"], "plan_task")
+        self.assertEqual(payload["conversation_runs"][1]["technical_records"][0]["tool"], "inspect_source")
+        self.assertFalse(payload["conversation_runs"][0]["deliverables"]["analysis_table_available"])
+        self.assertFalse(payload["conversation_runs"][1]["deliverables"]["voice_summary_available"])
+
     def test_new_workspace_uses_new_database_release_and_old_workspace_keeps_snapshot(self):
         source = Path(self.temp.name) / "source.duckdb"
         shutil.copyfile(self.fixture_db, source)
