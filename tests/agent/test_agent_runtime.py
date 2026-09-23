@@ -394,6 +394,20 @@ class AgentRuntimeTests(unittest.TestCase):
         runtime.run("Veri setini özetle")
         self.assertIn("aggregate_dataset", self.tool_names(client.options[0]))
 
+    def test_request_that_excludes_stock_needs_monthly_changes(self):
+        runtime, client = self.runtime([call("execute", self.plan, "stock"), FINAL, FINAL])
+        result = runtime.run("Kredi verisini aylık getir; stok veri olmamalı, o aydaki değişimi göstersin")
+        self.assertEqual(result["status"], "partial")
+        flagged = [error for error in result["errors"] if error["code"] == "FLOW_REQUESTED"]
+        self.assertEqual(flagged[0]["columns"], ["credit"])
+        self.assertIn("FLOW_REQUESTED", client.requests[-1][-1]["content"])  # the model was asked to fix it
+
+    def test_monthly_changes_satisfy_a_request_that_excludes_stock(self):
+        plan = {**self.plan, "operations": [{"op": "difference", "column": "credit", "output": "credit_change", "periods": 1}]}
+        runtime, _ = self.runtime([call("execute", plan, "flow"), FINAL])
+        result = runtime.run("Kredi verisini aylık getir; stok veri olmamalı, o aydaki değişimi göstersin")
+        self.assertEqual(result["status"], "completed", result.get("errors"))
+
     def test_verbose_discovery_stays_small_then_executes_and_continues_with_schema(self):
         service = LakehouseService(self.store, self.workspace_id)
         cards = [{"metric_id": "credit" if i == 0 else f"catalog:metric:{i}",

@@ -77,6 +77,10 @@ _LAKEHOUSE_TABLE_TOOLS = {"plan_task", "discover", "describe", "dimension_values
                           "analyze_relationship"}
 
 
+# "stok veri olmamalı", "stok olmasın", "stok değil" (after _fact_text folding).
+_STOCK_EXCLUDED = re.compile(r"\bstok\w*\s+(?:veri\w*\s+|de[gğ]er\w*\s+|bakiye\w*\s+)?(?:olmamal|olmas[iı]n|de[gğ]il)")
+
+
 def _fact_text(value):
     return str(value or "").casefold().replace("ı", "i").replace("i\u0307", "i")
 
@@ -2248,7 +2252,7 @@ class AgentRuntime:
         plan = state.get("task_plan") or {}
         required = plan.get("deliverables", [])
         chart_coverage_errors = (self._chart_coverage_errors(state) + self._normalization_errors(state)
-                                 + self._analysis_request_scope_errors(state))
+                                 + self._analysis_request_scope_errors(state) + self._flow_request_errors(state))
         if not required:
             return chart_coverage_errors
         successful = [item for item in state.get("tool_results", []) if item.get("result", {}).get("status") == "ok"]
@@ -2344,6 +2348,30 @@ class AgentRuntime:
                      "actual_start": actual[0], "actual_end": actual[1],
                      "message": "The saved analysis period differs from the explicit year range in the user request; do not present it as the requested historical series."}]
         return []
+
+    def _flow_request_errors(self, state):
+        """A request that excludes stock values needs each saved stock column as a monthly change."""
+        if not _STOCK_EXCLUDED.search(_fact_text(state.get("request_message", ""))):
+            return []
+        analysis_id = state.get("analysis_id")
+        if not isinstance(analysis_id, str) or not state.get("analysis_updated"):
+            return []
+        try:
+            _, manifest = self.store.load_analysis(analysis_id)
+        except (OSError, ValueError, duckdb.Error):
+            return []
+        plan = manifest.get("plan") or {}
+        differenced = {operation.get("column") for operation in plan.get("operations", [])
+                       if operation.get("op") == "difference"}
+        sources = {column.get("name") for column in plan.get("columns", [])}
+        stocks = sorted(name for name, column in (manifest.get("schema") or {}).items()
+                        if name in sources and name not in differenced and column.get("kind") in {"stock", "count_stock"})
+        if not stocks:
+            return []
+        return [{"code": "FLOW_REQUESTED", "analysis_id": analysis_id, "columns": stocks,
+                 "message": "The request excludes stock values, but these saved columns are period-end balances without "
+                            "a monthly change: " + ", ".join(stocks) + ". Add difference operations (periods=1, "
+                            "prior_scope=available_history) so each month shows its own net change."}]
 
     def _normalization_errors(self, state):
         """Verify requested common-scale amounts against immutable analysis.
