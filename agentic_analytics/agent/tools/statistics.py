@@ -196,11 +196,19 @@ class StatisticsTools:
         window = _integer(window, 3, 120, "window")
         threshold = _number(threshold, 0.1, 100, "threshold")
         frame, manifest, frequency = self._load(analysis_id, [column], time_column)
-        values = frame[column].to_numpy()
+        values = frame[column].to_numpy(dtype=float)
+        # A saved monthly change has no first value; that edge shortens the scan and is reported.
+        finite = np.flatnonzero(np.isfinite(values))
+        edge_undefined_periods, offset = [], 0
+        if len(finite):
+            first, stop = finite[0], finite[-1] + 1
+            edge_undefined_periods = (frame[time_column].iloc[:first].astype(str).tolist()
+                                      + frame[time_column].iloc[stop:].astype(str).tolist())
+            frame, values, offset = frame.iloc[first:stop], values[first:stop], int(first)
         if len(values) < window * 2:
             raise StatisticsError("At least two complete windows are required.", "INSUFFICIENT_SAMPLE")
         if not np.isfinite(values).all():
-            raise StatisticsError("Change detection requires complete observations; no filling is applied.", "MISSING_OBSERVATIONS")
+            raise StatisticsError("Change detection requires complete observations; interior gaps are never filled.", "MISSING_OBSERVATIONS")
         candidates = []
         for index in range(window, len(values) - window + 1):
             left, right = values[index - window:index], values[index:index + window]
@@ -209,7 +217,7 @@ class StatisticsTools:
             shift = after - before
             score = abs(shift) / scale if scale > 0 else None
             if shift and (score is None or score >= threshold):
-                candidates.append({"period": str(frame.iloc[index][time_column]), "index": index,
+                candidates.append({"period": str(frame.iloc[index][time_column]), "index": index + offset,
                                    "median_before": before, "median_after": after, "shift": shift,
                                    "score": score, "evidence": "zero_within_window_mad" if score is None else "standardized_median_shift"})
         selected = []
@@ -219,7 +227,7 @@ class StatisticsTools:
         selected.sort(key=lambda row: row["index"])
         return self._persist(manifest, "adjacent_window_median_shift", {
             "column": column, "time_column": time_column, "frequency": frequency, "window": window, "threshold": threshold},
-            {"changes": selected, "sample_size": len(values)},
+            {"changes": selected, "sample_size": len(values), "edge_undefined_periods": edge_undefined_periods},
             ["Retrospective descriptive window scan; requires a full following window and does not provide change-point significance or causal attribution."])
 
     def analyze_relationship(self, analysis_id, x, y, *, time_column="period", lag=0,

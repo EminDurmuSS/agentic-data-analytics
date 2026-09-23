@@ -51,6 +51,13 @@ class AgentStatisticsTests(unittest.TestCase):
         with self.assertRaisesRegex(StatisticsError, "complete observations"):
             self.stats.detect_changes(missing, "value")
 
+    def test_change_scan_starts_after_an_undefined_first_change(self):
+        analysis = self.save([np.nan] + [10.0] * 17 + [30.0] * 18)
+        result = self.stats.detect_changes(analysis, "value", window=6)["results"]
+        self.assertEqual(result["edge_undefined_periods"], ["2000-01"])
+        # Indices refer to the saved analysis rows, as without the undefined edge.
+        self.assertTrue(any(abs(change["index"] - 18) <= 2 and change["shift"] == 20 for change in result["changes"]))
+
     def test_positive_lag_pairs_earlier_x_with_current_y(self):
         rng = np.random.default_rng(21)
         x = rng.normal(size=80)
