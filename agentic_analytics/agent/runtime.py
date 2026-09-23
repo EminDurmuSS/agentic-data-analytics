@@ -1793,7 +1793,16 @@ class AgentRuntime:
                     if result.get("status") in {"blocked", "error", "failed", "unavailable"}:
                         state["repairs"] += 1
                         self.run_store.checkpoint(run_id, state)
-                        if state["repairs"] > self.max_repairs or any(e.get("code") in {"UNKNOWN_MUTATION_OUTCOME", "NO_PROGRESS"} for e in result.get("errors", [])):
+                        # A repeated identical discover returns the candidates the model already has;
+                        # repeated describe/dimension_values keep their designed stops (e.g. row not found).
+                        repeated_lookup = (tool_name == "discover" and not state.get("navigation_stall_warned")
+                                           and result.get("errors")
+                                           and all(e.get("code") == "NO_PROGRESS" for e in result["errors"]))
+                        if repeated_lookup:
+                            # Let the model use what it already found; a second stall still ends the run.
+                            state["navigation_stall_warned"] = True
+                            state.get("unresolved_errors", {}).pop(tool_name, None)
+                        elif state["repairs"] > self.max_repairs or any(e.get("code") in {"UNKNOWN_MUTATION_OUTCOME", "NO_PROGRESS"} for e in result.get("errors", [])):
                             delivered = self._terminal_source_delivery(
                                 record, state, reason="tool_failure_source_delivery",
                                 warning_code="TOOL_FAILURE_AFTER_VERIFIED_SOURCE")

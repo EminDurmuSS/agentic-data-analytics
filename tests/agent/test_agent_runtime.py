@@ -419,6 +419,20 @@ class AgentRuntimeTests(unittest.TestCase):
         runtime, _ = self.runtime([call("execute", self.plan, "again"), english, english])
         self.assertEqual(runtime.run("Kredi tablosunu tekrar göster")["status"], "completed")
 
+    def test_a_repeated_discovery_warns_once_before_the_run_is_stopped(self):
+        query = {"query": "credit"}
+        runtime, _ = self.runtime([call("discover", query, "a"), call("discover", query, "b"),
+                                   call("discover", query, "c"), call("execute", self.plan, "x"), FINAL])
+        result = runtime.run("Kredi tablosunu göster")
+        self.assertEqual(result["status"], "completed", result.get("errors"))
+        stalled = [item for item in result["tool_results"] if item["call_id"] == "c"]
+        self.assertEqual(stalled[0]["result"]["errors"][0]["code"], "NO_PROGRESS")
+        runtime, client = self.runtime([call("discover", query, "a2"), call("discover", query, "b2"),
+                                        call("discover", query, "c2"), call("discover", query, "d2")])
+        result = runtime.run("Kredi tablosunu tekrar göster")
+        self.assertNotEqual(result["status"], "completed")
+        self.assertEqual(len(client.requests), 4)
+
     def test_verbose_discovery_stays_small_then_executes_and_continues_with_schema(self):
         service = LakehouseService(self.store, self.workspace_id)
         cards = [{"metric_id": "credit" if i == 0 else f"catalog:metric:{i}",
