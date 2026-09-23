@@ -1,0 +1,32 @@
+{
+  "status": "validated",
+  "series_code": "TP.ODEAYRSUNUM6.Q4",
+  "frequency": "AYLIK",
+  "aggregation": "sum",
+  "chunk_start": "2020-01-01",
+  "chunk_end": "2026-06-30",
+  "request_file": "raw/TP_ODEAYRSUNUM6_Q4_2020-01-01_2026-06-30_request.json",
+  "request_sha256": "931d42211d8edb26638dec19347b6bd218da3419d0d34d17cbe1983745f2b199",
+  "response_file": "raw/TP_ODEAYRSUNUM6_Q4_2020-01-01_2026-06-30_response.json.gz",
+  "response_sha256": "e4a36d5083df74c46ce1458d80e718b8e0d7c5623ca31ed0f7dfa5870c48331a",
+  "served_from_cache": false,
+  "http_status": 200,
+  "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "content_type": "application/json;charset=UTF-8",
+  "url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "started_at_utc": "2026-09-23T15:06:55.999338+00:00",
+  "completed_at_utc": "2026-09-23T15:06:56.244134+00:00",
+  "bytes": 12852,
+  "sha256": "e4a36d5083df74c46ce1458d80e718b8e0d7c5623ca31ed0f7dfa5870c48331a",
+  "transport": "curl",
+  "tls_verification": true,
+  "response_total_count": 78,
+  "retained_rows": 78,
+  "outside_requested_range_rows": 0,
+  "series_names": {
+    "TP_ODEAYRSUNUM6_Q4": "1.1.Dış Ticaret Dengesi"
+  },
+  "frequency_conversion": {
+    "TP.ODEAYRSUNUM6.Q4": true
+  }
+}

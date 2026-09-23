@@ -356,6 +356,12 @@ def evds_assets_and_metrics() -> tuple[list[dict[str, Any]], list[dict[str, Any]
             "description": "Verified core interest-rate controls: vehicle loan, commercial loan and short-term TL deposit rates.",
             "searchable_text": "EVDS tasit kredisi ticari kredi mevduat faiz orani vehicle commercial loan deposit rate",
         },
+        {
+            "directory": "extended_reference_v1",
+            "dataset_id": "evds.extended_reference_v1",
+            "description": "Extended macro/market reference series: trade balance, TCMB reserves, M1/M2/M3 money supply, agricultural PPI, gram gold price and bounced-check statistics.",
+            "searchable_text": "EVDS dis ticaret dengesi trade balance rezerv reserves para arzi money supply M1 M2 M3 tarim ufe agricultural ppi gram altin gold price karsiliksiz cek bounced check",
+        },
     ]
 
     catalog_summary = read_json(catalog_summary_path)

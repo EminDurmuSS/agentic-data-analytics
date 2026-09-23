@@ -1,0 +1,16 @@
+{
+  "dataset_id": "extended_reference_v1",
+  "description": "Dis ticaret dengesi, TCMB rezervleri, para arzi, Tarim-UFE, gram altin ve karsiliksiz cek serilerini ay ve ceyrek sonu analiz panellerine hizalama kurallari.",
+  "quarterly_to_monthly": "quarter_end_only",
+  "role_policies": {
+    "trade_balance": {"temporal_semantics": "flow", "subperiod_aggregation": "sum"},
+    "gross_fx_reserves": {"temporal_semantics": "stock", "subperiod_aggregation": "last"},
+    "net_international_reserves": {"temporal_semantics": "stock", "subperiod_aggregation": "last"},
+    "money_supply_m1": {"temporal_semantics": "stock", "subperiod_aggregation": "last"},
+    "money_supply_m2": {"temporal_semantics": "stock", "subperiod_aggregation": "last"},
+    "money_supply_m3": {"temporal_semantics": "stock", "subperiod_aggregation": "last"},
+    "agri_ppi": {"temporal_semantics": "index", "subperiod_aggregation": "mean"},
+    "bounced_check_amount": {"temporal_semantics": "flow", "subperiod_aggregation": "sum"},
+    "bounced_check_count": {"temporal_semantics": "flow", "subperiod_aggregation": "sum"}
+  }
+}

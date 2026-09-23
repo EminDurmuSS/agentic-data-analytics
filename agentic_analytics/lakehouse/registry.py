@@ -168,6 +168,10 @@ def build_bindings(connection: duckdb.DuckDBPyConnection) -> dict[str, dict[str,
                 "TP.KKM.K1":("TRY",1e9,"TRY","stock"),
                 "TP.KKM.K2":("USD",1e9,"USD","stock"),
                 "TP.KKM.K4":("USD",1e9,"USD","stock"),
+                "TP.ODEAYRSUNUM6.Q4":("USD",1e6,"USD","flow"),
+                "TP.MK.KUL.YTL":("TRY/gram",1.,"TRY","price"),
+                "TP.BTO3":("count",1.,None,"flow"),
+                "TP.BTO4":("TRY",1e3,"TRY","flow"),
             }
             if code in explicit and metric["dataset_id"] != "evds.full_catalog":
                 binding["unit"],binding["scale"],binding["currency"],binding["kind"] = explicit[code]

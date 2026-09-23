@@ -496,6 +496,7 @@ def build(output_path: Path, *, catalog_dir: Path | None = None) -> dict[str, An
             ("regional_housing_v1", "regional_housing"),
             ("household_finance_v1", "household_finance"),
             ("demo_core_rates_v1", "demo_core_rates"),
+            ("extended_reference_v1", "extended_reference"),
         ]:
             dataset_dir = PROJECT_ROOT / "data_pipeline" / "evds" / dataset_name
             parquet_tables.extend(

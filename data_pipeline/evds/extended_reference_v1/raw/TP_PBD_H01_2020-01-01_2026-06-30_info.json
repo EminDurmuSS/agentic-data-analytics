@@ -1,0 +1,32 @@
+{
+  "status": "validated",
+  "series_code": "TP.PBD.H01",
+  "frequency": "AYLIK",
+  "aggregation": "last",
+  "chunk_start": "2020-01-01",
+  "chunk_end": "2026-06-30",
+  "request_file": "raw/TP_PBD_H01_2020-01-01_2026-06-30_request.json",
+  "request_sha256": "fb9c8bd8bced6e06d6047deb6e18678382bc1d50177d9a76b649a70479a59008",
+  "response_file": "raw/TP_PBD_H01_2020-01-01_2026-06-30_response.json.gz",
+  "response_sha256": "bb96bf1caa9819f07ab94699d0444c137bafb786a6f3501feb3ad6dd74845a2b",
+  "served_from_cache": false,
+  "http_status": 200,
+  "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "content_type": "application/json;charset=UTF-8",
+  "url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "started_at_utc": "2026-09-23T15:07:03.353416+00:00",
+  "completed_at_utc": "2026-09-23T15:07:03.574287+00:00",
+  "bytes": 12946,
+  "sha256": "bb96bf1caa9819f07ab94699d0444c137bafb786a6f3501feb3ad6dd74845a2b",
+  "transport": "curl",
+  "tls_verification": true,
+  "response_total_count": 78,
+  "retained_rows": 78,
+  "outside_requested_range_rows": 0,
+  "series_names": {
+    "TP_PBD_H01": "1.M1"
+  },
+  "frequency_conversion": {
+    "TP.PBD.H01": true
+  }
+}

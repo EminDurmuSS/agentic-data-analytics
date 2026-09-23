@@ -1,0 +1,32 @@
+{
+  "status": "validated",
+  "series_code": "TP.AB.N06",
+  "frequency": "HAFTALIK(CUMA)",
+  "aggregation": "last",
+  "chunk_start": "2021-01-01",
+  "chunk_end": "2021-12-31",
+  "request_file": "raw/TP_AB_N06_2021-01-01_2021-12-31_request.json",
+  "request_sha256": "a68676cd1f40076aae729ec11b1a09abf3961684fbcc4e6a47d205d5fc132721",
+  "response_file": "raw/TP_AB_N06_2021-01-01_2021-12-31_response.json.gz",
+  "response_sha256": "fe0965501ca74d1e0f102c3afdaff781a9abb13d7e618076b3585231bb08c091",
+  "served_from_cache": false,
+  "http_status": 200,
+  "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "content_type": "application/json;charset=UTF-8",
+  "url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "started_at_utc": "2026-09-23T15:07:00.408908+00:00",
+  "completed_at_utc": "2026-09-23T15:07:00.682303+00:00",
+  "bytes": 10483,
+  "sha256": "fe0965501ca74d1e0f102c3afdaff781a9abb13d7e618076b3585231bb08c091",
+  "transport": "curl",
+  "tls_verification": true,
+  "response_total_count": 53,
+  "retained_rows": 53,
+  "outside_requested_range_rows": 0,
+  "series_names": {
+    "TP_AB_N06": "2A Net Uluslararası Rezervler (1+2+3)"
+  },
+  "frequency_conversion": {
+    "TP.AB.N06": true
+  }
+}
