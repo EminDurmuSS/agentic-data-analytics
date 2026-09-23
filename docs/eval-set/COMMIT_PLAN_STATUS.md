@@ -38,7 +38,7 @@ AGENT_PORT=8871 LAKEHOUSE_DIR="/home/neo/Desktop/GITHUB MYZ21/agentic-data-analy
 | 5 | `data(reference): add minimum wage decision lookup table` | ✅ TAMAMLANDI, commit atılacak | 8 karar dönemi (2021-2026), EVDS pattern'i bilinçli uygulanmadı — detay aşağıda |
 | 6 | `docs(eval): rerun benchmark 1-4 checkpoint` | ✅ TAMAMLANDI | Tüm 4 senaryonun sayısal bağımlılıkları `ready`; `docs/eval-set/benchmark-1-4-readiness-checkpoint.md` |
 | 7 | `feat(runtime): replace global on-demand overlay with workspace-scoped versioned acquisition store` | ✅ TAMAMLANDI | `tools/EVDS_Talep_Uzerine_Indirme_Araci.py` artık `--workspace` zorunlu, çıktı `on_demand/<workspace>/<hash>/`, fcntl kilidi; yeni `tools/promote_on_demand_series.py` terfi yolu |
-| 8 | `fix(lakehouse): add executable aliases for BDDK financial metrics` | ⬜ Başlamadı | |
+| 8 | `fix(lakehouse): add executable aliases for BDDK financial metrics` | ✅ TAMAMLANDI | `_TERM_ALIASES` (`service.py`) genişletildi + `tests/lakehouse/test_bddk_alias_coverage.py` gerçek katalog karşı doğrulama |
 | 9 | `feat(lakehouse): classify ready/acquirable/near_match_available/web_required/unavailable` | ⬜ Başlamadı | |
 | 10 | `fix(discover): cap lexical reformulation retries and resolve from already-ranked near-matches` | ⬜ Başlamadı | |
 | 11 | `feat(sources): persist verified source-row contracts` | ⬜ Başlamadı | |
@@ -262,6 +262,36 @@ sessizce kalıcı lakehouse'a sokma riski taşırdı.
 **Test sonucu:** `pytest tests/ingestion/test_evds_on_demand_workspace_scoping.py tests/ingestion/test_evds_on_demand.py -q`
 → 31/31 geçti. Tam paket (`pytest tests/lakehouse tests/ingestion -q`) yalnızca aynı 2 bilinen ilgisiz
 hata dışında geçti (aşağıda commit mesajında detay).
+
+## Commit 8 — sonuç (tamamlandı)
+
+**Bulgu:** `agentic_analytics/lakehouse/service.py::_search_terms()` içinde ZATEN kelime bazlı bir
+alias/crosswalk sözlüğü vardı (`npl`→`takip`, `mortgage`→`konut`, `stock`→`bakiye` gibi) — bu `discover`'ın
+gerçek entegrasyon noktasıydı, sıfırdan yeni bir mimari eklemeye gerek yoktu. Eksik olan: taşıt/vehicle,
+ticari/commercial, ihracat/export, KOBİ/sme, kredi kartı/card, sektör/sector, vade/maturity, döviz/currency,
+kurum/institution, kümülatif/cumulative, akım/flow gibi terimlerin İngilizce/İngilizce-kısaltma biçimleri
+sözlükte yoktu (Türkçe biçimleri zaten `_fold()` normalizasyonuyla başlık metniyle otomatik eşleşiyordu —
+"taşıt" → "tasit" → BDDK başlığı "Taşıt Kredisi" ile zaten eşleşir; eksik olan yalnızca yabancı dil/varyant
+girişleriydi).
+
+**Yapılan:** Sözlük fonksiyon içinden modül seviyesine (`_TERM_ALIASES`) taşındı (tek, incelenebilir,
+test edilebilir sabit) ve yukarıdaki terimler eklendi (aynı satırda). Ayrıca önceden var olan zararsız
+`"satis": "satis"` (kendine eşleme, no-op) girdisi temizlendi.
+
+**Test:** Yeni `tests/lakehouse/test_bddk_alias_coverage.py`:
+- Şema doğrulama: her alias anahtarı/değeri sınırlı, küçük harf, alfasayısal bir kimlik; hiçbir terim
+  kendine eşlenmiyor; commit'in belirttiği tüm hedef token'lar (`tasit, ticari, ihracat, kobi, kart, takip,
+  sektor, vade, doviz, kurum, kumulatif, akim, oran`) sözlükte gerçekten var.
+- Coverage (gerçek `analytics.duckdb` karşısında, yoksa `skip`): her yeni alias terimi için gerçek bir
+  `LakehouseService.discover()` çağrısı `status=ready` bir BDDK metriği döndürüyor mu doğrulanıyor
+  (`vehicle loan stock`→`bddk_finturk:table03:TasitKredisi`, `total sme loans`→table06 KOBİ metrikleri,
+  `credit card`→Kredi Kartları, vb.) — ölü/isabetsiz bir alias sessizce kalmıyor.
+
+**Kapsam dışı:** `ask_user`/orkestrasyon akışının kendisi (discover retry sınırlama, near-match'ten karar
+verme) bu commit'in değil, commit 10'un konusu; commit 8 yalnızca lexical eşleşme kapsamını genişletiyor.
+
+**Test sonucu:** `pytest tests/lakehouse/test_bddk_alias_coverage.py -q` → 6 passed, 9 subtests passed.
+Tam paket (`pytest tests/lakehouse tests/ingestion -q`) → bkz. commit mesajı.
 
 ## Kalan commit'ler için orijinal plan detayları
 
