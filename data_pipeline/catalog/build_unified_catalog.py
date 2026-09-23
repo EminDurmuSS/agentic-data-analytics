@@ -350,6 +350,12 @@ def evds_assets_and_metrics() -> tuple[list[dict[str, Any]], list[dict[str, Any]
             "description": "Selected KKM components and household savings deposits for housing-demand analysis.",
             "searchable_text": "EVDS KKM household savings deposits financial alternatives",
         },
+        {
+            "directory": "demo_core_rates_v1",
+            "dataset_id": "evds.demo_core_rates_v1",
+            "description": "Verified core interest-rate controls: vehicle loan, commercial loan and short-term TL deposit rates.",
+            "searchable_text": "EVDS tasit kredisi ticari kredi mevduat faiz orani vehicle commercial loan deposit rate",
+        },
     ]
 
     catalog_summary = read_json(catalog_summary_path)

@@ -1,0 +1,23 @@
+{
+  "dataset_id": "demo_core_rates_v1",
+  "description": "Benchmark Senaryo 1 icin dogrulanmis cekirdek EVDS faiz orani paketi: tasit kredisi, ticari kredi ve kisa vadeli TL mevduat faiz oranlari.",
+  "start_date": "2020-01-01",
+  "end_date": "2026-06-30",
+  "series": [
+    {
+      "series_code": "TP.BKR.TRY.17",
+      "role": "vehicle_loan_rate",
+      "reason": "Tasit kredisi (TL, Stok, %) faiz oranini konut kredisi karsilastirmasina eklemek"
+    },
+    {
+      "series_code": "TP.TRY.MT02",
+      "role": "short_term_deposit_rate",
+      "reason": "3 aya kadar vadeli TL mevduat faiz oranini alternatif getiri kanali olarak izlemek"
+    },
+    {
+      "series_code": "TP.BKR.TRY.1",
+      "role": "commercial_loan_rate",
+      "reason": "Ticari krediler (TL, Stok, %) faiz oranini konut kredisi karsilastirmasina eklemek"
+    }
+  ]
+}

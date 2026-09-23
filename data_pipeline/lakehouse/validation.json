@@ -6,9 +6,9 @@
     "contract_version": "1.0.0",
     "count": 55506,
     "status_counts": {
-      "metadata_only": 52099,
+      "metadata_only": 52096,
       "no_numeric": 14,
-      "ready": 2896,
+      "ready": 2899,
       "review_required": 497
     }
   },
@@ -283,8 +283,8 @@
   "risk_center_monthly_distinct_months": 66,
   "risk_center_monthly_rows": 66,
   "schema_count": 10,
-  "source_table_manifest_rows": 69,
+  "source_table_manifest_rows": 75,
   "status": "passed",
-  "table_count": 72,
+  "table_count": 78,
   "weekly_measurements_loaded": true
 }

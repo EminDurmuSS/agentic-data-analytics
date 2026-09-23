@@ -221,6 +221,8 @@ def build_bindings(connection: duckdb.DuckDBPyConnection) -> dict[str, dict[str,
             explicit = {
                 "TP.KTF12":("percent",1.,None,"rate"), "TP.BKR.TRY.18":("percent",1.,None,"rate"),
                 "TP.APIFON4":("percent",1.,None,"rate"), "TP.TIG08":("percent",1.,None,"rate"),
+                "TP.BKR.TRY.17":("percent",1.,None,"rate"), "TP.BKR.TRY.1":("percent",1.,None,"rate"),
+                "TP.TRY.MT02":("percent",1.,None,"rate"),
                 "TP.ALTINPIYASA.KAP02":("TRY/kg",1.,"TRY","price"),
                 "TP.ALTINPIYASA.KAP05":("TRY/gram",1.,"TRY","price"),
                 "TP.KKM.K1":("TRY",1e9,"TRY","stock"),
