@@ -22,7 +22,7 @@
 | 2 | `data(evds): add validated macro join pack` (TÜFE+KFE) | ✅ GEREKSİZ BULUNDU, atlandı | `TP.TUKFIY2025.GENEL` (TÜFE) ve `TP.KFE.TR` (KFE) zaten `ready` durumda, `housing_causality_v1` manifestinde `price_deflator` rolüyle önceden bağlı. Kod değişikliği gerekmiyor. |
 | 3 | `data(macro): add extended reference series for dış ticaret & piyasa ailesi` | ✅ TAMAMLANDI, commit atıldı (`9d1f3d4f`), **push edilmedi** | 10 seri eklendi, detay aşağıda |
 | 4 | `data(borsa): import official precious-metals monthly panel` | ✅ TAMAMLANDI, commit atılacak | EVDS `TP.ALTINPIYASA.HACM02`/`MIKT02` — detay aşağıda |
-| 5 | `data(reference): add minimum wage decision lookup table` | ⬜ Başlamadı | |
+| 5 | `data(reference): add minimum wage decision lookup table` | ✅ TAMAMLANDI, commit atılacak | 8 karar dönemi (2021-2026), EVDS pattern'i bilinçli uygulanmadı — detay aşağıda |
 | 6 | `docs(eval): rerun benchmark 1-4 checkpoint` | ⬜ Başlamadı | |
 | 7 | `feat(runtime): replace global on-demand overlay with workspace-scoped versioned acquisition store` | ⬜ Başlamadı | |
 | 8 | `fix(lakehouse): add executable aliases for BDDK financial metrics` | ⬜ Başlamadı | |
@@ -146,6 +146,68 @@ hata. 4 tane ek test 611→613 / 599→601 gibi hardcoded EVDS seri sayısı bek
 (commit 1/3'te de aynı desen); `data_pipeline/FILE_SHA256.json` yeniden üretildi
 (`python3 data_pipeline/build_file_manifest.py`). Yeni `tests/ingestion/test_evds_precious_metals_market.py`
 eklendi (7 test, `demo_core_rates`/`extended_reference` testleriyle aynı desen).
+
+## Commit 5 — sonuç (tamamlandı)
+
+`data_pipeline/catalog/evds_series_catalog.parquet` (52.696 satır) "Asgari" için arandı: yalnızca 2
+eşleşme var (`TP.KB.GEL0131`/`TP.KB.GEL0132`, "Yerel/Küresel Asgari Tamamlayıcı Kurumlar Vergisi" —
+OECD küresel asgari kurumlar vergisi bütçe kalemleri, asgari ücretle ilgisiz). Asgari ücretin kendisi
+EVDS'te yok — beklenen, çünkü ÇSGB/Resmi Gazete kaynaklı, TCMB değil. Bu yüzden görev talimatının
+söylediği gibi EVDS manifest deseni (Commit 1/3/4) **bilinçli olarak uygulanmadı**.
+
+**Eklenenler:**
+- `data_pipeline/evidence/reference/minimum_wage_decisions.json` — 8 karar dönemi, 2021-01-01'den
+  bugüne (2026, açık uçlu) kesintisiz kapsıyor:
+  - AUTK_2021: 2021-01-01–12-31, net 2.825,90 / brüt 3.577,50 TL, RG 30.12.2020 No 31350
+  - AUTK_2022_H1: 2022-01-01–06-30, net 4.253,40 / brüt 5.004,00 TL, RG 25.12.2021 No 31700
+  - AUTK_2022_H2 (ara zam): 2022-07-01–12-31, net 5.500,35 / brüt 6.471,00 TL, RG 01.07.2022 No 31883 Mükerrer
+  - AUTK_2023_H1: 2023-01-01–06-30, net 8.506,80 / brüt 10.008,00 TL, RG 29.12.2022 No 32058 (karar 2022/2, 22.12.2022)
+  - AUTK_2023_H2 (ara zam): 2023-07-01–12-31, net 11.402,32 / brüt 13.414,50 TL, RG 24.06.2023 No 32231
+  - AUTK_2024: 2024-01-01–12-31, net 17.002,12 / brüt 20.002,50 TL, RG 30.12.2023 No 32415
+  - AUTK_2025: 2025-01-01–12-31, net 22.104,67 / brüt 26.005,50 TL, RG 27.12.2024 No 32765 (doğrudan
+    resmigazete.gov.tr PDF'i bulundu ve kaynak olarak kullanıldı)
+  - AUTK_2026: 2026-01-01– (güncel, açık), net 28.075,50 / brüt 33.030,00 TL, RG 26.12.2025 No 33119
+  - Her satırın `gross_daily_try` alanı `gross_monthly_try/30`'a tam eşit (bağımsız iç tutarlılık kontrolü).
+- `data_pipeline/evidence/reference/minimum_wage_notes.md` — kaynak metodolojisi, EVDS kontrolü ve
+  agent tool discovery durumunun dürüst raporu.
+- `agentic_analytics/lakehouse/reference_data.py` — `load_minimum_wage_decisions()` /
+  `minimum_wage_for_date()`: küçük, test edilmiş, gerçek bir Python yükleyici.
+- `tests/ingestion/test_minimum_wage_reference.py` — 9 test: alan tamlığı, tarih aralığı sürekliliği
+  (boşluk/çakışma yok), net<brüt ve monoton artış, `gross_daily` tutarlılığı, `minimum_wage_for_date`
+  çözümlemesi, bozuk veri üzerinde sessiz yükleme yerine hata.
+
+**Veri doğruluğu (provenance) — dürüstlük kontrolü:** Sekiz kararın tamamı bu görev sırasında
+`WebSearch` aracıyla **canlı doğrulandı** (23 Eylül 2026), eğitim verisinden sessizce hatırlanmadı.
+2025 kaydı doğrudan resmigazete.gov.tr'nin arşivlenmiş PDF'ine karşı doğrulandı. Diğerleri ÇSGB'nin
+kendi duyuru sayfası veya en az iki bağımsız profesyonel kaynağın (PwC, Grant Thornton, Andersen,
+TÜRK-İŞ, KPMG, Lexpera Resmi Gazete tam metin portalı) aynı tarih/sayı ve tutarları teyit ettiği
+aramalarla doğrulandı. 2024 kaydının net tutarındaki kuruş hassasiyeti (17.002,12 TL), ilk arama
+yalnızca yuvarlak basın rakamı (17.002 TL) döndürdüğü için ayrı bir takip aramasıyla doğrulandı — bu,
+"emin olmadığım rakamı ekleme" ilkesinin nasıl uygulandığına somut bir örnek. Her satırda
+`verified_live: true`, `source_url` ve `source_note` alanları var; hiçbir rakam uydurulmadı.
+
+**Agent tool discovery — dürüst rapor:** `agentic_analytics/lakehouse/service.py`'nin
+`discover`/`describe`/`execute` araçları **yalnızca** `catalog.metric_bindings` üzerinden çalışır
+(`registry.py::build_bindings()`, ki bu yalnızca `catalog.metrics`'ten, yani EVDS/BDDK/TUIK/TBB kaynak
+adaptörlerinden beslenir). `data_pipeline/evidence/` klasörü — bu yeni dosya dahil, ama aynı zamanda
+**önceden var olan** `events.json`/`events/` de dahil — bu üç araçtan erişilebilir değil. `events.json`
+`build_unified_catalog.py::event_assets()` ile yalnızca `catalog.assets`'e (bir doğrulama/denetim
+tablosu, sorgulanabilir bir metrik değil) kaydediliyor ve `build_lakehouse.py`'de tek bir spesifik
+analiz adımına pandas join'iyle gömülüyor — yani mevcut desen de zaten "genel amaçlı agent-keşfedilebilir
+katalog" değil. `agentic_analytics/agent/tools/reference_catalogues.py` da incelendi: o mekanizma tüm
+bir lakehouse snapshot'ını (`catalog.metric_bindings` tabanlı) bir workspace'e iğnelemek için, tek bir
+küçük lookup tablosu eklemek için değil.
+
+Bu yüzden bu commit'te **tam wiring yapılmadı** (görev talimatının izin verdiği "derin runtime
+değişikliği kapsam dışı" yoluna gidildi): veri + gerçek, test edilmiş bir Python yükleyici eklendi;
+`discover`/`describe`/`execute` üzerinden sorgulanabilir hale getirmek ya `registry.py`'nin zaman-serisi
+varsayımlarını sonlu bir karar listesine zorlamayı (yanlış temsil olur) ya da servise yeni bir
+"reference lookup" tool tipi eklemeyi gerektirir — ikisi de ayrı bir mimari karar, bu commit'in kapsamı
+dışında bırakıldı ve `minimum_wage_notes.md`'de takip işi olarak belgelendi.
+
+**Test sonucu:** `tests/ingestion/test_minimum_wage_reference.py` → 9/9 geçti.
+`pytest tests/lakehouse tests/ingestion -q` → bkz. commit mesajı (yalnız aynı 2 öncesinden var/ilgisiz
+hata, yeni regresyon yok — bu commit hiçbir mevcut dosyayı değiştirmedi, yalnızca ekledi).
 
 ## Kalan commit'ler için orijinal plan detayları
 
