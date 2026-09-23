@@ -559,7 +559,7 @@ def model_messages(state, *, context_factory, charts_enabled, max_context_chars,
     for message in messages:
         message.pop("source_ids", None)  # Internal attachment metadata is supplied through the trusted context.
     current_turn = max((i for i, message in enumerate(messages) if message.get("role") == "user"), default=0)
-    call_names, call_arguments, discovery_messages = {}, {}, []
+    call_names, call_arguments, discovery_messages, discovery_results = {}, {}, [], {}
     source_navigation, publications = [], {}
     saved_analysis_metric_ids = set()
     # Reapply the compact view when resuming old journals created before
@@ -609,6 +609,7 @@ def model_messages(state, *, context_factory, charts_enabled, max_context_chars,
                 continue
             message["content"] = canonical(_model_tool_result("discover", result))
             discovery_messages.append((index, result))
+            discovery_results[message.get("tool_call_id")] = result
         if message.get("role") == "tool" and call_names.get(message.get("tool_call_id")) in {
                 "execute", "revise_analysis", "query_grouped", "aggregate_dataset"}:
             try:
@@ -707,8 +708,11 @@ def model_messages(state, *, context_factory, charts_enabled, max_context_chars,
     # schema, discovery cards are only navigation. Under pressure, retire them
     # before rejecting the final response. Durable tool results stay untouched.
     if len(system) + len(canonical(messages)) > max_context_chars and saved_analysis_metric_ids:
-        for index, result in discovery_messages:
-            if index < current_turn:
+        # Archiving and pruning above moved messages; find this turn's discoveries by call id.
+        latest_turn = max((i for i, message in enumerate(messages) if message.get("role") == "user"), default=0)
+        for index, message in enumerate(messages):
+            result = discovery_results.get(message.get("tool_call_id")) if message.get("role") == "tool" else None
+            if index < latest_turn or result is None:
                 continue
             reduced = canonical(_resolved_discovery_receipt(result, saved_analysis_metric_ids))
             if len(reduced) < len(messages[index]["content"]):
