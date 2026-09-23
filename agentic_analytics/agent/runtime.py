@@ -29,7 +29,7 @@ from agentic_analytics.agent.tools.documents import (
     OFFICIAL_SOURCE_REGISTRY, _consolidation_scope, _document_type, _requested_document_types,
 )
 from agentic_analytics.agent.tools.lakehouse import lakehouse_tools
-from agentic_analytics.lakehouse.discovery import initial_query
+from agentic_analytics.lakehouse.discovery import initial_query, query_intent
 from agentic_analytics.lakehouse.service import LakehouseService, PlanError, error_envelope
 from agentic_analytics.providers.mia import MiaError
 
@@ -1099,6 +1099,100 @@ class AgentRuntime:
                             unresolved[navigation] = remaining
                         else:
                             unresolved.pop(navigation, None)
+
+    @staticmethod
+    def _discover_target_key(query):
+        """Fold a discover() query into a stable target fingerprint.
+
+        Distinct lexical reformulations of the same underlying question
+        ("nakit kullanım hariç kredi kartı harcaması" vs "kredi kartı nakit
+        çekim hariç harcama tutarı") produce different tool-call arguments,
+        so the generic exact-duplicate NO_PROGRESS check never catches them:
+        the model can reword the same query 12-17 times before a budget
+        error discards all the near-match evidence it gathered along the
+        way (see docs/eval-set/COMMIT_PLAN_STATUS.md, commit 10). This uses
+        the same family/qualifier/meaning-term extraction discover() itself
+        uses for semantic ranking, so two reformulations of one target
+        collapse onto the same key even though their raw text differs.
+        """
+        intent = query_intent(query or "")
+        canonical_intent = {"families": sorted(intent.get("families") or []),
+                            "qualifiers": sorted(intent.get("qualifiers") or []),
+                            "meaning_terms": sorted(intent.get("meaning_terms") or [])}
+        return fingerprint(canonical_intent)
+
+    def _discover_retry_cap(self, state, args):
+        """Cap discover() at <=2 calls per distinct target within a run.
+
+        Returns ``None`` to let a normal (1st/2nd) call for this target
+        execute as usual. From the 3rd call for the same target onward, no
+        further discover() execution happens (no additional search/decision
+        budget is spent reformulating); instead this resolves deterministically
+        from the near-match evidence already accumulated across the first two
+        calls: a single low-ambiguity candidate is returned as resolved, more
+        than one plausible candidate asks the model to pose ONE question
+        naming them instead of continuing to reformulate, and zero candidates
+        is reported as a definitive gap. This mirrors the ready/acquirable/
+        near_match_available/web_required/unavailable states added in commit 9
+        (agentic_analytics/lakehouse/readiness.py) without requiring a second
+        discover call to compute them.
+        """
+        target_key = self._discover_target_key(args.get("query"))
+        targets = state.setdefault("discover_targets", {})
+        entry = targets.setdefault(target_key, self._new_discover_target_entry())
+        if entry["calls"] < 2 or entry["exact_match_found"]:
+            return None
+        candidates = list(entry["evidence"].values())
+        if not candidates:
+            return {"status": "ok", "metrics": [], "total": 0, "no_confident_match": True,
+                    "discover_retry_capped": True,
+                    "uncovered_terms": entry["uncovered_terms"],
+                    "near_matches": list(entry["near_matches"].values())[:6],
+                    "message": ("discover was already attempted twice for this target with no confident match "
+                                "and no near-match candidate. Further lexical reformulation was not executed. "
+                                "Report this as a genuine gap or use research_web/web_search instead of rewording this query again.")}
+        ready = [card for card in candidates if card.get("status") == "ready"]
+        distinct = {card["metric_id"]: card for card in (ready or candidates) if card.get("metric_id")}
+        if len(distinct) == 1:
+            card = next(iter(distinct.values()))
+            return {"status": "ok", "metrics": [card], "total": 1, "no_confident_match": False,
+                    "discover_retry_capped": True,
+                    "message": ("discover was already attempted twice for this target. Resolved automatically from "
+                                "the single low-ambiguity candidate already found instead of reformulating again.")}
+        ranked = list(distinct.values())[:6]
+        return {"status": "ok", "metrics": ranked, "total": len(distinct), "no_confident_match": True,
+                "discover_retry_capped": True,
+                "uncovered_terms": entry["uncovered_terms"],
+                "ambiguous_candidates": [card["metric_id"] for card in ranked],
+                "message": (f"discover was already attempted twice for this target without a single confident match; "
+                            f"{len(distinct)} plausible candidates remain from prior calls. Ask the user ONE question "
+                            "naming these candidates instead of calling discover again with reworded text.")}
+
+    @staticmethod
+    def _new_discover_target_entry():
+        return {"calls": 0, "evidence": {}, "near_matches": {}, "uncovered_terms": [], "exact_match_found": False}
+
+    def _record_discover_evidence(self, state, args, result):
+        """Accumulate discover() candidates per target so a capped retry can resolve from them."""
+        target_key = self._discover_target_key(args.get("query"))
+        targets = state.setdefault("discover_targets", {})
+        entry = targets.setdefault(target_key, self._new_discover_target_entry())
+        entry["calls"] += 1
+        if result.get("status") == "ok" and result.get("metrics") and not result.get("no_confident_match"):
+            # A genuine full match was found for this target; nothing left to cap.
+            entry["exact_match_found"] = True
+        for card in result.get("metrics") or []:
+            metric_id = card.get("metric_id") if isinstance(card, dict) else None
+            if metric_id and metric_id not in entry["evidence"]:
+                entry["evidence"][metric_id] = card
+        for card in result.get("near_matches") or []:
+            metric_id = card.get("metric_id") if isinstance(card, dict) else None
+            if metric_id and metric_id not in entry["near_matches"]:
+                entry["near_matches"][metric_id] = card
+        if result.get("uncovered_terms"):
+            # Keep the most recent non-empty set; later reformulations narrow
+            # the unresolved term better than the first attempt did.
+            entry["uncovered_terms"] = list(result["uncovered_terms"])
 
     @staticmethod
     def _unread_source_pages(progress):
@@ -2768,6 +2862,11 @@ class AgentRuntime:
                     result["recovery"] = self._search_recovery(state)
                     self.run_store.event(run_id, "tool_result", {"tool": name, "call_id": call["id"], "result": result})
                     return result
+                if name == "discover":
+                    capped = self._discover_retry_cap(state, args)
+                    if capped is not None:
+                        self.run_store.event(run_id, "tool_result", {"tool": name, "call_id": call["id"], "result": capped})
+                        return capped
                 if state["seen"].get(key, 0) >= 2:
                     source_id = args.get("source_id")
                     if (name in {"inspect_source", "read_source_table", "find_source_table_rows"} and not state.get("source_read_repair_used")
@@ -2814,6 +2913,8 @@ class AgentRuntime:
             else:
                 result = definition["handler"](args)
             result = _normalize_result(result)
+            if name == "discover":
+                self._record_discover_evidence(state, args, result)
             if name == "inspect_source" and _anonymous_source_boundary(result):
                 # One inaccessible page is not proof that every official route
                 # is inaccessible. Retain its access boundary and let the agent
