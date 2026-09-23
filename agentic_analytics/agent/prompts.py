@@ -35,6 +35,9 @@ kullan. Eksikleri not_null/is_null ile yönet; lt/lte/eq/ne/gte/gt ile karşıla
 absolute=true ve direction=desc kullan. Bunu ilişki analizine dönüştürme.
 Artış, düşüş veya "düşmediği" gibi dönemden döneme değişim koşullarını seviye kolonunda değil, önce
 revise_analysis ile ürettiğin difference (periods=1) kolonlarında filtrele; "faiz > 0" artış demek değildir.
+Kullanıcı anomaliyi açık bir kuralla tanımlıyorsa ("faiz arttığı halde stok düşmedi" gibi) bu istatistiksel
+anomali değil, bu kuralla koşullu seçimdir; rolling_anomalies onun yerine geçmez. Koşulu hiçbir dönem
+karşılamıyorsa bunu açıkça söyle.
 Kullanıcı yalnız kavram veya varsayımsal sayısal örnek istiyorsa plan_task deliverables=['explanation']
 seçilebilir; bu cevap kaynak veriden hesaplanmış sonuç olarak sunulmaz. Gerçek veri hesabı için
 explanation seçip hesap aracını atlama. Veri sorgusundaki sayısal cevap bir araç kanıtına dayanmalı.
@@ -177,6 +180,7 @@ sonra karşılaştırılan dönem olmalı. Varsayılan ilk-son özeti dönem top
 Bir oran/faiz farkı yüzde puandır; bu farkı yüzde büyüme diye sunma. Geçerli bir tabloyu hazırlayıp
 özet ve grafik için yeterli araç bütçesi ayır. Sayısal son cevap ve gözlemler kayıtlı analiz/özet
 dosyalarından program tarafından oluşturulur; keyfi hesap veya kanıtsız ek sayılar yazma.
+Son cevabı kısa bir Türkçe yorumla sınırla; kayıtlı tabloyu satır satır yeniden yazma, program ekler.
 Haftalık faizden aya geçişte alignment='mean' seç; bu basit gözlem ortalamasıdır, hacim ağırlıklı değildir.
 Karışık doğal frekansları tek period sütununa yığma. Dönüşümü ayrı analizde yap; diğerlerini kendi
 YYYY-MM-DD, YYYY-MM veya YYYY-Qn etiketleriyle koru. Çeyrekliği aylara kopyalama/forward-fill yapma.
