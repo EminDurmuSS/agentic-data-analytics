@@ -96,37 +96,66 @@ def _fold(value: str) -> str:
     return "".join(c for c in unicodedata.normalize("NFKD", value.casefold().replace("ı", "i")) if not unicodedata.combining(c))
 
 
+# Small, explicit vocabulary only. Search proposes candidates; it never
+# changes metric definitions, dimension values or readiness. Hoisted to module
+# level (commit 8) so it is a single reviewable, testable crosswalk instead of
+# a value rebuilt on every call; tests/lakehouse/test_bddk_alias_coverage.py
+# validates it against the real catalog.
+_TERM_ALIASES = {"unemployment": "issiz", "inflation": "enflasyon", "cpi": "tufe",
+           "deposits": "mevduat", "deposit": "mevduat", "gold": "altin",
+           "npl": "takip", "nonperforming": "takip", "takipteki": "takip",
+           "mortgage": "konut", "housing": "konut", "ratio": "oran", "orani": "oran",
+           "share": "pay", "payi": "pay", "profit": "kar", "profitability": "kar",
+           "loan": "kredi",
+           "credit": "kredi", "loans": "kredi", "capital": "sermaye",
+           "cash": "nakdi", "total": "toplam", "overall": "toplam", "balance": "bakiye", "outstanding": "bakiye",
+           "adequacy": "yeterli", "yeterlilik": "yeterli", "yeterliligi": "yeterli",
+           "issizlik": "issiz", "mevduati": "mevduat",
+           "kredisi": "kredi", "kredileri": "kredi", "krediler": "kredi",
+           "kredisinin": "kredi", "kredisini": "kredi", "kredilerinin": "kredi", "kredilerini": "kredi",
+           "stock": "bakiye", "stok": "bakiye", "stoku": "bakiye", "stoklari": "bakiye",
+           "bakiyesi": "bakiye", "bakiyeleri": "bakiye", "bakiyesini": "bakiye", "bakiyesinin": "bakiye", "bakiyeleriyle": "bakiye", "bakiyelerini": "bakiye",
+           "bulteni": "bulten", "bultenleri": "bulten", "bulletin": "bulten",
+           "kari": "kar", "karin": "kar", "karini": "kar", "karinin": "kar", "karlari": "kar",
+           "bank": "banka", "banks": "banka", "banking": "banka", "bankalar": "banka",
+           "bankalarin": "banka", "bankalarinin": "banka", "bankacilik": "banka", "bankaciligi": "banka",
+           "bankaciligin": "banka", "bankaciliginin": "banka", "sektoru": "sektor", "sektorunun": "sektor",
+           "satisi": "satis", "satislari": "satis", "satislarini": "satis",
+           "satislarinin": "satis", "satislar": "satis", "sales": "satis",
+           "endeksi": "endeks", "indices": "endeks", "index": "endeks",
+           "imkb": "bist", "ise": "bist", "il": "province", "iller": "province",
+           "illeri": "province", "ilinde": "province", "illerde": "province",
+           # --- BDDK executable-alias crosswalk (commit 8) ---
+           # Natural-language / English terms for BDDK financial metrics that
+           # would otherwise miss real, ready metric titles already present
+           # in the catalog (e.g. "Taşıt Kredisi", "İhracat Kredileri",
+           # "Toplam KOBİ Kredileri", "Bireysel Kredi Kartları"). Verified
+           # against catalog.metric_bindings in a fresh lakehouse build.
+           "vehicle": "tasit", "vehicles": "tasit", "auto": "tasit", "autos": "tasit",
+           "automobile": "tasit", "automobiles": "tasit", "car": "tasit", "cars": "tasit",
+           "tasiti": "tasit", "tasitlari": "tasit", "tasitin": "tasit",
+           "commercial": "ticari", "ticarinin": "ticari",
+           "export": "ihracat", "exports": "ihracat", "ihracatin": "ihracat", "ihracati": "ihracat",
+           "sme": "kobi", "smes": "kobi", "kobinin": "kobi",
+           "card": "kart", "cards": "kart", "karti": "kart", "kartlari": "kart", "kartlarindan": "kart",
+           "cumulative": "kumulatif", "kumulatifin": "kumulatif",
+           "flow": "akim", "flows": "akim", "akimi": "akim", "akimin": "akim",
+           "rate": "oran", "rates": "oran",
+           "maturity": "vade", "maturities": "vade", "vadeli": "vade", "vadesi": "vade",
+           "institution": "kurum", "institutions": "kurum",
+           "currency": "doviz", "currencies": "doviz",
+           "sector": "sektor", "sectors": "sektor",
+           "trade": "ticaret", "ticaretin": "ticaret",
+           "construction": "insaat", "insaatin": "insaat",
+           "wholesale": "toptan", "retail": "perakende",
+           "shortterm": "kisa", "short": "kisa", "longterm": "uzun", "long": "uzun"}
+
+
 def _search_terms(value: str) -> list[str]:
-    # Small, explicit vocabulary only. Search proposes candidates; it never
-    # changes metric definitions, dimension values or readiness.
-    aliases = {"unemployment": "issiz", "inflation": "enflasyon", "cpi": "tufe",
-               "deposits": "mevduat", "deposit": "mevduat", "gold": "altin",
-               "npl": "takip", "nonperforming": "takip", "takipteki": "takip",
-               "mortgage": "konut", "housing": "konut", "ratio": "oran", "orani": "oran",
-               "share": "pay", "payi": "pay", "profit": "kar", "profitability": "kar",
-               "loan": "kredi",
-               "credit": "kredi", "loans": "kredi", "capital": "sermaye",
-               "cash": "nakdi", "total": "toplam", "overall": "toplam", "balance": "bakiye", "outstanding": "bakiye",
-               "adequacy": "yeterli", "yeterlilik": "yeterli", "yeterliligi": "yeterli",
-               "issizlik": "issiz", "mevduati": "mevduat",
-               "kredisi": "kredi", "kredileri": "kredi", "krediler": "kredi",
-               "kredisinin": "kredi", "kredisini": "kredi", "kredilerinin": "kredi", "kredilerini": "kredi",
-               "stock": "bakiye", "stok": "bakiye", "stoku": "bakiye", "stoklari": "bakiye",
-               "bakiyesi": "bakiye", "bakiyeleri": "bakiye", "bakiyesini": "bakiye", "bakiyesinin": "bakiye", "bakiyeleriyle": "bakiye", "bakiyelerini": "bakiye",
-               "bulteni": "bulten", "bultenleri": "bulten", "bulletin": "bulten",
-               "kari": "kar", "karin": "kar", "karini": "kar", "karinin": "kar", "karlari": "kar",
-               "bank": "banka", "banks": "banka", "banking": "banka", "bankalar": "banka",
-               "bankalarin": "banka", "bankalarinin": "banka", "bankacilik": "banka", "bankaciligi": "banka",
-               "bankaciligin": "banka", "bankaciliginin": "banka", "sektoru": "sektor", "sektorunun": "sektor",
-               "satis": "satis", "satisi": "satis", "satislari": "satis", "satislarini": "satis",
-               "satislarinin": "satis", "satislar": "satis", "sales": "satis",
-               "endeksi": "endeks", "indices": "endeks", "index": "endeks",
-               "imkb": "bist", "ise": "bist", "il": "province", "iller": "province",
-               "illeri": "province", "ilinde": "province", "illerde": "province"}
     # Dots and colons are valid inside a metric code, but sentence punctuation
     # at a token edge must not become an impossible catalogue search term.
     words = [word.strip(".:") for word in re.findall(r"[a-z0-9_:.]+", _fold(value))]
-    return [aliases.get(word, word) for word in words if word]
+    return [_TERM_ALIASES.get(word, word) for word in words if word]
 
 
 # Only the non-"toplam"/"total"-prefixed aggregate token needs listing; the rest
