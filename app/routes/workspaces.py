@@ -2,15 +2,20 @@
 from __future__ import annotations
 
 import hashlib
+import json
 
 from fastapi import APIRouter, HTTPException
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, Response
 
 from app.activity import activity_feed, activity_journey
 from app.presentation import present_run
 from app.context import AppContext
 from app.models import RunBody, WorkspaceBody
 from app.serialization import browser_json
+from app.run_export import build_run_export, content_disposition
+from agentic_analytics.providers.mia import (
+    DEFAULT_MIA_CHAT_MODEL, DEFAULT_MIA_EMBEDDING_MODEL, DEFAULT_MIA_OCR_MODEL,
+)
 
 
 def create_router(context: AppContext) -> APIRouter:
@@ -18,7 +23,12 @@ def create_router(context: AppContext) -> APIRouter:
 
     @router.get("/api/status")
     def status():
-        return {"status": "ok", "provider_ready": context.client is not None, "finance_available": bool(context.source_db and context.source_db.is_file()), "models": {"chat": "kkbhackathon2026/Qwen3.8-27B", "embedding": "kkbhackathon2026/Qwen3-Embedding-8B", "ocr": "kkbhackathon2026/Unlimited-OCR"}}
+        client = context.client
+        return {"status": "ok", "provider_ready": client is not None,
+                "finance_available": bool(context.source_db and context.source_db.is_file()),
+                "models": {"chat": getattr(client, "chat_model", DEFAULT_MIA_CHAT_MODEL),
+                           "embedding": getattr(client, "embedding_model", DEFAULT_MIA_EMBEDDING_MODEL),
+                           "ocr": getattr(client, "ocr_model", DEFAULT_MIA_OCR_MODEL)}}
 
     @router.get("/api/workspaces")
     def workspaces():
@@ -65,6 +75,18 @@ def create_router(context: AppContext) -> APIRouter:
     @router.get("/api/workspaces/{workspace_id}/runs/{run_id}/followups")
     def followups(workspace_id: str, run_id: str):
         return browser_json(context.followups.get(workspace_id, run_id))
+
+    @router.get("/api/workspaces/{workspace_id}/runs/{run_id}/technical-records")
+    def technical_records(workspace_id: str, run_id: str):
+        try:
+            payload, filename = build_run_export(context, workspace_id, run_id)
+        except RuntimeError as error:
+            raise HTTPException(409, str(error)) from error
+        except ValueError as error:
+            raise HTTPException(404, str(error)) from error
+        body = json.dumps(payload, ensure_ascii=False, indent=2, allow_nan=False).encode("utf-8")
+        return Response(body, media_type="application/json; charset=utf-8", headers={
+            "Content-Disposition": content_disposition(filename), "Cache-Control": "no-store"})
 
     @router.post("/api/workspaces/{workspace_id}/runs/{run_id}/followups")
     def start_followups(workspace_id: str, run_id: str):

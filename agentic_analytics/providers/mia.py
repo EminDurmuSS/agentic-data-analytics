@@ -13,6 +13,20 @@ import urllib.request
 from urllib.parse import urlsplit
 
 
+DEFAULT_MIA_BASE_URL = "https://mia.csp.kloudeks.com/v1"
+DEFAULT_MIA_CHAT_MODEL = "deepseek-ai/DeepSeek-V4.1-Flash"
+DEFAULT_MIA_EMBEDDING_MODEL = "kkbhackathon2026/Qwen3-Embedding-8B"
+DEFAULT_MIA_OCR_MODEL = "kkbhackathon2026/Unlimited-OCR"
+
+
+def _configured(value, environment_name, default):
+    if value is None:
+        value = os.environ.get(environment_name) or default
+    if not isinstance(value, str) or not value.strip():
+        raise ValueError(f"{environment_name} must be a non-empty string")
+    return value.strip()
+
+
 class _NoRedirect(urllib.request.HTTPRedirectHandler):
     def redirect_request(self, request, fp, code, msg, headers, newurl):
         # Never forward the bearer header to a redirected host or endpoint.
@@ -29,13 +43,16 @@ class MiaError(RuntimeError):
 
 
 class MiaClient:
-    def __init__(self, api_key, base_url="https://mia.csp.kloudeks.com/v1", *,
-                 chat_model="deepseek-ai/DeepSeek-V4.1-Flash",
-                 embedding_model="kkbhackathon2026/Qwen3-Embedding-8B",
-                 ocr_model="kkbhackathon2026/Unlimited-OCR", timeout=60,
+    def __init__(self, api_key, base_url=None, *, chat_model=None,
+                 embedding_model=None, ocr_model=None, timeout=60,
                  max_retries=2, transport=None, sleeper=time.sleep):
         if not isinstance(api_key, str) or not api_key.strip():
             raise MiaError("MISSING_API_KEY", "MIA API anahtarı yapılandırılmamış.")
+        base_url = _configured(base_url, "MIA_BASE_URL", DEFAULT_MIA_BASE_URL)
+        chat_model = _configured(chat_model, "MIA_CHAT_MODEL", DEFAULT_MIA_CHAT_MODEL)
+        embedding_model = _configured(
+            embedding_model, "MIA_EMBEDDING_MODEL", DEFAULT_MIA_EMBEDDING_MODEL)
+        ocr_model = _configured(ocr_model, "MIA_OCR_MODEL", DEFAULT_MIA_OCR_MODEL)
         url = urlsplit(base_url)
         if url.scheme != "https" or not url.hostname or url.username or url.password or url.query or url.fragment:
             raise ValueError("base_url must be an operator-configured HTTPS URL")
