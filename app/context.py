@@ -295,11 +295,12 @@ class AppContext:
         tools.update(SharedLakehouseTools(self.store, workspace_id, shared=self.shared_lakehouse).extra_tools())
         tools.update(evds_acquisition_tools(acquire_evds_series, AcquisitionError))
         # Generous bounds so multi-step analyses reach execution; the finite cap still stops a looping model.
-        # The context budget stays well under the model's proven window (~72k tokens accepted; 150k chars ~= 49k)
-        # so context-heavy multi-source or explain-driven analyses are not cut off before they can finish.
+        # Measured 2026-09-23 on MIA DeepSeek-V4.1-Flash with max_tokens=8192: 205k-token prompts accepted,
+        # real content ~3.0 chars/token, tool schemas ~12.6k tokens outside this budget. 300k chars stay near
+        # 141k tokens even at 2.5 chars/token, well under the proven window.
         return AgentRuntime(self.store, workspace_id, self.client, self.run_store, extra_tools=tools,
                             available_catalogues=references.available_catalogues(),
-                            max_decisions=18, max_repairs=4, max_context_chars=150000, max_elapsed_seconds=900)
+                            max_decisions=18, max_repairs=4, max_context_chars=300000, max_elapsed_seconds=900)
 
     def submit(self, workspace_id, body: RunBody):
         if self.client is None:
