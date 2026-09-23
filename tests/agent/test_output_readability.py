@@ -96,6 +96,12 @@ class EnglishSlipTests(unittest.TestCase):
         self.assertEqual(_english_sentences(answer),
                          ["I need to be direct about the situation before doing anything else."])
 
+    def test_finds_short_english_sentences_and_contractions(self):
+        answer = ("I've exhausted the reasonable search paths. Let me summarize the situation honestly.\n\n"
+                  "## Sonuç: İstenen dosyaya ulaşılamadı")
+        self.assertEqual(_english_sentences(answer), ["I've exhausted the reasonable search paths.",
+                                                      "Let me summarize the situation honestly."])
+
     def test_keeps_source_titles_quotes_links_and_tables(self):
         answer = ("TCMB Vehicle Loans (TRY) (Stock, %) serisi 33,59'dan 40,12'ye yükseldi.\n"
                   "Raporda “Total assets increased by 12 percent in the year to December” ifadesi geçiyor.\n"

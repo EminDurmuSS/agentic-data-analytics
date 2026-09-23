@@ -779,7 +779,8 @@ def _unreadable(content):
 
 
 _ENGLISH_FUNCTION_WORDS = {"the", "and", "to", "of", "this", "that", "with", "for", "before", "about", "anything",
-                           "else", "there", "which", "what"}
+                           "else", "there", "which", "what", "me", "my", "it", "its", "be", "not", "but", "or",
+                           "if", "just", "also", "here", "now", "all", "any", "from", "by"}
 # A subject or finite verb separates English prose from an English source title.
 _ENGLISH_PROSE_WORDS = {"i", "we", "you", "is", "are", "was", "were", "been", "have", "has", "need", "should",
                         "would", "let", "doing", "cannot"}
@@ -793,10 +794,10 @@ def _english_sentences(content):
         if line.lstrip().startswith("|"):
             continue
         for sentence in re.findall(r"[^.!?]+[.!?]?", line):
-            words = re.findall(r"[A-Za-zçğıöşüÇĞİÖŞÜ']+", sentence)
+            words = re.findall(r"[A-Za-zçğıöşüÇĞİÖŞÜ]+", sentence)  # "I've" -> "I", "ve"
             folded = {word.lower() for word in words}
             if (len(words) >= 6 and not re.search(r"[çğıöşüÇĞİÖŞÜ]", sentence) and folded & _ENGLISH_PROSE_WORDS
-                    and len(folded & (_ENGLISH_FUNCTION_WORDS | _ENGLISH_PROSE_WORDS)) >= 3):
+                    and len(folded & (_ENGLISH_FUNCTION_WORDS | _ENGLISH_PROSE_WORDS)) >= 2):
                 found.append(sentence.strip())
     return found
 
