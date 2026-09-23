@@ -36,7 +36,7 @@ AGENT_PORT=8871 LAKEHOUSE_DIR="/home/neo/Desktop/GITHUB MYZ21/agentic-data-analy
 | 3 | `data(macro): add extended reference series for dış ticaret & piyasa ailesi` | ✅ TAMAMLANDI, commit atıldı (`9d1f3d4f`), **push edilmedi** | 10 seri eklendi, detay aşağıda |
 | 4 | `data(borsa): import official precious-metals monthly panel` | ✅ TAMAMLANDI, commit atılacak | EVDS `TP.ALTINPIYASA.HACM02`/`MIKT02` — detay aşağıda |
 | 5 | `data(reference): add minimum wage decision lookup table` | ✅ TAMAMLANDI, commit atılacak | 8 karar dönemi (2021-2026), EVDS pattern'i bilinçli uygulanmadı — detay aşağıda |
-| 6 | `docs(eval): rerun benchmark 1-4 checkpoint` | ⬜ Başlamadı | |
+| 6 | `docs(eval): rerun benchmark 1-4 checkpoint` | ✅ TAMAMLANDI | Tüm 4 senaryonun sayısal bağımlılıkları `ready`; `docs/eval-set/benchmark-1-4-readiness-checkpoint.md` |
 | 7 | `feat(runtime): replace global on-demand overlay with workspace-scoped versioned acquisition store` | ⬜ Başlamadı | |
 | 8 | `fix(lakehouse): add executable aliases for BDDK financial metrics` | ⬜ Başlamadı | |
 | 9 | `feat(lakehouse): classify ready/acquirable/near_match_available/web_required/unavailable` | ⬜ Başlamadı | |
