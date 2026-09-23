@@ -1,0 +1,29 @@
+{
+  "endpoint": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "dataset_id": "precious_metals_market_v1",
+  "manifest_file": "precious_metals_market_v1.json",
+  "manifest_sha256": "55d720d4a939eae6b595c652316dcce4a21c8476a96473bfc334ddf2f888d156",
+  "catalog_file": "evds_series_catalog.parquet",
+  "catalog_sha256": "ccdd130fb752defb99a295857b56e61b088f8c49708722f9b6e303f454e576da",
+  "start_date": "2020-01-01",
+  "end_date": "2026-06-30",
+  "series_count": 2,
+  "series_codes": [
+    "TP.ALTINPIYASA.HACM02",
+    "TP.ALTINPIYASA.MIKT02"
+  ],
+  "series_ranges": [
+    {
+      "series_code": "TP.ALTINPIYASA.HACM02",
+      "start_date": "2020-01-01",
+      "end_date": "2026-06-30"
+    },
+    {
+      "series_code": "TP.ALTINPIYASA.MIKT02",
+      "start_date": "2020-01-01",
+      "end_date": "2026-06-30"
+    }
+  ],
+  "transport": "curl",
+  "tls_verification": true
+}

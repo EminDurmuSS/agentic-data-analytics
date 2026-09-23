@@ -44,7 +44,7 @@ class UnifiedCatalogTests(unittest.TestCase):
     def test_evds_metadata_and_local_observations_are_not_confused(self):
         evds = self.metrics.loc[self.metrics["source_system"].eq("TCMB_EVDS")]
         self.assertEqual(52696, len(evds))
-        self.assertEqual(611, int(evds["observation_available"].sum()))
+        self.assertEqual(613, int(evds["observation_available"].sum()))
         legacy = evds.loc[evds["dataset_id"].eq("evds.legacy_native")]
         self.assertEqual(15, len(legacy))
         self.assertTrue(legacy["observation_available"].all())

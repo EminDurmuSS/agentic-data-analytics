@@ -139,7 +139,7 @@ def normalized_unit(source_unit: str) -> tuple[str, float, str | None]:
     return source_unit or "unknown", 1., None
 
 
-KNOWN_UNITS = {"TRY", "USD", "count", "person", "percent", "index", "day",
+KNOWN_UNITS = {"TRY", "USD", "count", "person", "percent", "index", "day", "kg",
                "TRY/m2", "TRY/gram", "TRY/kg", "TRY/person", "TRY/branch", "person/branch"}
 
 
