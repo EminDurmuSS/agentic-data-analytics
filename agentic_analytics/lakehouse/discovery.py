@@ -161,7 +161,11 @@ def semantic_profile(binding):
     kind, unit = binding.get("kind"), binding.get("unit")
     measure = ("count" if kind in {"count", "count_stock", "count_flow"} or unit in {"count", "persons", "person", "visits"}
                else "rate_or_ratio" if kind in {"rate", "ratio"} or unit in {"percent", "%", "ratio", "percentage_point"}
-               else "money" if binding.get("currency") and kind in {"stock", "flow"} else "other")
+               else "money" if binding.get("currency") and kind in {"stock", "flow"}
+               # EVDS often records an aggregation method ("Ağırlıklı ortalama") as the unit;
+               # the official title still marks a percentage.
+               else "rate_or_ratio" if kind in {None, "unknown"} and "%" in str(binding.get("title") or "")
+               else "other")
     families = _hits(FAMILIES, title)
     cash_class, inferred_cash = None, False
     slice_label = _fold(binding.get("value_dimension"))

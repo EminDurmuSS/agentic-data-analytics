@@ -37,6 +37,25 @@ class DiscoveryIntentTests(unittest.TestCase):
         self.service = LakehouseService(None, "synthetic-discovery")
         self.service._context = context
 
+    def test_catalog_rate_whose_unit_field_names_an_aggregation_is_still_a_rate(self):
+        # EVDS records "Ağırlıklı ortalama" (weighted average) as the unit of many rates.
+        profile = semantic_profile({"title": "3 Aya Kadar Vadeli (TL Mevduat, Akım, %)", "kind": "unknown",
+                                    "unit": "Ağırlıklı ortalama", "currency": None})
+        self.assertEqual(profile["measure"], "rate_or_ratio")
+
+    def test_weighted_average_deposit_rate_is_not_outranked_by_maximum_rate_siblings(self):
+        def metadata_only(code, title, unit, group, frequency):
+            return {"metric_id": "evds:" + code, "title": title, "group_name": group, "source_system": "TCMB_EVDS",
+                    "native_frequency": frequency, "kind": "unknown", "unit": unit, "currency": None, "scale": 1,
+                    "status": "metadata_only", "dimensions": {}, "binding_available": False}
+        self.bindings = {binding["metric_id"]: binding for binding in (
+            metadata_only("TP.TRY.MT02.S", "3 Aya Kadar Vadeli (TL, %)", "percent",
+                          "Bankalarca Mevduatlara Fiilen Uygulanan Azami Faiz Oranları", "monthly"),
+            metadata_only("TP.TRY.MT02", "3 Aya Kadar Vadeli (TL Mevduat, Akım, %)", "Ağırlıklı ortalama",
+                          "Mevduat Faiz Oranları (Akım)", "weekly_friday"))}
+        found = self.service.discover({"query": "3 aya kadar vadeli TL mevduat faiz oranları"})["metrics"]
+        self.assertEqual(found[0]["metric_id"], "evds:TP.TRY.MT02")
+
     def test_overall_credit_does_not_select_recipient_guarantee_or_novel_product_subset(self):
         for query in ("BDDK bankacılık sektörü toplam nakdi krediler bakiye aylık", "banking total cash loans balance monthly",
                       "BDDK toplam kredi tutarı", "aylık genel kredi bakiyesi"):
