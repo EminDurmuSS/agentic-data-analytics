@@ -56,6 +56,18 @@ class DiscoveryIntentTests(unittest.TestCase):
         found = self.service.discover({"query": "3 aya kadar vadeli TL mevduat faiz oranları"})["metrics"]
         self.assertEqual(found[0]["metric_id"], "evds:TP.TRY.MT02")
 
+    def test_a_query_naming_both_currency_slices_finds_each_slice(self):
+        # BDDK publishes each deposit measure as separate [Tp] and [Yp] series.
+        self.bindings = {key: {"metric_id": key, "title": title, "source_system": "BDDK_MONTHLY",
+                               "native_frequency": "monthly", "kind": "stock", "unit": "TRY", "currency": "TRY",
+                               "scale": 1, "status": "ready", "dimensions": {}, "value_dimension": slice_label}
+                         for key, title, slice_label in (("tp", "a) Vadesiz Mevduat [Tp]", "Tp"),
+                                                         ("yp", "a) Vadesiz Mevduat [Yp]", "Yp"),
+                                                         ("loan", "Tüketici Kredileri - Konut [Tp]", "Tp"))}
+        for query in ("BDDK mevduat TP YP vade", "BDDK mevduat Türk parası ve yabancı para"):
+            found = {metric["metric_id"] for metric in self.service.discover({"query": query})["metrics"]}
+            self.assertEqual({"tp", "yp"}, found, query)
+
     def test_overall_credit_does_not_select_recipient_guarantee_or_novel_product_subset(self):
         for query in ("BDDK bankacılık sektörü toplam nakdi krediler bakiye aylık", "banking total cash loans balance monthly",
                       "BDDK toplam kredi tutarı", "aylık genel kredi bakiyesi"):

@@ -159,6 +159,9 @@ def _term_matches(term: str, text: str, *, whole_word: bool = False) -> bool:
     return term in text or (len(term) >= 5 and term.endswith("i") and term[:-1] in text)
 
 
+_CURRENCY_SLICES = frozenset({"tp", "yp"})
+
+
 def _query_terms(value: str) -> tuple[list[str], set[str]]:
     """Separate query intent/calendar hints from searchable metric meaning."""
     stopwords = {"lutfen", "bana", "bir", "ve", "ile", "icin", "mi", "nedir", "ne", "kadar",
@@ -179,6 +182,8 @@ def _query_terms(value: str) -> tuple[list[str], set[str]]:
     frequency_hints = {"aylik": "monthly", "monthly": "monthly", "ceyreklik": "quarterly",
                        "quarterly": "quarterly", "haftalik": "weekly", "weekly": "weekly",
                        "gunluk": "daily", "daily": "daily", "yillik": "annual", "annual": "annual"}
+    # BDDK labels its currency slices [Tp] and [Yp]; users usually write them out.
+    value = re.sub(r"\byabanci\s+para\w*", " yp ", re.sub(r"\bturk\s+paras\w*", " tp ", _fold(value)))
     terms = _search_terms(value)
     return (list(dict.fromkeys(term for term in terms if term not in stopwords and term not in frequency_hints and not term.isdecimal())),
             {frequency_hints[term] for term in terms if term in frequency_hints})
@@ -507,6 +512,9 @@ class LakehouseService:
                 if binding.get("index_role") == "price_deflator":
                     searchable += " tufe enflasyon inflation cpi"
                 missing = [term for term in terms if not _term_matches(term, searchable)]
+                if _CURRENCY_SLICES <= set(terms) and len(_CURRENCY_SLICES & set(missing)) == 1:
+                    # Both slices were named; each series carries exactly one of them.
+                    missing = [term for term in missing if term not in _CURRENCY_SLICES]
                 matched_dimensions = {}
                 # Examine dimensions only for plausible metric candidates; a
                 # city-only query should use dimension_values after discovery.
