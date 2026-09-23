@@ -1843,7 +1843,7 @@ class AgentRuntime:
                 # The MIA live probe confirmed this server option avoids
                 # exhausting the bounded output on private reasoning alone.
                 tool_schemas = self._model_tool_schemas(state)
-                response = self.client.chat(messages, tools=tool_schemas, temperature=0, max_tokens=4096, enable_thinking=False)
+                response = self.client.chat(messages, tools=tool_schemas, temperature=0, max_tokens=8192, enable_thinking=False)
                 state.pop("source_read_repair_pending", None)
                 calls = response.get("tool_calls") or []
                 content = response.get("content")

@@ -148,7 +148,7 @@ class MiaClient:
         except (KeyError, IndexError, TypeError, ValueError):
             raise MiaError("INVALID_PROVIDER_RESPONSE", "Model yanıtının mesaj veya araç sözleşmesi geçersiz.") from None
 
-    def chat(self, messages, tools=None, *, temperature=0, max_tokens=4096,
+    def chat(self, messages, tools=None, *, temperature=0, max_tokens=8192,
              response_format=None, tool_choice=None, enable_thinking: bool | None = None):
         if not isinstance(messages, list) or not 1 <= len(messages) <= 200:
             raise ValueError("messages must contain between 1 and 200 messages")
@@ -185,7 +185,7 @@ class MiaClient:
             raise MiaError("INVALID_EMBEDDING_RESPONSE", "Embedding sırası veya sayısal değerleri geçersiz.") from None
 
     def image_chat(self, image_bytes, mime_type="image/png", *, ocr=False,
-                   response_format=None, prompt="Belgedeki tabloyu tarih, sayı ve birimleriyle çıkar.", max_tokens=4096):
+                   response_format=None, prompt="Belgedeki tabloyu tarih, sayı ve birimleriyle çıkar.", max_tokens=8192):
         if ocr:
             return self.ocr(image_bytes, max_tokens=max_tokens)
         if not isinstance(image_bytes, bytes) or not 0 < len(image_bytes) <= 8 * 1024 * 1024 or mime_type not in {"image/png", "image/jpeg"}:
@@ -194,7 +194,7 @@ class MiaClient:
             {"type": "image_url", "image_url": {"url": f"data:{mime_type};base64," + base64.b64encode(image_bytes).decode()}},
             {"type": "text", "text": prompt}]}], response_format=response_format, max_tokens=max_tokens)
 
-    def ocr(self, images, *, max_tokens=4096):
+    def ocr(self, images, *, max_tokens=8192):
         """Accept trusted image bytes, never model-selected paths or external URLs."""
         if isinstance(images, bytes):
             images = [images]
