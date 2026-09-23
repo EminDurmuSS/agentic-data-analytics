@@ -1,5 +1,18 @@
 # KKB Hackathon — 14 Commit'lik Plan: Durum ve Devam Rehberi
 
+## Proje kapsamı
+
+**Ne:** `agentic_analytics` — KKB Hackathon 2026 için bir agentic data analytics motoru. Kullanıcı doğal dilde finans sorusu soruyor (ör. "Taşıt kredisi tutarlarına faiz oranlarını ekle"); agent (`plan_task → discover → describe → execute` araç zinciri, Qwen/DeepSeek modeli) bunu yerel bir DuckDB lakehouse'unda (`data_pipeline/lakehouse/analytics.duckdb`, ~55.500+ metrik) sorgulayıp analiz tablosu/grafik üretiyor; lakehouse'ta yoksa `research_web` ile resmi kaynaklara (TCMB EVDS, BDDK, TÜİK, KAP, Borsa İstanbul) düşüyor.
+
+**Neden bu plan var:** `docs/eval-set/ASIL SORUN.md` ve `Downloads/SENARYO ÇIKTILARI VE ASIL PROBLEM/` altındaki 32 gerçek eval koşusunun analizinden çıkan teşhis — sistemin asıl sorunu veri yokluğu değil, "aday bulundu → doğrulanmış hücre → çalıştırılabilir dataset → analiz → grafik" zincirinin sistem genelinde tek bir sözleşmeyle temsil edilmemesi. 14 commit'lik plan bunu iki fazda çözüyor: **Faz 1** (commit 1-6) eksik ama gerçekten gerekli veriyi lakehouse'a ekliyor; **Faz 2** (commit 7-12) mimari/orkestrasyon açıklarını (global overlay, BDDK alias, discover retry storm, source-row contract) kapatıyor; **Faz 3** (13-14) bunu otomatik regresyon testine bağlıyor.
+
+**Repo/deploy:** Branch `main-test-updates`, worktree `agentic-data-analytics-main-test`. Docker: `docker-compose.main-test.yml`, `agent-app` servisi `LAKEHOUSE_DIR`'ı read-only bind-mount eder. **Kritik:** `analytics.duckdb` `.gitignore`'da — her ortam kendi `python3 data_pipeline/lakehouse/build_lakehouse.py`'sini çalıştırmalı, VE container'ı başlatırken `LAKEHOUSE_DIR` mutlaka **bu worktree'yi** (`.../agentic-data-analytics-main-test/data_pipeline/lakehouse`) göstermeli — başka bir klon/worktree'yi gösterirse (ör. `agentic-data-analytics` orijinal klonu) container yeni commit'leri görmez, `METADATA_ONLY` hataları devam eder. Doğru başlatma komutu:
+```bash
+AGENT_PORT=8871 LAKEHOUSE_DIR="/home/neo/Desktop/GITHUB MYZ21/agentic-data-analytics-main-test/data_pipeline/lakehouse" docker compose \
+  --env-file .env -p agentic-main-test -f docker-compose.main-test.yml \
+  up -d --build --force-recreate --no-deps agent-app
+```
+
 > Bu belge, `main-test-updates` branch'inde yürütülen 14 commit'lik planın anlık durumunu ve
 > başka bir ajan/oturumun kaldığı yerden devam edebilmesi için gereken tüm bağlamı içerir.
 > Kaynak tartışma: bu conversation'da `ASIL SORUN.md` + 32 eval JSON export'unun analizinden çıktı.
