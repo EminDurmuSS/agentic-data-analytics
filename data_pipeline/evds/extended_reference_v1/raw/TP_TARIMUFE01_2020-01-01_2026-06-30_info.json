@@ -1,0 +1,32 @@
+{
+  "status": "validated",
+  "series_code": "TP.TARIMUFE01",
+  "frequency": "AYLIK",
+  "aggregation": "avg",
+  "chunk_start": "2020-01-01",
+  "chunk_end": "2026-06-30",
+  "request_file": "raw/TP_TARIMUFE01_2020-01-01_2026-06-30_request.json",
+  "request_sha256": "a143395742bf973c8692455c7301eebf77ccf794985cd58022b81d88863934de",
+  "response_file": "raw/TP_TARIMUFE01_2020-01-01_2026-06-30_response.json.gz",
+  "response_sha256": "415ef5c35255d100095942f8d45d0cc683f1e273e65cbba440014777b2a93cba",
+  "served_from_cache": false,
+  "http_status": 200,
+  "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "content_type": "application/json;charset=UTF-8",
+  "url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "started_at_utc": "2026-09-23T15:07:04.841527+00:00",
+  "completed_at_utc": "2026-09-23T15:07:05.071396+00:00",
+  "bytes": 12157,
+  "sha256": "415ef5c35255d100095942f8d45d0cc683f1e273e65cbba440014777b2a93cba",
+  "transport": "curl",
+  "tls_verification": true,
+  "response_total_count": 78,
+  "retained_rows": 78,
+  "outside_requested_range_rows": 0,
+  "series_names": {
+    "TP_TARIMUFE01": "Tarım, Ormancılık ve Balıkçılık"
+  },
+  "frequency_conversion": {
+    "TP.TARIMUFE01": true
+  }
+}

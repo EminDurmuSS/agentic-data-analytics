@@ -1,0 +1,53 @@
+{
+  "dataset_id": "extended_reference_v1",
+  "description": "Genisletilmis makro/piyasa referans serileri: dis ticaret dengesi, TCMB rezervleri, M1/M2/M3 para arzi, Tarim-UFE ve gram altin fiyati.",
+  "start_date": "2020-01-01",
+  "end_date": "2026-06-30",
+  "series": [
+    {
+      "series_code": "TP.ODEAYRSUNUM6.Q4",
+      "role": "trade_balance",
+      "reason": "Odemeler dengesi tanimli net dis ticaret dengesini (milyon ABD dolari, aylik) izlemek; Q5/Q6 ihracat-ithalat bilesenleri degil net bakiye secildi."
+    },
+    {
+      "series_code": "TP.AB.N07",
+      "role": "gross_fx_reserves",
+      "reason": "TCMB haftalik vaziyet tablosundaki brut doviz rezervlerini (2A1) izlemek; arsivlenmis TP.AB.*07 varyantlari yerine guncel, arsiv-disi seri secildi."
+    },
+    {
+      "series_code": "TP.AB.N06",
+      "role": "net_international_reserves",
+      "reason": "TCMB haftalik vaziyet tablosundaki net uluslararasi rezervleri (2A) izlemek; arsivlenmis TP.AB.*06 varyantlari yerine guncel, arsiv-disi seri secildi."
+    },
+    {
+      "series_code": "TP.PBD.H01",
+      "role": "money_supply_m1",
+      "reason": "TCMB aylik para arzi tablosundaki M1 stok buyuklugunu izlemek; haftalik TP.HPBITABLO1.2 ve kur etkisinden arindirilmis endeks varyantlari yerine aylik ham stok secildi."
+    },
+    {
+      "series_code": "TP.PBD.H09",
+      "role": "money_supply_m2",
+      "reason": "TCMB aylik para arzi tablosundaki M2 stok buyuklugunu izlemek; haftalik ve kur-arindirilmis endeks varyantlari yerine aylik ham stok secildi."
+    },
+    {
+      "series_code": "TP.PBD.H17",
+      "role": "money_supply_m3",
+      "reason": "TCMB aylik para arzi tablosundaki guncel (2005/12 sonrasi) M3 stok buyuklugunu izlemek; 2005/11 oncesi kesik seri (TP.PBD.H23) ve haftalik/endeks varyantlari yerine guncel aylik ham stok secildi."
+    },
+    {
+      "series_code": "TP.TARIMUFE01",
+      "role": "agri_ppi",
+      "reason": "TUIK Tarim Urunleri Ureticileri Fiyat Endeksi'nin genel (Tarim, Ormancilik ve Balikcilik) ana endeksini izlemek; alt bilesenler (avcilik, ormancilik, balikcilik) yerine toplam endeks secildi."
+    },
+    {
+      "series_code": "TP.BTO4",
+      "role": "bounced_check_amount",
+      "reason": "Karsiliksiz cek tutarini (Bin TL, aylik) izlemek; adet serisi TP.BTO3 ayrica eklendi, Protestolu Senet EVDS katalogunda bulunamadi (atlandi, commit mesajinda belirtildi)."
+    },
+    {
+      "series_code": "TP.BTO3",
+      "role": "bounced_check_count",
+      "reason": "Karsiliksiz cek adedini (aylik) izlemek; tutar serisiyle (TP.BTO4) birlikte odeme sistemleri istatistiklerinin iki tamamlayici olcusu."
+    }
+  ]
+}

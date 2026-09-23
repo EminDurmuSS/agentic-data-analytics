@@ -1,0 +1,34 @@
+{
+  "status": "passed",
+  "dataset_id": "extended_reference_v1",
+  "source_series_count": 9,
+  "derived_series_count": 0,
+  "series_count": 9,
+  "monthly_period_count": 78,
+  "quarterly_period_count": 26,
+  "monthly_audit_rows": 702,
+  "quarterly_audit_rows": 234,
+  "quarterly_series_month_rows": 0,
+  "quarterly_series_filled_into_intermediate_months": 0,
+  "policy_file": "extended_reference_alignment_v1.json",
+  "value_status_counts": {
+    "monthly": {
+      "available": 546,
+      "available_calendar_unverified": 156
+    },
+    "quarterly": {
+      "available": 182,
+      "available_calendar_unverified": 52
+    }
+  },
+  "quality_policy": [
+    "Every aggregation method is selected through an explicit analytical role policy.",
+    "Quarterly observations appear only in quarter-end months in the monthly panel.",
+    "Flow sums require every expected native period and numeric value; incomplete sums remain null.",
+    "Partial means and last values retain completeness warnings, actual selected dates and staleness in days.",
+    "High-frequency calendar completeness is unverified unless a source-specific calendar is supplied.",
+    "Every panel value has an audit row with source, non-null and missing observation counts.",
+    "No interpolation, forward fill or backward fill is applied.",
+    "Derived series use explicit declarative operations and retain their source series code and factor."
+  ]
+}

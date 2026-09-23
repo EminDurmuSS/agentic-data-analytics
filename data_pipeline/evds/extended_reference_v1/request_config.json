@@ -1,0 +1,71 @@
+{
+  "endpoint": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "dataset_id": "extended_reference_v1",
+  "manifest_file": "extended_reference_v1.json",
+  "manifest_sha256": "fd53ee8a69c0c4880614c7dca8d8c3cf2c16f8bcea7978ecd43d758ee83c8c67",
+  "catalog_file": "evds_series_catalog.parquet",
+  "catalog_sha256": "ccdd130fb752defb99a295857b56e61b088f8c49708722f9b6e303f454e576da",
+  "start_date": "2020-01-01",
+  "end_date": "2026-06-30",
+  "series_count": 9,
+  "series_codes": [
+    "TP.ODEAYRSUNUM6.Q4",
+    "TP.AB.N07",
+    "TP.AB.N06",
+    "TP.PBD.H01",
+    "TP.PBD.H09",
+    "TP.PBD.H17",
+    "TP.TARIMUFE01",
+    "TP.BTO4",
+    "TP.BTO3"
+  ],
+  "series_ranges": [
+    {
+      "series_code": "TP.ODEAYRSUNUM6.Q4",
+      "start_date": "2020-01-01",
+      "end_date": "2026-06-30"
+    },
+    {
+      "series_code": "TP.AB.N07",
+      "start_date": "2020-01-01",
+      "end_date": "2026-06-30"
+    },
+    {
+      "series_code": "TP.AB.N06",
+      "start_date": "2020-01-01",
+      "end_date": "2026-06-30"
+    },
+    {
+      "series_code": "TP.PBD.H01",
+      "start_date": "2020-01-01",
+      "end_date": "2026-06-30"
+    },
+    {
+      "series_code": "TP.PBD.H09",
+      "start_date": "2020-01-01",
+      "end_date": "2026-06-30"
+    },
+    {
+      "series_code": "TP.PBD.H17",
+      "start_date": "2020-01-01",
+      "end_date": "2026-06-30"
+    },
+    {
+      "series_code": "TP.TARIMUFE01",
+      "start_date": "2020-01-01",
+      "end_date": "2026-06-30"
+    },
+    {
+      "series_code": "TP.BTO4",
+      "start_date": "2020-01-01",
+      "end_date": "2026-06-30"
+    },
+    {
+      "series_code": "TP.BTO3",
+      "start_date": "2020-01-01",
+      "end_date": "2026-06-30"
+    }
+  ],
+  "transport": "curl",
+  "tls_verification": true
+}

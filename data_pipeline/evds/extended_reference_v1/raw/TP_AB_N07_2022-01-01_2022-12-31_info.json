@@ -1,0 +1,32 @@
+{
+  "status": "validated",
+  "series_code": "TP.AB.N07",
+  "frequency": "HAFTALIK(CUMA)",
+  "aggregation": "last",
+  "chunk_start": "2022-01-01",
+  "chunk_end": "2022-12-31",
+  "request_file": "raw/TP_AB_N07_2022-01-01_2022-12-31_request.json",
+  "request_sha256": "ffadb57c64dbbb5840d0db64462e4638d6d06c028107ac861329abd85c2189dc",
+  "response_file": "raw/TP_AB_N07_2022-01-01_2022-12-31_response.json.gz",
+  "response_sha256": "a441b25406cf40f093cf6782c9985d982a65f58cc0a7aa85fef7b46c085976ac",
+  "served_from_cache": false,
+  "http_status": 200,
+  "final_url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "content_type": "application/json;charset=UTF-8",
+  "url": "https://evds3.tcmb.gov.tr/igmevdsms-dis/fe",
+  "started_at_utc": "2026-09-23T15:06:57.494099+00:00",
+  "completed_at_utc": "2026-09-23T15:06:57.718916+00:00",
+  "bytes": 10592,
+  "sha256": "a441b25406cf40f093cf6782c9985d982a65f58cc0a7aa85fef7b46c085976ac",
+  "transport": "curl",
+  "tls_verification": true,
+  "response_total_count": 53,
+  "retained_rows": 52,
+  "outside_requested_range_rows": 1,
+  "series_names": {
+    "TP_AB_N07": "2A1 Brüt Döviz Rezervleri"
+  },
+  "frequency_conversion": {
+    "TP.AB.N07": true
+  }
+}
